@@ -192,3 +192,52 @@ testability: PASSIVE
 [RISK] sync: 65 reason: mediator-*.threema.ch/{XX}/ pattern confirmed (WSS); critical for multi-device but auth model unenumerated
 [RISK] safe: 55 reason: safe-{XX}.threema.ch/ pattern confirmed; backup service high value but no live access yet
 [RISK] desktop-src: 75 reason: Electron app with embedded test/staging URLs + OnPrem config trust chain; source available for static analysis; RCE potential via preload/contextIsolation bypass
+## 2026-08-07 20:40:19 UTC [web] (model nemotron3)
+[PRIO] ds-apip.threema.ch, 8.6, attack=9 business=9 tech=8 gate=10 cloud=7 fresh=9
+[PRIO] threema-desktop (source), 7.8, attack=8 business=8 tech=9 gate=10 cloud=5 fresh=7
+[PRIO] api.threema.ch, 6.9, attack=7 business=7 tech=7 gate=9 cloud=6 fresh=6
+[HYP] ds-apip.threema.ch bulk identity enumeration via unauthenticated fetch_bulk + permissive CORS
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk
+confidence: 88
+reasoning: Verified POST /identity/fetch_bulk returns pubkeys for valid IDs without auth; permissive CORS (Access-Control-Allow-Origin: *) enables cross-origin exfiltration; no observable rate limit on 30 sequential POSTs at 1 rps (all HTTP 200).
+evidence_needed: Confirm bulk endpoint returns pubkey list for valid IDs in single request; verify CORS allows credentialed reads from attacker origin via Access-Control-Expose-Headers.
+verify_steps: PROBE: curl -s -w "\nHTTP %{http_code}\n" -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ","ABCD1234"]}' (≤1 rps); observe 200 with pubkeys for valid IDs.
+impact: Attacker enumerates valid Threema identities → pubkeys at scale for targeted phishing/social-engineering/recon. Severity: Medium-High (privacy breach + reconnaissance at scale).
+testability: PASSIVE
+[HYP] threema-desktop Windows key storage lacks ACL restrictions on keystorage.bin and keystorage.password.bin
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop `apps/desktop/src/common/node/key-storage/index.ts`
+confidence: 75
+reasoning: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — both `keystorage.bin` (Argon2id-encrypted) and `keystorage.password.bin` (DPAPI-protected) written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes.
+evidence_needed: Confirm Windows file creation path lacks explicit DACL/ACL hardening; verify DPAPI blob can be decrypted by any same-user process via CryptUnprotectData.
+verify_steps: RAG: read `apps/desktop/src/common/node/key-storage/index.ts` and `apps/desktop/src/common/node/key-storage/keystore.ts`; search for `fileModeInternalObjectIfPosix`, `safeStorage`, `writeFile`, `chmod`, `SetFileSecurity`.
+impact: Local attacker/same-user malware reads encrypted keystore + DPAPI password blob → offline brute-force or DPAPI decrypt → full account compromise. Severity: Medium (requires local access).
+testability: RAG
+[HYP] api.threema.ch ID enumeration via CORS misconfiguration (directory sibling of ds-apip)
+class: AUTH
+asset: https://api.threema.ch
+confidence: 55
+reasoning: api.threema.ch returns 403 with identical permissive CORS headers as ds-apip/apip (Access-Control-Allow-Origin: *, allows POST/GET/OPTIONS/DELETE). Confirmed as active directory server with `GET /identity/ECHOECHO` → 200 with same CORS. Likely shares vulnerable endpoints.
+evidence_needed: Discovery of directory endpoint paths (e.g., `/identity/{id}`, `/identity/fetch_bulk`) that accept unauthenticated requests and return user data on api.threema.ch.
+verify_steps: PASSIVE: GET https://api.threema.ch/identity/ECHOECHO — observe response code/body. PASSIVE: OPTIONS https://api.threema.ch/identity/ECHOECHO — confirm allowed methods. PASSIVE: POST https://api.threema.ch/identity/fetch_bulk with test identities.
+impact: Enumeration of valid Threema IDs → pubkeys at scale for targeted phishing/social-engineering/recon. Severity: Medium.
+testability: PASSIVE
+[PARKED] api.threema.ch ID enumeration via CORS misconfiguration: confidence 55 < 60 for AUTH class; no concrete passive evidence of vulnerable endpoint yet (only 403 on root and confirmed /identity/ECHOECHO 200); verify_steps speculative for bulk endpoint.
+[FINAL]
+[NEXT] PROBE: curl -s -w "\nHTTP %{http_code}\n" -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ","ABCD1234"]}' — confirm bulk-fetch returns pubkeys for valid IDs with no auth; then check Access-Control-Expose-Headers for CORS-based exfil.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch: Public `GET /identity/{id}` returns 200/404 oracle with permissive CORS and no observable rate limit — confirmed via passive probes.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch: Unauthenticated identity→pubkey oracle confirmed via GET /identity/{id} (200/404) AND POST /identity/fetch_bulk (returns pubkeys for valid IDs only, no auth).
+[LEARN] ACCEPTED AUTH @ apip.threema.ch: CORS misconfiguration confirmed — Access-Control-Allow-Origin: *, methods include POST/GET/OPTIONS/DELETE — cross-origin API probes enabled from any attacker origin.
+[LEARN] ACCEPTED OTHER @ api.threema.ch: Previously a "candidate ID/directory sibling"; now confirmed as an active directory server with identical endpoints and CORS headers as ds-apip.threema.ch.
+[LEARN] ACCEPTED OTHER @ threema-desktop: Electron attack surface confirmed in scope; static analysis is valid passive-first approach.
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in `determineKdfParams()`, derived key immediately purged, not used for any real encryption.
+[LEARN] REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not vulnerable.
+[LEARN] ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — `keystorage.bin` and `keystorage.password.bin` written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateLimit). CORS `*` with DELETE/POST/GET/OPTIONS. All three hostnames return identical pubkeys for valid IDs; invalid IDs silently omitted.
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: Staging directory server publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+[RISK] chat: 60 reason: g-*.0.threema.ch pattern still unknown; core messaging infra but no visible endpoints yet
+[RISK] web: 80 reason: ds-apip.threema.ch confirmed with public identity oracle + CORS*; work/broadcast/gateway/shop accessible with PHP sessions, CSP, Sentry; api.threema.ch sibling with same CORS
+[RISK] sync: 65 reason: mediator-*.threema.ch/{XX}/ pattern confirmed (WSS); critical for multi-device but auth model unenumerated
+[RISK] safe: 55 reason: safe-{XX}.threema.ch/ pattern confirmed; backup service high value but no live access yet
+[RISK] desktop-src: 75 reason: Electron app with embedded test/staging URLs + OnPrem config trust chain; source available for static analysis; RCE potential via preload/contextIsolation bypass

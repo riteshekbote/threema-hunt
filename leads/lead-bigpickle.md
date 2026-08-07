@@ -83,3 +83,31 @@ verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities m
 impact: cross-subscription disclosure of work-directory metadata (names, titles, departments, availability) → targeted phishing. Severity: medium.
 testability: AUTH_HELPED
 ## 2026-08-07 20:01:16 UTC [chat] (model bigpickle)
+## 2026-08-07 20:41:53 UTC [chat] (model bigpickle)
+[HYP] Safe backup server permissive CORS + unauthenticated probe surface
+class: MISCONFIG
+asset: safe-01.threema.ch (safe-*.threema.ch)
+confidence: 55
+reasoning: live nginx, 404 with app-level routing (154b vs 146b bodies), Access-Control-Allow-Origin `*`, Allow-Methods GET,HEAD,PUT,PATCH,POST,DELETE, HSTS+Expect-CT — same permissive-CORS posture as the already-confirmed directory servers. Threema Safe API serves `GET/PUT/DELETE /backup/{id}` where valid id+key → 200 and random → 404; multi-host same backend (safe-1a byte-identical 154b).
+evidence_needed: 404-vs-401 distinction on `/backup/{id}` (route exists vs auth-required), and absence of 429/Retry-After on repeated failed lookups → unauthenticated oracle + rate-limit posture.
+verify_steps: PASSIVE: 5× GET https://safe-01.threema.ch/backup/{random16} at 1s intervals logging full headers; GET https://safe-01.threema.ch/backup/ + OPTIONS preflight (already 204, CORS \*); compare body bytes vs safe-1a. ≤1 rps, no real IDs.
+impact: cross-origin page can probe backup existence and (with leaked backupKey) attempt PUT/DELETE overwrite of user backups; at minimum unauthenticated API surface on the backup service. Severity: low-medium.
+testability: PASSIVE
+[HYP] chat service hostname discoverable from in-scope client source
+class: OTHER
+asset: g-*.0.threema.ch (hostname pattern unresolved)
+confidence: 45
+reasoning: g-1-0…g-9-0 NXDOMAIN while other in-scope hosts resolve; real chat hostname must be defined in threema-android/threema-ios/threema-web connection config (in-scope static-analysis-valid); not resolvable by guesswork.
+evidence_needed: a hostname from client config that resolves and answers (TLS/WSS 4xx) under the g-*.0.chat pattern.
+verify_steps: RAG: grep threema-android/threema-ios/threema-web source for chat/connection server URL (ServerConfig, g-*.0.threema.ch, wss://), then DNS + single HEAD at ≤1 rps.
+impact: unlocks the core in-scope chat surface; severity n/a until hostname confirmed.
+testability: PASSIVE
+[HYP] mediator/rendezvous shared-edge 403 masks service-level routes
+class: MISCONFIG
+asset: mediator-1.threema.ch / rendezvous-1.threema.ch (203.56.112.247)
+confidence: 45
+reasoning: both hostnames → identical IP and byte-identical 403 across 4 paths; TLS terminates (403 not TLS error) so an edge nginx fronts both WSS services; per-account `{XX}/` paths are high-entropy and unguessable, so only unauthenticated edge routes are testable.
+evidence_needed: any path or Host variant returning ≠403 (health/version/well-known), or cert SAN overlap across mediator/rendezvous/safe IPs.
+verify_steps: PASSIVE: HEAD /health /status /version /.well-known/* with default + swapped Host headers at ≤1rps; `openssl s_client` SAN comparison across 203.56.112.247 and 203.56.112.231.
+impact: staging/edge exposure or cross-service virtual-host confusion; severity: low.
+testability: PASSIVE

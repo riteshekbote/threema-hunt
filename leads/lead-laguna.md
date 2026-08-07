@@ -140,3 +140,45 @@ testability: PASSIVE
 [RISK] sync: 60 — mediator-*.threema.ch and rendezvous-*.threema.ch patterns known from client config (vite.config.ts); WSS servers likely have auth but pattern not yet probed.
 [RISK] safe: 45 — safe-*.threema.ch pattern known from client config; safe.threema.ch timed out; staging pattern `safe-{backupIdPrefix8}.threema.ch` confirmed in vite.config.ts but not yet enumerated.
 [RISK] desktop-src: 75 — threema-desktop source confirmed in-scope; Electron BrowserWindow has `sandbox` not enabled (TODO DEK-79) and `nodeIntegrationInWorker: true` (TODO DEK-79) — known gaps, not active vulns. Windows key storage files lack ACL restrictions (confirmed via RAG). OnPrem config trust verified secure (Ed25519 sig verification). Staging hostname baked into builds exposes test infrastructure.
+## 2026-08-07 20:56:51 UTC [desktop] (model laguna)
+[PRIO] directory server IDOR (5 hosts: ds-apip/api/apip + .test), 8.8 — as:10 bv:9 tech:7 gate:10 cloud:5 fresh:10
+[PRIO] staging directory server exposure (2 hosts), 7.7 — as:8 bv:6 tech:8 gate:10 cloud:5 fresh:10
+[PRIO] threema-desktop key storage Windows ACL, 7.5 — as:8 bv:8 tech:7 gate:8 cloud:3 fresh:9
+[PRIO] work directory server CORS (ds-apip-work ±staging), 6.1 — as:6 bv:7 tech:6 gate:3 cloud:5 fresh:10
+[NEW] `apip.test.threema.ch` — staging directory server confirmed live: `GET /identity/ECHOECHO` → 200, `POST /identity/fetch_bulk` → 200, CORS `*`, HSTS, Expect-CT, returns identical pubkey data as production `ds-apip.threema.ch`
+[NEW] `ds-apip-work.threema.ch` (prod) — work directory server confirmed live: 401 on `/` + `/identity/{id}` + `/identity/fetch_bulk`(404), CORS `*` with DELETE/POST/GET/OPTIONS, no HSTS/Expect-CT
+[NEW] `ds-apip-work.test.threema.ch` (staging) — work directory server confirmed live: 401 on `/`, CORS `*`, no HSTS/Expect-CT
+[NEW] `work.test.threema.ch` (staging) — work web app confirmed live: 301 to `/en/login`, HSTS, Expect-CT, CSP with staged subdomain references
+[CHANGED] Production `apip.threema.ch` confirmed as full directory server sibling — `GET /identity/ECHOECHO` → 200 with identical pubkey data to `ds-apip.threema.ch` (was previously only confirmed as 403 on `/` at baseline)
+[CHANGED] HSTS/Expect-CT absence confirmed on ALL production directory + work API servers: `ds-apip.threema.ch`, `apip.threema.ch`, `api.threema.ch`, `ds-apip-work.threema.ch` all lack both headers, while staging directory servers (`ds-apip.test.threema.ch`, `apip.test.threema.ch`) include both
+[HYP] Directory server identity enumeration across 5 hostnames
+class: IDOR
+asset: ds-apip.threema.ch + api.threema.ch + apip.threema.ch + ds-apip.test.threema.ch + apip.test.threema.ch (GET /identity/{id}, POST /identity/fetch_bulk)
+confidence: 95
+reasoning: All 5 directory server hosts expose unauthenticated identity→pubkey lookup. GET /identity/{id} returns 200/404 oracle. POST /identity/fetch_bulk returns pubkeys for valid IDs only (invalid silently omitted). CORS Access-Control-Allow-Origin:* with DELETE/POST/GET/OPTIONS. 50 sequential POSTs at 1 rps (30 prod + 20 staging) → all HTTP 200, zero 429/RateLimit/Retry-After headers. Response times stable ~300-340ms (no throttling). Production hosts lack HSTS/Expect-CT; staging hosts include both but identical CORS exposure.
+evidence_needed: Sustained burst >50 req/min; confirm bulk-fetch silently omits invalid IDs vs. error response.
+verify_steps: PROBE: curl -s -w "\nHTTP %{http_code}\n" -X POST https://ds-apip.test.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ","ABCD1234","INVALID"]}' (≤1 rps); verify response JSON contains only ECHOECHO (invalid IDs omitted) with no 429.
+impact: Mass enumeration of all valid Threema identities → public keys at scale for targeted phishing/social-engineering and offline crypto attacks. Severity: medium.
+testability: PASSIVE
+[HYP] Staging directory server public exposure + HSTS/header inconsistency
+class: MISCONFIG
+asset: apip.test.threema.ch + ds-apip.test.threema.ch (staging directory servers, baked into vite.config.ts)
+confidence: 65
+reasoning: apip.test.threema.ch (NEW, not in prior KB) confirmed as full directory server sibling with identical API surface + CORS * + identity→pubkey oracle as production, plus HSTS + Expect-CT headers. Staging returns identical pubkey data for ECHOECHO (no test accounts found in batch comparison). Production directory servers lack HSTS/Expect-CT while staging includes both — inconsistent defense-in-depth posture. Staging /.well-known/* paths return 403 (nginx deny) while production returns 404.
+evidence_needed: Diff all API response fields between staging and production for same valid identity; enumerate 20+ identity candidates on staging-only to detect test accounts.
+verify_steps: PROBE: diff <(curl -s -D - -X POST https://apip.test.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO"]}') <(curl -s -D - -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO"]}') ; then PROBE: enumerate 20 random identity candidates on apip.test vs ds-apip to detect staging-only accounts.
+impact: Staging infrastructure exposure; potential test accounts, debug endpoints, or pre-release features; staging without rate limiting = fallback enumeration vector if production is ever protected. Severity: low-medium.
+testability: PASSIVE
+[HYP] Desktop Windows key storage ACL bypass
+class: MISCONFIG
+asset: apps/desktop/src/common/node/key-storage/index.ts + apps/desktop/src/electron/electron-main.ts + apps/desktop/src/common/node/fs.ts
+confidence: 75
+reasoning: fileModeInternalObjectIfPosix() returns {} on Windows (no POSIX mode set), so keystorage.bin is written with default Windows ACLs (no restriction). _writeOrOverrideFile() in index.ts passes this empty object to fsPromises.writeFile(). Password file keystorage.password.bin is encrypted via electron.safeStorage.encryptString() (DPAPI on Windows) but is also written with fileModeInternalObjectIfPosix() → no ACL restriction. Any same-user process can read both files and decrypt the password via DPAPI, then use it to decrypt the Argon2id-encrypted keystorage.bin containing private keys and DB encryption key.
+evidence_needed: Confirm on real Windows: (1) icacls on keystorage.bin and keystorage.password.bin after app init; (2) cross-process read of keystorage.password.bin succeeds and electron.safeStorage.decryptString() works from another same-user process.
+verify_steps: HUMAN_ONLY: on Windows, launch Threema Desktop, enter/create a profile. From a separate process running as the same user: run icacls %APPDATA%\ThreemaDesktop\*\data\keystorage.password.bin, then CryptUnprotectData via Python win32crypt to recover the plaintext password, then attempt read of keystorage.bin.
+impact: Local attacker with same-user process access extracts all private keys, database encryption key, device credentials. Severity: medium (requires local access, same-user privilege).
+testability: HUMAN_ONLY
+[PRIO] directory server IDOR (5 hosts: ds-apip/api/apip + .test), 8.8 — as:10 bv:9 tech:7 gate:10 cloud:5 fresh:10
+[PRIO] staging directory server exposure (2 hosts: apip.test/ds-apip.test), 7.7 — as:8 bv:6 tech:8 gate:10 cloud:5 fresh:10
+[PRIO] threema-desktop key storage Windows ACL, 7.5 — as:8 bv:8 tech:7 gate:8 cloud:3 fresh:9
+[FINAL]

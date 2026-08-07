@@ -921,3 +921,298 @@ sleep 2
 echo "== work.test 301 location"
 curl -sk -D - -o /dev/null https://work.test.threema.ch/ 2>&1 | grep -iE "HTTP/|location" failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST bigpickle 2026-08-07 20:57:04 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -m 15 -o /dev/null -w 'apip /api/v1/pubkeys/ECHOECHO -> HTTP %{http_code} | %{time_total}s\n' https://apip.threema.ch/api/v1/pubkeys/ECHOECHO
+apip /api/v1/pubkeys/ECHOECHO -> HTTP 404 | 0.737392s
+[0m
+[0m$ [0mfor h in g-1-0.threema.ch g-2-0.threema.ch g-3-0.threema.ch mediator-1.threema.ch rendezvous-1.threema.ch safe-1.threema.ch; do echo "== $h"; getent hosts "$h" || echo NXDOMAIN; done
+== g-1-0.threema.ch
+NXDOMAIN
+== g-2-0.threema.ch
+NXDOMAIN
+== g-3-0.threema.ch
+NXDOMAIN
+== mediator-1.threema.ch
+2a14:3e40:112:312::247 mediator-1.threema.ch
+== rendezvous-1.threema.ch
+2a14:3e40:112:312::247 rendezvous-1.threema.ch
+== safe-1.threema.ch
+NXDOMAIN
+[0m
+[0m$ [0mls; echo ---; ls reports 2>/dev/null | head; echo ---; find . -maxdepth 3 -iname '*.threema.ch' 2>/dev/null | head
+README.md
+analyst-out.txt
+analyst-prompt.txt
+ctx.txt
+inventory
+knowledge
+leads
+reports
+reposcan-raw
+scope.yml
+scripts
+state_bigpickle.json
+state_laguna.json
+state_ling3.json
+state_longcat.json
+state_nemotron3.json
+triage
+---
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+---
+[0m
+[0m$ [0mfor h in g-1-0.threema.ch mediator-1.threema.ch rendezvous-1.threema.ch; do echo "== $h A/AAAA"; getent ahosts "$h"; done; echo; for h in mediator-1.threema.ch rendezvous-1.threema.ch; do echo "== $h HTTPS probe"; curl -sk -m 12 -o /dev/null -w 'HTTP %{http_code} | ip %{remote_ip} | %{time_total}s\n' "https://$h/"; done
+== g-1-0.threema.ch A/AAAA
+== mediator-1.threema.ch A/AAAA
+203.56.112.247  STREAM mediator-1.threema.ch
+203.56.112.247  DGRAM  
+203.56.112.247  RAW    
+2a14:3e40:112:312::247 STREAM 
+2a14:3e40:112:312::247 DGRAM  
+2a14:3e40:112:312::247 RAW    
+== rendezvous-1.threema.ch A/AAAA
+203.56.112.247  STREAM rendezvous-1.threema.ch
+203.56.112.247  DGRAM  
+203.56.112.247  RAW    
+2a14:3e40:112:312::247 STREAM 
+2a14:3e40:112:312::247 DGRAM  
+2a14:3e40:112:312::247 RAW    
+
+== mediator-1.threema.ch HTTPS probe
+HTTP 403 | ip 203.56.112.247 | 0.441671s
+== rendezvous-1.threema.ch HTTPS probe
+HTTP 403 | ip 203.56.112.247 | 0.442702s
+[0m
+[0m$ [0mls reposcan-raw 2>/dev/null; echo ---; grep -rhoE '[a-z-]+-[0-9]*-[0-9]*\.threema\.ch|[a-z-]+-[0-9]*\.threema\.ch|g-[0-9]+-[0-9]+\.threema\.ch|safe-[0-9a-z]+\.threema\.ch|rendezvous-[0-9]+\.threema\.ch|mediator-[0-9]+\.threema\.ch' reposcan-raw 2>/dev/null | sort -u | head -40
+analysis.txt
+grep-delta.txt
+grep-hits.prev.txt
+grep-hits.txt
+rag.txt
+threema-ch
+---
+[0m
+[0m$ [0mgrep -rhoE '(https?|wss?)://[a-zA-Z0-9.*_-]*\.threema\.ch[a-zA-Z0-9/{}:_-]*' reposcan-raw 2>/dev/null | sort -u | head -40
+https://ds-apip-work.test.threema.ch
+https://ds-apip-work.test.threema.ch/
+https://ds-apip.test.threema.ch
+https://ds-apip.test.threema.ch/
+https://work.test.threema.ch/
+[0m
+[0m$ [0mgrep -rhoE '[a-z0-9*-]*\.threema\.ch' reposcan-raw 2>/dev/null | sort | uniq -c | sort -rn | head -50
+23 test.threema.ch
+      9 apip.threema.ch
+      4 work.threema.ch
+      4 shop.threema.ch
+      4 gateway.threema.ch
+      4 ds-apip.threema.ch
+      4 broadcast.threema.ch
+      4 billing.threema.ch
+      3 api.threema.ch
+      2 safe-*.threema.ch
+      2 rendezvous-*.threema.ch
+      2 mediator-*.threema.ch
+      2 0.threema.ch
+[0m
+[0m$ [0mgrep -rhoE '(g-|safe-|rendezvous-|mediator-|webrtc|rest|appserver)[a-z0-9_*-]*\.threema\.ch' reposcan-raw 2>/dev/null | sort -u; echo ---; grep -rhoE 'threema\.ch' reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/config/* 2>/dev/null | head
+mediator-*.threema.ch
+rendezvous-*.threema.ch
+safe-*.threema.ch
+---
+[0m
+[0m$ [0mgrep -rn 'g-\*\|chat.*\.threema\|threema\.ch/g\|serverUrl\|WSS\|websocket' reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/config/ 2>/dev/null | head -20; echo ===; ls reposcan-raw/threema-ch/
+===
+app-remote-protocol
+compose-area
+push-relay
+threema-android
+threema-bot-sdk
+threema-desktop
+threema-ios
+threema-markup
+threema-msgapi-sdk-java
+threema-msgapi-sdk-php
+threema-msgapi-sdk-python
+threema-msgapi-sdk-rust
+threema-web
+threema-web-electron
+wasm-minisign-verify
+webrtc-build-docker
+[0m
+[0m$ [0mgrep -rhoE '[a-z0-9._-]*\.threema\.ch[a-z0-9/_-]*' reposcan-raw/threema-ch/threema-android 2>/dev/null | sort -u | head -30
+(no output)
+[0m
+[0m$ [0mgrep -rn 'threema.ch' reposcan-raw/threema-ch/threema-web/apps/web/src/common/config/*.ts 2>/dev/null | head; echo ===; ls reposcan-raw/threema-ch/threema-web/apps/web/src/common/config/ 2>/dev/null
+===
+[0m
+[0m$ [0mfind reposcan-raw/threema-ch/threema-android -name '*.xml' -path '*config*' 2>/dev/null | head; echo ---; grep -rnoE 'https?://[a-z0-9._-]*threema\.ch[a-z0-9/_-]*' reposcan-raw/threema-ch/threema-android 2>/dev/null | grep -iv 'test.threema\|i18n\|licenses\|community' | sort -u | head -30
+---
+[0m
+[0m$ [0mgrep -rnoE '[a-zA-Z0-9._*{}()-]+\.threema\.ch' reposcan-raw/threema-ch/threema-web 2>/dev/null | grep -v node_modules | sort -u | head -40
+(no output)
+[0m
+[0m$ [0mgrep -rnoE '[a-zA-Z0-9._*{}()-]+\.threema\.ch' reposcan-raw/threema-ch/threema-desktop 2>/dev/null | grep -v node_modules | sort -u | head -40
+(no output)
+[0m
+[0m$ [0mls reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/config/ 2>/dev/null; echo ---; grep -rln 'threema.ch' reposcan-raw/threema-ch/threema-desktop/apps 2>/dev/null | grep -v node_modules | head
+---
+[0m
+[0m$ [0mls reposcan-raw/threema-ch/threema-desktop/ 2>/dev/null | head; echo ---; find reposcan-raw/threema-ch/threema-desktop -maxdepth 2 -type d 2>/dev/null | head -20; echo ---; du -sh reposcan-raw/threema-ch/threema-desktop 2>/dev/null
+---
+reposcan-raw/threema-ch/threema-desktop
+---
+4.0K	reposcan-raw/threema-ch/threema-desktop
+[0m
+[0m$ [0mwc -l reposcan-raw/analysis.txt reposcan-raw/rag.txt reposcan-raw/grep-hits.txt 2>/dev/null; echo ---; grep -nE 'g-|chat|safe-|rendezvous|mediator' reposcan-raw/analysis.txt 2>/dev/null | head -20
+8 reposcan-raw/analysis.txt
+   70 reposcan-raw/rag.txt
+   49 reposcan-raw/grep-hits.txt
+  127 total
+---
+[0m
+[0m→ [0mRead reposcan-raw/rag.txt
+[0m
+[0m$ [0mfor h in safe-01.threema.ch safe-1a.threema.ch safe.threema.ch mediator-01.threema.ch rendezvous-01.threema.ch; do printf '%-28s ' "$h"; getent ahosts "$h" | head -1 || echo NX; done; echo; echo "== path routing on mediator/rendezvous"; for p in / /aa/ /0/ /xx/; do curl -sk -m 12 -o /dev/null -w "mediator-1 $p -> %{http_code}\n" "https://mediator-1.threema.ch$p"; sleep 1; done
+safe-01.threema.ch           203.56.112.231  STREAM safe-01.threema.ch
+safe-1a.threema.ch           203.56.112.231  STREAM safe-1a.threema.ch
+safe.threema.ch              mediator-01.threema.ch       rendezvous-01.threema.ch     
+== path routing on mediator/rendezvous
+mediator-1 / -> 403
+mediator-1 /aa/ -> 403
+mediator-1 /0/ -> 403
+mediator-1 /xx/ -> 403
+[0m
+[0m$ [0mfor h in safe-zz99.threema.ch safe-abc123.threema.ch g-1.threema.ch g-2.threema.ch chat.threema.ch alexandria.threema.ch; do printf '%-28s ' "$h"; getent ahosts "$h" | head -1 || echo NX; done
+safe-zz99.threema.ch         safe-abc123.threema.ch       g-1.threema.ch               g-2.threema.ch               chat.threema.ch              alexandria.threema.ch
+[0m
+[0m$ [0mcurl -sk -m 12 -o /dev/null -w 'safe-01 https -> %{http_code} | %{time_total}s\n' https://safe-01.threema.ch/; sleep 1; curl -sk -m 12 -o /dev/null -w 'safe-01 http  -> %{http_code} | %{time_total}s\n' http://safe-01.threema.ch/
+safe-01 https -> 404 | 0.443440s
+safe-01 http  -> 000 | 12.002792s
+[0m
+[0m$ [0mfor h in safe-1a safe-1b safe-2 safe-02 safe-00; do printf '%-12s ' "$h.threema.ch"; getent ahosts "$h.threema.ch" | head -1; done; echo ---; for h in g-1-0 g-2-0 g-4-0 g-5-0 g-6-0 g-7-0 g-8-0 g-9-0; do printf '%-10s ' "$h.threema.ch"; getent ahosts "$h.threema.ch" | head -1; done
+safe-1a.threema.ch 203.56.112.231  STREAM safe-1a.threema.ch
+safe-1b.threema.ch 203.56.112.231  STREAM safe-1b.threema.ch
+safe-2.threema.ch safe-02.threema.ch 203.56.112.231  STREAM safe-02.threema.ch
+safe-00.threema.ch 203.56.112.231  STREAM safe-00.threema.ch
+---
+g-1-0.threema.ch g-2-0.threema.ch g-4-0.threema.ch g-5-0.threema.ch g-6-0.threema.ch g-7-0.threema.ch g-8-0.threema.ch g-9-0.threema.ch
+[0m
+[0m$ [0mfor p in /backup/ /backup /identity /restore /api/ /swagger; do curl -sk -m 12 -o /dev/null -w "safe-01 %-12s -> %{http_code}\n" "https://safe-01.threema.ch$p"; sleep 1; done
+safe-01 %-12s -> 404
+safe-01 %-12s -> 404
+safe-01 %-12s -> 404
+safe-01 %-12s -> 404
+safe-01 %-12s -> 404
+safe-01 %-12s -> 404
+[0m
+[0m$ [0mcurl -sk -m 12 -D - https://safe-01.threema.ch/backup/aaaaaaaa -o /dev/null | head -15; echo ===; curl -sk -m 12 -D - https://safe-01.threema.ch/backup/ -o /dev/null | head -8
+HTTP/1.1 404 Not Found
+Server: nginx
+Date: Fri, 07 Aug 2026 20:40:30 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 154
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Content-Security-Policy: default-src 'none'
+X-Content-Type-Options: nosniff
+
+===
+HTTP/1.1 404 Not Found
+Server: nginx
+Date: Fri, 07 Aug 2026 20:40:31 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 146
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Content-Security-Policy: default-src 'none'
+[0m
+[0m$ [0mcurl -sk -m 12 -X OPTIONS -D - -o /dev/null https://safe-01.threema.ch/backup/ -H 'Origin: https://evil.example' -H 'Access-Control-Request-Method: POST' | head -12; sleep 1; echo ===; curl -sk -m 12 -o /dev/null -w 'safe-1a /backup/aaaaaaaa -> %{http_code} | %{size_download}b\n' https://safe-1a.threema.ch/backup/aaaaaaaa
+HTTP/1.1 204 No Content
+Server: nginx
+Date: Fri, 07 Aug 2026 20:41:20 GMT
+Content-Length: 0
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE
+Vary: Access-Control-Request-Headers
+Strict-Transport-Security: max-age=31104000; includeSubdomains
+Expect-CT: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+
+===
+safe-1a /backup/aaaaaaaa -> 404 | 154b
+[0m
+## STEP 1 — DELTA
+- [NEW] safe-*.threema.ch live: safe-01/safe-1a/safe-1b/safe-02/safe-00 → 203.56.112.231; HTTPS nginx answers 404 (app-level routing: distinct body sizes 154b vs 146b by path), CORS `*` with GET,HEAD,PUT,PATCH,POST,DELETE, HSTS+Expect-CT — was "timeout/no response".
+- [NEW] mediator-1.threema.ch + rendezvous-1.threema.ch → shared IP 203.56.112.247, identical 403 on `/`, `/aa/`, `/0/`, `/xx/` — hostname patterns confirmed live (was "pattern unknown").
+- [CHANGED] apip.threema.ch: `GET /api/v1/pubkeys/ECHOECHO` → 404 — candidate pubkey route (nemotron3 lead) does not exist.
+- [CHANGED] g-*.0.threema.ch: g-1-0 … g-9-0 all NXDOMAIN — chat hostname pattern is not `g-{N}-0` (resolver validated against apip/ds-apip/safe-01).
+
+## STEP 2 — PRIORITIZE
+- [PRIO] g-*.0.threema.ch chat services | score 5.90 | attack 8 business 8 tech 4 gate 2 cloud 3 fresh 7
+- [PRIO] safe-*.threema.ch backup | score 5.65 | attack 5 business 8 tech 4 gate 4 cloud 3 fresh 9
+- [PRIO] mediator-1/rendezvous-1.threema.ch sync edge | score 4.95 | attack 4 business 6 tech 6 gate 3 cloud 3 fresh 8
+
+## STEP 3 — HYPOTHESES
+[HYP] Safe backup server permissive CORS + unauthenticated probe surface
+class: MISCONFIG
+asset: safe-01.threema.ch (safe-*.threema.ch)
+confidence: 55
+reasoning: live nginx, 404 with app-level routing (154b vs 146b bodies), Access-Control-Allow-Origin `*`, Allow-Methods GET,HEAD,PUT,PATCH,POST,DELETE, HSTS+Expect-CT — same permissive-CORS posture as the already-confirmed directory servers. Threema Safe API serves `GET/PUT/DELETE /backup/{id}` where valid id+key → 200 and random → 404; multi-host same backend (safe-1a byte-identical 154b).
+evidence_needed: 404-vs-401 distinction on `/backup/{id}` (route exists vs auth-required), and absence of 429/Retry-After on repeated failed lookups → unauthenticated oracle + rate-limit posture.
+verify_steps: PASSIVE: 5× GET https://safe-01.threema.ch/backup/{random16} at 1s intervals logging full headers; GET https://safe-01.threema.ch/backup/ + OPTIONS preflight (already 204, CORS \*); compare body bytes vs safe-1a. ≤1 rps, no real IDs.
+impact: cross-origin page can probe backup existence and (with leaked backupKey) attempt PUT/DELETE overwrite of user backups; at minimum unauthenticated API surface on the backup service. Severity: low-medium.
+testability: PASSIVE
+[HYP] chat service hostname discoverable from in-scope client source
+class: OTHER
+asset: g-*.0.threema.ch (hostname pattern unresolved)
+confidence: 45
+reasoning: g-1-0…g-9-0 NXDOMAIN while other in-scope hosts resolve; real chat hostname must be defined in threema-android/threema-ios/threema-web connection config (in-scope static-analysis-valid); not resolvable by guesswork.
+evidence_needed: a hostname from client config that resolves and answers (TLS/WSS 4xx) under the g-*.0.chat pattern.
+verify_steps: RAG: grep threema-android/threema-ios/threema-web source for chat/connection server URL (ServerConfig, g-*.0.threema.ch, wss://), then DNS + single HEAD at ≤1 rps.
+impact: unlocks the core in-scope chat surface; severity n/a until hostname confirmed.
+testability: PASSIVE
+[HYP] mediator/rendezvous shared-edge 403 masks service-level routes
+class: MISCONFIG
+asset: mediator-1.threema.ch / rendezvous-1.threema.ch (203.56.112.247)
+confidence: 45
+reasoning: both hostnames → identical IP and byte-identical 403 across 4 paths; TLS terminates (403 not TLS error) so an edge nginx fronts both WSS services; per-account `{XX}/` paths are high-entropy and unguessable, so only unauthenticated edge routes are testable.
+evidence_needed: any path or Host variant returning ≠403 (health/version/well-known), or cert SAN overlap across mediator/rendezvous/safe IPs.
+verify_steps: PASSIVE: HEAD /health /status /version /.well-known/* with default + swapped Host headers at ≤1rps; `openssl s_client` SAN comparison across 203.56.112.247 and 203.56.112.231.
+impact: staging/edge exposure or cross-service virtual-host confusion; severity: low.
+testability: PASSIVE
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] apip.threema.ch /api/v1/pubkeys/{id} endpoint: disproven this session (404) — dead candidate.
+- [PARKED] ds-apip.threema.ch unauth identity enumeration: already ACCEPTED as finding — closed.
+- [PARKED] desktop crypto.ts:223 KDF weakness: already REJECTED (benchmark dummy) — closed.
+- [FINAL] 1. safe-*.threema.ch permissive CORS + unauth oracle (55, PASSIVE)
+- [FINAL] 2. mediator/rendezvous shared-edge routes (45, PASSIVE)
+- [FINAL] 3. g-*.0 chat hostname discovery from client source (45, PASSIVE/RAG)
+
+## STEP 5 — NEXT ACTION
+- [NEXT] PROBE: 5× `GET https://safe-01.threema.ch/backup/{16-random-hex}` at 1s intervals (≤1 rps) capturing full headers + body; byte-compare 404 bodies across requests and vs safe-1a.threema.ch; check for 429/Retry-After/backupId-pattern error strings to confirm route existence and rate-limit absence on the backup service.
+
+## STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ safe-*.threema.ch: Previously "timeout/no response" — now confirmed live nginx backup service (404 app-level routing, CORS `*`, GET/HEAD/PUT/PATCH/POST/DELETE, HSTS+Expect-CT); safe-01/safe-1a/safe-1b/safe-02/safe-00 → 203.56.112.231.
+- [LEARN] ACCEPTED OTHER @ mediator-1/rendezvous-1.threema.ch: Hostname patterns confirmed live — both → 203.56.112.247, identical 403 on all probed paths (shared edge).
+- [LEARN] REJECTED OTHER @ apip.threema.ch: `GET /api/v1/pubkeys/{id}` → 404 — candidate pubkey API route does not exist.
+- [LEARN] REJECTED OTHER @ g-*.0.threema.ch: `g-{N}-0` for N=1..9 all NXDOMAIN — chat hostname pattern is not `g-{N}-0`.
+
+## STEP 7 — RISK SCORE
+- [RISK] chat: 55 | core g-*.0 surface undiscovered, but backup service now confirmed live with permissive CORS and directory enumeration tooling mature
+- [RISK] web: 45 | cockpits hardened (CSP, Sentry, hCaptcha, PHP sessions) but login/session flows unexplored
+- [RISK] sync: 40 | mediator/rendezvous shared edge 403-gated, per-account paths high-entropy
+- [RISK] safe: 50 | live backup service, CORS `*`, no 429 observed on initial probes, auth-failure handling unknown
+- [RISK] desktop-src: 55 | Windows key-storage ACL accepted finding; Electron sandbox disabled (DEK-79 TODO)
