@@ -275,3 +275,48 @@ impact: staging work app recon → test credentials, config leaks, version skew;
 testability: PASSIVE
 [FINAL] ranked: 1) mediator/rendezvous staging exposure (55), 2) staging chat mirror (50), 3) work.test web app surface (45).
 [NEXT] PROBE: `curl -s -L -m 12 https://work.test.threema.ch/en/login -o /tmp/opencode/worktest_login.html -w "%{http_code} %{url_effective}"`, then extract referenced JS bundle URLs and grep for API routes (fetch/login/register/oauth) — fresh reachable staging web surface, fully passive, ≤1 rps.
+## 2026-08-07 23:43:30 UTC [chat] (model bigpickle)
+[NEW] work.test.threema.ch `/api-app/public/global/settings` → 200 JSON (299B) unauthenticated; IDENTICAL path → 404 on production work.threema.ch — first confirmed staging-prod public-API divergence on the work web app.
+[NEW] `/api-app/public/license/token/{licenseToken}` route exists in JS bundle; token validated as exactly 64 chars; fake 64-zero token → 404 (route present, token lookup fails).
+[NEW] work.test.threema.ch login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.ch, hcaptcha-work.threema.ch, billing.test.threema.ch (form-action), test.threema.com (img-src).
+[NEW] Staging work app sets `__HOST-HTTP-SESSIONID` cookie on unauthenticated GET /en/login (Secure/HttpOnly/SameSite=Strict).
+[NEW] `/api-app/me/profile` + `/api-app/global/settings` → 302 on staging (session-gated); only the explicit `/api-app/public/*` namespace is open.
+[NEW] `/info/ping.php` → 200 empty and `/ping` → 204 on BOTH staging and prod (no divergence).
+[PRIO] work.test.threema.ch /api-app (staging work REST API) score=5.9 | attack=6 business=6 tech=6 gate=6 cloud=3 fresh=8
+[PRIO] g-*.0.test.threema.ch:5222 (staging chat) score=5.6 | attack=5 business=7 tech=7 gate=5 cloud=2 fresh=6
+[PRIO] safe-01.threema.ch /backups/{id} score=5.3 | attack=5 business=8 tech=5 gate=4 cloud=3 fresh=4
+[HYP] Staging work API exposes public endpoints absent on production
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/* (staging)
+confidence: 65
+reasoning: `/api-app/public/global/settings` returns 200 unauthenticated on staging, 404 on prod work.threema.ch. JS bundle (v2.25.1) defines `/public/license/token/{licenseToken}` (64-char) and `/public/global/settings` under baseUrl `/api-app`; fake token → 404 means route exists. Mirrors accepted ds-apip.test/apip.test staging-exposure pattern.
+evidence_needed: full enumeration of `/api-app/public/*` routes and whether any leaks license/user data; compare each route staging vs prod.
+verify_steps: PASSIVE: grep all `"/api-app...` + `public` route literals from work_public.js, GET each on staging vs prod work host, diff status codes; ≤1 rps.
+impact: unauthenticated staging work API → trial/license/registration recon, staging data leak; severity low.
+testability: PASSIVE
+[HYP] Staging chat cluster reachable but no in-band divergence proven
+class: MISCONFIG
+asset: g-{2hex}.0.test.threema.ch:5222 (203.56.114.34)
+confidence: 50
+reasoning: 5222 TCP-accepts on staging (203.56.114.34) and prod (203.56.112.202/.204); hostname pattern identity-derived from source; no in-band protocol difference observable without decoding CSP handshake. Only DNS/net split distinguishes it (already ACCEPTED as MISCONFIG).
+evidence_needed: version/test-identity skew in the custom NaCl-box+HKDF CSP handshake.
+verify_steps: AUTH_HELPED: reconstruct CSP handshake from threema-android `csp/connection`, one connect each staging vs prod, compare stream response; ≤1 rps.
+impact: internet-reachable staging messenger backend → version skew/unpatched surface; severity low.
+testability: AUTH_HELPED
+[HYP] Safe backup API CORS * is defense-in-depth only
+class: MISCONFIG
+asset: https://safe-01.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: all unauth/no-cred GET → 400 (credential-gated); only OPTIONS preflight returns CORS * with Allow-Headers Authorization; non-route path → 404. No unauth data access observed across prior probes.
+evidence_needed: whether any request without derived Basic credentials ever returns ≠400.
+verify_steps: PASSIVE: OPTIONS + single HEAD /config and /backups/{hex}; record Allow-Methods/Allow-Headers; ≤1 rps, no real IDs.
+impact: CORS * on credential-gated API is weak defense-in-depth; severity low.
+testability: PASSIVE
+[PARKED] safe-01 CORS hypothesis: class/target largely exhausted — prior probes already confirmed credential-gating (400) and route distinction; residual evidence (HEAD variants, Allow-Methods) has near-zero impact.
+[FINAL] ranked: 1) work.test /api-app public endpoint divergence (65), 2) staging chat mirror (50).
+[NEXT] PROBE: enumerate all `/api-app/*` route literals from /tmp/opencode/worktest.js (bundle v2.25.1), then GET each `public` route on work.test.threema.ch AND work.threema.ch, diff status codes to map the full staging-only public API set; ≤1 rps, GET/HEAD only.
+[LEARN] ACCEPTED MISCONFIG @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work API endpoint confirmed.
+[LEARN] ACCEPTED AUTH @ work.test.threema.ch: `/api-app/me/profile` and `/api-app/global/settings` → 302; only the `/api-app/public/*` namespace is open (namespace gating confirmed).
+[LEARN] ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed).
+[LEARN] ACCEPTED OTHER @ work.test.threema.ch: liveness endpoints `/ping` (204) and `/info/ping.php` (200 empty) identical on staging and prod — no divergence.
+[RISK] chat: 45 — staging chat cluster TCP-reachable and DNS-split from prod but no in-band divergence proven; requires protocol decoding | web: 50 — staging work API exposes public endpoints absent on prod (public/global/settings 200 vs 404); auth-gated namespaces intact; low severity | sync: 40 — staging mediator/rendezvous WSS reachable with distinct staging cert; no token-level surface | safe: 30 — credential-gated (400 for no-creds); CORS * on preflight only; defense-in-depth gap | desktop-src: 40 — two accepted source misconfigs (Windows keystorage ACL, electron sandbox:false + nodeIntegrationInWorker) with no remote exploitation path.

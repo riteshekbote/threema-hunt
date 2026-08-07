@@ -3728,3 +3728,234 @@ STEP 7 — RISK SCORE:
 - [RISK] sync: 65 reason: mediator/rendezvous prod + staging sync infra live; staging cert exposure confirmed; WSS paths gated by dgid (not enumerable)
 - [RISK] safe: 70 reason: safe-01 credential-gated but CORS* with Authorization header + write methods; API surface still under-enumerated
 - [RISK] desktop-src: 55 reason: Windows keystorage ACL gap (DPAPI blob) accepted; sandbox disabled (TODO DEK-79); no runtime remote surface in scope
+===== ANALYST bigpickle 2026-08-07 23:47:08 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -m 12 -D - -o /dev/null https://work.test.threema.ch/en/login | head -25
+HTTP/2 200 
+server: nginx
+date: Fri, 07 Aug 2026 23:42:03 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: __HOST-HTTP-SESSIONID=4flljbgsml4gj95dfublanm2e9; path=/; secure; HttpOnly; SameSite=Strict
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+strict-transport-security: max-age=31104000; includeSubdomains
+expect-ct: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+expect-ct: report-uri='https://3ma.ch/ctreport', max-age=31536000, enforce
+strict-transport-security: max-age=31536000; includeSubdomains
+reporting-endpoints: default="https://bugs.threema.ch/api/13/security/?sentry_key=e2bb259e4e0f449ca2726035893c7fb8"
+report-to: {'group': 'default','max_age': 10886400,'endpoints': [{'url': 'https://bugs.threema.ch/api/13/security/?sentry_key=e2bb259e4e0f449ca2726035893c7fb8'}]}
+content-security-policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-work.threema.ch; frame-src https://hcaptcha-assets.threema.ch; img-src 'self' https://test.threema.com https://broadcast.test.threema.ch https://static.threema.ch https://avatar.threema.ch https://avatar.test.threema.ch https://companylogo.test.threema.ch data:; media-src 'self' data:; connect-src 'self' data: https://companylogo.test.threema.ch https://bugs.threema.ch https://hcaptcha-assets.threema.ch; object-src 'self'; worker-src 'self' blob:; child-src blob: https://hcaptcha-assets.threema.ch; frame-ancestors 'none'; form-action 'self' https://billing.test.threema.ch; upgrade-insecure-requests; base-uri https://work.test.threema.ch; report-uri https://bugs.threema.ch/api/13/security/?sentry_key=e2bb259e4e0f449ca2726035893c7fb8; report-to default
+referrer-policy: no-referrer
+x-frame-options: sameorigin
+[0m
+[0m$ [0mcurl -s -L -m 12 https://work.test.threema.ch/en/login -o /tmp/opencode/worktest_login.html -w "code=%{http_code} url=%{url_effective} size=%{size_download}\n"; grep -oE '(src|href)="[^"]+"' /tmp/opencode/worktest_login.html | sort -u | head -40
+code=200 url=https://work.test.threema.ch/en/login size=5897
+href="/cache/frontend_cache.css?v=2.25.1"
+href="/cache/work_public.css?v=2.25.1"
+href="/de/anmelden"
+href="/en/forgot-password"
+href="/en/login"
+href="/en/privacy"
+href="/en/register-and-start-trial"
+href="/en/terms-of-service"
+href="/es/iniciar-sesion"
+href="/favicon.ico?v=3"
+href="/fr/connexion"
+href="https://static.threema.ch/fonts/labgrotesque.css"
+href="https://test.threema.com/en/"
+src="/cache/work_public.js?v=2.25.1"
+src="/images/logo_icon.svg?v=1"
+[0m
+[0m$ [0mcurl -s -m 15 https://work.test.threema.ch/cache/work_public.js?v=2.25.1 -o /tmp/opencode/worktest.js -w "code=%{http_code} size=%{size_download}\n"; grep -oE 'fetch\(["'"'"'][^"'"'"']+["'"'"']' /tmp/opencode/worktest.js | sort -u | head -30; echo "---API-ish strings---"; grep -oE '"/[a-z0-9_/-]{3,40}"' /tmp/opencode/worktest.js | sort -u | grep -iE 'api|auth|login|register|user|admin|billing|broadcast|avatar|companylogo|workspace' | head -40
+code=200 size=1443948
+fetch('/info/ping.php'
+fetch('/ping'
+---API-ish strings---
+"/api-app"
+"/api/"
+[0m
+[0m$ [0mgrep -oE '"[a-zA-Z0-9_/.-]{0,80}/api-app[a-zA-Z0-9_/.-]{0,80}"' /tmp/opencode/worktest.js | sort -u | head; echo "---api-app contexts---"; grep -oE '.{60}/api-app.{60}' /tmp/opencode/worktest.js | head -6; echo "---api/ contexts---"; grep -oE '.{50}/api/.\{0,40}' /tmp/opencode/worktest.js | head -12
+"/api-app"
+---api-app contexts---
+d("PUT"),trace:d("TRACE")},trace:c("TRACE")}})(wk({baseUrl:"/api-app"}));Ue({message:ze()}),Ue({message:ze(),errors:Ae(ik(ze(),i
+---api/ contexts---
+[0m
+[0m$ [0mgrep -oE 'baseUrl:"[^"]*"' /tmp/opencode/worktest.js | sort -u | head; echo "---endpoint-ish string literals---"; grep -oE '"/[a-zA-Z0-9_/{}$.-]{4,50}"' /tmp/opencode/worktest.js | sort -u | grep -viE '\.(js|css|svg|png|gif|ico|woff|ttf)|/(en|de|fr|es)/|/cache/' | head -60
+baseUrl:"/api-app"
+---endpoint-ish string literals---
+"/$locale/activate"
+"/$locale/subscription/$packageUid/tags"
+"/api-app"
+"/api/"
+"/envelope/"
+"/global/settings"
+"/index"
+"/license/"
+"/me/profile"
+"/package/{package}/broadcast/identities"
+"/package/{package}/settings"
+"/package/{package}/tags"
+"/package/{package}/tags/{tag_uid}"
+"/package/{package}/tags/{tag_uid}/broadcast"
+"/package/{package}/user/{user_uid}/access"
+"/public/global/settings"
+"/public/license/token/{licenseToken}"
+[0m
+[0m$ [0mfor p in "/info/ping.php" "/ping" "/api-app" "/api-app/public/global/settings" "/api-app/public/license/token/0000000000000000" "/api-app/public/license/token/test"; do code=$(curl -s -m 10 -o /tmp/opencode/body.out -w "%{http_code}" "https://work.test.threema.ch$p"); size=$(wc -c < /tmp/opencode/body.out); ct=$(curl -s -m 10 -D - -o /dev/null "https://work.test.threema.ch$p" 2>/dev/null | grep -i content-type | head -1 | tr -d '\r'); echo "GET $p -> $code size=$size | $ct"; done; sleep 1
+GET /info/ping.php -> 200 size=0 | content-type: text/html; charset=UTF-8
+GET /ping -> 204 size=0 | 
+GET /api-app -> 404 size=900 | content-type: text/html; charset=UTF-8
+GET /api-app/public/global/settings -> 200 size=299 | content-type: application/json
+GET /api-app/public/license/token/0000000000000000 -> 404 size=900 | content-type: text/html; charset=UTF-8
+GET /api-app/public/license/token/test -> 404 size=900 | content-type: text/html; charset=UTF-8
+[0m
+[0m$ [0mcurl -s -m 10 https://work.test.threema.ch/api-app/public/global/settings | head -c 1200; echo; echo "---env probe---"; code=$(curl -s -m 10 -o /tmp/opencode/body.out -w "%{http_code}" -X POST -H "Content-Type: application/json" -d '{"query":"{ __typename }"}' https://work.test.threema.ch/api-app/envelope/); echo "POST /api-app/envelope/ -> $code size=$(wc -c < /tmp/opencode/body.out)"; head -c 300 /tmp/opencode/body.out
+{"appLinkHost":"threemablue://","appDownloadAndroidGooglePlay":"https://play.google.com/store/apps/details?id=ch.threema.app.work","appDownloadIos":"https://itunes.apple.com/app/threema-work/id1105927783?mt=8\u0026uo=4\u0026at=10lJMu","appDownloadDesktop":"https://threema.ch/work/download#desktop"}
+---env probe---
+POST /api-app/envelope/ -> 404 size=900
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+	<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=
+[0m
+[0m$ [0mgrep -oE '"/[a-zA-Z0-9_/{}$.-]{4,50}"' /tmp/opencode/worktest.js | sort -u | grep -viE '\.(js|css|svg|png|gif|ico|woff|ttf)|/(en|de|fr|es)/|/cache/|^"/[a-z]{1,3}/' | grep -iE 'public|license|token|trial|register|signup|invoice|admin|workspace|user|me/|config|version|status|download' | head -50
+"/license/"
+"/package/{package}/user/{user_uid}/access"
+"/public/global/settings"
+"/public/license/token/{licenseToken}"
+[0m
+[0m$ [0mgrep -oE '.{80}/public/license/token.{120}' /tmp/opencode/worktest.js | head -3; echo "====="; grep -oE 'licenseToken[^,;]{0,80}' /tmp/opencode/worktest.js | sort -u | head -10; echo "=====envelope===="; grep -oE '.{60}/envelope/.{80}' /tmp/opencode/worktest.js | head -4
+=>await tK.parseAsync(n),responseValidator:async n=>await nK.parseAsync(n),url:"/public/license/token/{licenseToken}"},e))},xK=e=>{var t;return((t=e.client)!=null?t:Gt).put(y({requestValidator:async n=>await rK.parseAsync
+=====
+licenseToken:c
+licenseToken:e}){const t=CW()
+licenseToken:e}}
+licenseToken:e}})
+licenseToken:i
+licenseToken:t}){return _.jsx(ui
+licenseToken:t})}):void 0]})})}function kW(){return _.jsx(ui
+licenseToken:ze().length(64)})
+licenseToken}"}
+=====envelope====
+)}function Jj(e){return"".concat(Wj(e)).concat(e.projectId,"/envelope/")}function ez(e,t){return g4(y({sentry_key:e.publicKey,sentry_version:Xj},t&&{s
+[0m
+[0m$ [0mtok=$(printf '0%.0s' {1..64}); for p in "/api-app/public/license/token/$tok" "/api-app/license/$tok" "/api-app/license/"; do code=$(curl -s -m 10 -o /tmp/opencode/body.out -w "%{http_code}" "https://work.test.threema.ch$p"); echo "GET $p -> $code size=$(wc -c < /tmp/opencode/body.out)"; head -c 400 /tmp/opencode/body.out; echo; sleep 1; done
+GET /api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000 -> 404 size=900
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+	<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/>
+	<link rel="stylesheet
+GET /api-app/license/0000000000000000000000000000000000000000000000000000000000000000 -> 404 size=900
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+	<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/>
+	<link rel="stylesheet
+GET /api-app/license/ -> 404 size=900
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+	<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/>
+	<link rel="stylesheet
+[0m
+[0m$ [0mfor host in work.threema.ch work.test.threema.ch; do for p in "/api-app/public/global/settings" "/info/ping.php" "/ping"; do code=$(curl -s -m 10 -o /tmp/opencode/b.out -w "%{http_code}" "https://$host$p"); echo "$host GET $p -> $code size=$(wc -c < /tmp/opencode/b.out)"; done; sleep 1; done
+work.threema.ch GET /api-app/public/global/settings -> 404 size=900
+work.threema.ch GET /info/ping.php -> 200 size=0
+work.threema.ch GET /ping -> 204 size=0
+work.test.threema.ch GET /api-app/public/global/settings -> 200 size=299
+work.test.threema.ch GET /info/ping.php -> 200 size=0
+work.test.threema.ch GET /ping -> 204 size=0
+[0m
+[0m$ [0mfor p in "/api-app/me/profile" "/api-app/global/settings" "/api-app/public/global/settings/"; do code=$(curl -s -m 10 -o /tmp/opencode/b.out -w "%{http_code}" "https://work.test.threema.ch$p"); echo "GET $p -> $code size=$(wc -c < /tmp/opencode/b.out)"; head -c 200 /tmp/opencode/b.out; echo; sleep 1; done
+GET /api-app/me/profile -> 302 size=0
+
+GET /api-app/global/settings -> 302 size=0
+
+GET /api-app/public/global/settings/ -> 404 size=900
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+	<link rel="icon" hre
+[0m
+```
+[STEP 1 — DELTA]
+[NEW] work.test.threema.ch `/api-app/public/global/settings` → 200 JSON (299B) unauthenticated; IDENTICAL path → 404 on production work.threema.ch — first confirmed staging-prod public-API divergence on the work web app.
+[NEW] `/api-app/public/license/token/{licenseToken}` route exists in JS bundle; token validated as exactly 64 chars; fake 64-zero token → 404 (route present, token lookup fails).
+[NEW] work.test.threema.ch login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.ch, hcaptcha-work.threema.ch, billing.test.threema.ch (form-action), test.threema.com (img-src).
+[NEW] Staging work app sets `__HOST-HTTP-SESSIONID` cookie on unauthenticated GET /en/login (Secure/HttpOnly/SameSite=Strict).
+[NEW] `/api-app/me/profile` + `/api-app/global/settings` → 302 on staging (session-gated); only the explicit `/api-app/public/*` namespace is open.
+[NEW] `/info/ping.php` → 200 empty and `/ping` → 204 on BOTH staging and prod (no divergence).
+
+[STEP 2 — PRIORITIZE]
+[PRIO] work.test.threema.ch /api-app (staging work REST API) score=5.9 | attack=6 business=6 tech=6 gate=6 cloud=3 fresh=8
+[PRIO] g-*.0.test.threema.ch:5222 (staging chat) score=5.6 | attack=5 business=7 tech=7 gate=5 cloud=2 fresh=6
+[PRIO] safe-01.threema.ch /backups/{id} score=5.3 | attack=5 business=8 tech=5 gate=4 cloud=3 fresh=4
+
+[STEP 3 — HYPOTHESES]
+[HYP] Staging work API exposes public endpoints absent on production
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/* (staging)
+confidence: 65
+reasoning: `/api-app/public/global/settings` returns 200 unauthenticated on staging, 404 on prod work.threema.ch. JS bundle (v2.25.1) defines `/public/license/token/{licenseToken}` (64-char) and `/public/global/settings` under baseUrl `/api-app`; fake token → 404 means route exists. Mirrors accepted ds-apip.test/apip.test staging-exposure pattern.
+evidence_needed: full enumeration of `/api-app/public/*` routes and whether any leaks license/user data; compare each route staging vs prod.
+verify_steps: PASSIVE: grep all `"/api-app...` + `public` route literals from work_public.js, GET each on staging vs prod work host, diff status codes; ≤1 rps.
+impact: unauthenticated staging work API → trial/license/registration recon, staging data leak; severity low.
+testability: PASSIVE
+
+[HYP] Staging chat cluster reachable but no in-band divergence proven
+class: MISCONFIG
+asset: g-{2hex}.0.test.threema.ch:5222 (203.56.114.34)
+confidence: 50
+reasoning: 5222 TCP-accepts on staging (203.56.114.34) and prod (203.56.112.202/.204); hostname pattern identity-derived from source; no in-band protocol difference observable without decoding CSP handshake. Only DNS/net split distinguishes it (already ACCEPTED as MISCONFIG).
+evidence_needed: version/test-identity skew in the custom NaCl-box+HKDF CSP handshake.
+verify_steps: AUTH_HELPED: reconstruct CSP handshake from threema-android `csp/connection`, one connect each staging vs prod, compare stream response; ≤1 rps.
+impact: internet-reachable staging messenger backend → version skew/unpatched surface; severity low.
+testability: AUTH_HELPED
+
+[HYP] Safe backup API CORS * is defense-in-depth only
+class: MISCONFIG
+asset: https://safe-01.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: all unauth/no-cred GET → 400 (credential-gated); only OPTIONS preflight returns CORS * with Allow-Headers Authorization; non-route path → 404. No unauth data access observed across prior probes.
+evidence_needed: whether any request without derived Basic credentials ever returns ≠400.
+verify_steps: PASSIVE: OPTIONS + single HEAD /config and /backups/{hex}; record Allow-Methods/Allow-Headers; ≤1 rps, no real IDs.
+impact: CORS * on credential-gated API is weak defense-in-depth; severity low.
+testability: PASSIVE
+
+[STEP 4 — SELF-CRITIQUE]
+[PARKED] safe-01 CORS hypothesis: class/target largely exhausted — prior probes already confirmed credential-gating (400) and route distinction; residual evidence (HEAD variants, Allow-Methods) has near-zero impact.
+[FINAL] ranked: 1) work.test /api-app public endpoint divergence (65), 2) staging chat mirror (50).
+
+[STEP 5 — NEXT ACTION]
+[NEXT] PROBE: enumerate all `/api-app/*` route literals from /tmp/opencode/worktest.js (bundle v2.25.1), then GET each `public` route on work.test.threema.ch AND work.threema.ch, diff status codes to map the full staging-only public API set; ≤1 rps, GET/HEAD only.
+
+[STEP 6 — LEARNING]
+[LEARN] ACCEPTED MISCONFIG @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work API endpoint confirmed.
+[LEARN] ACCEPTED AUTH @ work.test.threema.ch: `/api-app/me/profile` and `/api-app/global/settings` → 302; only the `/api-app/public/*` namespace is open (namespace gating confirmed).
+[LEARN] ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed).
+[LEARN] ACCEPTED OTHER @ work.test.threema.ch: liveness endpoints `/ping` (204) and `/info/ping.php` (200 empty) identical on staging and prod — no divergence.
+
+[STEP 7 — RISK SCORE]
+[RISK] chat: 45 — staging chat cluster TCP-reachable and DNS-split from prod but no in-band divergence proven; requires protocol decoding | web: 50 — staging work API exposes public endpoints absent on prod (public/global/settings 200 vs 404); auth-gated namespaces intact; low severity | sync: 40 — staging mediator/rendezvous WSS reachable with distinct staging cert; no token-level surface | safe: 30 — credential-gated (400 for no-creds); CORS * on preflight only; defense-in-depth gap | desktop-src: 40 — two accepted source misconfigs (Windows keystorage ACL, electron sandbox:false + nodeIntegrationInWorker) with no remote exploitation path.
+```

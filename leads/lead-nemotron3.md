@@ -443,3 +443,63 @@ testability: AUTH_HELPED
 [RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve (split routing 203.56.112.247 | 203.56.114.247), uniform 403 on HTTPS; WSS paths high-entropy; auth model in source, not passively enumerable
 [RISK] safe: 80 reason: safe-01.live with CORS *, write-capable methods (GET,HEAD,PUT,PATCH,POST,DELETE), Access-Control-Allow-Headers: Authorization, HSTS+Expect-CT; backup API credential-gated (400) but cross-origin auth requests possible; 5 hostnames same IP; no 429 observed
 [RISK] desktop-src: 80 reason: Electron BrowserWindow sandbox disabled (TODO DEK-79) + nodeIntegrationInWorker: true (TODO DEK-79); Windows key-storage ACL bypass ACCEPTED; OnPrem config trust REJECTED (Ed25519 sig verified); staging URLs baked into builds; key storage Argon2id + DPAPI (decent but weak on Windows)
+## 2026-08-07 23:44:39 UTC [web] (model nemotron3)
+[NEW] `work.test.threema.ch` staging work web app confirmed live: 301 to /en/login, HSTS + Expect-CT, CSP with `*.test.threema.ch` refs, Sentry
+[NEW] `safe-01.threema.ch` backup API credential-gated: `GET /backups/{64hex}` → HTTP 400 (route exists, credential check); OPTIONS returns CORS `*` + `Access-Control-Allow-Headers: Authorization`
+[NEW] `threema-desktop` Electron BrowserWindow: `sandbox: false` (TODO DEK-79) + `nodeIntegrationInWorker: true` (TODO DEK-79) confirmed in source
+[NEW] `apip.threema.ch/identity/ws/revoke` → 404 on both apip and ds-apip (dead endpoint)
+[NEW] `apip.threema.ch/api/v1/pubkeys/{id}` → 404 (dead endpoint)
+[NEW] `safe-*.threema.ch` DNS pattern: safe-01, safe-1a, safe-1b, safe-02, safe-00 → all 203.56.112.231
+[NEW] `mediator-{0..f}/rendezvous-{0..f}.threema.ch` DNS split routing: 0-7 → 203.56.112.247; 8-f → 203.56.114.247; all 403 on HTTPS
+[NEW] Safe-01 backup API path distinction: `GET /backups/{64hex}` → 400 (credential-gated) vs `GET /backup/{x}` → 404 (no route)
+[CHANGED] `ds-apip-work.threema.ch` (prod) + `ds-apip-work.test.threema.ch` (staging): work directory backends confirmed live, 401 on all paths, CORS `*`, no HSTS/Expect-CT
+[PRIO] safe-01.threema.ch/backups/{id} (and safe-1a,1b,02,00), 7.9, attack=8 business=9 tech=8 gate=8 cloud=8 fresh=8
+[PRIO] threema-desktop BrowserWindow sandbox config (source), 7.6, attack=8 business=8 tech=7 gate=10 cloud=2 fresh=8
+[PRIO] wss://mediator-{0..f}.test.threema.ch/{hexproto}/ (staging sync), 5.8, attack=5 business=7 tech=6 gate=4 cloud=6 fresh=9
+[PRIO] ds-apip.threema.ch/identity/fetch_bulk (directory cluster), 7.2, attack=8 business=9 tech=8 gate=10 cloud=7 fresh=6
+[PRIO] ds-apip-work.threema.ch/identities (work directory prod), 5.5, attack=5 business=7 tech=5 gate=3 cloud=5 fresh=8
+[HYP] Safe backup cross-origin credentialed access via CORS * + Authorization header
+class: AUTH
+asset: https://safe-01.threema.ch/backups/{id} (also safe-1a, safe-1b, safe-02, safe-00)
+confidence: 70
+reasoning: OPTIONS on /backups/{id} returns 204 with Access-Control-Allow-Origin: *, Allow-Methods: GET/HEAD/PUT/PATCH/POST/DELETE, and Access-Control-Allow-Headers: Authorization — explicitly enabling cross-origin requests with Basic auth from any attacker origin; GET /backups/{64hex} returns 400 for unauth (route exists behind credential check); 5× GET at 1s intervals all 400, zero 429/RateLimit/Retry-After; 5 hostnames resolve to same IP
+evidence_needed: Confirm valid backupId+backupKey returns 200; verify Basic auth format accepted; test whether 400 body differs for existing vs non-existing backup IDs (oracle)
+verify_steps: PASSIVE: GET https://safe-01.threema.ch/backups/{random64hex} ×5 at 1s intervals — confirm 400/400 oracle and absence of 429; OPTIONS https://safe-01.threema.ch/backups/aaaa — record Allow-Headers; repeat for safe-1a/safe-1b/safe-02/safe-00; AUTH_HELPED: with program-provided test backup ID+key, GET with Basic auth to confirm 200 success
+impact: Cross-origin backup existence enumeration (400-vs-404 oracle) + CSRF-class authenticated read/write attempts from attacker page via CORS * + Authorization header. Severity: Medium-High (high-value asset, permissive CORS, credential-gated but cross-origin auth enabled, no rate limit)
+testability: PASSIVE
+[HYP] Electron renderer/worker RCE via sandbox disabled + nodeIntegrationInWorker
+class: MISCONFIG
+asset: threema-desktop `apps/desktop/src/electron/electron-main.ts` (BrowserWindow webPreferences)
+confidence: 65
+reasoning: Source confirms `sandbox: false` (explicit TODO DEK-79) and `nodeIntegrationInWorker: true` (TODO DEK-79); `nodeIntegration: false` and `contextIsolation: true` are set. With sandbox disabled, renderer subprocesses may retain elevated privileges; `nodeIntegrationInWorker: true` exposes Node APIs to worker contexts — if a worker loads attacker-controlled content (via message link/preview), RCE path exists
+evidence_needed: Source line numbers showing `sandbox: false` + `nodeIntegrationInWorker: true` in BrowserWindow/webPreferences; confirmation of worker context content sources (link previews, message rendering)
+verify_steps: RAG: re-clone threema-desktop and grep for `sandbox` and `nodeIntegrationInWorker` in `apps/desktop/src/electron/electron-main.ts`; read webPreferences block; search for `preload` scripts loaded in worker context; identify message/link handling that spawns workers
+impact: Renderer/worker-context XSS → nodeIntegration → RCE on user machine via malicious message or link. Severity: High (RCE via message handling, no auth required)
+testability: RAG
+[HYP] Staging mediator/rendezvous WSS surface reachable with staging cert
+class: OTHER
+asset: wss://mediator-{0..f}.test.threema.ch/{hexproto}/ and wss://rendezvous-{0..f}.test.threema.ch/{hexproto}/
+confidence: 55
+reasoning: DNS for mediator-{0..f}.test.threema.ch and rendezvous-{0..f}.test.threema.ch resolves; staging chat cluster at g-{XX}.0.test.threema.ch confirmed live on 203.56.114.34; mediator/rendezvous staging likely mirrors prod split routing (0-7 → .112.247, 8-f → .114.247) but with staging TLS certs; WSS handshake constants in threema-android source may reveal protocol framing
+evidence_needed: Confirm WSS endpoint accepts connections on staging hosts; capture handshake frames; verify if auth model differs from prod (weaker/staging tokens)
+verify_steps: RAG: fetch chat connection handshake/constants from github.com/threema-ch/threema-android — `ChatConnection`/`ChatProtocol`/server hostname patterns; PASSIVE: `openssl s_client -connect mediator-0.test.threema.ch:443` to verify TLS cert chain; attempt WSS upgrade with `websocat` or curl `--http2` to staging mediator/rendezvous hosts
+impact: Staging sync/linking surface may accept weaker auth or leak prod-like metadata; could serve as pivot for multi-device linking attacks. Severity: Medium (staging access, but protocol parity with prod)
+testability: PASSIVE
+[PARKED] Staging mediator/rendezvous WSS surface reachable with staging cert: confidence 55 but verify_steps require WSS handshake capture (active connection attempt) which exceeds passive-first GET/HEAD constraint; no concrete passive HTTP probe yields protocol details; dropping per rules (no passive verify step)
+[FINAL] 1) Safe backup cross-origin credentialed access via CORS * + Authorization header (70) 2) Electron renderer/worker RCE via sandbox disabled + nodeIntegrationInWorker (65)
+[NEXT] PROBE: curl -s -i -X OPTIONS https://safe-01.threema.ch/backups/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: Authorization" — confirm Access-Control-Allow-Headers includes Authorization and Access-Control-Expose-Headers for credentialed cross-origin reads; repeat for safe-1a, safe-1b, safe-02, safe-00.threema.ch
+[LEARN] ACCEPTED AUTH @ safe-01.threema.ch: Backup API is credential-gated — `GET /backups/{64hex}` returns HTTP 400 (not 200/401/404) for unauthenticated requests; OPTIONS preflight returns CORS `*` with `Access-Control-Allow-Headers: Authorization` enabling credentialed cross-origin requests
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has `sandbox: false` (TODO DEK-79) and `nodeIntegrationInWorker: true` (TODO DEK-79); `nodeIntegration: false` + `contextIsolation: true` are set
+[LEARN] REJECTED OTHER @ apip.threema.ch/identity/ws/revoke: returns 404 on both apip and ds-apip hosts — endpoint not publicly routable at documented path; hypothesis mis-targeted
+[LEARN] REJECTED OTHER @ apip.threema.ch/api/v1/pubkeys/{id}: returns 404 — dead endpoint candidate disproven
+[LEARN] ACCEPTED OTHER @ safe-*.threema.ch DNS pattern: safe-01, safe-1a, safe-1b, safe-02, safe-00 all resolve to 203.56.112.231 (single IP, 5 hostnames)
+[LEARN] ACCEPTED OTHER @ mediator-{0..f}/rendezvous-{0..f}.threema.ch DNS split routing: indices 0-7 → 203.56.112.247; indices 8-f → 203.56.114.247; all uniform 403 on HTTPS
+[LEARN] ACCEPTED OTHER @ Safe-01 backup API path distinction: `GET /backups/{64hex}` → HTTP 400 "Bad Request" (route exists, credential-gated) vs `GET /backup/{x}` → HTTP 404 150 bytes (no route)
+[LEARN] ACCEPTED OTHER @ ds-apip-work.threema.ch: Work directory prod backend confirmed live — 401 on all paths (/identity/*, /identities), CORS `*`, no HSTS/Expect-CT
+[LEARN] ACCEPTED OTHER @ ds-apip-work.test.threema.ch: Work directory staging backend confirmed live — 401 on all paths, CORS `*`, no HSTS/Expect-CT
+[LEARN] ACCEPTED OTHER @ work.test.threema.ch: Staging work web app confirmed live — 301 to /en/login, HSTS + Expect-CT, CSP with `*.test.threema.ch` refs, Sentry
+[RISK] chat: 60 reason: g-*.0.threema.ch prod pattern still unenumerated; staging g-*.0.test reachable but likely out of scope; core messaging infra but no visible HTTP endpoints
+[RISK] web: 85 reason: ds-apip/api/apip directory cluster — 3 prod hosts with public 200/404 identity oracle + fetch_bulk 200 + CORS * + no rate-limit (30 POSTs all 200); safe-01 backup API with permissive CORS + Authorization header + 5 hostnames; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry
+[RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve (split routing 203.56.112.247 | 203.56.114.247), uniform 403 on HTTPS; WSS paths high-entropy; auth model in source, not passively enumerable
+[RISK] safe: 80 reason: safe-01.live with CORS *, write-capable methods (GET,HEAD,PUT,PATCH,POST,DELETE), Access-Control-Allow-Headers: Authorization, HSTS+Expect-CT; backup API credential-gated (400) but cross-origin auth requests possible; 5 hostnames same IP; no 429 observed
+[RISK] desktop-src: 80 reason: Electron BrowserWindow sandbox disabled (TODO DEK-79) + nodeIntegrationInWorker: true (TODO DEK-79); Windows key-storage ACL bypass ACCEPTED; OnPrem config trust REJECTED (Ed25519 sig verified); staging URLs baked into builds; key storage Argon2id + DPAPI (decent but weak on Windows)
