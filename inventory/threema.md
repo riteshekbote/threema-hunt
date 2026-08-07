@@ -50,3 +50,14 @@
 - CHANGED `work.threema.ch` / `shop.threema.ch` / `broadcast.threema.ch` / `gateway.threema.ch` — 301/302 now with session cookie, CSP, Sentry (was TIMEOUT/301).
 - CHANGED `billing.threema.ch` — 301 → `threema.ch`.
 - NEW `ds-apip.test.threema.ch` — leaked test/staging directory server reachable (static + live 200).
+
+## 2026-08-07 19:15:11 UTC
+- NEW ds-apip.threema.ch — canonical directory server with public `GET /identity/{id}` returning 200/404 oracle
+- NEW mediator-{X}.threema.ch/{XX}/ — WSS sync server hostname pattern confirmed from client config
+- NEW safe-{XX}.threema.ch/ — backup safe hostname pattern confirmed from client config
+- NEW rendezvous-{X}.threema.ch/{XX}/ — WSS linking server hostname pattern confirmed from client config
+- NEW api.threema.ch — 403 with same permissive CORS as apip (ID service sibling)
+- NEW ds-apip.test.threema.ch — leaked test/staging directory server reachable (live 200)
+- CHANGED apip.threema.ch — now verified 200 on `/identity/ECHOECHO`, 404 on invalid, CORS `*` (was 403 on `/`)
+- CHANGED work.threema.ch / broadcast.threema.ch / gateway.threema.ch / shop.threema.ch — now accessible with PHP session cookies, CSP, Sentry (were TIMEOUT/301)
+- CHANGED billing.threema.ch — now 301 → threema.ch (was TIMEOUT)
