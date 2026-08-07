@@ -1,0 +1,52 @@
+programs:
+  threema:
+    name: Threema
+    disclosure_policy: TBD - operator-provided program scope (update once public channel confirmed)
+    assets:
+      - name: "Android Source Code"
+        priority: In
+      - name: "iOS App Source Code"
+        priority: In
+      - name: "Desktop 2.x App Source Code (github.com/threema-ch/threema-desktop)"
+        priority: In
+      - name: "g-*.0.threema.ch (chat services)"
+        priority: In
+      - name: "mediator-*.threema.ch (multi-device synchronization server)"
+        priority: In
+      - name: "rendezvous-*.threema.ch (multi-device linking server)"
+        priority: In
+      - name: "apip.threema.ch (directory server / ID service)"
+        priority: In
+      - name: "safe-*.threema.ch (backup service)"
+        priority: In
+      - name: "work.threema.ch (work cockpit & backend)"
+        priority: In
+      - name: "broadcast.threema.ch (broadcast cockpit & backend)"
+        priority: In
+      - name: "gateway.threema.ch (gateway cockpit & backend)"
+        priority: In
+      - name: "shop.threema.ch (threema shop)"
+        priority: In
+      - name: "billing.threema.ch (billing system)"
+        priority: In
+    out_of_scope:
+      - "All other targets and third-party services not listed above"
+    github_orgs:
+      - threema-ch
+
+rules:
+  passive_first: true          # GET/HEAD reads first; no invasive testing without program approval
+  max_requests_per_second: 1   # never hammer
+  no_doom: true                # no DoS/DDoS, no resource-exhaustion tests
+  no_account_creation: true    # no mass signups without program approval
+  no_data_modification: true   # no writes, deletes, state changes on live infra
+  no_pre_disclosure: true      # never disclose before program response
+  redact_secrets_in_commits: true   # commit sha256 of secrets, never raw values
+
+# Multi-model ensemble: every hunt run picks a rotation of the 5 models.
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
