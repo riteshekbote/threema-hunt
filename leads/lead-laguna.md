@@ -314,3 +314,61 @@ testability: AUTH_HELPED
 [RISK] safe: 75 reason: safe-01.live with CORS *, write-capable methods (GET,HEAD,PUT,PATCH,POST,DELETE), Access-Control-Allow-Headers: Authorization, HSTS+Expect-CT; backup API credential-gated (400) but cross-origin auth requests possible; no 429 observed
 [RISK] desktop-src: 80 reason: Electron BrowserWindow sandbox disabled (TODO DEK-79) + nodeIntegrationInWorker: true (TODO DEK-79); Windows key-storage ACL bypass ACCEPTED; OnPrem config trust REJECTED (Ed25519 sig verified); staging URLs baked into builds; key storage Argon2id + DPAPI (decent but weak on Windows)
 ## 2026-08-07 23:15:37 UTC [desktop] (model laguna)
+## 2026-08-07 23:46:58 UTC [desktop] (model laguna)
+[HYP] Staging mediator/rendezvous WSS surface reachable with staging cert
+class: MISCONFIG
+asset: wss://mediator-{0..f}.test.threema.ch/{hexproto}/ (203.56.114.62)
+confidence: 55
+reasoning: staging hosts resolve on staging net with distinct `*.test.threema.ch` cert, mirroring accepted ds-apip.test exposure; prod pattern mediator-{1hex}.threema.ch/{hex ClientUrlInfo} confirmed from source (MediatorUrl.get).
+evidence_needed: a staging WSS path that accepts a handshake/token differently than prod, or staging-specific pairing route.
+verify_steps: AUTH_HELPED: reconstruct D2M WSS URL from source (need a dgid) — not passive-enumerable; passive TLS/cert comparison already done (identical 403, distinct cert).
+impact: reachable staging pairing/sync infra → test device-group surface, token-handling skew; severity low-medium.
+testability: AUTH_HELPED
+[HYP] Staging chat cluster remains a reachable mirror without observable divergence
+class: MISCONFIG
+asset: g-*.0.test.threema.ch:5222 (203.56.114.34)
+confidence: 50
+reasoning: hostname pattern identity-derived (confirmed in source); 5222 TCP-accepting on both staging and prod, both silent, both hold open → only distinguishing feature is DNS/net split, same as accepted staging pattern.
+evidence_needed: in-band protocol difference (test identities, version skew) — requires decoding the custom CSP handshake.
+verify_steps: AUTH_HELPED: reconstruct CSP handshake (NaCl-box + HKDF) from threema-android `csp/connection`, single connect to staging vs prod, compare stream/auth response; ≤1 rps one attempt each.
+impact: internet-reachable staging messenger backend; severity low.
+testability: AUTH_HELPED
+[HYP] Staging work web app exposes test-account/recon surface
+class: MISCONFIG
+asset: https://work.test.threema.ch
+confidence: 45
+reasoning: confirmed live (301 → /en/login, HSTS, Expect-CT, CSP, Sentry) — a full staging cockpit with no observed auth on root; mirrors accepted staging-exposure pattern.
+evidence_needed: unauthenticated-visible routes (registration, API base, JS bundles with staging endpoints) differing from prod.
+verify_steps: PASSIVE: GET https://work.test.threema.ch/en/login and follow redirect; fetch referenced JS bundle, grep for fetch('/api'|login|register) endpoints; ≤1 rps.
+impact: staging work app recon → test credentials, config leaks, version skew; severity low.
+testability: PASSIVE
+[FINAL] ranked: 1) mediator/rendezvous staging exposure (55), 2) staging chat mirror (50), 3) work.test web app surface (45).
+[NEXT] PROBE: `curl -s -L -m 12 https://work.test.threema.ch/en/login -o /tmp/opencode/worktest_login.html -w "%{http_code} %{url_effective}"`, then extract referenced JS bundle URLs and grep for API routes (fetch/login/register/oauth) — fresh reachable staging web surface, fully passive, ≤1 rps.
+[HYP] Safe backup cross-origin credential probing across 5 hostnames (credential-gated route enumerable + CORS * with Authorization)
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{id} (single IP 203.56.112.231)
+confidence: 75
+reasoning: Uniformly confirmed: GET /backups/{64hex}→400 (11B) vs /backup/{x}→404 (147B) on all 5 hosts = existence oracle; OPTIONS /backups/{id}→204 with ACAO:* , Allow-Methods incl PUT/PATCH/POST/DELETE, and crucially Access-Control-Allow-Headers: Authorization; no 429/RateLimit/Retry-After across 5×1s GETs. Credential-gated (400, not 200) but auth layer is bypass-able only if backupId+backupKey are obtained — however cross-origin * reads of the 400/404 oracle + credentialed Basic attempts from any attacker origin are permitted.
+evidence_needed: (1) valid backupId+backupKey → HTTP 200 (proves auth, not just route existence); (2) 400 body content differs for existing-vs-nonexisting 64-hex id (proves enumeration oracle); (3) OPTIONS exposes Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED: with program-provided test backupId+backupKey, `curl -s -i -m 12 -u "${backupId}:${backupKey}" https://safe-01.threema.ch/backups/${backupId}` → confirm 200; then `curl -s -i -m 12 https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000` → inspect 400 body vs non-64-hex; PASSIVE: `curl -s -i -X OPTIONS https://safe-01.threema.ch/backups/x -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: Authorization"` → record ACAO/Allow-Methods/Allow-Headers/Expose-Headers; repeat for safe-1a/1b/02/00.
+impact: Cross-origin backup-ID existence enumeration (400-vs-404 oracle) + CSRF-class credentialed reads against the backup store from any attacker origin; if backupId:backupKey format confirmed, full backup disclosure = identity keypair + message history backup. Severity: High (high-value asset, credential-gated yet cross-origin auth enabled, no rate limit, 5 hosts same config).
+testability: PASSIVE + AUTH_HELPED
+[HYP] Desktop Windows key-storage ACL bypass → same-user DPAPI recovery → full key-store decryption
+class: MISCONFIG
+asset: threema-desktop `apps/desktop/src/common/node/key-storage/index.ts` (fileModeInternalObjectIfPosix) + keystorage.password.bin (DPAPI)
+confidence: 75
+reasoning: Accepted RAG: fileModeInternalObjectIfPosix() returns {} on Windows, so keystorage.bin (Argon2id-wrapped, key = user master password) and keystorage.password.bin (Electron safeStorage = Windows DPAPI under current user) are written with NO POSIX ACL restriction on disk. On Windows, CryptProtectData is reversible by ANY same-user process — so a co-located malicious app/service running as the same Windows identity can decrypt keystorage.password.bin → recover master key → decrypt keystorage.bin → plaintext identity keypair + message DB.
+evidence_needed: Source confirm fileModeInternalObjectIfPosix() path returns {} for Windows (not {mode:0o600}); confirm keystorage.password.bin written with safeStorage/encryption; confirm master password is the Argon2id input to keystorage.bin (no per-install salt/seal beyond the password).
+verify_steps: RAG: clone threema-desktop, read `apps/desktop/src/common/node/key-storage/index.ts` around fileModeInternalObjectIfPosix; read crypto.ts KDF flow to confirm master-password→keystorage.bin; confirm safeStorage usage on Windows path.
+impact: Local privilege-escalation-style theft: any same-user malware extracts the victim's entire encrypted Threema identity (keypair) + decrypts local message database without the Threema master password. Severity: High (full message identity compromise, no network auth needed).
+testability: RAG
+[HYP] Desktop BrowserWindow sandbox disabled + nodeIntegrationInWorker → worker-context RCE via message/link content
+class: MISCONFIG
+asset: threema-desktop `apps/desktop/src/electron/electron-main.ts` (BrowserWindow webPreferences)
+confidence: 65
+reasoning: Accepted RAG: sandbox:false (explicit TODO DEK-79) + nodeIntegrationInWorker:true (TODO DEK-79); nodeIntegration:false + contextIsolation:true set. nodeIntegrationInWorker explicitly grants Node require() to Web Worker contexts; with sandbox off, subprocesses retain wider privileges. If any worker thread processes attacker-controlled content (link preview, attachment decode, message render offloaded to worker), Node APIs (fs/child_process) → RCE.
+evidence_needed: Source line numbers for sandbox:false + nodeIntegrationInWorker:true; enumeration of worker spawn sites and content sources (msg-link-preview, attachment, image decode).
+verify_steps: RAG: clone threema-desktop, grep `nodeIntegrationInWorker`/`sandbox` in electron-main.ts; grep `new Worker(` across src/ to find content sources; trace message/link handling that feeds a Worker.
+impact: Renderer/worker XSS → Node require → OS command execution on the desktop user's machine via a malicious Threema message or link. Severity: High (RCE, no auth beyond receiving a message).
+testability: RAG
+[NEXT] RAG: clone github.com/threema-ch/threema-desktop, then read `apps/desktop/src/electron/electron-main.ts` BrowserWindow webPreferences to capture exact line numbers for `sandbox`/`nodeIntegrationInWorker`/`nodeIntegration`/`contextIsolation`, and read `apps/desktop/src/common/node/key-storage/index.ts` `fileModeInternalObjectIfPosix` to confirm Windows returns `{}` (no ACL). Also grep `new Worker(` across `apps/desktop/src/` to enumerate worker content sources. This materially advances the desktop POC (top-ranked RAG hypothesis) and resolves the 65+75 confidence desktop leads to verified line-level evidence.
