@@ -1,65 +1,8 @@
 [0m
 > build · nemotron-3-ultra-free
 [0m
-[0m$ [0mecho -n 'r3gGN9GDQ5NF6tM6' | sha256sum | cut -d' ' -f1
-400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12
-[0m
-[0m$ [0mecho -n 'b3e20afbf356a8748bb62ac165aa780c' | sha256sum | cut -d' ' -f1 && echo -n '615af77cb3d980c41b3b04b07417cc7d' | sha256sum | cut -d' ' -f1
-3b5ceb40c92b5720053e2fc8e4e00caf155cb63dcc5c50106d4cf7594424cc37
-34a46cacc544ffbfe7db201d56a320f5ba75abe1437f72b1a04a293aa227c634
-[0m
-### REAL_SECRET
-| File | Line | Secret SHA256 |
-|------|------|---------------|
-| reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts | 223 | 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 |
+Let me analyze the scan results for the threema-ch repositories. I need to classify each hit into one of the categories: REAL_SECRET, TEST_OR_EXAMPLE, ENDPOINT_LEAK, or INTERESTING.
 
-### TEST_OR_EXAMPLE
-| File | Line | Context |
-|------|------|---------|
-| threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | Test fixture: `"password1"` |
-| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15 | Test fixture: `"authToken"` |
-| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 18 | Test fixture: `"testPassword"` |
-| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift | 50, 72, 148 | Test mock: `"testPassword"` |
-| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift | 13, 37, 103 | Test fixtures: `"testPassword"`, `"validPassword"` |
-| threema-ios/ThreemaTests/SafeTests.swift | 67, 76, 105 | Test fixture: `"shootdeathstar"` |
-| threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift | 30, 227 | Test fixtures: `"abcdefghijkl"`, `"ABcd!@#tgk092"` |
-| threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift | 28, 76, 120 | Test fixture: `"shootdeathstar"` |
-| threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift | 38, 83 | Test fixture: `"shootdeathstar"` |
-| threema-desktop/apps/desktop/src/common/test-data.ts | 62 | Placeholder: `"CHANGE_ME"` |
+Let me go through each hit systematically:
 
-### ENDPOINT_LEAK
-| File | Line | Endpoint |
-|------|------|----------|
-| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
-| threema-android/domain/protocol/src/directory.openapi.yml | 7, 911 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
-| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
-| threema-desktop/apps/desktop/config/vite.config.ts | 147, 153, 154 | `https://ds-apip.test.threema.ch`, `https://ds-apip-work.test.threema.ch`, `https://work.test.threema.ch` |
-| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 7, 911 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
-
-### INTERESTING
-| File | Line | Note |
-|------|------|------|
-| threema-ios/Threema/AppMigration.swift | 873 | Persistence key name: `"Threema license password"` (not a secret) |
-| threema-android/domain/src/main/java/.../SfuToken.kt | 49 | Token masked in `toString()`: `'********'` |
-| threema-android/.../WebClientSessionModel.java | 28 | Column constant: `"push_token"` |
-| threema-android/.../DatabaseUpdateToVersion37.java | 48 | Column constant: `"push_token"` |
-| threema-android/.../IceCandidateParser.java | 43 | Regex pattern: `"[a-zA-Z]+"` |
-| threema-android/.../ClientInfo.java | 37 | JSON field constant: `"pushToken"` |
-| threema-android/.../JoinResponse.kt | 70 | ICE credential logging pattern |
-| threema-android/.../NotificationChannels.kt | 52 | Channel ID: `"remote_secret_monitor"` |
-| threema-android/.../PasswordEntryDialog.java | 47 | Bundle key: `"password"` |
-| threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt | 15, 19 | **Public** Sentry DSN keys (sha256: `3b5ceb4...`, `34a46ca...`) |
-| threema-desktop/.../enum/index.ts | 3126, 3162 | Action constants: `LOAD_USER_PASSWORD`, `STORE_USER_PASSWORD` |
-| threema-desktop/.../enum/schema.ts | 983, 1000 | Schema constants (duplicates above) |
-| threema-desktop/packages/webrtc/src/sdp/ice-password.ts | 12 | ICE password validation error |
-
----
-
-### VERDICT
-| Candidate | REPORT_CANDIDATE | Reason |
-|-----------|------------------|--------|
-| `crypto.ts:223` hardcoded password `r3gGN9GDQ5NF6tM6` | **yes** | Hardcoded encryption password in key-storage module; not in test file; appears in production crypto code |
-| Sentry DSN keys (Android) | no | Public DSN keys intended for client-side error reporting |
-| All test fixtures (`testPassword`, `shootdeathstar`, etc.) | no | Confined to `*Tests.swift`, `*Test*.swift`, `test-data.ts` |
-| All `directory.openapi.yml` / `vite.config.ts` test/staging URLs | no | Documented `.test.threema.ch` endpoints; already known from recon |
-| All constant strings (column names, action types, regex, keys) | no | Code constants, not secrets |
+1. `reposcan-raw
