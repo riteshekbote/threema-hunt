@@ -1216,3 +1216,419 @@ testability: PASSIVE
 - [RISK] sync: 40 | mediator/rendezvous shared edge 403-gated, per-account paths high-entropy
 - [RISK] safe: 50 | live backup service, CORS `*`, no 429 observed on initial probes, auth-failure handling unknown
 - [RISK] desktop-src: 55 | Windows key-storage ACL accepted finding; Electron sandbox disabled (DEK-79 TODO)
+===== ANALYST bigpickle 2026-08-07 21:23:50 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/ 2>/dev/null; echo "---"; ls /home/runner/work/threema-hunt/threema-hunt/reports/ 2>/dev/null
+total 128
+drwxr-xr-x 11 runner runner  4096 Aug  7 21:19 .
+drwxr-xr-x  3 runner runner  4096 Aug  7 21:19 ..
+drwxr-xr-x  7 runner runner  4096 Aug  7 21:19 .git
+drwxr-xr-x  3 runner runner  4096 Aug  7 21:19 .github
+-rw-r--r--  1 runner runner  1049 Aug  7 21:19 README.md
+-rw-r--r--  1 runner runner    32 Aug  7 21:19 analyst-out.txt
+-rw-r--r--  1 runner runner 25117 Aug  7 21:19 analyst-prompt.txt
+-rw-r--r--  1 runner runner 22053 Aug  7 21:19 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  7 21:19 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  7 21:19 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  7 21:19 leads
+drwxr-xr-x  2 runner runner  4096 Aug  7 21:19 reports
+drwxr-xr-x  3 runner runner  4096 Aug  7 21:19 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  7 21:19 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  7 21:19 scripts
+-rw-r--r--  1 runner runner    34 Aug  7 21:19 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  7 21:19 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  7 21:19 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  7 21:19 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  7 21:19 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  7 21:19 triage
+---
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+[0m
+[0m$ [0mfor h in g-1-0 g-2-0 g-3-0 g-4-0 g-5-0 g-6-0 g-7-0 g-8-0 g-9-0; do echo -n "$h.threema.ch => "; getent hosts $h.threema.ch 2>/dev/null || echo NXDOMAIN; done
+g-1-0.threema.ch => NXDOMAIN
+g-2-0.threema.ch => NXDOMAIN
+g-3-0.threema.ch => NXDOMAIN
+g-4-0.threema.ch => NXDOMAIN
+g-5-0.threema.ch => NXDOMAIN
+g-6-0.threema.ch => NXDOMAIN
+g-7-0.threema.ch => NXDOMAIN
+g-8-0.threema.ch => NXDOMAIN
+g-9-0.threema.ch => NXDOMAIN
+[0m
+[0m$ [0mls -R /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/ 2>/dev/null | head -50; echo "==="; ls /home/runner/work/threema-hunt/threema-hunt/knowledge/ /home/runner/work/threema-hunt/threema-hunt/leads/ /home/runner/work/threema-hunt/threema-hunt/inventory/ /home/runner/work/threema-hunt/threema-hunt/triage/ 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/:
+analysis.txt
+grep-delta.txt
+grep-hits.prev.txt
+grep-hits.txt
+rag.txt
+threema-ch
+
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch:
+app-remote-protocol
+compose-area
+push-relay
+threema-android
+threema-bot-sdk
+threema-desktop
+threema-ios
+threema-markup
+threema-msgapi-sdk-java
+threema-msgapi-sdk-php
+threema-msgapi-sdk-python
+threema-msgapi-sdk-rust
+threema-web
+threema-web-electron
+wasm-minisign-verify
+webrtc-build-docker
+
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/app-remote-protocol:
+
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/compose-area:
+
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/push-relay:
+
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-android:
+
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-bot-sdk:
+
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop:
+
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-ios:
+
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-markup:
+
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-msgapi-sdk-java:
+
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-msgapi-sdk-php:
+
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-msgapi-sdk-python:
+
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-msgapi-sdk-rust:
+
+===
+/home/runner/work/threema-hunt/threema-hunt/inventory/:
+threema.md
+
+/home/runner/work/threema-hunt/threema-hunt/knowledge/:
+index.md
+
+/home/runner/work/threema-hunt/threema-hunt/leads/:
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-nemotron3.md
+reposcan-2026-08-07-18-43.md
+reposcan-2026-08-07-18-59.md
+reposcan-2026-08-07-19-20.md
+reposcan-2026-08-07-19-33.md
+reposcan-2026-08-07-20-11.md
+reposcan-2026-08-07-20-59.md
+reposcan-2026-08-07-21-13.md
+reposcan-latest.md
+
+/home/runner/work/threema-hunt/threema-hunt/triage/:
+run-2026-08-07-20-10.md
+run-2026-08-07-21-03.md
+[0m
+[0m$ [0mtail -30 /home/runner/work/threema-hunt/threema-hunt/reports/hypotheses-bigpickle.txt 2>/dev/null; echo "=== NEMOTRON ==="; tail -15 /home/runner/work/threema-hunt/threema-hunt/reports/hypotheses-nemotron3.txt 2>/dev/null
+## 2026-08-07 20:41:53 UTC [chat] (model bigpickle)
+[HYP] Safe backup server permissive CORS + unauthenticated probe surface
+class: MISCONFIG
+asset: safe-01.threema.ch (safe-*.threema.ch)
+confidence: 55
+reasoning: live nginx, 404 with app-level routing (154b vs 146b bodies), Access-Control-Allow-Origin `*`, Allow-Methods GET,HEAD,PUT,PATCH,POST,DELETE, HSTS+Expect-CT — same permissive-CORS posture as the already-confirmed directory servers. Threema Safe API serves `GET/PUT/DELETE /backup/{id}` where valid id+key → 200 and random → 404; multi-host same backend (safe-1a byte-identical 154b).
+evidence_needed: 404-vs-401 distinction on `/backup/{id}` (route exists vs auth-required), and absence of 429/Retry-After on repeated failed lookups → unauthenticated oracle + rate-limit posture.
+verify_steps: PASSIVE: 5× GET https://safe-01.threema.ch/backup/{random16} at 1s intervals logging full headers; GET https://safe-01.threema.ch/backup/ + OPTIONS preflight (already 204, CORS \*); compare body bytes vs safe-1a. ≤1 rps, no real IDs.
+impact: cross-origin page can probe backup existence and (with leaked backupKey) attempt PUT/DELETE overwrite of user backups; at minimum unauthenticated API surface on the backup service. Severity: low-medium.
+testability: PASSIVE
+[HYP] chat service hostname discoverable from in-scope client source
+class: OTHER
+asset: g-*.0.threema.ch (hostname pattern unresolved)
+confidence: 45
+reasoning: g-1-0…g-9-0 NXDOMAIN while other in-scope hosts resolve; real chat hostname must be defined in threema-android/threema-ios/threema-web connection config (in-scope static-analysis-valid); not resolvable by guesswork.
+evidence_needed: a hostname from client config that resolves and answers (TLS/WSS 4xx) under the g-*.0.chat pattern.
+verify_steps: RAG: grep threema-android/threema-ios/threema-web source for chat/connection server URL (ServerConfig, g-*.0.threema.ch, wss://), then DNS + single HEAD at ≤1 rps.
+impact: unlocks the core in-scope chat surface; severity n/a until hostname confirmed.
+testability: PASSIVE
+[HYP] mediator/rendezvous shared-edge 403 masks service-level routes
+class: MISCONFIG
+asset: mediator-1.threema.ch / rendezvous-1.threema.ch (203.56.112.247)
+confidence: 45
+reasoning: both hostnames → identical IP and byte-identical 403 across 4 paths; TLS terminates (403 not TLS error) so an edge nginx fronts both WSS services; per-account `{XX}/` paths are high-entropy and unguessable, so only unauthenticated edge routes are testable.
+evidence_needed: any path or Host variant returning ≠403 (health/version/well-known), or cert SAN overlap across mediator/rendezvous/safe IPs.
+verify_steps: PASSIVE: HEAD /health /status /version /.well-known/* with default + swapped Host headers at ≤1rps; `openssl s_client` SAN comparison across 203.56.112.247 and 203.56.112.231.
+impact: staging/edge exposure or cross-service virtual-host confusion; severity: low.
+testability: PASSIVE
+=== NEMOTRON ===
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch: Public `GET /identity/{id}` returns 200/404 oracle with permissive CORS and no observable rate limit — confirmed via passive probes.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch: Unauthenticated identity→pubkey oracle confirmed via GET /identity/{id} (200/404) AND POST /identity/fetch_bulk (returns pubkeys for valid IDs only, no auth).
+[LEARN] ACCEPTED AUTH @ apip.threema.ch: CORS misconfiguration confirmed — Access-Control-Allow-Origin: *, methods include POST/GET/OPTIONS/DELETE — cross-origin API probes enabled from any attacker origin.
+[LEARN] ACCEPTED OTHER @ api.threema.ch: Previously a "candidate ID/directory sibling"; now confirmed as an active directory server with identical endpoints and CORS headers as ds-apip.threema.ch.
+[LEARN] ACCEPTED OTHER @ threema-desktop: Electron attack surface confirmed in scope; static analysis is valid passive-first approach.
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in `determineKdfParams()`, derived key immediately purged, not used for any real encryption.
+[LEARN] REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not vulnerable.
+[LEARN] ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — `keystorage.bin` and `keystorage.password.bin` written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateLimit). CORS `*` with DELETE/POST/GET/OPTIONS. All three hostnames return identical pubkeys for valid IDs; invalid IDs silently omitted.
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: Staging directory server publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+[RISK] chat: 60 reason: g-*.0.threema.ch pattern still unknown; core messaging infra but no visible endpoints yet
+[RISK] web: 80 reason: ds-apip.threema.ch confirmed with public identity oracle + CORS*; work/broadcast/gateway/shop accessible with PHP sessions, CSP, Sentry; api.threema.ch sibling with same CORS
+[RISK] sync: 65 reason: mediator-*.threema.ch/{XX}/ pattern confirmed (WSS); critical for multi-device but auth model unenumerated
+[RISK] safe: 55 reason: safe-{XX}.threema.ch/ pattern confirmed; backup service high value but no live access yet
+[RISK] desktop-src: 75 reason: Electron app with embedded test/staging URLs + OnPrem config trust chain; source available for static analysis; RCE potential via preload/contextIsolation bypass
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt; rg -i -o "g-[0-9]+-[0-9]+\.[a-z0-9.-]*threema\.ch|[a-z0-9-]*chat[a-z0-9-]*\.threema\.ch|wss://[a-z0-9.-]*threema\.ch" reposcan-raw/grep-hits.txt 2>/dev/null | sort -u | head -40
+(no output)
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt; rg -n -i "g-.*threema|chat.*server|connection.*server|ServerConfig" reposcan-raw/rag.txt 2>/dev/null | head -30
+(no output)
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch; for d in threema-android threema-ios threema-web threema-desktop; do echo "=== $d ==="; ls $d 2>/dev/null | head -5; done
+=== threema-android ===
+=== threema-ios ===
+=== threema-web ===
+=== threema-desktop ===
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt; rg -n -i "g-[0-9].*threema\.ch|chat\.threema\.ch" reposcan-raw/grep-hits.txt reposcan-raw/analysis.txt 2>/dev/null | head; echo "---RAG tail---"; tail -40 reposcan-raw/rag.txt 2>/dev/null
+---RAG tail---
+# Inventory: threema
+
+## Seed 2026-08-07 (passive recon)
+
+### Hosts (in scope)
+- g-*.0.threema.ch (chat) — hostname pattern unknown, enumerate once discovered
+- mediator-*.threema.ch (sync) — pattern unknown
+- rendezvous-*.threema.ch (linking) — pattern unknown
+- apip.threema.ch — 403 on /
+- safe-*.threema.ch (backup) — pattern unknown
+- work.threema.ch — 301
+- broadcast.threema.ch — timeout
+- gateway.threema.ch — timeout
+- shop.threema.ch — 301
+- billing.threema.ch — timeout
+
+### Source code (in scope)
+- github.com/threema-ch/threema-android (Kotlin)
+- github.com/threema-ch/threema-ios (Swift)
+- github.com/threema-ch/threema-desktop (TS) — Desktop 2.x
+- github.com/threema-ch/threema-web (TS)
+- github.com/threema-ch/threema-web-electron
+- github.com/threema-ch/threema-msgapi-sdk-* (php/java/python/rust)
+- github.com/threema-ch/threema-bot-sdk (Rust)
+- github.com/threema-ch/push-relay (Rust)
+- github.com/threema-ch/app-remote-protocol
+
+### Open questions
+- Actual hostnames matching g-*/mediator-*/rendezvous-*/safe-* patterns
+- Auth model of apip.threema.ch (ID service)
+- Whether billing/shop share a backend
+
+## 2026-08-07 18:40:46 UTC
+- CHANGED work.threema.ch: Now responds with 301 to /en/login (was 301, now confirmed PHP session cookie, CSP, Sentry reporting)
+- CHANGED shop.threema.ch: Now responds with 301 to /en (was 301, now confirmed CSP, Sentry, hCaptcha subdomain)
+- CHANGED broadcast.threema.ch: Now responds 301 to /en/login (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+- CHANGED gateway.threema.ch: Now responds 302 to /en (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+- CHANGED billing.threema.ch: Now responds 301 to threema.ch (was TIMEOUT, now redirects to main site)
+- CHANGED apip.threema.ch: Confirmed 403 with CORS headers allowing POST/GET/OPTIONS/DELETE (was 403, now detailed)
+- NEW api.threema.ch: Returns 403 with same CORS headers as apip.threema.ch (likely related ID service)
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt; wc -l reposcan-raw/grep-hits.txt; rg -i -n "wss|g-[0-9]|serverurl|server_url|connection.*url|chat.*\.ch\b|\.0\.threema" reposcan-raw/grep-hits.txt | head -30
+49 reposcan-raw/grep-hits.txt
+/bin/bash: line 1: rg: command not found
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt; ls reposcan-raw/threema-ch/threema-desktop; echo "==="; find reposcan-raw/threema-ch/threema-desktop -maxdepth 3 -type f 2>/dev/null | head
+===
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt; grep -i -E "wss|g-[0-9]|serverurl|server_url|connection" reposcan-raw/grep-hits.txt reposcan-raw/analysis.txt | head -30
+reposcan-raw/grep-hits.txt:reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:147: DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/',
+reposcan-raw/grep-hits.txt:reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:154: WORK_SERVER_URL: 'https://work.test.threema.ch/',
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt; cat reposcan-raw/grep-hits.txt
+SCAN SUMMARY: 6656 code/config files scanned, 56 hits
+reposcan-raw/threema-ch/threema-ios/Threema/AppMigration.swift:873: let persistenceKeyLicensePassword = "Threema license password"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/SafeDataTests.swift:11: serverPassword: "password1",
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift:15: let expectedAuthToken = "authToken"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift:18: let expectedPassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:50: licenseStoreMock.licensePassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:72: (username: nil as String?, password: "testPassword" as String?, description: "nil username"),
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:148: licenseStoreMock.licensePassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:13: let expectedPassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:37: (username: nil as String?, password: "validPassword" as String?, description: "nil username"),
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:103: password: "testPassword",
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:67: let result = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:76: let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:105: let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift:30: let password = "abcdefghijkl"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift:227: let validPassword = "ABcd!@#tgk092"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:28: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:76: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:120: safePassword: "shootdeathstar"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift:38: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift:83: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt:49: """sfuToken='********', expirationDate=$expirationDate)"""
+reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:911: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/storage/models/WebClientSessionModel.java:28: public static final String COLUMN_PUSH_TOKEN = "push_token";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/storage/databaseupdate/DatabaseUpdateToVersion37.java:48: static final String COLUMN_PUSH_TOKEN = "push_token";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/utils/IceCandidateParser.java:43: public final static String TOKEN = "[a-zA-Z]+";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/webclient/converter/ClientInfo.java:37: private final static String PUSH_TOKEN = "pushToken";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt:70: "iceUsernameFragment='$iceUsernameFragment', icePassword='$icePassword', " +
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/notifications/NotificationChannels.kt:52: const val NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/dialogs/PasswordEntryDialog.java:47: public static final @NonNull String KEY_PASSWORD = "password";
+reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:15: publicApiKey = "b3e20afbf356a8748bb62ac165aa780c",
+reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:19: publicApiKey = "615af77cb3d980c41b3b04b07417cc7d",
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:147: DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:153: WORK_SERVER_LEGACY_URL: 'https://ds-apip-work.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:154: WORK_SERVER_URL: 'https://work.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/test-data.ts:62: keyStoragePassword: 'CHANGE_ME',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts:223: password: 'r3gGN9GDQ5NF6tM6',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/enum/index.ts:3126: export const LOAD_USER_PASSWORD = 'loadUserPassword';
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/enum/index.ts:3162: export const STORE_USER_PASSWORD = 'storeUserPassword';
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/enum/schema.ts:983: LOAD_USER_PASSWORD = 'loadUserPassword',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/enum/schema.ts:1000: STORE_USER_PASSWORD = 'storeUserPassword',
+reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml:911: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-desktop/packages/webrtc/src/sdp/ice-password.ts:12: throw Error(`Not a valid ICE password: '${value}'`);
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt; find reposcan-raw/threema-ch/threema-desktop -maxdepth 2 -type d 2>/dev/null | head; echo "=== count ==="; find reposcan-raw/threema-ch -type f 2>/dev/null | wc -l; echo "=== android/ios files ==="; find reposcan-raw/threema-ch/threema-ios -type f 2>/dev/null | wc -l
+reposcan-raw/threema-ch/threema-desktop
+=== count ===
+0
+=== android/ios files ===
+0
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt; cat reposcan-raw/analysis.txt 2>/dev/null | head -80
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mls -la reposcan-raw/threema-ch/
+total 72
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:10 .
+drwxr-xr-x  3 runner runner 4096 Aug  7 21:10 ..
+drwxr-xr-x  7 runner runner 4096 Aug  7 21:10 app-remote-protocol
+drwxr-xr-x 10 runner runner 4096 Aug  7 21:10 compose-area
+drwxr-xr-x  7 runner runner 4096 Aug  7 21:10 push-relay
+drwxr-xr-x 14 runner runner 4096 Aug  7 21:10 threema-android
+drwxr-xr-x  8 runner runner 4096 Aug  7 21:10 threema-bot-sdk
+drwxr-xr-x 12 runner runner 4096 Aug  7 21:10 threema-desktop
+drwxr-xr-x 32 runner runner 4096 Aug  7 21:11 threema-ios
+drwxr-xr-x  6 runner runner 4096 Aug  7 21:10 threema-markup
+drwxr-xr-x  4 runner runner 4096 Aug  7 21:11 threema-msgapi-sdk-java
+drwxr-xr-x  5 runner runner 4096 Aug  7 21:11 threema-msgapi-sdk-php
+drwxr-xr-x  7 runner runner 4096 Aug  7 21:10 threema-msgapi-sdk-python
+drwxr-xr-x  9 runner runner 4096 Aug  7 21:10 threema-msgapi-sdk-rust
+drwxr-xr-x 16 runner runner 4096 Aug  7 21:10 threema-web
+drwxr-xr-x  8 runner runner 4096 Aug  7 21:10 threema-web-electron
+drwxr-xr-x  7 runner runner 4096 Aug  7 21:10 wasm-minisign-verify
+drwxr-xr-x  5 runner runner 4096 Aug  7 21:10 webrtc-build-docker
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts[90m [limit=20, offset=215][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts[90m [limit=30, offset=140][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/test-data.ts[90m [limit=30, offset=55][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt
+[0m→ [0mRead reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml[90m [offset=1, limit=20][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/packages/webrtc/src/sdp/ice-password.ts
+Now I have enough context. Let me compile the classification tables.
+
+## Classification Tables
+
+### REAL_SECRET
+| File | Line | SHA256 | Verdict |
+|------|------|--------|---------|
+| *(none)* | — | — | No live credentials found |
+
+### TEST_OR_EXAMPLE
+| File | Line | Context |
+|------|------|---------|
+| threema-ios/Threema/AppMigration.swift | 873 | `persistenceKeyLicensePassword = "Threema license password"` |
+| threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | `serverPassword: "password1"` |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15 | `expectedAuthToken = "authToken"` |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 18 | `expectedPassword = "testPassword"` |
+| threema-ios/.../WorkDataThreemaMDMFetcherTests.swift | 50,72,148 | `licensePassword = "testPassword"` |
+| threema-ios/.../WorkDataAPICallerTests.swift | 13,37,103 | `expectedPassword = "testPassword"`, `"validPassword"` |
+| threema-ios/ThreemaTests/SafeTests.swift | 67,76,105 | `safePassword: "shootdeathstar"` |
+| threema-ios/.../ThreemaSafePasswordValidatorTests.swift | 30 | `password = "abcdefghijkl"` |
+| threema-ios/.../ThreemaSafePasswordValidatorTests.swift | 227 | `validPassword = "ABcd!@#tgk092"` |
+| threema-ios/.../HttpClientDownloadSafeTests.swift | 28,76,120 | `safePassword: "shootdeathstar"` |
+| threema-ios/.../HttpClientUploadSafeTests.swift | 38,83 | `safePassword: "shootdeathstar"` |
+| threema-desktop/apps/desktop/src/common/test-data.ts | 62 | `keyStoragePassword: 'CHANGE_ME'` |
+| threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts | 223 | Benchmark password `'r3gGN9GDQ5NF6tM6'` (purged immediately, **REJECTED** per KB) |
+| threema-android/app/src/main/java/.../WebClientSessionModel.java | 28 | `COLUMN_PUSH_TOKEN = "push_token"` (column name) |
+| threema-android/.../DatabaseUpdateToVersion37.java | 48 | `COLUMN_PUSH_TOKEN = "push_token"` (column name) |
+| threema-android/.../IceCandidateParser.java | 43 | `TOKEN = "[a-zA-Z]+"` (regex) |
+| threema-android/.../ClientInfo.java | 37 | `PUSH_TOKEN = "pushToken"` (field name) |
+| threema-android/.../JoinResponse.kt | 70 | `icePassword` variable in string template (not hardcoded) |
+| threema-android/.../NotificationChannels.kt | 52 | `NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"` (channel ID) |
+| threema-android/.../PasswordEntryDialog.java | 47 | `KEY_PASSWORD = "password"` (key constant) |
+
+### ENDPOINT_LEAK
+| File | Line | Endpoint |
+|------|------|----------|
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7,917 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
+| threema-android/domain/protocol/src/directory.openapi.yml | 7,911 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 7,917 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
+| threema-desktop/apps/desktop/config/vite.config.ts | 147-154 | `ds-apip.test.threema.ch`, `mediator-*.test.threema.ch`, `blob-mirror-*.test.threema.ch`, `rendezvous-*.test.threema.ch`, `ds-apip-work.test.threema.ch`, `work.test.threema.ch` |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 7,911 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
+
+### INTERESTING
+| File | Line | Note |
+|------|------|------|
+| threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt | 15,19 | Sentry **public** DSN keys (`b3e20afbf356a8748bb62ac165aa780c`, `615af77cb3d980c41b3b04b07417cc7d`) — public by design |
+| threema-desktop/apps/desktop/src/common/enum/index.ts | 3126,3162 | Enum constants `LOAD_USER_PASSWORD`, `STORE_USER_PASSWORD` |
+| threema-desktop/apps/desktop/src/enum/schema.ts | 983,1000 | Same enum constants (source of generated file) |
+| threema-desktop/packages/webrtc/src/sdp/ice-password.ts | 12 | ICE password validation (min 22 chars) — not a secret |
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt; grep -r -i -E "g-[0-9]|chat host|messenger.*host|connection.*host|sfu|webSocket.*url|ws://|wss://" knowledge/ leads/ triage/ reports/ 2>/dev/null | grep -v -E "work\.threema|ds-apip|safe-" | head -20
+leads/reposcan-2026-08-07-21-13.md:reposcan-raw/threema-ch/threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt:49: """sfuToken='********', expirationDate=$expirationDate)"""
+leads/reposcan-2026-08-07-21-13.md:reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt:70: "iceUsernameFragment='$iceUsernameFragment', icePassword='$icePassword', " +
+leads/lead-bigpickle.md:reasoning: OpenAPI (directory.openapi.yml) shows /identity/ws/revoke is the ONLY identity endpoint with a single-step request (identity + revocationKey = SHA256(revocation-password)[:4], 32 bits) and NO challenge-response step, and unlike blob_cred/sfu_cred/work endpoints it documents NO 429 rate-limit response.
+leads/lead-bigpickle.md:reasoning: g-1-0…g-9-0 NXDOMAIN while other in-scope hosts resolve; real chat hostname must be defined in threema-android/threema-ios/threema-web connection config (in-scope static-analysis-valid); not resolvable by guesswork.
+leads/lead-bigpickle.md:verify_steps: RAG: grep threema-android/threema-ios/threema-web source for chat/connection server URL (ServerConfig, g-*.0.threema.ch, wss://), then DNS + single HEAD at ≤1 rps.
+leads/reposcan-2026-08-07-19-33.md:reposcan-raw/threema-ch/threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt:49: """sfuToken='********', expirationDate=$expirationDate)"""
+leads/reposcan-2026-08-07-19-33.md:reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt:70: "iceUsernameFragment='$iceUsernameFragment', icePassword='$icePassword', " +
+leads/reposcan-2026-08-07-19-33.md:| threema-android/domain/src/main/java/.../SfuToken.kt | 49 | Token masked in `toString()`: `'********'` |
+leads/reposcan-2026-08-07-20-11.md:reposcan-raw/threema-ch/threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt:49: """sfuToken='********', expirationDate=$expirationDate)"""
+leads/reposcan-2026-08-07-20-11.md:reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt:70: "iceUsernameFragment='$iceUsernameFragment', icePassword='$icePassword', " +
+leads/reposcan-2026-08-07-19-20.md:reposcan-raw/threema-ch/threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt:49: """sfuToken='********', expirationDate=$expirationDate)"""
+leads/reposcan-2026-08-07-19-20.md:reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt:70: "iceUsernameFragment='$iceUsernameFragment', icePassword='$icePassword', " +
+leads/reposcan-2026-08-07-19-20.md:| threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt | 49 | `sfuToken='********'` (redacted in toString) | N/A |
+leads/reposcan-2026-08-07-19-20.md:| threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt | 70 | Variable interpolation `icePassword='$icePassword'` (not hardcoded) |
+leads/reposcan-2026-08-07-20-59.md:reposcan-raw/threema-ch/threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt:49: """sfuToken='********', expirationDate=$expirationDate)"""
+leads/reposcan-2026-08-07-20-59.md:reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt:70: "iceUsernameFragment='$iceUsernameFragment', icePassword='$icePassword', " +
+leads/reposcan-latest.md:reposcan-raw/threema-ch/threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt:49: """sfuToken='********', expirationDate=$expirationDate)"""
+leads/reposcan-latest.md:reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt:70: "iceUsernameFragment='$iceUsernameFragment', icePassword='$icePassword', " +
+leads/reposcan-2026-08-07-18-59.md:reposcan-raw/threema-ch/threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt:49: """sfuToken='********', expirationDate=$expirationDate)"""
+leads/reposcan-2026-08-07-18-59.md:reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt:70: "iceUsernameFragment='$iceUsernameFragment', icePassword='$icePassword', " +
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mfor i in 1 2 3; do curl -s -o /tmp/safe_$i.body -D /tmp/safe_$i.hdr -w "probe$i HTTP %{http_code} time %{time_total}s size %{size_download}b\n" "https://safe-01.threema.ch/backup/$(openssl rand -hex 8)"; sleep 1; done; echo "=== probe1 headers ==="; cat /tmp/safe_1.hdr; echo "=== probe1 body ==="; cat /tmp/safe_1.body failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[0m
+[0m$ [0mfor h in mediator-1.test.threema.ch rendezvous-1.test.threema.ch blob-mirror-1.test.threema.ch blob-mirror-1a.test.threema.ch blob-mirror-1.threema.ch safe-1a.threema.ch safe-01.threema.ch safe-1.threema.ch; do echo -n "$h => "; getent hosts $h 2>/dev/null || echo NXDOMAIN; done
+mediator-1.test.threema.ch => 2a14:3e44:114:314::62 mediator-1.test.threema.ch
+rendezvous-1.test.threema.ch => 2a14:3e44:114:314::62 rendezvous-1.test.threema.ch
+blob-mirror-1.test.threema.ch => 2a14:3e44:114:314::62 blob-mirror-1.test.threema.ch
+blob-mirror-1a.test.threema.ch => NXDOMAIN
+blob-mirror-1.threema.ch => 2a14:3e40:112:312::247 blob-mirror-1.threema.ch
+safe-1a.threema.ch => 2a14:3e40:112:312::231 safe-1a.threema.ch
+safe-01.threema.ch => 2a14:3e40:112:312::231 safe-01.threema.ch
+safe-1.threema.ch => NXDOMAIN
+[0m

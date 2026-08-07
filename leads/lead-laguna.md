@@ -182,3 +182,4 @@ testability: HUMAN_ONLY
 [PRIO] staging directory server exposure (2 hosts: apip.test/ds-apip.test), 7.7 — as:8 bv:6 tech:8 gate:10 cloud:5 fresh:10
 [PRIO] threema-desktop key storage Windows ACL, 7.5 — as:8 bv:8 tech:7 gate:8 cloud:3 fresh:9
 [FINAL]
+## 2026-08-07 21:20:29 UTC [desktop] (model laguna)

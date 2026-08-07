@@ -544,3 +544,364 @@ testability: PASSIVE
 [RISK] sync: 65 reason: mediator-*.threema.ch/{XX}/ pattern confirmed (WSS); critical for multi-device but auth model unenumerated
 [RISK] safe: 55 reason: safe-{XX}.threema.ch/ pattern confirmed; backup service high value but no live access yet
 [RISK] desktop-src: 75 reason: Electron app with embedded test/staging URLs + OnPrem config trust chain; source available for static analysis; RCE potential via preload/contextIsolation bypass
+===== ANALYST nemotron3 2026-08-07 21:23:50 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mcurl -s -w "\nHTTP %{http_code}\n" -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ","ABCD1234"]}'
+{"identities":[{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}]}
+HTTP 200
+[0m
+[0m$ [0mcurl -s -i -X OPTIONS https://ds-apip.threema.ch/identity/fetch_bulk -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: Content-Type"
+HTTP/1.1 200 OK
+Server: nginx
+Date: Fri, 07 Aug 2026 21:20:12 GMT
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+Access-Control-Allow-Headers: Content-Type, User-Agent
+
+{"identities":[]}
+[0m
+[0m$ [0mcurl -s -i -X GET https://api.threema.ch/identity/ECHOECHO
+HTTP/1.1 200 OK
+Server: nginx
+Date: Fri, 07 Aug 2026 21:20:22 GMT
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Expires: Sat, 08 Aug 2026 21:20:22 GMT
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+Access-Control-Allow-Headers: Content-Type, User-Agent
+
+{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}
+[0m
+[0m$ [0mcurl -s -i -X GET https://apip.threema.ch/identity/ECHOECHO
+HTTP/1.1 200 OK
+Server: nginx
+Date: Fri, 07 Aug 2026 21:20:29 GMT
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Expires: Sat, 08 Aug 2026 21:20:29 GMT
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+Access-Control-Allow-Headers: Content-Type, User-Agent
+
+{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}
+[0m
+[0m$ [0mcurl -s -i -X GET https://ds-apip.test.threema.ch/identity/ECHOECHO
+HTTP/2 200 
+server: nginx
+date: Fri, 07 Aug 2026 21:20:32 GMT
+content-type: application/json; charset=utf-8
+expires: Sat, 08 Aug 2026 21:20:32 GMT
+strict-transport-security: max-age=31104000; includeSubdomains
+expect-ct: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+access-control-allow-origin: *
+access-control-allow-methods: POST, GET, OPTIONS, DELETE
+access-control-allow-headers: Content-Type, User-Agent
+
+{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}
+[0m
+[0m$ [0mcurl -s -i -X GET https://ds-apip-work.threema.ch/identity/ECHOECHO
+HTTP/1.1 401 Unauthorized
+Server: nginx
+Date: Fri, 07 Aug 2026 21:20:35 GMT
+Content-Type: text/html; charset=UTF-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+Access-Control-Allow-Headers: Content-Type, User-Agent
+[0m
+[0m$ [0mcurl -s -i -X GET https://ds-apip-work.test.threema.ch/identity/ECHOECHO
+HTTP/2 401 
+server: nginx
+date: Fri, 07 Aug 2026 21:20:39 GMT
+content-type: text/html; charset=UTF-8
+access-control-allow-origin: *
+access-control-allow-methods: POST, GET, OPTIONS, DELETE
+access-control-allow-headers: Content-Type, User-Agent
+[0m
+[0m$ [0mcurl -s -i -X GET https://apip.test.threema.ch/identity/ECHOECHO
+HTTP/2 200 
+server: nginx
+date: Fri, 07 Aug 2026 21:20:42 GMT
+content-type: application/json; charset=utf-8
+expires: Sat, 08 Aug 2026 21:20:42 GMT
+strict-transport-security: max-age=31104000; includeSubdomains
+expect-ct: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+access-control-allow-origin: *
+access-control-allow-methods: POST, GET, OPTIONS, DELETE
+access-control-allow-headers: Content-Type, User-Agent
+
+{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}
+[0m
+[0m$ [0mcurl -s -i -X GET https://work.test.threema.ch/
+HTTP/2 301 
+server: nginx
+date: Fri, 07 Aug 2026 21:20:47 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: __HOST-HTTP-SESSIONID=qil32r47h00fl2f47cf4vt1i5h; path=/; secure; HttpOnly; SameSite=Strict
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+location: /en/login
+strict-transport-security: max-age=31104000; includeSubdomains
+expect-ct: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+expect-ct: report-uri='https://3ma.ch/ctreport', max-age=31536000, enforce
+strict-transport-security: max-age=31536000; includeSubdomains
+reporting-endpoints: default="https://bugs.threema.ch/api/13/security/?sentry_key=e2bb259e4e0f449ca2726035893c7fb8"
+report-to: {'group': 'default','max_age': 10886400,'endpoints': [{'url': 'https://bugs.threema.ch/api/13/security/?sentry_key=e2bb259e4e0f449ca2726035893c7fb8'}]}
+content-security-policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-work.threema.ch; frame-src https://hcaptcha-assets.threema.ch; img-src 'self' https://test.threema.com https://broadcast.test.threema.ch https://static.threema.ch https://avatar.threema.ch https://avatar.test.threema.ch https://companylogo.test.threema.ch data:; media-src 'self' data:; connect-src 'self' data: https://companylogo.test.threema.ch https://bugs.threema.ch https://hcaptcha-assets.threema.ch; object-src 'self'; worker-src 'self' blob:; child-src blob: https://hcaptcha-assets.threema.ch; frame-ancestors 'none'; form-action 'self' https://billing.test.threema.ch; upgrade-insecure-requests; base-uri https://work.test.threema.ch; report-uri https://bugs.threema.ch/api/13/security/?sentry_key=e2bb259e4e0f449ca2726035893c7fb8; report-to default
+referrer-policy: no-referrer
+x-frame-options: sameorigin
+[0m
+[0m$ [0mcurl -s -i -X GET https://work.threema.ch/
+HTTP/1.1 301 Moved Permanently
+Server: nginx
+Date: Fri, 07 Aug 2026 21:20:58 GMT
+Content-Type: text/html; charset=UTF-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Set-Cookie: __HOST-HTTP-SESSIONID=ji1h3dlm95ldjipi856qiisggs; path=/; secure; HttpOnly; SameSite=Strict
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Location: /en/login
+Strict-Transport-Security: max-age=31104000; includeSubdomains
+Expect-CT: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+Expect-CT: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+Strict-Transport-Security: max-age=31536000; includeSubdomains
+Report-To: {'group': 'default','max_age': 10886400,'endpoints': [{'url': 'https://bugs.threema.ch/api/13/security/?sentry_key=e2bb259e4e0f449ca2726035893c7fb8'}]}
+Reporting-Endpoints: default='https://bugs.threema.ch/api/13/security/?sentry_key=e2bb259e4e0f449ca2726035893c7fb8'
+Content-Security-Policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-work.threema.ch; frame-src https://hcaptcha-assets.threema.ch; img-src 'self' https://threema.com https://static.threema.ch https://avatar.threema.ch https://companylogo.threema.ch https://broadcast.threema.ch data:; media-src 'self' data:; connect-src 'self' data: https://companylogo.threema.ch https://bugs.threema.ch https://hcaptcha-assets.threema.ch; object-src 'self'; worker-src 'self' blob:; child-src blob: https://hcaptcha-assets.threema.ch; frame-ancestors 'none'; form-action 'self' https://billing.threema.ch; upgrade-insecure-requests; base-uri https://work.threema.ch; report-uri https://bugs.threema.ch/api/13/security/?sentry_key=e2bb259e4e0f449ca2726035893c7fb8; report-to default
+X-Frame-Options: DENY
+Referrer-Policy: no-referrer
+[0m
+[0m$ [0mcurl -s -i -X GET https://broadcast.threema.ch/
+HTTP/2 301 
+server: nginx
+date: Fri, 07 Aug 2026 21:21:02 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: SESSIONID=ci25g0gj3c0p4ve3mkbe7ks2ci; path=/; secure; HttpOnly; SameSite=Strict
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+location: /en/login
+strict-transport-security: max-age=31104000; includeSubdomains
+expect-ct: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+report-to: {"group": "default","max_age": 10886400,"endpoints": [{"url": "https://bugs.threema.ch/api/5/security/?sentry_key=b0684a0dbe2f422fa9d6708c5466ca20"}]}
+reporting-endpoints: default="https://bugs.threema.ch/api/5/security/?sentry_key=b0684a0dbe2f422fa9d6708c5466ca20"
+content-security-policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-broadcast.threema.ch; frame-src https://hcaptcha-assets.threema.ch; img-src 'self' https://static.threema.ch https://avatar.threema.ch data:; media-src 'self' data: blob:; connect-src 'self' https://bugs.threema.ch https://hcaptcha-assets.threema.ch; object-src 'none'; worker-src 'self' blob:; child-src blob: https://hcaptcha-assets.threema.ch; frame-ancestors 'none'; form-action 'self' https://billing.threema.ch; upgrade-insecure-requests; base-uri https://broadcast.threema.ch; report-uri https://bugs.threema.ch/api/5/security/?sentry_key=b0684a0dbe2f422fa9d6708c5466ca20; report-to default
+x-frame-options: DENY
+strict-transport-security: max-age=31536000; includeSubdomains
+expect-ct: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+referrer-policy: no-referrer
+[0m
+[0m$ [0mcurl -s -i -X GET https://gateway.threema.ch/
+HTTP/2 302 
+server: nginx
+date: Fri, 07 Aug 2026 21:21:14 GMT
+content-type: text/html; charset=UTF-8
+location: https://gateway.threema.ch/en
+set-cookie: SESSIONID=3fhamvcfklbds8180ufa1haflo; path=/; secure; HttpOnly; SameSite=Strict
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+method: GET
+strict-transport-security: max-age=31104000; includeSubdomains
+expect-ct: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+x-frame-options: DENY
+reporting-endpoints: default="https://bugs.threema.ch/api/17/security/?sentry_key=418f2f46e5564b94ab81fccaf023616a"
+report-to: {"group": "default","max_age": 10886400,"endpoints": [{"url": "https://bugs.threema.ch/api/17/security/?sentry_key=418f2f46e5564b94ab81fccaf023616a"}]}
+content-security-policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-gateway.threema.ch; frame-src https://hcaptcha-assets.threema.ch; img-src 'self' https://static.threema.ch https://avatar.threema.ch data:; media-src 'self' data:; connect-src 'self' https://hcaptcha-assets.threema.ch https://bugs.threema.ch; object-src 'none'; child-src blob: https://hcaptcha-assets.threema.ch; worker-src 'self' blob:; frame-ancestors 'none'; form-action 'self' https://billing.threema.ch; upgrade-insecure-requests; base-uri https://gateway.threema.ch; report-uri https://bugs.threema.ch/api/17/security/?sentry_key=418f2f46e5564b94ab81fccaf023616a; report-to default
+referrer-policy: no-referrer
+[0m
+[0m$ [0mcurl -s -i -X GET https://billing.threema.ch/
+HTTP/2 301 
+server: nginx
+date: Fri, 07 Aug 2026 21:21:17 GMT
+content-type: text/html; charset=UTF-8
+location: https://threema.ch
+strict-transport-security: max-age=31104000; includeSubdomains
+expect-ct: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+x-frame-options: DENY
+report-to: {"group": "default","max_age": 10886400,"endpoints": [{"url": "https://bugs.threema.ch/api/3/security/?sentry_key=bbea9d5453f7418593b0bc451d8e5e68"}]}
+reporting-endpoints: default="https://bugs.threema.ch/api/3/security/?sentry_key=bbea9d5453f7418593b0bc451d8e5e68"
+content-security-policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline'; img-src 'self' https://static.threema.ch data:; media-src 'self' data:; connect-src 'self' https://bugs.threema.ch; object-src 'none'; worker-src 'self' blob:; frame-ancestors 'none'; upgrade-insecure-requests; base-uri https://billing.threema.ch; report-uri https://bugs.threema.ch/api/3/security/?sentry_key=bbea9d5453f7418593b0bc451d8e5e68; report-to default
+referrer-policy: no-referrer
+[0m
+[0m$ [0mcurl -s -i -X GET https://safe.threema.ch/ --max-time 10
+(no output)
+[0m
+[0m$ [0mcurl -s -i -X GET https://safe-01.threema.ch/ --max-time 10
+HTTP/1.1 404 Not Found
+Server: nginx
+Date: Fri, 07 Aug 2026 21:21:40 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 139
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Content-Security-Policy: default-src 'none'
+X-Content-Type-Options: nosniff
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /</pre>
+</body>
+</html>
+[0m
+[0m$ [0mcurl -s -i -X OPTIONS https://safe-01.threema.ch/ -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: GET"
+HTTP/1.1 204 No Content
+Server: nginx
+Date: Fri, 07 Aug 2026 21:21:47 GMT
+Content-Length: 0
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE
+Vary: Access-Control-Request-Headers
+Strict-Transport-Security: max-age=31104000; includeSubdomains
+Expect-CT: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+[0m
+[0m$ [0mcurl -s -i -X GET https://safe-01.threema.ch/api/
+HTTP/1.1 404 Not Found
+Server: nginx
+Date: Fri, 07 Aug 2026 21:21:54 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 143
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Content-Security-Policy: default-src 'none'
+X-Content-Type-Options: nosniff
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/</pre>
+</body>
+</html>
+[0m
+[0m$ [0mcurl -s -i -X GET https://mediator-01.threema.ch/ --max-time 10
+(no output)
+[0m
+[0m$ [0mcurl -s -i -X GET https://mediator-01.threema.ch/ -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" --max-time 10
+(no output)
+[0m
+[0m$ [0mcurl -s -i -X GET https://rendezvous-01.threema.ch/ --max-time 10
+(no output)
+[0m
+[0m$ [0mcurl -s -w "\nHTTP %{http_code}\n" -X POST https://apip.test.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ","ABCD1234"]}'
+{"identities":[{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}]}
+HTTP 200
+[0m
+[0m$ [0mcurl -s -i -X POST https://api.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ","ABCD1234"]}'
+HTTP/1.1 200 OK
+Server: nginx
+Date: Fri, 07 Aug 2026 21:22:34 GMT
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+Access-Control-Allow-Headers: Content-Type, User-Agent
+
+{"identities":[{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}]}
+[0m
+Now I have all the data needed. Let me produce the structured analysis.
+
+---
+
+**STEP 1 — DELTA**
+[NEW] apip.test.threema.ch — staging directory server live: GET/POST /identity/* 200, CORS *, HSTS, Expect-CT
+[NEW] ds-apip-work.threema.ch — work directory (prod) live: 401 on /identity/*, CORS *, no HSTS/Expect-CT
+[NEW] ds-apip-work.test.threema.ch — work directory (staging) live: 401 on /identity/*, CORS *, no HSTS/Expect-CT
+[NEW] work.test.threema.ch — staging work web app live: 301 /en/login, HSTS, Expect-CT, CSP with *.test.threema.ch refs, Sentry
+[NEW] safe-01.threema.ch — backup server live: 404 on /, CORS *, methods GET/HEAD/PUT/PATCH/POST/DELETE, HSTS, Expect-CT
+[CHANGED] apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
+[CHANGED] Production directory servers (ds-apip, apip, api) all lack HSTS/Expect-CT; staging counterparts have both
+
+---
+
+**STEP 2 — PRIORITIZE**
+[PRIO] ds-apip.threema.ch + api.threema.ch + apip.threema.ch (directory cluster), 8.9, attack=10 business=9 tech=8 gate=10 cloud=7 fresh=9
+[PRIO] safe-01.threema.ch (backup service), 7.4, attack=8 business=9 tech=7 gate=9 cloud=8 fresh=6
+[PRIO] apip.test.threema.ch (staging directory), 7.1, attack=8 business=6 tech=8 gate=10 cloud=6 fresh=8
+[PRIO] threema-desktop (source), 7.8, attack=8 business=8 tech=9 gate=10 cloud=5 fresh=7
+[PRIO] ds-apip-work.threema.ch (work directory prod), 5.8, attack=6 business=7 tech=6 gate=4 cloud=6 fresh=6
+
+---
+
+**STEP 3 — HYPOTHESES**
+
+[HYP] Directory cluster identity enumeration at scale via unauthenticated fetch_bulk + permissive CORS across 3 production hosts
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (also api.threema.ch, apip.threema.ch)
+confidence: 95
+reasoning: Verified POST /identity/fetch_bulk returns pubkeys for valid IDs without auth on all 3 production hosts; CORS Access-Control-Allow-Origin: * with POST/GET/OPTIONS/DELETE enables cross-origin exfiltration; 30 sequential POSTs at 1 rps returned all HTTP 200 (no 429/RateLimit headers); invalid IDs silently omitted
+evidence_needed: Confirm bulk endpoint returns pubkey list for valid IDs in single request across all 3 hosts; verify Access-Control-Expose-Headers allows credentialed reads from attacker origin
+verify_steps: PROBE: curl -s -w "\nHTTP %{http_code}\n" -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ","ABCD1234"]}' (≤1 rps); repeat for api.threema.ch and apip.threema.ch; check OPTIONS for Access-Control-Expose-Headers
+impact: Attacker enumerates valid Threema identities → pubkeys at scale for targeted phishing/social-engineering/recon across 3 production endpoints. Severity: High (privacy breach + reconnaissance at scale, no auth, no rate limit, permissive CORS)
+testability: PASSIVE
+
+[HYP] Safe backup service unauthenticated probe surface with permissive CORS and broad method allowance
+class: AUTH
+asset: https://safe-01.threema.ch/
+confidence: 65
+reasoning: safe-01.threema.ch responds with 404 on root but returns CORS Access-Control-Allow-Origin: * and Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE; HSTS/Expect-CT present; backup service likely holds high-value encrypted backups; no authentication observed on root probes
+evidence_needed: Discovery of API endpoints (e.g., /api/*, /backup/*, /restore/*) that accept unauthenticated requests and leak backup metadata or allow backup enumeration
+verify_steps: PASSIVE: GET https://safe-01.threema.ch/api/ — observe 404; PROBE: OPTIONS https://safe-01.threema.ch/api/ — confirm allowed methods; PASSIVE: enumerate common backup API paths (/v1/backups, /restore, /list) at ≤1 rps
+impact: Unauthenticated access to backup metadata or backup enumeration → targeted backup extraction or deletion. Severity: Medium-High (high-value asset, permissive CORS, unknown auth model)
+testability: PASSIVE
+
+[HYP] threema-desktop Windows key storage: keystorage.bin and keystorage.password.bin written without ACL restrictions
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop `apps/desktop/src/common/node/key-storage/index.ts`
+confidence: 75
+reasoning: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — both `keystorage.bin` (Argon2id-encrypted) and `keystorage.password.bin` (DPAPI-protected) written without explicit DACL/ACL; safeStorage (DPAPI) password blob recoverable by any same-user process via CryptUnprotectData
+evidence_needed: Confirm Windows file creation path lacks explicit SetFileSecurity/DACL hardening; verify DPAPI blob decryptable by same-user process
+verify_steps: RAG: read `apps/desktop/src/common/node/key-storage/index.ts` and `keystore.ts`; search for `fileModeInternalObjectIfPosix`, `safeStorage`, `writeFile`, `chmod`, `SetFileSecurity`
+impact: Local attacker/same-user malware reads encrypted keystore + DPAPI password blob → offline brute-force or DPAPI decrypt → full account compromise. Severity: Medium (requires local access)
+testability: RAG
+
+---
+
+**STEP 4 — SELF-CRITIQUE**
+[PARKED] Safe backup service unauthenticated probe surface: confidence 65 but no concrete vulnerable endpoint discovered yet; only root 404 with permissive CORS; verify_steps speculative for API paths
+[FINAL]
+1. [95] Directory cluster identity enumeration at scale via unauthenticated fetch_bulk + permissive CORS across 3 production hosts
+2. [75] threema-desktop Windows key storage: keystorage.bin and keystorage.password.bin written without ACL restrictions
+
+---
+
+**STEP 5 — NEXT ACTION**
+[NEXT] PROBE: curl -s -i -X OPTIONS https://ds-apip.threema.ch/identity/fetch_bulk -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: Content-Type" — confirm Access-Control-Expose-Headers for credentialed cross-origin exfiltration
+
+---
+
+**STEP 6 — LEARNING**
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateLimit). CORS `*` with DELETE/POST/GET/OPTIONS. All three hostnames return identical pubkeys for valid IDs; invalid IDs silently omitted.
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch + apip.test.threema.ch: Staging directory servers publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+[LEARN] ACCEPTED OTHER @ safe-01.threema.ch: Backup server publicly reachable with permissive CORS (Access-Control-Allow-Origin: *, methods GET/HEAD/PUT/PATCH/POST/DELETE) and HSTS/Expect-CT; no auth observed on root.
+
+---
+
+**STEP 7 — RISK SCORE**
+[RISK] chat: 60 reason: g-*.0.threema.ch pattern still unknown; core messaging infra but no visible endpoints yet
+[RISK] web: 85 reason: ds-apip/api/apip directory cluster confirmed with public identity oracle + bulk fetch + CORS* + no rate limit across 3 production hosts; safe-01 backup service live with permissive CORS; work/broadcast/gateway/shop accessible with PHP sessions, CSP, Sentry
+[RISK] sync: 65 reason: mediator-*.threema.ch/{XX}/ pattern confirmed (WSS); critical for multi-device but auth model unenumerated
+[RISK] safe: 70 reason: safe-01.threema.ch confirmed live with permissive CORS and broad methods; backup service high value but API surface unenumerated
+[RISK] desktop-src: 75 reason: Electron app with embedded test/staging URLs + OnPrem config trust chain; source available for static analysis; RCE potential via preload/contextIsolation bypass; Windows key storage lacks ACL
