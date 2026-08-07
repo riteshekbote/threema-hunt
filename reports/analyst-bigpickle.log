@@ -1632,3 +1632,1238 @@ safe-1a.threema.ch => 2a14:3e40:112:312::231 safe-1a.threema.ch
 safe-01.threema.ch => 2a14:3e40:112:312::231 safe-01.threema.ch
 safe-1.threema.ch => NXDOMAIN
 [0m
+===== ANALYST bigpickle 2026-08-07 22:06:34 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls reports 2>/dev/null; ls agents 2>/dev/null
+total 128
+drwxr-xr-x 11 runner runner  4096 Aug  7 21:58 .
+drwxr-xr-x  3 runner runner  4096 Aug  7 21:58 ..
+drwxr-xr-x  7 runner runner  4096 Aug  7 21:58 .git
+drwxr-xr-x  3 runner runner  4096 Aug  7 21:58 .github
+-rw-r--r--  1 runner runner  1049 Aug  7 21:58 README.md
+-rw-r--r--  1 runner runner    32 Aug  7 21:58 analyst-out.txt
+-rw-r--r--  1 runner runner 26290 Aug  7 21:58 analyst-prompt.txt
+-rw-r--r--  1 runner runner 23226 Aug  7 21:58 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  7 21:58 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  7 21:58 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  7 21:58 leads
+drwxr-xr-x  2 runner runner  4096 Aug  7 21:58 reports
+drwxr-xr-x  3 runner runner  4096 Aug  7 21:58 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  7 21:58 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  7 21:58 scripts
+-rw-r--r--  1 runner runner    34 Aug  7 21:58 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  7 21:58 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  7 21:58 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  7 21:58 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  7 21:58 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  7 21:58 triage
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+[0m
+[0m$ [0mls -d */ 2>/dev/null | head -50
+inventory/
+knowledge/
+leads/
+reports/
+reposcan-raw/
+scripts/
+triage/
+[0m
+[0m$ [0mls reports knowledge leads triage scripts inventory 2>/dev/null
+inventory:
+threema.md
+
+knowledge:
+index.md
+
+leads:
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-nemotron3.md
+reposcan-2026-08-07-18-43.md
+reposcan-2026-08-07-18-59.md
+reposcan-2026-08-07-19-20.md
+reposcan-2026-08-07-19-33.md
+reposcan-2026-08-07-20-11.md
+reposcan-2026-08-07-20-59.md
+reposcan-2026-08-07-21-13.md
+reposcan-2026-08-07-21-27.md
+reposcan-latest.md
+
+reports:
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+
+scripts:
+sync-issues.py
+
+triage:
+run-2026-08-07-20-10.md
+run-2026-08-07-21-03.md
+run-2026-08-07-21-56.md
+[0m
+[0m$ [0mfind reposcan-raw -maxdepth 3 -type d | head -40
+reposcan-raw
+reposcan-raw/threema-ch
+reposcan-raw/threema-ch/threema-ios
+reposcan-raw/threema-ch/wasm-minisign-verify
+reposcan-raw/threema-ch/compose-area
+reposcan-raw/threema-ch/threema-web-electron
+reposcan-raw/threema-ch/threema-msgapi-sdk-rust
+reposcan-raw/threema-ch/threema-web
+reposcan-raw/threema-ch/app-remote-protocol
+reposcan-raw/threema-ch/threema-android
+reposcan-raw/threema-ch/threema-bot-sdk
+reposcan-raw/threema-ch/threema-msgapi-sdk-python
+reposcan-raw/threema-ch/webrtc-build-docker
+reposcan-raw/threema-ch/threema-msgapi-sdk-php
+reposcan-raw/threema-ch/threema-msgapi-sdk-java
+reposcan-raw/threema-ch/push-relay
+reposcan-raw/threema-ch/threema-markup
+reposcan-raw/threema-ch/threema-desktop
+[0m
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead knowledge/index.md
+[0m→ [0mRead scope.yml
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m→ [0mRead inventory/threema.md
+[0m→ [0mRead triage/run-2026-08-07-21-56.md
+[0m
+[0m$ [0mcat state_bigpickle.json; echo; head -50 reports/hypotheses-nemotron3.txt; echo ---; tail -30 leads/reposcan-latest.md
+{"phase": "POC", "target": "chat"}
+## 2026-08-07 21:23:42 UTC [web] (model nemotron3)
+[NEW] apip.test.threema.ch — staging directory server live: GET/POST /identity/* 200, CORS *, HSTS, Expect-CT
+[NEW] ds-apip-work.threema.ch — work directory (prod) live: 401 on /identity/*, CORS *, no HSTS/Expect-CT
+[NEW] ds-apip-work.test.threema.ch — work directory (staging) live: 401 on /identity/*, CORS *, no HSTS/Expect-CT
+[NEW] work.test.threema.ch — staging work web app live: 301 /en/login, HSTS, Expect-CT, CSP with *.test.threema.ch refs, Sentry
+[NEW] safe-01.threema.ch — backup server live: 404 on /, CORS *, methods GET/HEAD/PUT/PATCH/POST/DELETE, HSTS, Expect-CT
+[CHANGED] apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
+[CHANGED] Production directory servers (ds-apip, apip, api) all lack HSTS/Expect-CT; staging counterparts have both
+[PRIO] ds-apip.threema.ch + api.threema.ch + apip.threema.ch (directory cluster), 8.9, attack=10 business=9 tech=8 gate=10 cloud=7 fresh=9
+[PRIO] safe-01.threema.ch (backup service), 7.4, attack=8 business=9 tech=7 gate=9 cloud=8 fresh=6
+[PRIO] apip.test.threema.ch (staging directory), 7.1, attack=8 business=6 tech=8 gate=10 cloud=6 fresh=8
+[PRIO] threema-desktop (source), 7.8, attack=8 business=8 tech=9 gate=10 cloud=5 fresh=7
+[PRIO] ds-apip-work.threema.ch (work directory prod), 5.8, attack=6 business=7 tech=6 gate=4 cloud=6 fresh=6
+[HYP] Directory cluster identity enumeration at scale via unauthenticated fetch_bulk + permissive CORS across 3 production hosts
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (also api.threema.ch, apip.threema.ch)
+confidence: 95
+reasoning: Verified POST /identity/fetch_bulk returns pubkeys for valid IDs without auth on all 3 production hosts; CORS Access-Control-Allow-Origin: * with POST/GET/OPTIONS/DELETE enables cross-origin exfiltration; 30 sequential POSTs at 1 rps returned all HTTP 200 (no 429/RateLimit headers); invalid IDs silently omitted
+evidence_needed: Confirm bulk endpoint returns pubkey list for valid IDs in single request across all 3 hosts; verify Access-Control-Expose-Headers allows credentialed reads from attacker origin
+verify_steps: PROBE: curl -s -w "\nHTTP %{http_code}\n" -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ","ABCD1234"]}' (≤1 rps); repeat for api.threema.ch and apip.threema.ch; check OPTIONS for Access-Control-Expose-Headers
+impact: Attacker enumerates valid Threema identities → pubkeys at scale for targeted phishing/social-engineering/recon across 3 production endpoints. Severity: High (privacy breach + reconnaissance at scale, no auth, no rate limit, permissive CORS)
+testability: PASSIVE
+[HYP] Safe backup service unauthenticated probe surface with permissive CORS and broad method allowance
+class: AUTH
+asset: https://safe-01.threema.ch/
+confidence: 65
+reasoning: safe-01.threema.ch responds with 404 on root but returns CORS Access-Control-Allow-Origin: * and Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE; HSTS/Expect-CT present; backup service likely holds high-value encrypted backups; no authentication observed on root probes
+evidence_needed: Discovery of API endpoints (e.g., /api/*, /backup/*, /restore/*) that accept unauthenticated requests and leak backup metadata or allow backup enumeration
+verify_steps: PASSIVE: GET https://safe-01.threema.ch/api/ — observe 404; PROBE: OPTIONS https://safe-01.threema.ch/api/ — confirm allowed methods; PASSIVE: enumerate common backup API paths (/v1/backups, /restore, /list) at ≤1 rps
+impact: Unauthenticated access to backup metadata or backup enumeration → targeted backup extraction or deletion. Severity: Medium-High (high-value asset, permissive CORS, unknown auth model)
+testability: PASSIVE
+[HYP] threema-desktop Windows key storage: keystorage.bin and keystorage.password.bin written without ACL restrictions
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop `apps/desktop/src/common/node/key-storage/index.ts`
+confidence: 75
+reasoning: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — both `keystorage.bin` (Argon2id-encrypted) and `keystorage.password.bin` (DPAPI-protected) written without explicit DACL/ACL; safeStorage (DPAPI) password blob recoverable by any same-user process via CryptUnprotectData
+evidence_needed: Confirm Windows file creation path lacks explicit SetFileSecurity/DACL hardening; verify DPAPI blob decryptable by same-user process
+verify_steps: RAG: read `apps/desktop/src/common/node/key-storage/index.ts` and `keystore.ts`; search for `fileModeInternalObjectIfPosix`, `safeStorage`, `writeFile`, `chmod`, `SetFileSecurity`
+impact: Local attacker/same-user malware reads encrypted keystore + DPAPI password blob → offline brute-force or DPAPI decrypt → full account compromise. Severity: Medium (requires local access)
+testability: RAG
+[PARKED] Safe backup service unauthenticated probe surface: confidence 65 but no concrete vulnerable endpoint discovered yet; only root 404 with permissive CORS; verify_steps speculative for API paths
+[FINAL]
+[NEXT] PROBE: curl -s -i -X OPTIONS https://ds-apip.threema.ch/identity/fetch_bulk -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: Content-Type" — confirm Access-Control-Expose-Headers for credentialed cross-origin exfiltration
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateLimit). CORS `*` with DELETE/POST/GET/OPTIONS. All three hostnames return identical pubkeys for valid IDs; invalid IDs silently omitted.
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch + apip.test.threema.ch: Staging directory servers publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+[LEARN] ACCEPTED OTHER @ safe-01.threema.ch: Backup server publicly reachable with permissive CORS (Access-Control-Allow-Origin: *, methods GET/HEAD/PUT/PATCH/POST/DELETE) and HSTS/Expect-CT; no auth observed on root.
+[RISK] chat: 60 reason: g-*.0.threema.ch pattern still unknown; core messaging infra but no visible endpoints yet
+[RISK] web: 85 reason: ds-apip/api/apip directory cluster confirmed with public identity oracle + bulk fetch + CORS* + no rate limit across 3 production hosts; safe-01 backup service live with permissive CORS; work/broadcast/gateway/shop accessible with PHP sessions, CSP, Sentry
+[RISK] sync: 65 reason: mediator-*.threema.ch/{XX}/ pattern confirmed (WSS); critical for multi-device but auth model unenumerated
+[RISK] safe: 70 reason: safe-01.threema.ch confirmed live with permissive CORS and broad methods; backup service high value but API surface unenumerated
+---
+| File | Line | Endpoint |
+|------|------|----------|
+| threema-ios/.../directory.openapi.yml | 7,917 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
+| threema-android/.../directory.openapi.yml | 7,911 | Same staging endpoints (duplicated) |
+| threema-android/.../libthreema/.../directory.openapi.yml | 7,917 | Same staging endpoints (triplicated) |
+| threema-desktop/.../vite.config.ts | 147,153,154 | `ds-apip.test.threema.ch`, `ds-apip-work.test.threema.ch`, `work.test.threema.ch` |
+| threema-desktop/.../libthreema-wasm/.../directory.openapi.yml | 7,911 | Same staging endpoints (quadruplicated) |
+
+### INTERESTING (2 hits - Sentry public DSN keys)
+| File | Line | Value (sha256) |
+|------|------|----------------|
+| threema-android/.../SentryConfig.kt | 15 | `b3e20afbf356a8748bb62ac165aa780c` → `a1f5...` (public DSN) |
+| threema-android/.../SentryConfig.kt | 19 | `615af77cb3d980c41b3b04b07417cc7d` → `8f2c...` (public DSN) |
+
+### REJECTED (known false positive)
+| File | Line | Reason |
+|------|------|--------|
+| threema-desktop/.../crypto.ts | 223 | Benchmark-only dummy in `determineKdfParams()`, key purged (per KB) |
+
+---
+
+### VERDICT LIST
+| Candidate | Category | REPORT_CANDIDATE |
+|-----------|----------|------------------|
+| All TEST_OR_EXAMPLE hits | Test/fixture data | **no** |
+| All ENDPOINT_LEAK hits | Staging endpoints in OpenAPI/config | **no** (already known: `ds-apip.test.threema.ch` accepted as staging misconfig) |
+| Sentry publicApiKey ×2 | Public DSN keys (designed for client exposure) | **no** |
+| crypto.ts:223 dummy password | Known rejected benchmark dummy | **no** |
+
+**No new reportable secrets found in this delta.** All hits are test data, known staging endpoints (already tracked), public Sentry DSNs, or a previously rejected benchmark constant.
+[0m
+[0m$ [0mrg -i -o "g-[a-z0-9-]*\.threema\.ch" -g '!*.min.js' -g '!*.map' -g '!*.lock' reposcan-raw/threema-ch 2>/dev/null | sort -u | head -40
+(no output)
+[0m
+[0m$ [0mrg -i -n "g-[0-9-]+\.0\.threema|g-[a-z0-9]+\.0\.threema" reposcan-raw/threema-ch 2>/dev/null | head -40
+(no output)
+[0m
+My target is `chat` — the unresolved `g-*.0.threema.ch` hostname. Repos are cloned locally; running the RAG grep for the chat server hostname now.
+[0m$ [0mrg -i -n "mediator|rendezvous|safe-[0-9]" reposcan-raw/threema-ch --include='*.ts' --include='*.kt' --include='*.swift' --include='*.js' --include='*.json' --include='*.yml' --include='*.yaml' --include='*.rs' 2>/dev/null | grep -iv "test\|spec\|fixture\|mock" | head -40
+(no output)
+[0m
+[0m$ [0mrg -i -n "wss://|serverUrl|server_url|chatUrl|connectionServer|\.threema\.ch\"" reposcan-raw/threema-ch/threema-web/src 2>/dev/null | grep -v node_modules | head -40
+(no output)
+[0m
+[0m$ [0mls reposcan-raw/threema-ch/threema-web/src 2>/dev/null; echo ---; ls reposcan-raw/threema-ch/threema-desktop 2>/dev/null | head; echo ---; find reposcan-raw/threema-ch/threema-web -name '*.ts' 2>/dev/null | head -20
+---
+---
+[0m
+[0m$ [0mrg -i -c "threema.ch" reposcan-raw/threema-ch/threema-web 2>/dev/null | tail -5; echo ---; rg -i -n "threema\.ch" reposcan-raw/threema-ch/threema-web -g '*.ts' -g '*.tsx' -g '*.js' -g '*.json' 2>/dev/null | grep -v node_modules | head -30
+---
+[0m
+[0m$ [0mfor d in reposcan-raw/threema-ch/*/; do echo "== $d"; ls -la "$d" 2>/dev/null | head -8; done 2>/dev/null | head -120
+== reposcan-raw/threema-ch/app-remote-protocol/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+== reposcan-raw/threema-ch/compose-area/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+== reposcan-raw/threema-ch/push-relay/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+== reposcan-raw/threema-ch/threema-android/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+== reposcan-raw/threema-ch/threema-bot-sdk/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+== reposcan-raw/threema-ch/threema-desktop/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+== reposcan-raw/threema-ch/threema-ios/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+== reposcan-raw/threema-ch/threema-markup/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+== reposcan-raw/threema-ch/threema-msgapi-sdk-java/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+== reposcan-raw/threema-ch/threema-msgapi-sdk-php/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+== reposcan-raw/threema-ch/threema-msgapi-sdk-python/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+== reposcan-raw/threema-ch/threema-msgapi-sdk-rust/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+== reposcan-raw/threema-ch/threema-web-electron/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+== reposcan-raw/threema-ch/threema-web/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+== reposcan-raw/threema-ch/wasm-minisign-verify/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+== reposcan-raw/threema-ch/webrtc-build-docker/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+[0m
+[0m$ [0mrg -i -n "g-[0-9]|chat.*threema\.ch|threema\.ch.*chat|server.*host|hostname|wss://" reposcan-raw/analysis.txt reposcan-raw/rag.txt reposcan-raw/grep-hits.txt 2>/dev/null | head -40
+(no output)
+[0m
+[0m$ [0mrg -i -n "mediator|rendezvous|safe|hostname|host|domain|\.threema\.ch" reposcan-raw/analysis.txt 2>/dev/null | head -50
+(no output)
+[0m
+Repos are empty (scanned artifacts only). Checking the reposcan outputs for chat-server hostname references.
+[0m$ [0mwc -l reposcan-raw/*.txt; echo ---; head -30 reposcan-raw/analysis.txt
+62 reposcan-raw/analysis.txt
+    1 reposcan-raw/grep-delta.txt
+   49 reposcan-raw/grep-hits.prev.txt
+   49 reposcan-raw/grep-hits.txt
+   72 reposcan-raw/rag.txt
+  233 total
+---
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mecho "Analysis complete. Generating classification tables..."
+Analysis complete. Generating classification tables...
+[0m
+### TEST_OR_EXAMPLE (42 hits - not reportable)
+| File | Line | Context |
+|------|------|---------|
+| threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | `serverPassword: "password1"` |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15 | `expectedAuthToken = "authToken"` |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 18 | `expectedPassword = "testPassword"` |
+| threema-ios/.../WorkDataThreemaMDMFetcherTests.swift | 50,72,148 | `licensePassword = "testPassword"` (mock) |
+| threema-ios/.../WorkDataAPICallerTests.swift | 13,37,103 | `expectedPassword = "testPassword"` / `validPassword` |
+| threema-ios/ThreemaTests/SafeTests.swift | 67,76,105 | `safePassword: "shootdeathstar"` |
+| threema-ios/.../ThreemaSafePasswordValidatorTests.swift | 30,227 | Test passwords `"abcdefghijkl"`, `"ABcd!@#tgk092"` |
+| threema-ios/.../HttpClientDownloadSafeTests.swift | 28,76,120 | `safePassword: "shootdeathstar"` (manual tests) |
+| threema-ios/.../HttpClientUploadSafeTests.swift | 38,83 | `safePassword: "shootdeathstar"` (manual tests) |
+| threema-android/.../SfuToken.kt | 49 | Masked `sfuToken='********'` in toString() |
+| threema-android/.../WebClientSessionModel.java | 28 | Column constant `COLUMN_PUSH_TOKEN = "push_token"` |
+| threema-android/.../DatabaseUpdateToVersion37.java | 48 | Column constant `COLUMN_PUSH_TOKEN` |
+| threema-android/.../IceCandidateParser.java | 43 | Regex `TOKEN = "[a-zA-Z]+"` |
+| threema-android/.../ClientInfo.java | 37 | JSON field `PUSH_TOKEN = "pushToken"` |
+| threema-android/.../JoinResponse.kt | 70 | ICE password variable interpolation |
+| threema-android/.../NotificationChannels.kt | 52 | Channel ID `NOTIFICATION_CHANNEL_REMOTE_SECRET` |
+| threema-android/.../PasswordEntryDialog.java | 47 | Bundle key `KEY_PASSWORD = "password"` |
+| threema-desktop/.../test-data.ts | 62 | `keyStoragePassword: 'CHANGE_ME'` placeholder |
+| threema-desktop/.../enum/index.ts | 3126,3162 | Action constants `LOAD/STORE_USER_PASSWORD` |
+| threema-desktop/.../enum/schema.ts | 983,1000 | Action constants `LOAD/STORE_USER_PASSWORD` |
+| threema-desktop/.../ice-password.ts | 12 | Validation error message |
+[0m
+[0m$ [0mgit -C reposcan-raw/threema-ch/threema-web status 2>&1 | head -5; echo ---; cat reposcan-raw/threema-ch/threema-web/.git 2>&1 | head -3; echo ---; ls -la reposcan-raw/threema-ch/threema-web/ 2>/dev/null
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+---
+cat: reposcan-raw/threema-ch/threema-web/.git: No such file or directory
+---
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 21:58 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 21:58 ..
+[0m
+[0m$ [0mrg -i -n "g-[0-9]|g-\*|chat" leads/reposcan-latest.md reports/hypotheses.md reports/valid-bugs.md 2>/dev/null | head -30
+(no output)
+[0m
+Source worktrees are empty; only reposcan artifacts remain. To resolve the chat hostname I need to re-fetch in-scope client source. Testing connectivity and re-cloning minimally.
+[0m$ [0mtimeout 20 git ls-remote https://github.com/threema-ch/threema-web.git HEAD 2>&1 | head -3; echo "rc=$?"
+55dab83d4c9d53daa945880a1935f2424381afca	HEAD
+rc=0
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 180 git clone --depth 1 --quiet https://github.com/threema-ch/threema-desktop.git td 2>&1 | tail -2; echo "rc=$?"; du -sh td 2>/dev/null
+rc=0
+52M	td
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 180 git clone --depth 1 --quiet https://github.com/threema-ch/threema-web.git tw 2>&1 | tail -2; echo "rc=$?"; du -sh tw 2>/dev/null
+rc=0
+67M	tw
+[0m
+[0m$ [0mcd /tmp/opencode && rg -i -n "g-[0-9a-z-]+\.threema\.ch|\.threema\.ch" td --include='*.ts' --include='*.tsx' --include='*.js' --include='*.json' --include='*.md' 2>/dev/null | grep -vi "test\|fixture\|onprem\|\.test\.\|staging" | head -40
+(no output)
+[0m
+[0m$ [0mcd /tmp/opencode && rg -i -n "server|hostname|wss://|websocket" tw/src --include='*.ts' 2>/dev/null | grep -i "threema\|server" | head -30
+(no output)
+[0m
+[0m$ [0mcd /tmp/opencode && find td -name '*.ts' | head -5; echo "---count---"; find td -name '*.ts' | wc -l; echo "---grep---"; rg -i -n "threema\.ch" td -g '*.ts' | head -30
+td/apps/desktop/config/build.ts
+td/apps/desktop/config/vite.config.ts
+td/apps/desktop/src/common/dom/utils/element.ts
+td/apps/desktop/src/common/dom/utils/image.ts
+td/apps/desktop/src/common/dom/utils/browser.ts
+---count---
+1167
+---grep---
+/bin/bash: line 1: rg: command not found
+[0m
+[0m✱ [0mGrep "g-[0-9a-z]+\.0\.threema\.ch|\.threema\.ch"[90m in /tmp/opencode/td · 24 matches[0m
+Desktop config lacks the `g-*.0` chat server (it uses mediator/rendezvous/safe/blob). The native clients carry the chat server. Cloning those.
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 240 git clone --depth 1 --quiet --filter=blob:none https://github.com/threema-ch/threema-android.git ta 2>&1 | tail -2; echo "rc=$?"; du -sh ta 2>/dev/null
+rc=0
+92M	ta
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 240 git clone --depth 1 --quiet --filter=blob:none https://github.com/threema-ch/threema-ios.git ti 2>&1 | tail -2; echo "rc=$?"; du -sh ti 2>/dev/null
+rc=0
+367M	ti
+[0m
+[0m✱ [0mGrep "g-?[0-9]+-?[0-9]+\.threema\.ch"[90m in /tmp/opencode/ti · 0 matches[0m
+[0m✱ [0mGrep "g-?[0-9]+-?[0-9]+\.threema\.ch"[90m in /tmp/opencode/ta · 0 matches[0m
+[0m✱ [0mGrep "threema\.ch"[90m in /tmp/opencode/ti · 62 matches[0m
+[0m✱ [0mGrep ""g-|g-\.|messengerServer|serverHost|serverId|ServerInfoProvider"[90m in /tmp/opencode/ti · 74 matches[0m
+Key correction found: Safe URL is `safe-XX.threema.ch/backups/{hex}` (not `/backup/{id}`). Now hunting the chat server in iOS server-config code.
+[0m✱ [0mGrep "threema\.ch"[90m in /tmp/opencode/ta · 95 matches[0m
+[0m→ [0mRead /tmp/opencode/ti/ThreemaFramework/Core/ServerInfoProvider/PublicServerInfoProvider.swift
+[0m
+[0m$ [0mcd /tmp/opencode/ti && find . -name "ThreemaFrameworkConfiguration*.plist" | head; find . -name "*.plist" | grep -iv "test\|Tests" | head -20
+./ThreemaFramework/Configuration/ThreemaFrameworkConfiguration-Sandbox.plist
+./ThreemaFramework/Configuration/ThreemaFrameworkConfiguration.plist
+./ThreemaShareExtension/SupportingFiles/ThreemaOnPrem/ThreemaOnPremShareExtension-Info.plist
+./ThreemaShareExtension/SupportingFiles/ThreemaWork/ThreemaWorkShareExtension-Info.plist
+./ThreemaShareExtension/SupportingFiles/Threema/ThreemaShareExtension-Info.plist
+./ThreemaShareExtension/SupportingFiles/CustomOnPrem/CustomOnPremShareExtension-Info.plist
+./ThreemaShareExtension/SupportingFiles/ThreemaBlue/ThreemaBlueShareExtension-Info.plist
+./ThreemaShareExtension/SupportingFiles/ThreemaGreen/ThreemaGreenShareExtension-Info.plist
+./Threema.xcodeproj/.xcodesamplecode.plist
+./Threema.xcodeproj/xcshareddata/xcbaselines/0A688AB519A3A4670013FCE8.xcbaseline/Info.plist
+./Threema.xcodeproj/xcshareddata/xcbaselines/0A688AB519A3A4670013FCE8.xcbaseline/11588610-114E-4315-A302-EFB775782B6F.plist
+./Threema.xcodeproj/xcshareddata/xcbaselines/0A688AB519A3A4670013FCE8.xcbaseline/358C87EE-3B43-48EF-A4A9-E585D1743950.plist
+./Threema.xcodeproj/xcshareddata/xcbaselines/0A688AB519A3A4670013FCE8.xcbaseline/3543EE04-5FE6-44DD-9E99-067C216C9144.plist
+./Threema.xcodeproj/xcshareddata/IDETemplateMacros.plist
+./Threema.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+./ThreemaNotificationExtension/SupportingFiles/ThreemaOnPrem/ThreemaOnPremNotificationExtension-Info.plist
+./ThreemaNotificationExtension/SupportingFiles/ThreemaWork/ThreemaWorkNotificationExtension-Info.plist
+./ThreemaNotificationExtension/SupportingFiles/Threema/ThreemaNotificationExtension-Info.plist
+./ThreemaNotificationExtension/SupportingFiles/CustomOnPrem/CustomOnPremNotificationExtension-Info.plist
+./ThreemaNotificationExtension/SupportingFiles/ThreemaBlue/ThreemaBlueNotificationExtension-Info.plist
+./ThreemaNotificationExtension/SupportingFiles/ThreemaGreen/ThreemaGreenNotificationExtension-Info.plist
+./Threema/SupportingFiles/ThreemaOnPrem/ThreemaOnPrem-Info.plist
+[0m
+[0m$ [0mcd /tmp/opencode/ti && grep -A2 "ServerNamePrefix\|ServerNameSuffix\|ThreemaServerPorts\|ThreemaServerPublicKey\|ThreemaAPIURL" ThreemaFramework/Configuration/ThreemaFrameworkConfiguration.plist
+<key>ThreemaAPIURL</key>
+	<string>https://apip.threema.ch</string>
+	<key>ThreemaAPIURLWork</key>
+	<string>https://apip.threema.ch</string>
+	<key>ThreemaAPIURLv6</key>
+	<string>https://ds-apip.threema.ch</string>
+	<key>ThreemaAPIURLv6Work</key>
+	<string>https://ds-apip.threema.ch</string>
+	<key>ThreemaAvatarURL</key>
+--
+	<key>ThreemaServerNamePrefix</key>
+	<string>g-</string>
+	<key>ThreemaServerNamePrefixv6</key>
+	<string>ds.g-</string>
+	<key>ThreemaServerNameSuffix</key>
+	<string>.0.threema.ch</string>
+	<key>ThreemaServerPorts</key>
+	<array>
+		<integer>5222</integer>
+--
+	<key>ThreemaServerPublicKey</key>
+	<data>RQuXVzUnn97LMxNkj1/G7p/0Ng6pKowXUcZh5MDYyQk=</data>
+	<key>ThreemaWebURL</key>
+--
+	<key>ThreemaWorkServerNamePrefix</key>
+	<string>w-</string>
+	<key>ThreemaWorkServerNamePrefixv6</key>
+	<string>ds.w-</string>
+</dict>
+[0m
+[0m$ [0mcd /tmp/opencode/ti && grep -rn "useServerGroups\|serverNamePrefix\|serverNameSuffix\|serverGroups\|ServerGroup" ThreemaFramework --include='*.swift' | grep -v Tests | head -30
+ThreemaFramework/Core/ServerInfoProvider/PublicServerInfoProvider.swift:7:            serverNamePrefix: chatServerNamePrefix(ipv6: ipv6),
+ThreemaFramework/Core/ServerInfoProvider/PublicServerInfoProvider.swift:8:            serverNameSuffix: chatServerNameSuffix(ipv6: ipv6),
+ThreemaFramework/Core/ServerInfoProvider/PublicServerInfoProvider.swift:10:            useServerGroups: true,
+ThreemaFramework/Core/ServerInfoProvider/OnPremServerInfoProvider.swift:33:                            serverNamePrefix: "",
+ThreemaFramework/Core/ServerInfoProvider/OnPremServerInfoProvider.swift:34:                            serverNameSuffix: config.chat.hostname,
+ThreemaFramework/Core/ServerInfoProvider/OnPremServerInfoProvider.swift:36:                            useServerGroups: false,
+ThreemaFramework/Core/ServerInfoProvider/Info/ChatServerInfo.swift:2:    @objc public let serverNamePrefix: String
+ThreemaFramework/Core/ServerInfoProvider/Info/ChatServerInfo.swift:3:    @objc public let serverNameSuffix: String
+ThreemaFramework/Core/ServerInfoProvider/Info/ChatServerInfo.swift:5:    @objc public let useServerGroups: Bool
+ThreemaFramework/Core/ServerInfoProvider/Info/ChatServerInfo.swift:10:        serverNamePrefix: String,
+ThreemaFramework/Core/ServerInfoProvider/Info/ChatServerInfo.swift:11:        serverNameSuffix: String,
+ThreemaFramework/Core/ServerInfoProvider/Info/ChatServerInfo.swift:13:        useServerGroups: Bool,
+ThreemaFramework/Core/ServerInfoProvider/Info/ChatServerInfo.swift:17:        self.serverNamePrefix = serverNamePrefix
+ThreemaFramework/Core/ServerInfoProvider/Info/ChatServerInfo.swift:18:        self.serverNameSuffix = serverNameSuffix
+ThreemaFramework/Core/ServerInfoProvider/Info/ChatServerInfo.swift:20:        self.useServerGroups = useServerGroups
+ThreemaFramework/Core/DeviceJoin.swift:472:            $0.cspServerGroup = serverGroup
+[0m
+The hostname is constructed: prefix `g-` + serverName + suffix `.0.threema.ch`. Finding how serverName is derived.
+[0m$ [0mcd /tmp/opencode/ti && grep -rn "useServerGroups\|serverGroup\b\|cspServerGroup" ThreemaFramework/Network ThreemaFramework/Core --include='*.swift' | grep -v "Tests" | grep -i "group" | head -20; echo ===; grep -rln "serverGroups" ThreemaFramework --include='*.swift' | head
+ThreemaFramework/Core/ServerInfoProvider/PublicServerInfoProvider.swift:10:            useServerGroups: true,
+ThreemaFramework/Core/ServerInfoProvider/OnPremServerInfoProvider.swift:36:                            useServerGroups: false,
+ThreemaFramework/Core/ServerInfoProvider/Info/ChatServerInfo.swift:5:    @objc public let useServerGroups: Bool
+ThreemaFramework/Core/ServerInfoProvider/Info/ChatServerInfo.swift:13:        useServerGroups: Bool,
+ThreemaFramework/Core/ServerInfoProvider/Info/ChatServerInfo.swift:20:        self.useServerGroups = useServerGroups
+ThreemaFramework/Core/DeviceJoin.swift:464:        guard let serverGroup = businessInjector.myIdentityStore.serverGroup else {
+ThreemaFramework/Core/DeviceJoin.swift:472:            $0.cspServerGroup = serverGroup
+===
+[0m
+[0m$ [0mcd /tmp/opencode/ti && grep -rn "serverNamePrefix\|chatServer(ipv6\|ChatServerInfo" ThreemaFramework Threema --include='*.swift' | grep -v "PublicServerInfoProvider.swift\|OnPremServerInfoProvider\|ChatServerInfo.swift\|ServerInfoProvider.swift" | head -20
+(no output)
+[0m
+[0m$ [0mcd /tmp/opencode/ti && grep -rln "5222\|chatServer" ThreemaFramework Threema --include='*.swift' | head; echo ===; grep -rn "serverGroup" ThreemaFramework/Network --include='*.swift' | head
+ThreemaFramework/Core/ServerInfoProvider/PublicServerInfoProvider.swift
+ThreemaFramework/Core/ServerInfoProvider/ServerInfoProvider.swift
+ThreemaFramework/Core/ServerInfoProvider/OnPremServerInfoProvider.swift
+===
+[0m
+[0m$ [0mcd /tmp/opencode/ti && grep -rn "serverGroup" Threema --include='*.swift' | grep -v Tests | head
+Threema/SharedUI/Navigation/AppCoordinator/AppCoordinator.swift:430:    /// singleton. Ensures clientKey/publicKey/serverGroup are all populated before
+Threema/RootCoordinator/RemoteSecretResolver.swift:301:            let serverGroup = myIdentityStore.serverGroup
+Threema/RootCoordinator/RemoteSecretResolver.swift:312:            serverGroup: ServerGroup(serverGroup)
+Threema/RootCoordinator/RemoteSecretResolver.swift:327:        myIdentityStore.serverGroup = identity.$serverGroup
+Threema/Onboarding/SetupApp.swift:337:              let serverGroup = myIdentityStore.serverGroup else {
+Threema/Onboarding/SetupApp.swift:349:            serverGroup: ServerGroup(serverGroup)
+Threema/Onboarding/SetupApp.swift:364:        myIdentityStore.serverGroup = identity.$serverGroup
+[0m
+[0m$ [0mcd /tmp/opencode/ti && grep -rn "ServerGroup" ThreemaFramework Threema --include='*.swift' | grep -v "Tests\|test" | grep -iv "serverGroups\|cspServerGroup" | head -20
+Threema/RootCoordinator/RemoteSecretResolver.swift:312:            serverGroup: ServerGroup(serverGroup)
+Threema/Onboarding/SetupApp.swift:349:            serverGroup: ServerGroup(serverGroup)
+[0m
+[0m$ [0mcd /tmp/opencode/ti && sed -n 320,375p Threema/Onboarding/SetupApp.swift
+}
+        else if let identity = try keychainManager.loadIdentity() {
+            updateMyIdentityStore(with: identity)
+        }
+        else {
+            assertionFailure("This should not happen")
+            DDLogError("No identity, neither in myIdentityStore nor in keychain")
+            throw SetupError.noIdentityFound
+        }
+    }
+    
+    // MARK: - Identity
+    
+    private func storeIdentity(using keychainManager: KeychainManagerProtocol) throws {
+        guard let identity = myIdentityStore.identity,
+              let clientKey = myIdentityStore.clientKey,
+              let publicKey = myIdentityStore.publicKey,
+              let serverGroup = myIdentityStore.serverGroup else {
+            assertionFailure("This should not happen")
+            DDLogError(
+                "Cannot store identity in keychain: No identity, private key, public key or server group set"
+            )
+            throw SetupError.unableToStoreIdentity
+        }
+        
+        let myIdentity = MyIdentity(
+            identity: ThreemaIdentity(identity),
+            clientKey: ThreemaClientKey(clientKey),
+            publicKey: ThreemaPublicKey(publicKey),
+            serverGroup: ServerGroup(serverGroup)
+        )
+
+        try keychainManager.storeIdentity(myIdentity, thisDeviceOnly: true)
+        
+        // We could already be further in the process when coming from a safe restore
+        if AppSetup.state.rawValue < AppSetupState.identityAdded.rawValue {
+            AppSetup.state = .identityAdded
+        }
+    }
+    
+    private func updateMyIdentityStore(with identity: MyIdentity) {
+        myIdentityStore.identity = identity.$identity
+        myIdentityStore.clientKey = identity.$clientKey
+        myIdentityStore.publicKey = identity.$publicKey
+        myIdentityStore.serverGroup = identity.$serverGroup
+    }
+    
+    // MARK: - License
+    
+    private func storeLicense(using keychainManager: KeychainManagerProtocol) throws {
+        guard let username = licenseStore.licenseUsername,
+              let password = licenseStore.licensePassword else {
+            assertionFailure("This should not happen")
+            DDLogError("Cannot store license in keychain: No username or password set")
+            throw SetupError.unableToStoreLicense
+        }
+[0m
+[0m$ [0mcd /tmp/opencode/ti && grep -rn "serverGroup" ThreemaFramework/Store/MyIdentityStore* --include='*.swift' | head; grep -rln "var serverGroup" ThreemaFramework --include='*.swift' | head
+grep: ThreemaFramework/Store/MyIdentityStore*: No such file or directory
+ThreemaFramework/Business/MyIdentityStore/MockMyIdentityStore.swift
+[0m
+The `ServerGroup` type is from the closed-source protocol lib, but the hostname is `g-{serverGroup}.0.threema.ch`. The KB tried `g-1-0` (wrong shape). Testing single-hex-group variants via DNS (passive).
+[0m$ [0mfor g in 0 1 2 3 4 5 6 7 8 9 a b c d e f; do printf "g-%s.0.threema.ch -> " "$g"; getent hosts "g-$g.0.threema.ch" | head -1 || echo NXDOMAIN; done
+g-0.0.threema.ch -> g-1.0.threema.ch -> g-2.0.threema.ch -> g-3.0.threema.ch -> g-4.0.threema.ch -> g-5.0.threema.ch -> g-6.0.threema.ch -> g-7.0.threema.ch -> g-8.0.threema.ch -> g-9.0.threema.ch -> g-a.0.threema.ch -> g-b.0.threema.ch -> g-c.0.threema.ch -> g-d.0.threema.ch -> g-e.0.threema.ch -> g-f.0.threema.ch ->
+[0m
+All single-hex variants NXDOMAIN. Testing broader candidate shapes for the constructed server name.
+[0m$ [0mfor h in g-0-0 g-1-0 g-2-0 g-00-0 g-1-1 g-a-0 g-f-0 g-1a-0 g-10-0 g-1-00 ds.g-0-0 ds.g-1-0 g-0-0-0 g-1-0-0; do printf "%-16s -> " "$h.threema.ch"; getent hosts "$h.threema.ch" >/dev/null 2>&1 && getent hosts "$h.threema.ch" | head -1 || echo NXDOMAIN; done
+g-0-0.threema.ch -> NXDOMAIN
+g-1-0.threema.ch -> NXDOMAIN
+g-2-0.threema.ch -> NXDOMAIN
+g-00-0.threema.ch -> NXDOMAIN
+g-1-1.threema.ch -> NXDOMAIN
+g-a-0.threema.ch -> NXDOMAIN
+g-f-0.threema.ch -> NXDOMAIN
+g-1a-0.threema.ch -> NXDOMAIN
+g-10-0.threema.ch -> NXDOMAIN
+g-1-00.threema.ch -> NXDOMAIN
+ds.g-0-0.threema.ch -> NXDOMAIN
+ds.g-1-0.threema.ch -> NXDOMAIN
+g-0-0-0.threema.ch -> NXDOMAIN
+g-1-0-0.threema.ch -> NXDOMAIN
+[0m
+[0m$ [0mcd /tmp/opencode/ti && git log --oneline -5 -- ThreemaFramework/Configuration/ThreemaFrameworkConfiguration.plist 2>/dev/null; git log -p -1 -- ThreemaFramework/Configuration/ThreemaFrameworkConfiguration.plist 2>/dev/null | grep -i "server\|prefix\|suffix" | head
+0dc3913 Version 7.3.1b73105
++	<string>https://blobp-{blobIdPrefix}.threema.ch/{blobId}/done</string>
++	<string>https://ds-blobp-{blobIdPrefix}.threema.ch/{blobId}/done</string>
++	<string>https://blobp-{blobIdPrefix}.threema.ch/{blobId}</string>
++	<string>https://ds-blobp-{blobIdPrefix}.threema.ch/{blobId}</string>
++	<key>ThreemaRendezvousServerURL</key>
++	<string>wss://rendezvous-{rendezvousPathPrefix4}.threema.ch/{rendezvousPathPrefix8}</string>
++	<string>https://blob-mirror-{deviceGroupIdPrefix4}.threema.ch/{deviceGroupIdPrefix8}/{blobId}/done?deviceId={deviceId}&amp;deviceGroupId={deviceGroupId}&amp;scope={origin}</string>
++	<string>https://blob-mirror-{deviceGroupIdPrefix4}.threema.ch/{deviceGroupIdPrefix8}/{blobId}?deviceId={deviceId}&amp;deviceGroupId={deviceGroupId}&amp;scope={origin}</string>
++	<string>https://blob-mirror-{deviceGroupIdPrefix4}.threema.ch/{deviceGroupIdPrefix8}/upload?persist={persistBlob}&amp;deviceId={deviceId}&amp;deviceGroupId={deviceGroupId}&amp;scope={origin}</string>
++	<key>ThreemaMediatorServerURL</key>
+[0m
+[0m$ [0mcd /tmp/opencode/ta && grep -rn "ServerNameSuffix\|serverNamePrefix\|g-\|serverGroup" app/src/main --include='*.java' --include='*.kt' | grep -iv "test" | head -20
+app/src/main/java/ch/threema/storage/databaseupdate/DatabaseUpdateToVersion126.kt:60:                AND $CONVERSATION_TAG_TABLE_NAME.$CONVERSATION_TAG_COLUMN_CONVERSATION_UID = 'g-' || $GROUP_TABLE_NAME.id
+app/src/main/java/ch/threema/storage/databaseupdate/DatabaseUpdateToVersion107.kt:241:        getUniqueIdString("g-$groupId")
+app/src/main/java/ch/threema/app/utils/PowermanagerUtil.java:25:    // https://stackoverflow.com/questions/31638986/protected-apps-setting-on-huawei-phones-and-how-to-handle-it
+app/src/main/java/ch/threema/app/voip/groupcall/sfu/GroupCallSessionDescription.kt:81:        feedback = listOf("transport-cc", "ccm fir", "nack", "nack pli", "goog-remb"),
+app/src/main/java/ch/threema/app/voip/util/SdpPatcher.java:594:                uriAndAttributes.contains("http://tools.ietf.org/html/draft-ietf-avtext-framemarking-07")
+app/src/main/java/ch/threema/app/voip/services/VoipCallService.java:356:     * The activity stats collector is enabled when long-pressing on the callee name.
+app/src/main/java/ch/threema/app/voip/activities/CallActivity.java:1218:            // In DEBUG builds, the call debug info can be shown and hidden by long-pressing
+app/src/main/java/ch/threema/app/onprem/OnPremServerAddressProvider.kt:27:    override fun getChatServerNameSuffix(): String =
+app/src/main/java/ch/threema/app/framework/BaseViewModel.kt:128:     * This can be used for operations that need to run every time the view model becomes active, or for long-running operations that should
+app/src/main/java/ch/threema/app/motionviews/widget/TextEntity.java:100:        // drawing text guide : http://ivankocijan.xyz/android-drawing-multiline-text-on-canvas/
+app/src/main/java/ch/threema/app/conversations/ConversationsFragment.kt:1994:        private const val DIALOG_TAG_PREPARING_MESSAGES = "tag-dialog-preparing-messages"
+app/src/main/java/ch/threema/app/conversations/ConversationsFragment.kt:1995:        private const val DIALOG_TAG_LEAVING_GROUP = "tag-dialog-leaving-group"
+app/src/main/java/ch/threema/app/conversations/ConversationsFragment.kt:1996:        private const val DIALOG_TAG_DISSOLVING_GROUP = "tag-dialog-dissolving-group"
+app/src/main/java/ch/threema/app/conversations/ConversationsFragment.kt:1997:        private const val DIALOG_TAG_REMOVING_GROUP = "tag-dialog-removing-group"
+app/src/main/java/ch/threema/app/conversations/ConversationsFragment.kt:1998:        private const val DIALOG_TAG_EMPTYING_CONVERSATION = "tag-dialog-emptying-conversation"
+app/src/main/java/ch/threema/app/conversations/ConversationsFragment.kt:1999:        private const val DIALOG_TAG_DELETING_CONVERSATION = "tag-dialog-deleting-conversation"
+app/src/main/java/ch/threema/app/conversations/ConversationsFragment.kt:2002:        private const val DIALOG_LOCK_MECHANISM_REQUIRED_TO_TOGGLE_PRIVATE_MARK = "dialog-lock-mechanism-required-to-toggle-private-mark"
+app/src/main/java/ch/threema/app/conversations/ConversationsFragment.kt:2003:        private const val DIALOG_LOCK_MECHANISM_REQUIRED_TO_HIDE = "dialog-lock-mechanism-required-to-hide"
+app/src/main/java/ch/threema/app/conversations/ConversationsFragment.kt:2004:        private const val DIALOG_CONFIRM_TO_MARK_AS_PRIVATE = "dialog-confirm-to-mark-as-private"
+app/src/main/java/ch/threema/app/conversations/ConversationsFragment.kt:2005:        private const val DIALOG_CONFIRM_TO_EMPTY_CONVERSATION = "dialog-confirm-to-empty-conversation"
+[0m
+[0m$ [0mcd /tmp/opencode/ta && find . -name "ServerAddressProvider*" -o -name "*ServerAddress*" | grep -v test | head; echo ===; sed -n 1,60p app/src/main/java/ch/threema/app/onprem/OnPremServerAddressProvider.kt
+./domain/src/main/java/ch/threema/domain/protocol/connection/csp/socket/ChatServerAddressProviderImpl.kt
+./domain/src/main/java/ch/threema/domain/protocol/connection/csp/socket/ChatServerAddressProvider.kt
+./domain/src/main/java/ch/threema/domain/protocol/connection/d2m/socket/D2mServerAddressProvider.kt
+./domain/src/main/java/ch/threema/domain/protocol/ServerAddressProvider.kt
+./app/src/main/java/ch/threema/app/onprem/OnPremServerAddressProvider.kt
+./app/src/main/java/ch/threema/app/services/ServerAddressProviderService.kt
+./app/src/main/java/ch/threema/app/services/DefaultServerAddressProvider.kt
+===
+package ch.threema.app.onprem
+
+import ch.threema.app.BuildConfig
+import ch.threema.base.ThreemaException
+import ch.threema.domain.onprem.OnPremConfig
+import ch.threema.domain.onprem.OnPremConfigFetcher
+import ch.threema.domain.onprem.OnPremConfigMediator
+import ch.threema.domain.protocol.ServerAddressProvider
+import ch.threema.domain.protocol.connection.d2m.MultiDevicePropertyProvider
+import ch.threema.domain.protocol.urls.AppRatingUrl
+import ch.threema.domain.protocol.urls.BlobUrl
+import ch.threema.domain.protocol.urls.MapPoiAroundUrl
+import ch.threema.domain.protocol.urls.MapPoiNamesUrl
+import ch.threema.domain.protocol.urls.MediatorUrl
+
+class OnPremServerAddressProvider(
+    private val fetcherProvider: FetcherProvider,
+) : ServerAddressProvider {
+    fun interface FetcherProvider {
+        fun getFetcher(): OnPremConfigFetcher
+    }
+
+    @Throws(ThreemaException::class)
+    override fun getChatServerNamePrefix() = ""
+
+    @Throws(ThreemaException::class)
+    override fun getChatServerNameSuffix(): String =
+        fetch().chat.hostname
+
+    @Throws(ThreemaException::class)
+    override fun getChatServerPorts(): IntArray =
+        fetch().chat.ports
+
+    override fun getChatServerUseServerGroups() = false
+
+    @Throws(ThreemaException::class)
+    override fun getChatServerPublicKey(): ByteArray =
+        fetch().chat.publicKey
+
+    @Throws(ThreemaException::class)
+    override fun getChatServerPublicKeyAlt(): ByteArray =
+        // No alternate public key for OnPrem, as it can easily be switched in OPPF
+        fetch().chat.publicKey
+
+    @Throws(ThreemaException::class)
+    override fun getDirectoryServerUrl(): String =
+        fetch().directory.url
+
+    @Throws(ThreemaException::class)
+    override fun getWorkServerUrlLegacy(): String =
+        fetch().work.url
+
+    @Throws(ThreemaException::class)
+    override fun getWorkServerUrl(): String =
+        fetch().work.url
+
+    @Throws(ThreemaException::class)
+    override fun getBlobServerDownloadUrl(): BlobUrl =
+        fetch().blob.downloadUrl
+[0m
+[0m→ [0mRead /tmp/opencode/ta/domain/src/main/java/ch/threema/domain/protocol/connection/csp/socket/ChatServerAddressProviderImpl.kt
+[0m→ [0mRead /tmp/opencode/ta/app/src/main/java/ch/threema/app/services/DefaultServerAddressProvider.kt
+[0m
+[0m$ [0mcd /tmp/opencode/ta && grep -rn "CHAT_SERVER_PREFIX\|CHAT_SERVER_SUFFIX\|CHAT_SERVER_PORTS\|CHAT_SERVER_GROUPS\|CHAT_SERVER_IPV6_PREFIX" app/build.gradle.kts | head
+89:        stringBuildConfigField("CHAT_SERVER_PREFIX", "g-")
+90:        stringBuildConfigField("CHAT_SERVER_IPV6_PREFIX", "ds.g-")
+91:        stringBuildConfigField("CHAT_SERVER_SUFFIX", ".0.threema.ch")
+92:        intArrayBuildConfigField("CHAT_SERVER_PORTS", intArrayOf(5222, 443))
+94:        booleanBuildConfigField("CHAT_SERVER_GROUPS", true)
+236:            stringBuildConfigField("CHAT_SERVER_PREFIX", "w-")
+237:            stringBuildConfigField("CHAT_SERVER_IPV6_PREFIX", "ds.w-")
+270:            stringBuildConfigField("CHAT_SERVER_SUFFIX", ".0.test.threema.ch")
+301:            stringBuildConfigField("CHAT_SERVER_PREFIX", "w-")
+302:            stringBuildConfigField("CHAT_SERVER_IPV6_PREFIX", "ds.w-")
+[0m
+[0m$ [0mcd /tmp/opencode/ta && grep -rn "getServerGroup" domain/src/main --include='*.kt' | head
+domain/src/main/java/ch/threema/domain/stores/IdentityStore.kt:44:    fun getServerGroup(): String?
+domain/src/main/java/ch/threema/domain/protocol/connection/BaseServerConnectionProvider.kt:65:            configuration.identityStore.getServerGroup()!!,
+domain/src/main/java/ch/threema/domain/protocol/connection/csp/socket/ChatServerAddressProviderImpl.kt:86:            val serverGroup = if (serverAddressProvider.getChatServerUseServerGroups()) identityStore.getServerGroup() else "."
+[0m
+Hostname = `prefix + (serverGroup|".") + suffix`. When server groups disabled: `g-.0.threema.ch`. Checking BuildConfig values and `getServerGroup()` derivation.
+[0m$ [0mcd /tmp/opencode/ta && grep -rn "serverGroup\|ServerGroup" domain/src/main --include='*.kt' | grep -v "getServerGroup()" | head -15
+domain/src/main/java/ch/threema/domain/stores/IdentityStore.kt:69:        serverGroup: String,
+domain/src/main/java/ch/threema/domain/protocol/connection/csp/socket/ChatServerAddressProviderImpl.kt:87:            "$serverNamePrefix$serverGroup"
+domain/src/main/java/ch/threema/domain/protocol/connection/d2m/socket/D2mServerAddressProvider.kt:11:    private val serverGroup: String,
+domain/src/main/java/ch/threema/domain/protocol/connection/d2m/socket/D2mServerAddressProvider.kt:18:            .setServerGroup(serverGroup)
+domain/src/main/java/ch/threema/domain/protocol/ServerAddressProvider.kt:24:    fun getChatServerUseServerGroups(): Boolean
+[0m
+[0m$ [0mcd /tmp/opencode/ta && grep -rn "override fun getServerGroup\|fun getServerGroup" --include='*.kt' . | grep -v test | head
+./domain/src/main/java/ch/threema/domain/stores/IdentityStore.kt:44:    fun getServerGroup(): String?
+./app/src/main/java/ch/threema/app/stores/ReadonlyInMemoryIdentityStore.kt:17:    override fun getServerGroup() = serverGroup
+./app/src/main/java/ch/threema/app/stores/IdentityStoreImpl.kt:91:    override fun getServerGroup() = identityData?.serverGroup
+./app/src/androidTest/java/ch/threema/storage/DatabaseNonceStoreTest.kt:238:    override fun getServerGroup(): String = throw UnsupportedOperationException()
+[0m
+[0m$ [0mcd /tmp/opencode/ta && grep -rn "serverGroup" app/src/main domain/src/main --include='*.kt' | grep -i "=\|compute\|derive\|firstByte\|substring" | head -15
+app/src/main/java/ch/threema/app/stores/ReadonlyInMemoryIdentityStore.kt:17:    override fun getServerGroup() = serverGroup
+app/src/main/java/ch/threema/app/stores/IdentityStoreImpl.kt:35:            val serverGroup = preferenceStore.getString(PreferenceStore.PREFS_SERVER_GROUP)
+app/src/main/java/ch/threema/app/stores/IdentityStoreImpl.kt:49:                serverGroup = serverGroup,
+app/src/main/java/ch/threema/app/stores/IdentityStoreImpl.kt:91:    override fun getServerGroup() = identityData?.serverGroup
+app/src/main/java/ch/threema/app/stores/IdentityStoreImpl.kt:117:            serverGroup = serverGroup,
+domain/src/main/java/ch/threema/domain/protocol/connection/csp/socket/ChatServerAddressProviderImpl.kt:86:            val serverGroup = if (serverAddressProvider.getChatServerUseServerGroups()) identityStore.getServerGroup() else "."
+[0m
+[0m$ [0mcd /tmp/opencode/ta && grep -rn "PREFS_SERVER_GROUP" app/src/main --include='*.kt' --include='*.java' | head; echo ===; grep -rn "serverGroup" app/src/main/java/ch/threema/app/stores/IdentityStoreImpl.kt | head
+app/src/main/java/ch/threema/app/stores/IdentityStoreImpl.kt:35:            val serverGroup = preferenceStore.getString(PreferenceStore.PREFS_SERVER_GROUP)
+app/src/main/java/ch/threema/app/stores/IdentityStoreImpl.kt:123:        preferenceStore.save(PreferenceStore.PREFS_SERVER_GROUP, serverGroup)
+app/src/main/java/ch/threema/app/stores/IdentityStoreImpl.kt:138:                PreferenceStore.PREFS_SERVER_GROUP,
+app/src/main/java/ch/threema/app/stores/PreferenceStore.kt:82:        const val PREFS_SERVER_GROUP = "server_group"
+===
+35:            val serverGroup = preferenceStore.getString(PreferenceStore.PREFS_SERVER_GROUP)
+49:                serverGroup = serverGroup,
+91:    override fun getServerGroup() = identityData?.serverGroup
+107:        serverGroup: String,
+117:            serverGroup = serverGroup,
+123:        preferenceStore.save(PreferenceStore.PREFS_SERVER_GROUP, serverGroup)
+155:        val serverGroup: String,
+[0m
+[0m$ [0mcd /tmp/opencode/ta && grep -rn "serverGroup\b" app/src/main/java/ch/threema/app/services/ app/src/main/java/ch/threema/app/tasks/ --include='*.kt' --include='*.java' | grep -iv "getServerGroup\|serverGroup =\s*$" | grep "serverGroup =" | head; echo ===; grep -rln "serverGroup" app/src/main --include='*.kt' | head
+===
+app/src/main/java/ch/threema/app/stores/ReadonlyInMemoryIdentityStore.kt
+app/src/main/java/ch/threema/app/stores/IdentityStoreImpl.kt
+[0m
+[0m$ [0mcd /tmp/opencode/ti && grep -rn "serverGroup" ThreemaFramework --include='*.swift' | grep -v "Tests\|Mock" | head; echo ===; grep -rn "serverGroup" Threema --include='*.swift' | grep -iv "test" | head
+ThreemaFramework/Business/MyIdentityStore/MyIdentityStore+Swift.swift:132:        serverGroup = myIdentity.$serverGroup
+ThreemaFramework/Core/DeviceJoin.swift:464:        guard let serverGroup = businessInjector.myIdentityStore.serverGroup else {
+ThreemaFramework/Core/DeviceJoin.swift:472:            $0.cspServerGroup = serverGroup
+ThreemaFramework/Message/MultiDevice/MediatorMessageProtocol.swift:173:    @objc static func encodeClientURLInfo(dgpkPublicKey: Data, serverGroup: String) -> String? {
+ThreemaFramework/Message/MultiDevice/MediatorMessageProtocol.swift:177:        clientURLInfo.serverGroup = serverGroup
+===
+Threema/SharedUI/Navigation/AppCoordinator/AppCoordinator.swift:430:    /// singleton. Ensures clientKey/publicKey/serverGroup are all populated before
+Threema/RootCoordinator/RemoteSecretResolver.swift:301:            let serverGroup = myIdentityStore.serverGroup
+Threema/RootCoordinator/RemoteSecretResolver.swift:312:            serverGroup: ServerGroup(serverGroup)
+Threema/RootCoordinator/RemoteSecretResolver.swift:327:        myIdentityStore.serverGroup = identity.$serverGroup
+Threema/Onboarding/SetupApp.swift:337:              let serverGroup = myIdentityStore.serverGroup else {
+Threema/Onboarding/SetupApp.swift:349:            serverGroup: ServerGroup(serverGroup)
+Threema/Onboarding/SetupApp.swift:364:        myIdentityStore.serverGroup = identity.$serverGroup
+[0m
+[0m$ [0mfor g in 00 01 0a 1a 10 2a 3f 40 7a aa b4 cc f0 ff 1e; do printf "g-%s.0.threema.ch -> " "$g"; getent hosts "g-$g.0.threema.ch" >/dev/null 2>&1 && getent hosts "g-$g.0.threema.ch" | head -1 || echo NXDOMAIN; done
+g-00.0.threema.ch -> 203.56.112.202  g-00.0.threema.ch
+g-01.0.threema.ch -> 203.56.112.202  g-01.0.threema.ch
+g-0a.0.threema.ch -> 203.56.112.202  g-0a.0.threema.ch
+g-1a.0.threema.ch -> 203.56.112.202  g-1a.0.threema.ch
+g-10.0.threema.ch -> 203.56.112.202  g-10.0.threema.ch
+g-2a.0.threema.ch -> 203.56.112.202  g-2a.0.threema.ch
+g-3f.0.threema.ch -> 203.56.112.202  g-3f.0.threema.ch
+g-40.0.threema.ch -> 203.56.112.202  g-40.0.threema.ch
+g-7a.0.threema.ch -> 203.56.112.202  g-7a.0.threema.ch
+g-aa.0.threema.ch -> 203.56.112.204  g-aa.0.threema.ch
+g-b4.0.threema.ch -> 203.56.112.204  g-b4.0.threema.ch
+g-cc.0.threema.ch -> 203.56.112.204  g-cc.0.threema.ch
+g-f0.0.threema.ch -> 203.56.112.204  g-f0.0.threema.ch
+g-ff.0.threema.ch -> 203.56.112.204  g-ff.0.threema.ch
+g-1e.0.threema.ch -> 203.56.112.202  g-1e.0.threema.ch
+[0m
+Major unlock: chat server is `g-{2hex}.0.threema.ch` (serverGroup = first byte of identity pubkey), resolving to 203.56.112.202/203.56.112.204. Probing TLS posture on one host, passive.
+[0m$ [0mtimeout 20 bash -c 'echo | openssl s_client -connect g-00.0.threema.ch:443 -servername g-00.0.threema.ch 2>/dev/null | openssl x509 -noout -subject -issuer -dates -ext subjectAltName 2>/dev/null' | head -20
+(no output)
+[0m
+[0m$ [0mtimeout 25 openssl s_client -connect 203.56.112.202:443 -servername g-00.0.threema.ch </dev/null 2>&1 | openssl x509 -noout -subject -issuer -dates -ext subjectAltName 2>&1 | head -25
+Could not read certificate from <stdin>
+403720D3447F0000:error:1608010C:STORE routines:ossl_store_handle_load_result:unsupported:../crypto/store/store_result.c:151:
+Unable to load certificate
+[0m
+[0m$ [0mtimeout 25 bash -c 'curl -sv --max-time 12 https://g-00.0.threema.ch/ -o /dev/null 2>&1' | grep -i "connected\|SSL\|TLS\|HTTP/\|subject\|issuer\|certificate\|error\|CN=" | head -20
+* Connected to g-00.0.threema.ch (203.56.112.202) port 443
+* ALPN: curl offers h2,http/1.1
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+*  CAfile: /etc/ssl/certs/ca-certificates.crt
+*  CApath: /etc/ssl/certs
+* OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to g-00.0.threema.ch:443
+[0m
+[0m$ [0mtimeout 25 bash -c 'echo | openssl s_client -connect 203.56.112.202:5222 -servername g-00.0.threema.ch 2>&1' | grep -i "subject=\|issuer=\|notAfter\|CONNECTED\|alert\|error\|verify" | head -15
+40E7CB14A27F0000:error:0A000126:SSL routines:ssl3_read_n:unexpected eof while reading:../ssl/record/rec_layer_s3.c:316:
+CONNECTED(00000003)
+Verify return code: 0 (ok)
+[0m
+[0m$ [0mtimeout 25 bash -c 'sleep 1; echo | openssl s_client -connect 203.56.112.202:5222 -servername g-00.0.threema.ch 2>/dev/null | openssl x509 -noout -subject -issuer -dates 2>&1 | head -10'
+Could not read certificate from <stdin>
+40C76C4DF47F0000:error:1608010C:STORE routines:ossl_store_handle_load_result:unsupported:../crypto/store/store_result.c:151:
+Unable to load certificate
+[0m
+[0m$ [0mtimeout 25 bash -c 'echo | openssl s_client -connect 203.56.112.202:5222 -servername g-00.0.threema.ch > /tmp/opencode/g00.log 2>&1'; grep -i "subject=\|issuer=\|notAfter=\|notBefore=\|protocol \|cipher" /tmp/opencode/g00.log | head
+New, (NONE), Cipher is (NONE)
+[0m
+TLS drops non-conforming clients (custom CSP protocol — expected). Enumerating the distinct IPs of the resolved chat cluster via DNS (passive).
+[0m$ [0mfor i in $(seq 0 255); do g=$(printf "%02x" $i); ip=$(getent hosts "g-$g.0.threema.ch" | awk '{print $1}' | head -1); if [ -n "$ip" ]; then echo "$g $ip"; fi; done | sort -k2 | awk '{print $2}' | uniq -c
+128 203.56.112.202
+    128 203.56.112.204
+[0m
+Chat cluster mapped: 256 groups → {203.56.112.202, 203.56.112.204}. Checking staging chat host + re-probing Safe with the corrected `/backups/` path shape.
+[0m$ [0mfor h in g-00.0.test.threema.ch g-1a.0.test.threema.ch g-00.0.threema.ch; do printf "%s -> " "$h"; getent hosts "$h" >/dev/null 2>&1 && getent hosts "$h" | head -1 || echo NXDOMAIN; done
+g-00.0.test.threema.ch -> 203.56.114.34   g-00.0.test.threema.ch
+g-1a.0.test.threema.ch -> 203.56.114.34   g-1a.0.test.threema.ch
+g-00.0.threema.ch -> 203.56.112.202  g-00.0.threema.ch
+[0m
+[0m$ [0mtimeout 25 curl -s -D /tmp/opencode/safe1.hdr -o /tmp/opencode/safe1.body https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000 2>&1; head -12 /tmp/opencode/safe1.hdr; echo "BODY($(wc -c </tmp/opencode/safe1.body)b):"; cat /tmp/opencode/safe1.body; echo
+HTTP/1.1 400 Bad Request
+Server: nginx
+Date: Fri, 07 Aug 2026 22:04:08 GMT
+Content-Type: text/plain; charset=utf-8
+Content-Length: 11
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+ETag: W/"b-EFiDB1U+dmqzx9Mo2UjcZ1SJPO8"
+
+BODY(11b):
+Bad Request
+[0m
+`/backups/{hex}` returns 400 (app-level), vs `/backup/{id}` hypothesis. Comparing with a random hex ID and the old path shape.
+[0m$ [0msleep 1; timeout 25 curl -s -D /tmp/opencode/safe2.hdr -o /tmp/opencode/safe2.body https://safe-01.threema.ch/backups/1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d 2>&1; grep -i "HTTP/\|content-length\|access-control" /tmp/opencode/safe2.hdr; echo "BODY: $(cat /tmp/opencode/safe2.body)"; echo; sleep 1; timeout 25 curl -s -D /tmp/opencode/safe3.hdr -o /tmp/opencode/safe3.body https://safe-01.threema.ch/backup/1a2b3c4d5e6f7a8b 2>&1; grep -i "HTTP/\|content-length\|access-control" /tmp/opencode/safe3.hdr; echo "BODY: $(cat /tmp/opencode/safe3.body)"
+HTTP/1.1 400 Bad Request
+Content-Length: 11
+Access-Control-Allow-Origin: *
+BODY: Bad Request
+
+HTTP/1.1 404 Not Found
+Content-Length: 162
+Access-Control-Allow-Origin: *
+BODY: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /backup/1a2b3c4d5e6f7a8b</pre>
+</body>
+</html>
+[0m
+[0m$ [0mcd /tmp/opencode/ta && grep -n "backups\|backupID\|backupId\|validateBackupId\|BackupId" app/src/main/java/ch/threema/app/threemasafe/ThreemaSafeServiceImpl.java | head -30
+340:    public byte[] getThreemaSafeBackupId() {
+369:            var response = threemaSafeApiClient.testServer(serverInfo, getThreemaSafeBackupId());
+578:            threemaSafeApiClient.deleteBackup(serverInfo, getThreemaSafeBackupId());
+600:        byte[] threemaSafeEncryptedBackup = threemaSafeApiClient.downloadEncryptedBackup(serverInfo, getThreemaSafeBackupId());
+959:                        // Due to a bug in older versions, safe backups with a negative createdAt timestamp might exist
+971:                            // Due to a bug in older versions, safe backups with a negative lastUpdateAt timestamp might exist
+1055:                    // Due to a bug in older versions, safe backups with a negative createdAt timestamp might exist
+1069:                        // Due to a bug in older versions, safe backups with a negative lastUpdateAt timestamp might exist
+1187:            threemaSafeApiClient.uploadEncryptedBackup(serverInfo, getThreemaSafeBackupId(), data);
+[0m
+Live route confirmed: `/backups/{id}` → 400 (handler exists), `/backup/{id}` → Express 404 (no route). Checking client code for the exact contract/validation.
+[0m$ [0mcd /tmp/opencode/ta && find . -name "ThreemaSafeApiClient*" | grep -v test; echo ===; grep -n "backups\|getBackupUrl\|downloadEncryptedBackup\|deleteBackup" $(find . -name "ThreemaSafeApiClient*.java" -o -name "ThreemaSafeApiClient*.kt" | grep -v test | head -1) 2>/dev/null | head -25
+./app/src/main/java/ch/threema/app/threemasafe/ThreemaSafeApiClient.kt
+===
+48:    fun downloadEncryptedBackup(serverInfo: ThreemaSafeServerInfo, id: ThreemaSafeBackupId?): ByteArray {
+50:            url(serverInfo.getBackupUrl(id))
+63:            url(serverInfo.getBackupUrl(id))
+73:    fun deleteBackup(serverInfo: ThreemaSafeServerInfo, id: ThreemaSafeBackupId?) {
+75:            url(serverInfo.getBackupUrl(id))
+[0m
+[0m$ [0mcd /tmp/opencode/ta && grep -n "getBackupUrl\|class ThreemaSafeServerInfo\|url\b\|String url\|getBaseUrl\|backups" app/src/main/java/ch/threema/app/threemasafe/ThreemaSafeServerInfo.java | head; echo ===; sed -n 1,60p app/src/main/java/ch/threema/app/threemasafe/ThreemaSafeServerInfo.java
+19:public class ThreemaSafeServerInfo {
+23:    private static final String BACKUP_DIRECTORY_NAME = "backups/";
+83:    URL getBackupUrl(@Nullable byte[] backupId) throws ThreemaException {
+===
+package ch.threema.app.threemasafe;
+
+import org.slf4j.Logger;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import ch.threema.app.managers.ServiceManager;
+import ch.threema.base.ThreemaException;
+import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
+import okhttp3.Credentials;
+
+import static ch.threema.app.threemasafe.ThreemaSafeService.BACKUP_ID_LENGTH;
+import static ch.threema.common.JavaCompat.isNullOrEmpty;
+import static ch.threema.common.JavaCompat.toHexString;
+
+public class ThreemaSafeServerInfo {
+    private static final Logger logger = getThreemaLogger("ThreemaSafeServerInfo");
+
+    private static final String SAFE_URL_PREFIX = "https://";
+    private static final String BACKUP_DIRECTORY_NAME = "backups/";
+
+    // TODO(ANDR-2968): Remove the check for the legacy default server name
+    private static final String LEGACY_DEFAULT_SERVER_NAME = "safe-%h.threema.ch";
+
+    @Nullable
+    private String customServerName;
+    @NonNull
+    private final String defaultServerName = getDefaultServerNameFromServerAddressProvider();
+    @Nullable
+    private String serverUsername;
+    @Nullable
+    private String serverPassword;
+
+    public ThreemaSafeServerInfo() {
+    }
+
+    public ThreemaSafeServerInfo(@Nullable String customServerName, @Nullable String serverUsername, @Nullable String serverPassword) {
+        this.serverUsername = serverUsername;
+        this.serverPassword = serverPassword;
+        this.setCustomServerName(customServerName);
+    }
+
+    @Nullable
+    public String getCustomServerName() {
+        return customServerName;
+    }
+
+    public void setCustomServerName(@Nullable String customServerName) {
+        if (!isNullOrEmpty(customServerName)) {
+            this.customServerName = customServerName.trim().replace(SAFE_URL_PREFIX, "");
+            if (defaultServerName.equals(this.customServerName) || LEGACY_DEFAULT_SERVER_NAME.equals(this.customServerName)) {
+                this.customServerName = null;
+                logger.warn("Tried to set default server as custom server: {}", customServerName);
+            }
+        } else {
+            this.customServerName = null;
+        }
+[0m
+[0m$ [0mcd /tmp/opencode/ta && sed -n 78,110p app/src/main/java/ch/threema/app/threemasafe/ThreemaSafeServerInfo.java; echo ===; grep -n "BACKUP_ID_LENGTH\|backupId.*Bytes\|hex" app/src/main/java/ch/threema/app/threemasafe/ThreemaSafeService.java | head
+public boolean isDefaultServer() {
+        return isNullOrEmpty(customServerName);
+    }
+
+    URL getBackupUrl(@Nullable byte[] backupId) throws ThreemaException {
+        if (backupId == null || backupId.length != BACKUP_ID_LENGTH) {
+            throw new ThreemaException("Invalid Backup ID");
+        }
+
+        URL serverUrl = getServerUrl(backupId, BACKUP_DIRECTORY_NAME + toHexString(backupId));
+        if (serverUrl == null) {
+            throw new ThreemaException("Invalid Server URL");
+        }
+
+        return serverUrl;
+    }
+
+    URL getConfigUrl(@Nullable byte[] backupId) throws ThreemaException {
+        URL serverUrl = getServerUrl(backupId, "config");
+        if (serverUrl == null) {
+            throw new ThreemaException("Invalid URL");
+        }
+
+        return serverUrl;
+    }
+
+    @Nullable
+    String getAuthorization() throws ThreemaException {
+        String username = serverUsername, password = serverPassword;
+
+        if ((isNullOrEmpty(serverUsername) || isNullOrEmpty(serverPassword)) && !isNullOrEmpty(customServerName)) {
+            int atPos = customServerName.indexOf("@");
+===
+26:    int BACKUP_ID_LENGTH = 32;
+[0m
+Backup ID = 32 bytes (64 hex). Also found a `/config` endpoint on the safe server. Probing it passively.
+[0m$ [0msleep 1; timeout 25 curl -s -D /tmp/opencode/safe4.hdr -o /tmp/opencode/safe4.body https://safe-01.threema.ch/config 2>&1; grep -i "HTTP/\|content-length\|access-control\|content-type\|etag" /tmp/opencode/safe4.hdr; echo "BODY: $(cat /tmp/opencode/safe4.body)"; echo; sleep 1; timeout 25 curl -s -D /tmp/opencode/safe5.hdr -o /tmp/opencode/safe5.body https://safe-01.threema.ch/backups/ 2>&1; grep -i "HTTP/\|content-length\|access-control\|content-type" /tmp/opencode/safe5.hdr; echo "BODY: $(cat /tmp/opencode/safe5.body)"
+HTTP/1.1 400 Bad Request
+Content-Type: text/plain; charset=utf-8
+Content-Length: 11
+Access-Control-Allow-Origin: *
+ETag: W/"b-EFiDB1U+dmqzx9Mo2UjcZ1SJPO8"
+BODY: Bad Request
+
+HTTP/1.1 404 Not Found
+Content-Type: text/html; charset=utf-8
+Content-Length: 147
+Access-Control-Allow-Origin: *
+X-Content-Type-Options: nosniff
+BODY: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /backups/</pre>
+</body>
+</html>
+[0m
+[0m$ [0mcd /tmp/opencode/ti && grep -rn "backups\|/config" Threema/Core/ThreemaSafe --include='*.swift' | grep -i "url\|path\|append\|string" | head -15
+Threema/Core/ThreemaSafe/SafeManager/SafeManager.swift:277:                        .appendingPathComponent("backups/\(BytesUtility.toHexString(bytes: backupID))")
+Threema/Core/ThreemaSafe/SafeManager/SafeManager.swift:630:                        .appendingPathComponent("backups/\(BytesUtility.toHexString(bytes: backupID))")
+Threema/Core/ThreemaSafe/SafeManager/SafeManager.swift:692:                        .appendingPathComponent("backups/\(BytesUtility.toHexString(bytes: backupID))")
+Threema/Core/ThreemaSafe/SafeManager/SafeManager.swift:784:                    .appendingPathComponent("backups/\(BytesUtility.toHexString(bytes: backupID))")
+Threema/Core/ThreemaSafe/SafeBackupDataDownloader.swift:145:        let backupURL = server.appendingPathComponent("backups/\(BytesUtility.toHexString(bytes: backupID))")
+[0m
+[0m$ [0mcd /tmp/opencode/ti && sed -n 120,175p Threema/Core/ThreemaSafe/SafeBackupDataDownloader.swift
+default:
+                DDLogError(
+                    "[ThreemaSafe Restore] Decoding backup failed with error: ValueNotFound: \(error.localizedDescription))"
+                )
+            }
+            
+            cleanAndSaveData(encodedData)
+            throw SafeError.restoreError(.decodingFailed)
+        }
+        catch {
+            cleanAndSaveData(encodedData)
+            throw SafeError.restoreError(.decodingFailed)
+        }
+    }
+    
+    private func fetchBackupData(
+        backupID: [UInt8],
+        key: [UInt8],
+        serverUser: String?,
+        serverPassword: String?,
+        server: URL,
+        completionHandler: @escaping (Error?, [UInt8]?) -> Void
+    ) {
+        DDLogNotice("[ThreemaSafe Restore] Fetching backup")
+        
+        let backupURL = server.appendingPathComponent("backups/\(BytesUtility.toHexString(bytes: backupID))")
+        var decryptedData: [UInt8]?
+        
+        let safeApiService = SafeApiService()
+        safeApiService.download(
+            backup: backupURL,
+            user: serverUser,
+            password: serverPassword
+        ) { completion in
+            do {
+                if let encryptedData = try completion() {
+                    decryptedData = try SafeStore.decryptBackupData(key: key, data: Array(encryptedData))
+                    completionHandler(nil, decryptedData)
+                }
+                else {
+                    completionHandler(nil, nil)
+                }
+            }
+            catch {
+                if let err = error as? SafeApiService.SafeApiError {
+                    switch err {
+                    case .invalidServerURL:
+                        completionHandler(SafeError.invalidURL, nil)
+                    case .requestFailed:
+                        completionHandler(SafeError.restoreError(.noBackupFound), nil)
+                    }
+                }
+                else {
+                    completionHandler(error, nil)
+                }
+            }
+[0m
+[0m$ [0mcd /tmp/opencode/ti && grep -rn "class SafeApiService" Threema --include='*.swift' | head -2; f=$(grep -rln "class SafeApiService" Threema --include='*.swift' | head -1); echo "$f"; sed -n 1,80p "$f"
+Threema/Core/ThreemaSafe/SafeApiService/SafeApiService.swift:4:final class SafeApiService: NSObject, SafeApiServiceProtocol {
+Threema/Core/ThreemaSafe/SafeApiService/SafeApiService.swift
+import Foundation
+import ThreemaMacros
+
+final class SafeApiService: NSObject, SafeApiServiceProtocol {
+
+    enum SafeApiError: Error, LocalizedError {
+        case invalidServerURL
+        case requestFailed(message: String)
+
+        var errorDescription: String? {
+            switch self {
+            case .invalidServerURL:
+                #localize("safe_invalid_url")
+            case let .requestFailed(message: message):
+                message
+            }
+        }
+    }
+
+    @available(*, deprecated, message: "testServer(server:user:password:) async throws -> Data")
+    func testServer(
+        server: URL,
+        user: String?,
+        password: String?,
+        completionHandler: @escaping (() throws -> Data) -> Void
+    ) {
+
+        getHttpClient(user: user, password: password) { client in
+            client
+                .downloadData(
+                    url: server.appendingPathComponent("config"),
+                    contentType: .json
+                ) { data, response, error in
+                
+                    let result = self.processResponse(data: data, response: response, error: error)
+                    if let responseData = result.data {
+                        completionHandler { responseData }
+                    }
+                    if let responseErrorMessage = result.errorMessage {
+                        completionHandler { throw SafeApiError.requestFailed(message: responseErrorMessage) }
+                    }
+                }
+        }
+    }
+
+    func testServer(server: URL, user: String?, password: String?) async throws -> Data {
+        try await withCheckedThrowingContinuation { continuation in
+            testServer(server: server, user: user, password: password) { completionHandler in
+                do {
+                    let data = try completionHandler()
+                    continuation.resume(returning: data)
+                }
+                catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+
+    func delete(server: URL, user: String?, password: String?, completion: @escaping (String?) -> Void) {
+        var errorMessage: String?
+                
+        DispatchQueue.global(qos: .background).async {
+            self.getHttpClient(user: user, password: password) { client in
+                client.delete(url: server) { data, response, error in
+                    
+                    let result = self.processResponse(data: data, response: response, error: error)
+                    if let responseErrorMessage = result.errorMessage {
+                        errorMessage = responseErrorMessage
+                    }
+                    completion(errorMessage)
+                }
+            }
+        }
+    }
+    
+    func upload(
+        backup: URL,
+        user: String?,
+        password: String?,
+[0m
+Client uses HTTP Basic auth for safe endpoints. Testing if the 400 changes with an auth header present (still a GET, passive).
+[0m$ [0msleep 1; timeout 25 curl -s -D /tmp/opencode/safe6.hdr -o /tmp/opencode/safe6.body -u "dummy:dummy" https://safe-01.threema.ch/config 2>&1; grep -i "HTTP/\|content-length\|access-control\|content-type\|www-authenticate" /tmp/opencode/safe6.hdr; echo "BODY: $(cat /tmp/opencode/safe6.body)"
+HTTP/1.1 400 Bad Request
+Content-Type: text/plain; charset=utf-8
+Content-Length: 11
+Access-Control-Allow-Origin: *
+BODY: Bad Request
+[0m
+[0m$ [0msleep 1; timeout 25 curl -s -D - -o /tmp/opencode/s7.body https://safe-00.threema.ch/backups/00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff 2>&1 | grep -i "HTTP/\|content-length\|access-control"; echo "BODY: $(cat /tmp/opencode/s7.body)"; echo; sleep 1; timeout 25 curl -s -D - -o /tmp/opencode/s8.body https://safe-1a.threema.ch/backups/1a112233445566778899aabbccddeeff00112233445566778899aabbccddeeff 2>&1 | grep -i "HTTP/\|content-length\|access-control"; echo "BODY: $(cat /tmp/opencode/s8.body)"
+HTTP/1.1 400 Bad Request
+Content-Length: 11
+Access-Control-Allow-Origin: *
+BODY: Bad Request
+
+HTTP/1.1 400 Bad Request
+Content-Length: 11
+Access-Control-Allow-Origin: *
+BODY: Bad Request
+[0m
+I now have enough verified delta. Composing the structured output.
+
+## STEP 1 — DELTA
+- [NEW] `g-{2hex}.0.threema.ch` chat cluster **resolved**: Android `app/build.gradle.kts:89-94` (`CHAT_SERVER_PREFIX="g-"`, `CHAT_SERVER_SUFFIX=".0.threema.ch"`, `CHAT_SERVER_GROUPS=true`, ports `5222/443`) + iOS `ThreemaFrameworkConfiguration.plist` (`ThreemaServerNamePrefix="g-"`, suffix `.0.threema.ch`); host = prefix+serverGroup+suffix per `ChatServerAddressProviderImpl.kt:83-92`; serverGroup = identity pubkey first byte. All 256 groups resolve → {203.56.112.202 (128), 203.56.112.204 (128)}. TLS on 443/5222 drops standard clients (custom CSP protocol); 5222 cert chain verifies.
+- [NEW] Staging chat `g-{2hex}.0.test.threema.ch` resolves → 203.56.114.34 (Android test flavor `CHAT_SERVER_SUFFIX=".0.test.threema.ch"` at build.gradle.kts:270).
+- [NEW] Safe endpoint contract corrected from client source: canonical API = `safe-{XX}.threema.ch/backups/{64hex}` + `/config` (Android `ThreemaSafeServerInfo.getBackupUrl`, iOS `SafeManager`); live `safe-01.threema.ch/backups/{hex}` → **400 Bad Request** (11b, ETag, CORS `*`), `/config` → 400, `/backup/{id}` → Express 404 (no such route).
+- [CHANGED] `safe-01.threema.ch`: all unauthenticated GETs (no creds, arbitrary Basic, shard-matching backup IDs) return 400 → handler exists but fully credential-gated; previous `/backup/{id}` hypothesis path was wrong.
+
+## STEP 2 — PRIORITIZE
+- [PRIO] g-*.0.threema.ch chat cluster, 7.6, attack=8 business=10 tech=4 gate=9 cloud=2 fresh=9
+- [PRIO] g-*.0.test.threema.ch staging chat, 7.0, attack=8 business=6 tech=6 gate=9 cloud=3 fresh=9
+- [PRIO] safe-01.threema.ch (backups/{id}+/config), 6.6, attack=7 business=9 tech=5 gate=6 cloud=7 fresh=5
+- [PRIO] ds-apip-work.threema.ch /identities (HOLD, AUTH_HELPED), 5.8, attack=6 business=7 tech=6 gate=4 cloud=6 fresh=5
+
+## STEP 3 — HYPOTHESES
+[HYP] Staging chat cluster publicly reachable
+class: MISCONFIG
+asset: g-*.0.test.threema.ch (203.56.114.34)
+confidence: 55
+reasoning: Android test flavor `CHAT_SERVER_SUFFIX=".0.test.threema.ch"` yields g-{2hex}.0.test.threema.ch, which resolves live (203.56.114.34) with identical naming to prod chat (203.56.112.202/.204); mirrors the already-accepted ds-apip.test/apip.test staging-exposure pattern.
+evidence_needed: staging chat host answers 5222/443 TLS differently from prod (accepts standard client hello, distinct cert SANs, or reachable routes), proving a separate unpatched/test env.
+verify_steps: PASSIVE: `openssl s_client -connect 203.56.114.34:5222 -servername g-00.0.test.threema.ch` vs prod 203.56.112.202:5222 — compare handshake/cert; DNS sweep of g-XX.0.test.threema.ch; ≤1 rps, single attempts.
+impact: internet-reachable staging messenger backend → version skew, test accounts/routes, or full reachable mirror; severity low-medium.
+testability: PASSIVE
+
+[HYP] Safe backup API is fully credential-gated (no unauthenticated surface)
+class: AUTH
+asset: safe-01.threema.ch/backups/{64hex} + /config
+confidence: 50
+reasoning: both endpoints return 400 for every unauth/no-cred GET (incl. arbitrary Basic and shard-matching IDs) while non-route paths give Express 404; client uses Basic auth derived from backupId+backupKey (SafeApiService); CORS `*` persists on all responses.
+evidence_needed: whether any request without valid derived credentials ever returns ≠400 (preflight Allow-Methods vs Allow-Headers, HEAD variants).
+verify_steps: PASSIVE: OPTIONS https://safe-01.threema.ch/backups/{hex} (already 204 CORS *) → record Allow-Methods/Allow-Headers; single HEAD /config; ≤1 rps, no real IDs.
+impact: no unauth data access observed; CORS `*` + broad methods on credential-gated API is defense-in-depth only; severity low.
+testability: PASSIVE
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] Safe backup unauthenticated existence oracle (/backup/{id}): wrong path shape (real route is /backups/) AND every unauth request returns 400 → no passive oracle; dead.
+- [PARKED] mediator/rendezvous shared-edge 403 masks routes: no path/Host variant differed; triage already marked INVALID; no new evidence.
+- [FINAL] 1. Staging chat exposure (55) 2. Safe auth-gating fingerprint (50) — both keep.
+
+## STEP 5 — NEXT ACTION
+[NEXT] PROBE: `openssl s_client -connect 203.56.114.34:5222 -servername g-00.0.test.threema.ch` and `openssl s_client -connect 203.56.112.202:5222 -servername g-00.0.threema.ch` (compare handshake/cert: staging vs prod chat), then one `curl -sv https://g-00.0.test.threema.ch/` at ≤1 rps.
+
+## STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ g-*.0.threema.ch: Chat hostname pattern resolved from in-scope client source — `g-{serverGroup-hex}.0.threema.ch`, all 256 groups → 203.56.112.202/.204, ports 5222/443, custom CSP protocol (standard TLS dropped).
+- [LEARN] ACCEPTED MISCONFIG @ safe-01.threema.ch: Canonical API is `/backups/{64hex}` + `/config` (from client source); all unauthenticated requests → 400; Basic-auth gated; no passive oracle (refines earlier accepted "permissive CORS" finding).
+- [LEARN] ACCEPTED OTHER @ g-*.0.test.threema.ch: Staging chat cluster resolves (203.56.114.34) — same leaked-staging pattern as the directory servers.
+- [LEARN] REJECTED IDOR @ safe-01.threema.ch: unauthenticated backup existence oracle via /backup/{id} — wrong path shape and 400-gated; dead.
+- [LEARN] REJECTED MISCONFIG @ mediator-1/rendezvous-1 shared-edge 403: uniform 403 expected; no distinguishing path; dead.
+
+## STEP 7 — RISK
+- [RISK] chat: 75 reason: g-*.0.threema.ch pattern now resolved (256 groups, 2 IPs, ports 5222/443); core messenger identifiable but passive surface closed (custom protocol); staging sibling 203.56.114.34 reachable
+- [RISK] web: 80 reason: ds-apip/api/apip directory cluster confirmed with identity oracle + bulk fetch + CORS* + no rate limit; work/broadcast/gateway/shop accessible with PHP sessions, CSP, Sentry
+- [RISK] sync: 65 reason: mediator-*.threema.ch/{XX}/ pattern confirmed (WSS); critical for multi-device but auth model unenumerated
+- [RISK] safe: 55 reason: safe-01 reachable but fully credential-gated (400 on all unauth); CORS * persists; backup service high value but no unauth data path
+- [RISK] desktop-src: 75 reason: Electron app with embedded test/staging URLs + OnPrem config trust chain; source available for static analysis; RCE potential via preload/contextIsolation bypass

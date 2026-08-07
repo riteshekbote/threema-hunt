@@ -1,1 +1,65 @@
-## 2026-08-07 21:20:29 UTC [desktop] (model laguna)
+## 2026-08-07 22:03:25 UTC [desktop] (model laguna)
+class: BUSLOGIC
+asset: apip.threema.ch/identity/ws/revoke
+confidence: 45
+reasoning: OpenAPI (directory.openapi.yml) shows /identity/ws/revoke is the ONLY identity endpoint with a single-step request (identity + revocationKey = SHA256(revocation-password)[:4], 32 bits) and NO challenge-response step, and unlike blob_cred/sfu_cred/work endpoints it documents NO 429 rate-limit response.
+evidence_needed: server enforces/omits rate limiting on ws/revoke; error/timing differences per guessed key; whether a correct 4-byte key revokes any ID.
+verify_steps: AUTH_HELPED: on a program-provided test ID, POST /identity/ws/revoke with a deliberately wrong revocationKey (observe error shape and timing), repeat small count to test for 429; never target third-party IDs and do not create accounts.
+impact: if unrate-limited, brute-force of 2^32 space → force-revoke/delete any Threema ID (permanent identity destruction / DoS). Severity: medium-high.
+testability: AUTH_HELPED
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities (backend of in-scope work.threema.ch)
+confidence: 50
+reasoning: directory.openapi.yml line 1172 states "/identities ... currently buggy. See TWRK-1633"; endpoint returns "a subset of the provided contacts that are part of the same Work subscription" + work properties (first/last name, jobTitle, department, availability); GET / returns 401 confirming a live credential-gated backend.
+evidence_needed: whether contact matching can be induced to return contacts outside the caller's subscription.
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities (contacts:[...]) mixing own- and other-subscription IDs and compare membership + properties; also probe /directory pagination bounds (page/size, wildcard queries).
+impact: cross-subscription disclosure of work-directory metadata (names, titles, departments, availability) → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+class: OTHER
+asset: mediator-*.threema.ch / rendezvous-*.threema.ch / blob-mirror-*.threema.ch
+confidence: 40
+reasoning: all sampled shards (0..f) resolve; GET / → uniform 403; shard prefix is derived from the first byte of a public-key (routing, not auth per config.rs) — no passive distinguishing signal observed.
+evidence_needed: any shard or path (wss /{prefix}/) responding differently than 403.
+verify_steps: PASSIVE: GET https://{rendezvous,mediator,blob-mirror}-{0,7,f}.threema.ch/ and a few /XX/ paths at ≤1rps, compare status/body fingerprints.
+impact: none observed; would only indicate a routing/edge misconfiguration. Severity: n/a
+testability: PASSIVE
+[HYP] ds-apip.threema.ch directory lookup / unauth enumeration
+class: AUTH
+asset: ds-apip.threema.ch
+confidence: 55
+reasoning: directory.openapi.yml lists `ds-apip.*` as the directory API base; production `ds-apip.threema.ch` returns root 403 with `Access-Control-Allow-Origin: *` and allows POST/GET/OPTIONS/DELETE cross-origin. apip.threema.ch returns 404 on all openapi subpaths (host mismatch), so any live directory routes live on the ds-apip host. If any lookup route is unauthenticated, CORS-* enables cross-origin probing from an attacker page.
+evidence_needed: an endpoint under ds-apip.threema.ch returning ≠403/404 to GET; response-body fingerprints differing from apip.
+verify_steps: PASSIVE: GET https://ds-apip.threema.ch/identity/lookup and /directory (compare vs apip 404), GET https://ds-apip-work.threema.ch/identity/lookup (401=route-exists-behind-auth vs 404=no-route), ≤1 rps.
+impact: Threema ID/pubkey enumeration → spam, phishing, targeted abuse. Severity: medium.
+testability: PASSIVE
+[HYP] threema-desktop key-storage KDF parameter weakness
+class: OTHER
+asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/key-storage/crypto.ts)
+[HYP] Directory cluster identity→pubkey enumeration across 5 hosts
+class: IDOR
+asset: ds-apip.threema.ch + api.threema.ch + apip.threema.ch + ds-apip.test.threema.ch + apip.test.threema.ch (`GET /identity/{id}`, `POST /identity/fetch_bulk`)
+confidence: 95
+reasoning: All 5 directory hosts return 200 for `GET /identity/ECHOECHO` with identical pubkey data and permissive CORS (`*`, methods POST,GET,OPTIONS,DELETE). `fetch_bulk` silently omits invalid IDs (re-confirmed: only ECHOECHO returned from a 4-ID batch). Production hosts lack HSTS/Expect-CT; staging includes both but identical CORS exposure.
+evidence_needed: Sustained burst >50 req/min with no 429/429/Retry-After; confirm invalid IDs are silently omitted rather than error-returned at scale.
+verify_steps: PROBE: `for i in $(seq 1 15); do curl -s -o /dev/null -w '%{http_code} ' -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZ'${i}ZZ'ZZZZ","ZZZZZZZZ'${i}"]}'; sleep 1; done` (≤1 rps) — expect 15× 200, zero 429, only ECHOECHO in each body.
+impact: Mass enumeration of all valid Threema identities → public keys at scale for targeted phishing/social-engineering and offline crypto attacks. Severity: medium.
+testability: PASSIVE
+[HYP] safe-01 backup service permissive write-capable CORS
+class: MISCONFIG
+asset: safe-01.threema.ch (backup service surface)
+confidence: 80
+reasoning: OPTIONS preflight returns `Access-Control-Allow-Origin: *` and `Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE`; HSTS + Expect-CT present; `GET /` → 404 (no routes mapped at root). Write verbs (PUT/PATCH/POST/DELETE) permitted cross-origin from any attacker origin with no observed auth challenge on root.
+evidence_needed: An unauthenticated write endpoint (PUT/PATCH/POST/DELETE path) that accepts cross-origin requests and returns non-401/403, proving CSRF-class destruction via a malicious page.
+verify_steps: PROBE: `curl -s -o /dev/null -w 'HTTP %{http_code}\n' -X OPTIONS -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: PUT" https://safe-01.threema.ch/` (confirmed 204 + write methods). Then enumerate plausible backup paths (`/backup`, `/api`, `/v1`, `/safe`, `/upload`) via HEAD at ≤1 rps to find an open write surface.
+impact: If any write endpoint is open, a malicious page forces cross-origin creates/deletes on the backup service (CSRF via CORS). Severity: medium (pending path discovery).
+testability: PASSIVE
+[HYP] Desktop Windows key storage ACL bypass
+class: MISCONFIG
+asset: apps/desktop/src/common/node/key-storage/index.ts + electron-main.ts + common/node/fs.ts (`fileModeInternalObjectIfPosix()`)
+confidence: 75
+reasoning: RAG confirms `fileModeInternalObjectIfPosix()` returns `{}` on Windows, so `keystorage.bin` is written with default ACLs (no restriction) and `_writeOrOverrideFile` passes that empty object to `fsPromises.writeFile`. `keystorage.password.bin` is DPAPI-encrypted but likewise written with no ACL restriction; any same-user process can read both and decrypt via DPAPI then Argon2id.
+evidence_needed: On real Windows: `icacls` on both files post-init; cross-process read of `keystorage.password.bin` succeeds and `safeStorage.decryptString()` resolves from another same-user process.
+verify_steps: HUMAN_ONLY: launch Threema Desktop, create a profile. From a separate same-user process: `icacls %APPDATA%\ThreemaDesktop\*\data\keystorage.password.bin`; then CryptUnprotectData via Python `win32crypt` to recover plaintext password; then read `keystorage.bin`.
+impact: Local same-user attacker extracts private keys, DB encryption key, device credentials. Severity: medium (requires local access, same-user).
+testability: HUMAN_ONLY
+[NEXT] PROBE: burst of 15 `POST https://ds-apip.threema.ch/identity/fetch_bulk` (~1 req every 2s, ≤1 rps) with a batch of 1 valid ID (ECHOECHO) + 2 distinct invalid IDs each iteration; confirm all 15 return HTTP 200 with zero 429/RateLimit/Retry-After and each body contains only ECHOECHO (silent-omit). This nails the rate-limit-absence + oracle core of the IDOR impact and is safe/passive (no account creation, no data modification).
