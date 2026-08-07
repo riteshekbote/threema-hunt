@@ -245,3 +245,33 @@ testability: PASSIVE
 [PARKED] Prod chat 5222 unauthenticated TCP accept: confidence < 40 — only "accepts TCP" proven; no in-band observable difference from a firewall/load balancer; no concrete verify step without protocol spec.
 [FINAL]
 [NEXT] RAG: fetch the chat connection handshake/constants from github.com/threema-ch/threema-android (public, in-scope) — `ChatConnection`/`ChatProtocol`/server hostname derivation — to reconstruct the g-*.0.threema.ch:5222 client stream, then single passive connect to staging vs prod to fingerprint version skew (the one fact that turns the staging-chat exposure from "reachable" into "exploitable difference").
+## 2026-08-07 23:07:25 UTC [chat] (model bigpickle)
+[HYP] Staging mediator/rendezvous WSS surface reachable with staging cert
+class: MISCONFIG
+asset: wss://mediator-{0..f}.test.threema.ch/{hexproto}/ (203.56.114.62)
+confidence: 55
+reasoning: staging hosts resolve on staging net with distinct `*.test.threema.ch` cert, mirroring accepted ds-apip.test exposure; prod pattern mediator-{1hex}.threema.ch/{hex ClientUrlInfo} confirmed from source (MediatorUrl.get).
+evidence_needed: a staging WSS path that accepts a handshake/token differently than prod, or staging-specific pairing route.
+verify_steps: AUTH_HELPED: reconstruct D2M WSS URL from source (need a dgid) — not passive-enumerable; passive TLS/cert comparison already done (identical 403, distinct cert).
+impact: reachable staging pairing/sync infra → test device-group surface, token-handling skew; severity low-medium.
+testability: AUTH_HELPED
+[HYP] Staging chat cluster remains a reachable mirror without observable divergence
+class: MISCONFIG
+asset: g-*.0.test.threema.ch:5222 (203.56.114.34)
+confidence: 50
+reasoning: hostname pattern identity-derived (confirmed in source); 5222 TCP-accepting on both staging and prod, both silent, both hold open → only distinguishing feature is DNS/net split, same as accepted staging pattern.
+evidence_needed: in-band protocol difference (test identities, version skew) — requires decoding the custom CSP handshake.
+verify_steps: AUTH_HELPED: reconstruct CSP handshake (NaCl-box + HKDF) from threema-android `csp/connection`, single connect to staging vs prod, compare stream/auth response; ≤1 rps one attempt each.
+impact: internet-reachable staging messenger backend; severity low.
+testability: AUTH_HELPED
+[HYP] Staging work web app exposes test-account/recon surface
+class: MISCONFIG
+asset: https://work.test.threema.ch
+confidence: 45
+reasoning: confirmed live (301 → /en/login, HSTS, Expect-CT, CSP, Sentry) — a full staging cockpit with no observed auth on root; mirrors accepted staging-exposure pattern.
+evidence_needed: unauthenticated-visible routes (registration, API base, JS bundles with staging endpoints) differing from prod.
+verify_steps: PASSIVE: GET https://work.test.threema.ch/en/login and follow redirect; fetch referenced JS bundle, grep for fetch('/api'|login|register) endpoints; ≤1 rps.
+impact: staging work app recon → test credentials, config leaks, version skew; severity low.
+testability: PASSIVE
+[FINAL] ranked: 1) mediator/rendezvous staging exposure (55), 2) staging chat mirror (50), 3) work.test web app surface (45).
+[NEXT] PROBE: `curl -s -L -m 12 https://work.test.threema.ch/en/login -o /tmp/opencode/worktest_login.html -w "%{http_code} %{url_effective}"`, then extract referenced JS bundle URLs and grep for API routes (fetch/login/register/oauth) — fresh reachable staging web surface, fully passive, ≤1 rps.
