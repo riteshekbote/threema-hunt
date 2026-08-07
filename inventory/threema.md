@@ -96,3 +96,18 @@
 - NEW safe-01.threema.ch — backup server live: 404 on /, CORS *, methods GET/HEAD/PUT/PATCH/POST/DELETE, HSTS, Expect-CT
 - CHANGED apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
 - CHANGED Production directory servers (ds-apip, apip, api) all lack HSTS/Expect-CT; staging counterparts have both
+
+## 2026-08-07 22:43:53 UTC
+- NEW `g-{XX}.0.test.threema.ch` staging chat cluster — resolves to 203.56.114.34 (IPv4); HTTPS → HTTP 000 (not HTTP-accessible; likely WSS/TCP 5222); out of scope per scope.yml (only `g-*.0.threema.ch` lis
+- NEW `ds-apip-work.threema.ch` — work directory prod backend; GET /, /identity/{id}, /identity/fetch_bulk, /identities → all 401 (credential-gated), CORS `*`, no HSTS/Expect-CT.
+- NEW `ds-apip-work.test.threema.ch` — work directory staging; 401 on all paths, CORS `*`, no HSTS/Expect-CT.
+- NEW `work.test.threema.ch` — staging work web app; 301 to /en/login, HSTS + Expect-CT, CSP with `*.test.threema.ch` refs, Sentry.
+- NEW Safe-01 backup API behavior: `GET /backups/{64hex}` → HTTP 400 "Bad Request" (11 bytes) for all unauth requests (Express route exists behind credential check); `GET /backup/{x}` → 404 (150 bytes, no r
+- NEW `safe-*.threema.ch` DNS pattern confirmed: safe-01, safe-1a, safe-1b, safe-02, safe-00 → all 203.56.112.231.
+- NEW `mediator-{0..f}.threema.ch` and `rendezvous-{0..f}.threema.ch` DNS split routing: indices 0-7 → 203.56.112.247; indices 8-f → 203.56.114.247; all return uniform 403 on HTTPS.
+- NEW Electron BrowserWindow: `sandbox` NOT enabled (explicit TODO DEK-79) and `nodeIntegrationInWorker: true` (TODO DEK-79); `nodeIntegration: false` and `contextIsolation: true` are set.
+- NEW `/identity/ws/revoke` → HTTP 404 on both `apip.threema.ch` and `ds-apip.threema.ch` (endpoint not publicly routable at these paths; OpenAPI documentation may be stale or route lives behind a different
+- NEW `/api/v1/pubkeys/ECHOECHO` → HTTP 404 on `apip.threema.ch` (dead endpoint candidate from nemotron3 lead disproven).
+- CHANGED `safe-01.threema.ch` — from baseline "TIMEOUT/no response" → live nginx backup service (404 on root, 400 on /backups/{hex}, permissive CORS with write methods + Authorization header).
+- CHANGED Desktop OnPrem config trust → REJECTED as not vulnerable (Ed25519 signature verification against 3 hardcoded trusted public keys in vite.config.ts; HTTPS/WSS URL validation confirmed).
+- CHANGED `crypto.ts:223` hardcoded password → REJECTED as benchmark-only dummy (used in `determineKdfParams()` to calibrate Argon2id runtime; derived key immediately purged).
