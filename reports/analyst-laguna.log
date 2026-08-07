@@ -3095,3 +3095,832 @@ testability: AUTH_HELPED
 [RISK] safe: 75 reason: safe-01.live with CORS *, write-capable methods (GET,HEAD,PUT,PATCH,POST,DELETE), Access-Control-Allow-Headers: Authorization, HSTS+Expect-CT; backup API credential-gated (400) but cross-origin auth requests possible; no 429 observed
 
 [RISK] desktop-src: 80 reason: Electron BrowserWindow sandbox disabled (TODO DEK-79) + nodeIntegrationInWorker: true (TODO DEK-79); Windows key-storage ACL bypass ACCEPTED; OnPrem config trust REJECTED (Ed25519 sig verified); staging URLs baked into builds; key storage Argon2id + DPAPI (decent but weak on Windows)
+===== ANALYST laguna 2026-08-07 23:15:48 UTC =====
+[0m
+> build · laguna-s-2.1-free
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/
+total 136
+drwxr-xr-x 11 runner runner  4096 Aug  7 23:05 .
+drwxr-xr-x  3 runner runner  4096 Aug  7 23:05 ..
+drwxr-xr-x  7 runner runner  4096 Aug  7 23:05 .git
+drwxr-xr-x  3 runner runner  4096 Aug  7 23:05 .github
+-rw-r--r--  1 runner runner  1049 Aug  7 23:05 README.md
+-rw-r--r--  1 runner runner    39 Aug  7 23:05 analyst-out.txt
+-rw-r--r--  1 runner runner 31698 Aug  7 23:05 analyst-prompt.txt
+-rw-r--r--  1 runner runner 28634 Aug  7 23:05 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  7 23:05 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  7 23:05 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  7 23:05 leads
+drwxr-xr-x  2 runner runner  4096 Aug  7 23:05 reports
+drwxr-xr-x  3 runner runner  4096 Aug  7 23:05 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  7 23:05 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  7 23:05 scripts
+-rw-r--r--  1 runner runner    34 Aug  7 23:05 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  7 23:05 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  7 23:05 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  7 23:05 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  7 23:05 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  7 23:05 triage
+[0m
+[0m$ [0mgit -C /home/runner/work/threema-hunt/threema-hunt remote -v 2>/dev/null; git log --oneline -5 2>/dev/null
+origin	https://github.com/riteshekbote/threema-hunt (fetch)
+origin	https://github.com/riteshekbote/threema-hunt (push)
+105d07e triage 2026-08-07-22-56
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/
+analysis.txt
+grep-delta.txt
+grep-hits.prev.txt
+grep-hits.txt
+rag.txt
+threema-ch
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/knowledge/
+index.md
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reports/
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/leads/
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-nemotron3.md
+reposcan-2026-08-07-18-43.md
+reposcan-2026-08-07-18-59.md
+reposcan-2026-08-07-19-20.md
+reposcan-2026-08-07-19-33.md
+reposcan-2026-08-07-20-11.md
+reposcan-2026-08-07-20-59.md
+reposcan-2026-08-07-21-13.md
+reposcan-2026-08-07-21-27.md
+reposcan-2026-08-07-22-10.md
+reposcan-2026-08-07-22-46.md
+reposcan-latest.md
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/
+app-remote-protocol
+compose-area
+push-relay
+threema-android
+threema-bot-sdk
+threema-desktop
+threema-ios
+threema-markup
+threema-msgapi-sdk-java
+threema-msgapi-sdk-php
+threema-msgapi-sdk-python
+threema-msgapi-sdk-rust
+threema-web
+threema-web-electron
+wasm-minisign-verify
+webrtc-build-docker
+[0m
+[0m→ [0mRead reposcan-raw/rag.txt
+[0m→ [0mRead reposcan-raw/grep-hits.txt
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/
+(no output)
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/ -name "electron-main*" -o -name "*electron-main*" 2>/dev/null
+(no output)
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/grep-delta.txt
+DELTA: 0 new hit lines vs previous scan
+[0m
+[0m$ [0mgit -C /home/runner/work/threema-hunt/threema-hunt submodule status 2>/dev/null; git -C /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop log --oneline -1 2>/dev/null; ls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/ 2>/dev/null
+105d07e triage 2026-08-07-22-56
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  7 23:05 .
+drwxr-xr-x 18 runner runner 4096 Aug  7 23:05 ..
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/ -maxdepth 1 -type f -o -type d 2>/dev/null | head -20
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/
+[0m
+[0m→ [0mRead reposcan-raw/analysis.txt
+[0m→ [0mRead ctx.txt
+[0m→ [0mRead reports/hypotheses-nemotron3.txt
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/grep-hits.prev.txt
+SCAN SUMMARY: 6656 code/config files scanned, 56 hits
+reposcan-raw/threema-ch/threema-ios/Threema/AppMigration.swift:873: let persistenceKeyLicensePassword = "Threema license password"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/SafeDataTests.swift:11: serverPassword: "password1",
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift:15: let expectedAuthToken = "authToken"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift:18: let expectedPassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:50: licenseStoreMock.licensePassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:72: (username: nil as String?, password: "testPassword" as String?, description: "nil username"),
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:148: licenseStoreMock.licensePassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:13: let expectedPassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:37: (username: nil as String?, password: "validPassword" as String?, description: "nil username"),
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:103: password: "testPassword",
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:67: let result = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:76: let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:105: let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift:30: let password = "abcdefghijkl"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift:227: let validPassword = "ABcd!@#tgk092"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:28: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:76: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:120: safePassword: "shootdeathstar"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift:38: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift:83: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt:49: """sfuToken='********', expirationDate=$expirationDate)"""
+reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:911: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/storage/models/WebClientSessionModel.java:28: public static final String COLUMN_PUSH_TOKEN = "push_token";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/storage/databaseupdate/DatabaseUpdateToVersion37.java:48: static final String COLUMN_PUSH_TOKEN = "push_token";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/utils/IceCandidateParser.java:43: public final static String TOKEN = "[a-zA-Z]+";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/webclient/converter/ClientInfo.java:37: private final static String PUSH_TOKEN = "pushToken";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt:70: "iceUsernameFragment='$iceUsernameFragment', icePassword='$icePassword', " +
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/notifications/NotificationChannels.kt:52: const val NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/dialogs/PasswordEntryDialog.java:47: public static final @NonNull String KEY_PASSWORD = "password";
+reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:15: publicApiKey = "b3e20afbf356a8748bb62ac165aa780c",
+reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:19: publicApiKey = "615af77cb3d980c41b3b04b07417cc7d",
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:147: DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:153: WORK_SERVER_LEGACY_URL: 'https://ds-apip-work.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:154: WORK_SERVER_URL: 'https://work.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/test-data.ts:62: keyStoragePassword: 'CHANGE_ME',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts:223: password: 'r3gGN9GDQ5NF6tM6',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/enum/index.ts:3126: export const LOAD_USER_PASSWORD = 'loadUserPassword';
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/enum/index.ts:3162: export const STORE_USER_PASSWORD = 'storeUserPassword';
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/enum/schema.ts:983: LOAD_USER_PASSWORD = 'loadUserPassword',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/enum/schema.ts:1000: STORE_USER_PASSWORD = 'storeUserPassword',
+reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml:911: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-desktop/packages/webrtc/src/sdp/ice-password.ts:12: throw Error(`Not a valid ICE password: '${value}'`);
+[0m
+[0m→ [0mRead knowledge/index.md
+[0m→ [0mRead reports/hypotheses-laguna.txt
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m→ [0mRead reports/valid-bugs.md
+[0m→ [0mRead leads/reposcan-latest.md
+[0m→ [0mRead reports/hypotheses.md
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/state_nemotron3.json /home/runner/work/threema-hunt/threema-hunt/state_laguna.json /home/runner/work/threema-hunt/threema-hunt/state_bigpickle.json /home/runner/work/threema-hunt/threema-hunt/state_longcat.json /home/runner/work/threema-hunt/threema-hunt/state_ling3.json 2>/dev/null
+{"phase": "POC", "target": "web"}{"phase": "POC", "target": "desktop"}{"phase": "POC", "target": "chat"}{"phase": "POC", "target": "sync"}{"phase": "POC", "target": "safe"}
+[0m
+[0m→ [0mRead reports/hypotheses-ling3.txt
+[0m→ [0mRead reports/hypotheses-longcat.txt
+[0m→ [0mRead reports/analyst-laguna.log
+[0m→ [0mRead analyst-out.txt
+[0m→ [0mRead inventory/threema.md
+[0m→ [0mRead scope.yml
+[0m✗ [0mRead scripts/run.sh failed
+[91m[1mError: [0mFile not found: /home/runner/work/threema-hunt/threema-hunt/scripts/run.sh
+[0m→ [0mRead leads/reposcan-2026-08-07-22-10.md
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-22-*.md
+/home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-22-10.md
+/home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-22-46.md
+[0m
+[0m→ [0mRead leads/reposcan-2026-08-07-22-46.md
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/triage/
+run-2026-08-07-20-10.md
+run-2026-08-07-21-03.md
+run-2026-08-07-21-56.md
+run-2026-08-07-22-56.md
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/triage/run-2026-08-07-22-56.md
+===== TRIAGE 2026-08-07 22:56:46 UTC =====
+[0m
+> build · longcat-2.0-free
+[0m
+I notice the leads content is empty after "LEADS:". Let me check the workspace for the scope configuration and any lead files that might have been generated.
+[0m✱ [0mGlob "**/*"[90m 54 matches[0m
+[0m→ [0mRead scope.yml
+[0m→ [0mRead new-leads.txt
+[0m→ [0mRead probe-results.txt
+Let me read the scope configuration and the leads/probe results.
+[0m→ [0mRead leads/lead-longcat.md
+[0m→ [0mRead leads/lead-nemotron3.md
+[0m→ [0mRead leads/lead-laguna.md
+[0m→ [0mRead leads/lead-ling3.md
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead triage-output.txt
+The new-leads.txt and probe-results.txt are empty. Let me check the lead files and triage output for the actual probe results.
+Now I have all the data. Let me consolidate the unique leads across all 5 models and apply the 7-Question Gate.
+
+---
+
+# THREEMA HUNT — TRIAGE REPORT (2026-08-07)
+
+## Scope Reference (from `scope.yml`)
+**In scope:** Android/iOS/Desktop source · `g-*.0.threema.ch` (chat) · `mediator-*.threema.ch` · `rendezvous-*.threema.ch` · `apip.threema.ch` (directory) · `safe-*.threema.ch` · `work.threema.ch` · `broadcast.threema.ch` · `gateway.threema.ch` · `shop.threema.ch` · `billing.threema.ch`
+
+**Rules:** passive-first (GET/HEAD only), no account creation, no data modification, no DoS.
+
+**Always-rejected per rules:** info disclosure of public data · best practice · rate-limit absence alone · self-XSS · out-of-scope targets.
+
+---
+
+## Unique Leads Consolidated (deduplicated across 5 models)
+
+---
+
+### LEAD 1: Directory cluster identity→pubkey enumeration
+
+**Source hypothesis:** Unauthenticated `GET /identity/{id}` (200/404 oracle) + `POST /identity/fetch_bulk` returns public keys for valid IDs across `ds-apip.threema.ch`, `api.threema.ch`, `apip.threema.ch` (and staging `.test` variants). CORS `Access-Control-Allow-Origin: *`. No 429 observed on 30 sequential POSTs. Confidence: 95.
+
+| Q | Answer | Reasoning |
+|---|--------|-----------|
+| Q1 | YES | `apip.threema.ch` in scope; `ds-apip.threema.ch` and `api.threema.ch` are confirmed directory siblings. |
+| Q2 | YES | Public, unauthenticated. |
+| Q3 | NO | Public keys are **by-design public** — the directory exists so clients can fetch pubkeys to establish encrypted sessions. The 200/404 oracle is expected directory behavior, not a flaw. |
+| Q4 | YES | Passive GET/POST confirmed. |
+| Q5 | NO | Directory-as-public-registry is Threema's protocol design, not a novel weakness. |
+| Q6 | **FAIL** | Info disclosure of public data (public keys are public). Rate-limit absence alone is always-rejected. |
+| Q7 | NO | No reasonable triager accepts "public directory lets you look up public keys" as a vulnerability. |
+
+**Verdict: INVALID** — By-design public directory; public keys are public data; rate-limit absence alone is always-rejected.
+
+---
+
+### LEAD 2: Safe backup service permissive CORS
+
+**Source hypothesis:** `safe-01.threema.ch` root 404, CORS `*`, methods `GET,HEAD,PUT,PATCH,POST,DELETE`, HSTS+Expect-CT. `GET /backups/{64hex}` returns HTTP 400 for unauth (route exists behind credential gate); OPTIONS returns 204 with `Access-Control-Allow-Headers: Authorization`. Confidence: 65–80.
+
+| Q | Answer | Reasoning |
+|---|--------|-----------|
+| Q1 | YES | `safe-*.threema.ch` in scope. |
+| Q2 | YES | Publicly reachable. |
+| Q3 | NO | All data-access routes are credential-gated (400/401). CORS `*` on an auth-gated API without a credential-leak or CSRF exploit chain has no demonstrated impact. Write methods allowed in preflight do not equate to unauthenticated writes. |
+| Q4 | YES | Passive probes confirmed. |
+| Q5 | NO | Not novel. |
+| Q6 | **FAIL** | Rate-limit absence alone is always-rejected. CORS `*` on credential-gated endpoint without exploit chain is defense-in-depth/best-practice. |
+| Q7 | NO | Needs full exploit chain; no unauthenticated data access demonstrated. |
+
+**Verdict: INVALID** — CORS `*` on credential-gated API without exploit chain; rate-limit absence alone rejected.
+
+---
+
+### LEAD 3: Desktop Windows key storage ACL bypass
+
+**Source hypothesis:** `fileModeInternalObjectIfPosix()` returns `{}` on Windows; `keystorage.bin` (Argon2id) and `keystorage.password.bin` (DPAPI) written without ACL restrictions; same-user process can read both. Confidence: 75.
+
+| Q | Answer | Reasoning |
+|---|--------|-----------|
+| Q1 | YES | `threema-desktop` source in scope. |
+| Q2 | NO | Requires local access + same-user process. Not remotely reachable. |
+| Q3 | LOW | DPAPI is by-design per-user; reading the password blob requires the user's own DPAPI context, which any same-user process already has. Argon2id-encrypted store still needs the password. Expected Windows behavior. |
+| Q4 | YES | Static analysis via RAG. |
+| Q5 | NO | Not novel for Electron/Windows apps. |
+| Q6 | **FAIL** | Local-access prerequisite makes this a hardening recommendation, not a vulnerability. |
+| Q7 | NO | Expected Windows behavior; local access required; DPAPI is per-user by design. |
+
+**Verdict: INVALID** — Local access required; DPAPI is by-design per-user; expected Windows behavior; not a vulnerability.
+
+---
+
+### LEAD 4: Desktop Electron sandbox disabled + nodeIntegrationInWorker
+
+**Source hypothesis:** `sandbox: false` (TODO DEK-79), `nodeIntegrationInWorker: true` (TODO DEK-79); `nodeIntegration: false`, `contextIsolation: true` set. Confidence: 65.
+
+| Q | Answer | Reasoning |
+|---|--------|-----------|
+| Q1 | YES | `threema-desktop` source in scope. |
+| Q2 | NO | Requires renderer compromise (XSS/content injection) to reach worker context. |
+| Q3 | LOW | Potential RCE only via prerequisite XSS → worker → Node chain. No renderer injection demonstrated. |
+| Q4 | YES | Static analysis. |
+| Q5 | NO | Well-known Electron hardening guidance. |
+| Q6 | **FAIL** | Best-practice recommendation; not a standalone vulnerability without renderer exploit. |
+| Q7 | NO | Hardening guidance, not a standalone vulnerability. |
+
+**Verdict: INVALID** — Sandbox disabled is best practice; requires renderer compromise; not a standalone vulnerability.
+
+---
+
+### LEAD 5: Staging directory server exposure
+
+**Source hypothesis:** `ds-apip.test.threema.ch`, `apip.test.threema.ch` publicly reachable with identical API surface + CORS `*`. HSTS/Expect-CT on staging but not production. Confidence: 60–65.
+
+| Q | Answer | Reasoning |
+|---|--------|-----------|
+| Q1 | **NO** | `scope.yml` lists `apip.threema.ch` (production). Staging `.test` variants are not listed. |
+| Q2 | YES | Publicly reachable. |
+| Q3 | LOW | Mirrors production data (identical pubkeys for `ECHOECHO`). No additional attack surface beyond production directory, which is by-design public. |
+| Q4 | YES | Passive. |
+| Q5 | NO | Not novel. |
+| Q6 | **FAIL** | Out of scope. Also falls under info disclosure of public data (same as Lead 1). |
+| Q7 | NO | Out of scope; mirrors production which is already invalid. |
+
+**Verdict: INVALID** — Out of scope (staging not in `scope.yml`); mirrors production which is by-design public directory.
+
+---
+
+### LEAD 6: work.threema.ch session fixation
+
+**Source hypothesis:** Pre-auth `__HOST-HTTP-SESSIONID` cookie set on initial 301; if not rotated post-login, fixation possible. Confidence: 55.
+
+| Q | Answer | Reasoning |
+|---|--------|-----------|
+| Q1 | YES | `work.threema.ch` in scope. |
+| Q2 | Potentially | Requires AUTH_HELPED (credentials) to verify post-login cookie rotation. |
+| Q3 | — | Cannot assess without violating passive-first. |
+| Q4 | **NO** | Requires AUTH_HELPED credentials to compare pre/post-login cookies. Violates passive-first. |
+| Q5 | — | — |
+| Q6 | — | — |
+| Q7 | — | — |
+
+**Verdict: HOLD** — Requires AUTH_HELPED credentials to verify; violates passive-first rule. Cannot triage without program-provided test account.
+
+---
+
+### LEAD 7: ws/revoke 32-bit brute-force
+
+**Source hypothesis:** `/identity/ws/revoke` documents single-step identity + 32-bit revocation key, no challenge-response, no documented rate limit. Confidence: 45.
+
+| Q | Answer | Reasoning |
+|---|--------|-----------|
+| Q1 | YES | `apip.threema.ch` in scope. |
+| Q2 | NO | Endpoint returns HTTP 404 on both `apip.threema.ch` and `ds-apip.threema.ch` — not publicly routable at documented path. |
+| Q3 | — | Target unreachable. |
+| Q4 | **NO** | Endpoint confirmed 404; also requires AUTH_HELPED. |
+| Q5 | — | — |
+| Q6 | — | — |
+| Q7 | — | — |
+
+**Verdict: INVALID** — Endpoint returns 404 (not publicly routable); requires AUTH_HELPED; speculative.
+
+---
+
+### LEAD 8: Work directory cross-subscription disclosure
+
+**Source hypothesis:** `ds-apip-work.threema.ch/identities` flagged "currently buggy. See TWRK-1633" in OpenAPI; returns same-subscription contacts + work properties; host returns 401 on all paths. Confidence: 50–52.
+
+| Q | Answer | Reasoning |
+|---|--------|-----------|
+| Q1 | YES | Backend of in-scope `work.threema.ch`. |
+| Q2 | NO | Returns 401 on all paths — behind credential gate. |
+| Q3 | — | Cannot assess without authorized Work test license. |
+| Q4 | **NO** | Requires AUTH_HELPED (authorized Work test license). Violates passive-first. |
+| Q5 | — | — |
+| Q6 | — | — |
+| Q7 | — | — |
+
+**Verdict: HOLD** — Requires AUTH_HELPED (Work test license) to verify; violates passive-first rule.
+
+---
+
+### LEAD 9: Production directory servers lack HSTS/Expect-CT
+
+**Source hypothesis:** `ds-apip.threema.ch`, `apip.threema.ch`, `api.threema.ch`, `ds-apip-work.threema.ch` lack HSTS/Expect-CT; staging counterparts have both.
+
+| Q | Answer | Reasoning |
+|---|--------|-----------|
+| Q1 | YES | In scope. |
+| Q2 | — | — |
+| Q3 | NO | Missing security headers alone is not a vulnerability. |
+| Q4 | — | — |
+| Q5 | — | — |
+| Q6 | **FAIL** | Best practice / security header absence alone is always-rejected. |
+| Q7 | NO | No. |
+
+**Verdict: INVALID** — Missing security headers alone is best practice, not a vulnerability.
+
+---
+
+### LEAD 10: Staging chat cluster (g-*.0.test.threema.ch)
+
+**Source hypothesis:** `g-{2hex}.0.test.threema.ch` resolves to `203.56.114.34`; port 5222 open; mirrors prod chat naming. Confidence: 55–65.
+
+| Q | Answer | Reasoning |
+|---|--------|-----------|
+| Q1 | **NO** | `scope.yml` lists `g-*.0.threema.ch` (production). `.test` staging variant is not listed. |
+| Q2 | YES | Resolves and accepts TCP on 5222. |
+| Q3 | — | Out of scope. |
+| Q4 | — | — |
+| Q5 | — | — |
+| Q6 | **FAIL** | Out of scope per `scope.yml`. |
+| Q7 | NO | Out of scope. |
+
+**Verdict: INVALID** — Out of scope per `scope.yml` (`g-*.0.threema.ch` only, not `.test` variant).
+
+---
+
+## Summary Table
+
+| # | Lead | Verdict | One-line reason |
+|---|------|---------|-----------------|
+| 1 | Directory cluster IDOR enumeration | **INVALID** | By-design public directory; public keys are public data; rate-limit absence alone rejected |
+| 2 | Safe backup permissive CORS | **INVALID** | CORS `*` on credential-gated API without exploit chain; rate-limit absence alone rejected |
+| 3 | Desktop Windows key storage ACL | **INVALID** | Local access required; DPAPI per-user by design; expected Windows behavior |
+| 4 | Desktop Electron sandbox disabled | **INVALID** | Best practice; requires renderer compromise; not standalone vulnerability |
+| 5 | Staging directory server exposure | **INVALID** | Out of scope (staging not in `scope.yml`); mirrors production |
+| 6 | work.threema.ch session fixation | **HOLD** | Requires AUTH_HELPED credentials; violates passive-first |
+| 7 | ws/revoke 32-bit brute-force | **INVALID** | Endpoint returns 404 (not routable); speculative; requires AUTH_HELPED |
+| 8 | Work directory cross-subscription leak | **HOLD** | Requires AUTH_HELPED Work test license; violates passive-first |
+| 9 | Directory servers lack HSTS | **INVALID** | Missing headers alone is best practice, not a vulnerability |
+| 10 | Staging chat cluster | **INVALID** | Out of scope per `scope.yml` |
+
+---
+
+## HOLD Items — Required Action
+
+To advance the 2 HOLD items, the program must provide:
+
+1. **LEAD 6 (session fixation):** A low-privilege test account on `work.threema.ch` so pre/post-login cookie rotation can be compared passively.
+2. **LEAD 8 (Work cross-subscription):** An authorized Work test license to probe `/identities` membership filtering.
+
+Without program-furnished test credentials, both remain unverifiable under passive-first rules and should not be reported.
+
+---
+
+## Reporting Channel
+
+Per `scope.yml`, disclosure policy is **TBD — operator-provided program scope (update once public channel confirmed)**. Until the Threema security channel is formally confirmed, **do not disclose** (rule: `no_pre_disclosure: true`).
+[0m
+Now I have the full picture. Let me clone the threema-desktop repo to perform the POC RAG for the BrowserWindow sandbox finding.
+[0m$ [0mgit clone --depth 1 https://github.com/threema-ch/threema-desktop.git /tmp/opencode/threema-desktop 2>&1 | tail -5
+Cloning into '/tmp/opencode/threema-desktop'...
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop -name "electron-main*" -o -name "*.ts" -path "*electron*" 2>/dev/null | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/electron-service.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/electron-service.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/electron-ipc.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/electron-settings.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/test/playwright/common/utils/electron-utils.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/test/playwright/common/types/electron-fixture.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/test/playwright/common/types/electron-app-info.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/backend-worker.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/types.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-utils.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/tls-cert-verifier.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/screenshare-preload.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-preload.ts
+/tmp/opencode/threema-desktop/packages/eslint-plugin-threema/src/ban-direct-electron-access.ts
+/tmp/opencode/threema-desktop/packages/electron/src/types/app-info.ts
+/tmp/opencode/threema-desktop/packages/electron/src/index.ts
+[0m
+[0m$ [0mgrep -rn "sandbox\|nodeIntegrationInWorker\|nodeIntegration\|contextIsolation" /tmp/opencode/threema-desktop/apps/desktop/src/electron/ 2>/dev/null | head -30
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-utils.ts:98:            nodeIntegration: false,
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-utils.ts:99:            nodeIntegrationInWorker: false,
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-utils.ts:100:            nodeIntegrationInSubFrames: false,
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-utils.ts:108:            contextIsolation: true,
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1240:                // `contextIsolation`, and sandboxing is enabled by default.
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1242:                // Unfortunately we cannot get rid of `nodeIntegrationInWorker` because preload
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1251:                nodeIntegration: false,
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1252:                nodeIntegrationInWorker: true, // TODO(DESK-79): Change to false once worker preload scripts are supported in Electron
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1253:                nodeIntegrationInSubFrames: false,
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1255:                // TODO(DESK-79): Enable `sandbox: true` once worker preload scripts are supported in Electron
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1262:                contextIsolation: true,
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1484:            case 'sandbox':
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1552:                        'sandbox allow-downloads allow-same-origin allow-scripts allow-forms allow-popups',
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1673:    // In internal test builds on sandbox, we enable crash reporting.
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-preload.ts:3: * `contextIsolation` is enabled in electron – in a sandboxed environment
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [offset=1230, limit=50][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-utils.ts[90m [offset=85, limit=30][0m
+[0m
+[0m$ [0mgrep -rn "new Worker\|Worker(" /tmp/opencode/threema-desktop/apps/desktop/src/ 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/webrtc/group-call.ts:281:            const mediaCryptoWorker = new Worker(
+/tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts:407:    const worker = new Worker(
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/media-crypto-worker.ts:332:        this.#_keys.push(new WorkerParticipantCallMediaKey(this._gckh, successor));
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/media-crypto-worker.ts:653:        const key = new WorkerParticipantCallMediaKey(gckh, source);
+[0m
+[0m$ [0mgrep -rn "import.*Worker\|createWorker\|worker-loader\|worker-polyfill\|\.worker" /tmp/opencode/threema-desktop/apps/desktop/src/ 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | head -30
+(no output)
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts[90m [limit=40, offset=395][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/dom/webrtc/group-call.ts[90m [limit=40, offset=270][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/backend-worker.ts
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts
+[0m
+[0m$ [0mgrep -rn "eval(\|new Function\|Function(\|dangerouslySetInnerHTML\|innerHTML\|document.write\|vm\.runIn\|require(" /tmp/opencode/threema-desktop/apps/desktop/src/worker/ 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | head -30
+(no output)
+[0m
+[0m$ [0mgrep -rn "postMessage\|onmessage\|addEventListener.*message" /tmp/opencode/threema-desktop/apps/desktop/src/worker/ 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | head -30
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/media-crypto-worker.ts:755:        self.postMessage('init');
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/media-crypto-worker.ts:790:        self.postMessage('ready');
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts:50:        self.addEventListener('message', appPathListener);
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts:207:    self.postMessage(undefined);
+[0m
+[0m$ [0mgrep -rn "dangerouslySetInnerHTML\|innerHTML\|document.write\|eval\|new Function\|Function(" /tmp/opencode/threema-desktop/apps/desktop/src/app/ 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/svelte.ts:14: * Wraps a function with additional dependencies, so that Svelte will re-evaluate it if any of the
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/hocs/lazy-list/LazyList.svelte:144:      // Re-evaluate whether the view is scrolled all the way to the bottom.
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/atoms/textarea/TextArea.svelte:11:  Thus, we can't just bind to the "textContent" or "innerHTML" values. Instead, whe use the
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/atoms/textarea/TextArea.svelte:195:      if (areaElement?.innerHTML.trim() === '<br>') {
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/atoms/textarea/TextArea.svelte:197:        areaElement.innerHTML = '';
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/receiver-preview-list/transformers.ts:19:    // If `contextMenuItems` is a function, pass in `receiverPreviewListItem` to lazily evaluate
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/system-dialog/helpers.ts:13:    target.innerHTML = '';
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/conversation-preview-list/transformers.ts:19:    // If `contextMenuItems` is a function, pass in `conversationPreviewListItem` to lazily evaluate
+/tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts:84:    elements.container.innerHTML = '';
+/tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts:101:    elements.container.innerHTML = '';
+/tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts:121:    elements.container.innerHTML = '';
+/tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts:142:    elements.container.innerHTML = '';
+/tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts:161:    elements.container.innerHTML = '';
+/tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts:177:    elements.container.innerHTML = '';
+/tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts:194:    elements.container.innerHTML = '';
+/tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts:216:    elements.container.innerHTML = '';
+[0m
+[0m$ [0mgrep -rn "dangerouslySetInnerHTML\|innerHTML\|document.write\|eval\|new Function\|Function(" /tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | head -20
+(no output)
+[0m
+[0m$ [0mgrep -rn "messageLink\|joinLink\|join\|deeplink\|url.*parse\|Location\|window.open\|navigate" /tmp/opencode/threema-desktop/apps/desktop/src/ --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | grep -iv "location.state\|location.hash\|location.search\|location.href\|location.hostname\|location.pathname\|location.assign\|location.replace\|window.location" | head -30
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:275:     *   (including file extension). Might be an array of partial paths that will be joined.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-sfu.ts:145:    public async join(
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-sfu.ts:151:            `sfu-http.join.${data.derivations.callId.shortened}`,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-sfu.ts:161:                    `v1/join/${data.derivations.callId.id}`,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-sfu.ts:184:                    'SFU rejected the join request',
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-sfu.ts:188:            // Decode the join response
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-sfu.ts:197:                log.warn('Invalid join response', error);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-sfu.ts:200:                    'Unable to decode SFU join response',
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/rendezvous.ts:436:        readonly joinUri: string;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/rendezvous.ts:455:            joinUri: getJoinUri(setup),
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/rendezvous.ts:620:    const joinRequest = protobuf.utils.creator(protobuf.url.DeviceGroupJoinRequestOrOffer, {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/rendezvous.ts:628:    const bytes = protobuf.url.DeviceGroupJoinRequestOrOffer.encode(joinRequest).finish();
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/rendezvous.ts:630:    return `threema://device-group/join#${urlSafeBase64}`;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/background-jobs.ts:11: * Note: This function must not be called before the joinProtocol has succeeded!
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts:2: * Device join protocol.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts:4:import {d2d_join} from '@threema/protocol/protobuf';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts:24:import type {EssentialData} from '~/common/network/protobuf/validate/join';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts:48: * Data obtained as part of the device join protocol, which is needed to initialize the backend.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts:70: * - Run the device join protocol over an existing rendezvous connection
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts:76: * 2. Call {@link join()}, store join result
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts:77: * 3. Instantiate key storage and backend using information in join result
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts:118:     * Run the device join protocol until we received essential data.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts:122:    public async join(): Promise<DeviceJoinResult> {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts:123:        this._log.info('Starting device join protocol, waiting for ULP messages');
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts:135:                    'Rendezvous connection stream ended before device join was complete',
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts:143:                    'Rendezvous connection stream ended before device join was complete',
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts:151:                parsed = d2d_join.EdToNd.decode(readResult.value);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts:163:            let validated: validate.join.EdToNd.Type;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts:165:                validated = validate.join.EdToNd.SCHEMA.parse(parsed);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts:275:        const encoder = protobuf.utils.encoder(protobuf.d2d_join.NdToEd, {
+[0m
+[0m$ [0mgrep -rn "executeJavaScript\|executeScript\|webContents\|loadURL\|load\|src.*=" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null | head -30
+31:    loadElectronSettings,
+195:    webContents?: electron.WebContents,
+211:    // - Show reload button if window is open and the error source is not the main thread
+215:    let reloadId: u53 | undefined;
+217:    if (webContents !== undefined && source !== 'main') {
+218:        buttons.push('Reload');
+219:        reloadId = 0;
+239:                webContents?.openDevTools();
+240:            } else if (reloadId !== undefined && result.response === reloadId) {
+241:                log.info('Reloading window');
+242:                webContents?.reloadIgnoringCache();
+314:            {role: 'reload'},
+315:            {role: 'forceReload'},
+407:async function loadCompressedLogBytes(filePath: string): Promise<ReadonlyUint8Array> {
+480:    const electronSettings = loadElectronSettings(appPath, {
+728:                // On requests to `threemadesktop://app/`, load application entrypoint
+775:                    handleCriticalError('renderer or worker', errorDetails, window?.webContents);
+880:                window?.webContents.send(ElectronIpcCommand.ON_FALLBACK_OPPF);
+890:                    window?.webContents.send(ElectronIpcCommand.SCREEN_SHARING_STOP);
+909:                throw new Error(`Failed to load test data file: ${testDataFileName}`);
+917:                log.info('Password file not found, loading password skipped.');
+930:                    'Electron safeStorage is not available (no password manager?), loading password skipped.',
+1086:                    loadCompressedLogBytes(getMainAppLogPath(appPath)),
+1087:                    loadCompressedLogBytes(getBackendWorkerLogPath(appPath)),
+1088:                    loadCompressedLogBytes(getWebrtcStatsLogPath(appPath)),
+1093:                    `Failed to load or compress the log files: ${ensureError(error).message}`,
+1174:        // For onprem we have to block all requests until we downloaded the OPP file in an isolated
+1239:                // context bridge via IPC (set up in the preload script). We enable
+1242:                // Unfortunately we cannot get rid of `nodeIntegrationInWorker` because preload
+1252:                nodeIntegrationInWorker: true, // TODO(DESK-79): Change to false once worker preload scripts are supported in Electron
+[0m
+[0m$ [0mgrep -rn "threema://\|messageLink\|message-link\|parseLink\|deeplink\|openURL\|handleUrl\|handleMessage" /tmp/opencode/threema-desktop/apps/desktop/src/ --include="*.ts" --include="*.tsx" --include="*.svelte" 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/rendezvous.ts:630:    return `threema://device-group/join#${urlSafeBase64}`;
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:103:        sanitizedText = parseLinks(sanitizedText);
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:306:export function parseLinks(text: SanitizedHtml): SanitizedHtml {
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/conversation/internal/message-list/internal/message-context-menu-provider/MessageContextMenuProvider.svelte:110:            i18n.get().t('messaging.success--copy-message-link', 'Link copied to clipboard'),
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/conversation/internal/message-list/internal/message-context-menu-provider/MessageContextMenuProvider.svelte:116:            i18n.get().t('messaging.error--copy-message-link', 'Could not copy link to clipboard'),
+[0m
+[0m$ [0mgrep -rn "dangerouslySetInnerHTML\|innerHTML\|setHTML\|document.write" /tmp/opencode/threema-desktop/apps/desktop/src/app/ --include="*.ts" --include="*.tsx" --include="*.svelte" 2>/dev/null | grep -v "innerHTML = ''" | grep -v "innerHTML.trim" | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/atoms/textarea/TextArea.svelte:11:  Thus, we can't just bind to the "textContent" or "innerHTML" values. Instead, whe use the
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts[90m [limit=60, offset=90][0m
+[0m
+[0m$ [0mgrep -rn "webview\|<iframe\|allow.*scripts\|sandbox" /tmp/opencode/threema-desktop/apps/desktop/src/ --include="*.svelte" --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | grep -v "electron-main.ts" | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/theme.ts:41:        case 'consumer-sandbox':
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/theme.ts:45:        case 'work-sandbox':
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/background-jobs.ts:137:                // Force manual update for sandbox builds.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/background-jobs.ts:138:                import.meta.env.BUILD_ENVIRONMENT === 'sandbox',
+/tmp/opencode/threema-desktop/apps/desktop/src/common/network/protocol/task/libthreema/identity-create.ts:62:        // and hardcode ‘consumer-sandbox’. However, once the desktop standalone feature is
+/tmp/opencode/threema-desktop/apps/desktop/src/common/network/protocol/task/libthreema/identity-create.ts:64:        return {type: 'sandbox'};
+/tmp/opencode/threema-desktop/apps/desktop/src/common/network/protocol/task/libthreema/identity-create.ts:69:        // and hardcode ‘consumer-sandbox’. However, once the desktop standalone feature is
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/electron-settings.ts:21:    import.meta.env.DEBUG || import.meta.env.BUILD_ENVIRONMENT === 'sandbox';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/webrtc/group-call.ts:2085:        // Print call init in sandbox and debug builds
+/tmp/opencode/threema-desktop/apps/desktop/src/common/webrtc/group-call.ts:2087:            import.meta.env.BUILD_ENVIRONMENT === 'sandbox' ||
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/file.ts:22: * issues, sandboxing, etc. This function validates an array of {@link File}s or a {@link FileList}
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/linking/steps/Error.svelte:162:          message += '<slot_2 />🐞 Did you use a sandbox ID with a live app, or vice versa?';
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/settings/internal/profile-settings/ProfileSettings.svelte:136:        {#if import.meta.env.BUILD_FLAVOR === 'work-sandbox' || import.meta.env.BUILD_FLAVOR === 'work-live'}
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/settings/internal/profile-settings/internal/profile-info/ProfileInfo.svelte:45:  {#if import.meta.env.BUILD_VARIANT === 'consumer' || import.meta.env.BUILD_ENVIRONMENT === 'sandbox'}
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/contact-detail/internal/contact-content/ContactContent.svelte:104:      {#if import.meta.env.BUILD_FLAVOR === 'work-sandbox' || import.meta.env.BUILD_FLAVOR === 'work-live'}
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/conversation-nav/ConversationNav.svelte:351:    {#if import.meta.env.BUILD_FLAVOR === 'work-sandbox' || import.meta.env.BUILD_FLAVOR === 'work-live'}
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/conversation/internal/message-list/internal/message-details-modal/MessageDetailsModal.svelte:185:      {#if import.meta.env.DEBUG || import.meta.env.BUILD_ENVIRONMENT === 'sandbox'}
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/conversation/ConversationView.svelte:1147:      {#if import.meta.env.BUILD_FLAVOR === 'work-sandbox' || import.meta.env.BUILD_FLAVOR === 'work-live'}
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/profile-picture/ProfilePicture.svelte:178:      (import.meta.env.BUILD_FLAVOR === 'work-sandbox' ||
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/svelte-components/utils/filelist.ts:12: * application due to permission issues, sandboxing, etc. This function validates a {@link FileList}
+[0m
+[0m$ [0mgrep -rn "shell\.openExternal\|openExternal\|shell\.send\|shell\.open" /tmp/opencheme-desktop/apps/desktop/src/ 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | head -20; grep -rn "shell\.openExternal\|openExternal\|shell\.send\|shell\.open" /tmp/opencode/threema-desktop/apps/desktop/src/ 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1658:                electron.shell.openExternal(handler.url).catch((error: unknown) => {
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [limit=40, offset=1640][0m
+[0m
+[0m$ [0mgrep -rn "protocol\|intercept\|handleHttp\|webRequest\|onBeforeRequest\|session\.default" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null | head -20
+703:        // Generate error response (HTTP 400) for custom protocol handlers
+709:        // Handle requests to custom threemadesktop:// protocol
+710:        electron.protocol.handle(
+1172:        const session = electron.session.defaultSession;
+1184:        session.webRequest.onBeforeRequest((details, callback) => {
+1189:                url.protocol === 'devtools:' ||
+1190:                url.protocol === 'threemadesktop:' ||
+1503:        session.webRequest.onHeadersReceived((details, callback) => {
+1652:            // certain protocols. Some more details on potential exploits are given
+1654:            const protocol = new URL(handler.url).protocol;
+1656:            if (allowedProtocols.includes(protocol)) {
+1662:                log.warn(`Deny opening URL with disallowed protocol: ${handler.url}`);
+1769:    // Register custom threemadesktop:// protocol
+1771:    // See https://www.electronjs.org/docs/latest/tutorial/security#18-avoid-usage-of-the-file-protocol-and-prefer-usage-of-custom-protocols
+1772:    electron.protocol.registerSchemesAsPrivileged([
+[0m
+[0m$ [0mgrep -rn "threema://\|protocol\|registerHttp\|registerFile\|registerBuffer\|intercept" /tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/ --include="*.ts" 2>/dev/null | grep -v node_modules | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/transport/websocket.ts:17:import {closeCauseToCloseInfo, isRendezvousCloseCause} from '~/common/network/protocol/rendezvous';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/transport/websocket.ts:26:        readonly protocol: string;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/transport/websocket.ts:35:        protocols?: readonly string[];
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/transport/websocket.ts:208:        this._ws = new WebSocket(url, options.protocols as string[]);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/transport/websocket.ts:263:                protocol: this._ws.protocol,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/connection.ts:14:} from '~/common/dom/network/protocol/pipeline';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/connection.ts:33:import type {RawCaptureHandlers} from '~/common/network/protocol/capture';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/connection.ts:34:import type {ConnectionManagerHandle} from '~/common/network/protocol/connection';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/connection.ts:40:} from '~/common/network/protocol/controller';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/connection.ts:46:} from '~/common/network/protocol/state';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/connection.ts:47:import {DropDeviceTask} from '~/common/network/protocol/task/d2m/drop-device';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/connection.ts:48:import {ConnectedTaskManager} from '~/common/network/protocol/task/manager';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/connection.ts:195:        // Tie the connection state to the two protocol's auth states
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/connection.ts:458:        // Create protocol controller
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:28:} from '~/common/network/protocol/directory';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-work.ts:14:} from '~/common/network/protocol/work';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-sfu.ts:14:import {type GroupCallBaseData, GroupCallError} from '~/common/network/protocol/call/group-call';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-sfu.ts:15:import type {SfuToken} from '~/common/network/protocol/directory';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-sfu.ts:16:import type {PeekResponse, SfuHttpBackend} from '~/common/network/protocol/sfu';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-sfu.ts:170:                                protocolVersion: data.protocolVersion,
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [limit=50, offset=1170][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-preload.ts
+[0m
+[0m$ [0mgrep -n "isValidAppUrl" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts
+575:    function isValidAppUrl(url?: string): boolean {
+1425:            if (!isValidAppUrl(contents.getURL())) {
+1430:            if (!isValidAppUrl(details.requestingUrl)) {
+1644:            if (!isValidAppUrl(toUrl)) {
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [limit=40, offset=570][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [limit=60, offset=690][0m
+[0m
+[0m$ [0mgrep -rn "Content-Security-Policy\|content-security-policy\|meta http-equiv.*Content-Security\|worker-src\|child-src\|script-src\|connect-src\|img-src\|media-src" /tmp/opencode/threema-desktop/apps/desktop/ --include="*.html" --include="*.ts" --include="*.tsx" --include="*.svelte" 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1244:                // compensate for this using the `script-src` in our Content Security Policy (CSP)
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1485:                connectSrcRule = "connect-src 'self' https://*.threema.ch wss://*.threema.ch";
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1491:                connectSrcRule = 'connect-src *';
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1511:                    'Content-Security-Policy': [
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1515:                        "child-src 'none'",
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1519:                        "img-src 'self' data: blob:",
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1520:                        "media-src 'self' data: blob:",
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1528:                                  "script-src 'wasm-unsafe-eval'",
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1535:                                  "worker-src",
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1538:                                  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1540:                                  "worker-src 'self'",
+[0m
+[0m$ [0mgrep -rn "threema://\|protocol.*=.*'threema\|deep.*link\|messageLink\|chatId\|identity.*from.*url\|parseMessage" /tmp/opencode/threema-desktop/apps/desktop/src/ --include="*.ts" --include="*.tsx" --include="*.svelte" 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | head -30
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/rendezvous.ts:630:    return `threema://device-group/join#${urlSafeBase64}`;
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:1190:                url.protocol === 'threemadesktop:' ||
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop -name "*.html" -not -path "*/node_modules/*" 2>/dev/null | head -10
+/tmp/opencode/threema-desktop/apps/desktop/src/screenshare.html
+/tmp/opencode/threema-desktop/apps/desktop/src/index.html
+/tmp/opencode/threema-desktop/apps/conferencing/index.html
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [limit=80, offset=1475][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/index.html
+[0m
+[0m$ [0mgrep -rn "data:image\|data:text\|blob:http\|blob:data\|svg\|<img\|img.*src\|ImageBitmap\|createImageBitmap\|DOMPurify\|sanitize" /tmp/opencode/threema-desktop/apps/desktop/src/ --include="*.ts" --include="*.tsx" --include="*.svelte" 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | grep -iv "node_modules\|test-data\|screenshot\|icon" | head -30
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/utils/image.ts:15:        const bitmap = await createImageBitmap(image);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/utils/image.ts:60:        bitmap = await createImageBitmap(file);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/utils/image.ts:123:        createImageBitmap(image)
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/utils/image.ts:142:            .catch((error: unknown) => reject(new Error(`Failed to create ImageBitmap: ${error}`)));
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/utils/image.ts:163:        bitmap = await createImageBitmap(file);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/profile-picture.ts:186:        const bitmap = await createImageBitmap(blob);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/thumbnail-cache.ts:49:     * {@link createImageBitmap}.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/thumbnail-cache.ts:56:     * dimensions as a heuristic for faster rendering. {@link createImageBitmap} will be ran
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/thumbnail-cache.ts:80:                    createImageBitmap(blob)
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/thumbnail-cache.ts:124:                createImageBitmap(blob)
+/tmp/opencode/threema-desktop/apps/desktop/src/common/vite-client.d.ts:165:declare module '*.svg' {
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:41: * Note: Input text will be sanitized.
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:48:export function sanitizeAndParseTextToHtml(
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:62:        // eslint-disable-next-line threema/ban-sanitized-html-cast
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:66:    let sanitizedText = escapeHtmlUnsafeChars(text);
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:70:            // eslint-disable-next-line threema/ban-sanitized-html-cast
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:71:            sanitizedText = truncate(
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:72:                sanitizedText,
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:79:            // eslint-disable-next-line threema/ban-sanitized-html-cast
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:80:            sanitizedText = truncate(sanitizedText, truncateMax, 'end') as SanitizedHtml;
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:85:        sanitizedText = parseMarkup(sanitizedText);
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:89:        sanitizedText = parseMentions(
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:91:            sanitizedText,
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:99:        sanitizedText = parseHighlights(sanitizedText, highlights);
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:103:        sanitizedText = parseLinks(sanitizedText);
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:106:    return sanitizedText;
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:118:        // eslint-disable-next-line threema/ban-sanitized-html-cast
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:122:    // eslint-disable-next-line threema/ban-sanitized-html-cast
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:152:            // eslint-disable-next-line threema/ban-sanitized-html-cast
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:160:                // eslint-disable-next-line threema/ban-sanitized-html-cast
+[0m
+[0m$ [0mgrep -rn "markup\|threema-markup\|parseMarkup\|renderMarkup\|emoji\|emoji.*data\|shortcode\|emojiShort" /tmp/opencode/threema-desktop/apps/desktop/src/ --include="*.ts" --include="*.tsx" --include="*.svelte" 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/debug/fake.ts:54:import {DEFAULT_THUMBS_DOWN_EMOJI, DEFAULT_THUMBS_UP_EMOJI} from '~/common/utils/emoji';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/debug/fake.ts:608:                    // Important: Make sure the emojis used here are the fully-qualified variants.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:4:import type RawEmojis from 'emojibase-data/en/data.json';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:5:import type ShortcodesDataset from 'emojibase-data/en/shortcodes/cldr.json';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:6:import rawEmojiGroupData from 'emojibase-data/meta/groups.json' with {type: 'json'};
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:11:import type {EmojiPreferencesView} from '~/common/model/types/emoji-preferences';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:19:} from '~/common/utils/emoji';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:29: * This class contains a store that holds the dynamic emoji data. This data is dependent on the user
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:30: * locale. If the locale cannot be loaded, the standard `en` emoji data is loaded.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:34:    private readonly _emojiByGroupStore: IWritableStore<ReadonlyMap<EmojiGroupId, Emojis>> =
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:49:        const remoteEmojiPreferences = await backend.model.user.emojiPreferences;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:50:        const emojiSkintonePreferences = derive(
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:54:        return new EmojiService(log, emojiSkintonePreferences);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:58:     * Get a store containing the grouped emoji data of the current locale.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:61:        return this._emojiByGroupStore;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:65:     * Get the preferred skin tone of an emoji, if any.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:78:                        // For the raw emoji data including the label, always read the english default
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:80:                        const rawEmojiData = await import(`emojibase-data/en/data.json`).then(
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:104:                                data.emoji,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts:109:                        this._emojiByGroupStore.set(
+[0m
+[0m$ [0mgrep -rn "fileSize\|fileName\|attachment\|fileStorage\|download\|blob.*url\|object.*url" /tmp/opencode/threema-desktop/apps/desktop/src/ --include="*.ts" --include="*.tsx" --include="*.svelte" 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:98:        // Try download once until it's successful or the user chooses to stop.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:102:                // Clear existing update subfolder before downloading any new files.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:106:                const downloadDialogHandle = await this._services.systemDialog.open({
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:107:                    type: 'auto-app-update-download',
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:115:                    await downloadDialogHandle.setProgress(progress * 0.99);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:118:                await this._download(updateInfo, onProgress).catch((error: unknown) => {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:121:                this._log.info(`Update ${updateInfo.version} was successfully downloaded`);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:123:                await downloadDialogHandle.setProgress(1);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:124:                await downloadDialogHandle.closed;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:153:     * Fetch `UPDATE_SERVER_URL` to check whether an update is available, and download and validate
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:220:    private async _download(
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:259:            await this._downloadFile(updateBinaryUrl, binaryPath, onProgress);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:260:            await this._downloadFile(updateBinaryDigestUrl, checksumPath);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:262:            throw new Error(`Update download failed: ${error}`);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:271:     * downloaded, and `onProgress` will be called once with the value `1`.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:273:     * @param url The URL of the file to download.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:274:     * @param relativePath The file path (relative to the temp directory) to download the file to
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:276:     * @param onProgress An optional callback which is called whenever the download progress
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:279:    private async _downloadFile(
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:298:        // Create `TransformStream` to measure current download progress and pass it to the
+[0m
+[0m$ [0mgrep -rn "parseMarkup\|markup" /tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts 2>/dev/null | head -10
+1:import {markify, TokenType} from '@threema/threema-markup';
+22:     * Whether to replace mentions with raw text instead of markup. Note: This will override
+26:    /** If simple markup tokens (bold, italic, strikethrough) should be replaced. */
+85:        sanitizedText = parseMarkup(sanitizedText);
+137: * @param enableMarkup Whether to replace the mention with markup or raw text. Note: This will
+205: * Parses some text and replaces predefined markup indicators with HTML tags:
+211: * @returns The text containing the markup replaced with HTML.
+213:function parseMarkup(text: SanitizedHtml): SanitizedHtml {
+233: * @param enableMarkup Whether to replace the mention with markup or raw text. Note: This will
+[0m
+[0m$ [0mgrep -rn "parseMarkup" /tmp/opencode/threema-desktop/apps/desktop/src/ 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | head -10
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:85:        sanitizedText = parseMarkup(sanitizedText);
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts:213:function parseMarkup(text: SanitizedHtml): SanitizedHtml {
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts[90m [limit=50, offset=203][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts[90m [limit=30, offset=1][0m
+[0m
+[0m$ [0mgrep -rn "innerHTML" /tmp/opencode/threema-desktop/apps/desktop/src/app/ui/ --include="*.svelte" --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec." | grep -v "innerHTML = ''" | grep -v "innerHTML.trim" | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/atoms/textarea/TextArea.svelte:11:  Thus, we can't just bind to the "textContent" or "innerHTML" values. Instead, whe use the
+[0m
+[0m$ [0mgrep -rn "autolinker\|Autolinker\|parseLinks" /tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts 2>/dev/null
+4:import autolinker from 'autolinker';
+103:        sanitizedText = parseLinks(sanitizedText);
+306:export function parseLinks(text: SanitizedHtml): SanitizedHtml {
+307:    // Autolinker has isses with paths containing ':' and '.'. See
+308:    // https://github.com/gregjacobs/Autolinker.js/issues/433 Therefore we disable the schemeMatches
+325:                return autolinker.link(token, {
+335:                        // Autolinker sometimes matches text starting with a double-slash (e.g. "//threema.ch"),
+343:                            // See https://github.com/gregjacobs/Autolinker.js/issues/319
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts[90m [limit=30, offset=300][0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/opecode/threema-desktop/apps/desktop/src/app/ui/utils/*); auto-rejecting
+[0m✗ [0mRead /tmp/opecode/threema-desktop/apps/desktop/src/app/ui/utils/text.ts failed[90m [limit=40, offset=329][0m
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

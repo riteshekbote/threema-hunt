@@ -3308,3 +3308,423 @@ testability: PASSIVE
 - [RISK] sync: 70 reason: mediator/rendezvous prod IPv6 reachable and now confirmed alongside publicly resolvable staging siblings (2a14:3e44:114:314::62); auth model on {XX}/ pairing paths still unenumerated.
 - [RISK] safe: 70 reason: safe-01 live, credential-gated (400 on all no-cred requests), CORS* + broad methods is defense-in-depth only; high-value backup asset.
 - [RISK] desktop-src: 70 reason: accepted Windows keystore ACL finding (keystorage.bin/.password.bin without DACL) + Electron sandbox disabled (TODO DEK-79); local source clones currently stripped, limiting further RAG depth.
+===== ANALYST bigpickle 2026-08-07 23:15:48 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll run some passive probes to generate delta before analyzing. Starting with the staging vs prod chat TLS comparison and DNS confirmation.
+[0m$ [0mtimeout 15 openssl s_client -connect 203.56.114.34:5222 -servername g-00.0.test.threema.ch -brief </dev/null 2>&1 | head -20
+40E7510EFC7E0000:error:0A000126:SSL routines:ssl3_read_n:unexpected eof while reading:../ssl/record/rec_layer_s3.c:316:
+[0m
+[0m$ [0mtimeout 15 openssl s_client -connect 203.56.112.202:5222 -servername g-00.0.threema.ch -brief </dev/null 2>&1 | head -20
+40F7C309FE7E0000:error:0A000126:SSL routines:ssl3_read_n:unexpected eof while reading:../ssl/record/rec_layer_s3.c:316:
+[0m
+Both fail TLS identically — the chat protocol isn't plain TLS on 5222. Let me check raw TCP behavior to fingerprint differences.
+[0m$ [0mtimeout 8 bash -c 'exec 3<>/dev/tcp/203.56.114.34/5222; echo "connected-staging rc=$?"; timeout 3 head -c 64 <&3 | xxd | head -5' 2>&1
+connected-staging rc=0
+[0m
+[0m$ [0mtimeout 8 bash -c 'exec 3<>/dev/tcp/203.56.112.202/5222; echo "connected-prod rc=$?"; timeout 3 head -c 64 <&3 | xxd | head -5' 2>&1
+connected-prod rc=0
+[0m
+Both accept TCP and are silent (custom protocol, no greeting). Let me test connection persistence as a behavioral fingerprint.
+[0m$ [0mtimeout 15 bash -c 'exec 3<>/dev/tcp/203.56.114.34/5222; sleep 3; if timeout 1 head -c 1 <&3 >/dev/null 2>&1; then echo "staging: got data"; else echo "staging: silent after 3s (connection open)"; fi' 2>&1
+staging: silent after 3s (connection open)
+[0m
+[0m$ [0mtimeout 15 bash -c 'exec 3<>/dev/tcp/203.56.112.202/5222; sleep 3; if timeout 1 head -c 1 <&3 >/dev/null 2>&1; then echo "prod: got data"; else echo "prod: silent after 3s (connection open)"; fi' 2>&1
+prod: silent after 3s (connection open)
+[0m
+[0m$ [0mtimeout 15 openssl s_client -connect '[2a14:3e44:114:314::62]:443' -servername mediator-1.test.threema.ch -brief </dev/null 2>&1 | head -12
+4087C88A227F0000:error:80000065:system library:BIO_connect:Network is unreachable:../crypto/bio/bio_sock2.c:114:calling connect()
+4087C88A227F0000:error:10000067:BIO routines:BIO_connect:connect error:../crypto/bio/bio_sock2.c:116:
+connect:errno=101
+[0m
+[0m$ [0mtimeout 15 openssl s_client -connect '[2a14:3e40:112:312::247]:443' -servername mediator-1.threema.ch -brief </dev/null 2>&1 | head -12
+40575664467F0000:error:80000065:system library:BIO_connect:Network is unreachable:../crypto/bio/bio_sock2.c:114:calling connect()
+40575664467F0000:error:10000067:BIO routines:BIO_connect:connect error:../crypto/bio/bio_sock2.c:116:
+connect:errno=101
+[0m
+Identical behavior — staging and prod chat are indistinguishable at passive TCP level. Let me check the staging mediator/rendezvous TLS handshakes from last session's lead.
+No IPv6 route in this environment. Let me check if these hosts have IPv4 A records instead.
+[0m$ [0mfor h in mediator-1.test.threema.ch rendezvous-1.test.threema.ch mediator-1.threema.ch g-00.0.test.threema.ch; do echo -n "$h A: "; getent ahostsv4 "$h" 2>/dev/null | head -1; echo -n "$h AAAA: "; getent ahostsv6 "$h" 2>/dev/null | head -1; done
+mediator-1.test.threema.ch A: 203.56.114.62   STREAM mediator-1.test.threema.ch
+mediator-1.test.threema.ch AAAA: 2a14:3e44:114:314::62 STREAM mediator-1.test.threema.ch
+rendezvous-1.test.threema.ch A: 203.56.114.62   STREAM rendezvous-1.test.threema.ch
+rendezvous-1.test.threema.ch AAAA: 2a14:3e44:114:314::62 STREAM rendezvous-1.test.threema.ch
+mediator-1.threema.ch A: 203.56.112.247  STREAM mediator-1.threema.ch
+mediator-1.threema.ch AAAA: 2a14:3e40:112:312::247 STREAM mediator-1.threema.ch
+g-00.0.test.threema.ch A: 203.56.114.34   STREAM g-00.0.test.threema.ch
+g-00.0.test.threema.ch AAAA: ::ffff:203.56.114.34 STREAM g-00.0.test.threema.ch
+[0m
+[0m$ [0mtimeout 15 openssl s_client -connect 203.56.114.62:443 -servername mediator-1.test.threema.ch -brief </dev/null 2>&1 | head -12
+CONNECTION ESTABLISHED
+Protocol version: TLSv1.3
+Ciphersuite: TLS_AES_256_GCM_SHA384
+Peer certificate: CN = *.test.threema.ch
+Hash used: SHA256
+Signature type: ECDSA
+Verification: OK
+Server Temp Key: X25519, 253 bits
+DONE
+[0m
+IPv4 records exist. Comparing TLS handshakes over IPv4.
+[0m$ [0mtimeout 15 openssl s_client -connect 203.56.112.247:443 -servername mediator-1.threema.ch -brief </dev/null 2>&1 | head -12
+CONNECTION ESTABLISHED
+Protocol version: TLSv1.3
+Ciphersuite: TLS_AES_256_GCM_SHA384
+Peer certificate: C = CH, ST = Schwyz, O = Threema GmbH, CN = *.threema.ch
+Hash used: SHA256
+Signature type: ECDSA
+Verification: OK
+Server Temp Key: X25519, 253 bits
+DONE
+[0m
+Distinct staging cert confirmed (`*.test.threema.ch` vs `*.threema.ch`). Now comparing HTTP behavior on the staging vs prod mediator/rendezvous.
+[0m$ [0mcurl -s -i -m 10 https://mediator-1.threema.ch/ 2>&1 | head -12
+HTTP/1.1 403 Forbidden
+Server: nginx
+Date: Fri, 07 Aug 2026 23:06:01 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 146
+Connection: keep-alive
+
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx</center>
+[0m
+[0m$ [0mcurl -s -i -m 10 https://mediator-1.test.threema.ch/ 2>&1 | head -12; echo "---RENDEZVOUS STAGING---"; curl -s -i -m 10 https://rendezvous-1.test.threema.ch/ 2>&1 | head -12
+HTTP/2 403 
+server: nginx
+date: Fri, 07 Aug 2026 23:06:01 GMT
+content-type: text/html; charset=utf-8
+content-length: 146
+
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx</center>
+</body>
+---RENDEZVOUS STAGING---
+HTTP/2 403 
+server: nginx
+date: Fri, 07 Aug 2026 23:06:01 GMT
+content-type: text/html; charset=utf-8
+content-length: 146
+
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx</center>
+</body>
+[0m
+Staging mediator/rendezvous confirmed live with distinct staging wildcard cert. Now the RAG step — pulling threema-android chat hostname/connection constants via GitHub API.
+[0m$ [0mtimeout 60 curl -s "https://api.github.com/repos/threema-ch/threema-android/git/trees/develop?recursive=1" 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); [print(t['path']) for t in d.get('tree',[]) if any(k in t['path'].lower() for k in ['chatserver','chatconnection','chatprotocol','serveraddress'])]" 2>&1 | head -30
+(no output)
+[0m
+[0m$ [0mtimeout 60 curl -s "https://api.github.com/repos/threema-ch/threema-android" 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('default_branch'), d.get('message'))" 2>&1
+main None
+[0m
+[0m$ [0mtimeout 90 curl -s "https://api.github.com/repos/threema-ch/threema-android/git/trees/main?recursive=1" 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); [print(t['path']) for t in d.get('tree',[]) if any(k in t['path'].lower() for k in ['chatserver','chatconnection','chatprotocol','serveraddress'])]" 2>&1 | head -30
+app/src/main/java/ch/threema/app/onprem/OnPremServerAddressProvider.kt
+app/src/main/java/ch/threema/app/services/DefaultServerAddressProvider.kt
+app/src/main/java/ch/threema/app/services/ServerAddressProviderService.kt
+app/src/test/java/ch/threema/app/onprem/OnPremServerAddressProviderTest.kt
+app/src/test/java/ch/threema/domain/protocol/connection/d2m/socket/D2mServerAddressProviderTest.kt
+domain/src/main/java/ch/threema/domain/protocol/ServerAddressProvider.kt
+domain/src/main/java/ch/threema/domain/protocol/connection/csp/socket/ChatServerAddressProvider.kt
+domain/src/main/java/ch/threema/domain/protocol/connection/csp/socket/ChatServerAddressProviderImpl.kt
+domain/src/main/java/ch/threema/domain/protocol/connection/d2m/socket/D2mServerAddressProvider.kt
+[0m
+[0m$ [0mtimeout 30 curl -s "https://raw.githubusercontent.com/threema-ch/threema-android/main/domain/src/main/java/ch/threema/domain/protocol/connection/csp/socket/ChatServerAddressProviderImpl.kt" 2>/dev/null | head -60
+package ch.threema.domain.protocol.connection.csp.socket
+
+import ch.threema.base.ThreemaException
+import ch.threema.domain.protocol.ServerAddressProvider
+import ch.threema.domain.protocol.connection.csp.CspConnectionConfiguration
+import ch.threema.domain.stores.IdentityStore
+import java.net.Inet4Address
+import java.net.Inet6Address
+import java.net.InetSocketAddress
+import java.net.UnknownHostException
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
+
+class ChatServerAddressProviderImpl(
+    configuration: CspConnectionConfiguration,
+) : ChatServerAddressProvider {
+    private val identityStore: IdentityStore = configuration.identityStore
+    private val serverAddressProvider: ServerAddressProvider = configuration.serverAddressProvider
+    private val hostResolver: HostResolver = configuration.hostResolver
+
+    private val lock = ReentrantLock()
+
+    private var socketAddressIndex: Int = 0
+    private var serverSocketAddresses: List<InetSocketAddress> = emptyList()
+
+    /**
+     * Move the internal pointer to the next available address.
+     * If the last address is reached, the pointer will wrap around and start with the first address again.
+     */
+    override fun advance(): Unit = lock.withLock {
+        socketAddressIndex++
+        if (socketAddressIndex >= serverSocketAddresses.size) {
+            socketAddressIndex = 0
+        }
+    }
+
+    /**
+     * Get the [InetSocketAddress] the internal pointer is currently pointing to.
+     */
+    override fun get(): InetSocketAddress? = lock.withLock {
+        if (socketAddressIndex >= serverSocketAddresses.size) {
+            null
+        } else {
+            serverSocketAddresses[socketAddressIndex]
+        }
+    }
+
+    /**
+     * Update the available [InetSocketAddress]es
+     */
+    @Throws(
+        UnknownHostException::class,
+        ExecutionException::class,
+        InterruptedException::class,
+        ThreemaException::class,
+    )
+    override fun update(): Unit = lock.withLock {
+        val serverHost = getServerHost()
+[0m
+[0m$ [0mtimeout 30 curl -s "https://raw.githubusercontent.com/threema-ch/threema-android/main/domain/src/main/java/ch/threema/domain/protocol/connection/csp/socket/ChatServerAddressProviderImpl.kt" 2>/dev/null | sed -n '60,110p'
+val ports = serverAddressProvider.getChatServerPorts()
+        val addresses = if (ProxyAwareSocketFactory.shouldUseProxy(serverHost, ports[0])) {
+            getAddressesWithProxy(serverHost)
+        } else {
+            getAddressesWithoutProxy(serverHost)
+        }
+
+        if (addresses.size != serverSocketAddresses.size || hasChangedAddresses(addresses)) {
+            serverSocketAddresses = addresses
+            socketAddressIndex = 0
+        }
+    }
+
+    private fun hasChangedAddresses(addresses: List<InetSocketAddress>): Boolean =
+        addresses.withIndex().any {
+            val newAddress = it.value.address
+            val previousAddress = serverSocketAddresses[it.index].address
+            (newAddress == null && previousAddress != null) ||
+                (newAddress != null && previousAddress == null) ||
+                (newAddress != null && !newAddress.hostAddress.equals(previousAddress.hostAddress))
+        }
+
+    private fun getServerHost(): String {
+        val serverNamePrefix = serverAddressProvider.getChatServerNamePrefix()
+        val serverHost = if (serverNamePrefix.isNotEmpty()) {
+            val serverGroup = if (serverAddressProvider.getChatServerUseServerGroups()) identityStore.getServerGroup() else "."
+            "$serverNamePrefix$serverGroup"
+        } else {
+            ""
+        }
+        return "$serverHost${serverAddressProvider.getChatServerNameSuffix()}"
+    }
+
+    private fun getAddressesWithProxy(serverHost: String): List<InetSocketAddress> {
+        return serverAddressProvider.getChatServerPorts()
+            .map { InetSocketAddress.createUnresolved(serverHost, it) }
+    }
+
+    private fun getAddressesWithoutProxy(serverHost: String): List<InetSocketAddress> {
+        val inetAddresses = hostResolver.getAllByName(serverHost)
+        if (inetAddresses.isEmpty()) {
+            throw UnknownHostException()
+        }
+        inetAddresses.sortWith { o1, o2 ->
+            when {
+                o1 is Inet6Address && o2 is Inet6Address -> o1.hostAddress.compareTo(o2.hostAddress)
+                o1 is Inet6Address -> -1
+                o2 is Inet4Address -> o1.hostAddress.compareTo(o2.hostAddress)
+                else -> 1
+            }
+[0m
+Hostname derivation confirmed: `getServerHost()` = prefix + serverGroup (2 hex from identity, else ".") + suffix — hostname is identity-derived. Let me probe the mediator staging vs prod on the `/{XX}/` path pattern to check for divergence.
+[0m$ [0mfor u in "https://mediator-1.test.threema.ch/aa/" "https://mediator-1.test.threema.ch/ws/" "https://mediator-1.test.threema.ch/ws/aa"; do echo -n "$u => "; curl -s -o /dev/null -w "%{http_code}\n" -m 10 "$u" 2>&1; done
+https://mediator-1.test.threema.ch/aa/ => 403
+https://mediator-1.test.threema.ch/ws/ => 403
+https://mediator-1.test.threema.ch/ws/aa => 403
+[0m
+[0m$ [0mfor u in "https://mediator-1.threema.ch/aa/" "https://mediator-1.threema.ch/ws/" "https://mediator-1.threema.ch/ws/aa"; do echo -n "$u => "; curl -s -o /dev/null -w "%{http_code}\n" -m 10 "$u" 2>&1; done
+https://mediator-1.threema.ch/aa/ => 403
+https://mediator-1.threema.ch/ws/ => 403
+https://mediator-1.threema.ch/ws/aa => 403
+[0m
+Uniform 403 on both. Let me try an actual WSS upgrade handshake to see if the staging server accepts the WS upgrade.
+[0m$ [0mcurl -s -i -m 10 -X GET "https://mediator-1.test.threema.ch/ws/" -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" 2>&1 | head -15
+HTTP/2 403 
+server: nginx
+date: Fri, 07 Aug 2026 23:06:37 GMT
+content-type: text/html; charset=utf-8
+content-length: 146
+
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+[0m
+Same 403 with WS upgrade on both — nginx blanket. One quick RAG to derive the mediator WSS path from the Android D2M source (advances the top lead), then I'll finalize.
+[0m$ [0mtimeout 30 curl -s "https://raw.githubusercontent.com/threema-ch/threema-android/main/domain/src/main/java/ch/threema/domain/protocol/connection/d2m/socket/D2mServerAddressProvider.kt" 2>/dev/null | head -50
+package ch.threema.domain.protocol.connection.d2m.socket
+
+import ch.threema.common.toHexString
+import ch.threema.domain.protocol.ServerAddressProvider
+import ch.threema.protobuf.d2m.ClientUrlInfo
+import com.google.protobuf.kotlin.toByteString
+
+class D2mServerAddressProvider(
+    private val serverAddressProvider: ServerAddressProvider,
+    private val dgid: ByteArray,
+    private val serverGroup: String,
+) {
+    fun get(): String {
+        val mediatorUrl = serverAddressProvider.getMediatorUrl().get(dgid)
+
+        val clientUrlInfo = ClientUrlInfo.newBuilder()
+            .setDeviceGroupId(dgid.toByteString())
+            .setServerGroup(serverGroup)
+            .build()
+            .toByteArray()
+            .toHexString()
+
+        // mediatorUrl is guaranteed to end with a `/` character
+        return mediatorUrl + clientUrlInfo
+    }
+}
+[0m
+The `{XX}` path is a hex-encoded protobuf `ClientUrlInfo{device_group_id, server_group}` — not guessable. Let me grab the default mediator URL prefix.
+[0m$ [0mtimeout 30 curl -s "https://raw.githubusercontent.com/threema-ch/threema-android/main/app/src/main/java/ch/threema/app/services/DefaultServerAddressProvider.kt" 2>/dev/null | grep -inE "mediator|rendezvous|chatServer|url|https|wss" | head -30
+8:import ch.threema.domain.protocol.urls.AppRatingUrl
+9:import ch.threema.domain.protocol.urls.BlobMirrorUrl
+10:import ch.threema.domain.protocol.urls.BlobUrl
+11:import ch.threema.domain.protocol.urls.MapPoiAroundUrl
+12:import ch.threema.domain.protocol.urls.MapPoiNamesUrl
+13:import ch.threema.domain.protocol.urls.MediatorUrl
+20:    override fun getChatServerNamePrefix(): String =
+27:    override fun getChatServerNameSuffix(): String = BuildConfig.CHAT_SERVER_SUFFIX
+29:    override fun getChatServerPorts(): IntArray = BuildConfig.CHAT_SERVER_PORTS
+31:    override fun getChatServerUseServerGroups() = BuildConfig.CHAT_SERVER_GROUPS
+33:    override fun getChatServerPublicKey(): ByteArray =
+36:    override fun getChatServerPublicKeyAlt(): ByteArray =
+39:    override fun getDirectoryServerUrl(): String =
+41:            BuildConfig.DIRECTORY_SERVER_IPV6_URL
+43:            BuildConfig.DIRECTORY_SERVER_URL
+46:    override fun getWorkServerUrlLegacy(): String? =
+48:            BuildConfig.WORK_SERVER_IPV6_URL_LEGACY
+50:            BuildConfig.WORK_SERVER_URL_LEGACY
+53:    override fun getWorkServerUrl(): String? = BuildConfig.WORK_SERVER_URL
+56:     * @throws ThreemaException if the build config field for the correct base url is missing in current build flavor. This
+60:    private fun getBlobBaseUrlDefaultServer(): String {
+63:        val baseUrlRawValue: String? = if (ipv6) BuildConfig.BLOB_SERVER_IPV6_URL else BuildConfig.BLOB_SERVER_URL
+64:        if (baseUrlRawValue == null) {
+66:            throw ThreemaException("Missing value for blob server url in current build flavor")
+68:        return baseUrlRawValue
+72:     * @throws ThreemaException if the build config field for the correct base url is missing in current build flavor. This
+76:    private fun getBlobBaseUrlMirrorServer(multiDevicePropertyProvider: MultiDevicePropertyProvider): String {
+80:        if (BuildConfig.BLOB_MIRROR_SERVER_URL == null) {
+81:            throw ThreemaException("Missing value for blob server url in current build flavor")
+84:            return BlobMirrorUrl(BuildConfig.BLOB_MIRROR_SERVER_URL)
+[0m
+[0m$ [0mtimeout 30 curl -s "https://raw.githubusercontent.com/threema-ch/threema-android/main/domain/src/main/java/ch/threema/domain/protocol/urls/MediatorUrl.kt" 2>/dev/null | head -60
+package ch.threema.domain.protocol.urls
+
+class MediatorUrl(template: String) : ParameterizedUrl(template, requiredPlaceholders = emptyArray()) {
+    init {
+        require(template.endsWith("/"))
+    }
+
+    /**
+     * @throws IllegalArgumentException if the [deviceGroupId] is invalid
+     */
+    fun get(deviceGroupId: ByteArray): String {
+        require(deviceGroupId.isNotEmpty()) {
+            "Key deviceGroupId is not in correct form"
+        }
+        val prefix8 = deviceGroupId[0].toHexString()
+        val prefix4 = prefix8.take(1)
+        return getUrl(
+            "deviceGroupIdPrefix4" to prefix4,
+            "deviceGroupIdPrefix8" to prefix8,
+        )
+    }
+}
+[0m
+I have enough to finalize. Here are the 8 structured blocks.
+
+STEP 1 — DELTA:
+- [NEW] Staging sync/linking hosts live on IPv4: `mediator-1.test.threema.ch` + `rendezvous-1.test.threema.ch` → 203.56.114.62 (staging net), TLS cert `CN=*.test.threema.ch` (prod: `*.threema.ch`), HTTP 403 nginx identical to prod but over HTTP/2 (prod HTTP/1.1 from this env); WS-upgrade request also 403 on both.
+- [NEW] D2M WSS path structure decoded: `MediatorUrl.get(dgid)` → template `mediator-{1hex}.threema.ch/` (DNS split 0-f confirms 1-hex nibble), path suffix = hex protobuf `ClientUrlInfo{device_group_id, server_group}` — WSS route gated by valid device group ID, not enumerable passively.
+- [NEW] Chat hostname derivation confirmed in source: `ChatServerAddressProviderImpl.getServerHost()` = chatServerNamePrefix + serverGroup (2-hex from identity, else ".") + chatServerNameSuffix → per-identity hostname (g-{XX}.0.threema.ch).
+- [CHANGED] `g-*.0.test.threema.ch:5222` vs prod `g-*.0.threema.ch:5222`: both TCP-accept, both silent with no TLS/greeting, both hold connection open ≥3s → no passive in-band divergence; "exploitable difference" remains unproven.
+
+STEP 2 — PRIORITIZE:
+- [PRIO] mediator-*.test/rendezvous-*.test staging sync (203.56.114.62): score 6.40 | attack6 business7 tech5 gate8 cloud3 fresh9
+- [PRIO] g-*.0.test.threema.ch staging chat (203.56.114.34:5222): score 5.75 | attack5 business8 tech4 gate6 cloud2 fresh8
+- [PRIO] work.test.threema.ch staging web app: score 5.65 | attack5 business7 tech6 gate5 cloud4 fresh6
+
+STEP 3 — HYPOTHESES:
+[HYP] Staging mediator/rendezvous WSS surface reachable with staging cert
+class: MISCONFIG
+asset: wss://mediator-{0..f}.test.threema.ch/{hexproto}/ (203.56.114.62)
+confidence: 55
+reasoning: staging hosts resolve on staging net with distinct `*.test.threema.ch` cert, mirroring accepted ds-apip.test exposure; prod pattern mediator-{1hex}.threema.ch/{hex ClientUrlInfo} confirmed from source (MediatorUrl.get).
+evidence_needed: a staging WSS path that accepts a handshake/token differently than prod, or staging-specific pairing route.
+verify_steps: AUTH_HELPED: reconstruct D2M WSS URL from source (need a dgid) — not passive-enumerable; passive TLS/cert comparison already done (identical 403, distinct cert).
+impact: reachable staging pairing/sync infra → test device-group surface, token-handling skew; severity low-medium.
+testability: AUTH_HELPED
+
+[HYP] Staging chat cluster remains a reachable mirror without observable divergence
+class: MISCONFIG
+asset: g-*.0.test.threema.ch:5222 (203.56.114.34)
+confidence: 50
+reasoning: hostname pattern identity-derived (confirmed in source); 5222 TCP-accepting on both staging and prod, both silent, both hold open → only distinguishing feature is DNS/net split, same as accepted staging pattern.
+evidence_needed: in-band protocol difference (test identities, version skew) — requires decoding the custom CSP handshake.
+verify_steps: AUTH_HELPED: reconstruct CSP handshake (NaCl-box + HKDF) from threema-android `csp/connection`, single connect to staging vs prod, compare stream/auth response; ≤1 rps one attempt each.
+impact: internet-reachable staging messenger backend; severity low.
+testability: AUTH_HELPED
+
+[HYP] Staging work web app exposes test-account/recon surface
+class: MISCONFIG
+asset: https://work.test.threema.ch
+confidence: 45
+reasoning: confirmed live (301 → /en/login, HSTS, Expect-CT, CSP, Sentry) — a full staging cockpit with no observed auth on root; mirrors accepted staging-exposure pattern.
+evidence_needed: unauthenticated-visible routes (registration, API base, JS bundles with staging endpoints) differing from prod.
+verify_steps: PASSIVE: GET https://work.test.threema.ch/en/login and follow redirect; fetch referenced JS bundle, grep for fetch('/api'|login|register) endpoints; ≤1 rps.
+impact: staging work app recon → test credentials, config leaks, version skew; severity low.
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE:
+- [PARKED] Staging chat cluster "exploitable difference": passive divergence absent (both silent, both hold open); only AUTH_HELPED protocol reconstruction can prove it — heavy effort, uncertain payoff. Kept at 50.
+- [PARKED] mediator/rendezvous staging: WSS route requires valid device group ID (protobuf hex path, MediatorUrl decoded) — passively un-enumerable; exploitability low, exposure confirmed. Kept at 55.
+- No hypothesis dropped (<40 or REJECTED-class).
+[FINAL] ranked: 1) mediator/rendezvous staging exposure (55), 2) staging chat mirror (50), 3) work.test web app surface (45).
+
+STEP 5 — NEXT ACTION:
+[NEXT] PROBE: `curl -s -L -m 12 https://work.test.threema.ch/en/login -o /tmp/opencode/worktest_login.html -w "%{http_code} %{url_effective}"`, then extract referenced JS bundle URLs and grep for API routes (fetch/login/register/oauth) — fresh reachable staging web surface, fully passive, ≤1 rps.
+
+STEP 6 — LEARNING:
+- [LEARN] ACCEPTED MISCONFIG @ mediator-*.test.threema.ch / rendezvous-*.test.threema.ch: Staging sync/linking servers publicly reachable with distinct staging wildcard cert `*.test.threema.ch` (vs prod `*.threema.ch`); HTTP 403 nginx identical to prod, HTTP/2 vs prod HTTP/1.1; WS-upgrade 403 on both.
+- [LEARN] REJECTED OTHER @ g-*.0.test.threema.ch:5222: staging vs prod chat behaviorally identical at passive level (TCP-accept, silent, no TLS, hold open) — no observable in-band divergence without CSP protocol decode.
+- [LEARN] ACCEPTED OTHER @ threema-android D2M/CSP addressing: `MediatorUrl.get()` → mediator-{1hex-nibble}.threema.ch/{hex protobuf ClientUrlInfo{dgid,serverGroup}} (path gated by valid dgid); chat host = prefix + 2-hex serverGroup + suffix (identity-derived) — both decoded from public in-scope source.
+
+STEP 7 — RISK SCORE:
+- [RISK] chat: 60 reason: g-*.0 chat core confirmed; staging mirror reachable but passively indistinguishable; hostnames identity-derived
+- [RISK] web: 85 reason: directory cluster (ds-apip/api/apip) identity oracle + fetch_bulk + CORS* + no rate limit across 3 prod hosts; safe-01 live with permissive CORS; work/broadcast/gateway/shop reachable
+- [RISK] sync: 65 reason: mediator/rendezvous prod + staging sync infra live; staging cert exposure confirmed; WSS paths gated by dgid (not enumerable)
+- [RISK] safe: 70 reason: safe-01 credential-gated but CORS* with Authorization header + write methods; API surface still under-enumerated
+- [RISK] desktop-src: 55 reason: Windows keystorage ACL gap (DPAPI blob) accepted; sandbox disabled (TODO DEK-79); no runtime remote surface in scope
