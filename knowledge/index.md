@@ -15,3 +15,5 @@
 
 ## Rejected / parked
 - (none yet)
+- 2026-08-07 ACCEPTED AUTH @ apip.threema.ch: CORS misconfiguration enabling cross-origin API probes confirmed via passive HEAD/GET.
+- 2026-08-07 ACCEPTED OTHER @ threema-desktop: Electron attack surface confirmed in scope; static analysis is valid passive-first approach.
