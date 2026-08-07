@@ -29,3 +29,13 @@
 - Actual hostnames matching g-*/mediator-*/rendezvous-*/safe-* patterns
 - Auth model of apip.threema.ch (ID service)
 - Whether billing/shop share a backend
+
+## 2026-08-07 18:40:46 UTC
+- CHANGED work.threema.ch: Now responds with 301 to /en/login (was 301, now confirmed PHP session cookie, CSP, Sentry reporting)
+- CHANGED shop.threema.ch: Now responds with 301 to /en (was 301, now confirmed CSP, Sentry, hCaptcha subdomain)
+- CHANGED broadcast.threema.ch: Now responds 301 to /en/login (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+- CHANGED gateway.threema.ch: Now responds 302 to /en (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+- CHANGED billing.threema.ch: Now responds 301 to threema.ch (was TIMEOUT, now redirects to main site)
+- CHANGED apip.threema.ch: Confirmed 403 with CORS headers allowing POST/GET/OPTIONS/DELETE (was 403, now detailed)
+- NEW api.threema.ch: Returns 403 with same CORS headers as apip.threema.ch (likely related ID service)
+- NEW safe.threema.ch: Timeout/no response (backup service pattern candidate)
