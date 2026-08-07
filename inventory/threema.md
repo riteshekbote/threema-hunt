@@ -39,3 +39,14 @@
 - CHANGED apip.threema.ch: Confirmed 403 with CORS headers allowing POST/GET/OPTIONS/DELETE (was 403, now detailed)
 - NEW api.threema.ch: Returns 403 with same CORS headers as apip.threema.ch (likely related ID service)
 - NEW safe.threema.ch: Timeout/no response (backup service pattern candidate)
+
+## 2026-08-07 18:55:12 UTC
+- NEW `ds-apip.threema.ch` — canonical directory server hostname (source `config/vite.config.ts` + OpenAPI); public `GET /identity/{id}` returns 200/404 oracle.
+- NEW `mediator-{X}.threema.ch/{XX}/` hostname pattern (WSS sync server) — `mediator-*.threema.ch` in scope, pattern confirmed from client config.
+- NEW `safe-{XX}.threema.ch/` hostname pattern (backup safe) — `safe-*.threema.ch` in scope, pattern confirmed from client config.
+- NEW `rendezvous-{X}.threema.ch/{XX}/` hostname pattern (WSS linking server) — `rendezvous-*.threema.ch` in scope, pattern confirmed from client config.
+- NEW `api.threema.ch` — 403 + same permissive CORS as apip (candidate ID/directory sibling).
+- CHANGED `apip.threema.ch` — was 403 on `/`; now verified 200 on `/identity/ECHOECHO`, 404 on invalid, CORS `*`.
+- CHANGED `work.threema.ch` / `shop.threema.ch` / `broadcast.threema.ch` / `gateway.threema.ch` — 301/302 now with session cookie, CSP, Sentry (was TIMEOUT/301).
+- CHANGED `billing.threema.ch` — 301 → `threema.ch`.
+- NEW `ds-apip.test.threema.ch` — leaked test/staging directory server reachable (static + live 200).
