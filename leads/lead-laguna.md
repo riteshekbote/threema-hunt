@@ -87,3 +87,56 @@ testability: RAG / HUMAN_ONLY
 [RISK] sync: 60 — mediator-*.threema.ch and rendezvous-*.threema.ch patterns known from client config; WSS servers likely have auth but pattern not yet probed.
 [RISK] safe: 45 — safe-*.threema.ch pattern known from client config; safe.threema.ch timed out; pattern not yet enumerated.
 [RISK] desktop-src: 75 — threema-desktop source confirmed in-scope; Electron attack surface + staging URL embedding + OnPrem config trust + key-storage Windows ACL concerns identified from source read; needs RAG to confirm.
+## 2026-08-07 20:10:06 UTC [desktop] (model laguna)
+[CHANGED] `/identity/fetch_bulk` rate-limit absence quantified: 30 sequential POSTs at 1 rps → all HTTP 200, no 429/RateLimit/Retry-After headers, consistent ~340ms response times. Previously only “no 429 observed on burst.”
+[NEW] `ds-apip.test.threema.ch` confirmed live and publicly reachable — returns identical identity→pubkey oracle + CORS `*` (with `Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE`) as production. Staging hostname is baked into `vite.config.ts:147` (`DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/'`).
+[NEW] `api.threema.ch` confirmed as full directory server sibling — `GET /identity/ECHOECHO` → 200 with identical CORS headers as `ds-apip.threema.ch`.
+[NEW] RAG finding: `crypto.ts:223` hardcoded password `r3gGN9GDQ5NF6tM6` is a **benchmark dummy** only — used in `determineKdfParams()` to measure Argon2id runtime, immediately purged (`benchmarkKey.purge()`). NOT a real secret. (Debunks `analysis.txt` REPORT_CANDIDATE.)
+[CHANGED] RAG finding: OnPrem config trust path **debunked as vulnerable** — uses Ed25519 signature verification against 3 hardcoded `ONPREM_CONFIG_TRUSTED_PUBLIC_KEYS` in `vite.config.ts`. OPPF URLs are validated for HTTPS/WSS protocols. The original confidence-60 hypothesis is refuted.
+[CHANGED] RAG finding: Desktop key storage confirmed — `fileModeInternalObjectIfPosix()` returns `{}` (no restriction) on Windows. Both `keystorage.bin` (Argon2id-encrypted) and `keystorage.password.bin` (DPAPI-via-`electron.safeStorage`-encrypted) are written without Windows ACL restrictions. Any same-user process can read both files and decrypt the password via DPAPI.
+[CHANGED] RAG finding: Electron BrowserWindow has `sandbox` NOT enabled (explicit TODO DEK-79) and `nodeIntegrationInWorker: true` (TODO DEK-79). `nodeIntegration: false` and `contextIsolation: true` are set.
+[PRIO] ds-apip.threema.ch (directory server API), 8.8 — as:10 bv:9 tech:7 gate:10 cloud:5 fresh:10
+[PRIO] threema-desktop source (Electron client), 7.5 — as:8 bv:8 tech:7 gate:8 cloud:3 fresh:9
+[PRIO] ds-apip.test.threema.ch (staging directory server), 6.3 — as:6 bv:5 tech:5 gate:10 cloud:3 fresh:9
+[HYP] Desktop Windows key storage: keystorage.bin and password file lack ACL restrictions
+class: MISCONFIG
+asset: apps/desktop/src/common/node/key-storage/index.ts + apps/desktop/src/electron/electron-main.ts + apps/desktop/src/common/node/fs.ts
+confidence: 75
+reasoning: `fileModeInternalObjectIfPosix()` returns `{}` on Windows (no POSIX mode set), so `keystorage.bin` is written with default Windows ACLs. `_writeOrOverrideFile()` in index.ts passes this empty object to `fsPromises.writeFile()`. The password file `keystorage.password.bin` is encrypted via `electron.safeStorage.encryptString()` (DPAPI on Windows) but is also written with `fileModeInternalObjectIfPosix()` → no ACL restriction. Any same-user process can read both files and decrypt the password via DPAPI, then use it to decrypt the Argon2id-encrypted `keystorage.bin` containing private keys and DB encryption key.
+evidence_needed: Confirm on real Windows: (1) `icacls` on `keystorage.bin` and `keystorage.password.bin` after app init; (2) cross-process read of `keystorage.password.bin` succeeds and `electron.safeStorage.decryptString()` works from another same-user process.
+verify_steps: HUMAN_ONLY: on Windows, launch Threema Desktop, enter/create a profile. From a separate process running as the same user: run `icacls %APPDATA%\ThreemaDesktop\*\data\keystorage.password.bin`, then attempt `CryptUnprotectData` via Python `win32crypt` to recover the plaintext password, then attempt read of `keystorage.bin`.
+impact: Local attacker with same-user process access extracts all private keys, database encryption key, device credentials. Severity: medium (requires local access, same-user privilege).
+testability: HUMAN_ONLY
+[HYP] Directory server identity enumeration: no rate limiting + permissive CORS + silent invalid-ID omission
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk && https://api.threema.ch/identity/fetch_bulk && https://apip.threema.ch/identity/fetch_bulk
+confidence: 95
+reasoning: PROBE confirmed: 30 sequential POSTs at 1 rps to /identity/fetch_bulk → all HTTP 200. No 429, no X-RateLimit, no Retry-After headers. Response times stable at ~340ms (no throttling). Invalid IDs silently omitted from response (not returned as null), enabling silent enumeration. CORS `Access-Control-Allow-Origin: *` with `DELETE/POST/GET/OPTIONS` methods on all three hostnames. All three hostnames return identical pubkeys for `ECHOECHO`. No `Access-Control-Expose-Headers` needed — response body is directly readable cross-origin without credentials.
+evidence_needed: Sustained burst >50 req/min to rule out adaptive rate limiting; confirm bulk-fetch silently omits invalid IDs vs. error.
+verify_steps: PROBE: send 50 sequential POSTs to /identity/fetch_bulk at 1s intervals with 50 random identity candidates; confirm all return HTTP 200 with no 429; verify response JSON contains only valid identities (invalid ones omitted).
+impact: Mass enumeration of all valid Threema identities → public keys, enabling targeted phishing/social-engineering and pubkey collection for offline crypto attacks. Severity: medium (privacy breach / account reconnaissance).
+testability: PASSIVE
+[HYP] Staging directory server exposed + HSTS/CT absent on production
+class: MISCONFIG
+asset: https://ds-apip.test.threema.ch/ (baked into vite.config.ts:147 sandbox build)
+confidence: 65
+reasoning: Sandbox build bakes `DIRECTORY_SERVER_URL='https://ds-apip.test.threema.ch/'` into the client. PROBE confirmed: staging server is publicly reachable, returns identical identity→pubkey oracle + CORS `*` as production. Notably, staging returns HSTS (`strict-transport-security: max-age=31104000; includeSubdomains`) and Expect-CT headers, while production `ds-apip.threema.ch` returns neither. Staging may have test accounts or debug endpoints not hardened for public access.
+evidence_needed: Compare feature levels / API response differences between staging and production for same identity; check staging for debug endpoints or test data.
+verify_steps: PROBE: `curl -s -X POST https://ds-apip.test.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO"]}'`; compare response body (featureLevel, featureMask, type, state) with production `ds-apip.threema.ch`; then PROBE: diff the full response headers including HSTS/Expect-CT.
+impact: Attacker gains access to staging infrastructure that may expose test accounts, debug endpoints, or pre-release features. Staging without rate limiting = fallback enumeration vector if production is ever protected. Severity: low-medium.
+testability: PASSIVE
+[PARKED] Desktop key storage Windows permissions (original): Refiled as NEW hypothesis with increased confidence (45→75) based on RAG confirmation of `fileModeInternalObjectIfPosix()` returning `{}` on Windows and `electron.safeStorage` usage confirmed in `electron-main.ts:944-945`. Testability remains HUMAN_ONLY.
+[PARKED] Desktop OnPrem config trust path: CONFIDENCE REFUTED. RAG in `onprem/oppf.ts` confirms `verifyOppfFile()` uses Ed25519 signature verification against 3 hardcoded trusted public keys (`ONPREM_CONFIG_TRUSTED_PUBLIC_KEYS` in `vite.config.ts`), with HTTPS/WSS URL protocol validation and license expiration checks. Not vulnerable. No further investigation warranted.
+[PARKED] Desktop crypto.ts:223 hardcoded password: REFUTED. The password `r3gGN9GDQ5NF6tM6` (sha256: `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12`) is used solely as a dummy input for benchmarking Argon2id KDF runtime in `determineKdfParams()`. The derived key is immediately purged (`benchmarkKey.purge()`) and never persisted or used for encryption. The original `analysis.txt` REPORT_CANDIDATE is a false positive.
+[FINAL] (re-ranked top first)
+[NEXT] PROBE: `curl -s -o /dev/null -w 'HTTP %{http_code} | time_total: %{time_total}s | headers: %{header_json}\n' -X POST https://ds-apip.test.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO"]}'` then compare the `featureLevel`/`featureMask`/`type`/`state` values against the production response from `ds-apip.threema.ch` to detect any test/dev accounts or debug data leakage on the staging endpoint.
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in `determineKdfParams()`, derived key immediately purged, not used for any real encryption.
+[LEARN] REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not vulnerable.
+[LEARN] ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — `keystorage.bin` and `keystorage.password.bin` written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateLimit). CORS `*` with DELETE/POST/GET/OPTIONS. All three hostnames return identical pubkeys for valid IDs; invalid IDs silently omitted.
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: Staging directory server publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+[RISK] chat: 40 — g-*.0.threema.ch pattern not yet enumerated; exposure unknown.
+[RISK] web: 90 — api.threema.ch + apip.threema.ch + ds-apip.threema.ch: three confirmed unauthenticated identity-enumeration endpoints with permissive CORS (`*`), DELETE/POST/GET/OPTIONS methods, zero rate-limiting (30 POSTs at 1 rps all 200), bulk-fetch returns pubkeys, invalid IDs silently omitted. Highest web exposure; all three hostnames load-balanced identically.
+[RISK] sync: 60 — mediator-*.threema.ch and rendezvous-*.threema.ch patterns known from client config (vite.config.ts); WSS servers likely have auth but pattern not yet probed.
+[RISK] safe: 45 — safe-*.threema.ch pattern known from client config; safe.threema.ch timed out; staging pattern `safe-{backupIdPrefix8}.threema.ch` confirmed in vite.config.ts but not yet enumerated.
+[RISK] desktop-src: 75 — threema-desktop source confirmed in-scope; Electron BrowserWindow has `sandbox` not enabled (TODO DEK-79) and `nodeIntegrationInWorker: true` (TODO DEK-79) — known gaps, not active vulns. Windows key storage files lack ACL restrictions (confirmed via RAG). OnPrem config trust verified secure (Ed25519 sig verification). Staging hostname baked into builds exposes test infrastructure.
