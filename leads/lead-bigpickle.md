@@ -82,3 +82,4 @@ evidence_needed: whether the subscription membership filter can be induced (batc
 verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities mixing own- and foreign-subscription IDs, compare membership + property leak; probe page/size bounds.
 impact: cross-subscription disclosure of work-directory metadata (names, titles, departments, availability) → targeted phishing. Severity: medium.
 testability: AUTH_HELPED
+## 2026-08-07 20:01:16 UTC [chat] (model bigpickle)
