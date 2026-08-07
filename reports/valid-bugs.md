@@ -11,3 +11,7 @@
   - **Verdict: HOLD** — Speculative; requires AUTH_HELPED with valid credentials to confirm. Needs program to provide test credentials.
   - | Q4 | PARTIAL — can confirm CORS headers; cannot confirm oracle without valid id+key |
   - | **VALID** | 0 | — |
+
+- 2 lead(s) marked VALID at 2026-08-07 23:55:35 UTC
+  - | Q3 | **NO** | All data-access routes return 400 (credential-gated). No unauthenticated data access demonstrated. CORS `*` + Authorization header on an auth-gated API only matters if the attacker alr
+  - | Q7 | **NO** | Requires valid credentials to have any impact. No unauthenticated data access demonstrated. |
