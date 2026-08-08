@@ -908,3 +908,21 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy in `determineKdfParams()`, derived
 - LEARN: REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE (requires separate renderer exploit chain), not a standalone class
 - LEARN: REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
+
+## RANKED HYPOTHESES 2026-08-08 21:26:51 UTC
+- [95] https://ds-apip.threema.ch/identity/fetch_bulk: Directory bulk identity enumeration at scale via fetch_bulk (from reports/hypotheses-nemotron3.txt)
+- [95] github.com/threema-ch/threema-desktop: Desktop Windows key-storage ACL bypass → master password recovery → identity keypair + message DB decryption (from reports/hypotheses-laguna.txt)
+- [60] https://saltyrtc-{00..ff}.threema.ch:443: saltyrtc-*.threema.ch is live SaltyRTC chat-signaling; WSS endpoint reachable vs g-* closed-443 (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ","AAAAAAAA","BBBB
+- NEXT(hypotheses-laguna.txt): RAG: Clone `https://github.com/threema-ch/threema-desktop` (commit `stable`), read and document the complete 6-step source code verification chain at `fs.ts:41`
+- LEARN: REJECTED IDOR @ ds-apip/api/apip.threema.ch check_revocation_key GET form: validation-order oracle disproven — ECHOECHO vs ZZZZZZZZ produce byte-identical "Iden
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 safe-* hosts): credential-gated 400 baseline stable — route-existence oracle + Basic-auth gating hold; HSTS/Expec
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy in `determineKdfParams()`, derived
+- LEARN: REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE (requires separate renderer exploit chain), not a standalone class
+- LEARN: REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED against freshly cloned repo — 6 core paths verified (+9 supporting paths for full chain
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: No rate-limit confirmed after 30 sequential POSTs; CORS `*` on POST/GET/OPTIONS/DELETE; 5 cha
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 safe-* hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400; HTTP Basic Auth confirmed; existence 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED against freshly cloned repo — 6 core paths verified (+9 supporting paths for full chain
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: No rate-limit confirmed after 30 sequential POSTs; CORS `*` on POST/GET/OPTIONS/DELETE; 5 cha
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 safe-* hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400; HTTP Basic Auth confirmed; existence 
