@@ -125,3 +125,14 @@
   - **Verdict: HOLD** — Interesting hypothesis (OpenAPI flags it "currently buggy" TWRK-1633) but requires AUTH_HELPED with valid Work license. Cannot be proven with passive GET/HEAD only. Retain for prog
   - | Q7 Triager accept? | ⚠️ HOLD territory — valid hardening concern but constitutes a vulnerability ONLY when chained with a demonstrated RCE primitive |
   - | **VALID** | **0** | No new, novel, reportable findings this cycle |
+
+- 9 lead(s) marked VALID at 2026-08-08 20:16:43 UTC
+  - | Q3 Real impact? | ⚠️ CONTINGENT — valid backupId:backupKey required for data access; CORS `*` enables cross-origin credentialed reads but no data without creds |
+  - | Q6 Not always-rejected? | ❌ NO — CORS `*` on credential-gated endpoint is defense-in-depth only per valid-bugs.md precedent |
+  - | Q7 Triager accept? | ❌ NO — no data access without valid credentials; duplicate |
+  - | Q7 Triager accept? | ✅ YES — already accepted as finding #3 in valid-bugs.md |
+  - | Q3 Real impact? | ✅ YES — mass enumeration of valid IDs + pubkeys at scale |
+  - | Q7 Triager accept? | ✅ YES — already accepted as finding #1 in valid-bugs.md |
+  - | Q7 Triager accept? | ❌ NO — no data access without valid credentials |
+  - | Q7 Triager accept? | ⚠️ Not standalone — valid hardening concern but not a vuln without secondary bug |
+  - | **VALID** | **0** | No new, novel, reportable findings this cycle |
