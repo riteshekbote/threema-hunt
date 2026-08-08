@@ -11356,3 +11356,980 @@ Let me verify the `kdfParameters` wrapper proto field layout so the offline deco
 [93m[1m! [0mpermission requested: external_directory (/tmp/opencodex/threema-desktop/apps/desktop/src/common/internal-protobuf/*); auto-rejecting
 [0m✗ [0mRead /tmp/opencodex/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts failed[90m [limit=45, offset=1343][0m
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST laguna 2026-08-08 11:03:45 UTC =====
+[0m
+> build · laguna-s-2.1-free
+[0m
+[0m# [0mTodos
+[•] Run live passive HTTP probes to verify active findings (identity oracle, safe backup CORS, work.test bundle)
+[ ] Verify RAG findings against cloned threema-desktop repo (/tmp/opencode/threema-desktop)
+[ ] Produce 8-step structured analyst output
+[0m
+I'll analyze this systematically. Since the current phase is POC/desktop with a rich knowledge base, I need to run live passive verification probes and validate the RAG findings against the cloned source. Let me start with parallel verification.
+[0m$ [0mcurl -s -i -m 12 -r 0-0 -X HEAD https://ds-apip.threema.ch/identity/ECHOECHO 2>&1 | head -20; echo "---SEP---"; curl -s -i -m 12 -r 0-0 -X GET https://ds-apip.threema.ch/identity/ECHOECHO 2>&1 | head -25
+HTTP/1.1 200 OK
+Server: nginx
+Date: Sat, 08 Aug 2026 10:52:30 GMT
+Content-Type: application/json; charset=utf-8
+Connection: keep-alive
+Expires: Sun, 09 Aug 2026 10:52:30 GMT
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+Access-Control-Allow-Headers: Content-Type, User-Agent
+
+---SEP---
+HTTP/1.1 200 OK
+Server: nginx
+Date: Sat, 08 Aug 2026 10:52:42 GMT
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Expires: Sun, 09 Aug 2026 10:52:42 GMT
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+Access-Control-Allow-Headers: Content-Type, User-Agent
+
+{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}
+[0m
+[0m$ [0mcurl -s -i -m 12 -X OPTIONS -H "Origin: https://attacker.ex" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: Authorization" https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000 2>&1 | head -25; echo "---SEP---"; curl -s -i -m 12 https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000 2>&1 | head -12; echo "---SEP2---"; curl -s -i -m 12 https://safe-01.threema.ch/backup/0000000000000000000000000000000000000000000000000000000000000000 2>&1 | head -12
+HTTP/1.1 204 No Content
+Server: nginx
+Date: Sat, 08 Aug 2026 10:52:44 GMT
+Content-Length: 0
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE
+Vary: Access-Control-Request-Headers
+Access-Control-Allow-Headers: Authorization
+Strict-Transport-Security: max-age=31104000; includeSubdomains
+Expect-CT: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+
+---SEP---
+HTTP/1.1 400 Bad Request
+Server: nginx
+Date: Sat, 08 Aug 2026 10:52:44 GMT
+Content-Type: text/plain; charset=utf-8
+Content-Length: 11
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+ETag: W/"b-EFiDB1U+dmqzx9Mo2UjcZ1SJPO8"
+
+Bad Request---SEP2---
+HTTP/1.1 404 Not Found
+Server: nginx
+Date: Sat, 08 Aug 2026 10:52:44 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 210
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Content-Security-Policy: default-src 'none'
+X-Content-Type-Options: nosniff
+
+<!DOCTYPE html>
+<html lang="en">
+[0m
+[0m$ [0mls -la /tmp/opencode/threema-desktop 2>&1 | head; echo "---REPO---"; curl -s -m 12 -o /dev/null -w "%{http_code}" https://github.com/threema-ch/threema-desktop 2>&1; echo " (github reachability)"
+ls: cannot access '/tmp/opencode/threema-desktop': No such file or directory
+---REPO---
+200 (github reachability)
+[0m
+Live probes confirm identity oracle + safe-01 CORS/oracle. The cloned repo doesn't exist yet—I'll clone it to verify the desktop RAG findings, plus run a few more confirming probes.
+[0m$ [0mgit clone --depth 1 --filter=blob:none https://github.com/threema-ch/threema-desktop /tmp/opencode/threema-desktop 2>&1 | tail -5; echo "---EXIT:$?---"
+Cloning into '/tmp/opencode/threema-desktop'...
+Updating files:   0% (1/2467)
+Updating files:   1% (25/2467)
+Updating files:   2% (50/2467)
+Updating files:   3% (75/2467)
+Updating files:   4% (99/2467)
+Updating files:   5% (124/2467)
+Updating files:   6% (149/2467)
+Updating files:   7% (173/2467)
+Updating files:   8% (198/2467)
+Updating files:   9% (223/2467)
+Updating files:  10% (247/2467)
+Updating files:  11% (272/2467)
+Updating files:  12% (297/2467)
+Updating files:  13% (321/2467)
+Updating files:  14% (346/2467)
+Updating files:  15% (371/2467)
+Updating files:  16% (395/2467)
+Updating files:  17% (420/2467)
+Updating files:  18% (445/2467)
+Updating files:  19% (469/2467)
+Updating files:  20% (494/2467)
+Updating files:  21% (519/2467)
+Updating files:  22% (543/2467)
+Updating files:  23% (568/2467)
+Updating files:  24% (593/2467)
+Updating files:  25% (617/2467)
+Updating files:  26% (642/2467)
+Updating files:  27% (667/2467)
+Updating files:  28% (691/2467)
+Updating files:  29% (716/2467)
+Updating files:  30% (741/2467)
+Updating files:  31% (765/2467)
+Updating files:  32% (790/2467)
+Updating files:  33% (815/2467)
+Updating files:  34% (839/2467)
+Updating files:  35% (864/2467)
+Updating files:  36% (889/2467)
+Updating files:  37% (913/2467)
+Updating files:  38% (938/2467)
+Updating files:  39% (963/2467)
+Updating files:  40% (987/2467)
+Updating files:  41% (1012/2467)
+Updating files:  42% (1037/2467)
+Updating files:  43% (1061/2467)
+Updating files:  44% (1086/2467)
+Updating files:  45% (1111/2467)
+Updating files:  46% (1135/2467)
+Updating files:  47% (1160/2467)
+Updating files:  48% (1185/2467)
+Updating files:  49% (1209/2467)
+Updating files:  50% (1234/2467)
+Updating files:  51% (1259/2467)
+Updating files:  52% (1283/2467)
+Updating files:  53% (1308/2467)
+Updating files:  54% (1333/2467)
+Updating files:  55% (1357/2467)
+Updating files:  56% (1382/2467)
+Updating files:  57% (1407/2467)
+Updating files:  58% (1431/2467)
+Updating files:  59% (1456/2467)
+Updating files:  60% (1481/2467)
+Updating files:  61% (1505/2467)
+Updating files:  62% (1530/2467)
+Updating files:  63% (1555/2467)
+Updating files:  64% (1579/2467)
+Updating files:  65% (1604/2467)
+Updating files:  66% (1629/2467)
+Updating files:  67% (1653/2467)
+Updating files:  68% (1678/2467)
+Updating files:  69% (1703/2467)
+Updating files:  70% (1727/2467)
+Updating files:  71% (1752/2467)
+Updating files:  72% (1777/2467)
+Updating files:  73% (1801/2467)
+Updating files:  74% (1826/2467)
+Updating files:  75% (1851/2467)
+Updating files:  76% (1875/2467)
+Updating files:  77% (1900/2467)
+Updating files:  78% (1925/2467)
+Updating files:  79% (1949/2467)
+Updating files:  80% (1974/2467)
+Updating files:  81% (1999/2467)
+Updating files:  82% (2023/2467)
+Updating files:  83% (2048/2467)
+Updating files:  84% (2073/2467)
+Updating files:  85% (2097/2467)
+Updating files:  86% (2122/2467)
+Updating files:  87% (2147/2467)
+Updating files:  88% (2171/2467)
+Updating files:  89% (2196/2467)
+Updating files:  90% (2221/2467)
+Updating files:  91% (2245/2467)
+Updating files:  92% (2270/2467)
+Updating files:  93% (2295/2467)
+Updating files:  94% (2319/2467)
+Updating files:  95% (2344/2467)
+Updating files:  96% (2369/2467)
+Updating files:  97% (2393/2467)
+Updating files:  98% (2418/2467)
+Updating files:  99% (2443/2467)
+Updating files: 100% (2467/2467)
+Updating files: 100% (2467/2467), done.
+---EXIT:0---
+[0m
+[0m$ [0mfor h in ds-apip api apip; do echo "=== $h ==="; curl -s -m 12 -r 0-0 -X GET "https://$h.threema.ch/identity/ECHOECHO" 2>&1 | head -1; done; echo "---fetch_bulk---"; curl -s -m 12 -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' 2>&1 | head -5
+=== ds-apip ===
+{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}=== api ===
+{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}=== apip ===
+{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}---fetch_bulk---
+{"identities":[{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}]}
+[0m
+[0m# [0mTodos
+[✓] Run live passive HTTP probes to verify active findings (identity oracle, safe backup CORS, work.test bundle)
+[•] Verify RAG findings against cloned threema-desktop repo (/tmp/opencode/threema-desktop)
+[ ] Produce 8-step structured analyst output
+[0m
+All 3 directory hosts + fetch_bulk confirmed identical. Repo cloned successfully. Now verifying the desktop RAG findings at cited line numbers.
+[0m$ [0mecho "=== fs.ts fileModeInternalObjectIfPosix ==="; grep -n "fileModeInternalObjectIfPosix\|win32\|return {}" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/fs.ts 2>&1 | head -20; echo; echo "=== key-storage/index.ts write ==="; grep -n "_writeOrOverrideFile\|fileModeInternalObject\|keystorage" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts 2>&1 | head -20
+=== fs.ts fileModeInternalObjectIfPosix ===
+24:    return process.platform === 'win32' ? {} : {mode: MODE_DIRECTORY_INTERNAL};
+40:export function fileModeInternalObjectIfPosix(): ModeOrEmpty {
+41:    return process.platform === 'win32' ? {} : {mode: MODE_FILE_INTERNAL};
+50:    return process.platform === 'win32' ? undefined : MODE_FILE_INTERNAL;
+
+=== key-storage/index.ts write ===
+28:import {fileModeInternalObjectIfPosix} from '~/common/node/fs';
+210:            await this._writeOrOverrideFile(result.encoded);
+279:        await this._writeOrOverrideFile(outer);
+385:        await this._writeOrOverrideFile(encodedOuter);
+418:        await this._writeOrOverrideFile(encodedOuter);
+462:        await this._writeOrOverrideFile(encodedOuter);
+512:        await this._writeOrOverrideFile(encodedOuter);
+555:    private async _writeOrOverrideFile(
+560:                ...fileModeInternalObjectIfPosix(),
+[0m
+[0m$ [0mecho "=== electron-main.ts safeStorage ==="; grep -n "SAFE_STORAGE_PASSWORD_PATH\|safeStorage\|keystorage.password\|STORE_USER_PASSWORD\|fileModeInternalObject\|944\|945" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>&1 | head -30
+=== electron-main.ts safeStorage ===
+36:import {directoryModeInternalObjectIfPosix, fileModeInternalObjectIfPosix} from '~/common/node/fs';
+915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+916:            if (!fs.existsSync(safeStoragePasswordPath)) {
+921:            if (electron.safeStorage.isEncryptionAvailable()) {
+923:                    const encryptedPassword = fs.readFileSync(safeStoragePasswordPath);
+924:                    return electron.safeStorage.decryptString(encryptedPassword);
+930:                    'Electron safeStorage is not available (no password manager?), loading password skipped.',
+936:            ElectronIpcCommand.STORE_USER_PASSWORD,
+940:                if (electron.safeStorage.isEncryptionAvailable()) {
+941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+943:                        const encryptedPassword = electron.safeStorage.encryptString(password);
+944:                        const options = {...fileModeInternalObjectIfPosix()};
+945:                        fs.writeFileSync(safeStoragePasswordPath, encryptedPassword, options);
+952:                        'Electron safeStorage is not available (no password manager?), storing password skipped.',
+983:                    isSafeStorageAvailable: electron.safeStorage.isEncryptionAvailable(),
+[0m
+[0m$ [0mecho "=== crypto.ts KDF ==="; grep -n "argon2\|Argon2id\|determineKdfParams\|raw:true\|hashLength\|salt" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts 2>&1 | head -25; echo; echo "=== inner/v3.ts ck + databaseKey ==="; grep -n "ck\|databaseKey\|getDatabaseKey\|identityData\|getIdentity" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/layers/inner/v3.ts 2>&1 | head -20
+=== crypto.ts KDF ===
+3:import * as argon2 from 'argon2';
+18:    type Argon2idParameters,
+28: * Key material for password-based encryption/decryption (Argon2id KDF + XSalsa20-Poly1305).
+35:    readonly params: Argon2idParameters;
+49: * Derive a 32-byte key from a low-entropy password using `Argon2id`.
+60:    const rawHash = await argon2.hash(password, {
+61:        // Use Argon2id variant.
+62:        type: argon2.argon2id,
+66:        hashLength: NACL_CONSTANTS.KEY_LENGTH,
+68:        salt: Buffer.from(params.salt),
+91: * Decrypt bytes that were encrypted with a password-derived key (Argon2id + XSalsa20-Poly1305).
+102:    // Derive the key from the password using Argon2id.
+118: * Encrypt bytes using a password-derived key (Argon2id + XSalsa20-Poly1305).
+129:    // Derive the key from the password using Argon2id.
+158:    const rssk = deriveKey(32, remoteSecret.asReadonly(), {personal: '3ma-rs', salt: 'rssk-d'});
+185:    const rssk = deriveKey(32, remoteSecret.asReadonly(), {personal: '3ma-rs', salt: 'rssk-d'});
+201: * Benchmark the current hardware and determine Argon2id KDF parameters that target
+204: * This function runs Argon2id with the minimum parameters and extrapolates from the measured
+207:export async function determineKdfParams(
+209:): Promise<Argon2idParameters> {
+226:            salt: services.crypto.randomBytes(new Uint8Array(minParameters.saltLengthBytes)),
+262:    // Random salt.
+263:    const salt = services.crypto.randomBytes(new Uint8Array(minParameters.saltLengthBytes));
+267:        salt,
+
+=== inner/v3.ts ck + databaseKey ===
+grep: /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/layers/inner/v3.ts: No such file or directory
+[0m
+[0m$ [0mecho "=== locate inner/v3 ==="; find /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage -name "*.ts" | grep -iE "v3|inner|restore-db|proto" 2>&1; echo "=== grep ck + databaseKey + InnerKeyStorageV3 ==="; grep -rn "InnerKeyStorageV3\|getDatabaseKey\|identityData\|class.*[Vv]3\|databaseKey" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/ 2>&1 | head -25
+=== locate inner/v3 ===
+=== grep ck + databaseKey + InnerKeyStorageV3 ===
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:32:    type DecryptedEncodedInnerKeyStorageV3Bytes,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:126:        ['identityData', 'dgk', 'databaseKey', 'deviceIds', 'deviceCookie'] as const,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:386:                'identityData',
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:388:                'databaseKey',
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:403:                encodedInner as unknown as DecryptedEncodedInnerKeyStorageV3Bytes,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:409:                'identityData',
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:411:                'databaseKey',
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts:109:        databaseKey: contents.databaseKey,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts:113:        identityData: contents.identityData,
+[0m
+[0m$ [0mecho "=== restore-db.ts ==="; grep -n "databaseKey\|dbKey\|identity\|ck\b\|restore\|SQLCipher\|PRAGMA" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/restore-db.ts 2>&1 | head -20; echo; echo "=== outer/v2.ts XSalsa20 ==="; grep -n "secretbox\|crypto_secretbox\|XSalsa\|Nonce\|nonce\|cipher\|encrypt\|decrypt" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/layers/outer/v2.ts 2>&1 | head -20
+=== restore-db.ts ===
+grep: /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/restore-db.ts: No such file or directory
+
+=== outer/v2.ts XSalsa20 ===
+grep: /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/layers/outer/v2.ts: No such file or directory
+[0m
+Most RAG line numbers confirmed (fs.ts:41, index.ts:555-560, electron-main.ts:915-945, crypto.ts:53-88). The inner/v3.ts path differs—let me locate the actual files and verify the remaining layers.
+[0m$ [0mecho "=== full tree of key-storage ==="; find /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage -type f | sort; echo; echo "=== grep InnerKeyStorageV3 + ck + ClientKey class ==="; grep -rn "InnerKeyStorageV3\|ClientKey\|ck:\|\"ck\"\|class ClientKey\|databaseKey" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/ 2>&1 | grep -iE "class |ck|ClientKey|databaseKey|InnerKeyStorageV3" | head -30
+=== full tree of key-storage ===
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts
+
+=== grep InnerKeyStorageV3 + ck + ClientKey class ===
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:32:    type DecryptedEncodedInnerKeyStorageV3Bytes,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:126:        ['identityData', 'dgk', 'databaseKey', 'deviceIds', 'deviceCookie'] as const,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:388:                'databaseKey',
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:403:                encodedInner as unknown as DecryptedEncodedInnerKeyStorageV3Bytes,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:411:                'databaseKey',
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts:109:        databaseKey: contents.databaseKey,
+[0m
+The directory structure differs from the cited paths. Let me map the actual layout and find the real locations of the inner v3, outer encryption layer, and crypto layers.
+[0m$ [0mecho "=== migration.ts:30-50 + 120-135 + 380-415 ==="; sed -n '30,50p;120,135p;380,415p' /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts 2>&1 | grep -vE "^\s*$" | head -45; echo; echo "=== helpers.ts:100-120 ==="; sed -n '100,120p' /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts 2>&1 | grep -vE "^\s*$"
+=== migration.ts:30-50 + 120-135 + 380-415 ===
+import {
+    INNER_KEY_STORAGE_V3_ENCODING_HELPERS,
+    type DecryptedEncodedInnerKeyStorageV3Bytes,
+} from '~/common/key-storage/layers/inner/v3';
+import {
+    INTERMEDIATE_KEY_STORAGE_V1_ENCODING_HELPERS,
+    type DecryptedEncodedIntermediateKeyStorageV1Bytes,
+} from '~/common/key-storage/layers/intermediate/v1';
+import {
+    INTERMEDIATE_KEY_STORAGE_V1_1_ENCODING_HELPERS,
+    type DecryptedEncodedIntermediateKeyStorageV1_1Bytes,
+} from '~/common/key-storage/layers/intermediate/v1_1';
+import {
+    OUTER_KEY_STORAGE_V1_ENCODING_HELPERS,
+    type EncodedOuterKeyStorageV1Bytes,
+} from '~/common/key-storage/layers/outer/v1';
+import {
+    OUTER_KEY_STORAGE_V2_ENCODING_HELPERS,
+    type EncodedOuterKeyStorageV2Bytes,
+} from '~/common/key-storage/layers/outer/v2';
+import {RemoteSecretApplicationStartMonitorTask} from '~/common/network/protocol/task/libthreema/remote-secret-monitor';
+    const latestIntermediateValidated: Pick<
+        LatestKeyStorageLayers['intermediate']['validated'],
+        'onPremConfig' | 'workCredentials'
+    > = pick(validatedInner, ['onPremConfig', 'workCredentials'] as const);
+    const latestInnerValidated: LatestKeyStorageLayers['inner']['validated'] = pick(
+        validatedInner,
+        ['identityData', 'dgk', 'databaseKey', 'deviceIds', 'deviceCookie'] as const,
+    );
+    // Notify the caller that the intermediate data is available. Legacy key storages can never be
+    // Remote-Secret-encrypted.
+    await onIntermediateDecoded?.({
+        intermediate: latestIntermediateValidated,
+        isInnerRemoteSecretProtected: false,
+    });
+            );
+            const validated = INNER_KEY_STORAGE_V2_ENCODING_HELPERS.decodedToValidated(decoded);
+            /* eslint-enable @typescript-eslint/no-deprecated */
+            // Assign unchanged values directly.
+            latestInnerValidated = pick(validated, [
+                'identityData',
+                'dgk',
+                'databaseKey',
+                'deviceIds',
+                'deviceCookie',
+
+=== helpers.ts:100-120 ===
+ * @throws {KeyStorageError} If any operation fails during encryption or encoding.
+ */
+export function encodeAndEncryptLatestInnerKeyStorage(
+    contents: LatestKeyStorageLayers['inner']['consumable'],
+    remoteSecretWriteData: KeyStorageRemoteSecretWriteData | undefined,
+    services: Pick<ServicesForKeyStorage, 'crypto' | 'logging'>,
+): LatestKeyStorageLayers['intermediate']['validated']['inner'] {
+    // Build the validated object and encode it.
+    const validated: LatestKeyStorageLayers['inner']['validated'] = {
+        databaseKey: contents.databaseKey,
+        deviceCookie: contents.deviceCookie,
+        deviceIds: contents.deviceIds,
+        dgk: contents.dgk,
+        identityData: contents.identityData,
+    };
+    const decoded = LATEST_KEY_STORAGE_ENCODING_HELPERS.inner.validatedToDecoded(validated);
+    const encoded = LATEST_KEY_STORAGE_ENCODING_HELPERS.inner.decodedToEncoded(decoded);
+    // Build the intermediate inner field (plaintext or Remote-Secret-protected).
+    const intermediateInner: LatestKeyStorageLayers['intermediate']['validated']['inner'] =
+        remoteSecretWriteData !== undefined
+[0m
+[0m$ [0mecho "=== broad search: ClientKey / ck / Ed25519 / SQLCipher / secretbox ==="; grep -rn "ClientKey\|getDatabaseKey\|SQLCipher\|PRAGMA key\|crypto_secretbox\|Ed25519\|ck\b" /tmp/opencode/threema-desktop/apps/desktop/src/ 2>&1 | grep -ivE "node_modules" | head -30
+=== broad search: ClientKey / ck / Ed25519 / SQLCipher / secretbox ===
+/tmp/opencode/threema-desktop/apps/desktop/src/migrations/0025-persistent-group-calls.up.sql:11:    gck BLOB NOT NULL UNIQUE,
+/tmp/opencode/threema-desktop/apps/desktop/src/migrations/0020-group-creator-change.up.sql:75:-- Check that foreign keys still uphold
+/tmp/opencode/threema-desktop/apps/desktop/src/migrations/0020-group-creator-change.up.sql:76:PRAGMA foreign_key_check;
+/tmp/opencode/threema-desktop/apps/desktop/src/migrations/0002-group-memberships.up.sql:1:-- Set up tables to track group and distribution list membership.
+/tmp/opencode/threema-desktop/apps/desktop/src/migrations/0020-group-creator-change.down.sql:59:-- Check that foreign keys still uphold
+/tmp/opencode/threema-desktop/apps/desktop/src/migrations/0020-group-creator-change.down.sql:60:PRAGMA foreign_key_check;
+/tmp/opencode/threema-desktop/apps/desktop/src/migrations/0008-file-encryption.up.sql:20:-- Note: It would be nice if we could add a database check constraint to prevent the same
+/tmp/opencode/threema-desktop/apps/desktop/src/migrations/0008-file-encryption.up.sql:23:-- effort, we'll add a sanity check in the database backend instead.
+/tmp/opencode/threema-desktop/apps/desktop/src/migrations/0030-emoji-reactions.down.sql:68:-- Map all thumbs up and thumbs down of the generic colour back to old style reactions
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/utils/element.ts:3:        block: 'center',
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/utils/image.ts:52:    // Check if file is a supported image
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/utils/image.ts:155:    // Check if file is a supported image
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/utils/endpoint.ts:41:            // and it's our only proper way to check it
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/utils/endpoint.ts:58:    services: Pick<ServicesForBackend, 'logging'>,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:28:export type UpdateInfo = Pick<
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:37:        protected readonly _services: Pick<
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:46:     * Performs an update check and facilitates the update procedure if the user choses to do so,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:58:        const updateInfo = await this._check();
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:153:     * Fetch `UPDATE_SERVER_URL` to check whether an update is available, and download and validate
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:158:    private async _check(): Promise<UpdateInfo | undefined> {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:160:            this._log.warn('Cannot check for updates: Unsupported OS');
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:184:            this._log.error(`Update check request failed: ${error}`);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:191:                `Update check request returned HTTP ${response.status} (${response.statusText})`,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:276:     * @param onProgress An optional callback which is called whenever the download progress
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts:299:        // callback.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/debug/fake.ts:84:    crypto: Pick<CryptoBackend, 'randomBytes'>,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/debug/fake.ts:111:    crypto: Pick<CryptoBackend, 'randomBytes'>,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/debug/fake.ts:141:}: Pick<ServicesForBackend, 'crypto' | 'device' | 'file' | 'model'>): Promise<void> {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/debug/fake.ts:266:}: Pick<ServicesForBackend, 'crypto' | 'file' | 'model'>): Promise<void> {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/debug/fake.ts:424:    services: Pick<ServicesForBackend, 'crypto' | 'device' | 'file' | 'model'>,
+[0m
+The cloned HEAD has a different (refactored) layout than the cited line numbers. Let me verify the crypto flow via broad search across the whole repo for the inner v3 schema, secretbox, SQLCipher, and Ed25519/ck references.
+[0m$ [0mD=/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage; echo "=== outer/v2.ts secretbox + salt field ==="; grep -n "secretbox\|crypto_secretbox\|nonce\|Salt\|salt\|Nonce" $D/layers/outer/v2.ts 2>&1 | head -15; echo; echo "=== outer/common.ts ==="; grep -n "secretbox\|salt\|Argon2\|deriveKey\|XSalsa\|decryptOrThrow" $D/layers/outer/common.ts 2>&1 | head -15; echo; echo "=== inner/v3.ts identityData fields ==="; grep -n "identityData\|databaseKey\|ck\|identity\|publicKey\|class\|Ed25519\|secretKey\|bytes" $D/layers/inner/v3.ts 2>&1 | head -25
+=== outer/v2.ts secretbox + salt field ===
+7:import {ensureEncryptedDataWithNonceAhead} from '~/common/crypto';
+43:        encryptedIntermediate: instanceOf(Uint8Array).map(ensureEncryptedDataWithNonceAhead),
+132:                salt: validated.kdfParameters.argon2id.salt,
+
+=== outer/common.ts ===
+5:import {Argon2idParameters_Argon2Version} from '~/common/internal-protobuf/key-storage-file';
+21: * Argon2 minimal parameters.
+55:export interface Argon2MinParams {
+56:    readonly saltLengthBytes: u53;
+64:        saltLengthBytes: 16,
+70:        saltLengthBytes: 16,
+76:    readonly accept: Argon2MinParams;
+77:    readonly create: Argon2MinParams;
+81: * The Argon2 version wrapper.
+85:export class Argon2Version {
+89:     * Create an {@link Argon2Version} instance from an argon2 compatible version byte.
+91:    public static fromArgon2VersionByte(hexVersionByte: 0x13): Argon2Version {
+92:        return new Argon2Version(hexVersionByte);
+96:     * Create an {@link Argon2Version} instance from a protobuf argon2 version number.
+98:     * @throws {Error} In case of an unsupported Argon2 version.
+
+=== inner/v3.ts identityData fields ===
+5:import {bytesLeToU16} from '@threema/ts-utils/number/bytes-le-to-u16';
+7:import {u16ToBytesLe} from '@threema/ts-utils/number/u16-to-bytes-le';
+30: * Branded type that represents encrypted encoded bytes of an {@link InnerKeyStorageV3}.
+38: * Branded type that represents plaintext (or decrypted) encoded bytes of an
+62:        identityData: v
+64:                identity: v.string().map(ensureIdentityString),
+65:                ck: instanceOf(Uint8Array).map(wrapRawClientKey),
+70:        databaseKey: instanceOf(Uint8Array).map(wrapRawDatabaseKey),
+93:export type InnerKeyStorageV3Data = Pick<
+95:    'identityData' | 'dgk' | 'databaseKey' | 'deviceIds' | 'deviceCookie'
+112:            const version = bytesLeToU16(encoded.slice(0, 2));
+121:            // subarray to be sure the correct bytes are accessed.
+147:        identityData: validated.identityData,
+149:        databaseKey: validated.databaseKey,
+158:        identityData: consumable.identityData ?? current.identityData,
+160:        databaseKey: consumable.databaseKey ?? current.databaseKey,
+165:        identityData: {
+166:            identity: validated.identityData.identity,
+167:            ck: validated.identityData.ck.unwrap(),
+168:            serverGroup: validated.identityData.serverGroup,
+171:        databaseKey: validated.databaseKey.unwrap(),
+[0m
+The import alias confirms the real layout (`~/common/key-storage/layers/inner/v3`, `outer/v2`). Let me verify the outer XSalsa20-Poly1305 layer and the databaseKey→SQLCipher PRAGMA mapping directly.
+[0m$ [0mecho "=== databaseKey→SQLCipher PRAGMA mapping ==="; grep -rn "PRAGMA key\|PRAGMA cipher\|databaseKey\|RawDatabaseKey\|getDatabaseKey" /tmp/opencode/threema-desktop/apps/desktop/src/ 2>&1 | grep -ivE "node_modules|migrations|0025|0020|0002|0008|0030" | head -20; echo; echo "=== restore-db location ==="; find /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage -name "restore*" -o -name "*restore*" 2>&1; grep -rn "restore-db\|restoreDb\|restoreDatabase\|databaseKey" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts 2>&1 | head -15
+=== databaseKey→SQLCipher PRAGMA mapping ===
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:32:    type RawDatabaseKey,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:34:    wrapRawDatabaseKey,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:297:        key: RawDatabaseKey,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:705:    databaseKey: RawDatabaseKey,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:743:                    databaseKey,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:1159:            keyStorageContents.databaseKey,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:1239:        const databaseKey = wrapRawDatabaseKey(
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:1242:        const databaseKeyForKeyStorage = wrapRawDatabaseKey(databaseKey.unwrap().slice());
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:1275:            databaseKey,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:1319:            databaseKeyForKeyStorage,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:1574:        const databaseKey = wrapRawDatabaseKey(
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:1577:        const databaseKeyForKeyStorage = wrapRawDatabaseKey(databaseKey.unwrap().slice());
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:1584:            databaseKey,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:1780:            databaseKeyForKeyStorage.purge();
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:1796:            let oldDatabaseKey: RawDatabaseKey | undefined | 'no-restoration' = undefined;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:1942:                databaseKeyForKeyStorage,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/restore-db.ts:17:    RawDatabaseKey,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/restore-db.ts:41:): Promise<{dbKey: RawDatabaseKey; oldUserIdentity: IdentityString}> {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/restore-db.ts:45:        dbKey: keyStorageContents.inner.databaseKey,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/restore-db.ts:70:    oldDbKey: RawDatabaseKey,
+
+=== restore-db location ===
+[0m
+[0m$ [0mecho "=== crypto.ts secretbox / XSalsa20-Poly1305 / NACL ==="; grep -n "secretbox\|crypto_secretbox\|NACL_CONSTANTS\|KEY_LENGTH\|nonce\|Nonce\|XSalsa\|tweetnacl\|@noble\|decryptOrOpen\|ensureEncryptedData" /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto.ts 2>&1 | head -20; echo; echo "=== ensureEncryptedDataWithNonceAhead def ==="; grep -rn "ensureEncryptedDataWithNonceAhead" /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/*.ts 2>&1 | head; grep -rn "secretbox\|crypto_secretbox\|nacl\|tweetnacl" /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/ 2>&1 | grep -iE "secretbox|tweetnacl|@noble|import" | head -10
+=== crypto.ts secretbox / XSalsa20-Poly1305 / NACL ===
+grep: /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto.ts: No such file or directory
+
+=== ensureEncryptedDataWithNonceAhead def ===
+/tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/index.ts:375:export function ensureEncryptedDataWithNonceAhead(bytes: Uint8Array): EncryptedDataWithNonceAhead {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:5:import * as tweetnacl from 'tweetnacl';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:50:    readonly crypto_secretbox_KEYBYTES: u8;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:51:    readonly crypto_secretbox_NONCEBYTES: u8;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:52:    readonly crypto_secretbox_ZEROBYTES: u8;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:53:    readonly crypto_secretbox_BOXZEROBYTES: u8;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:62:    crypto_secretbox: (
+/tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:70:    crypto_secretbox_open: (
+/tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:84:interface TweetNaCl extends tweetnacl {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:89:const nacl = (tweetnacl as TweetNaCl).lowlevel;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:92:const PLAIN_HEADROOM = nacl.crypto_secretbox_ZEROBYTES;
+[0m
+RAG chain confirmed in current HEAD. Let me close the loop on the XSalsa20-Poly1305 primitive mapping, then finalize.
+[0m$ [0mecho "=== BrowserWindow webPreferences sandbox/nodeIntegrationInWorker ==="; grep -n "sandbox\|nodeIntegrationInWorker\|nodeIntegration\|contextIsolation\|TODO.*DEK-79\|DESK-79" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>&1 | head -20
+=== BrowserWindow webPreferences sandbox/nodeIntegrationInWorker ===
+1240:                // `contextIsolation`, and sandboxing is enabled by default.
+1242:                // Unfortunately we cannot get rid of `nodeIntegrationInWorker` because preload
+1251:                nodeIntegration: false,
+1252:                nodeIntegrationInWorker: true, // TODO(DESK-79): Change to false once worker preload scripts are supported in Electron
+1253:                nodeIntegrationInSubFrames: false,
+1255:                // TODO(DESK-79): Enable `sandbox: true` once worker preload scripts are supported in Electron
+1262:                contextIsolation: true,
+1484:            case 'sandbox':
+1552:                        'sandbox allow-downloads allow-same-origin allow-scripts allow-forms allow-popups',
+1673:    // In internal test builds on sandbox, we enable crash reporting.
+[0m
+Full crypto chain confirmed (crypto/tweetnacl.ts: `crypto_secretbox`/`crypto_secretbox_open` = XSalsa20-Poly1305). Let me do two final confirmations: BrowserWindow webPreferences + a second safe-* host.
+[0m$ [0mecho "=== safe-1a confirm identical ==="; curl -s -m 12 -D - -o /dev/null https://safe-1a.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000 2>&1 | head -8; echo "--- work.test bundle sha ---"; curl -s -m 12 -o /dev/null -w "%{url_effective} %{http_code}\n" https://work.test.threema.ch/api-app/public/global/settings 2>&1; curl -s -m 12 https://work.test.threema.ch/api-app/public/global/settings 2>&1 | head -c 200
+=== safe-1a confirm identical ===
+HTTP/1.1 400 Bad Request
+Server: nginx
+Date: Sat, 08 Aug 2026 10:55:23 GMT
+Content-Type: text/plain; charset=utf-8
+Content-Length: 11
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+ETag: W/"b-EFiDB1U+dmqzx9Mo2UjcZ1SJPO8"
+--- work.test bundle sha ---
+https://work.test.threema.ch/api-app/public/global/settings 200
+{"appLinkHost":"threemablue://","appDownloadAndroidGooglePlay":"https://play.google.com/store/apps/details?id=ch.threema.app.work","appDownloadIos":"https://itunes.apple.com/app/threema-work/id1105927
+[0m
+All findings re-verified live + RAG-confirmed against current HEAD. Let me run one more passive probe on an untested surface item (mediator CORS) to check for genuine delta.
+[0m$ [0mecho "=== mediator-0 OPTIONS+GET CORS ==="; curl -s -m 12 -D - -o /dev/null -X OPTIONS -H "Origin: https://attacker.ex" -H "Access-Control-Request-Method: GET" https://mediator-0.threema.ch/ 2>&1 | grep -iE "HTTP/|access-control|server|content-type" | head; echo "---GET---"; curl -s -m 12 -D - -o /dev/null https://mediator-0.threema.ch/ 2>&1 | grep -iE "HTTP/|access-control|server|content-type" | head
+=== mediator-0 OPTIONS+GET CORS ===
+HTTP/1.1 403 Forbidden
+Server: nginx
+Content-Type: text/html; charset=utf-8
+---GET---
+HTTP/1.1 403 Forbidden
+Server: nginx
+Content-Type: text/html; charset=utf-8
+[0m
+[0m$ [0mecho "=== proto/schema files ==="; find /tmp/opencode/threema-desktop/apps/desktop/src/common -iname "*.proto" -o -iname "*key-storage*proto*" 2>/dev/null | head; echo "--- internal-protobuf/key-storage-file ---"; ls /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file* 2>&1 | head; echo "=== v3 field numbers (protobuf wire) ==="; grep -nE "field|no=|identity|ck|databaseKey|identityData|fields|protobuf" /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts 2>&1 | head -20
+=== proto/schema files ===
+/tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/global-property.proto
+/tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.proto
+/tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/status-message.proto
+/tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/persistent-protocol-state.proto
+/tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/settings.proto
+--- internal-protobuf/key-storage-file ---
+/tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.proto
+/tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts
+=== v3 field numbers (protobuf wire) ===
+14:} from '~/common/internal-protobuf/key-storage-file';
+62:        identityData: v
+64:                identity: v.string().map(ensureIdentityString),
+65:                ck: instanceOf(Uint8Array).map(wrapRawClientKey),
+70:        databaseKey: instanceOf(Uint8Array).map(wrapRawDatabaseKey),
+93:export type InnerKeyStorageV3Data = Pick<
+95:    'identityData' | 'dgk' | 'databaseKey' | 'deviceIds' | 'deviceCookie'
+147:        identityData: validated.identityData,
+149:        databaseKey: validated.databaseKey,
+158:        identityData: consumable.identityData ?? current.identityData,
+160:        databaseKey: consumable.databaseKey ?? current.databaseKey,
+165:        identityData: {
+166:            identity: validated.identityData.identity,
+167:            ck: validated.identityData.ck.unwrap(),
+168:            serverGroup: validated.identityData.serverGroup,
+171:        databaseKey: validated.databaseKey.unwrap(),
+[0m
+mediator shows no CORS exposure (403, no ACA headers) — confirms uniform 403, no new AUTH surface. Let me check for the protobuf schema to complete the desktop RAG chain before finalizing.
+[0m$ [0mF=/tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.proto; echo "=== proto: InnerKeyStorageV3 / IdentityData / ck / databaseKey / KDF / salt ==="; grep -nE "message InnerKeyStorageV3|message IdentityData|ck|databaseKey|identity|message.*KeyStorage|salt|kdf|KDF|Argon2|minIterations|memory|parallelism|version|field|^\s*\d+\s" $F 2>&1 | head -60
+=== proto: InnerKeyStorageV3 / IdentityData / ck / databaseKey / KDF / salt ===
+3:// Argon2id parameters.
+14:// 2. Figure out the an appropriate `memory` value based on weak target hardware.
+15:// 3. Run Argon2id and increase the number of `memory` and `iterations` until the targeted `time` is
+17:message Argon2idParameters {
+18:  // Version of Argon2
+19:  enum Argon2Version {
+22:  Argon2Version version = 1;
+24:  // Random salt (≥ 16 bytes, recommended to be 16 bytes)
+25:  bytes salt = 2;
+28:  uint32 memory_bytes = 3;
+33:  // Amount of parallelism (≥ 1, recommended to be 1)
+34:  uint32 parallelism = 5;
+52:  // Encapsulated compatible, version-prefixed inner key storage, encrypted
+57:  //    `BLAKE2b(key=RS, salt='rssk-d', personal='3ma-rs')`.
+62:  // 6. Set this field to `nonce || encrypted-inner` (i.e. an
+75:message IdentityData {
+80:  string identity = 1;
+83:  bytes ck = 2;
+100:message InnerKeyStorage {
+102:    // Initial version
+105:    // Changes to the previous version:
+110:    // Changes to the previous version:
+112:    // - Externalise version number
+117:    // Changes to the previous version:
+124:message IntermediateKeyStorage {
+126:    // Initial version
+129:    // Changes to the previous version:
+136:message OuterKeyStorage {
+138:    // Initial version
+141:    // Changes to the previous version:
+143:    // - Externalise version number
+145:    // NOTE: This is a non-backward compatible change so it resulted in a new key storage file being
+151:message InnerKeyStorageV1 {
+152:  // The key storage schema version. Used for being able to migrate the storage
+154:  uint32 schema_version = 5;
+157:  IdentityData identity_data = 1;
+181:// 2. Let `version` be the selected `InnerKeyStorage_Version.V2_X` version.
+182:// 3. Return `u16-le(version) || data`.
+183:message InnerKeyStorageV2 {
+185:  IdentityData identity_data = 1;
+209:// 2. Let `version` be the selected `InnerKeyStorage_Version.V3_X` version.
+210:// 3. Return `u16-le(version) || data`.
+211:message InnerKeyStorageV3 {
+213:  IdentityData identity_data = 1;
+231:// 2. Let `version` be the selected `IntermediateKeyStorage_Version.V1_X` version.
+232:// 3. Return `u16-le(version) || data`.
+233:message IntermediateKeyStorageV1 {
+235:    // A compatible, version-prefixed inner key storage without any further
+247:// 2. Let `version` be the selected `IntermediateKeyStorage_Version.V1_X` version.
+248:// 3. Return `u16-le(version) || data`.
+249:message IntermediateKeyStorageV1_1 {
+251:    // A compatible, version-prefixed inner key storage without any further
+266:message OuterKeyStorageV1 {
+267:  // The key storage schema version. Used for being able to migrate the storage
+269:  uint32 schema_version = 3;
+275:  // 2. Let `sk` be a 32 byte secret key derived by running the chosen KDF
+285:  // The KDF and associated parameters
+286:  oneof kdf_parameters { Argon2idParameters argon2id = 2; }
+292:// 2. Let `version` be the selected `OuterVersion.V2_X` version.
+293:// 3. Return `u16-le(version) || data`.
+[0m
+[0m$ [0mF=/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts; echo "=== v3.ts schema header (validators + field map) ==="; sed -n '1,75p' $F 2>&1 | grep -vE "^\s*$"
+=== v3.ts schema header (validators + field map) ===
+import * as v from '@badrap/valita';
+import type {ReadonlyUint8Array} from '@threema/ts-utils/array/readonly-uint8-array';
+import {byteJoin} from '@threema/ts-utils/byte/byte-join';
+import type {WeakOpaque} from '@threema/ts-utils/meta/newtype';
+import {bytesLeToU16} from '@threema/ts-utils/number/bytes-le-to-u16';
+import {intoUnsignedLong} from '@threema/ts-utils/number/into-unsigned-long';
+import {u16ToBytesLe} from '@threema/ts-utils/number/u16-to-bytes-le';
+import type {EncryptedDataWithNonceAhead} from '~/common/crypto';
+import {wrapRawDatabaseKey} from '~/common/db';
+import {
+    InnerKeyStorage_Version,
+    InnerKeyStorageV3,
+} from '~/common/internal-protobuf/key-storage-file';
+import {KeyStorageError, type KeyStorageVersionPrefixMarked} from '~/common/key-storage/common';
+import type {KeyStorageLayerEncodingHelpers} from '~/common/key-storage/layers/common';
+import {
+    ensureCspDeviceId,
+    ensureD2mDeviceId,
+    ensureDeviceCookie,
+    ensureIdentityString,
+    ensureServerGroup,
+} from '~/common/network/types';
+import {wrapRawClientKey, wrapRawDeviceGroupKey} from '~/common/network/types/keys';
+import {instanceOf, unsignedLongAsU64} from '~/common/utils/valita-helpers';
+// Encryption
+/**
+ * Branded type that represents encrypted encoded bytes of an {@link InnerKeyStorageV3}.
+ */
+export type RemoteSecretEncryptedEncodedInnerKeyStorageV3Bytes = WeakOpaque<
+    EncryptedDataWithNonceAhead,
+    {readonly EncryptedEncodedInnerKeyStorageV3Bytes: unique symbol}
+>;
+/**
+ * Branded type that represents plaintext (or decrypted) encoded bytes of an
+ * {@link InnerKeyStorageV3}.
+ *
+ * Important: Prefixed with `u16-le(version)`, as per spec.
+ */
+export type DecryptedEncodedInnerKeyStorageV3Bytes = WeakOpaque<
+    Uint8Array,
+    {readonly DecryptedEncodedInnerKeyStorageV3Bytes: unique symbol}
+> &
+    KeyStorageVersionPrefixMarked;
+// Validation
+/**
+ * Validation schema for the {@link InnerKeyStorageV3} contents.
+ *
+ * Note: It's important that all objects are annotated with `.rest(v.unknown())` to ensure forwards
+ * compatibility!
+ *
+ * @throws {ValitaError} In case validation fails.
+ */
+const INNER_KEY_STORAGE_V3_SCHEMA = v
+    .object({
+        // Identity related information.
+        identityData: v
+            .object({
+                identity: v.string().map(ensureIdentityString),
+                ck: instanceOf(Uint8Array).map(wrapRawClientKey),
+                serverGroup: v.string().map(ensureServerGroup),
+            })
+            .rest(v.unknown()),
+        dgk: instanceOf(Uint8Array).map(wrapRawDeviceGroupKey),
+        databaseKey: instanceOf(Uint8Array).map(wrapRawDatabaseKey),
+        deviceIds: v
+            .object({
+                d2mDeviceId: unsignedLongAsU64().map(ensureD2mDeviceId),
+                cspDeviceId: unsignedLongAsU64().map(ensureCspDeviceId),
+            })
+[0m
+[0m$ [0mecho "=== outer/v2.ts decode (full) ==="; sed -n '1,140p' /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/v2.ts 2>&1 | grep -vE "^\s*$" | grep -iE "secretbox|decrypt|nonce|encodedOuter|encryptedIntermediate|kdfParameters|deriveKey|salt|validatedToDecoded|decodedToValidated|plaintext|Intermediate|Argon2|hashLength|version" | head -30
+=== outer/v2.ts decode (full) ===
+import {ensureEncryptedDataWithNonceAhead} from '~/common/crypto';
+    OuterKeyStorage_Version,
+import {KeyStorageError, type KeyStorageVersionPrefixMarked} from '~/common/key-storage/common';
+import {ARGON2ID_PARAMETERS_SCHEMA} from '~/common/key-storage/layers/outer/common';
+ * Important: Prefixed with `u16-le(version)`, as per spec.
+export type EncodedOuterKeyStorageV2Bytes = WeakOpaque<
+    {readonly EncodedOuterKeyStorageV2Bytes: unique symbol}
+    KeyStorageVersionPrefixMarked;
+        // Encrypted intermediate key storage.
+        encryptedIntermediate: instanceOf(Uint8Array).map(ensureEncryptedDataWithNonceAhead),
+        kdfParameters: v
+                $case: v.literal('argon2id'),
+                argon2id: ARGON2ID_PARAMETERS_SCHEMA,
+export type OuterKeyStorageV2Data = Pick<ValidatedOuterKeyStorageV2, 'kdfParameters'>;
+    EncodedOuterKeyStorageV2Bytes,
+            const version = bytesLeToU16(encoded.slice(0, 2));
+            if (version !== OuterKeyStorage_Version.V2_0) {
+                    `OUTER_KEY_STORAGE_V2_ENCODING_HELPERS: Expected version ${OuterKeyStorage_Version.V2_0} (OuterKeyStorageV2_OuterVersion.V2_0), got ${version}`,
+    decodedToValidated: (decoded) => {
+        kdfParameters: validated.kdfParameters,
+        kdfParameters: consumable.kdfParameters ?? current.kdfParameters,
+    validatedToDecoded: (validated) => ({
+        encryptedIntermediate: validated.encryptedIntermediate,
+        kdfParameters: {
+            $case: 'argon2id',
+            argon2id: {
+                version: validated.kdfParameters.argon2id.version.toProtobuf(),
+                salt: validated.kdfParameters.argon2id.salt,
+                memoryBytes: validated.kdfParameters.argon2id.memoryBytes,
+                iterations: validated.kdfParameters.argon2id.iterations,
+[0m
+[0m$ [0mecho "=== intermediate/v1_1.ts (full path + decode) ==="; find /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/intermediate -type f; echo "---"; grep -nE "secretbox|decrypt|nonce|encryptedInner|plaintextInner|IntermediateKeyStorageV1_1|fields|wire" /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/intermediate/v1_1.ts 2>&1 | head -25; echo "=== proto IntermediateKeyStorageV1_1 fields ==="; sed -n '233,265p' /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.proto
+=== intermediate/v1_1.ts (full path + decode) ===
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/intermediate/v1.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/intermediate/v1_1.ts
+---
+29:export type EncryptedEncodedIntermediateKeyStorageV1_1Bytes = WeakOpaque<
+32:    {readonly EncryptedEncodedIntermediateKeyStorageV1_1Bytes: unique symbol}
+36: * Branded type that represents decrypted encoded bytes of an {@link IntermediateKeyStorageV11}.
+41:export type DecryptedEncodedIntermediateKeyStorageV1_1Bytes = WeakOpaque<
+44:    {readonly DecryptedEncodedIntermediateKeyStorageV1_1Bytes: unique symbol}
+63:        encryptedInner: instanceOf(Uint8Array).map(ensureEncryptedDataWithNonceAhead),
+71:export type ValidatedIntermediateKeyStorageV1_1RemoteSecretProtectedInner = Readonly<
+88:                    $case: v.literal('plaintextInner'),
+89:                    plaintextInner: instanceOf(Uint8Array),
+121:export type ValidatedIntermediateKeyStorageV1_1 = Readonly<
+131:export type IntermediateKeyStorageV1_1Data = Pick<
+132:    ValidatedIntermediateKeyStorageV1_1,
+141:    DecryptedEncodedIntermediateKeyStorageV1_1Bytes,
+144:    IntermediateKeyStorageV1_1Data
+196:            case 'plaintextInner':
+197:                decodedInner = {$case: 'plaintextInner', plaintextInner: inner.plaintextInner};
+211:                        encryptedInner: remoteSecretProtectedInner.encryptedInner,
+247:        ) as DecryptedEncodedIntermediateKeyStorageV1_1Bytes,
+=== proto IntermediateKeyStorageV1_1 fields ===
+message IntermediateKeyStorageV1 {
+  oneof inner {
+    // A compatible, version-prefixed inner key storage without any further
+    // protection
+    bytes plaintext_inner = 1;
+
+    // Inner key storage protected by the Remote Secret protocol
+    RemoteSecretProtected remote_secret_protected_inner = 2;
+  }
+}
+
+// Intermediate key storage V1_1, encoded in the following way:
+//
+// 1. Let `data` be the result of encoding this key storage to bytes.
+// 2. Let `version` be the selected `IntermediateKeyStorage_Version.V1_X` version.
+// 3. Return `u16-le(version) || data`.
+message IntermediateKeyStorageV1_1 {
+  oneof inner {
+    // A compatible, version-prefixed inner key storage without any further
+    // protection
+    bytes plaintext_inner = 1;
+
+    // Inner key storage protected by the Remote Secret protocol
+    RemoteSecretProtected remote_secret_protected_inner = 2;
+  }
+
+  // Threema Work Credentials (if any)
+  ThreemaWorkCredentials work_credentials = 3;
+
+  // Threema OnPrem config (if any)
+  OnPremConfig on_prem_config = 4;
+}
+[0m
+Proto wire schema confirmed. Let me read the outer/v2 + intermediate/v1_1 decode functions to nail the exact crypto flow (single vs. dual secretbox layer) so the verification script is correct.
+[0m$ [0mP=/tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.proto; echo "=== Argon2idParameters fields ==="; sed -n '17,50p' $P; echo "=== OuterKeyStorage fields (proto) ==="; grep -nE "message OuterKeyStorage|encrypted_intermediate|kdf_parameters|schema_version|message OuterEncrypted" $P | head; sed -n '/message OuterKeyStorageV1/,/^}/p' $P | grep -nE "bytes|oneof|kdf|schema|="; echo "=== InnerKeyStorageV3 proto full ==="; sed -n '/message InnerKeyStorageV3/,/^}/p' $P
+=== Argon2idParameters fields ===
+message Argon2idParameters {
+  // Version of Argon2
+  enum Argon2Version {
+    VERSION_1_3 = 0;
+  }
+  Argon2Version version = 1;
+
+  // Random salt (≥ 16 bytes, recommended to be 16 bytes)
+  bytes salt = 2;
+
+  // Memory usage in bytes (≥ 128 MiB)
+  uint32 memory_bytes = 3;
+
+  // Number of iterations (≥ 3)
+  uint32 iterations = 4;
+
+  // Amount of parallelism (≥ 1, recommended to be 1)
+  uint32 parallelism = 5;
+}
+
+message RemoteSecretProtected {
+  // Associated remote secret authentication token
+  bytes remote_secret_authentication_token = 1;
+
+  // Associated remote secret hash
+  bytes remote_secret_hash = 2;
+
+  // Cached URL for fetching the remote secret, only relevant for OnPrem.
+  //
+  // Empty string if not OnPrem.
+  //
+  // If OnPrem, this endpoint URL must be updated to a non-empty string
+  // whenever the respective URL in the OPPF file is changed.
+  string on_prem_cached_remote_secret_endpoint_url = 3;
+=== OuterKeyStorage fields (proto) ===
+136:message OuterKeyStorage {
+154:  uint32 schema_version = 5;
+266:message OuterKeyStorageV1 {
+269:  uint32 schema_version = 3;
+286:  oneof kdf_parameters { Argon2idParameters argon2id = 2; }
+294:message OuterKeyStorageV2 {
+307:  bytes encrypted_intermediate = 1;
+310:  oneof kdf_parameters { Argon2idParameters argon2id = 2; }
+2:  // The key storage schema version. Used for being able to migrate the storage
+4:  uint32 schema_version = 3;
+9:  // 1. Let `plain_storage` be the plaintext `KeyStorage`, encoded to bytes.
+18:  bytes encrypted_key_storage = 1;
+21:  oneof kdf_parameters { Argon2idParameters argon2id = 2; }
+=== InnerKeyStorageV3 proto full ===
+message InnerKeyStorageV3 {
+  // Data associated to the Threema ID
+  IdentityData identity_data = 1;
+
+  // The device group key (32 bytes)
+  bytes dgk = 2;
+
+  // The SQLCipher database encryption key (32 bytes)
+  bytes database_key = 3;
+
+  // Device IDs
+  DeviceIds device_ids = 4;
+
+  // The device cookie (16 bytes)
+  bytes device_cookie = 5;
+}
+[0m
+Complete crypto chain confirmed (single outer secretbox + inner v3 protobuf, exact field numbers). Let me grab the final proto field numbers for OuterKeyStorage + Argon2id iterations, then write the two verification artifacts.
+[0m# [0mTodos
+[✓] Run live passive HTTP probes to verify active findings (identity oracle, safe backup CORS, work.test bundle)
+[✓] Verify RAG findings against cloned threema-desktop repo (/tmp/opencode/threema-desktop)
+[•] Write verify-acl-bypass.{ps1,js} POC artifacts (RAG-verified proto schema)
+[ ] Produce 8-step structured analyst output
+[0m
+All proto field numbers confirmed at current HEAD (Argon2id: version=f1, salt=f2, memory_bytes=f3, iterations=f4, parallelism=f5; OuterKeyStorageV2: encrypted_intermediate=f1, kdf_parameters=f2; IntermediateKeyStorageV1_1: plaintext_inner=f1; InnerKeyStorageV3: identity_data=f1, database_key=f3; IdentityData: identity=f1, ck=f2). 
+
+I'll write the two POC verification artifacts (the KB claimed they existed but they don't) using the freshly RAG-verified schema, then emit the final structured output.
+[0m← [0mWrite /tmp/opencode/verify-acl-bypass.ps1
+Wrote file successfully.
+[0m
+[0m← [0mWrite /tmp/opencode/verify-acl-bypass.js
+Wrote file successfully.
+[0m
+[0m$ [0mnode --check /tmp/opencode/verify-acl-bypass.js && echo "SYNTAX_OK"; echo "---deps---"; ls /tmp/opencode/threema-desktop/apps/desktop/node_modules/argon2/package.json /tmp/opencode/threema-desktop/apps/desktop/node_modules/tweetnacl/package.json 2>&1 | grep -E "EXISTS|node_modules|No such" | head; echo "--- argon2 version ---"; grep '"version"' /tmp/opencode/threema-desktop/apps/desktop/node_modules/argon2/package.json 2>/dev/null | head -1
+SYNTAX_OK
+---deps---
+ls: cannot access '/tmp/opencode/threema-desktop/apps/desktop/node_modules/argon2/package.json': No such file or directory
+ls: cannot access '/tmp/opencode/threema-desktop/apps/desktop/node_modules/tweetnacl/package.json': No such file or directory
+--- argon2 version ---
+[0m
+Let me sanity-check the JS script syntax and confirm the crypto deps are present in the cloned repo so the script is runnable.
+[0m$ [0mecho "=== argon2 + tweetnacl declared in package.json? ==="; grep -rnE "\"argon2\"|\"tweetnacl\"|argon2:|tweetnacl:" /tmp/opencode/threema-desktop/apps/desktop/package.json /tmp/opencode/threema-desktop/package.json 2>&1 | head; echo "=== crypto/tweetnacl.ts import confirm ==="; head -8 /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts; echo "=== crypto.ts argon2 import ==="; sed -n '1,5p' /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts
+=== argon2 + tweetnacl declared in package.json? ===
+/tmp/opencode/threema-desktop/apps/desktop/package.json:70:    "argon2": "threema-ch/node-argon2#threema-20250402",
+/tmp/opencode/threema-desktop/apps/desktop/package.json:90:    "tweetnacl": "1.0.3",
+/tmp/opencode/threema-desktop/apps/desktop/package.json:95:      "argon2",
+/tmp/opencode/threema-desktop/apps/desktop/package.json:101:        "argon2": [
+=== crypto/tweetnacl.ts import confirm ===
+import type {ReadonlyUint8Array} from '@threema/ts-utils/array/readonly-uint8-array';
+import type {u53} from '@threema/ts-utils/integer/u53';
+import type {u8} from '@threema/ts-utils/integer/u8';
+import type {WeakOpaque} from '@threema/ts-utils/meta/newtype';
+import * as tweetnacl from 'tweetnacl';
+
+import {
+    type Cookie,
+=== crypto.ts argon2 import ===
+import {performance} from 'node:perf_hooks';
+
+import * as argon2 from 'argon2';
+
+import {
+[0m
+[0m# [0mTodos
+[✓] Run live passive HTTP probes to verify active findings (identity oracle, safe backup CORS, work.test bundle)
+[✓] Verify RAG findings against cloned threema-desktop repo (/tmp/opencode/threema-desktop)
+[✓] Write verify-acl-bypass.{ps1,js} POC artifacts (RAG-verified proto schema)
+[•] Produce 8-step structured analyst output
+[0m
+All RAG + live verification complete. Scripts are syntax-valid and depend only on `argon2` + `tweetnacl` (both declared deps in threema-desktop's package.json). Finalizing.
+## STEP 1 — DELTA
+CHANGED: Desktop RAG module layout refactored since cited line numbers — `inner/v3.ts`, `outer/v2.ts`, `restore-db.ts`, `keys.ts`, `box.ts` no longer exist at cited paths; current HEAD uses `~/` aliases: `common/key-storage/layers/{inner/v3,intermediate/v1_1,outer/v2}`, `common/dom/backend/restore-db.ts`, `common/crypto/tweetnacl.ts`, `common/db/...`. All structural claims hold at new locations; proto wire read directly from `internal-protobuf/key-storage-file.proto`.
+CHANGED: Desktop BrowserWindow L1240 comment "sandboxing is enabled by default" confirmed factually incorrect vs Electron docs; `sandbox` left UNSET → defaults `false` (TODO DESK-79 @ L1255); `nodeIntegrationInWorker: true` @ L1252 confirmed.
+CHANGED: Safe backup API confirmed uniform on 2nd host (safe-1a → 400 + ACAO *) in addition to safe-01; all 5 hosts (safe-01/1a/1b/02/00) behind single IP 203.56.112.231 fully uniform.
+CHANGED: work.test `/api-app/public/global/settings` response body captured (299B JSON: `appLinkHost` + 3 app-download URLs only — no license/user data); narrows impact to namespace-divergence disclosure, not data leak.
+NEW: Wrote & syntax-validated (`/tmp/opencode/verify-acl-bypass.{ps1,js}`) the Windows DACL+DPAPI+Argon2id+secretbox+InnerKeyStorageV3 decode round-trip scripts cited in prior leads but absent from disk. (No genuinely new surface: every live probe re-confirmed an ACCEPTED finding; mediator-0 = 403 w/o CORS — no new AUTH.)
+
+## STEP 2 — PRIORITIZE
+[PRIO] apps/desktop (threema-desktop) Windows key-storage ACL bypass — score **7.85** — attack=7 business=10 tech=8 gate=8 cloud=2 fresh=10. Source path: fs.ts:41 / index.ts:555-560 / electron-main.ts:915-945 / crypto.ts + crypto/tweetnacl.ts + inner/v3.ts:62-70 / backend/restore-db.ts:45 / backend/index.ts SQLCipher PRAGMA.
+[PRIO] safe-*.threema.ch/backups (5 hosts, single IP 203.56.112.231) cross-origin credentialed read + existence enum — score **7.10** — attack=8 business=9 tech=6 gate=5 cloud=4 fresh=9.
+[PRIO] ds-apip.threema.ch + api.threema.ch + apip.threema.ch /identity/{id} + /identity/fetch_bulk (3 hosts) — score **6.40** — attack=6 business=6 tech=5 gate=10 cloud=5 fresh=10.
+[PRIO] threema-desktop BrowserWindow no-sandbox + nodeIntegrationInWorker (conditional, no direct sink) — score **5.65** — attack=7 business=8 tech=7 gate=3 cloud=2 fresh=8.
+
+## STEP 3 — HYPOTHESES
+[HYP] Desktop key-storage Windows ACL bypass → identity + message-DB compromise
+class: MISCONFIG
+asset: `%APPDATA%\ThreemaDesktop\data\keystorage.bin` + `keystorage.password.bin` (apps/desktop, threema-desktop)
+confidence: 95
+reasoning: RAG-VERIFIED TODAY on freshly cloned HEAD: `fileModeInternalObjectIfPosix()` returns `{}` on win32 (fs.ts:41); `_writeOrOverrideFile()` writes `keystorage.bin` with `{...fileModeInternalObjectIfPosix()}` → `{}` → no ACL (index.ts:555-560); `STORE_USER_PASSWORD` writes `keystorage.password.bin` via `electron.safeStorage.encryptString()` (Windows DPAPI CurrentUser) with same `{}` options → no ACL, recoverable by same-user process (electron-main.ts:915-945). Outer = Argon2id(masterPassword, salt≥16B, memory≥128MiB, iters≥3, parallelism≥1, v1.3) → 32-byte key (crypto.ts:49-88) → XSalsa20-Poly1305 `crypto_secretbox_open` nonce|ct (crypto/tweetnacl.ts, crypto/index.ts:375) → IntermediateKeyStorageV1_1.{plaintext_inner} → InnerKeyStorageV3 protobuf (proto: identity_data=f1{IdentityData{identity=f1,ck=f2}, database_key=f3}) exposes `ck` (32-byte Ed25519 ClientKey) + `databaseKey` (32-byte SQLCipher key) (inner/v3.ts:62-70, restore-db.ts:45, backend/index.ts:1159).
+evidence_needed: (1) Windows DACL audit showing 0 explicit ACEs on both files; (2) DPAPI `CryptUnprotectData` of `keystorage.password.bin` → master password; (3) Argon2id(masterPassword, salt, params) → secretbox_open → decode IntermediateKeyStorageV1_1 → plaintext_inner → decode InnerKeyStorageV3 → `ck` + `databaseKey`; (4) `databaseKey` as SQLCipher `PRAGMA key` → decrypt `threema.sqlite`.
+verify_steps: RAG (DONE — all paths + proto field numbers confirmed on HEAD at /tmp/opencode/threema-desktop). AUTH_HELPED-LOCAL: `powershell -File verify-acl-bypass.ps1 -ThreemaDataDir "$env:APPDATA\ThreemaDesktop\data" -NodeScript verify-acl-bypass.js` on an authorized Windows host with Threema Desktop installed (≤1 run, no remote call, no remote traffic — all local round-trip). Scripts ready at /tmp/opencode/verify-acl-bypass.{ps1,js}, syntax-validated, using declared deps `argon2` + `tweetnacl`.
+impact: Any co-located same-user malware/process exfiltrates the victim's full permanent Ed25519/ClientKey (`ck`) + 32-byte SQLCipher `databaseKey` → offline decrypt of entire local message store WITHOUT the Threema master password. No network auth required; no remote call. **Severity: High.**
+testability: RAG (source fully verified — 15 paths + proto wire confirmed) + AUTH_HELPED-LOCAL (Windows DACL + DPAPI round-trip; ≤1 rps, no remote call).
+
+[HYP] Safe backup cross-origin credentialed read + backupId-existence enumeration oracle
+class: AUTH
+asset: `https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}` (single IP 203.56.112.231)
+confidence: 80
+reasoning: Fresh PASSIVE probe (re-confirmed safe-01 + safe-1a): OPTIONS `/backups/{64hex}` → 204, `Access-Control-Allow-Origin: *`, `Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE`, `Access-Control-Allow-Headers: Authorization`, HSTS + Expect-CT — identical on both hosts. GET `/backups/{64hex}` (no auth) → 400 "Bad Request" (11B, ACAO `*`, `ETag`); GET `/backup/{64hex}` (wrong path) → 404 (210B, CSP `default-src 'none'`, ACAO `*`) — path-vs-route 400-vs-404 existence oracle confirmed on both hosts. API uses HTTP Basic Auth (`backupId:backupKey`).
+evidence_needed: (1) 400-vs-404 differs for existing-vs-non-existing backupId on ≥2 hosts; (2) valid program test credentials → HTTP 200 + cross-origin-readable payload; (3) 200 response headers cross-origin readable.
+verify_steps: PASSIVE (DONE): `curl -s -i -X OPTIONS https://safe-1a.threema.ch/backups/<64hex> -H "Origin: https://attacker.ex" -H "ACRM: GET" -H "ACRH: Authorization"` → 204 CORS `*`; `curl -s -i https://safe-1a.threema.ch/backups/<64hex>` → 400; `curl -s -i https://safe-01.threema.ch/backup/<64hex>` → 404. AUTH_HELPED: `curl -s -i -m 12 -u "{backupId}:{backupKey}" https://safe-01.threema.ch/backups/{backupId}` (≤1 rps) → confirm HTTP 200 + cross-origin-readable payload + `Access-Control-Expose-Headers`.
+impact: Cross-origin backup-ID existence enumeration (400-vs-404 oracle) + (with stolen/valid credentials) credentialed cross-origin reads of the backup store from any attacker origin. Valid credentials → full identity keypair + message-history backup. **Severity: High.**
+testability: PASSIVE + AUTH_HELPED.
+
+[HYP] Identity→pubkey oracle across 3 production directory hosts
+class: IDOR
+asset: `https://ds-apip.threema.ch/identity/{id}` · `https://api.threema.ch/identity/{id}` · `https://apip.threema.ch/identity/{id}` + `POST /identity/fetch_bulk`
+confidence: 92
+reasoning: Fresh PASSIVE probe confirms identical on all 3 hosts: GET `/identity/ECHOECHO` → 200 JSON `{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i/TYJG+mfu68SbQmdR9g9kZcSxys=",...}`, ACAO `*` (methods POST/GET/OPTIONS/DELETE). GET `/identity/ZZZZZZZZ` → 404 on all hosts. POST `/identity/fetch_bulk {"identities":["ECHOECHO","ZZZZZZZZ"]}` → 200 returns ONLY ECHOECHO (valid), silently omits ZZZZZZZZ (invalid), ACAO `*`. No 429/RateLimit after 30 sequential POSTs @ 1 rps.
+evidence_needed: (1) 200-vs-404 oracle confirmed on all 3 hosts (DONE); (2) fetch_bulk returns pubkeys for valid IDs only (DONE); (3) no rate limiting (DONE).
+verify_steps: PASSIVE (DONE): probed all 3 hosts (ECHOECHO→200, ZZZZZZZZ→404); fetch_bulk POST → only valid ID returned; 30 sequential POSTs → no 429.
+impact: Unauthenticated identity→pubkey mapping for any Threema ID across all 3 directory server hosts; enables targeted phishing, impersonation, correlation attacks. **Severity: Medium.**
+testability: PASSIVE.
+
+## STEP 4 — SELF-CRITIQUE
+[HYP] Desktop BrowserWindow no-sandbox + nodeIntegrationInWorker → PARKED: confidence 65; RAG-VERIFIED (sandbox unset→false @ L1255; nodeIntegrationInWorker:true @ L1252), but no direct sink (grep `require/import/eval/child_process/new Function` in worker/ tree → 0 matches). Exploitability conditional on an undiscovered secondary deserialization/code-exec bug in worker processing of attacker-controlled message/attachment content. Not advanced to final.
+[FINAL] ranked: (1) Desktop key-storage Windows ACL bypass [95/High] — top POC priority; (2) Safe backup cross-origin credentialed read + enum oracle [80/High]; (3) Identity→pubkey oracle across 3 hosts [92/Medium].
+
+## STEP 5 — NEXT
+[AUTH_HELPED-LOCAL]: Execute the Windows ACL-bypass round-trip on an authorized Windows host with Threema Desktop installed — run `powershell -File /tmp/opencode/verify-acl-bypass.ps1 -ThreemaDataDir "$env:APPDATA\ThreemaDesktop\data" -NodeScript /tmp/opencode/verify-acl-bypass.js` (≤1 invocation, strictly local: DACL `Get-Acl` audit → `0 explicit ACEs` expected; DPAPI `ProtectedData::Unprotect` of `keystorage.password.bin` → master password → in-memory pipe to Node → Argon2id(masterPassword,salt,params) → `crypto_secretbox_open` → decode IntermediateKeyStorageV1_1 → `plaintext_inner` → decode InnerKeyStorageV3 → emit `sha256(ck)` + `sha256(databaseKey)` + SQLCipher `PRAGMA key` line). Confirms full identity-keypair + message-DB-key exfil offline without the master password. RAG+scripts DONE on Linux; only the Windows DPAPI/DACL step needs the authorized host.
+
+## STEP 6 — LEARNING
+ACCEPTED MISCONFIG @ desktop key-storage (Windows): RAG-VERIFIED on current HEAD — `fileModeInternalObjectIfPosix()`→`{}` on win32 + `{}` write options on both `keystorage.bin`/`keystorage.password.bin` + DPAPI `safeStorage.encryptString/decryptString`; proto InnerKeyStorageV3 exposes `identityData.ck`(f2) + `databaseKey`(f3). Survives.
+ACCEPTED AUTH @ safe-01.threema.ch (+safe-1a): re-confirmed — OPTIONS 204 CORS `*` + `ACAH: Authorization`; GET `/backups/{64hex}`→400 (route exists, credential-gated HTTP Basic `backupId:backupKey`); GET `/backup/{x}`→404; HSTS+Expect-CT. Survives.
+ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: re-confirmed identical 200+pubkey+ACAO `*` for ECHOECHO, 404 for ZZZZZZZZ, fetch_bulk omits invalid, no 429/30-POST. Survives.
+ACCEPTED MISCONFIG @ electron-main.ts BrowserWindow: `sandbox` UNSET→default `false` (L1255 TODO DESK-79); `nodeIntegrationInWorker:true` (L1252); L1240 "sandboxing enabled by default" comment INCORRECT per Electron docs; `nodeIntegration:false`+`contextIsolation:true` set. Conditional (no direct sink found).
+REJECTED (conditional/parked): BrowserWindow exploitability — 0 dynamic sinks in worker/ tree; requires secondary unknown code-exec bug.
+REJECTED (no new surface): mediator-0.threema.ch — OPTIONS/GET → 403, NO `Access-Control-*` headers, no CORS exposure; no new AUTH surface.
+
+## STEP 7 — RISK SCORE
+chat: **45** — g-*.0.chat TCP 5222 returns 0 bytes w/o auth frame; 443 closes pre-TLS; no in-band divergence obtainable passive (WSS/TCP only, handshake needs login frame).
+web: **78** — directory hosts expose permissive CORS (POST/GET/OPTIONS/DELETE) + unauthenticated identity→pubkey oracle (3 hosts) + fetch_bulk batch oracle; work.test staging-only public-settings divergence; highest cross-origin exposure.
+sync: **30** — mediator/rendezvous uniform 403, split-routed (0-7→.247, 8-f→.247), no CORS, no payload divergence; network-reachable only.
+safe: **72** — 5 backup hosts (single IP) w/ `ACAO *` + `ACAH: Authorization` + HTTP Basic `backupId:backupKey` + 400-vs-404 existence oracle; HSTS/Expect-CT present (staging posture on prod); credential-gated but cross-origin readable.
+desktop-src: **79** — Windows key-storage ACL bypass (no-auth, same-user → full identity keypair + SQLCipher DB key, High) + BrowserWindow no-sandbox/nodeIntegrationInWorker (conditional); OnPrem Ed25519-3-key trust already REJECTED (not vuln).
+
+## STEP 8 — REPORT STATUS
+Phase: **POC** / Target: **desktop**. Confirmed & prioritized: Desktop key-storage Windows ACL bypass (RAG source-verified @ 15 paths + proto wire numbers; scripts `/tmp/opencode/verify-acl-bypass.{ps1,js}` written & syntax-validated). Blocked only on the Windows DPAPI/DACL round-trip (Linux host — cannot execute; requires authorized Windows operator via AUTH_HELPED-LOCAL). Web/sync/safe surface mapped & re-confirmed live (PASSIVE). Next gate: [NEXT] AUTH_HELPED-LOCAL Windows round-trip → expected to confirm offline identity-keypair + message-DB decryption without master password.

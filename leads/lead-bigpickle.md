@@ -1612,3 +1612,71 @@ verify_steps: AUTH_HELPED: controlled Windows VM with own test install (no targe
 impact: if proven, identity + message-DB compromise by any same-user process; high locally, low remotely.
 testability: HUMAN_ONLY
 [NEXT] HUMAN: GO/NO-GO gate still open — no operator confirmation. Request (a) confirmation of active authorized program + reporting channel, (b) GO/NO-GO. If GO, first live step = 3× single GET `https://safe-01.threema.ch/backups/{random64hex}` at 1 rps comparing status/body to the known 400 baseline, then the fetch_bulk batch-shape test; no POSTs and no real-user IDs until GO.
+## 2026-08-08 10:55:12 UTC [chat] (model bigpickle)
+testability: PASSIVE
+[HYP] work.test license-token backend ships → unauth 64-hex credential oracle
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 40
+reasoning: staging bundle v2.25.1 implements GET {username?,password?,expired,hasEmail} + PUT; backend still 404 catch-all (900B, method-agnostic); prod bundle has zero /public/* handlers.
+evidence_needed: response ≠404 for a 64-char token on staging.
+verify_steps: PASSIVE, gated: weekly single GET /api-app/public/global/settings + single GET /api-app/public/license/token/{64zeros}; escalate only on non-404; ≤1 rps; never real tokens.
+impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
+testability: PASSIVE
+[NEXT] HUMAN: GO/NO-GO gate still open — no operator confirmation arrived. No live HTTP probes executed or scheduled this cycle (static-only; desktop findings now verified at line level: fs.ts:40-42, key-storage/index.ts:555-561, electron-main.ts:944-945 + 1234-1268, worker/backend/electron/index.ts:1-29). Request operator: (a) confirm active authorized program + reporting channel, (b) GO/NO-GO. If GO: first live step = 3× single GET `https://safe-01.threema.ch/backups/{random64hex}` at 1 rps comparing status/body to the known 400 baseline (existence-oracle test), then the fetch_bulk batch-shape test.
+[HYP] fetch_bulk batch-size cap and invalid-only response shape unmeasured
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (mirrors api/apip)
+confidence: 50
+reasoning: KB: silent-omit confirmed on all 3 prod hosts with CORS `*` and no 429 across 30 sequential POSTs. Batch-size cap and invalid-only batch shape (empty-200 vs 400/413) never measured — determines scale of enumeration from a hostile page.
+evidence_needed: >N-ID batch response shape; invalid-only batch → empty array 200 vs error.
+verify_steps: PASSIVE, gated on operator GO: single POST fetch_bulk ~20 synthetic valid-format+invalid IDs at 1 rps, record status/body; no real user IDs; no POSTs until GO.
+impact: valid-ID enumeration at scale from any origin; low-medium (pubkeys public by design).
+testability: PASSIVE
+[HYP] safe-01 backup existence oracle pre-auth via 400 response-shape
+class: AUTH
+asset: https://safe-01.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: KB: /backups/{64hex} → 400 (route exists, Basic-auth gated) vs /backup/{x} → 404 (no route) — backend distinguishes routes pre-auth. Open: is 400 byte-invariant across IDs (no oracle) or variant (existence oracle)?
+evidence_needed: status/body variation across random 64-hex IDs vs known 400 baseline.
+verify_steps: PASSIVE, gated on operator GO: 2-3 single GETs of random 64-hex IDs at 1 rps, compare to baseline 400; no real-user IDs.
+impact: if variant, backup-existence oracle; low-medium, no data access.
+testability: PASSIVE
+[HYP] Desktop key-storage Windows ACL gap unproven at runtime
+class: MISCONFIG
+asset: threema-desktop apps/desktop/src/common/node/fs.ts + key-storage/ (Windows install)
+confidence: 65
+reasoning: Source-confirmed: fileModeInternalObjectIfPosix() returns {} on Windows, so keystorage.bin/.password.bin written without ACL; DPAPI/safeStorage still binds password to user account. No dynamic sinks in worker tree → sandbox:false chain de-emphasized, but local-file ACL gap is separate and unproven in a live Windows session.
+evidence_needed: same-user non-elevated process reading/decrypting keystorage while app is running or after logout.
+verify_steps: AUTH_HELPED: controlled Windows VM with own test install (no target traffic) — enumerate %APPDATA% files, assert zero ACL, DPAPI-decrypt password under same user; document result.
+impact: if proven, identity + message-DB compromise by any same-user process; high locally, low remotely.
+testability: HUMAN_ONLY
+[NEXT] HUMAN: GO/NO-GO gate still open — no operator confirmation. Request (a) confirmation of active authorized program + reporting channel, (b) GO/NO-GO. If GO, first live step = 3× single GET `https://safe-01.threema.ch/backups/{random64hex}` at 1 rps comparing status/body to the known 400 baseline, then the fetch_bulk batch-shape test; no POSTs and no real-user IDs until GO.
+[NEXT] RAG: parse remaining directory.openapi.yml schemas (done this cycle: sfu-credentials-request = {identity}, auth-challenge = X25519HSalsa20+BLAKE2b) — probe templates for 5 unprobed endpoints ready for GO phase. GO gate STILL OPEN: operator must confirm (a) active authorized program + reporting channel, (b) GO/NO-GO before any live HTTP.
+[HYP] Unprobed challenge endpoints expose route presence + challenge-oracle unauth
+class: AUTH
+asset: https://ds-apip.threema.ch/identity/{blob_cred|sfu_cred|set_revocation_key|check_revocation_key|update_work_info}
+confidence: 45
+reasoning: Official spec documents 5 POST endpoints never probed; sfu_cred request is minimal ({identity}); first call w/o challenge-response returns 200 auth-challenge vs 400 undecodable vs 404 route-absent — differentiates live routes pre-auth on all directory hosts (known distinct 200/400/404 behavior).
+evidence_needed: single well-formed POST per path (documented schema, no creds) → 200-challenge vs 400 vs 404.
+verify_steps: PASSIVE, gated on operator GO: 1 GET+1 POST per path at 1 rps (6 requests max), no real identities; compare status/body shape against each other and vs known 404 baseline.
+impact: route map completion + unauth challenge oracle (server ephemeral pubkey tokenRespKeyPub); low, no data access.
+testability: PASSIVE
+[HYP] fetch_bulk batch-size cap and invalid-only response shape unmeasured
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (mirrors api/apip)
+confidence: 50
+reasoning: silent-omit confirmed on 3 prod hosts, CORS `*`, no 429 across 30 POSTs; batch cap and invalid-only shape (empty-200 vs 400) never measured → bounds enumeration throughput from a hostile page.
+evidence_needed: >N-ID batch shape; invalid-only batch → empty 200 vs error.
+verify_steps: PASSIVE, gated: single POST ~20 synthetic valid-format+invalid IDs at 1 rps; no real user IDs.
+impact: valid-ID enumeration at scale; low-medium (pubkeys public by design).
+testability: PASSIVE
+[HYP] safe-01 backup-existence oracle via 400 response-shape variance
+class: AUTH
+asset: https://safe-01.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: /backups/{64hex} → 400 (Basic-gated route) vs /backup/{x} → 404 (no route); 400 byte-invariance across random IDs unmeasured.
+evidence_needed: status/body variation across 2-3 random 64-hex IDs vs known 400 baseline.
+verify_steps: PASSIVE, gated: 2-3 single GETs random 64-hex at 1 rps; no real-user IDs.
+impact: if variant, backup-existence oracle; low-medium, no data access.
+testability: PASSIVE
