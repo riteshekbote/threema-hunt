@@ -136,3 +136,10 @@
   - | Q7 Triager accept? | ❌ NO — no data access without valid credentials |
   - | Q7 Triager accept? | ⚠️ Not standalone — valid hardening concern but not a vuln without secondary bug |
   - | **VALID** | **0** | No new, novel, reportable findings this cycle |
+
+- 5 lead(s) marked VALID at 2026-08-08 21:53:06 UTC
+  - **Verdict: HOLD → escalate to VALID after duplicate check**
+  - | Q3 Impact | **YES** — backup-ID existence enumeration (400-vs-404 oracle); with stolen/valid credentials, full backup read = identity keypair + message history |
+  - **Verdict: VALID**
+  - | H1 | Directory identity→pubkey oracle (bulk) | **HOLD → VALID** | Needs duplicate check; bulk silent-omit + CORS `*` + no rate limit is the finding |
+  - | H3 | Desktop Windows key-storage ACL bypass | **VALID** | Source-verified; same-user malware extracts Ed25519 private key + DB key via DPAPI |
