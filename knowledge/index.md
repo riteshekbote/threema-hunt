@@ -115,3 +115,6 @@
 - 2026-08-08 REJECTED class @ lead: 7. Desktop BrowserWindow sandbox+worker gap — conditional RCE
 - 2026-08-08 REJECTED class @ lead: 16. Staging chat cluster — out of scope
 - 2026-08-08 REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c` is benchmark-only dummy in determineKdfParams(), derived key immediately purged, not used for real encryption
+- 2026-08-08 REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE (requires separate renderer exploit chain), not a standalone class.
+- 2026-08-08 REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml.
+- 2026-08-08 CONFIRMED MISCONFIG @ threema-desktop key-storage (Windows): ACL-bypass finding stable, no contradicting evidence this cycle.
