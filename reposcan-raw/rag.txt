@@ -125,6 +125,8 @@
 - 2026-08-08 ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: Re-verified this cycle — all 3 prod hosts return `GET /identity/ECHOECHO` → 200 with identical CORS `*`; `POST /identity/fetch_bulk` → 200 returning only valid IDs' pubkeys. No 429 after 30 sequential POSTs.
 - 2026-08-08 ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 safe-* hosts): HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for `/backups/{64hex}` — header inconsistency re-confirmed. HTTP Basic Auth (backupId:backupKey) format confirmed. Route existence oracle (`/backups/{64hex}` → 400 vs `/backup/{x}` → 404) confirmed across all 5 hosts behind single IP 203.56.112.231.
 - 2026-08-08 REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy in `determineKdfParams()`, derived key immediately purged — not used for real encryption
+- 2026-08-08 REJECTED IDOR @ ds-apip/api/apip.threema.ch check_revocation_key GET form: validation-order oracle disproven — ECHOECHO vs ZZZZZZZZ produce byte-identical "Identity not found"; no identity-state differential via GET query params on this endpoint.
+- 2026-08-08 ACCEPTED MISCONFIG @ safe-01.threema.ch: credential-gated 400 baseline stable (re-confirmed this cycle) — route-existence oracle + Basic-auth gating hold; HSTS/Expect-CT still absent on the GET 400.
 === INVENTORY gladia ===
 # Inventory: threema
 
