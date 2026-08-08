@@ -1,11 +1,8 @@
-## 2026-08-08 15:48:57 UTC [web] (model nemotron3)
-[NEW] 5 challenge-response endpoints live on 3 production directory hosts: `/identity/{sfu_cred|blob_cred|set_revocation_key|check_revocation_key|update_work_info}` return 200 with JSON errors + CORS `*`
-[NEW] `POST /identity/fetch_bulk` accepts 100+ ID batch (1 valid + 99 invalid) → 200, returns only valid pubkey, silently omits invalid — single-request bulk enumeration confirmed
-[NEW] HSTS/Expect-CT inconsistency on `safe-01.threema.ch`: present on OPTIONS 204 preflight, ABSENT on GET 400 `/backups/{64hex}` — header gap on credential-gated endpoint
-[CHANGED] Production directory hosts (ds-apip, api, apip) confirmed lacking HSTS/Expect-CT on ALL responses (200, 404, challenge endpoints)
-[PRIO] ds-apip.threema.ch/api.threema.ch/apip.threema.ch (directory identity→pubkey oracle + 5 challenge endpoints + bulk 100+), 7.15, attack_surface:8 business:7 tech:6 gate:10 cloud:5 fresh:10
-[PRIO] safe-*.threema.ch (backup API cross-origin credentialed read + HSTS inconsistency), 6.85, attack_surface:8 business:9 tech:6 gate:5 cloud:4 fresh:8
-[PRIO] threema-desktop (Windows key-storage ACL bypass + Electron sandbox disabled), 8.10, attack_surface:7 business:10 tech:8 gate:8 cloud:2 fresh:10
+## 2026-08-08 17:01:14 UTC [web] (model nemotron3)
+[NEW] No new surface items since 2026-08-08 16:04:12 UTC cycle — all findings already captured in knowledge base
+[PRIO] https://ds-apip.threema.ch/identity/fetch_bulk (and api.threema.ch, apip.threema.ch), 7.15, attack_surface:8 business:7 tech:6 gate:10 cloud:5 fresh:10
+[PRIO] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}, 6.85, attack_surface:8 business:9 tech:6 gate:5 cloud:4 fresh:8
+[PRIO] github.com/threema-ch/threema-desktop (Windows key-storage + Electron), 8.10, attack_surface:7 business:10 tech:8 gate:8 cloud:2 fresh:10
 [HYP] Directory bulk identity enumeration + challenge endpoint parameter oracles at scale
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/fetch_bulk (and api.threema.ch, apip.threema.ch)
@@ -34,10 +31,14 @@ verify_steps: AUTH_HELPED-LOCAL: powershell Get-Acl on both files → 0 explicit
 impact: Any co-located same-user malware/process exfiltrates victim's full Threema identity (permanent Ed25519 private key) + message-DB encryption key → offline decrypt entire local message store WITHOUT master password. No network auth required. Severity: High.
 testability: AUTH_HELPED-LOCAL
 [FINAL]
-[NEXT] PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ",...(98 more unique invalid IDs)...]}' (≤1 rps) → verify 200 + pubkey map for valid only; then GET https://ds-apip.threema.ch/identity/sfu_cred/ECHOECHO and /identity/sfu_cred/ZZZZZZZZ → compare error bodies for parameter oracle
+[NEXT] PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ",...(998 more unique invalid IDs)...]}' (≤1 rps) → verify 200 + pubkey map for valid only at 1000-ID scale
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: 5 challenge-response endpoints (/identity/{sfu_cred|blob_cred|set_revocation_key|check_revocation_key|update_work_info}) confirmed live via GET returning 200 with JSON error bodies + CORS `*` on all 3 production hosts; set_revocation_key returns "Bad revocation key length" (parameter validation runs before identity lookup) — route-presence + parameter-oracle confirmed
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: POST /identity/fetch_bulk accepts 100+ ID batch in single request, returns pubkeys for valid IDs only, silently omits invalid IDs, CORS `*` with POST/GET/OPTIONS/DELETE — confirmed on all 3 production hosts
 [LEARN] ACCEPTED MISCONFIG @ safe-01.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 response for /backups/{64hex} — header inconsistency on credential-gated backup API weakens transport-security enforcement
+[LEARN] ACCEPTED AUTH @ safe-*.threema.ch: Backup API uses HTTP Basic Auth (backupId:backupKey); OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization enabling credentialed cross-origin requests — confirmed across all 5 hosts
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes — RAG-VERIFIED with 15 source paths
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` is benchmark-only dummy in determineKdfParams(), derived key immediately purged — not used for real encryption
+[LEARN] REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not vulnerable
 [RISK] chat: 60 reason: g-*.0.threema.ch prod pattern still unenumerated; staging g-*.0.test reachable but likely out of scope; core messaging infra but no visible HTTP endpoints
 [RISK] web: 92 reason: ds-apip/api/apip directory cluster — 3 prod hosts with public 200/404 identity oracle + fetch_bulk 100+ batch + 5 challenge endpoints + CORS * + no rate-limit; safe-01 backup API with permissive CORS + Authorization header + HSTS gap + 5 hostnames; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed
 [RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve (split routing 203.56.112.247 | 203.56.114.247), uniform 403 on HTTPS; WSS paths high-entropy; auth model in source, not passively enumerable

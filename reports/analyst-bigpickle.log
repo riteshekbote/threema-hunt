@@ -18739,3 +18739,213 @@ What I can do instead:
 - **Draft a responsible-disclosure report** to Threema's security team (security@threema.ch) summarizing the passively-confirmed findings with evidence, since several (staging servers exposed, CORS `*` + no rate limit) are genuinely reportable.
 
 Want me to start on the disclosure report or the source review?
+===== ANALYST bigpickle 2026-08-08 17:01:24 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt && git log --oneline -5 2>/dev/null
+total 168
+drwxr-xr-x 11 runner runner  4096 Aug  8 16:58 .
+drwxr-xr-x  3 runner runner  4096 Aug  8 16:57 ..
+drwxr-xr-x  7 runner runner  4096 Aug  8 16:58 .git
+drwxr-xr-x  3 runner runner  4096 Aug  8 16:57 .github
+-rw-r--r--  1 runner runner  1049 Aug  8 16:57 README.md
+-rw-r--r--  1 runner runner    32 Aug  8 16:58 analyst-out.txt
+-rw-r--r--  1 runner runner 46540 Aug  8 16:58 analyst-prompt.txt
+-rw-r--r--  1 runner runner 43476 Aug  8 16:58 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  8 16:57 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  8 16:57 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  8 16:57 leads
+drwxr-xr-x  2 runner runner  4096 Aug  8 16:57 reports
+drwxr-xr-x  3 runner runner  4096 Aug  8 16:57 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  8 16:57 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  8 16:57 scripts
+-rw-r--r--  1 runner runner    34 Aug  8 16:57 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  8 16:57 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  8 16:57 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  8 16:57 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  8 16:57 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  8 16:57 triage
+552c82c fix: valid python regex in verifier robot (no quote escaping)
+[0m
+[0m✱ [0mGlob "reports/**/*"[90m 12 matches[0m
+[0m
+[0m$ [0mls -la leads knowledge inventory triage scripts reposcan-raw 2>/dev/null; echo "---"; ls -la knowledge/* 2>/dev/null | head -40
+inventory:
+total 44
+drwxr-xr-x  2 runner runner  4096 Aug  8 16:57 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 16:58 ..
+-rw-r--r--  1 runner runner 36132 Aug  8 16:57 threema.md
+
+knowledge:
+total 32
+drwxr-xr-x  2 runner runner  4096 Aug  8 16:57 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 16:58 ..
+-rw-r--r--  1 runner runner 23243 Aug  8 16:57 index.md
+
+leads:
+total 1624
+drwxr-xr-x  2 runner runner   4096 Aug  8 16:57 .
+drwxr-xr-x 11 runner runner   4096 Aug  8 16:58 ..
+-rw-r--r--  1 runner runner 350649 Aug  8 16:57 lead-bigpickle.md
+-rw-r--r--  1 runner runner 282381 Aug  8 16:57 lead-laguna.md
+-rw-r--r--  1 runner runner   6774 Aug  8 16:57 lead-ling3.md
+-rw-r--r--  1 runner runner   1682 Aug  8 16:57 lead-longcat.md
+-rw-r--r--  1 runner runner 253439 Aug  8 16:57 lead-nemotron3.md
+-rw-r--r--  1 runner runner  11048 Aug  8 16:57 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner  13399 Aug  8 16:57 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner  13429 Aug  8 16:57 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner  11241 Aug  8 16:57 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner   6565 Aug  8 16:57 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner   9511 Aug  8 16:57 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner  13472 Aug  8 16:57 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner  10507 Aug  8 16:57 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner  13665 Aug  8 16:57 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner  10938 Aug  8 16:57 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner  17321 Aug  8 16:57 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner  15373 Aug  8 16:57 reposcan-2026-08-07-23-19.md
+-rw-r--r--  1 runner runner  11670 Aug  8 16:57 reposcan-2026-08-07-23-50.md
+-rw-r--r--  1 runner runner  14267 Aug  8 16:57 reposcan-2026-08-08-00-01.md
+-rw-r--r--  1 runner runner  12628 Aug  8 16:57 reposcan-2026-08-08-00-19.md
+-rw-r--r--  1 runner runner  13392 Aug  8 16:57 reposcan-2026-08-08-02-10.md
+-rw-r--r--  1 runner runner  13822 Aug  8 16:57 reposcan-2026-08-08-02-23.md
+-rw-r--r--  1 runner runner  13194 Aug  8 16:57 reposcan-2026-08-08-03-52.md
+-rw-r--r--  1 runner runner  14260 Aug  8 16:57 reposcan-2026-08-08-04-47.md
+-rw-r--r--  1 runner runner  15327 Aug  8 16:57 reposcan-2026-08-08-05-01.md
+-rw-r--r--  1 runner runner  13092 Aug  8 16:57 reposcan-2026-08-08-05-29.md
+-rw-r--r--  1 runner runner  11228 Aug  8 16:57 reposcan-2026-08-08-05-48.md
+-rw-r--r--  1 runner runner  10378 Aug  8 16:57 reposcan-2026-08-08-06-08.md
+-rw-r--r--  1 runner runner  11257 Aug  8 16:57 reposcan-2026-08-08-06-56.md
+-rw-r--r--  1 runner runner  11788 Aug  8 16:57 reposcan-2026-08-08-07-12.md
+-rw-r--r--  1 runner runner   9790 Aug  8 16:57 reposcan-2026-08-08-07-53.md
+-rw-r--r--  1 runner runner  10972 Aug  8 16:57 reposcan-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner  13672 Aug  8 16:57 reposcan-2026-08-08-08-37.md
+-rw-r--r--  1 runner runner   6321 Aug  8 16:57 reposcan-2026-08-08-08-42.md
+-rw-r--r--  1 runner runner  16455 Aug  8 16:57 reposcan-2026-08-08-09-21.md
+-rw-r--r--  1 runner runner  14107 Aug  8 16:57 reposcan-2026-08-08-09-40.md
+-rw-r--r--  1 runner runner  14710 Aug  8 16:57 reposcan-2026-08-08-10-09.md
+-rw-r--r--  1 runner runner  13912 Aug  8 16:57 reposcan-2026-08-08-10-27.md
+-rw-r--r--  1 runner runner  15295 Aug  8 16:57 reposcan-2026-08-08-10-37.md
+-rw-r--r--  1 runner runner  11119 Aug  8 16:57 reposcan-2026-08-08-11-08.md
+-rw-r--r--  1 runner runner  16740 Aug  8 16:57 reposcan-2026-08-08-11-28.md
+-rw-r--r--  1 runner runner  11393 Aug  8 16:57 reposcan-2026-08-08-11-30.md
+-rw-r--r--  1 runner runner  10793 Aug  8 16:57 reposcan-2026-08-08-11-55.md
+-rw-r--r--  1 runner runner  13925 Aug  8 16:57 reposcan-2026-08-08-12-00.md
+-rw-r--r--  1 runner runner  12984 Aug  8 16:57 reposcan-2026-08-08-12-09.md
+-rw-r--r--  1 runner runner  11553 Aug  8 16:57 reposcan-2026-08-08-13-01.md
+-rw-r--r--  1 runner runner  16362 Aug  8 16:57 reposcan-2026-08-08-13-15.md
+-rw-r--r--  1 runner runner  11685 Aug  8 16:57 reposcan-2026-08-08-13-56.md
+-rw-r--r--  1 runner runner  11740 Aug  8 16:57 reposcan-2026-08-08-14-04.md
+-rw-r--r--  1 runner runner  14858 Aug  8 16:57 reposcan-2026-08-08-14-28.md
+-rw-r--r--  1 runner runner  10356 Aug  8 16:57 reposcan-2026-08-08-14-35.md
+-rw-r--r--  1 runner runner  10513 Aug  8 16:57 reposcan-2026-08-08-15-08.md
+-rw-r--r--  1 runner runner   6321 Aug  8 16:57 reposcan-2026-08-08-15-31.md
+-rw-r--r--  1 runner runner  11739 Aug  8 16:57 reposcan-2026-08-08-16-00.md
+-rw-r--r--  1 runner runner  15164 Aug  8 16:57 reposcan-2026-08-08-16-07.md
+-rw-r--r--  1 runner runner  12405 Aug  8 16:57 reposcan-2026-08-08-16-15.md
+-rw-r--r--  1 runner runner  12405 Aug  8 16:57 reposcan-latest.md
+
+reposcan-raw:
+total 68
+drwxr-xr-x  3 runner runner  4096 Aug  8 16:57 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 16:58 ..
+-rw-r--r--  1 runner runner  6127 Aug  8 16:57 analysis.txt
+-rw-r--r--  1 runner runner    40 Aug  8 16:57 grep-delta.txt
+-rw-r--r--  1 runner runner  7433 Aug  8 16:57 grep-hits.prev.txt
+-rw-r--r--  1 runner runner  7433 Aug  8 16:57 grep-hits.txt
+-rw-r--r--  1 runner runner 25278 Aug  8 16:57 rag.txt
+drwxr-xr-x 18 runner runner  4096 Aug  8 16:57 threema-ch
+
+scripts:
+total 16
+drwxr-xr-x  2 runner runner 4096 Aug  8 16:57 .
+drwxr-xr-x 11 runner runner 4096 Aug  8 16:58 ..
+-rw-r--r--  1 runner runner 7771 Aug  8 16:57 sync-issues.py
+
+triage:
+total 368
+drwxr-xr-x  2 runner runner  4096 Aug  8 16:57 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 16:58 ..
+-rw-r--r--  1 runner runner 81432 Aug  8 16:57 run-2026-08-07-20-10.md
+-rw-r--r--  1 runner runner 18280 Aug  8 16:57 run-2026-08-07-21-03.md
+-rw-r--r--  1 runner runner 18224 Aug  8 16:57 run-2026-08-07-21-56.md
+-rw-r--r--  1 runner runner 12766 Aug  8 16:57 run-2026-08-07-22-56.md
+-rw-r--r--  1 runner runner 27810 Aug  8 16:57 run-2026-08-07-23-55.md
+-rw-r--r--  1 runner runner  1637 Aug  8 16:57 run-2026-08-08-02-24.md
+-rw-r--r--  1 runner runner 18651 Aug  8 16:57 run-2026-08-08-04-24.md
+-rw-r--r--  1 runner runner 20107 Aug  8 16:57 run-2026-08-08-06-01.md
+-rw-r--r--  1 runner runner 23637 Aug  8 16:57 run-2026-08-08-07-07.md
+-rw-r--r--  1 runner runner 18269 Aug  8 16:57 run-2026-08-08-07-15.md
+-rw-r--r--  1 runner runner 12515 Aug  8 16:57 run-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner   236 Aug  8 16:57 run-2026-08-08-08-59.md
+-rw-r--r--  1 runner runner 11791 Aug  8 16:57 run-2026-08-08-09-54.md
+-rw-r--r--  1 runner runner 10557 Aug  8 16:57 run-2026-08-08-10-53.md
+-rw-r--r--  1 runner runner   896 Aug  8 16:57 run-2026-08-08-11-44.md
+-rw-r--r--  1 runner runner   428 Aug  8 16:57 run-2026-08-08-13-11.md
+-rw-r--r--  1 runner runner  7773 Aug  8 16:57 run-2026-08-08-14-00.md
+-rw-r--r--  1 runner runner 19408 Aug  8 16:57 run-2026-08-08-14-52.md
+-rw-r--r--  1 runner runner 25063 Aug  8 16:57 run-2026-08-08-15-47.md
+---
+-rw-r--r-- 1 runner runner 23243 Aug  8 16:57 knowledge/index.md
+[0m
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m→ [0mRead leads/reposcan-2026-08-08-16-15.md
+[0m→ [0mRead triage/run-2026-08-08-15-47.md
+STEP 1 — DELTA
+- [CHANGED] Triage 2026-08-08 15:47 (longcat): all 15 aggregated leads classified — 13 INVALID (duplicate/refuted), 2 HOLD (work.test session-fixation, ds-apip-work cross-subscription — both AUTH_HELPED), 0 new VALID; passive surface at saturation.
+- [CHANGED] Reposcan 2026-08-08 16:15: threema-android `SentryConfig.kt:15,19` Sentry public DSN keys (sha256 3a826628…, 3686395f…) found but classified NOT reportable (client-side by design); desktop benchmark password re-confirmed REJECTED; no new REAL_SECRET, no new endpoints (openapi.yml/vite.config.ts staging URLs already known).
+
+STEP 2 — PRIORITIZE
+- [PRIO] safe-*.threema.ch /backups/{64hex} (Basic auth gated backup store, 203.56.112.231): 6.10 | attack 6, business 9, tech 5, gate 2, cloud 8, fresh 5
+- [PRIO] work.test.threema.ch /api-app/public/license/token/{64hex} (staging-only, pending backend): 5.90 | attack 5, business 6, tech 6, gate 9, cloud 2, fresh 7
+- [PRIO] ds-apip-work.threema.ch /identities (Work directory, 401-gated, OpenAPI flags TWRK-1633): 5.75 | attack 7, business 8, tech 6, gate 2, cloud 4, fresh 4
+
+STEP 3 — HYPOTHESES
+[HYP] Safe backup credentialed cross-origin read of backup store
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: GET /backups/{64hex} → 400 (11B, byte-invariant, ETag W/"b-…") across random IDs; route Basic-auth gated (backupId:backupKey); OPTIONS → CORS `*` + ACAH:Authorization on all 5 hosts.
+evidence_needed: valid program test backupId:backupKey → 200 + readable payload; Access-Control-Expose-Headers present for cross-origin body read.
+verify_steps: AUTH_HELPED: curl -u "testBackupId:testBackupKey" https://safe-01.threema.ch/backups/{testId} (≤1 rps, one call); record 200/body/Expose-Headers.
+impact: valid creds → identity keypair + message-history backup read cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+
+[HYP] work.test license-token backend ships → unauth 64-hex credential oracle
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 40
+reasoning: staging bundle v2.25.1 (sha256 e48e18f7…) implements GET {username?,password?,expired,hasEmail} + PUT; backend still 404 catch-all (900B, method-agnostic); prod bundle has zero /public/* handlers.
+evidence_needed: response ≠404 for a 64-char token on staging.
+verify_steps: PASSIVE, gated: weekly single GET /api-app/public/global/settings + single GET /api-app/public/license/token/{64zeros}; escalate only on non-404; ≤1 rps; never real tokens.
+impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
+testability: PASSIVE
+
+[HYP] Work directory cross-subscription metadata disclosure via /identities filter
+class: BUSLOGIC
+asset: https://ds-apip-work.threema.ch/identities (work.threema.ch backend)
+confidence: 52
+reasoning: OpenAPI `directory.openapi.yml` flags /identities filter logic "currently buggy" (TWRK-1633); prod+staging return 401 unauth; CORS `*`; filters take name/title/department fields.
+evidence_needed: valid Work license → filtered query returns identities from another subscription.
+verify_steps: AUTH_HELPED: with program-issued Work test creds, POST /identities with org filter params; compare result set vs own org only; ≤1 rps.
+impact: cross-tenant metadata leak (names/titles/departments); medium.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- No hypotheses dropped (all ≥40 confidence, none on REJECTED class list, all have concrete verify_steps).
+- [PARKED] none.
+- [FINAL] 1) safe-*.threema.ch AUTH credentialed backup read (45) — highest impact if creds obtained; 2) ds-apip-work BUSLOGIC cross-subscription (52) — highest confidence but AUTH_HELPED gated; 3) work.test license-token MISCONFIG (40) — only PASSIVE candidate, weakest.
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: GO/NO-GO gate still open — no operator confirmation arrived. No live HTTP probes executed this cycle (static-only; triage + reposcan reviewed). Request operator: (a) confirm active authorized program + reporting channel, (b) GO/NO-GO. If GO: first live step = 3× single GET `https://safe-01.threema.ch/backups/{random64hex}` at 1 rps comparing status/body to the known 400 baseline (existence-oracle), then the fetch_bulk batch-shape test; no POSTs and no real-user IDs until GO.
+
+STEP 6 — LEARNING
+- [LEARN] REJECTED MISCONFIG @ threema-android buildSrc/.../config/SentryConfig.kt:15,19: Sentry public DSN keys (sha256 3a826628…, 3686395f…) are client-side by design — not reportable secrets; no REAL_SECRET in this scan.
+- [LEARN] REJECTED OTHER @ program passive surface: 15-lead triage returned 0 new VALID bugs — all candidates duplicate already-accepted/refuted KB items; remaining leads require AUTH_HELPED credentials.
+
+STEP 7 — RISK SCORE
+- [RISK] chat: 45 | g-* cluster passive probes show no in-band divergence (TCP 5222/443 close without login frame); directory pubkey oracle only feeds recon/impersonation prep, no chat data access.
+- [RISK] web: 55 | work.test staging exposure, /public/* bundle divergence, pending license-token backend, 401-gated work directory with flagged filter logic; most unresolved leads are AUTH_HELPED.
+- [RISK] sync: 30 | mediator/rendezvous uniform 403, DNS split routing mapped, no data access demonstrated.
+- [RISK] safe: 50 | credential-gated backup store with CORS `*` + ACAH:Authorization + HSTS/Expose-header inconsistency; full backup read if backupId:backupKey leaks.
+- [RISK] desktop-src: 60 | Windows key-storage ACL gap RAG-verified (High locally), sandbox:false + nodeIntegrationInWorker conditional; HUMAN_ONLY validation pending on authorized host.
