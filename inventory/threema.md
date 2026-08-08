@@ -344,3 +344,6 @@
 - NEW NO_DELTA
 
 ## 2026-08-08 21:04:15 UTC
+
+## 2026-08-08 21:26:51 UTC
+- NEW saltyrtc-{00..ff}.threema.ch:443 reported as live SaltyRTC signaling (WSS) in hypotheses-bigpickle.txt — needs operator scope ruling (not in scope.yml g-*.0 pattern)

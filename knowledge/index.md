@@ -127,3 +127,9 @@
 - 2026-08-08 REJECTED IDOR @ ds-apip/api/apip.threema.ch check_revocation_key GET form: validation-order oracle disproven — ECHOECHO vs ZZZZZZZZ produce byte-identical "Identity not found"; no identity-state differential via GET query params on this endpoint.
 - 2026-08-08 ACCEPTED MISCONFIG @ safe-01.threema.ch: credential-gated 400 baseline stable (re-confirmed this cycle) — route-existence oracle + Basic-auth gating hold; HSTS/Expect-CT still absent on the GET 400.
 - 2026-08-08 ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 safe-* hosts): credential-gated 400 baseline stable — route-existence oracle + Basic-auth gating hold; HSTS/Expect-CT still absent on the GET 400.
+- 2026-08-08 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED against freshly cloned repo — 6 core paths verified (+9 supporting paths for full chain).
+- 2026-08-08 ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: No rate-limit confirmed after 30 sequential POSTs; CORS `*` on POST/GET/OPTIONS/DELETE; 5 challenge endpoints return 200 JSON errors.
+- 2026-08-08 ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 safe-* hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400; HTTP Basic Auth confirmed; existence oracle stable.
+- 2026-08-08 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED against freshly cloned repo — 6 core paths verified (+9 supporting paths for full chain).
+- 2026-08-08 ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: No rate-limit confirmed after 30 sequential POSTs; CORS `*` on POST/GET/OPTIONS/DELETE; 5 challenge endpoints return 200 JSON errors.
+- 2026-08-08 ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 safe-* hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400; HTTP Basic Auth confirmed; existence oracle stable.

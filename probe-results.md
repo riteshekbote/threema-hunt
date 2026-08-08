@@ -65,3 +65,14 @@ https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/jso
 https://work.test.threema.ch/api-app/public/global/settings -> 200 len=? type=application/json
 https://safe-01.threema.ch/backups/{backupId -> HTTP 400
 https://work.threema.ch/api-app/public/global/settings -> HTTP 404
+
+## 2026-08-08 21:26:54 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+https://github.com/threema-ch/threema-desktop` -> HTTP 404
+https://saltyrtc-00.threema.ch/` -> HTTP 426
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+https://work.test.threema.ch/api-app/public/global/settings -> 200 len=? type=application/json
+https://work.threema.ch/api-app/public/global/settings -> HTTP 404
