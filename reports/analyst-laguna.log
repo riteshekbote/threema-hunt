@@ -14745,3 +14745,705 @@ testability: AUTH_HELPED
 [RISK] sync: 30 | mediator-/rendezvous-*.threema.ch 403 on HTTPS, TCP 5222 closes without server-hello — no passive divergence obtainable
 [RISK] safe: 85 | backup API credential-gated with permissive CORS `*` + Authorization header, HTTP Basic Auth (backupId:backupKey), 5 hosts on single IP, broad method allow-list (GET/HEAD/PUT/PATCH/POST/DELETE) — high-value encrypted backups
 [RISK] desktop-src: 70 | Windows key-storage ACL bypass fully RAG-verified (15 paths), identity keypair + SQLCipher databaseKey exfiltration; BrowserWindow sandbox disabled (conditional RCE); overall High severity on local attack surface
+===== ANALYST laguna 2026-08-08 15:03:05 UTC =====
+[0m
+> build · laguna-s-2.1-free
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/
+total 168
+drwxr-xr-x 11 runner runner  4096 Aug  8 14:54 .
+drwxr-xr-x  3 runner runner  4096 Aug  8 14:54 ..
+drwxr-xr-x  7 runner runner  4096 Aug  8 14:54 .git
+drwxr-xr-x  3 runner runner  4096 Aug  8 14:54 .github
+-rw-r--r--  1 runner runner  1049 Aug  8 14:54 README.md
+-rw-r--r--  1 runner runner    39 Aug  8 14:54 analyst-out.txt
+-rw-r--r--  1 runner runner 47616 Aug  8 14:54 analyst-prompt.txt
+-rw-r--r--  1 runner runner 44552 Aug  8 14:54 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  8 14:54 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  8 14:54 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  8 14:54 leads
+drwxr-xr-x  2 runner runner  4096 Aug  8 14:54 reports
+drwxr-xr-x  3 runner runner  4096 Aug  8 14:54 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  8 14:54 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  8 14:54 scripts
+-rw-r--r--  1 runner runner    34 Aug  8 14:54 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  8 14:54 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  8 14:54 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  8 14:54 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  8 14:54 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  8 14:54 triage
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reports/ 2>/dev/null; echo "---"; ls -la /home/runner/work/threema-hunt/threema-hunt/src/ 2>/dev/null
+total 2896
+drwxr-xr-x  2 runner runner    4096 Aug  8 14:54 .
+drwxr-xr-x 11 runner runner    4096 Aug  8 14:54 ..
+-rw-r--r--  1 runner runner 1321028 Aug  8 14:54 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 1306006 Aug  8 14:54 analyst-laguna.log
+-rw-r--r--  1 runner runner   12970 Aug  8 14:54 analyst-ling3.log
+-rw-r--r--  1 runner runner    2610 Aug  8 14:54 analyst-longcat.log
+-rw-r--r--  1 runner runner  313082 Aug  8 14:54 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    1098 Aug  8 14:54 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner   10313 Aug  8 14:54 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  8 14:54 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  8 14:54 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner    8313 Aug  8 14:54 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner   74027 Aug  8 14:54 hypotheses.md
+-rw-r--r--  1 runner runner    6036 Aug  8 14:54 valid-bugs.md
+---
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/leads/ /home/runner/work/threema-hunt/threema-hunt/inventory/ /home/runner/work/threema-hunt/threema-hunt/knowledge/ /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/
+/home/runner/work/threema-hunt/threema-hunt/inventory/:
+total 44
+drwxr-xr-x  2 runner runner  4096 Aug  8 14:54 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 14:54 ..
+-rw-r--r--  1 runner runner 33876 Aug  8 14:54 threema.md
+
+/home/runner/work/threema-hunt/threema-hunt/knowledge/:
+total 28
+drwxr-xr-x  2 runner runner  4096 Aug  8 14:54 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 14:54 ..
+-rw-r--r--  1 runner runner 18588 Aug  8 14:54 index.md
+
+/home/runner/work/threema-hunt/threema-hunt/leads/:
+total 1424
+drwxr-xr-x  2 runner runner   4096 Aug  8 14:54 .
+drwxr-xr-x 11 runner runner   4096 Aug  8 14:54 ..
+-rw-r--r--  1 runner runner 296497 Aug  8 14:54 lead-bigpickle.md
+-rw-r--r--  1 runner runner 227062 Aug  8 14:54 lead-laguna.md
+-rw-r--r--  1 runner runner   3016 Aug  8 14:54 lead-ling3.md
+-rw-r--r--  1 runner runner   1532 Aug  8 14:54 lead-longcat.md
+-rw-r--r--  1 runner runner 228293 Aug  8 14:54 lead-nemotron3.md
+-rw-r--r--  1 runner runner  11048 Aug  8 14:54 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner  13399 Aug  8 14:54 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner  13429 Aug  8 14:54 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner  11241 Aug  8 14:54 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner   6565 Aug  8 14:54 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner   9511 Aug  8 14:54 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner  13472 Aug  8 14:54 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner  10507 Aug  8 14:54 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner  13665 Aug  8 14:54 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner  10938 Aug  8 14:54 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner  17321 Aug  8 14:54 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner  15373 Aug  8 14:54 reposcan-2026-08-07-23-19.md
+-rw-r--r--  1 runner runner  11670 Aug  8 14:54 reposcan-2026-08-07-23-50.md
+-rw-r--r--  1 runner runner  14267 Aug  8 14:54 reposcan-2026-08-08-00-01.md
+-rw-r--r--  1 runner runner  12628 Aug  8 14:54 reposcan-2026-08-08-00-19.md
+-rw-r--r--  1 runner runner  13392 Aug  8 14:54 reposcan-2026-08-08-02-10.md
+-rw-r--r--  1 runner runner  13822 Aug  8 14:54 reposcan-2026-08-08-02-23.md
+-rw-r--r--  1 runner runner  13194 Aug  8 14:54 reposcan-2026-08-08-03-52.md
+-rw-r--r--  1 runner runner  14260 Aug  8 14:54 reposcan-2026-08-08-04-47.md
+-rw-r--r--  1 runner runner  15327 Aug  8 14:54 reposcan-2026-08-08-05-01.md
+-rw-r--r--  1 runner runner  13092 Aug  8 14:54 reposcan-2026-08-08-05-29.md
+-rw-r--r--  1 runner runner  11228 Aug  8 14:54 reposcan-2026-08-08-05-48.md
+-rw-r--r--  1 runner runner  10378 Aug  8 14:54 reposcan-2026-08-08-06-08.md
+-rw-r--r--  1 runner runner  11257 Aug  8 14:54 reposcan-2026-08-08-06-56.md
+-rw-r--r--  1 runner runner  11788 Aug  8 14:54 reposcan-2026-08-08-07-12.md
+-rw-r--r--  1 runner runner   9790 Aug  8 14:54 reposcan-2026-08-08-07-53.md
+-rw-r--r--  1 runner runner  10972 Aug  8 14:54 reposcan-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner  13672 Aug  8 14:54 reposcan-2026-08-08-08-37.md
+-rw-r--r--  1 runner runner   6321 Aug  8 14:54 reposcan-2026-08-08-08-42.md
+-rw-r--r--  1 runner runner  16455 Aug  8 14:54 reposcan-2026-08-08-09-21.md
+-rw-r--r--  1 runner runner  14107 Aug  8 14:54 reposcan-2026-08-08-09-40.md
+-rw-r--r--  1 runner runner  14710 Aug  8 14:54 reposcan-2026-08-08-10-09.md
+-rw-r--r--  1 runner runner  13912 Aug  8 14:54 reposcan-2026-08-08-10-27.md
+-rw-r--r--  1 runner runner  15295 Aug  8 14:54 reposcan-2026-08-08-10-37.md
+-rw-r--r--  1 runner runner  11119 Aug  8 14:54 reposcan-2026-08-08-11-08.md
+-rw-r--r--  1 runner runner  16740 Aug  8 14:54 reposcan-2026-08-08-11-28.md
+-rw-r--r--  1 runner runner  11393 Aug  8 14:54 reposcan-2026-08-08-11-30.md
+-rw-r--r--  1 runner runner  10793 Aug  8 14:54 reposcan-2026-08-08-11-55.md
+-rw-r--r--  1 runner runner  13925 Aug  8 14:54 reposcan-2026-08-08-12-00.md
+-rw-r--r--  1 runner runner  12984 Aug  8 14:54 reposcan-2026-08-08-12-09.md
+-rw-r--r--  1 runner runner  11553 Aug  8 14:54 reposcan-2026-08-08-13-01.md
+-rw-r--r--  1 runner runner  16362 Aug  8 14:54 reposcan-2026-08-08-13-15.md
+-rw-r--r--  1 runner runner  11685 Aug  8 14:54 reposcan-2026-08-08-13-56.md
+-rw-r--r--  1 runner runner  11740 Aug  8 14:54 reposcan-2026-08-08-14-04.md
+-rw-r--r--  1 runner runner  14858 Aug  8 14:54 reposcan-2026-08-08-14-28.md
+-rw-r--r--  1 runner runner  10356 Aug  8 14:54 reposcan-2026-08-08-14-35.md
+-rw-r--r--  1 runner runner  10356 Aug  8 14:54 reposcan-latest.md
+
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/:
+total 60
+drwxr-xr-x  3 runner runner  4096 Aug  8 14:54 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 14:54 ..
+-rw-r--r--  1 runner runner  4078 Aug  8 14:54 analysis.txt
+-rw-r--r--  1 runner runner    40 Aug  8 14:54 grep-delta.txt
+-rw-r--r--  1 runner runner  7433 Aug  8 14:54 grep-hits.prev.txt
+-rw-r--r--  1 runner runner  7433 Aug  8 14:54 grep-hits.txt
+-rw-r--r--  1 runner runner 20623 Aug  8 14:54 rag.txt
+drwxr-xr-x 18 runner runner  4096 Aug  8 14:54 threema-ch
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/state_laguna.json
+{"phase": "POC", "target": "desktop"}
+[0m
+[0m✗ [0mRead leads/hypotheses-laguna.txt failed
+[91m[1mError: [0mFile not found: /home/runner/work/threema-hunt/threema-hunt/leads/hypotheses-laguna.txt
+[0m→ [0mRead analyst-out.txt
+[0m→ [0mRead reports/hypotheses-laguna.txt
+[0m→ [0mRead ctx.txt
+[0m→ [0mRead leads/reposcan-latest.md
+[0m→ [0mRead knowledge/index.md
+[0m→ [0mRead reposcan-raw/rag.txt
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch && ls -la && echo "---DESKTOP---" && ls -la threema-desktop/ 2>/dev/null
+total 72
+drwxr-xr-x 18 runner runner 4096 Aug  8 14:54 .
+drwxr-xr-x  3 runner runner 4096 Aug  8 14:54 ..
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 app-remote-protocol
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 compose-area
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 push-relay
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 threema-android
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 threema-bot-sdk
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 threema-desktop
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 threema-ios
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 threema-markup
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 threema-msgapi-sdk-java
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 threema-msgapi-sdk-php
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 threema-msgapi-sdk-python
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 threema-msgapi-sdk-rust
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 threema-web
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 threema-web-electron
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 wasm-minisign-verify
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 webrtc-build-docker
+---DESKTOP---
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 .
+drwxr-xr-x 18 runner runner 4096 Aug  8 14:54 ..
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch && find threema-desktop -maxdepth 3 -type d | head -50; echo "==="; find . -path "*electron*" -name "*.ts" 2>/dev/null | head -20
+threema-desktop
+===
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch && find . -name "*.ts" -path "*desktop*" 2>/dev/null | head -40; echo "==="; ls -laR threema-desktop/apps 2>/dev/null | head -40
+===
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop && find . -type f 2>/dev/null | head -30; echo "=== count ==="; find . -type f 2>/dev/null | wc -l; echo "=== git ==="; git -C /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop log --oneline -3 2>/dev/null
+=== count ===
+0
+=== git ===
+ba9623d triage 2026-08-08-14-52
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop && git checkout . 2>&1 | head; echo "=== files ==="; find . -type f | wc -l; echo "=== git files ==="; git ls-files | grep -i "electron-main\|key-storage\|crypto.ts\|fs.ts\|inner/v3\|sqlite\|restore-db" | head -30
+Updated 0 paths from the index
+=== files ===
+0
+=== git files ===
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop && git log --all --oneline -5 2>&1; echo "=== branches ==="; git branch -a 2>&1; echo "=== ls-tree HEAD ==="; git ls-tree -r HEAD --name-only 2>&1 | head -40
+ba9623d triage 2026-08-08-14-52
+=== branches ===
+* main
+  remotes/origin/main
+=== ls-tree HEAD ===
+./
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop && git cat-file -p HEAD 2>&1 | head -20; echo "=== objects ==="; git rev-list --objects --all 2>&1 | head -20
+tree 0242e3d26817a5a8a1caf81ad47037f67d891478
+parent 72b26914131d25a65d10a99809c0e35fb99be8f0
+author github-actions <actions@github.com> 1786200732 +0000
+committer github-actions <actions@github.com> 1786200732 +0000
+
+triage 2026-08-08-14-52
+=== objects ===
+ba9623d48d913502073e428f80fd83453b9e5995
+0242e3d26817a5a8a1caf81ad47037f67d891478 
+9d43ccd84b2aa4096570dee6cbf13f01e58e71d4 .github
+c59aa870d6bdee157b30fc2ac592c0109ba6ae39 .github/workflows
+b15a2b386983374284125cf93eaff953f33be848 .github/workflows/hunt.yml
+78458f0be5426511830ec8b9bc624af68281b412 .github/workflows/reposcan.yml
+0cc05e4f94fd03d81062bbde004a7dadcc13e431 .github/workflows/sync-issues.yml
+d0936b00cdb8591c5d503cb51f621d2c2b2e60c1 .github/workflows/triage.yml
+26f2a21be7316bce494991e0ef45abcefca776de README.md
+7128da3035aa32c254c397d823b0207a645d081c inventory
+3c4953d3dcc807c5202e48b2ceb7957f756563d1 inventory/threema.md
+47460ce9e7bfa796753d2d65a86da9ac7e746ab6 knowledge
+eba496b7a6b7c335c5a082502a596e3dbe1122e3 knowledge/index.md
+d3455878e7655ca38da7f0e7dd6a2693e5c690f4 leads
+5fa21ab119087d659ae12062dd28f93635fe6ba6 leads/lead-bigpickle.md
+27abe3d3e11996e57780c770cff56caa9461cf39 leads/lead-laguna.md
+84b26ae1ece6958189011d0324827c3ed8346105 leads/lead-ling3.md
+32efb6d1e732855fc48dda489251e8481e937cac leads/lead-longcat.md
+f782fbd7f80fa58528039812a0d1e8f525ed3258 leads/lead-nemotron3.md
+38e1c5d48f3f875dfe1c52e6e918f58a2b4d5f3c leads/reposcan-2026-08-07-18-43.md
+[0m
+[0m→ [0mRead reposcan-raw/analysis.txt
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch && git submodule status 2>&1 | head; echo "=== check other repos ==="; for r in threema-android threema-ios threema-web; do echo "--- $r ---"; git -C "$r" rev-parse --is-inside-work-tree 2>&1; git -C "$r" log --oneline -1 2>&1; done
+fatal: no submodule mapping found in .gitmodules for path 'reposcan-raw/threema-ch/app-remote-protocol'
+=== check other repos ===
+--- threema-android ---
+true
+ba9623d triage 2026-08-08-14-52
+--- threema-ios ---
+true
+ba9623d triage 2026-08-08-14-52
+--- threema-web ---
+true
+ba9623d triage 2026-08-08-14-52
+[0m
+[0m→ [0mRead reposcan-raw/grep-hits.txt
+[0m→ [0mRead leads/lead-laguna.md
+[0m→ [0mRead leads/lead-laguna.md[90m [offset=350][0m
+[0m→ [0mRead leads/lead-laguna.md[90m [offset=608][0m
+[0m→ [0mRead leads/lead-laguna.md[90m [offset=837][0m
+[0m→ [0mRead leads/lead-laguna.md[90m [offset=1220][0m
+[0m→ [0mRead inventory/threema.md
+[0m
+[0m$ [0mls -la /tmp/opencode/ 2>/dev/null; echo "=== scripts ==="; ls -la /home/runner/work/threema-hunt/threema-hunt/scripts/ 2>/dev/null; echo "=== triage ==="; ls -la /home/runner/work/threema-hunt/threema-hunt/triage/ 2>/dev/null
+total 16
+drwxr-xr-x  2 runner runner  4096 Aug  8 14:54 .
+drwxrwxrwt 15 root   root   12288 Aug  8 14:54 ..
+=== scripts ===
+total 16
+drwxr-xr-x  2 runner runner 4096 Aug  8 14:54 .
+drwxr-xr-x 11 runner runner 4096 Aug  8 14:54 ..
+-rw-r--r--  1 runner runner 7771 Aug  8 14:54 sync-issues.py
+=== triage ===
+total 340
+drwxr-xr-x  2 runner runner  4096 Aug  8 14:54 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 14:54 ..
+-rw-r--r--  1 runner runner 81432 Aug  8 14:54 run-2026-08-07-20-10.md
+-rw-r--r--  1 runner runner 18280 Aug  8 14:54 run-2026-08-07-21-03.md
+-rw-r--r--  1 runner runner 18224 Aug  8 14:54 run-2026-08-07-21-56.md
+-rw-r--r--  1 runner runner 12766 Aug  8 14:54 run-2026-08-07-22-56.md
+-rw-r--r--  1 runner runner 27810 Aug  8 14:54 run-2026-08-07-23-55.md
+-rw-r--r--  1 runner runner  1637 Aug  8 14:54 run-2026-08-08-02-24.md
+-rw-r--r--  1 runner runner 18651 Aug  8 14:54 run-2026-08-08-04-24.md
+-rw-r--r--  1 runner runner 20107 Aug  8 14:54 run-2026-08-08-06-01.md
+-rw-r--r--  1 runner runner 23637 Aug  8 14:54 run-2026-08-08-07-07.md
+-rw-r--r--  1 runner runner 18269 Aug  8 14:54 run-2026-08-08-07-15.md
+-rw-r--r--  1 runner runner 12515 Aug  8 14:54 run-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner   236 Aug  8 14:54 run-2026-08-08-08-59.md
+-rw-r--r--  1 runner runner 11791 Aug  8 14:54 run-2026-08-08-09-54.md
+-rw-r--r--  1 runner runner 10557 Aug  8 14:54 run-2026-08-08-10-53.md
+-rw-r--r--  1 runner runner   896 Aug  8 14:54 run-2026-08-08-11-44.md
+-rw-r--r--  1 runner runner   428 Aug  8 14:54 run-2026-08-08-13-11.md
+-rw-r--r--  1 runner runner  7773 Aug  8 14:54 run-2026-08-08-14-00.md
+-rw-r--r--  1 runner runner 19408 Aug  8 14:54 run-2026-08-08-14-52.md
+[0m
+[0m→ [0mRead triage/run-2026-08-08-14-52.md
+Now let me run the pending PASSIVE verification probes to confirm/strengthen the IDOR findings.
+[0m
+[0m$ [0mecho "=== Probe 1: GET /identity/ECHOECHO on 3 prod hosts ===" 
+for h in ds-apip.threema.ch api.threema.ch apip.threema.ch; do
+  echo -n "$h: "; curl -s -o /dev/null -w "HTTP %{http_code} size=%{size_download} time=%{time_total}\n" "https://$h/identity/ECHOECHO" 2>&1
+done
+sleep 1
+echo "=== Probe 2: GET /identity/ZZZZZZZZ (invalid) on all 3 ==="
+for h in ds-apip.threema.ch api.threema.ch apip.threema.ch; do
+  echo -n "$h: "; curl -s -o /dev/null -w "HTTP %{http_code} size=%{size_download}\n" "https://$h/identity/ZZZZZZZZ" 2>&1
+done
+=== Probe 1: GET /identity/ECHOECHO on 3 prod hosts ===
+ds-apip.threema.ch: HTTP 200 size=135 time=0.712869
+api.threema.ch: HTTP 200 size=135 time=0.738267
+apip.threema.ch: HTTP 200 size=135 time=0.743987
+=== Probe 2: GET /identity/ZZZZZZZZ (invalid) on all 3 ===
+ds-apip.threema.ch: HTTP 404 size=13
+api.threema.ch: HTTP 404 size=13
+apip.threema.ch: HTTP 404 size=13
+[0m
+[0m$ [0mecho "=== Probe 3: OPTIONS /identity/fetch_bulk CORS headers (ds-apip) ==="
+curl -s -i -X OPTIONS "https://ds-apip.threema.ch/identity/fetch_bulk" -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: Content-Type" 2>&1 | grep -iE "^(HTTP|access-control|allow)"
+sleep 2
+echo "=== Probe 4: POST fetch_bulk with 5 valid + 5 invalid IDs ==="
+curl -s -i -X POST "https://ds-apip.threema.ch/identity/fetch_bulk" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","SALTSALT","ZZZZZZZZ","ABCD1234","TSPLFJFI","INVALID1","BADID12","WXYZ1234","00000000","99332211"]}' 2>&1
+sleep 2
+echo "=== Probe 5: HSTS header check (prod vs staging) ==="
+echo -n "ds-apip (prod): "; curl -s -D - -o /dev/null "https://ds-apip.threema.ch/identity/ECHOECHO" 2>&1 | grep -iE "^(strict-transport|expect-ct)" || echo "NO HSTS/Expect-CT"
+echo -n "ds-apip.test (staging): "; curl -s -D - -o /dev/null "https://ds-apip.test.threema.ch/identity/ECHOECHO" 2>&1 | grep -iE "^(strict-transport|expect-ct)" || echo "NO HSTS/Expect-CT"
+=== Probe 3: OPTIONS /identity/fetch_bulk CORS headers (ds-apip) ===
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+Access-Control-Allow-Headers: Content-Type, User-Agent
+=== Probe 4: POST fetch_bulk with 5 valid + 5 invalid IDs ===
+HTTP/1.1 200 OK
+Server: nginx
+Date: Sat, 08 Aug 2026 14:59:06 GMT
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+Access-Control-Allow-Headers: Content-Type, User-Agent
+
+{"identities":[{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}]}=== Probe 5: HSTS header check (prod vs staging) ===
+ds-apip (prod): NO HSTS/Expect-CT
+ds-apip.test (staging): strict-transport-security: max-age=31104000; includeSubdomains
+expect-ct: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+[0m
+[0m$ [0mecho "=== Check for new-leads.txt / probe-results.txt ==="; ls -la /home/runner/work/threema-hunt/threema-hunt/{new-leads.txt,probe-results.txt,triage-output.txt,triage-prompt.txt} 2>&1; echo "=== git log ==="; cd /home/runner/work/threema-hunt/threema-hunt && git log --oneline -5 2>&1; echo "=== git status ==="; git status --short 2>&1 | head
+=== Check for new-leads.txt / probe-results.txt ===
+ls: cannot access '/home/runner/work/threema-hunt/threema-hunt/new-leads.txt': No such file or directory
+ls: cannot access '/home/runner/work/threema-hunt/threema-hunt/probe-results.txt': No such file or directory
+ls: cannot access '/home/runner/work/threema-hunt/threema-hunt/triage-output.txt': No such file or directory
+ls: cannot access '/home/runner/work/threema-hunt/threema-hunt/triage-prompt.txt': No such file or directory
+=== git log ===
+ba9623d triage 2026-08-08-14-52
+=== git status ===
+?? analyst-out.txt
+?? analyst-prompt.txt
+?? ctx.txt
+[0m
+[0m$ [0mecho "=== Probe 6: fetch_bulk cross-host (api + apip) ==="
+curl -s -X POST "https://api.threema.ch/identity/fetch_bulk" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' 2>&1
+echo ""
+sleep 2
+curl -s -X POST "https://apip.threema.ch/identity/fetch_bulk" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' 2>&1
+echo ""
+sleep 2
+echo "=== Probe 7: safe-01 OPTIONS CORS + Access-Control-Allow-Headers ==="
+curl -s -i -X OPTIONS "https://safe-01.threema.ch/backups/aaaa0000aaaabbbbccccdddd11112222333344445555666677778888" -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: Authorization" 2>&1 | grep -iE "^(HTTP|access-control|allow)"
+sleep 2
+echo "=== Probe 8: safe-01 GET without auth (expect 400) + wrong path (expect 404) ==="
+echo -n "GET /backups/{64hex} no-auth: "; curl -s -o /dev/null -w "HTTP %{http_code} size=%{size_download}\n" "https://safe-01.threema.ch/backups/aaaa0000aaaabbbbccccdddd11112222333344445555666677778888" 2>&1
+echo -n "GET /backup/{64hex} wrong-path: "; curl -s -o /dev/null -w "HTTP %{http_code} size=%{size_download}\n" "https://safe-01.threema.ch/backup/aaaa0000aaaabbbbccccdddd11112222333344445555666677778888" 2>&1
+=== Probe 6: fetch_bulk cross-host (api + apip) ===
+{"identities":[{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}]}
+{"identities":[{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}]}
+=== Probe 7: safe-01 OPTIONS CORS + Access-Control-Allow-Headers ===
+HTTP/1.1 204 No Content
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE
+Access-Control-Allow-Headers: Authorization
+=== Probe 8: safe-01 GET without auth (expect 400) + wrong path (expect 404) ===
+GET /backups/{64hex} no-auth: HTTP 400 size=11
+GET /backup/{64hex} wrong-path: HTTP 404 size=202
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop && git remote -v 2>&1; echo "=== fetch attempt ==="; git fetch --depth=1 origin main 2>&1 | tail -5; echo "=== ls after fetch ==="; git ls-tree -r HEAD --name-only 2>&1 | grep -i "electron-main\|key-storage/index\|fs.ts\|crypto.ts" | head -20
+origin	https://github.com/riteshekbote/threema-hunt (fetch)
+origin	https://github.com/riteshekbote/threema-hunt (push)
+=== fetch attempt ===
+From https://github.com/riteshekbote/threema-hunt
+ * branch            main       -> FETCH_HEAD
+=== ls after fetch ===
+[0m
+[0m$ [0mecho "=== Try cloning threema-desktop ==="; timeout 25 git clone --depth=1 https://github.com/threema-ch/threema-desktop /tmp/opencode/threema-desktop-real 2>&1 | tail -10; echo "EXIT: $?"
+=== Try cloning threema-desktop ===
+Cloning into '/tmp/opencode/threema-desktop-real'...
+EXIT: 0
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop-real && echo "=== fs.ts fileModeInternalObjectIfPosix ===" && grep -n "fileModeInternalObjectIfPosix" apps/desktop/src/common/node/fs.ts | head -10 && echo "---" && sed -n '35,50p' apps/desktop/src/common/node/fs.ts
+=== fs.ts fileModeInternalObjectIfPosix ===
+40:export function fileModeInternalObjectIfPosix(): ModeOrEmpty {
+---
+
+/**
+ * On a POSIX system, this will return an object with the `mode` set to {@link MODE_FILE_INTERNAL}.
+ * On Windows, an empty object is returned.
+ */
+export function fileModeInternalObjectIfPosix(): ModeOrEmpty {
+    return process.platform === 'win32' ? {} : {mode: MODE_FILE_INTERNAL};
+}
+
+/**
+ * On a POSIX system, this will return {@link MODE_FILE_INTERNAL}.
+ * On Windows, undefined is returned.
+ */
+
+export function fileModeInternalIfPosix(): number | undefined {
+    return process.platform === 'win32' ? undefined : MODE_FILE_INTERNAL;
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop-real && echo "=== key-storage/index.ts writeFile ===" && grep -n "fileModeInternalObjectIfPosix\|_writeOrOverrideFile\|writeFile" apps/desktop/src/common/node/key-storage/index.ts | head -20 && echo "--- lines 555-565 ---" && sed -n '555,565p' apps/desktop/src/common/node/key-storage/index.ts
+=== key-storage/index.ts writeFile ===
+28:import {fileModeInternalObjectIfPosix} from '~/common/node/fs';
+210:            await this._writeOrOverrideFile(result.encoded);
+279:        await this._writeOrOverrideFile(outer);
+385:        await this._writeOrOverrideFile(encodedOuter);
+418:        await this._writeOrOverrideFile(encodedOuter);
+462:        await this._writeOrOverrideFile(encodedOuter);
+512:        await this._writeOrOverrideFile(encodedOuter);
+555:    private async _writeOrOverrideFile(
+559:            await fsPromises.writeFile(this._keyStoragePath, bytes, {
+560:                ...fileModeInternalObjectIfPosix(),
+--- lines 555-565 ---
+    private async _writeOrOverrideFile(
+        bytes: LatestKeyStorageLayers['outer']['encoded'],
+    ): Promise<void> {
+        try {
+            await fsPromises.writeFile(this._keyStoragePath, bytes, {
+                ...fileModeInternalObjectIfPosix(),
+            });
+        } catch (error) {
+            throw new KeyStorageError(
+                'not-writable',
+                `Cannot write key storage file at ${this._keyStoragePath}`,
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop-real && echo "=== electron-main.ts STORE_USER_PASSWORD ===" && grep -n "STORE_USER_PASSWORD\|safeStorage\|keystorage\.password" apps/desktop/src/electron/electron-main.ts | head -15 && echo "--- lines 940-950 ---" && sed -n '935,950p' apps/desktop/src/electron/electron-main.ts
+=== electron-main.ts STORE_USER_PASSWORD ===
+915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+916:            if (!fs.existsSync(safeStoragePasswordPath)) {
+921:            if (electron.safeStorage.isEncryptionAvailable()) {
+923:                    const encryptedPassword = fs.readFileSync(safeStoragePasswordPath);
+924:                    return electron.safeStorage.decryptString(encryptedPassword);
+930:                    'Electron safeStorage is not available (no password manager?), loading password skipped.',
+936:            ElectronIpcCommand.STORE_USER_PASSWORD,
+940:                if (electron.safeStorage.isEncryptionAvailable()) {
+941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+943:                        const encryptedPassword = electron.safeStorage.encryptString(password);
+945:                        fs.writeFileSync(safeStoragePasswordPath, encryptedPassword, options);
+952:                        'Electron safeStorage is not available (no password manager?), storing password skipped.',
+983:                    isSafeStorageAvailable: electron.safeStorage.isEncryptionAvailable(),
+--- lines 940-950 ---
+        electron.ipcMain.handle(
+            ElectronIpcCommand.STORE_USER_PASSWORD,
+            (event, password: string) => {
+                validateSenderFrame(event.senderFrame);
+
+                if (electron.safeStorage.isEncryptionAvailable()) {
+                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+                    try {
+                        const encryptedPassword = electron.safeStorage.encryptString(password);
+                        const options = {...fileModeInternalObjectIfPosix()};
+                        fs.writeFileSync(safeStoragePasswordPath, encryptedPassword, options);
+                        return true;
+                    } catch {
+                        log.error(`Failed to store or encrypt the password.`);
+                    }
+                } else {
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop-real && echo "=== BrowserWindow webPreferences ===" && grep -n "sandbox\|nodeIntegration\|nodeIntegrationInWorker\|contextIsolation\|new BrowserWindow\|webPreferences" apps/desktop/src/electron/electron-main.ts | head -25
+=== BrowserWindow webPreferences ===
+1234:            webPreferences: {
+1240:                // `contextIsolation`, and sandboxing is enabled by default.
+1242:                // Unfortunately we cannot get rid of `nodeIntegrationInWorker` because preload
+1251:                nodeIntegration: false,
+1252:                nodeIntegrationInWorker: true, // TODO(DESK-79): Change to false once worker preload scripts are supported in Electron
+1253:                nodeIntegrationInSubFrames: false,
+1255:                // TODO(DESK-79): Enable `sandbox: true` once worker preload scripts are supported in Electron
+1262:                contextIsolation: true,
+1484:            case 'sandbox':
+1552:                        'sandbox allow-downloads allow-same-origin allow-scripts allow-forms allow-popups',
+1673:    // In internal test builds on sandbox, we enable crash reporting.
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop-real && echo "=== Dynamic sinks in worker/ ===" && grep -rn "require(\|import(\|eval(\|child_process\|new Function\|process\.mainModule" apps/desktop/src/worker/ 2>&1 | head -20; echo "EXIT: $?"
+=== Dynamic sinks in worker/ ===
+EXIT: 0
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop-real && echo "=== crypto.ts Argon2id + XSalsa20-Poly1305 flow ===" && grep -n "argon2\|crypto_secretbox\|decrypt\|deriveKey\|XSalsa20\|safeStorage\|fileModeInternalObject" apps/desktop/src/common/node/key-storage/crypto.ts | head -20 && echo "--- lines 49-60 + 95-115 ---" && sed -n '49,60p' apps/desktop/src/common/node/key-storage/crypto.ts && echo "..." && sed -n '95,115p' apps/desktop/src/common/node/key-storage/crypto.ts
+=== crypto.ts Argon2id + XSalsa20-Poly1305 flow ===
+3:import * as argon2 from 'argon2';
+13:import {deriveKey} from '~/common/crypto/blake2b';
+28: * Key material for password-based encryption/decryption (Argon2id KDF + XSalsa20-Poly1305).
+39: * Key material for Remote Secret-based encryption/decryption (BLAKE2b key derivation +
+40: * XSalsa20-Poly1305).
+53:export async function deriveKeyFromPassword(
+60:    const rawHash = await argon2.hash(password, {
+62:        type: argon2.argon2id,
+91: * Decrypt bytes that were encrypted with a password-derived key (Argon2id + XSalsa20-Poly1305).
+93: * @throws {KeyStorageError} If decryption fails.
+95:export async function decryptPasswordBased(
+103:    const key = await deriveKeyFromPassword(services, keyMaterial);
+107:    const decryptor = secretBox.decryptorWithNonceAhead(CREATE_BUFFER_TOKEN, encrypted);
+109:        return decryptor.decrypt(undefined).plainData;
+111:        throw new KeyStorageError('undecryptable', 'Cannot decrypt', {from: error});
+118: * Encrypt bytes using a password-derived key (Argon2id + XSalsa20-Poly1305).
+123:    decrypted: Uint8Array,
+130:    const key = await deriveKeyFromPassword(services, keyMaterial);
+136:            .encryptor(CREATE_BUFFER_TOKEN, decrypted as PlainData)
+146: * Decrypt bytes that were encrypted with a Remote Secret-derived key (BLAKE2b + XSalsa20-Poly1305).
+--- lines 49-60 + 95-115 ---
+ * Derive a 32-byte key from a low-entropy password using `Argon2id`.
+ *
+ * Logs a warning if the KDF runtime falls outside of {@link KDF_TARGET_RUNTIME_MS}.
+ */
+export async function deriveKeyFromPassword(
+    services: Pick<ServicesForKeyStorage, 'logging'>,
+    {password, params}: PasswordBasedKeyMaterial,
+): Promise<RawKey<32>> {
+    const log = services.logging.logger('key-storage.crypto');
+
+    const start = performance.now();
+    const rawHash = await argon2.hash(password, {
+...
+export async function decryptPasswordBased(
+    encrypted: EncryptedDataWithNonceAhead,
+    keyMaterial: PasswordBasedKeyMaterial,
+    services: Pick<ServicesForKeyStorage, 'crypto' | 'logging'>,
+): Promise<Uint8Array> {
+    const {crypto} = services;
+
+    // Derive the key from the password using Argon2id.
+    const key = await deriveKeyFromPassword(services, keyMaterial);
+
+    // Decrypt.
+    const secretBox = crypto.getSecretBox(key.asReadonly(), NONCE_UNGUARDED_SCOPE, undefined);
+    const decryptor = secretBox.decryptorWithNonceAhead(CREATE_BUFFER_TOKEN, encrypted);
+    try {
+        return decryptor.decrypt(undefined).plainData;
+    } catch (error) {
+        throw new KeyStorageError('undecryptable', 'Cannot decrypt', {from: error});
+    } finally {
+        key.purge();
+    }
+}
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop-real && echo "=== sqlite.ts PRAGMA key ===" && grep -n "PRAGMA\|databaseKey\|dbKey\|safeStorage\|fileModeInternalObject\|key" apps/desktop/src/common/node/sqlite.ts | head -20 && echo "--- lines 236-245 ---" && sed -n '236,245p' apps/desktop/src/common/node/sqlite.ts
+=== sqlite.ts PRAGMA key ===
+grep: apps/desktop/src/common/node/sqlite.ts: No such file or directory
+--- lines 236-245 ---
+sed: can't read apps/desktop/src/common/node/sqlite.ts: No such file or directory
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop-real && echo "=== inner/v3.ts ck + databaseKey ===" && grep -n "ck\|databaseKey\|identity\|IdentityData\|database_key" apps/desktop/src/common/node/key-storage/layers/inner/v3.ts | head -15 && echo "--- lines 60-75 ---" && sed -n '60,75p' apps/desktop/src/common/node/key-storage/layers/inner/v3.ts && echo "=== proto ===" && find . -name "*.proto" | head -5 && grep -n "ck\|database_key\|identity" apps/desktop/src/common/node/key-storage/layers/inner/inner.proto 2>/dev/null | head -15 || find . -name "key-storage*.proto" -exec grep -n "ck\|database_key\|identity" {} \;
+=== inner/v3.ts ck + databaseKey ===
+grep: apps/desktop/src/common/node/key-storage/layers/inner/v3.ts: No such file or directory
+--- lines 60-75 ---
+sed: can't read apps/desktop/src/common/node/key-storage/layers/inner/v3.ts: No such file or directory
+80:  string identity = 1;
+83:  bytes ck = 2;
+145:    // NOTE: This is a non-backward compatible change so it resulted in a new key storage file being
+157:  IdentityData identity_data = 1;
+163:  bytes database_key = 3;
+185:  IdentityData identity_data = 1;
+194:  bytes database_key = 4;
+213:  IdentityData identity_data = 1;
+219:  bytes database_key = 3;
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop-real && echo "=== find sqlite.ts ===" && find . -name "sqlite.ts" -path "*node*" 2>/dev/null && echo "=== find inner v3 ===" && find . -path "*inner*" -name "*.ts" 2>/dev/null && echo "=== find key-storage proto ===" && find . -name "*.proto" -path "*key-storage*" 2>/dev/null
+=== find sqlite.ts ===
+./apps/desktop/src/common/node/db/sqlite.ts
+=== find inner v3 ===
+./apps/desktop/src/common/key-storage/layers/inner/v1.ts
+./apps/desktop/src/common/key-storage/layers/inner/v3.ts
+./apps/desktop/src/common/key-storage/layers/inner/v2.ts
+./packages/ui/src/components/spinner/Spinner.test.ts
+=== find key-storage proto ===
+./apps/desktop/src/common/internal-protobuf/key-storage-file.proto
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop-real && echo "=== inner/v3.ts (ck + database_key) ===" && sed -n '55,75p' apps/desktop/src/common/key-storage/layers/inner/v3.ts && echo "=== sqlite.ts SQLCipher PRAGMA key ===" && grep -n "PRAGMA\|databaseKey\|dbKey\|key.*=\|safeStorage\|fileModeInternalObject\|Cipher\|pragma" apps/desktop/src/common/node/db/sqlite.ts | head -15
+=== inner/v3.ts (ck + database_key) ===
+ * compatibility!
+ *
+ * @throws {ValitaError} In case validation fails.
+ */
+const INNER_KEY_STORAGE_V3_SCHEMA = v
+    .object({
+        // Identity related information.
+        identityData: v
+            .object({
+                identity: v.string().map(ensureIdentityString),
+                ck: instanceOf(Uint8Array).map(wrapRawClientKey),
+                serverGroup: v.string().map(ensureServerGroup),
+            })
+            .rest(v.unknown()),
+        dgk: instanceOf(Uint8Array).map(wrapRawDeviceGroupKey),
+        databaseKey: instanceOf(Uint8Array).map(wrapRawDatabaseKey),
+        deviceIds: v
+            .object({
+                d2mDeviceId: unsignedLongAsU64().map(ensureD2mDeviceId),
+                cspDeviceId: unsignedLongAsU64().map(ensureCspDeviceId),
+            })
+=== sqlite.ts SQLCipher PRAGMA key ===
+119:import {BetterSqlCipherQueryRunner} from './query-runner';
+187: * Database backend backed by SQLite (with SQLCipher), using the BetterSqlCipher driver.
+191:     * Raw BetterSqlCipher database connection.
+203:     * Note: The {@link dbKey} will be consumed and purged after initialization!
+209:        dbKey: RawDatabaseKey,
+218:                if (message.startsWith('PRAGMA key')) {
+219:                    this._log.debug('PRAGMA key <redacted>');
+237:            const dbKeyHex: string = bytesToHex(dbKey.unwrap());
+238:            assert(dbKeyHex.length === 64);
+239:            this._rawDb.pragma('cipher_compatibility = 4');
+240:            this._rawDb.pragma(`key = "x'${dbKeyHex}'"`);
+242:        dbKey.purge();
+245:        const provider: unknown = this._rawDb.pragma('cipher_provider', {simple: true});
+253:        this._rawDb.pragma('cipher_log_source = NONE');
+254:        this._rawDb.pragma('cipher_log_source = CORE');
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop-real && echo "=== All BrowserWindow configs ===" && grep -n "new BrowserWindow\|sandbox\|nodeIntegration\|nodeIntegrationInWorker\|contextIsolation\|preload\|webSecurity\|disableBlink" apps/desktop/src/electron/electron-main.ts | head -30 && echo "=== Worker spawn sites (new Worker) ===" && grep -rn "new Worker\|new RemoteWorker\|worker\.js\|worker\.ts" apps/desktop/src/ 2>/dev/null | head -15
+=== All BrowserWindow configs ===
+1239:                // context bridge via IPC (set up in the preload script). We enable
+1240:                // `contextIsolation`, and sandboxing is enabled by default.
+1242:                // Unfortunately we cannot get rid of `nodeIntegrationInWorker` because preload
+1251:                nodeIntegration: false,
+1252:                nodeIntegrationInWorker: true, // TODO(DESK-79): Change to false once worker preload scripts are supported in Electron
+1253:                nodeIntegrationInSubFrames: false,
+1254:                preload: path.join(__dirname, '..', 'electron-preload', 'electron-preload.cjs'),
+1255:                // TODO(DESK-79): Enable `sandbox: true` once worker preload scripts are supported in Electron
+1256:                webSecurity: true,
+1261:                disableBlinkFeatures: [].join(','),
+1262:                contextIsolation: true,
+1484:            case 'sandbox':
+1552:                        'sandbox allow-downloads allow-same-origin allow-scripts allow-forms allow-popups',
+1673:    // In internal test builds on sandbox, we enable crash reporting.
+=== Worker spawn sites (new Worker) ===
+apps/desktop/src/common/dom/webrtc/group-call.ts:281:            const mediaCryptoWorker = new Worker(
+apps/desktop/src/common/dom/webrtc/group-call.ts:282:                new URL('../../../worker/backend/media-crypto-worker.ts', import.meta.url),
+apps/desktop/src/app/app.ts:407:    const worker = new Worker(
+apps/desktop/src/app/app.ts:410:            '../worker/backend/' + import.meta.env.BUILD_TARGET + '/backend-worker.ts',
+apps/desktop/src/worker/backend/media-crypto-worker.ts:332:        this.#_keys.push(new WorkerParticipantCallMediaKey(this._gckh, successor));
+apps/desktop/src/worker/backend/media-crypto-worker.ts:653:        const key = new WorkerParticipantCallMediaKey(gckh, source);
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop-real && echo "=== IPC handlers + preload exposure ===" && grep -n "ipcMain.handle\|ipcMain.on\|contextBridge.exposeInMainWorld\|nodeIntegrationInWorker\|sandbox:" apps/desktop/src/electron/electron-main.ts | head -25 && echo "=== worker dir structure ===" && find apps/desktop/src -path "*worker*" -name "*.ts" | head -20
+=== IPC handlers + preload exposure ===
+901:        electron.ipcMain.handle(ElectronIpcCommand.GET_TEST_DATA, (event) => {
+912:        electron.ipcMain.handle(ElectronIpcCommand.LOAD_USER_PASSWORD, (event) => {
+935:        electron.ipcMain.handle(
+958:        electron.ipcMain.handle(
+987:        electron.ipcMain.handle(
+995:        electron.ipcMain.handle(
+1003:        electron.ipcMain.handle(ElectronIpcCommand.BEFORE_RESTART, async (event) => {
+1010:        electron.ipcMain.handle(ElectronIpcCommand.SIGNAL_RESTART_READY, (event) => {
+1015:        electron.ipcMain.handle(ElectronIpcCommand.IS_FILE_LOGGING_ENABLED, (event) => {
+1019:        electron.ipcMain.on(
+1044:        electron.ipcMain.handle(ElectronIpcCommand.CLEAR_LOG_FILES, (event) => {
+1049:        electron.ipcMain.handle(ElectronIpcCommand.GET_SPELLCHECK, (event) => {
+1057:        electron.ipcMain.on(ElectronIpcCommand.SET_SPELLCHECK, (event, enable: boolean) => {
+1070:        electron.ipcMain.handle(ElectronIpcCommand.GET_LOG_INFORMATION, (event) => {
+1082:        electron.ipcMain.handle(ElectronIpcCommand.GET_GZIPPED_LOG_FILE, async (event) => {
+1098:        electron.ipcMain.handle(
+1135:        electron.ipcMain.handle(ElectronIpcCommand.TRIGGER_INVALID_CERTIFICATE_PINS, (event) => {
+1148:        electron.ipcMain.handle(
+1154:        electron.ipcMain.handle(
+1160:        electron.ipcMain.handle(
+1166:        electron.ipcMain.handle(
+1242:                // Unfortunately we cannot get rid of `nodeIntegrationInWorker` because preload
+1252:                nodeIntegrationInWorker: true, // TODO(DESK-79): Change to false once worker preload scripts are supported in Electron
+1255:                // TODO(DESK-79): Enable `sandbox: true` once worker preload scripts are supported in Electron
+1595:                            electron.ipcMain.once(
+=== worker dir structure ===
+apps/desktop/src/worker/backend/backend-worker.ts
+apps/desktop/src/worker/backend/media-crypto-worker.ts
+apps/desktop/src/worker/backend/config.ts
+apps/desktop/src/worker/backend/electron/backend-worker.ts
+apps/desktop/src/worker/backend/electron/index.ts
+apps/desktop/src/worker/backend/electron/types.ts
+[0m
+All source-level RAG findings confirmed against the live repo HEAD. Let me do a final deeper scan for any NEW desktop attack surface (preload scripts, additional BrowserWindow configs, IPC handlers).
+[0m$ [0mcd /tmp/opencode/threema-desktop-real && echo "=== crypto.ts actual path ===" && find . -name "crypto.ts" -path "*key-storage*" && echo "=== crypto.ts:223 benchmark password ===" && grep -n "r3gGN9GD\|determineKdfParams\|benchmarkKey.purge\|benchmarkKey" apps/desktop/src/common/node/key-storage/crypto.ts 2>/dev/null | head -10; echo "=== vite.config key storage paths ===" && grep -n "KEY_STORAGE_PATH\|SAFE_STORAGE_PASSWORD_PATH\|keystorage" apps/desktop/config/vite.config.ts | head -10; echo "=== restore-db ===" && find . -name "restore-db.ts" 2>/dev/null
+=== crypto.ts actual path ===
+./apps/desktop/src/common/node/key-storage/crypto.ts
+=== crypto.ts:223 benchmark password ===
+207:export async function determineKdfParams(
+222:    const benchmarkKey = await deriveKeyFromPassword(services, {
+223:        password: 'r3gGN9GDQ5NF6tM6',
+233:    benchmarkKey.purge();
+=== vite.config key storage paths ===
+338:        DEPRECATED_KEY_STORAGE_PATH: ['data', 'keystorage.pb3'],
+339:        KEY_STORAGE_PATH: ['data', 'keystorage.bin'],
+344:        SAFE_STORAGE_PASSWORD_PATH: ['data', 'keystorage.password.bin'],
+=== restore-db ===
+./apps/desktop/src/common/dom/backend/restore-db.ts
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop-real && echo "=== restore-db.ts ck + databaseKey extraction ===" && grep -n "ck\|databaseKey\|dbKey\|identity\|identityData\|\.unwrap()\|decrypt" apps/desktop/src/common/dom/backend/restore-db.ts | head -15 && echo "=== Windows app data path ===" && grep -rn "APPDATA\|ThreemaDesktop\|appDataDir\|electron-utils\|userData" apps/desktop/src/common/node/electron-utils.ts 2>/dev/null | head -10; grep -rn "APPDATA\|ThreemaDesktop\|electron-app-utils\|userData" apps/desktop/src/electron/electron-main.ts | head -10
+=== restore-db.ts ck + databaseKey extraction ===
+3:import type {ServicesForBackend} from '~/common/backend';
+6:    DatabaseBackend,
+19:import type {FactoriesForBackend} from '~/common/dom/backend';
+30: * Checks the password entered by the user against an old profile.
+36:export async function unlockDatabaseKey(
+40:    factories: Pick<FactoriesForBackend, 'keyStorage'>,
+41:): Promise<{dbKey: RawDatabaseKey; oldUserIdentity: IdentityString}> {
+45:        dbKey: keyStorageContents.inner.databaseKey,
+46:        oldUserIdentity: keyStorageContents.inner.identityData.identity,
+53: * This function takes a database key and unlocks the latest profile's database using that key. It
+66:    services: Pick<
+67:        ServicesForBackend,
+71:    db: DatabaseBackend,
+74:    factories: Pick<FactoriesForBackend, 'db' | 'fileStorage'>,
+83:        {userIdentity: services.model.user.identity},
+=== Windows app data path ===
+92:const ELECTRON_PATH_USER_DATA = 'userData';
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/opecode/*, /tmp/opencode/threema-desktop-real/*); auto-rejecting
+[0m✗ [0mcd /tmp/opecode/threema-desktop-real && grep -n "appData\|userData\|APPDATA\|ThreemaDesktop\|app.getPath\|getSafeStoragePasswordPath\|KEY_STORAGE_PATH\|Threema" apps/desktop/src/electron/electron-main.ts | head -15 2>/dev/null; cd /tmp/opencode/threema-desktop-real 2>/dev/null && grep -n "appData\|userData\|APPDATA\|ThreemaDesktop\|app.getPath\|getSafeStoragePasswordPath\|KEY_STORAGE_PATH\|SAFE_STORAGE" apps/desktop/src/electron/electron-main.ts | head -20 failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
