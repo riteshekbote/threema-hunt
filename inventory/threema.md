@@ -323,3 +323,5 @@
 - CHANGED fetch_bulk 100+ ID batch re-confirmed on `api.threema.ch` and `apip.threema.ch` via own probes (identical 200 response with same ECHOECHO pubkey `sha256(SmobNNzvFdQ8t03i/TYJG+mfu68SbQmdR9g9kZcSxys=)`;
 - NEW `update_work_info` endpoint confirmed with parameter-validation-before-identity-lookup oracle on all 3 hosts: returns `{"success":false,"error":"Missing parameters"}` (not "Identity not found"), same 
 - NEW No `Access-Control-Expose-Headers` on any directory host response — confirmed via own OPTIONS preflight on `ds-apip.threema.ch/identity/fetch_bulk` (ACAO:*, Allow-Methods POST,GET,OPTIONS,DELETE, no E
+
+## 2026-08-08 17:40:33 UTC

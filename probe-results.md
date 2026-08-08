@@ -8,3 +8,10 @@ https://safe-01.threema.ch/backups/{testId -> HTTP 400
 https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
 https://ds-apip-work.threema.ch/identities -> HTTP 401
 https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+
+## 2026-08-08 17:40:36 UTC
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400

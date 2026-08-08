@@ -85,3 +85,4 @@ testability: PASSIVE
 [NEXT] HUMAN: Run verify-acl-bypass.ps1 on an authorized Windows host with Threema Desktop installed to confirm the Windows ACL bypass for key storage (master password recovery possible via fileModeInternalObjectIfPosix() returning {} on Windows)
 ## 2026-08-08 15:46:31 UTC [safe] (model ling3)
 ## 2026-08-08 16:58:03 UTC [safe] (model ling3)
+## 2026-08-08 17:26:15 UTC [safe] (model ling3)

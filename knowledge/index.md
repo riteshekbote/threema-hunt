@@ -114,3 +114,4 @@
 - 2026-08-08 REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` is benchmark-only dummy in determineKdfParams(), derived key immediately purged — not used for real encryption (re-confirmed, RAG-verified)
 - 2026-08-08 REJECTED class @ lead: 7. Desktop BrowserWindow sandbox+worker gap — conditional RCE
 - 2026-08-08 REJECTED class @ lead: 16. Staging chat cluster — out of scope
+- 2026-08-08 REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c` is benchmark-only dummy in determineKdfParams(), derived key immediately purged, not used for real encryption

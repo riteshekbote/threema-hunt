@@ -2770,3 +2770,58 @@ evidence_needed: valid Work license → filtered query returns identities from a
 verify_steps: AUTH_HELPED: with program-issued Work test creds, POST /identities with org filter params; compare result set vs own org only; ≤1 rps.
 impact: cross-tenant metadata leak (names/titles/departments); medium.
 testability: AUTH_HELPED
+## 2026-08-08 17:29:39 UTC [chat] (model bigpickle)
+[HYP] Safe backup credentialed cross-origin read of backup store
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: GET /backups/{64hex} → 400 (11B, byte-invariant, ETag W/"b-…") across random IDs; route Basic-auth gated (backupId:backupKey); OPTIONS → CORS `*` + ACAH:Authorization on all 5 hosts.
+evidence_needed: valid program test backupId:backupKey → 200 + readable payload; Access-Control-Expose-Headers present for cross-origin body read.
+verify_steps: AUTH_HELPED: curl -u "testBackupId:testBackupKey" https://safe-01.threema.ch/backups/{testId} (≤1 rps, one call); record 200/body/Expose-Headers.
+impact: valid creds → identity keypair + message-history backup read cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[HYP] work.test license-token backend ships → unauth 64-hex credential oracle
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 40
+reasoning: staging bundle v2.25.1 (sha256 e48e18f7…) implements GET {username?,password?,expired,hasEmail} + PUT; backend still 404 catch-all (900B, method-agnostic); prod bundle has zero /public/* handlers.
+evidence_needed: response ≠404 for a 64-char token on staging.
+verify_steps: PASSIVE, gated: weekly single GET /api-app/public/global/settings + single GET /api-app/public/license/token/{64zeros}; escalate only on non-404; ≤1 rps; never real tokens.
+impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
+testability: PASSIVE
+[HYP] Work directory cross-subscription metadata disclosure via /identities filter
+class: BUSLOGIC
+asset: https://ds-apip-work.threema.ch/identities (work.threema.ch backend)
+confidence: 52
+reasoning: OpenAPI `directory.openapi.yml` flags /identities filter logic "currently buggy" (TWRK-1633); prod+staging return 401 unauth; CORS `*`; filters take name/title/department fields.
+evidence_needed: valid Work license → filtered query returns identities from another subscription.
+verify_steps: AUTH_HELPED: with program-issued Work test creds, POST /identities with org filter params; compare result set vs own org only; ≤1 rps.
+impact: cross-tenant metadata leak (names/titles/departments); medium.
+testability: AUTH_HELPED
+[HYP] Safe backup credentialed cross-origin read of backup store
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 40
+reasoning: GET /backups/{64hex} returns byte-identical 400 (11B, ETag W/"b-EFiDB1U…", CORS `*`) with AND without bogus Basic auth — route rejects before/without discriminating credentials; OPTIONS still returns CORS `*` + ACAH:Authorization on all 5 hosts, so the client is expected to send Basic auth.
+evidence_needed: valid program test backupId:backupKey → any response ≠ 400 (200 + payload, or 401/403) proving the credential gate exists and read route is reachable; Access-Control-Expose-Headers for cross-origin body read.
+verify_steps: AUTH_HELPED: single curl -u "testBackupId:testBackupKey" https://safe-01.threema.ch/backups/{testId} (≤1 rps); record status/body/Expose-Headers vs the 400 baseline.
+impact: valid creds → identity keypair + message-history backup read cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[HYP] Work directory cross-subscription metadata disclosure via /identities filter
+class: BUSLOGIC
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 52
+reasoning: OpenAPI `directory.openapi.yml` flags /identities filter logic "currently buggy" (TWRK-1633); prod+staging return 401 unauth; CORS `*`; filters take name/title/department fields.
+evidence_needed: valid Work license → filtered query returns identities from another subscription.
+verify_steps: AUTH_HELPED: with program-issued Work test creds, POST /identities with org filter params; compare result set vs own org only; ≤1 rps.
+impact: cross-tenant metadata leak (names/titles/departments); medium.
+testability: AUTH_HELPED
+[HYP] fetch_bulk batch-size cap and invalid-only response shape
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (mirrors api/apip)
+confidence: 50
+reasoning: silent-omit of invalid IDs + CORS `*` + no 429 (30 POSTs) confirmed on all 3 prod hosts; batch cap (>N) and invalid-only shape (empty-200 vs error) never measured → hostile-page enumeration bound unknown.
+evidence_needed: >N-ID batch response shape; invalid-only batch → empty 200 vs error.
+verify_steps: PASSIVE, gated on operator GO: single POST ~20 synthetic valid-format+invalid IDs per host at 1 rps, no real user IDs; compare status/body vs known silent-omit 200.
+impact: bounds/scales identity→pubkey enumeration from a hostile origin; low-medium (pubkeys public by design).
+testability: PASSIVE
