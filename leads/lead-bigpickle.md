@@ -320,3 +320,33 @@ testability: PASSIVE
 [LEARN] ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed).
 [LEARN] ACCEPTED OTHER @ work.test.threema.ch: liveness endpoints `/ping` (204) and `/info/ping.php` (200 empty) identical on staging and prod — no divergence.
 [RISK] chat: 45 — staging chat cluster TCP-reachable and DNS-split from prod but no in-band divergence proven; requires protocol decoding | web: 50 — staging work API exposes public endpoints absent on prod (public/global/settings 200 vs 404); auth-gated namespaces intact; low severity | sync: 40 — staging mediator/rendezvous WSS reachable with distinct staging cert; no token-level surface | safe: 30 — credential-gated (400 for no-creds); CORS * on preflight only; defense-in-depth gap | desktop-src: 40 — two accepted source misconfigs (Windows keystorage ACL, electron sandbox:false + nodeIntegrationInWorker) with no remote exploitation path.
+## 2026-08-08 00:15:31 UTC [chat] (model bigpickle)
+[HYP] Staging chat mirror shows version/test-identity skew
+class: MISCONFIG
+asset: g-{00..ff}.0.test.threema.ch:5222 (203.56.114.34)
+confidence: 50
+reasoning: staging chat cluster consolidated to a single IP (203.56.114.34) vs prod's split .112.202/.204; TCP 5222+443 accept but server is silent until client speaks (custom CSP protocol, no TLS cert obtainable). Only DNS/net split currently separates it from prod.
+evidence_needed: in-band protocol difference in the NaCl-box+HKDF CSP handshake (stream/auth response fields, version, test identity acceptance).
+verify_steps: AUTH_HELPED: reconstruct CSP handshake from threema-android `csp/connection` code; one connect to staging and one to prod; compare stream/auth responses; ≤1 rps one attempt each.
+impact: internet-reachable staging messenger backend → version skew/unpatched surface; severity low.
+testability: AUTH_HELPED
+[HYP] Staging sync cluster (203.56.114.62) reachable beyond nginx gate
+class: MISCONFIG
+asset: mediator-{0..f}.test.threema.ch / rendezvous-{0..f}.test.threema.ch / blob-mirror-{0..f}.test.threema.ch
+confidence: 40
+reasoning: all staging sync hosts consolidate to one IP 203.56.114.62 with wildcard `*.test.threema.ch` cert; every HTTP path AND a valid-format ClientUrlInfo WS upgrade (hex from `md-d2m.proto`) returns nginx 403 — gate is host/path-agnostic. No divergence from prod 403 behavior observed.
+evidence_needed: whether any Host/path combination (real deviceGroupId, server group ≠ "0", direct IP + SNI variants) bypasses the nginx 403 to reach the WSS handler.
+verify_steps: AUTH_HELPED: WS upgrade with real DGPK-derived ClientUrlInfo hex on staging vs prod; ≤1 rps, no handshake payload sent.
+impact: staging sync/linking/blob backend exposure → test credential recon; severity low.
+testability: AUTH_HELPED
+[HYP] Staging work bundle/backend license-route skew
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 40
+reasoning: bundle v2.25.1 implements GET (returns license username/password/expired/hasEmail) + PUT (void) for `/public/license/token/{64hex}` with 64-char token validation, but the staging backend returns SPA catch-all 404 (md5-identical to bogus paths) — frontend ahead of backend.
+evidence_needed: whether backend catches up and serves the route (unauthenticated token→credentials oracle); currently non-live.
+verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64hex}` weekly; record 404 vs non-404; ≤1 rps.
+impact: if route enabled: unauthenticated 64-hex license-token oracle returning license username/password; severity low (tokens are high-entropy).
+testability: PASSIVE
+[NEXT] AUTH_HELPED: with an authorized staging test identity, reconstruct the Threema CSP NaCl-box+HKDF handshake from threema-android (csp/connection) and perform one connect to `g-00.0.test.threema.ch:5222` (203.56.114.34) vs one to `g-00.0.threema.ch:5222` (203.56.112.202); compare stream/auth response fields for version or test-identity skew; ≤1 rps, one attempt each, no data modification.
+[RISK] chat: 40 — staging chat cluster TCP-reachable on 5222/443 with custom CSP protocol; no in-band divergence proven without handshake decode; version-skew risk unproven | web: 45 — staging work API exposes exactly one public config route (app-download links) absent on prod; auth-gated namespaces intact on both hosts; license-credential route not live on staging | sync: 35 — staging mediator/rendezvous/blob-mirror consolidated to 203.56.114.62 with staging cert, but nginx 403 gates all hosts/paths incl. valid WS upgrade; no reachable surface | safe: 30 — unchanged; credential-gated (400 for no-creds), CORS `*` on preflight only | desktop-src: 40 — two accepted source misconfigs (Windows keystorage ACL, electron sandbox:false + nodeIntegrationInWorker) with no remote exploitation path.

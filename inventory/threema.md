@@ -135,3 +135,11 @@
 - NEW Staging work app sets `__HOST-HTTP-SESSIONID` cookie on unauthenticated GET /en/login (Secure/HttpOnly/SameSite=Strict).
 - NEW `/api-app/me/profile` + `/api-app/global/settings` → 302 on staging (session-gated); only the explicit `/api-app/public/*` namespace is open.
 - NEW `/info/ping.php` → 200 empty and `/ping` → 204 on BOTH staging and prod (no divergence).
+
+## 2026-08-08 00:15:46 UTC
+- NEW work.test.threema.ch `/api-app/public/global/settings` → 200 JSON (299B) unauthenticated on staging; identical path → 404 on production work.threema.ch — first confirmed staging-prod public-API diverg
+- NEW work.test.threema.ch `/api-app/public/license/token/{64hex}` route present in JS bundle; token validated as exactly 64 chars; fake 64-zero token → 404 (route exists, token lookup fails)
+- NEW work.test.threema.ch login page CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.ch, hcaptcha-work.threema.ch, billing.test.threema.ch
+- NEW Staging work app sets `__HOST-HTTP-SESSIONID` cookie on unauthenticated GET /en/login (Secure/HttpOnly/SameSite=Strict)
+- NEW `/api-app/me/profile` and `/api-app/global/settings` → 302 on staging (session-gated); only explicit `/api-app/public/*` namespace is open
+- NEW `/info/ping.php` → 200 empty and `/ping` → 204 on BOTH staging and prod — no divergence

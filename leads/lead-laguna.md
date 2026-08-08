@@ -372,3 +372,4 @@ verify_steps: RAG: clone threema-desktop, grep `nodeIntegrationInWorker`/`sandbo
 impact: Renderer/worker XSS → Node require → OS command execution on the desktop user's machine via a malicious Threema message or link. Severity: High (RCE, no auth beyond receiving a message).
 testability: RAG
 [NEXT] RAG: clone github.com/threema-ch/threema-desktop, then read `apps/desktop/src/electron/electron-main.ts` BrowserWindow webPreferences to capture exact line numbers for `sandbox`/`nodeIntegrationInWorker`/`nodeIntegration`/`contextIsolation`, and read `apps/desktop/src/common/node/key-storage/index.ts` `fileModeInternalObjectIfPosix` to confirm Windows returns `{}` (no ACL). Also grep `new Worker(` across `apps/desktop/src/` to enumerate worker content sources. This materially advances the desktop POC (top-ranked RAG hypothesis) and resolves the 65+75 confidence desktop leads to verified line-level evidence.
+## 2026-08-08 00:11:58 UTC [desktop] (model laguna)
