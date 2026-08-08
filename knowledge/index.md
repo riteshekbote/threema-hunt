@@ -138,3 +138,4 @@
 - 2026-08-08 ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated /backups/{64hex} — header inconsistency stable
 - 2026-08-08 REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE requires separate renderer exploit chain, not standalone
 - 2026-08-08 REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy, derived key immediately purged
+- 2026-08-08 ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk single-request 500-ID batch → 200 with valid pubkey echo, 499 invalid silently omitted, no 413/429 — request-body/batch ceiling ≥ 500 confirmed, no rate limit; enumeration-throughput bound tightened this cycle.

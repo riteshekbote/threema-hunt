@@ -3575,3 +3575,39 @@ impact: valid creds → identity keypair + message-history backup readable cross
 testability: AUTH_HELPED
 [NEXT] PROBE: single POST to https://ds-apip.threema.ch/identity/fetch_bulk with `{"identities":["ECHOECHO",<499 unique invalid 8-char base32 IDs>]}` at ≤1 rps — confirms batch-size ceiling (200+pubkey vs 413/429), closing enumeration-throughput bound on highest-confidence finding. (saltyrtc client-hello still deferred pending operator ruling; safe probe requires AUTH_HELPED creds.)
 [RISK] chat: 35 — g-* silent (5222/443), only saltyrtc-* answers (426, scope-gated); no data-plane access. | web: 50 — unauth identity→pubkey IDOR at scale (fetch_bulk, CORS `*`, no rate limit) plus staging public-namespace divergence; no creds to escalate. | sync: 20 — mediator/rendezvous uniform 403, no in-band surface. | safe: 40 — backup API credential-gated; existence oracle + HSTS gap on 400 + credentialed CORS weaken posture but payload needs creds. | desktop-src: 55 — accepted Windows key-storage ACL bypass (same-user → Ed25519 keypair + SQLCipher DB) plus conditional sandbox/worker gap; local-only.
+## 2026-08-08 23:43:38 UTC [chat] (model bigpickle)
+[NEW] fetch_bulk 500-ID batch confirmed this cycle: single POST to https://ds-apip.threema.ch/identity/fetch_bulk with `{"identities":["ECHOECHO",<499 unique invalid base32>]}` → HTTP 200, 152B, 0.72s, ECHOECHO pubkey `SmobNNzv...` echoed, 499 invalid silently omitted, no 413/429 — batch/request-body ceiling ≥ 500, cost bound on enumeration tightened.
+[PRIO] https://ds-apip.threema.ch/identity/fetch_bulk | priority 6.95 | attack 8 / business 7 / tech 6 / gate 10 / cloud 2 / fresh 6
+[PRIO] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} | priority 5.10 | attack 4 / business 9 / tech 5 / gate 2 / cloud 2 / fresh 6
+[PRIO] https://saltyrtc-{00..ff}.threema.ch:443 | priority 3.60 | attack 4 / business 3 / tech 6 / gate 1 / cloud 1 / fresh 7
+[HYP] fetch_bulk batch ceiling → full-keyspace enumeration bound (tightened)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (+ api/apip)
+confidence: 95
+reasoning: Confirmed this cycle: 500-ID single batch → 200 with valid ECHOECHO pubkey echo, 499 invalid silently omitted, no 413/429. Prior cycles: 100-ID batch identical, 30 sequential POSTs no rate-limit, CORS `*` with POST/GET/OPTIONS/DELETE on all 3 prod hosts. ID space 2^40 base32.
+evidence_needed: next batch at 2000 IDs to find the true ceiling (200/413/429); response-size + pubkey echo confirms valid-ID handling at scale.
+verify_steps: PASSIVE — single `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<1999 invalid>]}'` (≤1 rps), record 200+pubkey vs 413/429.
+impact: unauth identity→pubkey mapping with confirmed ≥500 IDs/request and no rate limit; privacy/social-graph mapping of the full 2^40 space; Medium-High, fully unauth.
+testability: PASSIVE
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (203.56.112.231)
+confidence: 50
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route-existence oracle vs /backup/{x} 404; HSTS/Expect-CT absent on GET 400. Valid creds are the only missing input.
+evidence_needed: program-issued test backupId:backupKey → response ≠ 400 (200+payload or 401/403) + any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs known 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[HYP] saltyrtc-*.threema.ch is the live SaltyRTC signaling plane for chat
+class: OTHER
+asset: https://saltyrtc-{00..ff}.threema.ch:443 (quadrant-split 4 nodes)
+confidence: 75
+reasoning: Bare WS upgrade → 101 then close 1002; with `Sec-WebSocket-Protocol: v1.saltyrtc.org` → 101 + subprotocol echoed then close 3001 (SaltyRTC protocol-error). nginx TLS WSS gate; server waits for client-hello (peer key). Only chat-surface host answering in-band vs g-* silent.
+evidence_needed: operator scope ruling (saltyrtc-* not in scope.yml g-*.0 pattern); then server permanent-key fingerprint via one client-hello.
+verify_steps: HUMAN_ONLY — after ruling: `curl -sk --max-time 8 -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Protocol: v1.saltyrtc.org" -H "Sec-WebSocket-Key: {b64}" https://saltyrtc-00.threema.ch/` (≤1 rps); do NOT send client-hello without approval.
+impact: chat-signaling control plane passively reachable where g-* silent; server-key/framing fingerprint + future handshake recon; Low-Medium, scope-gated.
+testability: HUMAN_ONLY
+[FINAL] 1. fetch_bulk batch ceiling → enumeration bound (95, IDOR, PASSIVE — ceiling now ≥500, next probe 2000) | 2. Safe backup credentialed read (50, AUTH, AUTH_HELPED — creds only missing input) | 3. saltyrtc signaling plane (75, OTHER, HUMAN_ONLY — scope ruling required, ranking kept above 50-rated safe only on confidence, gated lowest by testability)
+[NEXT] PROBE: single POST to https://ds-apip.threema.ch/identity/fetch_bulk with `{"identities":["ECHOECHO",<1999 unique invalid 8-char base32 IDs>]}` (≤1 rps) — finds the true batch ceiling (200+pubkey vs 413/429), finalizing enumeration cost = ceil(2^40 / ceiling) requests; closes the throughput bound on the top finding. (saltyrtc client-hello still deferred pending operator scope ruling; safe probe requires AUTH_HELPED creds.)
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk single-request 500-ID batch → 200 with valid pubkey echo, 499 invalid silently omitted, no 413/429 — request-body/batch ceiling ≥ 500 confirmed, no rate limit; enumeration-throughput bound tightened this cycle.
+[RISK] chat: 35 — g-* silent (5222/443); only saltyrtc-* answers (426, scope-gated); no data-plane access. | web: 52 — unauth identity→pubkey IDOR at scale now confirmed ≥500 IDs/request with no rate limit (2^40 space ≈ 2.2e9 requests), CORS `*`, plus staging public-namespace divergence; no creds to escalate. | sync: 20 — mediator/rendezvous uniform 403, no in-band surface. | safe: 40 — backup API credential-gated; existence oracle + HSTS gap on 400 + credentialed CORS weaken posture but payload needs creds. | desktop-src: 55 — accepted Windows key-storage ACL bypass (same-user → Ed25519 keypair + SQLCipher DB) plus conditional sandbox/worker gap; local-only.
