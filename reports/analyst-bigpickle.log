@@ -11219,3 +11219,67 @@ testability: PASSIVE
 - [RISK] sync: 30 — mediator/rendezvous uniform 403; remote-secret work-credential gated; minimal exposure
 - [RISK] safe: 50 — Basic-auth gate with CORS `*` + credentialed preflight; route-distinction (400/404) oracle present across all 5 hosts
 - [RISK] desktop-src: 60 — Windows ACL gap RAG-verified (local same-user identity+DB compromise); nodeIntegrationInWorker:true with no dynamic sinks; OnPrem config trust verified sound
+===== ANALYST bigpickle 2026-08-08 11:23:32 UTC =====
+[0m
+> build · big-pickle
+[0m
+STEP 1 — DELTA
+- [NEW] hypotheses-laguna.txt: pins concrete target `%APPDATA%\ThreemaDesktop\data\keystorage.bin` for the desktop ACL hypothesis — new artifact, not a new host
+- [NEW] hypotheses-bigpickle.txt: work.test `/api-app/public/license/token/{64hex}` backend-ships hypothesis formally ranked [40] — prior KB OTHER entry now a scored lead
+- [NEW] Ranked top-1 (desktop keystorage ACL) now [95] with two independent hypothesis sources (nemotron3 + laguna) converged
+- NO other delta: all hosts/endpoints unchanged from 2026-08-07/08 baselines; no live probes ran this cycle (GO gate open, static-only)
+
+STEP 2 — PRIORITIZE
+- [PRIO] threema-desktop keystorage (Windows ACL) | 5.4 | attack 7 business 8 tech 5 gate 2 cloud 0 fresh 6
+- [PRIO] safe-*.threema.ch `/backups/{64hex}` | 5.2 | attack 4 business 5 tech 4 gate 9 cloud 6 fresh 4
+- [PRIO] work.test.threema.ch `/api-app/public/license/token/{64hex}` | 4.95 | attack 3 business 4 tech 4 gate 10 cloud 3 fresh 8
+- [PRIO] ds-apip.threema.ch `/identity/fetch_bulk` | 4.65 | attack 5 business 3 tech 3 gate 10 cloud 4 fresh 3
+
+STEP 3 — HYPOTHESES
+- [HYP] Windows keystorage ACL bypass → same-user master-password/DPAPI recovery
+  class: MISCONFIG
+  asset: threema-desktop `%APPDATA%\ThreemaDesktop\data\keystorage.bin` + `keystorage.password.bin`
+  confidence: 65
+  reasoning: RAG-verified `fileModeInternalObjectIfPosix()` returns `{}` on Windows (fs.ts:41) → files written without ACL; safeStorage/DPAPI still binds password to user account; worker/ tree has zero dynamic sinks so RCE chain conditional — local ACL gap is the primary residual risk.
+  evidence_needed: same-user non-elevated process reading/decrypting keystorage while app idle or after logout; assert zero ACL via icacls.
+  verify_steps: AUTH_HELPED: authorized Windows VM with own test install — enumerate `%APPDATA%\ThreemaDesktop\data`, run `icacls` on both files, DPAPI-decrypt password under same user without elevation; report hashes, never raw secrets.
+  impact: if proven, identity keypair + message DB decryption by any same-user process; high locally, low remotely.
+  testability: AUTH_HELPED
+- [HYP] safe-01 backup-existence oracle via 400 response-shape variance
+  class: AUTH
+  asset: https://safe-01.threema.ch/backups/{64hex}
+  confidence: 45
+  reasoning: `/backups/{64hex}` → 400 (Basic-gated route) vs `/backup/{x}` → 404 (no route); 400 byte-invariance across random IDs never measured → if body/status varies with ID validity, an oracle exists.
+  evidence_needed: status/body variation across 2-3 random 64-hex IDs vs known 400 baseline.
+  verify_steps: PASSIVE, gated on operator GO: 3 single GETs of random 64-hex at 1 rps, compare to baseline 400; no real-user IDs.
+  impact: if variant, backup-existence oracle enabling targeted credential attacks; low-medium, no data access.
+  testability: PASSIVE
+- [HYP] work.test license-token backend ships → unauth 64-hex credential oracle
+  class: AUTH
+  asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+  confidence: 40
+  reasoning: staging bundle implements GET returning {username?,password?,expired,hasEmail} with zod 64-char validation; backend currently 404 for GET/PUT/OPTIONS (fake token) → if backend deploys, 404-vs-credential response becomes a testable oracle.
+  evidence_needed: weekly single GET of `{64zeros}` returning non-404 signals route shipped; then structural-valid vs invalid token comparison.
+  verify_steps: PASSIVE, gated: 1 GET `/api-app/public/license/token/{64zeros}` weekly at ≤1 rps; escalate only on non-404; never real tokens.
+  impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
+  testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+- Retained: desktop keystorage [65] — survives (≥40, MISCONFIG not on REJECTED list, concrete AUTH_HELPED steps)
+- Retained: safe-01 oracle [45] — survives (≥40, concrete 3-request PASSIVE steps)
+- Retained: work.test license-token [40] — borderline but survives (exactly at threshold, concrete weekly-passive steps)
+- [PARKED] fetch_bulk batch-size/invalid-only shape: dropped from top-3 slots by priority (4.65 < 4.95); hypothesis itself still valid from prior cycle, gated on GO.
+- [FINAL] 1) Desktop keystorage [65] 2) safe-01 existence oracle [45] 3) work.test license-token [40]
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: Operator confirmation still absent — request (a) confirmation of active authorized program + reporting channel, (b) GO/NO-GO. If GO: first probe = 3× single GET `https://safe-01.threema.ch/backups/{random64hex}` at 1 rps vs the known 400 baseline (existence-oracle test), then the fetch_bulk invalid-only batch shape (single POST ~20 synthetic IDs). While gate open: continue static RAG (directory.openapi.yml remaining schemas) in parallel — no live HTTP.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): two independent hypothesis sources converged at [95]; RAG-verified line-level (fs.ts:41, index.ts:559-560, electron-main.ts:944-945/1234-1268); runtime proof still pending (AUTH_HELPED) — no class newly proven dead/alive this cycle (static-only).
+
+STEP 7 — RISK SCORE
+- [RISK] chat: 20 — TCP 5222/443 read-only connects return 0 bytes both staging+prod; handshake requires authenticated login frame; no passive in-band divergence obtainable.
+- [RISK] web: 45 — work.test staging divergence (public-only namespace live, bundle sha mismatch, license-token endpoint could ship), login CSP leaks 5 staging surfaces, `/api-app/me/profile` 302-gated; prod misses HSTS/Expect-CT on directory hosts.
+- [RISK] sync: 20 — mediator/rendezvous uniform 403 on HTTPS, DNS split routing fully mapped; minimal passively-observable attackable surface.
+- [RISK] safe: 35 — Basic-auth gated (backupId:backupKey) but CORS `*` + credentialed preflight + open route-shape-oracle hypothesis + no HSTS/Expect-CT; existence-oracle proof would raise this.
+- [RISK] desktop-src: 50 — RAG-verified Windows keystorage ACL gap (top finding), `sandbox:false` + `nodeIntegrationInWorker:true` TODOs, but zero dynamic sinks in worker/ tree limits RCE; public source enables deep review.

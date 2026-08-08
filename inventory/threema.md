@@ -225,3 +225,23 @@
 - NEW work.test.threema.ch login CSP leaks staging surfaces: broadcast.test, avatar.test, companylogo.test, hcaptcha-work, billing.test
 - CHANGED Desktop BrowserWindow `sandbox` unset (defaults false) — L1255 TODO DESK-79; L1240 comment incorrect per Electron docs
 - CHANGED Desktop key-storage ACL bypass elevated from hypothesis to RAG-VERIFIED with all 15 source paths
+
+## 2026-08-08 11:23:32 UTC
+- NEW Desktop key-storage Windows ACL bypass fully RAG-verified (15 source paths confirmed in cloned repo)
+- NEW Safe backup API credential format: HTTP Basic Auth `backupId:backupKey` confirmed across all 5 safe-* hosts
+- NEW Route distinction `/backups/{64hex}` (400) vs `/backup/{x}` (404) confirmed across all 5 safe-* hosts
+- NEW work.test.threema.ch bundle divergence: work_public.js v2.25.1 different builds staging vs prod (prod has ZERO `/public/*` handlers)
+- NEW Identity→pubkey oracle confirmed on all 3 production hosts (ds-apip, api, apip) with CORS `*`
+- NEW fetch_bulk batch oracle confirmed: returns only valid IDs, silently omits invalid, CORS `*`
+- NEW No dynamic sinks (`require`/`import`/`eval`/`child_process`/`new Function`) in worker/ tree — Electron RCE conditional
+- NEW work.test.threema.ch login CSP leaks staging surfaces: broadcast.test, avatar.test, companylogo.test, hcaptcha-work, billing.test
+- CHANGED Desktop BrowserWindow `sandbox` unset (defaults false) — L1255 TODO DESK-79; L1240 comment incorrect per Electron docs
+- CHANGED Desktop key-storage ACL bypass elevated from hypothesis to RAG-VERIFIED with all 15 source paths
+- NEW Desktop key-storage: RAG-VERIFIED TODAY — all 15 source paths confirmed in freshly cloned repo `/tmp/opencode/threema-desktop` (fs.ts:41, index.ts:559-560, electron-main.ts:944-945, crypto.ts:53-88/95
+- NEW Safe backup API credential format identified: HTTP Basic Auth with `backupId:backupKey` (vs earlier generic "credential-gated")
+- NEW Safe-*.threema.ch route distinction confirmed across ALL 5 hosts (safe-01, safe-1a, safe-1b, safe-02, safe-00) — all return identical OPTIONS 204 + GET 400
+- CHANGED Desktop BrowserWindow `sandbox` property confirmed UNSET (defaults false) — L1255 `// TODO(DESK-79): Enable sandbox: true`; L1240 comment "sandboxing is enabled by default" is INCORRECT per Electron d
+- NEW work.test.streema.ch bundle divergence: work_public.js different sha256 staging (`e48e18f7…`) vs prod (`96501e21…`) — prod has ZERO `/public/*` handlers
+- NEW Identity→pubkey oracle confirmed across all 3 production hosts (ds-apip, api, apip) returning identical 200+pubkey with CORS `*`
+- NEW fetch_bulk batch oracle confirmed: `POST /identity/fetch_bulk {"identities":["ECHOECHO","ZZZZZZZZ"]}` → returns only valid IDs, silently omits invalid, CORS `*`
+- NEW No dynamic sinks (require/import/eval/child_process/new Function) found in worker/ tree — grep returned 0 matches, confirming BrowserWindow exploitability is conditional

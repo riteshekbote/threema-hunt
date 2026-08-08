@@ -1680,3 +1680,4 @@ evidence_needed: status/body variation across 2-3 random 64-hex IDs vs known 400
 verify_steps: PASSIVE, gated: 2-3 single GETs random 64-hex at 1 rps; no real-user IDs.
 impact: if variant, backup-existence oracle; low-medium, no data access.
 testability: PASSIVE
+## 2026-08-08 11:18:04 UTC [chat] (model bigpickle)
