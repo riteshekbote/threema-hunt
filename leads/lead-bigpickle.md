@@ -3507,3 +3507,71 @@ verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.t
 impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
 testability: AUTH_HELPED
 [NEXT] PROBE: single 500-ID POST to https://ds-apip.threema.ch/identity/fetch_bulk (1 valid ECHOECHO + 499 invalid) at ≤1 rps — confirms batch-size ceiling, closing the enumeration-throughput bound on the highest-confidence finding. (saltyrtc client-hello explicitly deferred pending operator ruling.)
+## 2026-08-08 23:11:45 UTC [chat] (model bigpickle)
+reasoning: Accepted: 100-ID batch (1 valid + 99 invalid) → 200, single pubkey, silent omission; 30 sequential POSTs no 429; CORS `*` POST/GET/OPTIONS/DELETE on all 3 prod hosts. Known Threema ID space is 2^40 base32 — batch size determines enumeration cost ceiling.
+evidence_needed: single 500-ID POST confirms no request-body/batch ceiling; if 200 with valid pubkey returned, ceiling is ≥500.
+verify_steps: PASSIVE — single `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO", ...499 invalid]}'` (≤1 rps), record 200/413/429 + valid-id pubkey echo.
+impact: confirms unauth identity→pubkey mapping throughput bound; privacy/social-graph leakage at scale; Medium-High, fully unauth.
+testability: PASSIVE
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (single IP 203.56.112.231)
+confidence: 50
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route vs 404 distinction = existence oracle; HSTS/Expect-CT absent on GET 400. Valid creds are the only missing input.
+evidence_needed: program-issued test backupId:backupKey → response ≠ 400 (200+payload or 401/403) + any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs known 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[NEXT] PROBE: single 500-ID POST to https://ds-apip.threema.ch/identity/fetch_bulk (1 valid ECHOECHO + 499 invalid) at ≤1 rps — confirms batch-size ceiling, closing the enumeration-throughput bound on the highest-confidence finding. (saltyrtc client-hello explicitly deferred pending operator ruling.)
+evidence_needed: operator scope ruling that saltyrtc-* falls under "chat services" (in scope.yml only g-*.0 listed); then server permanent-key fingerprint via one client-hello.
+verify_steps: HUMAN_ONLY — after ruling: `curl -sk --max-time 8 -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Protocol: v1.saltyrtc.org" -H "Sec-WebSocket-Key: {b64}" https://saltyrtc-00.threema.ch/` (≤1 rps); record negotiated subprotocol + close code; do NOT send client-hello without approval.
+impact: confirms chat-signaling control plane passively reachable where g-* is silent (5222/443); enables SaltyRTC server-key/framing fingerprint and future handshake recon; Low-Medium, scope-gated.
+testability: HUMAN_ONLY
+[HYP] fetch_bulk batch-size has no ceiling → full-keyspace enumeration bound
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (+ api/apip)
+confidence: 95
+reasoning: Accepted: 100-ID batch (1 valid + 99 invalid) → 200, single pubkey, silent omission; 30 sequential POSTs no 429; CORS `*` POST/GET/OPTIONS/DELETE on all 3 prod hosts. Known Threema ID space is 2^40 base32 — batch size determines enumeration cost ceiling.
+evidence_needed: single 500-ID POST confirms no request-body/batch ceiling; if 200 with valid pubkey returned, ceiling is ≥500.
+verify_steps: PASSIVE — single `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO", ...499 invalid]}'` (≤1 rps), record 200/413/429 + valid-id pubkey echo.
+impact: confirms unauth identity→pubkey mapping throughput bound; privacy/social-graph leakage at scale; Medium-High, fully unauth.
+testability: PASSIVE
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (single IP 203.56.112.231)
+confidence: 50
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route vs 404 distinction = existence oracle; HSTS/Expect-CT absent on GET 400. Valid creds are the only missing input.
+evidence_needed: program-issued test backupId:backupKey → response ≠ 400 (200+payload or 401/403) + any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs known 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[NEXT] PROBE: single 500-ID POST to https://ds-apip.threema.ch/identity/fetch_bulk (1 valid ECHOECHO + 499 invalid) at ≤1 rps — confirms batch-size ceiling, closing the enumeration-throughput bound on the highest-confidence finding. (saltyrtc client-hello explicitly deferred pending operator ruling.)
+[HYP] fetch_bulk batch-size ceiling → full-keyspace enumeration bound
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (+ api/apip)
+confidence: 95
+reasoning: Accepted: 100-ID batch (1 valid ECHOECHO + 99 invalid) → 200, single pubkey, silent omission; 30 sequential POSTs no 429; CORS `*` POST/GET/OPTIONS/DELETE all 3 prod hosts. ID space 2^40 base32 — batch size sets enumeration cost.
+evidence_needed: single 500-ID POST returns 200 with valid pubkey (ceiling ≥500) vs 413/429.
+verify_steps: PASSIVE — single `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<499 invalid 8-char base32>]}'` (≤1 rps); record status + valid-id pubkey echo.
+impact: unauth identity→pubkey mapping at scale; privacy/social-graph leakage; Medium-High, fully unauth.
+testability: PASSIVE
+[HYP] saltyrtc-*.threema.ch is the live SaltyRTC signaling plane for chat
+class: OTHER
+asset: https://saltyrtc-{00..ff}.threema.ch:443 (quadrant-split 4 nodes: 00-3f/40-7f→114.198/199, 80-bf/c0-ff→112.198/199)
+confidence: 75
+reasoning: Bare WS upgrade → 101 then close 1002; with `Sec-WebSocket-Protocol: v1.saltyrtc.org` → 101 + subprotocol echoed then close 3001 (SaltyRTC protocol-error). nginx TLS WSS gate; server waits for client-hello (peer key). Only chat-surface host answering in-band vs g-* silent.
+evidence_needed: operator scope ruling (saltyrtc-* not in scope.yml g-*.0 pattern); then server permanent-key fingerprint via one client-hello.
+verify_steps: HUMAN_ONLY — after ruling: `curl -sk --max-time 8 -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Protocol: v1.saltyrtc.org" -H "Sec-WebSocket-Key: {b64}" https://saltyrtc-00.threema.ch/` (≤1 rps); do NOT send client-hello without approval.
+impact: chat-signaling control plane passively reachable where g-* silent; server-key/framing fingerprint + future handshake recon; Low-Medium, scope-gated.
+testability: HUMAN_ONLY
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (203.56.112.231)
+confidence: 50
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route-existence oracle stable; HSTS/Expect-CT absent on GET 400. Valid creds only missing input.
+evidence_needed: program-issued test backupId:backupKey → response ≠ 400 (200 payload / 401 / 403) + any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps); diff vs known 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[NEXT] PROBE: single POST to https://ds-apip.threema.ch/identity/fetch_bulk with `{"identities":["ECHOECHO",<499 unique invalid 8-char base32 IDs>]}` at ≤1 rps — confirms batch-size ceiling (200+pubkey vs 413/429), closing enumeration-throughput bound on highest-confidence finding. (saltyrtc client-hello still deferred pending operator ruling; safe probe requires AUTH_HELPED creds.)
+[RISK] chat: 35 — g-* silent (5222/443), only saltyrtc-* answers (426, scope-gated); no data-plane access. | web: 50 — unauth identity→pubkey IDOR at scale (fetch_bulk, CORS `*`, no rate limit) plus staging public-namespace divergence; no creds to escalate. | sync: 20 — mediator/rendezvous uniform 403, no in-band surface. | safe: 40 — backup API credential-gated; existence oracle + HSTS gap on 400 + credentialed CORS weaken posture but payload needs creds. | desktop-src: 55 — accepted Windows key-storage ACL bypass (same-user → Ed25519 keypair + SQLCipher DB) plus conditional sandbox/worker gap; local-only.

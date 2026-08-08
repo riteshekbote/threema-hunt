@@ -1,280 +1,19 @@
-## 2026-08-08 22:49:06 UTC [chat] (model bigpickle)
-class: BUSLOGIC
-asset: apip.threema.ch/identity/ws/revoke
-confidence: 45
-reasoning: OpenAPI (directory.openapi.yml) shows /identity/ws/revoke is the ONLY identity endpoint with a single-step request (identity + revocationKey = SHA256(revocation-password)[:4], 32 bits) and NO challenge-response step, and unlike blob_cred/sfu_cred/work endpoints it documents NO 429 rate-limit response.
-evidence_needed: server enforces/omits rate limiting on ws/revoke; error/timing differences per guessed key; whether a correct 4-byte key revokes any ID.
-verify_steps: AUTH_HELPED: on a program-provided test ID, POST /identity/ws/revoke with a deliberately wrong revocationKey (observe error shape and timing), repeat small count to test for 429; never target third-party IDs and do not create accounts.
-impact: if unrate-limited, brute-force of 2^32 space → force-revoke/delete any Threema ID (permanent identity destruction / DoS). Severity: medium-high.
-testability: AUTH_HELPED
-class: BUSLOGIC
-asset: ds-apip-work.threema.ch/identities (backend of in-scope work.threema.ch)
-confidence: 50
-reasoning: directory.openapi.yml line 1172 states "/identities ... currently buggy. See TWRK-1633"; endpoint returns "a subset of the provided contacts that are part of the same Work subscription" + work properties (first/last name, jobTitle, department, availability); GET / returns 401 confirming a live credential-gated backend.
-evidence_needed: whether contact matching can be induced to return contacts outside the caller's subscription.
-verify_steps: AUTH_HELPED: with authorized work test license, POST /identities (contacts:[...]) mixing own- and other-subscription IDs and compare membership + properties; also probe /directory pagination bounds (page/size, wildcard queries).
-impact: cross-subscription disclosure of work-directory metadata (names, titles, departments, availability) → targeted phishing. Severity: medium.
-testability: AUTH_HELPED
-class: OTHER
-asset: mediator-*.threema.ch / rendezvous-*.threema.ch / blob-mirror-*.threema.ch
-confidence: 40
-reasoning: all sampled shards (0..f) resolve; GET / → uniform 403; shard prefix is derived from the first byte of a public-key (routing, not auth per config.rs) — no passive distinguishing signal observed.
-evidence_needed: any shard or path (wss /{prefix}/) responding differently than 403.
-verify_steps: PASSIVE: GET https://{rendezvous,mediator,blob-mirror}-{0,7,f}.threema.ch/ and a few /XX/ paths at ≤1rps, compare status/body fingerprints.
-impact: none observed; would only indicate a routing/edge misconfiguration. Severity: n/a
-testability: PASSIVE
-[HYP] ds-apip.threema.ch directory lookup / unauth enumeration
-class: AUTH
-asset: ds-apip.threema.ch
-confidence: 55
-reasoning: directory.openapi.yml lists `ds-apip.*` as the directory API base; production `ds-apip.threema.ch` returns root 403 with `Access-Control-Allow-Origin: *` and allows POST/GET/OPTIONS/DELETE cross-origin. apip.threema.ch returns 404 on all openapi subpaths (host mismatch), so any live directory routes live on the ds-apip host. If any lookup route is unauthenticated, CORS-* enables cross-origin probing from an attacker page.
-evidence_needed: an endpoint under ds-apip.threema.ch returning ≠403/404 to GET; response-body fingerprints differing from apip.
-verify_steps: PASSIVE: GET https://ds-apip.threema.ch/identity/lookup and /directory (compare vs apip 404), GET https://ds-apip-work.threema.ch/identity/lookup (401=route-exists-behind-auth vs 404=no-route), ≤1 rps.
-impact: Threema ID/pubkey enumeration → spam, phishing, targeted abuse. Severity: medium.
-testability: PASSIVE
-[HYP] threema-desktop key-storage KDF parameter weakness
-class: OTHER
-asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/key-storage/crypto.ts)
-confidence: 45
-reasoning: reposcan found crypto.ts:223 uses fixed benchmark password `r3gGN9GDQ5NF6tM6` to calibrate Argon2id params at runtime, and test-data.ts defines `keyStoragePassword: 'CHANGE_ME'`; no committed credentials exist, so only the KDF/key-handling logic can be weak. Electron 2.x stores user password/keys through this module.
-evidence_needed: how Argon2id memory/time params are derived (floors/caps) and whether the derived key protects an offline-readable store.
-verify_steps: PASSIVE: static read of crypto.ts `determineKdfParams()` and the storage backend (safeStorage vs plaintext file). No live requests.
-impact: if params are attacker-favorable, offline recovery of stored user credentials/keys from disk. Severity: low-medium.
-testability: PASSIVE
-[HYP] ds-apip-work.threema.ch /identities cross-subscription disclosure
-class: BUSLOGIC
-asset: ds-apip-work.threema.ch/identities
-confidence: 52
-reasoning: directory.openapi.yml:1172 flags "/identities ... currently buggy. See TWRK-1633"; endpoint returns a subset of provided contacts in the same Work subscription plus work properties (first/last name, jobTitle, department, availability). Host now confirmed live returning 401 with permissive CORS.
-evidence_needed: whether the membership filter can be induced to return out-of-subscription contacts.
-verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities mixing own- and other-subscription IDs and compare membership + property leak; probe pagination bounds (page/size, wildcard).
-impact: cross-subscription disclosure of work-directory metadata → targeted phishing. Severity: medium.
-testability: AUTH_HELPED
-[NEXT] PROBE: GET https://ds-apip-work.threema.ch/identity/lookup and /directory (401 vs 404 distinguishes route-existence behind the auth gate), then GET https://ds-apip.threema.ch/identity/lookup + /directory at ≤1 rps to fingerprint the directory host independently of apip.
-[HYP] ds-apip.test.threema.ch staging directory server publicly exposed
-class: MISCONFIG
-asset: ds-apip.test.threema.ch
-[HYP] saltyrtc-*.threema.ch is live SaltyRTC chat-signaling; WSS endpoint reachable vs g-* closed-443
-class: OTHER
-asset: https://saltyrtc-{00..ff}.threema.ch:443 (256 hostnames, 4 nodes)
-confidence: 60
-reasoning: AAAA re-confirms quadrant split 00-3f/40-7f→114.198/199, 80-bf/c0-ff→112.198/199 (4-node signaling pool); prior cycle showed bare 443 open+silent on all 4 (vs g-* SYSCALL-close on ClientHello) — consistent with TLS/WSS SaltyRTC terminator; threema-web SALTYRTC_HOST pattern cited at webclient.ts:545.
-evidence_needed: operator scope ruling that `saltyrtc-*` falls under "chat services"; then single TLS/WSS GET on one prefix.
-verify_steps: HUMAN_ONLY — after ruling: `curl -sk -o /dev/null -w '%{http_code}' https://saltyrtc-00.threema.ch/` (≤1 rps) vs g-* close behavior.
-impact: if in scope + TLS-terminated, chat signaling handshake probeable passively (server-key fingerprint / protocol framing); currently blocked only by scope, not reachability. Low-Medium.
-testability: HUMAN_ONLY
-[HYP] Safe backup store credentialed cross-origin read
-class: AUTH
-asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
-confidence: 45
-reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route exists, credential-gated; HSTS/Expect-CT absent on the GET 400.
-evidence_needed: valid program-issued test backupId:backupKey → response ≠ 400 (200+payload or 401/403); any Access-Control-Expose-Headers.
-verify_steps: AUTH_HELPED: single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs 400 baseline.
-impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
-testability: AUTH_HELPED
-[HYP] work.test license-token backend ships → unauth 64-hex credential oracle
-class: MISCONFIG
-asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
-confidence: 40
-reasoning: staging bundle v2.25.1 ships GET {username?,password?,expired,hasEmail}+PUT; re-probe still 404/900B catch-all; prod bundle zero /public/* handlers; 64-char check client-side zod only.
-evidence_needed: any non-404 (200/400/401) to well-formed 64-hex token on staging.
-verify_steps: PASSIVE, weekly gated: GET /api-app/public/global/settings + GET /api-app/public/license/token/{64 zeros}; escalate only on non-404; ≤1 rps.
-impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
-testability: PASSIVE
-[HYP] saltyrtc-*.threema.ch is a live SaltyRTC WSS chat-signaling terminator (HTTP 426 on plain GET)
-class: OTHER
-asset: https://saltyrtc-{00..ff}.threema.ch:443 (quadrant-split: 00-3f/40-7f→114.198/199, 80-bf/c0-ff→112.198/199)
-confidence: 70
-reasoning: GET / → HTTP 426 Upgrade Required (recorded this cycle), proving TLS-terminated HTTP→WS upgrade gate; AAAA split confirms 4-node pool; threema-web SALTYRTC_HOST pattern (`saltyrtc-{prefix}.threema.ch`/443, webclient.ts:545). This is the only chat-surface host that answers in-band (g-* 5222/443 stay silent/close).
-evidence_needed: single WS-upgrade handshake → 101 Switching Protocols (SaltyRTC WSS gate) vs 426/close; then whether a bare connect yields server-hello framing or waits for client-init.
-verify_steps: PROBE (passive upgrade, no payload): `curl -sk -i --max-time 5 -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: MTIzNDU2Nzg5MDEyMzQ1Ng==" https://saltyrtc-00.threema.ch/` (≤1 rps); record 101 vs 426 vs close. If 101, single WSS open with 5s idle read to capture any server-pushed frame.
-impact: confirms the chat-signaling control plane is passively reachable where g-* is closed — enables SaltyRTC server-key/framing fingerprint and future handshake-level recon; scope ruling still required for anything beyond an upgrade attempt. Low-Medium.
+## 2026-08-08 23:11:45 UTC [chat] (model bigpickle)
+reasoning: Accepted: 100-ID batch (1 valid + 99 invalid) → 200, single pubkey, silent omission; 30 sequential POSTs no 429; CORS `*` POST/GET/OPTIONS/DELETE on all 3 prod hosts. Known Threema ID space is 2^40 base32 — batch size determines enumeration cost ceiling.
+evidence_needed: single 500-ID POST confirms no request-body/batch ceiling; if 200 with valid pubkey returned, ceiling is ≥500.
+verify_steps: PASSIVE — single `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO", ...499 invalid]}'` (≤1 rps), record 200/413/429 + valid-id pubkey echo.
+impact: confirms unauth identity→pubkey mapping throughput bound; privacy/social-graph leakage at scale; Medium-High, fully unauth.
 testability: PASSIVE
 [HYP] Safe backup store credentialed cross-origin read
 class: AUTH
 asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (single IP 203.56.112.231)
 confidence: 50
-reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route vs 404 distinction (`/backup/{x}` → 404) = existence oracle; HSTS/Expect-CT absent on the GET 400. Valid creds are the only missing input.
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route vs 404 distinction = existence oracle; HSTS/Expect-CT absent on GET 400. Valid creds are the only missing input.
 evidence_needed: program-issued test backupId:backupKey → response ≠ 400 (200+payload or 401/403) + any Access-Control-Expose-Headers.
-verify_steps: AUTH_HELPED: single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs the known 400 baseline.
+verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs known 400 baseline.
 impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
 testability: AUTH_HELPED
-[HYP] work.test license-token backend ships → unauth 64-hex credential oracle
-class: MISCONFIG
-asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
-confidence: 40
-reasoning: staging bundle v2.25.1 ships GET {username?,password?,expired,hasEmail}+PUT; re-probed this cycle → 404/900B catch-all (still not deployed); prod bundle has ZERO /public/* handlers; 64-char check is client-side zod only.
-evidence_needed: any non-404 (200/400/401) to a well-formed 64-hex token on staging.
-verify_steps: PASSIVE, weekly gated: single GET /api-app/public/global/settings + single GET /api-app/public/license/token/{64 zeros}; escalate only on non-404; ≤1 rps.
-impact: if shipped, unauth license-token→credential oracle; low (high-entropy tokens).
-testability: PASSIVE
-class: MISCONFIG
-asset: github.com/threema-ch/threema-desktop (keystorage.bin + keystorage.password.bin, fs.ts:41, index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, sqlite.ts:240)
-confidence: 90
-reasoning: RAG-verified 6 core paths (+9 supporting): `{}` file mode on win32 → no ACL; ck (Ed25519 private key) + databaseKey (SQLCipher PRAGMA) stored behind DPAPI-only password that any same-user process can unprotect. Accepted finding, stable across cycles.
-evidence_needed: none beyond source chain already verified; exploitability depends on same-user process access to %APPDATA%.
-verify_steps: PASSIVE static analysis only — no live probes needed; chain is source-complete.
-impact: same-user code → master password + identity keypair + full message-DB decryption; High (local, requires local access).
-testability: PASSIVE
-class: IDOR
-asset: https://ds-apip.threema.ch/identity/fetch_bulk (+ api/apip)
-confidence: 95
-reasoning: 100-ID batch (1 valid + 99 invalid) → 200, single valid pubkey, silent omission; 30 sequential POSTs, no 429; CORS `*` with POST/GET/OPTIONS/DELETE on all 3 prod hosts. Enumeration cost per-ID is already bounded by accepted probe evidence.
-evidence_needed: no new probe required — extrapolate full-keyspace enumeration throughput from recorded batch behaviour; option to confirm batch-size ceiling with one gated 500-ID POST at ≤1 rps.
-verify_steps: reuse accepted 100-ID batch evidence; optional single 500-ID POST at ≤1 rps to confirm no batch-size ceiling.
-impact: unauth identity→pubkey mapping for arbitrary valid IDs; privacy/social-graph leakage at scale; Medium-High, fully unauth.
-testability: PASSIVE
-class: OTHER
-asset: https://saltyrtc-{00..ff}.threema.ch:443 (00-3f/40-7f→114.198/199, 80-bf/c0-ff→112.198/199)
-confidence: 70
-reasoning: GET / → HTTP 426 Upgrade Required (recorded), proving TLS-terminated HTTP→WS upgrade gate; AAAA split confirms 4-node pool; threema-web SALTYRTC_HOST pattern (webclient.ts:545). Only chat-surface host answering in-band vs g-* silent 5222/443.
-evidence_needed: operator scope ruling (hostname not in scope.yml g-*.0 pattern), then WS-upgrade handshake → 101 vs 426.
-verify_steps: HUMAN_ONLY — after ruling: `curl -sk -i --max-time 5 -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: MTIzNDU2Nzg5MDEyMzQ1Ng==" https://saltyrtc-00.threema.ch/` (≤1 rps); record 101 vs 426 vs close.
-impact: chat-signaling control plane passively reachable where g-* is closed — SaltyRTC server-key/framing fingerprint, future handshake recon; Low-Medium, scope-gated.
-testability: HUMAN_ONLY
-class: BUSLOGIC
-asset: apip.threema.ch/identity/ws/revoke
-confidence: 45
-reasoning: OpenAPI (directory.openapi.yml) shows /identity/ws/revoke is the ONLY identity endpoint with a single-step request (identity + revocationKey = SHA256(revocation-password)[:4], 32 bits) and NO challenge-response step, and unlike blob_cred/sfu_cred/work endpoints it documents NO 429 rate-limit response.
-evidence_needed: server enforces/omits rate limiting on ws/revoke; error/timing differences per guessed key; whether a correct 4-byte key revokes any ID.
-verify_steps: AUTH_HELPED: on a program-provided test ID, POST /identity/ws/revoke with a deliberately wrong revocationKey (observe error shape and timing), repeat small count to test for 429; never target third-party IDs and do not create accounts.
-impact: if unrate-limited, brute-force of 2^32 space → force-revoke/delete any Threema ID (permanent identity destruction / DoS). Severity: medium-high.
-testability: AUTH_HELPED
-class: BUSLOGIC
-asset: ds-apip-work.threema.ch/identities (backend of in-scope work.threema.ch)
-confidence: 50
-reasoning: directory.openapi.yml line 1172 states "/identities ... currently buggy. See TWRK-1633"; endpoint returns "a subset of the provided contacts that are part of the same Work subscription" + work properties (first/last name, jobTitle, department, availability); GET / returns 401 confirming a live credential-gated backend.
-evidence_needed: whether contact matching can be induced to return contacts outside the caller's subscription.
-verify_steps: AUTH_HELPED: with authorized work test license, POST /identities (contacts:[...]) mixing own- and other-subscription IDs and compare membership + properties; also probe /directory pagination bounds (page/size, wildcard queries).
-impact: cross-subscription disclosure of work-directory metadata (names, titles, departments, availability) → targeted phishing. Severity: medium.
-testability: AUTH_HELPED
-class: OTHER
-asset: mediator-*.threema.ch / rendezvous-*.threema.ch / blob-mirror-*.threema.ch
-confidence: 40
-reasoning: all sampled shards (0..f) resolve; GET / → uniform 403; shard prefix is derived from the first byte of a public-key (routing, not auth per config.rs) — no passive distinguishing signal observed.
-evidence_needed: any shard or path (wss /{prefix}/) responding differently than 403.
-verify_steps: PASSIVE: GET https://{rendezvous,mediator,blob-mirror}-{0,7,f}.threema.ch/ and a few /XX/ paths at ≤1rps, compare status/body fingerprints.
-impact: none observed; would only indicate a routing/edge misconfiguration. Severity: n/a
-testability: PASSIVE
-[HYP] ds-apip.threema.ch directory lookup / unauth enumeration
-class: AUTH
-asset: ds-apip.threema.ch
-confidence: 55
-reasoning: directory.openapi.yml lists `ds-apip.*` as the directory API base; production `ds-apip.threema.ch` returns root 403 with `Access-Control-Allow-Origin: *` and allows POST/GET/OPTIONS/DELETE cross-origin. apip.threema.ch returns 404 on all openapi subpaths (host mismatch), so any live directory routes live on the ds-apip host. If any lookup route is unauthenticated, CORS-* enables cross-origin probing from an attacker page.
-evidence_needed: an endpoint under ds-apip.threema.ch returning ≠403/404 to GET; response-body fingerprints differing from apip.
-verify_steps: PASSIVE: GET https://ds-apip.threema.ch/identity/lookup and /directory (compare vs apip 404), GET https://ds-apip-work.threema.ch/identity/lookup (401=route-exists-behind-auth vs 404=no-route), ≤1 rps.
-impact: Threema ID/pubkey enumeration → spam, phishing, targeted abuse. Severity: medium.
-testability: PASSIVE
-[HYP] threema-desktop key-storage KDF parameter weakness
-class: OTHER
-asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/key-storage/crypto.ts)
-confidence: 45
-reasoning: reposcan found crypto.ts:223 uses fixed benchmark password `r3gGN9GDQ5NF6tM6` to calibrate Argon2id params at runtime, and test-data.ts defines `keyStoragePassword: 'CHANGE_ME'`; no committed credentials exist, so only the KDF/key-handling logic can be weak. Electron 2.x stores user password/keys through this module.
-evidence_needed: how Argon2id memory/time params are derived (floors/caps) and whether the derived key protects an offline-readable store.
-verify_steps: PASSIVE: static read of crypto.ts `determineKdfParams()` and the storage backend (safeStorage vs plaintext file). No live requests.
-impact: if params are attacker-favorable, offline recovery of stored user credentials/keys from disk. Severity: low-medium.
-testability: PASSIVE
-[HYP] ds-apip-work.threema.ch /identities cross-subscription disclosure
-class: BUSLOGIC
-asset: ds-apip-work.threema.ch/identities
-confidence: 52
-reasoning: directory.openapi.yml:1172 flags "/identities ... currently buggy. See TWRK-1633"; endpoint returns a subset of provided contacts in the same Work subscription plus work properties (first/last name, jobTitle, department, availability). Host now confirmed live returning 401 with permissive CORS.
-evidence_needed: whether the membership filter can be induced to return out-of-subscription contacts.
-verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities mixing own- and other-subscription IDs and compare membership + property leak; probe pagination bounds (page/size, wildcard).
-impact: cross-subscription disclosure of work-directory metadata → targeted phishing. Severity: medium.
-testability: AUTH_HELPED
-[NEXT] PROBE: GET https://ds-apip-work.threema.ch/identity/lookup and /directory (401 vs 404 distinguishes route-existence behind the auth gate), then GET https://ds-apip.threema.ch/identity/lookup + /directory at ≤1 rps to fingerprint the directory host independently of apip.
-[HYP] ds-apip.test.threema.ch staging directory server publicly exposed
-class: MISCONFIG
-asset: ds-apip.test.threema.ch
-[HYP] saltyrtc-*.threema.ch is live SaltyRTC chat-signaling; WSS endpoint reachable vs g-* closed-443
-class: OTHER
-asset: https://saltyrtc-{00..ff}.threema.ch:443 (256 hostnames, 4 nodes)
-confidence: 60
-reasoning: AAAA re-confirms quadrant split 00-3f/40-7f→114.198/199, 80-bf/c0-ff→112.198/199 (4-node signaling pool); prior cycle showed bare 443 open+silent on all 4 (vs g-* SYSCALL-close on ClientHello) — consistent with TLS/WSS SaltyRTC terminator; threema-web SALTYRTC_HOST pattern cited at webclient.ts:545.
-evidence_needed: operator scope ruling that `saltyrtc-*` falls under "chat services"; then single TLS/WSS GET on one prefix.
-verify_steps: HUMAN_ONLY — after ruling: `curl -sk -o /dev/null -w '%{http_code}' https://saltyrtc-00.threema.ch/` (≤1 rps) vs g-* close behavior.
-impact: if in scope + TLS-terminated, chat signaling handshake probeable passively (server-key fingerprint / protocol framing); currently blocked only by scope, not reachability. Low-Medium.
-testability: HUMAN_ONLY
-[HYP] Safe backup store credentialed cross-origin read
-class: AUTH
-asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
-confidence: 45
-reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route exists, credential-gated; HSTS/Expect-CT absent on the GET 400.
-evidence_needed: valid program-issued test backupId:backupKey → response ≠ 400 (200+payload or 401/403); any Access-Control-Expose-Headers.
-verify_steps: AUTH_HELPED: single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs 400 baseline.
-impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
-testability: AUTH_HELPED
-[HYP] work.test license-token backend ships → unauth 64-hex credential oracle
-class: MISCONFIG
-asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
-confidence: 40
-reasoning: staging bundle v2.25.1 ships GET {username?,password?,expired,hasEmail}+PUT; re-probe still 404/900B catch-all; prod bundle zero /public/* handlers; 64-char check client-side zod only.
-evidence_needed: any non-404 (200/400/401) to well-formed 64-hex token on staging.
-verify_steps: PASSIVE, weekly gated: GET /api-app/public/global/settings + GET /api-app/public/license/token/{64 zeros}; escalate only on non-404; ≤1 rps.
-impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
-testability: PASSIVE
-[HYP] saltyrtc-*.threema.ch is a live SaltyRTC WSS chat-signaling terminator (HTTP 426 on plain GET)
-class: OTHER
-asset: https://saltyrtc-{00..ff}.threema.ch:443 (quadrant-split: 00-3f/40-7f→114.198/199, 80-bf/c0-ff→112.198/199)
-confidence: 70
-reasoning: GET / → HTTP 426 Upgrade Required (recorded this cycle), proving TLS-terminated HTTP→WS upgrade gate; AAAA split confirms 4-node pool; threema-web SALTYRTC_HOST pattern (`saltyrtc-{prefix}.threema.ch`/443, webclient.ts:545). This is the only chat-surface host that answers in-band (g-* 5222/443 stay silent/close).
-evidence_needed: single WS-upgrade handshake → 101 Switching Protocols (SaltyRTC WSS gate) vs 426/close; then whether a bare connect yields server-hello framing or waits for client-init.
-verify_steps: PROBE (passive upgrade, no payload): `curl -sk -i --max-time 5 -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: MTIzNDU2Nzg5MDEyMzQ1Ng==" https://saltyrtc-00.threema.ch/` (≤1 rps); record 101 vs 426 vs close. If 101, single WSS open with 5s idle read to capture any server-pushed frame.
-impact: confirms the chat-signaling control plane is passively reachable where g-* is closed — enables SaltyRTC server-key/framing fingerprint and future handshake-level recon; scope ruling still required for anything beyond an upgrade attempt. Low-Medium.
-testability: PASSIVE
-[HYP] Safe backup store credentialed cross-origin read
-class: AUTH
-asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (single IP 203.56.112.231)
-confidence: 50
-reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route vs 404 distinction (`/backup/{x}` → 404) = existence oracle; HSTS/Expect-CT absent on the GET 400. Valid creds are the only missing input.
-evidence_needed: program-issued test backupId:backupKey → response ≠ 400 (200+payload or 401/403) + any Access-Control-Expose-Headers.
-verify_steps: AUTH_HELPED: single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs the known 400 baseline.
-impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
-testability: AUTH_HELPED
-[HYP] work.test license-token backend ships → unauth 64-hex credential oracle
-class: MISCONFIG
-asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
-confidence: 40
-reasoning: staging bundle v2.25.1 ships GET {username?,password?,expired,hasEmail}+PUT; re-probed this cycle → 404/900B catch-all (still not deployed); prod bundle has ZERO /public/* handlers; 64-char check is client-side zod only.
-evidence_needed: any non-404 (200/400/401) to a well-formed 64-hex token on staging.
-verify_steps: PASSIVE, weekly gated: single GET /api-app/public/global/settings + single GET /api-app/public/license/token/{64 zeros}; escalate only on non-404; ≤1 rps.
-impact: if shipped, unauth license-token→credential oracle; low (high-entropy tokens).
-testability: PASSIVE
-class: MISCONFIG
-asset: github.com/threema-ch/threema-desktop (keystorage.bin + keystorage.password.bin, fs.ts:41, index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, sqlite.ts:240)
-confidence: 90
-reasoning: RAG-verified 6 core paths (+9 supporting): `{}` file mode on win32 → no ACL; ck (Ed25519 private key) + databaseKey (SQLCipher PRAGMA) stored behind DPAPI-only password that any same-user process can unprotect. Accepted finding, stable across cycles.
-evidence_needed: none beyond source chain already verified; exploitability depends on same-user process access to %APPDATA%.
-verify_steps: PASSIVE static analysis only — no live probes needed; chain is source-complete.
-impact: same-user code → master password + identity keypair + full message-DB decryption; High (local, requires local access).
-testability: PASSIVE
-class: IDOR
-asset: https://ds-apip.threema.ch/identity/fetch_bulk (+ api/apip)
-confidence: 95
-reasoning: 100-ID batch (1 valid + 99 invalid) → 200, single valid pubkey, silent omission; 30 sequential POSTs, no 429; CORS `*` with POST/GET/OPTIONS/DELETE on all 3 prod hosts. Enumeration cost per-ID is already bounded by accepted probe evidence.
-evidence_needed: no new probe required — extrapolate full-keyspace enumeration throughput from recorded batch behaviour; option to confirm batch-size ceiling with one gated 500-ID POST at ≤1 rps.
-verify_steps: reuse accepted 100-ID batch evidence; optional single 500-ID POST at ≤1 rps to confirm no batch-size ceiling.
-impact: unauth identity→pubkey mapping for arbitrary valid IDs; privacy/social-graph leakage at scale; Medium-High, fully unauth.
-testability: PASSIVE
-class: OTHER
-asset: https://saltyrtc-{00..ff}.threema.ch:443 (00-3f/40-7f→114.198/199, 80-bf/c0-ff→112.198/199)
-confidence: 70
-reasoning: GET / → HTTP 426 Upgrade Required (recorded), proving TLS-terminated HTTP→WS upgrade gate; AAAA split confirms 4-node pool; threema-web SALTYRTC_HOST pattern (webclient.ts:545). Only chat-surface host answering in-band vs g-* silent 5222/443.
-evidence_needed: operator scope ruling (hostname not in scope.yml g-*.0 pattern), then WS-upgrade handshake → 101 vs 426.
-verify_steps: HUMAN_ONLY — after ruling: `curl -sk -i --max-time 5 -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: MTIzNDU2Nzg5MDEyMzQ1Ng==" https://saltyrtc-00.threema.ch/` (≤1 rps); record 101 vs 426 vs close.
-impact: chat-signaling control plane passively reachable where g-* is closed — SaltyRTC server-key/framing fingerprint, future handshake recon; Low-Medium, scope-gated.
-testability: HUMAN_ONLY
-reasoning: GET / → HTTP 426 Upgrade Required (recorded), proving TLS-terminated HTTP→WS upgrade gate; AAAA split confirms 4-node pool; threema-web SALTYRTC_HOST pattern (webclient.ts:545). Only chat-surface host answering in-band vs g-* silent 5222/443.
-evidence_needed: operator scope ruling (hostname not in scope.yml g-*.0 pattern), then WS-upgrade handshake → 101 vs 426.
-verify_steps: HUMAN_ONLY — after ruling: `curl -sk -i --max-time 5 -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: MTIzNDU2Nzg5MDEyMzQ1Ng==" https://saltyrtc-00.threema.ch/` (≤1 rps); record 101 vs 426 vs close.
-impact: chat-signaling control plane passively reachable where g-* is closed — SaltyRTC server-key/framing fingerprint, future handshake recon; Low-Medium, scope-gated.
-testability: HUMAN_ONLY
-[HYP] saltyrtc-*.threema.ch is the live SaltyRTC signaling plane for in-scope chat (g-*)
-class: OTHER
-asset: https://saltyrtc-{00..ff}.threema.ch:443 (quadrant-split 4 nodes: 00-3f/40-7f→114.198/199, 80-bf/c0-ff→112.198/199)
-confidence: 75
-reasoning: Two passive probes this cycle — bare WS upgrade → 101 then close 1002; upgrade with `Sec-WebSocket-Protocol: v1.saltyrtc.org` → 101 + subprotocol echoed then close 3001 (SaltyRTC protocol-error). nginx TLS-terminated WSS gate confirmed; server waits for client-hello (peer key) as first frame.
+[NEXT] PROBE: single 500-ID POST to https://ds-apip.threema.ch/identity/fetch_bulk (1 valid ECHOECHO + 499 invalid) at ≤1 rps — confirms batch-size ceiling, closing the enumeration-throughput bound on the highest-confidence finding. (saltyrtc client-hello explicitly deferred pending operator ruling.)
 evidence_needed: operator scope ruling that saltyrtc-* falls under "chat services" (in scope.yml only g-*.0 listed); then server permanent-key fingerprint via one client-hello.
 verify_steps: HUMAN_ONLY — after ruling: `curl -sk --max-time 8 -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Protocol: v1.saltyrtc.org" -H "Sec-WebSocket-Key: {b64}" https://saltyrtc-00.threema.ch/` (≤1 rps); record negotiated subprotocol + close code; do NOT send client-hello without approval.
 impact: confirms chat-signaling control plane passively reachable where g-* is silent (5222/443); enables SaltyRTC server-key/framing fingerprint and future handshake recon; Low-Medium, scope-gated.
@@ -298,3 +37,32 @@ verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.t
 impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
 testability: AUTH_HELPED
 [NEXT] PROBE: single 500-ID POST to https://ds-apip.threema.ch/identity/fetch_bulk (1 valid ECHOECHO + 499 invalid) at ≤1 rps — confirms batch-size ceiling, closing the enumeration-throughput bound on the highest-confidence finding. (saltyrtc client-hello explicitly deferred pending operator ruling.)
+[HYP] fetch_bulk batch-size ceiling → full-keyspace enumeration bound
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (+ api/apip)
+confidence: 95
+reasoning: Accepted: 100-ID batch (1 valid ECHOECHO + 99 invalid) → 200, single pubkey, silent omission; 30 sequential POSTs no 429; CORS `*` POST/GET/OPTIONS/DELETE all 3 prod hosts. ID space 2^40 base32 — batch size sets enumeration cost.
+evidence_needed: single 500-ID POST returns 200 with valid pubkey (ceiling ≥500) vs 413/429.
+verify_steps: PASSIVE — single `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<499 invalid 8-char base32>]}'` (≤1 rps); record status + valid-id pubkey echo.
+impact: unauth identity→pubkey mapping at scale; privacy/social-graph leakage; Medium-High, fully unauth.
+testability: PASSIVE
+[HYP] saltyrtc-*.threema.ch is the live SaltyRTC signaling plane for chat
+class: OTHER
+asset: https://saltyrtc-{00..ff}.threema.ch:443 (quadrant-split 4 nodes: 00-3f/40-7f→114.198/199, 80-bf/c0-ff→112.198/199)
+confidence: 75
+reasoning: Bare WS upgrade → 101 then close 1002; with `Sec-WebSocket-Protocol: v1.saltyrtc.org` → 101 + subprotocol echoed then close 3001 (SaltyRTC protocol-error). nginx TLS WSS gate; server waits for client-hello (peer key). Only chat-surface host answering in-band vs g-* silent.
+evidence_needed: operator scope ruling (saltyrtc-* not in scope.yml g-*.0 pattern); then server permanent-key fingerprint via one client-hello.
+verify_steps: HUMAN_ONLY — after ruling: `curl -sk --max-time 8 -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Protocol: v1.saltyrtc.org" -H "Sec-WebSocket-Key: {b64}" https://saltyrtc-00.threema.ch/` (≤1 rps); do NOT send client-hello without approval.
+impact: chat-signaling control plane passively reachable where g-* silent; server-key/framing fingerprint + future handshake recon; Low-Medium, scope-gated.
+testability: HUMAN_ONLY
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (203.56.112.231)
+confidence: 50
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route-existence oracle stable; HSTS/Expect-CT absent on GET 400. Valid creds only missing input.
+evidence_needed: program-issued test backupId:backupKey → response ≠ 400 (200 payload / 401 / 403) + any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps); diff vs known 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[NEXT] PROBE: single POST to https://ds-apip.threema.ch/identity/fetch_bulk with `{"identities":["ECHOECHO",<499 unique invalid 8-char base32 IDs>]}` at ≤1 rps — confirms batch-size ceiling (200+pubkey vs 413/429), closing enumeration-throughput bound on highest-confidence finding. (saltyrtc client-hello still deferred pending operator ruling; safe probe requires AUTH_HELPED creds.)
+[RISK] chat: 35 — g-* silent (5222/443), only saltyrtc-* answers (426, scope-gated); no data-plane access. | web: 50 — unauth identity→pubkey IDOR at scale (fetch_bulk, CORS `*`, no rate limit) plus staging public-namespace divergence; no creds to escalate. | sync: 20 — mediator/rendezvous uniform 403, no in-band surface. | safe: 40 — backup API credential-gated; existence oracle + HSTS gap on 400 + credentialed CORS weaken posture but payload needs creds. | desktop-src: 55 — accepted Windows key-storage ACL bypass (same-user → Ed25519 keypair + SQLCipher DB) plus conditional sandbox/worker gap; local-only.

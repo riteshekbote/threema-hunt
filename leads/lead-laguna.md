@@ -2511,3 +2511,4 @@ testability: PASSIVE + AUTH_HELPED
 [RISK] desktop-src: 95 reason: Windows key-storage ACL bypass CONFIRMED at source level (fs.ts:41, key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163 write with `{}` on win32 → no DACL restriction → DPAPI password recoverable by same-user → Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + SQLCipher databaseKey; PoC runtime-verified); plus Electron `nodeIntegrationInWorker: true` + `sandbox` unset (TODO DESK-79) at electron-main.ts:1252,1255</think>### Summary of deliverables
 ## 2026-08-08 22:16:19 UTC [desktop] (model laguna)
 ## 2026-08-08 22:48:32 UTC [desktop] (model laguna)
+## 2026-08-08 23:17:42 UTC [desktop] (model laguna)

@@ -1,9 +1,8 @@
-## 2026-08-08 22:50:55 UTC [web] (model nemotron3)
-[NEW] NO_DELTA — inventory at 2026-08-08 22:16:28 UTC matches last leads at 2026-08-08 22:15:43 UTC; no new surface items since last cycle
+## 2026-08-08 23:12:32 UTC [web] (model nemotron3)
+[NEW] NO_DELTA — inventory at 2026-08-08 22:51:06 UTC matches last leads; no new surface items since last cycle
 [PRIO] https://ds-apip.threema.ch/identity/fetch_bulk (and api.threema.ch, apip.threema.ch), 8.20, attack_surface:9 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:9
 [PRIO] github.com/threema-ch/threema-desktop (Windows key-storage ACL bypass), 8.10, attack_surface:7 business_value:10 tech_exposure:8 gate_ease:8 cloud_surface:2 freshness:10
 [PRIO] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}, 7.10, attack_surface:8 business_value:9 tech_exposure:6 gate_ease:5 cloud_surface:4 freshness:8
-[PRIO] https://saltyrtc-{00..ff}.threema.ch:443, 5.75, attack_surface:6 business_value:7 tech_exposure:5 gate_ease:6 cloud_surface:4 freshness:7 (pending scope ruling)
 [HYP] Directory bulk identity enumeration at scale via fetch_bulk + challenge parameter oracles
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/fetch_bulk (identical on api.threema.ch, apip.threema.ch)
@@ -32,10 +31,9 @@ verify_steps: PASSIVE (DONE): OPTIONS + GET 400 vs 404 on all 5 hosts. AUTH_HELP
 impact: Cross-origin backup-ID existence enumeration + credentialed cross-origin readout of identity keypair + message-history backup (once creds leaked). Severity: High (creds required).
 testability: PASSIVE + AUTH_HELPED
 [PARKED] saltyrtc-{00..ff}.threema.ch WSS signaling: confidence 70, class OTHER, OUT of scope.yml (g-*.0 chat pattern only); needs HUMAN scope ruling before any probes
-[PARKED] work.test `/api-app/public/license/token/{64hex}`: confidence 40 (<50 threshold); staging-only, client-side zod 64-char validation only, backend route not deployed (method-agnostic 404). No oracle today.
-[FINAL] 1. Directory bulk identity enumeration (fetch_bulk + challenge oracles) — 95 confidence, IDOR, PASSIVE
+[FINAL] 1. Directory bulk identity enumeration (fetch_bulk + challenge oracles) — 95 confidence, IDOR, PASSIVE+PROBE
 [FINAL] 2. Desktop Windows key-storage ACL bypass → identity + DB compromise — 95 confidence, MISCONFIG, AUTH_HELPED-LOCAL
-[FINAL] 3. Safe backup cross-origin credentialed read + HSTS gap + existence oracle — 80 confidence, AUTH, PASSIVE + AUTH_HELPED
+[FINAL] 3. Safe backup cross-origin credentialed read + HSTS gap + existence oracle — 80 confidence, AUTH, PASSIVE+AUTH_HELPED
 [NEXT] PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ","AAAAAAAA","BBBBBBBB","CCCCCCCC","DDDDDDDD","EEEEEEEE","FFFFFFFF","GGGGGGGG","HHHHHHHH","IIIIIIII","JJJJJJJJ","KKKKKKKK","LLLLLLLL","MMMMMMMM","NNNNNNNN","OOOOOOOO","PPPPPPPP","QQQQQQQQ","RRRRRRRR","SSSSSSSS","TTTTTTTT","UUUUUUUU","VVVVVVVV","WWWWWWWW","XXXXXXXX","YYYYYYYY","ZZZZZZZ1","ZZZZZZZ2","ZZZZZZZ3","ZZZZZZZ4","ZZZZZZZ5","ZZZZZZZ6","ZZZZZZZ7","ZZZZZZZ8","ZZZZZZZ9","ZZZZZZ10","ZZZZZZ11","ZZZZZZ12","ZZZZZZ13","ZZZZZZ14","ZZZZZZ15","ZZZZZZ16","ZZZZZZ17","ZZZZZZ18","ZZZZZZ19","ZZZZZZ20","ZZZZZZ21","ZZZZZZ22","ZZZZZZ23","ZZZZZZ24","ZZZZZZ25","ZZZZZZ26","ZZZZZZ27","ZZZZZZ28","ZZZZZZ29","ZZZZZZ30","ZZZZZZ31","ZZZZZZ32","ZZZZZZ33","ZZZZZZ34","ZZZZZZ35","ZZZZZZ36","ZZZZZZ37","ZZZZZZ38","ZZZZZZ39","ZZZZZZ40","ZZZZZZ41","ZZZZZZ42","ZZZZZZ43","ZZZZZZ44","ZZZZZZ45","ZZZZZZ46","ZZZZZZ47","ZZZZZZ48","ZZZZZZ49","ZZZZZZ50","ZZZZZZ51","ZZZZZZ52","ZZZZZZ53","ZZZZZZ54","ZZZZZZ55","ZZZZZZ56","ZZZZZZ57","ZZZZZZ58","ZZZZZZ59","ZZZZZZ60","ZZZZZZ61","ZZZZZZ62","ZZZZZZ63","ZZZZZZ64","ZZZZZZ65","ZZZZZZ66","ZZZZZZ67","ZZZZZZ68","ZZZZZZ69","ZZZZZZ70","ZZZZZZ71","ZZZZZZ72","ZZZZZZ73","ZZZZZZ74","ZZZZZZ75","ZZZZZZ76","ZZZZZZ77","ZZZZZZ78","ZZZZZZ79","ZZZZZZ80","ZZZZZZ81","ZZZZZZ82","ZZZZZZ83","ZZZZZZ84","ZZZZZZ85","ZZZZZZ86","ZZZZZZ87","ZZZZZZ88","ZZZZZZ89","ZZZZZZ90","ZZZZZZ91","ZZZZZZ92","ZZZZZZ93","ZZZZZZ94","ZZZZZZ95","ZZZZZZ96","ZZZZZZ97","ZZZZZZ98","ZZZZZZ99"]}' (≤1 rps) → verify 200 + pubkey map for valid only at 100-ID scale
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk 100+ batch + 5 challenge endpoints + CORS * + no rate-limit + parameter-validation oracles — all re-confirmed this cycle
 [LEARN] ACCEPTED MISCONFIG @ threema-desktop (Windows): key-storage ACL bypass RAG-verified at 95 confidence — full Ed25519 identity key + SQLCipher key chain confirmed via 15 source paths
