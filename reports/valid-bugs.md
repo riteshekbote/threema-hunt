@@ -15,3 +15,8 @@
 - 2 lead(s) marked VALID at 2026-08-07 23:55:35 UTC
   - | Q3 | **NO** | All data-access routes return 400 (credential-gated). No unauthenticated data access demonstrated. CORS `*` + Authorization header on an auth-gated API only matters if the attacker alr
   - | Q7 | **NO** | Requires valid credentials to have any impact. No unauthenticated data access demonstrated. |
+
+- 3 lead(s) marked VALID at 2026-08-08 04:24:31 UTC
+  - **Verdict: VALID**
+  - **Verdict: HOLD** — Defense-in-depth/hardening gap. `sandbox:false` + `nodeIntegrationInWorker:true` are real hardening concerns but constitute a vulnerability ONLY when chained with a demonstrated re
+  - | **VALID** | 1 | #3 Desktop Windows key-storage ACL bypass |
