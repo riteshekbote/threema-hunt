@@ -155,3 +155,11 @@
 ## 2026-08-08 03:47:32 UTC
 
 ## 2026-08-08 04:43:47 UTC
+
+## 2026-08-08 05:26:39 UTC
+- NEW work.test.threema.ch `/api-app/public/global/settings` → 200 JSON (299B) unauthenticated; IDENTICAL path → 404 on production work.threema.ch — first confirmed staging-prod public-API divergence on the
+- NEW `/api-app/public/license/token/{licenseToken}` route exists in JS bundle; token validated as exactly 64 chars; fake 64-zero token → 404 (route present, token lookup fails).
+- NEW work.test.threema.ch login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.ch, hcaptcha-work.threema.ch, billing.test.threema.ch (for
+- NEW Staging work app sets `__HOST-HTTP-SESSIONID` cookie on unauthenticated GET /en/login (Secure/HttpOnly/SameSite=Strict).
+- NEW `/api-app/me/profile` + `/api-app/global/settings` → 302 on staging (session-gated); only the explicit `/api-app/public/*` namespace is open.
+- NEW `/info/ping.php` → 200 empty and `/ping` → 204 on BOTH staging and prod (no divergence).
