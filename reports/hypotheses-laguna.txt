@@ -1,1 +1,33 @@
-## 2026-08-08 00:11:58 UTC [desktop] (model laguna)
+## 2026-08-08 02:16:19 UTC [desktop] (model laguna)
+[HYP] Desktop Windows key-storage ACL bypass → master-password recovery → identity keypair + DB decryption
+class: MISCONFIG
+asset: apps/desktop/src/common/node/{fs,key-storage/index.ts,crypto.ts} + electron-main.ts STORE_USER_PASSWORD (line 944)
+confidence: 95
+reasoning: `fileModeInternalObjectIfPosix()` (fs.ts:41) returns `{}` on win32 so `keystorage.bin` (_writeOrOverrideFile @ index.ts:559) and `keystorage.password.bin` (electron-main.ts:944-945) are persisted with NO ACL restriction. The latter is encrypted via `electron.safeStorage.encryptString` (electron-main.ts:943) = Windows DPAPI under the current user. `keystorage.bin` outer layer is Argon2id-wrapped by the master password (crypto.ts:53-88), inner layer exposes `identityData.identity` (private key) + `databaseKey` (restore-db.ts:44-47).
+evidence_needed: Windows file-object ACL audit of `keystorage.bin` and `keystorage.password.bin` (DACL = blank/default) + reproduction: co-located same-user process calling `CryptUnprotectData` on the password file, then Argon2id(masterPassword)+salt-from-file → XSalsa20 decrypt → identity private key.
+verify_steps: RAG (PASSIVE): confirm on-disk DACL — source already proves `mode` omitted on Windows. AUTH_HELPED (same-user only): `powershell Get-Acl` on both files to show no explicit ACE; then `CryptProtect`/`CryptUnprotectData` round-trip via DPAPI on the password blob; then `argon2` node derivation with salt embedded in keystorage.bin outer layer to decrypt the intermediate key storage. ≤1 rps, no remote call.
+impact: Any same-user malware/process exfiltrates the victim's full Threema identity (Ed25519 private key) + message-database encryption key → offline decrypt of local message store WITHOUT the Threema master password. No network auth required. Severity: High.
+testability: RAG
+[HYP] Desktop BrowserWindow sandbox disabled + nodeIntegrationInWorker → worker-context Node escape path
+class: MISCONFIG
+asset: apps/desktop/src/electron/electron-main.ts (BrowserWindow webPreferences, lines 1234-1268)
+confidence: 65
+reasoning: `nodeIntegration: false` + `contextIsolation: true` (hardened) BUT `nodeIntegrationInWorker: true` (electron-main.ts:1252, TODO DESK-79) and `sandbox` is never set → Electron default `sandbox=false` (the line-1240 comment "sandboxing is enabled by default" is contradicted by the explicit TODO to enable it). Two workers exist: backend-worker (app/app.ts:407, Threema protocol message/attachment processing) and media-crypto-worker (group-call.ts:281).
+evidence_needed: A code path where attacker-influenced message/link/attachment content deserialized or executed inside a Worker reaches a Node `require()` sink enabled by `nodeIntegrationInWorker`.
+verify_steps: RAG (PASSIVE): grep `new Worker(`, `require(`, `eval(`, `import(` in apps/desktop/src/worker/** to enumerate worker content sources + Node sinks; trace backend-worker message dispatch for attacker-data parsing (protobuf/URL fetch). Confirm `sandbox` default via Electron docs (false).
+impact: If a deserialization/rendering bug exists in the backend-worker processing a malicious Threema message/attachment, `nodeIntegrationInWorker:true` + no sandbox → renderer/worker XSS → Node require → OS command execution. Severity: High (RCE via a message; conditional on secondary bug).
+testability: RAG
+[HYP] Safe backup cross-origin credential-gated read + enumeration oracle
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (single IP 203.56.112.231)
+confidence: 75
+reasoning: Prior lead; all 5 hosts return HTTP 400 (not 404) for unauth `GET /backups/{64hex}`, OPTIONS exposes `Access-Control-Allow-Origin: *`, `Access-Control-Allow-Headers: Authorization`, methods incl. PUT/PATCH/POST/DELETE, no 429/RateLimit/Retry-After across 30 probes; route-vs-path distinction (400 on /backups/{hex}, 404 on /backup/{x}) confirms existence oracle.
+evidence_needed: (1) 400 body content differs for existing-vs-nonexisting 64-hex id; (2) with program-provided test backupId+backupKey → HTTP 200; (3) `Access-Control-Expose-Headers` on preflight.
+verify_steps: PASSIVE: `curl -s -i -m 12 -X OPTIONS https://safe-01.threema.ch/backups/aaaa...00 -H "Origin: https://attacker.ex" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: Authorization"`; AUTH_HELPED: `curl -s -i -m 12 -u "${backupId}:${backupKey}" https://safe-01.threema.ch/backups/${backupId}`. ≤1 rps.
+impact: Cross-origin backup-ID existence enumeration + credentialed cross-origin reads of the backup store from any attacker origin. Valid credentials → full identity keypair + message-history backup. Severity: High.
+testability: PASSIVE + AUTH_HELPED
+[PARKED] "Staging mediator/rendezvous WSS surface" (conf 55) — out of POC scope (web tier, not desktop) and requires a dgid for reconstruction; not pursued per phase target=desktop. No verification performed in this round.
+[PARKED] "Staging chat cluster 5222 mirror" (conf 50) — out of scope and requires AUTH_HELPED + custom CSP handshake; not pursued.
+[PARKED] "Staging work web app surface" (conf 45) — superseded by desktop POC priority; network tier work shifted to lower-ranked tier.
+[FINAL] ranked: 1) Desktop Windows key-storage ACL bypass (95, RAG/AUTH_HELPED-local), 2) Safe backup cross-origin credentialed access (75, PASSIVE/AUTH_HELPED), 3) Desktop BrowserWindow sandbox+worker gap (65, RAG).
+[NEXT] RAG: Run `grep -rn "require(\|import(\|eval(\|process\.mainModule\|child_process\|fs\." /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/backend-worker.ts && `grep -rn "sandbox\|webPreferences" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts` to enumerate Node sinks inside the nodeIntegrationInWorker backend-worker content path and definitively confirm `sandbox` is unset (default false) — closes the conditional-exploitability question for the worker RCE lead.
