@@ -475,3 +475,4 @@ verify_steps: <passive-first concrete HTTP requests, or AUTH_HELPED:...>
 impact: <what attacker gets + severity>
 testability: <PASSIVE|AUTH_HELPED|HUMAN_ONLY>
 ## 2026-08-08 04:42:50 UTC [desktop] (model laguna)
+## 2026-08-08 05:26:31 UTC [desktop] (model laguna)

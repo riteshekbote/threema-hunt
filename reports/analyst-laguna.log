@@ -6189,3 +6189,442 @@ apps/desktop/src/common/network/protocol/task/libthreema/remote-secret-monitor.t
 [93m[1m! [0mpermission requested: external_directory (/tmp/opencored/*, /tmp/opencode/threema-desktop/*); auto-rejecting
 [0m✗ [0mcd /tmp/opencored/threema-desktop 2>/dev/null || cd /tmp/opencode/threema-desktop && grep -rn "linkPreview\|LinkPreview\|link.preview\|preview.*url\|fetchPreview\|urlPreview\|attachment.*worker\|mediaCrypto\|media-crypto\|mediaCrypto" apps/desktop/src/ --include="*.ts" | head -20; echo "==="; grep -rn "new Worker" apps/desktop/src/ --include="*.ts" -B2 -A8 | head -40 failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST laguna 2026-08-08 05:26:39 UTC =====
+[0m
+> build · laguna-s-2.1-free
+[0m
+[0m$ [0mls -la /tmp/opencode/ 2>/dev/null && echo "---" && ls -la /home/runner/work/threema-hunt/threema-hunt/
+total 16
+drwxr-xr-x  2 runner runner  4096 Aug  8 05:23 .
+drwxrwxrwt 15 root   root   12288 Aug  8 05:23 ..
+---
+total 148
+drwxr-xr-x 11 runner runner  4096 Aug  8 05:23 .
+drwxr-xr-x  3 runner runner  4096 Aug  8 05:22 ..
+drwxr-xr-x  7 runner runner  4096 Aug  8 05:23 .git
+drwxr-xr-x  3 runner runner  4096 Aug  8 05:23 .github
+-rw-r--r--  1 runner runner  1049 Aug  8 05:23 README.md
+-rw-r--r--  1 runner runner    39 Aug  8 05:23 analyst-out.txt
+-rw-r--r--  1 runner runner 36791 Aug  8 05:23 analyst-prompt.txt
+-rw-r--r--  1 runner runner 33727 Aug  8 05:23 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  8 05:23 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  8 05:23 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  8 05:23 leads
+drwxr-xr-x  2 runner runner  4096 Aug  8 05:23 reports
+drwxr-xr-x  3 runner runner  4096 Aug  8 05:23 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  8 05:23 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  8 05:23 scripts
+-rw-r--r--  1 runner runner    34 Aug  8 05:23 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  8 05:23 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  8 05:23 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  8 05:23 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  8 05:23 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  8 05:23 triage
+[0m
+[0m$ [0mls -la /tmp/opencode/threema-desktop/ 2>/dev/null || echo "threema-desktop not found at /tmp/opencode/threema-desktop"
+threema-desktop not found at /tmp/opencode/threema-desktop
+[0m
+I'll start by examining the environment and the threema-desktop repository that should be available for analysis.
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reports/ && echo "=== KNOWLEDGE ===" && ls -la /home/runner/work/threema-hunt/threema-hunt/knowledge/ && echo "=== LEADS ===" && ls -la /home/runner/work/threema-hunt/threema-hunt/leads/ && echo "=== INVENTORY ===" && ls -la /home/runner/work/threema-hunt/threema-hunt/inventory/ && echo "=== TRIAGE ===" && ls -la /home/runner/work/threema-hunt/threema-hunt/triage/ && echo "=== REPOSCAN ===" && ls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/ && echo "=== SCRIPTS ===" && ls -la /home/runner/work/threema-hunt/threema-hunt/scripts/
+total 1144
+drwxr-xr-x  2 runner runner   4096 Aug  8 05:23 .
+drwxr-xr-x 11 runner runner   4096 Aug  8 05:23 ..
+-rw-r--r--  1 runner runner 453907 Aug  8 05:23 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 622576 Aug  8 05:23 analyst-laguna.log
+-rw-r--r--  1 runner runner   3024 Aug  8 05:23 analyst-ling3.log
+-rw-r--r--  1 runner runner   1260 Aug  8 05:23 analyst-longcat.log
+-rw-r--r--  1 runner runner 139721 Aug  8 05:23 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   2743 Aug  8 05:23 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner     52 Aug  8 05:23 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner     48 Aug  8 05:23 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner     50 Aug  8 05:23 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   8525 Aug  8 05:23 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  30933 Aug  8 05:23 hypotheses.md
+-rw-r--r--  1 runner runner   1539 Aug  8 05:23 valid-bugs.md
+=== KNOWLEDGE ===
+total 20
+drwxr-xr-x  2 runner runner  4096 Aug  8 05:23 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 05:23 ..
+-rw-r--r--  1 runner runner 11439 Aug  8 05:23 index.md
+=== LEADS ===
+total 556
+drwxr-xr-x  2 runner runner  4096 Aug  8 05:23 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 05:23 ..
+-rw-r--r--  1 runner runner 58147 Aug  8 05:23 lead-bigpickle.md
+-rw-r--r--  1 runner runner 74493 Aug  8 05:23 lead-laguna.md
+-rw-r--r--  1 runner runner   752 Aug  8 05:23 lead-ling3.md
+-rw-r--r--  1 runner runner   782 Aug  8 05:23 lead-longcat.md
+-rw-r--r--  1 runner runner 95601 Aug  8 05:23 lead-nemotron3.md
+-rw-r--r--  1 runner runner 11048 Aug  8 05:23 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner 13399 Aug  8 05:23 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner 13429 Aug  8 05:23 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner 11241 Aug  8 05:23 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner  6565 Aug  8 05:23 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner  9511 Aug  8 05:23 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner 13472 Aug  8 05:23 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner 10507 Aug  8 05:23 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner 13665 Aug  8 05:23 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner 10938 Aug  8 05:23 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner 17321 Aug  8 05:23 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner 15373 Aug  8 05:23 reposcan-2026-08-07-23-19.md
+-rw-r--r--  1 runner runner 11670 Aug  8 05:23 reposcan-2026-08-07-23-50.md
+-rw-r--r--  1 runner runner 14267 Aug  8 05:23 reposcan-2026-08-08-00-01.md
+-rw-r--r--  1 runner runner 12628 Aug  8 05:23 reposcan-2026-08-08-00-19.md
+-rw-r--r--  1 runner runner 13392 Aug  8 05:23 reposcan-2026-08-08-02-10.md
+-rw-r--r--  1 runner runner 13822 Aug  8 05:23 reposcan-2026-08-08-02-23.md
+-rw-r--r--  1 runner runner 13194 Aug  8 05:23 reposcan-2026-08-08-03-52.md
+-rw-r--r--  1 runner runner 14260 Aug  8 05:23 reposcan-2026-08-08-04-47.md
+-rw-r--r--  1 runner runner 15327 Aug  8 05:23 reposcan-2026-08-08-05-01.md
+-rw-r--r--  1 runner runner 15327 Aug  8 05:23 reposcan-latest.md
+=== INVENTORY ===
+total 24
+drwxr-xr-x  2 runner runner  4096 Aug  8 05:23 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 05:23 ..
+-rw-r--r--  1 runner runner 15932 Aug  8 05:23 threema.md
+=== TRIAGE ===
+total 196
+drwxr-xr-x  2 runner runner  4096 Aug  8 05:23 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 05:23 ..
+-rw-r--r--  1 runner runner 81432 Aug  8 05:23 run-2026-08-07-20-10.md
+-rw-r--r--  1 runner runner 18280 Aug  8 05:23 run-2026-08-07-21-03.md
+-rw-r--r--  1 runner runner 18224 Aug  8 05:23 run-2026-08-07-21-56.md
+-rw-r--r--  1 runner runner 12766 Aug  8 05:23 run-2026-08-07-22-56.md
+-rw-r--r--  1 runner runner 27810 Aug  8 05:23 run-2026-08-07-23-55.md
+-rw-r--r--  1 runner runner  1637 Aug  8 05:23 run-2026-08-08-02-24.md
+-rw-r--r--  1 runner runner 18651 Aug  8 05:23 run-2026-08-08-04-24.md
+=== REPOSCAN ===
+total 60
+drwxr-xr-x  3 runner runner  4096 Aug  8 05:23 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 05:23 ..
+-rw-r--r--  1 runner runner  9049 Aug  8 05:23 analysis.txt
+-rw-r--r--  1 runner runner    40 Aug  8 05:23 grep-delta.txt
+-rw-r--r--  1 runner runner  7433 Aug  8 05:23 grep-hits.prev.txt
+-rw-r--r--  1 runner runner  7433 Aug  8 05:23 grep-hits.txt
+-rw-r--r--  1 runner runner 13474 Aug  8 05:23 rag.txt
+drwxr-xr-x 18 runner runner  4096 Aug  8 05:23 threema-ch
+=== SCRIPTS ===
+total 16
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 .
+drwxr-xr-x 11 runner runner 4096 Aug  8 05:23 ..
+-rw-r--r--  1 runner runner 7506 Aug  8 05:23 sync-issues.py
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/
+total 72
+drwxr-xr-x 18 runner runner 4096 Aug  8 05:23 .
+drwxr-xr-x  3 runner runner 4096 Aug  8 05:23 ..
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 app-remote-protocol
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 compose-area
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 push-relay
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 threema-android
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 threema-bot-sdk
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 threema-desktop
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 threema-ios
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 threema-markup
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 threema-msgapi-sdk-java
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 threema-msgapi-sdk-php
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 threema-msgapi-sdk-python
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 threema-msgapi-sdk-rust
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 threema-web
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 threema-web-electron
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 wasm-minisign-verify
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 webrtc-build-docker
+[0m
+[0m→ [0mRead state_laguna.json
+[0m→ [0mRead state_bigpickle.json
+[0m→ [0mRead analyst-out.txt
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/ && echo "=== GIT STATUS ===" && git -C /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/ status 2>&1 | head -5
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 .
+drwxr-xr-x 18 runner runner 4096 Aug  8 05:23 ..
+=== GIT STATUS ===
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-android/ | head -20
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  8 05:23 .
+drwxr-xr-x 18 runner runner 4096 Aug  8 05:23 ..
+[0m
+[0m→ [0mRead ctx.txt
+The repos are empty git checkouts. I need to clone the actual source. Let me read the context files and clone threema-desktop in parallel.
+[0m
+[0m$ [0mcd /tmp/opencode && git clone --depth 1 https://github.com/threema-ch/threema-desktop.git 2>&1 | tail -5
+Cloning into 'threema-desktop'...
+[0m
+[0m→ [0mRead knowledge/index.md
+[0m→ [0mRead reports/hypotheses-laguna.txt
+[0m→ [0mRead reports/hypotheses-nemotron3.txt
+The clone is in progress. Let me read the key files while it completes.
+[0m
+[0m$ [0mls -la /tmp/opencode/threema-desktop/ 2>/dev/null | head -20 && echo "=== git log ===" && git -C /tmp/opencode/threema-desktop/ log --oneline -3 2>/dev/null
+total 704
+drwxr-xr-x 12 runner runner   4096 Aug  8 05:24 .
+drwxr-xr-x  3 runner runner   4096 Aug  8 05:24 ..
+drwxr-xr-x  3 runner runner   4096 Aug  8 05:24 .devcontainer
+-rw-r--r--  1 runner runner    253 Aug  8 05:24 .editorconfig
+drwxr-xr-x  7 runner runner   4096 Aug  8 05:24 .git
+-rw-r--r--  1 runner runner     63 Aug  8 05:24 .gitattributes
+-rw-r--r--  1 runner runner    189 Aug  8 05:24 .gitignore
+drwxr-xr-x  3 runner runner   4096 Aug  8 05:24 .gitlab
+-rw-r--r--  1 runner runner  47542 Aug  8 05:24 .gitlab-ci.yml
+-rw-r--r--  1 runner runner      0 Aug  8 05:24 .gitmodules
+drwxr-xr-x  2 runner runner   4096 Aug  8 05:24 .licenses
+-rw-r--r--  1 runner runner      8 Aug  8 05:24 .nvmrc
+-rw-r--r--  1 runner runner   1242 Aug  8 05:24 .prettierignore
+-rw-r--r--  1 runner runner    983 Aug  8 05:24 .prettierrc.yml
+drwxr-xr-x  2 runner runner   4096 Aug  8 05:24 .vscode
+-rw-r--r--  1 runner runner  13991 Aug  8 05:24 AGENTS.md
+-rw-r--r--  1 runner runner    857 Aug  8 05:24 CONTRIBUTING.md
+-rw-r--r--  1 runner runner  68024 Aug  8 05:24 LICENSE-3RD-PARTY.txt
+-rw-r--r--  1 runner runner  34520 Aug  8 05:24 LICENSE.txt
+=== git log ===
+9ae421c Update version to v2.0-beta63
+[0m
+[0m✗ [0mRead lead-laguna.md failed[90m [limit=200][0m
+[91m[1mError: [0mFile not found: /home/runner/work/threema-hunt/threema-hunt/lead-laguna.md
+[0m
+[0m$ [0mls -la /tmp/opencode/threema-desktop/apps/ 2>/dev/null && echo "=== desktop src ===" && ls /tmp/opencode/threema-desktop/apps/desktop/src/ 2>/dev/null
+total 16
+drwxr-xr-x  4 runner runner 4096 Aug  8 05:24 .
+drwxr-xr-x 12 runner runner 4096 Aug  8 05:24 ..
+drwxr-xr-x  3 runner runner 4096 Aug  8 05:24 conferencing
+drwxr-xr-x  6 runner runner 4096 Aug  8 05:24 desktop
+=== desktop src ===
+app
+cli
+common
+electron
+enum
+index.html
+migrations
+public
+rust
+sass
+screenshare.html
+tailwind
+test
+translations
+tsconfig.base.json
+worker
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop/apps/desktop/src -name "electron-main.ts" -o -name "key-storage" -o -name "fs.ts" -o -name "crypto.ts" 2>/dev/null | head -30
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/fs.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/test/mocha/common/node/key-storage
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts
+[0m
+Good, the clone completed. Now let me explore the repo structure and find the key files mentioned in the hypotheses.
+[0m$ [0mfind /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage -type f 2>/dev/null && echo "=== fs.ts exists ===" && ls -la /tmp/opencode/threema-desktop/apps/desktop/src/common/node/fs.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts
+=== fs.ts exists ===
+-rw-r--r-- 1 runner runner 1600 Aug  8 05:24 /tmp/opencode/threema-desktop/apps/desktop/src/common/node/fs.ts
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/fs.ts
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts
+Now let me read all the critical source files in parallel to verify the hypotheses.
+[0m✱ [0mGrep "sandbox|nodeIntegration|webPreferences|new BrowserWindow"[90m in /tmp/opencode/threema-desktop/apps/desktop/src/electron · 15 matches[0m
+[0m✱ [0mGrep "STORE_USER_PASSWORD|safeStorage|keystorage\.password"[90m in /tmp/opencode/threema-desktop/apps/desktop/src/electron · 14 matches[0m
+[0m
+[0m$ [0mgrep -rn "new Worker(" /tmp/opencode/threema-desktop/apps/desktop/src/ 2>/dev/null | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/webrtc/group-call.ts:281:            const mediaCryptoWorker = new Worker(
+/tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts:407:    const worker = new Worker(
+[0m
+Excellent - critical source confirmed. Now let me examine electron-main.ts for BrowserWindow config and the worker/spawn sites.
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [offset=1225, limit=50][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [offset=900, limit=100][0m
+Let me read the exact BrowserWindow config and the STORE_USER_PASSWORD handler, plus the worker spawn sites.
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts[90m [offset=395, limit=30][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/dom/webrtc/group-call.ts[90m [offset=270, limit=25][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts
+Now let me read the worker spawn sites and the key storage helpers to complete the RAG verification.
+[0m
+[0m$ [0mgrep -rn "getSafeStoragePasswordPath\|KEY_STORAGE_PATH\|keystorage\." /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts | head -10
+39:import {getSafeStoragePasswordPath} from '~/common/node/safe-storage/helpers';
+915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+[0m
+[0m$ [0mgrep -rn "KEY_STORAGE_PATH\|SAFE_STORAGE" /tmp/opencode/threema-desktop/apps/desktop/src/common/config/ 2>/dev/null | head -20; echo "=== grep broader ==="; grep -rn "getSafeStoragePasswordPath" /tmp/opencode/threema-desktop/apps/desktop/src/electron/ | head -10
+=== grep broader ===
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:39:import {getSafeStoragePasswordPath} from '~/common/node/safe-storage/helpers';
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop/apps/desktop/src/worker -type f -name "*.ts" | head -30
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/backend-worker.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/media-crypto-worker.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/config.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/backend-worker.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/types.ts
+[0m
+Now let me find the key storage paths and read the backend-worker to understand its content sources.
+[0m$ [0mcat /tmp/opencode/threema-desktop/apps/desktop/src/common/node/safe-storage/helpers.ts 2>/dev/null
+import * as fs from 'node:fs';
+import path from 'node:path';
+
+import {STATIC_CONFIG} from '~/common/config';
+import type {Logger} from '~/common/logging';
+
+/**
+ * Returns the path to the `electron.safeStorage` password file in the given `profileDirectoryPath`.
+ * Important: The path is not validated, so it might not exist.
+ *
+ * @param profileDirectoryPath Path to the Threema profile directory to use as the base path.
+ */
+export function getSafeStoragePasswordPath(profileDirectoryPath: string): string {
+    return path.join(profileDirectoryPath, ...STATIC_CONFIG.SAFE_STORAGE_PASSWORD_PATH);
+}
+
+/**
+ * Deletes the password file for `electron.safeStorage` in the given `profileDirectoryPath`, if it
+ * exists. Otherwise, this is a no-op, and will not throw.
+ */
+export function deleteSafeStoragePasswordFile(profileDirectoryPath: string, log?: Logger): void {
+    const safeStoragePasswordPath = getSafeStoragePasswordPath(profileDirectoryPath);
+
+    try {
+        fs.unlinkSync(safeStoragePasswordPath);
+        log?.info(`Password file '${safeStoragePasswordPath}' deleted`);
+    } catch {
+        log?.info(`Password file '${safeStoragePasswordPath}' does NOT exist`);
+    }
+}
+[0m
+[0m$ [0mgrep -rn "KEY_STORAGE_PATH" /tmp/opencode/threema-desktop/apps/desktop/src/common/config/ 2>/dev/null
+(no output)
+[0m
+[0m$ [0mwc -l /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/backend-worker.ts && echo "=== HEAD ===" && head -60 /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/backend-worker.ts
+95 /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/backend-worker.ts
+=== HEAD ===
+import type {ClientInfo} from '@threema/libthreema-wasm';
+
+import {
+    Backend,
+    type BackendCreator,
+    type BackendInit,
+    type CertificatePinRecoveryHandle,
+    type DeviceLinkingSetup,
+    type FactoriesForBackend,
+    type LoadingStateSetup,
+} from '~/common/dom/backend';
+import {createEndpointService, ensureEndpoint} from '~/common/dom/utils/endpoint';
+import {extractErrorTraceback} from '~/common/error';
+import {TRANSFER_HANDLER} from '~/common/index';
+import type {TestDataJson} from '~/common/test-data';
+import {setAssertFailLogger} from '~/common/utils/assert';
+import {PROXY_HANDLER, type ProxyEndpoint} from '~/common/utils/endpoint';
+import {BACKEND_WORKER_CONFIG} from '~/worker/backend/config';
+
+declare const self: DedicatedWorkerGlobalScope;
+
+/**
+ * This is the common entrypoint for the backend worker, invoked by the app
+ * via the specific 'electron' loader entrypoint.
+ */
+export function main(factories: FactoriesForBackend): void {
+    const logging = factories.logging('bw', BACKEND_WORKER_CONFIG.LOG_DEFAULT_STYLE);
+    {
+        const assertFailLogger = logging.logger('assert');
+        setAssertFailLogger((error) => assertFailLogger.error(extractErrorTraceback(error)));
+    }
+    const log = logging.logger('main');
+
+    // Greet with version!
+    log.info(`Loaded worker: ${import.meta.env.BUILD_VERSION} (${import.meta.env.BUILD_HASH})`);
+
+    // The worker exposes backend creation functions that run in the context of the worker, but
+    // which can be called from the main thread (through the backend controller).
+    const endpoint = createEndpointService({logging});
+    const services = {
+        logging,
+        endpoint,
+    };
+
+    const creator: BackendCreator = {
+        [TRANSFER_HANDLER]: PROXY_HANDLER,
+        hasIdentity: () => Backend.hasIdentity(factories, services),
+        fromKeyStorage: async (
+            init: BackendInit,
+            keyStoragePassword: string,
+            loadingStateSetup: ProxyEndpoint<LoadingStateSetup>,
+            certificatePinRecoveryHandle: ProxyEndpoint<CertificatePinRecoveryHandle>,
+        ) => {
+            log.info('Creating backend from key storage');
+            return await Backend.createFromKeyStorage(
+                init,
+                factories,
+                services,
+                keyStoragePassword,
+                loadingStateSetup,
+[0m
+[0m$ [0mgrep -rn "KEY_STORAGE_PATH\|SAFE_STORAGE_PASSWORD_PATH" /tmp/opencode/threema-desktop/apps/desktop/src/common/config.ts /tmp/opencode/threema-desktop/apps/desktop/src/common/config/ 2>/dev/null
+/tmp/opencode/threema-desktop/apps/desktop/src/common/config.ts:104:    readonly DEPRECATED_KEY_STORAGE_PATH: readonly string[];
+/tmp/opencode/threema-desktop/apps/desktop/src/common/config.ts:109:    readonly KEY_STORAGE_PATH: readonly string[];
+/tmp/opencode/threema-desktop/apps/desktop/src/common/config.ts:136:    readonly SAFE_STORAGE_PASSWORD_PATH: readonly string[];
+/tmp/opencode/threema-desktop/apps/desktop/src/common/config.ts:170:    | 'KEY_STORAGE_PATH'
+/tmp/opencode/threema-desktop/apps/desktop/src/common/config.ts:171:    | 'DEPRECATED_KEY_STORAGE_PATH'
+/tmp/opencode/threema-desktop/apps/desktop/src/common/config.ts:176:    | 'SAFE_STORAGE_PASSWORD_PATH'
+/tmp/opencode/threema-desktop/apps/desktop/src/common/config.ts:183:    DEPRECATED_KEY_STORAGE_PATH: import.meta.env.DEPRECATED_KEY_STORAGE_PATH,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/config.ts:184:    KEY_STORAGE_PATH: import.meta.env.KEY_STORAGE_PATH,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/config.ts:193:    SAFE_STORAGE_PASSWORD_PATH: import.meta.env.SAFE_STORAGE_PASSWORD_PATH,
+[0m
+[0m$ [0mgrep -rn "require(\|child_process\|process\.mainModule\|eval(" /tmp/opencode/threema-desktop/apps/desktop/src/worker/ 2>/dev/null | head -30
+(no output)
+[0m
+[0m$ [0mgrep -rn "identityData\|identity.*private\|databaseKey\|privateKey\|IdentityKeyPair\|identityPrivateKey" /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/ 2>/dev/null | head -30
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts:61:        identityData: v
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts:69:        databaseKey: instanceOf(Uint8Array).map(wrapRawDatabaseKey),
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts:109:    | 'identityData'
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts:111:    | 'databaseKey'
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts:163:        identityData: validated.identityData,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts:165:        databaseKey: validated.databaseKey,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts:62:        identityData: v
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts:70:        databaseKey: instanceOf(Uint8Array).map(wrapRawDatabaseKey),
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts:95:    'identityData' | 'dgk' | 'databaseKey' | 'deviceIds' | 'deviceCookie'
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts:147:        identityData: validated.identityData,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts:149:        databaseKey: validated.databaseKey,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts:158:        identityData: consumable.identityData ?? current.identityData,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts:160:        databaseKey: consumable.databaseKey ?? current.databaseKey,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts:165:        identityData: {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts:166:            identity: validated.identityData.identity,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts:167:            ck: validated.identityData.ck.unwrap(),
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts:168:            serverGroup: validated.identityData.serverGroup,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts:171:        databaseKey: validated.databaseKey.unwrap(),
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v2.ts:63:        identityData: v
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v2.ts:71:        databaseKey: instanceOf(Uint8Array).map(wrapRawDatabaseKey),
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v2.ts:111:    | 'identityData'
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v2.ts:113:    | 'databaseKey'
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v2.ts:175:        identityData: validated.identityData,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v2.ts:177:        databaseKey: validated.databaseKey,
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/opcodec/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/*); auto-rejecting
+[0m✗ [0mRead /tmp/opcodec/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[0m
+[0m$ [0mgrep -rn "require(\|import(\|eval(\|process\.\|child_process\|fs\.\|__dirname\|__filename" /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/backend-worker.ts /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/ 2>/dev/null | head -30
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts:62:            fs.mkdirSync(path.dirname(logFilePath), {
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts:119:            fs.mkdirSync(path.dirname(keyStoragePath), {
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts:135:            fs.mkdirSync(fileStoragePath, {
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts:144:            fs.mkdirSync(fileStoragePath, {
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts:177:                    // an incomplete join process.
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts:178:                    fs.rmSync(databasePath, {force: true});
+[0m
+[0m$ [0mgrep -rn "identityData" /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/ 2>/dev/null | head -5 && echo "=== identity structure ===" && grep -rn "interface.*IdentityData\|IdentityData\b" /tmp/opencode/threema-desktop/apps/desktop/src/common/identity/ 2>/dev/null | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts:61:        identityData: v
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts:109:    | 'identityData'
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts:163:        identityData: validated.identityData,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts:62:        identityData: v
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts:95:    'identityData' | 'dgk' | 'databaseKey' | 'deviceIds' | 'deviceCookie'
+=== identity structure ===
+[0m
+Let me read the inner key storage layer to confirm the identity keypair and database key structure.

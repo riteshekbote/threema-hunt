@@ -654,3 +654,44 @@ testability: RAG
 [RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve (split routing 203.56.112.247 | 203.56.114.247), uniform 403 on HTTPS; WSS paths high-entropy; auth model in source, not passively enumerable
 [RISK] safe: 80 reason: safe-01.live with CORS *, write-capable methods (GET,HEAD,PUT,PATCH,POST,DELETE), Access-Control-Allow-Headers: Authorization, HSTS+Expect-CT; backup API credential-gated (400) but cross-origin auth requests possible; 5 hostnames same IP; no 429 observed
 [RISK] desktop-src: 80 reason: Electron BrowserWindow sandbox disabled (TODO DEK-79) + nodeIntegrationInWorker: true (TODO DEK-79); Windows key-storage ACL bypass ACCEPTED; OnPrem config trust REJECTED (Ed25519 sig verified); staging URLs baked into builds; key storage Argon2id + DPAPI (decent but weak on Windows)
+## 2026-08-08 05:25:48 UTC [web] (model nemotron3)
+[PRIO] https://ds-apip.threema.ch/identity/{id} + /identity/fetch_bulk + https://api.threema.ch/identity/{id} + https://apip.threema.ch/identity/{id}, 8.35, attack=9 business=9 tech=8 gate=10 cloud=7 fresh=8
+[PRIO] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{id}, 8.15, attack=8 business=9 tech=8 gate=8 cloud=8 fresh=8
+[PRIO] https://work.test.threema.ch/api-app/public/*, 7.55, attack=7 business=7 tech=7 gate=10 cloud=6 fresh=10
+[PRIO] threema-desktop `apps/desktop/src/electron/electron-main.ts` BrowserWindow webPreferences, 7.40, attack=8 business=8 tech=7 gate=10 cloud=2 fresh=8
+[PRIO] https://ds-apip-work.threema.ch/identities, 6.85, attack=7 business=8 tech=6 gate=8 cloud=6 fresh=6
+[HYP] Directory identity→pubkey oracle across 3 production hosts with CORS * + no rate limit
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/{id} + https://api.threema.ch/identity/{id} + https://apip.threema.ch/identity/{id} + /identity/fetch_bulk
+confidence: 90
+reasoning: All three prod hosts return identical pubkeys for valid IDs via GET /identity/{id} (200/404 oracle) and POST /identity/fetch_bulk (returns pubkeys for valid IDs only, no auth); CORS * with DELETE/POST/GET/OPTIONS; 30 sequential POSTs at 1 rps all HTTP 200, no 429/RateLimit; invalid IDs silently omitted in bulk response
+evidence_needed: Confirm bulk endpoint accepts arbitrary ID lists and returns pubkey map; verify no rate limit at higher volumes (passive 1 rps only); confirm CORS * on all three hosts for both endpoints
+verify_steps: PASSIVE: GET https://ds-apip.threema.ch/identity/{valid_id} and {invalid_id} — confirm 200/404; POST https://ds-apip.threema.ch/identity/fetch_bulk with JSON ["{valid_id}"] — confirm pubkey returned; repeat for api.threema.ch and apip.threema.ch; OPTIONS on each — confirm CORS *; 30 POSTs at 1 rps to fetch_bulk — confirm no 429
+impact: Unauthenticated enumeration of all valid Threema IDs + public key extraction at scale across 3 production directory servers; enables targeted attacks, social engineering, metadata correlation. Severity: High (mass identity enumeration, no auth, no rate limit, permissive CORS)
+testability: PASSIVE
+[HYP] Safe backup cross-origin credentialed access via CORS * + Authorization header
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{id}
+confidence: 80
+reasoning: OPTIONS returns 204 with Access-Control-Allow-Origin: *, Allow-Methods: GET/HEAD/PUT/PATCH/POST/DELETE, Allow-Headers: Authorization — explicitly enabling cross-origin requests with credentials from any origin; GET /backups/{64hex} returns 400 for unauth (route exists behind credential check); 5 hostnames resolve to same IP; zero 429 observed at 1 rps
+evidence_needed: Confirm valid backupId+backupKey returns 200; verify Basic auth format accepted; test whether 400 body differs for existing vs non-existing backup IDs (oracle)
+verify_steps: PASSIVE: GET https://safe-01.threema.ch/backups/{random64hex} ×5 at 1s intervals — confirm 400/400 oracle and absence of 429; OPTIONS https://safe-01.threema.ch/backups/aaaa — record Allow-Headers; repeat for safe-1a/safe-1b/safe-02/safe-00; AUTH_HELPED: with program-provided test backup ID+key, GET with Basic auth to confirm 200 success
+impact: Cross-origin backup existence enumeration (400-vs-404 oracle) + CSRF-class authenticated read/write attempts from attacker page via CORS * + Authorization header. Severity: Medium-High (high-value asset, permissive CORS, credential-gated but cross-origin auth enabled, no rate limit)
+testability: PASSIVE
+[HYP] Electron renderer/worker RCE via sandbox disabled + nodeIntegrationInWorker
+class: MISCONFIG
+asset: threema-desktop `apps/desktop/src/electron/electron-main.ts` (BrowserWindow webPreferences)
+confidence: 75
+reasoning: Source confirms `sandbox: false` (explicit TODO DEK-79) and `nodeIntegrationInWorker: true` (TODO DEK-79); `nodeIntegration: false` and `contextIsolation: true` are set. With sandbox disabled, renderer subprocesses may retain elevated privileges; `nodeIntegrationInWorker: true` exposes Node APIs to worker contexts — if a worker loads attacker-controlled content (via message link/preview), RCE path exists
+evidence_needed: Source line numbers showing `sandbox: false` + `nodeIntegrationInWorker: true` in BrowserWindow/webPreferences; confirmation of worker context content sources (link previews, message rendering)
+verify_steps: RAG: re-clone threema-desktop and grep for `sandbox` and `nodeIntegrationInWorker` in `apps/desktop/src/electron/electron-main.ts`; read webPreferences block; search for `preload` scripts loaded in worker context; identify message/link handling that spawns workers
+impact: Renderer/worker-context XSS → nodeIntegration → RCE on user machine via malicious message or link. Severity: High (RCE via message handling, no auth required)
+testability: RAG
+[FINAL] 1) Directory identity→pubkey oracle across 3 production hosts with CORS * + no rate limit (90) 2) Safe backup cross-origin credentialed access via CORS * + Authorization header (80) 3) Electron renderer/worker RCE via sandbox disabled + nodeIntegrationInWorker (75)
+[NEXT] PROBE: curl -s -L -m 12 -H "Accept: application/json" "https://ds-apip.threema.ch/identity/fetch_bulk" -X POST -d '["ECHOECHO"]' -w "\n%{http_code}"
+[LEARN] (no new learnings this cycle)
+[RISK] chat: 60 reason: g-*.0.threema.ch prod pattern still unenumerated; staging g-*.0.test reachable but likely out of scope; core messaging infra but no visible HTTP endpoints
+[RISK] web: 90 reason: ds-apip/api/apip directory cluster — 3 prod hosts with public 200/404 identity oracle + fetch_bulk 200 + CORS * + no rate-limit (30 POSTs all 200); safe-01 backup API with permissive CORS + Authorization header + 5 hostnames; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed
+[RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve (split routing 203.56.112.247 | 203.56.114.247), uniform 403 on HTTPS; WSS paths high-entropy; auth model in source, not passively enumerable
+[RISK] safe: 85 reason: safe-01.live with CORS *, write-capable methods (GET,HEAD,PUT,PATCH,POST,DELETE), Access-Control-Allow-Headers: Authorization, HSTS+Expect-CT; backup API credential-gated (400) but cross-origin auth requests possible; 5 hostnames same IP; no 429 observed
+[RISK] desktop-src: 85 reason: Electron BrowserWindow sandbox disabled (TODO DEK-79) + nodeIntegrationInWorker: true (TODO DEK-79); Windows key-storage ACL bypass ACCEPTED; OnPrem config trust REJECTED (Ed25519 sig verified); staging URLs baked into builds; key storage Argon2id + DPAPI (decent but weak on Windows)
