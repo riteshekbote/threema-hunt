@@ -28,3 +28,13 @@
   - **Verdict: VALID** (duplicate of already-accepted KB finding — confidence strengthened 75→95)
   - | 1 | Directory identity→pubkey bulk enumeration + CORS * + no rate limit | IDOR | **VALID** | 5.3 Med | Already accepted |
   - | 3 | Desktop Windows key-storage ACL bypass → identity compromise | MISCONFIG | **VALID** | 5.5 Med | Already accepted (strengthened) |
+
+- 8 lead(s) marked VALID at 2026-08-08 07:07:02 UTC
+  - | Q4 Passive proof? | **YES** — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` returns 200 with pubkey
+  - **Verdict: ✅ VALID**
+  - **Verdict: ✅ VALID (low severity)**
+  - **Verdict: ✅ VALID (medium, local access required)**
+  - | Q7 Triager accept? | **NO** — no data access without valid credentials; CORS `*` on a credential-gated endpoint is not a vulnerability |
+  - | 1 | Directory cluster identity enumeration (IDOR) | ✅ **VALID** | 5.3 | Medium |
+  - | 2 | Staging directory server public exposure | ✅ **VALID** | 3.1 | Low |
+  - | 3 | Desktop Windows key storage ACL bypass | ✅ **VALID** | 4.6 | Medium |
