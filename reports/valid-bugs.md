@@ -154,3 +154,11 @@
   - | Q7 Triager accept | **PASS** — already accepted as finding #3 in valid-bugs.md |
   - | Q5 Novel | **NO** — already ACCEPTED in KB (lines 32, 63, 75, 81, 95, 115, 118, 123); triaged as HOLD in valid-bugs.md |
   - | Q7 Triager accept | **HOLD** — already triaged as HOLD/contingent in valid-bugs.md; exploitability depends on undiscovered secondary bug |
+
+- 6 lead(s) marked VALID at 2026-08-08 23:18:20 UTC
+  - | H1 | Directory identity→pubkey bulk oracle (fetch_bulk + GET /identity/{id}) | IDOR | ALL | Duplicate of prior VALID |
+  - | H2 | Safe backup CORS `*` + credentialed cross-origin read + existence oracle | AUTH | bigpickle, laguna, ling3, nemotron3 | Duplicate of prior VALID |
+  - | H3 | Desktop Windows key-storage ACL bypass → DPAPI → identity keypair + DB | MISCONFIG | bigpickle, laguna, ling3, nemotron3 | Duplicate of prior VALID |
+  - | Q4 Proof passive | **YES** — 100-ID batch → 200, only valid pubkey returned, silent omission; 30× POST no 429 |
+  - | Q7 Triager accept | CONDITIONAL — already accepted in valid-bugs.md |
+  - | Q5 Novel | **YES** — not previously triaged in valid-bugs.md or knowledge/index.md |
