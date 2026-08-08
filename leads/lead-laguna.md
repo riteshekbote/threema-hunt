@@ -1343,3 +1343,4 @@ testability: AUTH_HELPED
 [RISK] sync: 30 | mediator-/rendezvous-*.threema.ch 403 on HTTPS, TCP 5222 closes without server-hello — no passive divergence obtainable
 [RISK] safe: 85 | backup API credential-gated with permissive CORS `*` + Authorization header, HTTP Basic Auth (backupId:backupKey), 5 hosts on single IP, broad method allow-list (GET/HEAD/PUT/PATCH/POST/DELETE) — high-value encrypted backups
 [RISK] desktop-src: 70 | Windows key-storage ACL bypass fully RAG-verified (15 paths), identity keypair + SQLCipher databaseKey exfiltration; BrowserWindow sandbox disabled (conditional RCE); overall High severity on local attack surface
+## 2026-08-08 15:02:53 UTC [desktop] (model laguna)
