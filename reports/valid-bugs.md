@@ -84,6 +84,12 @@
   - | Q3 Real impact? | ⚠️ LOW — route presence + parameter-validation oracle; challenge-response still requires valid identity+secret |
   - | **VALID (new)** | **0** | No novel, reportable findings |
 
+- 5 lead(s) marked VALID at 2026-08-08 17:51:00 UTC
+   - | Q5 Novel? | ❌ **NO** — all 5 leads are duplicates of already-ACCEPTED KB findings |
+   - | Q6 Not always-rejected? | ❌ **NO** — safe-01 CORS* on credential-gated endpoint is defense-in-depth (per precedent) |
+   - | **VALID (new)** | **0** | No novel, reportable findings |
+   - DISCREPANCY: Challenge endpoints probed as 404 vs KB-documented 200 — needs re-probe |
+
 - 8 lead(s) marked VALID at 2026-08-08 17:19:51 UTC
   - VERDICT: VALID
   - | **VALID** | 6 | Directory cluster IDOR, Desktop Windows key-storage ACL bypass, Safe backup CORS, Safe HSTS inconsistency, Challenge-parameter-oracle, work.test bundle divergence |
@@ -93,3 +99,9 @@
   - VERDICT: VALID (low severity)
   - VERDICT: VALID (low severity)
   - VALID (report immediately):
+
+- 4 lead(s) marked VALID at 2026-08-08 17:57:58 UTC
+  - | **VALID** | 0 | — |
+  - - **Verdict: HOLD.** OpenAPI flags it "currently buggy" but requires AUTH_HELPED with valid Work license. Retain for program-provided test credentials.
+  - - VERDICT: VALID
+  - - VERDICT: VALID
