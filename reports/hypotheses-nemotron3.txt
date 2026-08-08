@@ -1,4 +1,5 @@
-## 2026-08-08 19:06:36 UTC [web] (model nemotron3)
+## 2026-08-08 19:42:17 UTC [web] (model nemotron3)
+[NEW] NO_DELTA
 [PRIO] github.com/threema-ch/threema-desktop (Windows key-storage + Electron), 8.10, attack_surface:7 business:10 tech:8 gate:8 cloud:2 fresh:10
 [PRIO] https://ds-apip.threema.ch/identity/fetch_bulk (and api.threema.ch, apip.threema.ch), 7.15, attack_surface:8 business:7 tech:6 gate:10 cloud:5 fresh:10
 [PRIO] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}, 6.85, attack_surface:8 business:9 tech:6 gate:5 cloud:4 fresh:8
@@ -34,10 +35,8 @@ testability: PASSIVE + AUTH_HELPED
 [LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes — RAG-VERIFIED with 15 source paths
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: POST /identity/fetch_bulk accepts 100+ ID batch in single request, returns pubkeys for valid IDs only, silently omits invalid IDs, CORS `*` with POST/GET/OPTIONS/DELETE — confirmed on all 3 production hosts
 [LEARN] ACCEPTED OTHER @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: 5 challenge-response endpoints (/identity/{sfu_cred|blob_cred|set_revocation_key|check_revocation_key|update_work_info}) confirmed live via GET returning 200 with JSON error bodies + CORS `*` on all 3 production hosts; set_revocation_key returns "Bad revocation key length" (parameter validation runs before identity lookup) — route-presence + parameter-oracle confirmed
-[LEARN] ACCEPTED MISCONFIG @ safe-01.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 response for /backups/{64hex} — header inconsistency on credential-gated backup API weakens transport-security enforcement
-[LEARN] ACCEPTED AUTH @ safe-*.threema.ch: Backup API uses HTTP Basic Auth (backupId:backupKey); OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization enabling credentialed cross-origin requests — confirmed across all 5 hosts
-[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in determineKdfParams(), derived key immediately purged, not used for real encryption
-[LEARN] REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not vulnerable
+[LEARN] ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 safe-* hosts): HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for `/backups/{64hex}` — header inconsistency re-confirmed. HTTP Basic Auth (backupId:backupKey) format confirmed. Route existence oracle (`/backups/{64hex}` → 400 vs `/backup/{x}` → 404) confirmed across all 5 hosts behind single IP 203.56.112.231.
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy in `determineKdfParams()`, derived key immediately purged — not used for real encryption
 [LEARN] REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE (requires separate renderer exploit chain), not a standalone class
 [LEARN] REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
 [RISK] chat: 60 reason: g-*.0.threema.ch prod pattern still unenumerated; staging g-*.0.test reachable but likely out of scope; core messaging infra but no visible HTTP endpoints
