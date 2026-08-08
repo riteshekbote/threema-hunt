@@ -298,3 +298,9 @@
 ## 2026-08-08 14:23:10 UTC
 
 ## 2026-08-08 15:03:05 UTC
+
+## 2026-08-08 15:30:23 UTC
+- NEW 5 challenge endpoints confirmed live on 3 production directory hosts (ds-apip.threema.ch, api.threema.ch, apip.threema.ch): GET /identity/{sfu_cred|blob_cred|check_revocation_key|update_work_info} → 2
+- NEW fetch_bulk 100+ ID batch verified: POST /identity/fetch_bulk with 100 IDs (1 valid ECHOECHO + 99 unique invalid) → 200, returns 1 identity with pubkey, silently omits 99 invalid IDs. Confirms single-r
+- NEW HSTS/Expect-CT inconsistency on safe-01.threema.ch: OPTIONS /backups/{64hex} → 204 with HSTS + Expect-CT present; GET /backups/{64hex} → 400 with HSTS + Expect-CT ABSENT (only CORS `*` present). Heade
+- CHANGED Production directory hosts (ds-apip, api, apip) confirmed lacking HSTS/Expect-CT on ALL responses — verified on GET /identity/ECHOECHO (200), GET /identity/sfu_cred (200), GET /identity/nonexistent (4
