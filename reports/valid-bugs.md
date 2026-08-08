@@ -20,3 +20,11 @@
   - **Verdict: VALID**
   - **Verdict: HOLD** — Defense-in-depth/hardening gap. `sandbox:false` + `nodeIntegrationInWorker:true` are real hardening concerns but constitute a vulnerability ONLY when chained with a demonstrated re
   - | **VALID** | 1 | #3 Desktop Windows key-storage ACL bypass |
+
+- 6 lead(s) marked VALID at 2026-08-08 06:01:58 UTC
+  - **Verdict: VALID** (duplicate of already-accepted KB finding — no new action needed)
+  - **Verdict: HOLD** — credential-gated; real impact requires credential compromise; enumeration oracle is weak (route existence only). AUTH_HELPED needed to confirm (1) HTTP 200 for valid backupId+backu
+  - | Q7 | ✅ YES | Reasonable triager accepts as valid local-privilege finding for privacy-focused messenger |
+  - **Verdict: VALID** (duplicate of already-accepted KB finding — confidence strengthened 75→95)
+  - | 1 | Directory identity→pubkey bulk enumeration + CORS * + no rate limit | IDOR | **VALID** | 5.3 Med | Already accepted |
+  - | 3 | Desktop Windows key-storage ACL bypass → identity compromise | MISCONFIG | **VALID** | 5.5 Med | Already accepted (strengthened) |
