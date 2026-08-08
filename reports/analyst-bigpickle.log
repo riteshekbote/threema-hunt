@@ -22062,3 +22062,58 @@ STEP 6 — LEARNING:
 
 STEP 7 — RISK SCORE:
 - [RISK] chat: 35 | g-* pool fully mapped and client-frame-gated; NEW: saltyrtc-{00..ff} 4-node signaling pool returns 426 on GET (live WSS gate) — wider 256-host surface, scope-ambiguous, only one passive probe executed | web: 35 | staging/prod /public/* bundle divergence + license-token route (404 this cycle) + namespace-gated auth (302) | sync: 15 | mediator/rendezvous uniform 403, split-DNS routing only, no auth bypass observed | safe: 30 | credential-gated (400 unauth), CORS `*` + ACAH:Authorization, HSTS absent on GET 400; creds still the blocker | desktop-src: 40 | RAG-verified Windows ACL key-storage gap (top finding) + conditional sandbox/worker gap, no new contradiction this cycle.
+===== ANALYST bigpickle 2026-08-08 22:16:28 UTC =====
+[0m
+> build · big-pickle
+[0m
+STEP 1 — DELTA
+- NO_DELTA: All inventory changes through 22:01:17 UTC already captured; saltyrtc-*.threema.ch 426-liveness + confidence 60→70 was recorded last cycle. No new probes run this cycle.
+
+STEP 2 — PRIORITIZE
+- [PRIO] github.com/threema-ch/threema-desktop key-storage (Windows): 7.3 = attack 8, business 10, tech 6, gate 6, cloud 2, fresh 8
+- [PRIO] https://ds-apip.threema.ch/identity/fetch_bulk: 7.25 = attack 9, business 8, tech 4, gate 10, cloud 2, fresh 7
+- [PRIO] https://saltyrtc-{00..ff}.threema.ch:443: 6.3 = attack 7, business 6, tech 5, gate 8, cloud 2, fresh 9
+- [PRIO] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}: 6.1 = attack 6, business 9, tech 4, gate 5, cloud 4, fresh 6
+- [PRIO] https://work.test.threema.ch/api-app/public/license/token/{64hex}: 5.35 = attack 5, business 6, tech 4, gate 8, cloud 3, fresh 5
+
+STEP 3 — HYPOTHESES
+- [HYP] Desktop Windows key-storage ACL → full local account compromise
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop (keystorage.bin + keystorage.password.bin, fs.ts:41, index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, sqlite.ts:240)
+confidence: 90
+reasoning: RAG-verified 6 core paths (+9 supporting): `{}` file mode on win32 → no ACL; ck (Ed25519 private key) + databaseKey (SQLCipher PRAGMA) stored behind DPAPI-only password that any same-user process can unprotect. Accepted finding, stable across cycles.
+evidence_needed: none beyond source chain already verified; exploitability depends on same-user process access to %APPDATA%.
+verify_steps: PASSIVE static analysis only — no live probes needed; chain is source-complete.
+impact: same-user code → master password + identity keypair + full message-DB decryption; High (local, requires local access).
+testability: PASSIVE
+- [HYP] fetch_bulk at-scale enumeration cost (no 429 at 100+ batch)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (+ api/apip)
+confidence: 95
+reasoning: 100-ID batch (1 valid + 99 invalid) → 200, single valid pubkey, silent omission; 30 sequential POSTs, no 429; CORS `*` with POST/GET/OPTIONS/DELETE on all 3 prod hosts. Enumeration cost per-ID is already bounded by accepted probe evidence.
+evidence_needed: no new probe required — extrapolate full-keyspace enumeration throughput from recorded batch behaviour; option to confirm batch-size ceiling with one gated 500-ID POST at ≤1 rps.
+verify_steps: reuse accepted 100-ID batch evidence; optional single 500-ID POST at ≤1 rps to confirm no batch-size ceiling.
+impact: unauth identity→pubkey mapping for arbitrary valid IDs; privacy/social-graph leakage at scale; Medium-High, fully unauth.
+testability: PASSIVE
+- [HYP] saltyrtc-*.threema.ch is a live SaltyRTC WSS chat-signaling terminator
+class: OTHER
+asset: https://saltyrtc-{00..ff}.threema.ch:443 (00-3f/40-7f→114.198/199, 80-bf/c0-ff→112.198/199)
+confidence: 70
+reasoning: GET / → HTTP 426 Upgrade Required (recorded), proving TLS-terminated HTTP→WS upgrade gate; AAAA split confirms 4-node pool; threema-web SALTYRTC_HOST pattern (webclient.ts:545). Only chat-surface host answering in-band vs g-* silent 5222/443.
+evidence_needed: operator scope ruling (hostname not in scope.yml g-*.0 pattern), then WS-upgrade handshake → 101 vs 426.
+verify_steps: HUMAN_ONLY — after ruling: `curl -sk -i --max-time 5 -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: MTIzNDU2Nzg5MDEyMzQ1Ng==" https://saltyrtc-00.threema.ch/` (≤1 rps); record 101 vs 426 vs close.
+impact: chat-signaling control plane passively reachable where g-* is closed — SaltyRTC server-key/framing fingerprint, future handshake recon; Low-Medium, scope-gated.
+testability: HUMAN_ONLY
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] work.test license-token backend ships: re-probed this cycle → 404/900B catch-all on GET/PUT/OPTIONS; zod 64-hex validation client-side only; backend route not deployed; confidence at floor 40 with no incremental evidence until a bundle ships the handler — weekly-gated re-check only.
+- [FINAL] 1. fetch_bulk at-scale enumeration (95) | 2. Desktop key-storage ACL (90) | 3. saltyrtc WSS terminator (70)
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: Request operator scope ruling for `saltyrtc-{00..ff}.threema.ch` (4-node signaling pool, 203.56.112/114.198/.199) under "g-*.0.threema.ch (chat services)" coverage, citing recorded HTTP 426 TLS-terminated upgrade gate; if ruled in scope, authorize the single WS-upgrade probe above (≤1 rps). Renew the still-pending safe-backup test-creds request as secondary.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED MISCONFIG @ github.com/threema-ch/threema-desktop key-storage (Windows): no contradicting evidence this cycle — ACL-bypass chain (6 core + 9 supporting paths) stable and source-complete.
+
+STEP 7 — RISK SCORE
+- [RISK] chat: 27 | g-* pool fully mapped and client-frame-gated (silent); saltyrtc-* answers 426 but scope-unresolved — only unresolved chat surface | web: 35 | staging/prod /public/* bundle divergence + license-token route absent + namespace-gated 302 | sync: 15 | mediator/rendezvous uniform 403, split-DNS only | safe: 30 | credential-gated (400 unauth), CORS `*` + ACAH:Authorization, HSTS absent on GET 400 | desktop-src: 40 | RAG-verified Windows ACL key-storage (top finding) stable; conditional sandbox/worker gap rejected as standalone.

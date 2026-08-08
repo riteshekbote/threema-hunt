@@ -83,3 +83,8 @@ https://safe-01.threema.ch/backups/{backupId -> HTTP 400
 https://saltyrtc-00.threema.ch/` -> HTTP 426
 https://safe-01.threema.ch/backups/{testId -> HTTP 400
 https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+
+## 2026-08-08 22:16:30 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://saltyrtc-00.threema.ch/` -> HTTP 426
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400

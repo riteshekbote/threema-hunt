@@ -29160,3 +29160,107 @@ testability: PASSIVE + AUTH_HELPED
 - **Live re-probes** of directory + safe surface all stable (NO_DELTA on network surface).
 
 **Next action (Step 5):** `PROBE` the fetch_bulk ceiling — `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":[<1000 IDs>"]}'` (≤1 rps) to confirm the directory IDOR scales to 1000+ IDs.
+===== ANALYST laguna 2026-08-08 22:16:28 UTC =====
+[0m
+> build · laguna-s-2.1-free
+[0m
+[0m✱ [0mGlob "reports/**/*.txt"[90m 5 matches[0m
+[0m✱ [0mGlob "/tmp/opencode/threema-desktop/*.py"[90m 0 matches[0m
+[0m→ [0mRead reports/hypotheses-nemotron3.txt
+[0m→ [0mRead reports/hypotheses-laguna.txt
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m→ [0mRead reports/hypotheses-longcat.txt
+[0m→ [0mRead reports/hypotheses-ling3.txt
+[0m✱ [0mGlob "scope.yml"[90m 1 match[0m
+[0m✱ [0mGlob "knowledge/index.md"[90m 1 match[0m
+[0m✱ [0mGlob "/tmp/opencode/threema-desktop/**"[90m 0 matches[0m
+[0m→ [0mRead scope.yml
+[0m
+[0m$ [0mls -la /tmp/opencode/threema-desktop/ 2>&1; echo "---"; ls /tmp/opencode/ 2>&1
+ls: cannot access '/tmp/opencode/threema-desktop/': No such file or directory
+---
+[0m
+## Step 1 — Delta
+
+- **[NEW]** `saltyrtc-{00..ff}.threema.ch:443` reported as live SaltyRTC WSS signaling (HTTP 426 on plain GET) — confirmed live but **not listed in scope.yml** (only `g-*.0.threema.ch` is in scope for chat services). Requires operator scope ruling before any WSS handshake attempts.
+- **[CHANGED]** `/tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py` referenced in knowledge base as written — **does not exist on filesystem**. Desktop key-storage finding remains source-verified only; PoC not yet materialized.
+
+## Step 2 — Prioritize
+
+| Asset | Score | A_Surf | Business | Tech | Gate | Cloud | Freshness |
+|-------|-------|--------|----------|------|------|-------|-----------|
+| `ds-apip.threema.ch/identity/fetch_bulk` (×3 hosts) | 8.20 | 9 | 8 | 7 | 10 | 5 | 9 |
+| `github.com/threema-ch/threema-desktop` (Windows key-storage) | 7.85 | 7 | 10 | 8 | 8 | 2 | 10 |
+| `safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}` | 7.10 | 8 | 9 | 6 | 5 | 4 | 8 |
+
+## Step 3 — Hypotheses
+
+**[HYP] Desktop Windows key-storage ACL bypass → identity keypair + message-DB decryption**
+- class: MISCONFIG
+- asset: `github.com/threema-ch/threema-desktop` — `fs.ts:41`, `key-storage/index.ts:559-560`, `electron-main.ts:944-945`, `inner/v3.ts:65,70`, `sqlite.ts:240`
+- confidence: 95
+- reasoning: RAG-VERIFIED against cloned `stable`: `fileModeInternalObjectIfPosix()` returns `{}` on win32 → `keystorage.bin` + `keystorage.password.bin` written with no explicit ACL → DPAPI blob recoverable by same-user process → Argon2id+XSalsa20-Poly1305 decrypts inner protobuf → `identityData.ck` (Ed25519 privkey) + `databaseKey` → raw `PRAGMA key` for SQLCipher. 6 core source paths + 9 supporting verified.
+- evidence_needed: (1) Win32 DACL audit showing 0 explicit ACEs on both files; (2) DPAPI decrypt → master password; (3) Argon2id derive → secretbox decrypt inner → protobuf decode → ck + databaseKey; (4) sqlite3 with PRAGMA key → plaintext rows.
+- verify_steps: `git clone https://github.com/threema-ch/threema-desktop && git checkout stable` → read `fs.ts:41` to confirm `return {}` on win32; then write PoC at `/tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py` implementing: `Get-Acl` check → `[ProtectedData]::Unprotect` → `argon2_cffi` → `pynacl.secret.SecretBox.decrypt` → protobuf decode `InnerKeyStorageV3` → extract `ck` + `databaseKey` → `sqlite3 messages.db "PRAGMA key=x'...'"`.
+- impact: Co-located same-user malware exfiltrates permanent Ed25519 identity key + full SQLCipher message store offline without master-password UI. Severity: High.
+- testability: AUTH_HELPED-LOCAL
+
+**[HYP] Directory bulk identity enumeration at scale via fetch_bulk + challenge-endpoint param oracles**
+- class: IDOR
+- asset: `https://ds-apip.threema.ch/identity/fetch_bulk` (identical on `api.threema.ch`, `apip.threema.ch`)
+- confidence: 95
+- reasoning: PASSIVE-VERIFIED — POST `/identity/fetch_bulk` with 100 IDs (1 valid ECHOECHO + 99 invalid) → 200, returns only valid pubkey, silently omits invalid; ACAO:`*` on POST/GET/OPTIONS/DELETE; no 429 after 30 sequential requests at 1 rps; 5 challenge endpoints (`/identity/{sfu_cred|blob_cred|set_revocation_key|check_revocation_key|update_work_info}`) return 200 JSON errors + ACAO:`*`.
+- evidence_needed: fetch_bulk ceiling beyond 1000 IDs; confirm challenge endpoints only differ for valid vs invalid IDs; confirm no WAF/rate-limit at higher volume.
+- verify_steps: PROBE: `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ","AAAAAAAA","BBBBBBBB","CCCCCCCC","DDDDDDDD","EEEEEEEE","FFFFFFFF","GGGGGGGG","HHHHHHHH","IIIIIIII","JJJJJJJJ","KKKKKKKK","LLLLLLLL","MMMMMMMM","NNNNNNNN","OOOOOOOO","PPPPPPPP","QQQQQQQQ","RRRRRRRR","SSSSSSSS","TTTTTTTT","UUUUUUUU","VVVVVVVV","WWWWWWWW","XXXXXXXX","YYYYYYYY","ZZZZZZ1","ZZZZZZ2","ZZZZZZ3","ZZZZZZ4","ZZZZZZ5","ZZZZZZ6","ZZZZZZ7","ZZZZZZ8","ZZZZZZ9","ZZZZZZA","ZZZZZZB","ZZZZZZC","ZZZZZZD","ZZZZZZE","ZZZZZZF","ZZZZZZG","ZZZZZZH","ZZZZZZI","ZZZZZZJ","ZZZZZZK","ZZZZZZL","ZZZZZZM","ZZZZZZN","ZZZZZZO","ZZZZZZP","ZZZZZZQ","ZZZZZZR","ZZZZZZS","ZZZZZZT","ZZZZZZU","ZZZZZZV","ZZZZZZW","ZZZZZZX","ZZZZZZY","ZZZZZZZ","ZZZZZZZA","ZZZZZZZB","ZZZZZZZC","ZZZZZZZD","ZZZZZZZE","ZZZZZZZF"]}'` (≤1 rps) → verify 200 + pubkey map for valid only. Then `GET /identity/sfu_cred/ECHOECHO` vs `GET /identity/sfu_cred/ZZZZZZZZ` → diff bodies.
+- impact: Cross-origin, unauthenticated enumeration of all valid Threema IDs + pubkeys at scale; challenge endpoints expose parameter-validation oracles. Severity: Medium-High.
+- testability: PASSIVE + PROBE
+
+**[HYP] Safe backup API cross-origin credentialed read + HSTS gap + existence oracle**
+- class: AUTH
+- asset: `https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}` (single IP 203.56.112.231)
+- confidence: 80
+- reasoning: PASSIVE-VERIFIED on all 5 hosts — OPTIONS→204 with HSTS+Expect-CT + ACAO:`*` + `Access-Control-Allow-Headers: Authorization`; GET (no auth)→400 "Bad Request" WITHOUT HSTS/Expect-CT; HTTP Basic Auth (backupId:backupKey); route distinction `/backups/{64hex}`→400 vs `/backup/{x}`→404 = existence oracle; all 5 hosts uniform behind single IP.
+- evidence_needed: (1) valid program-issued credentials → HTTP 200 + cross-origin-readable payload + `Access-Control-Expose-Headers`; (2) HSTS absent on all error responses for credential-gated routes (confirmed).
+- verify_steps: HUMAN: Request program-issued test `backupId:backupKey` → `curl -u "backupId:backupKey" https://safe-01.threema.ch/backups/{backupId}` (≤1 rps) → confirm 200 + cross-origin-readable payload + Expose-Headers.
+- impact: Cross-origin backup-ID existence enumeration + credentialed cross-origin readout of full identity keypair + message-history backup. Severity: High (creds required).
+- testability: PASSIVE + AUTH_HELPED
+
+## Step 4 — Self-Critique
+
+- **[PARKED] saltyrtc-*.threema.ch WSS signaling**: confidence 70, class OTHER. Not in scope.yml (only `g-*.0.threema.ch` listed for chat). Requires operator scope ruling before any probe. Not emitted as HYP.
+- **[PARKED] work.test /api-app/public/license/token/{64hex}**: confidence 40 (<50 threshold). Staging-only, client-side zod validation only, backend route not deployed (method-agnostic 404). No oracle today.
+
+**[FINAL] Surviving hypotheses re-ranked:**
+1. Desktop Windows key-storage ACL bypass (confidence 95) — POC phase, source-verified, PoC file missing
+2. Directory bulk identity enumeration via fetch_bulk (confidence 95) — PASSIVE + PROBE ready
+3. Safe backup API cross-origin credentialed read (confidence 80) — AUTH_HELPED (needs program creds)
+
+## Step 5 — Next Action
+
+**[RAG]** Clone `https://github.com/threema-ch/threema-desktop` at `stable` tag, re-read the 6-step source verification chain (`fs.ts:41`, `key-storage/index.ts:559-560`, `electron-main.ts:944-945`, `crypto.ts:53-88`, `inner/v3.ts:65,70`, `sqlite.ts:239-240`, `electron-settings.ts:163`), then write PoC at `/tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py` implementing the full decryption chain (DPAPI → Argon2id → XSalsa20-Poly1305 → protobuf → ck + databaseKey → sqlite PRAGMA key). This is on-deck because the referenced PoC file currently does not exist on the filesystem.
+
+## Step 6 — Learning
+
+- **[REJECTED]** MISCONFIG @ `saltyrtc-*.threema.ch`: Out of scope per scope.yml — only `g-*.0.threema.ch` listed for chat services. Not a finding target.
+- **[ACCEPTED]** MISCONFIG @ `threema-desktop` key-storage (Windows): RAG-VERIFIED against cloned `stable` — 6 core paths + 9 supporting paths confirmed for full ACL-bypass → decryption chain.
+- **[ACCEPTED]** IDOR @ `ds-apip.threema.ch`/`api.threema.ch`/`apip.threema.ch`: fetch_bulk 100+ batch + 5 challenge endpoints confirmed stable with CORS `*` + no rate-limit after 30 sequential POSTs.
+- **[ACCEPTED]** MISCONFIG @ `safe-01.threema.ch` (all 5 hosts): credential-gated 400 baseline stable; HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400; HTTP Basic Auth + existence oracle confirmed.
+- **[CONFIRMED]** No `Access-Control-Expose-Headers` on any directory host response — ACAO:`*` enables cross-origin body read but response headers limited to simple-set only.
+- **[REJECTED]** MISCONFIG @ `crypto.ts:223`: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy in `determineKdfParams()`, derived key purged at line 233 — not used for real encryption.
+
+## Step 7 — Risk Score
+
+- **chat**: 60 — g-*.0.threema.ch prod pattern unenumerated; staging g-*.0.test reachable but out of scope; core messaging infra but no passive HTTP endpoints (5222 closes silently; 443 closes without TLS handshake on both staging + prod)
+- **web**: 92 — ds-apip/api/apip directory cluster — 3 prod hosts with public 200/404 identity oracle + fetch_bulk 100+ batch + 5 challenge endpoints + CORS `*` + no rate-limit; work/broadcast/gateway/shop/shop/billing cockpits accessible (PHP sessions/CSP/Sentry); staging work public API divergence confirmed; safe-01 backup API with permissive CORS + Authorization header + HSTS gap + 5 hostnames on single IP
+- **sync**: 60 — mediator-{0..f}/rendezvous-{0..f} resolve (split routing 203.56.112.247 | 203.56.114.247), uniform 403 on HTTPS; saltyrtc-*{00..ff} live (HTTP 426) but OUT of scope per scope.yml; WSS paths high-entropy; auth model in source, not passively enumerable
+- **safe**: 88 — safe-01.live with CORS `*` + write-capable methods + `Access-Control-Allow-Headers: Authorization` + HSTS/Expect-CT on preflight but NOT on credential-gated GET 400; HTTP Basic Auth gating only; 5 hostnames same IP; route-existence oracle (400 vs 404); no 429 observed
+- **desktop-src**: 95 — Windows key-storage ACL bypass CONFIRMED at source level (95 confidence) — full identity keypair + message-DB decryption chain RAG-verified (15 paths); Electron `sandbox` unset + `nodeIntegrationInWorker: true` (conditional RCE, 65 confidence); staging URLs baked into builds; Argon2id + DPAPI decent on macOS/Linux but weak on Windows
+
+## Step 8 — Verification Status
+
+| Lead | Verify Status | Notes |
+|------|--------------|-------|
+| Desktop key-storage ACL bypass | Source-verified (6+9 paths) | PoC file `/tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py` does NOT exist — next action: RAG clone + write PoC |
+| Directory fetch_bulk IDOR | PASSIVE-VERIFIED | PROBE ready: 1000-ID batch test queued (≤1 rps) |
+| Safe backup API cross-origin read | PASSIVE-VERIFIED (OPTIONS + 400 vs 404) | AUTH_HELPED: needs program-issued `backupId:backupKey` to confirm 200 + Expose-Headers |
+| saltyrtc scope | NEEDS RULING | HTTP 426 confirmed live; NOT in scope.yml — HUMAN decision required |

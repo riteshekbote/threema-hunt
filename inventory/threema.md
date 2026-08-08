@@ -350,3 +350,13 @@
 
 ## 2026-08-08 22:01:17 UTC
 - NEW saltyrtc-{00..ff}.threema.ch:443 reported as live SaltyRTC signaling (WSS) in hypotheses-bigpickle.txt — needs operator scope ruling (not in scope.yml g-*.0 pattern)
+
+## 2026-08-08 22:16:28 UTC
+- NEW saltyrtc-{00..ff}.threema.ch:443 — live SaltyRTC WSS signaling (HTTP 426 on GET), 256 hostnames quadrant-split across 4 IPs (203.56.112.198/.199, 203.56.114.198/.199); not in scope.yml (only g-*.0, me
+- CHANGED Directory challenge endpoints (sfu_cred, blob_cred, set_revocation_key, check_revocation_key, update_work_info) re-confirmed on all 3 prod hosts (ds-apip, api, apip) with parameter-validation-before-i
+- CHANGED fetch_bulk 100+ ID batch re-confirmed on api.threema.ch and apip.threema.ch (identical ECHOECHO pubkey, silent omit of 99 invalid)
+- CHANGED No Access-Control-Expose-Headers on any directory host response confirmed via OPTIONS preflight
+- CHANGED Production directory hosts (ds-apip, api, apip) confirmed lacking HSTS/Expect-CT on ALL responses
+- CHANGED lead class 7 (Desktop BrowserWindow sandbox+worker) formally REJECTED as standalone — conditional RCE requires separate renderer chain
+- CHANGED lead class 16 (g-*.0.test.threema.ch staging chat) formally REJECTED as out-of-scope per scope.yml
+- CHANGED crypto.ts:223 benchmark-password finding re-confirmed REJECTED under sha256 form `52a0af98…`
