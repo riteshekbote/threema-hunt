@@ -3941,3 +3941,64 @@ testability: PASSIVE
 [RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve (split routing 203.56.112.247 | 203.56.114.247), uniform 403 on HTTPS; WSS paths high-entropy; auth model in source, not passively enumerable
 [RISK] safe: 88 reason: safe-01.live with CORS *, write-capable methods, Access-Control-Allow-Headers: Authorization, HSTS+Expect-CT on preflight but NOT on credential-gated GET 400; backup API credential-gated (400) but cross-origin auth requests possible; 5 hostnames same IP; no 429 observed; existence oracle via 400-vs-404 path distinction
 [RISK] desktop-src: 95 reason: Windows key-storage ACL bypass CONFIRMED at source level (95 confidence) — full identity keypair + message DB decryption chain RAG-verified (15 paths); Electron sandbox disabled + nodeIntegrationInWorker: true (65 confidence, conditional RCE); staging URLs baked into builds; Argon2id + DPAPI decent but weak on Windows
+===== ANALYST nemotron3 2026-08-08 21:04:15 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+NO_DELTA
+
+[PRIO] https://ds-apip.threema.ch/identity/fetch_bulk (and api.threema.ch, apip.threema.ch), 8.20, attack_surface:9 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:9
+[PRIO] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}, 7.10, attack_surface:8 business_value:9 tech_exposure:6 gate_ease:5 cloud_surface:4 freshness:8
+[PRIO] https://work.test.threema.ch/api-app/public/global/settings, 6.30, attack_surface:6 business_value:6 tech_exposure:5 gate_ease:10 cloud_surface:3 freshness:7
+
+[HYP] Directory bulk identity enumeration at scale via fetch_bulk
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (and api.threema.ch, apip.threema.ch)
+confidence: 95
+reasoning: PASSIVE-VERIFIED: POST /identity/fetch_bulk with 100 IDs (1 valid + 99 invalid) → 200, returns only valid pubkey, silently omits invalid, CORS `*` on all 3 prod hosts. No rate limit (30 POSTs at 1 rps all 200). 5 challenge endpoints return 200 with JSON errors + CORS `*` — parameter validation runs before identity lookup.
+evidence_needed: Confirm fetch_bulk accepts 1000+ IDs in single request; verify challenge endpoints leak parameter constraints for valid IDs only; confirm no WAF/rate-limit at higher volumes (passive 1 rps only).
+verify_steps: PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["<1000 IDs>"]}' (≤1 rps) → verify 200 + pubkey map; GET /identity/sfu_cred/ECHOECHO vs /identity/sfu_cred/ZZZZZZZZ → compare error bodies; repeat for api.threema.ch and apip.threema.ch.
+impact: Unauthenticated enumeration of all valid Threema IDs + public keys at scale; challenge endpoints expose parameter validation oracles for credential/key formats. Severity: Medium-High.
+testability: PASSIVE
+
+[HYP] Safe backup cross-origin credentialed read + HSTS gap on credential-gated endpoint
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (single IP 203.56.112.231)
+confidence: 80
+reasoning: PASSIVE-VERIFIED on all 5 hosts: OPTIONS /backups/{64hex} → 204 with HSTS+Expect-CT + ACAO:* + ACAH:Authorization; GET /backups/{64hex} (no auth) → 400 "Bad Request" (11B) WITHOUT HSTS/Expect-CT — header inconsistency weakens transport security. HTTP Basic Auth (backupId:backupKey). Route vs 404 distinction (`/backup/{x}` → 404 210B CSP) = existence oracle.
+evidence_needed: (1) 400 body/length differs for existing vs non-existing backupId without auth; (2) valid backupId:backupKey → HTTP 200 + cross-origin-readable payload + Access-Control-Expose-Headers; (3) HSTS absent on all error responses for credential-gated routes.
+verify_steps: PASSIVE (DONE): curl OPTIONS + GET 400 vs 404 on all 5 hosts. AUTH_HELPED: curl -u "backupId:backupKey" https://safe-01.threema.ch/backups/{backupId} (≤1 rps) → confirm 200 + cross-origin-readable payload + Expose-Headers; verify HSTS present on 200 response.
+impact: Cross-origin backup-ID existence enumeration + credentialed cross-origin reads of full identity keypair + message-history backup from any attacker origin. Severity: High.
+testability: PASSIVE + AUTH_HELPED
+
+[HYP] Staging-only public work API endpoint divergence
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/global/settings
+confidence: 70
+reasoning: CONFIRMED: work_public.js v2.25.1 staging build (sha256 e48e18f7…) implements /api-app/public/global/settings (200, 299B, appLinkHost + 3 app-download URLs); prod build (sha256 96501e21…) has ZERO /public/* handlers (404). Staging-only public namespace exposes config without auth.
+evidence_needed: Confirm no other /public/* routes exist on staging; verify prod truly has no /public/* namespace; check if staging endpoint leaks any sensitive config beyond appLinkHost/download URLs.
+verify_steps: PROBE: GET https://work.test.threema.ch/api-app/public/global/settings (≤1 rps) → 200; GET https://work.threema.ch/api-app/public/global/settings → 404; enumerate /api-app/public/* namespace on both hosts.
+impact: Staging environment exposes unauthenticated public API namespace absent in production — configuration drift risk; potential for staging-only debug/admin endpoints. Severity: Low-Medium.
+testability: PASSIVE
+
+[PARKED] Desktop BrowserWindow sandbox+worker gap — conditional RCE: REJECTED class per knowledge base (requires separate renderer exploit chain, not standalone)
+[PARKED] g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
+[PARKED] crypto.ts:223 hardcoded password — REJECTED (benchmark-only dummy, key purged)
+[FINAL]
+1. Directory bulk identity enumeration at scale via fetch_bulk (confidence 95)
+2. Safe backup cross-origin credentialed read + HSTS gap (confidence 80)
+3. Staging-only public work API endpoint divergence (confidence 70)
+
+[NEXT] PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ","AAAAAAAA","BBBBBBBB","CCCCCCCC","DDDDDDDD","EEEEEEEE","FFFFFFFF","GGGGGGGG","HHHHHHHH","IIIIIIII","JJJJJJJJ","KKKKKKKK","LLLLLLLL","MMMMMMMM","NNNNNNNN","OOOOOOOO","PPPPPPPP","QQQQQQQQ","RRRRRRRR","SSSSSSSS","TTTTTTTT","UUUUUUUU","VVVVVVVV","WWWWWWWW","XXXXXXXX","YYYYYYYY","ZZZZZZZ1","ZZZZZZZ2","ZZZZZZZ3","ZZZZZZZ4","ZZZZZZZ5","ZZZZZZZ6","ZZZZZZZ7","ZZZZZZZ8","ZZZZZZZ9","ZZZZZZ10","ZZZZZZ11","ZZZZZZ12","ZZZZZZ13","ZZZZZZ14","ZZZZZZ15","ZZZZZZ16","ZZZZZZ17","ZZZZZZ18","ZZZZZZ19","ZZZZZZ20","ZZZZZZ21","ZZZZZZ22","ZZZZZZ23","ZZZZZZ24","ZZZZZZ25","ZZZZZZ26","ZZZZZZ27","ZZZZZZ28","ZZZZZZ29","ZZZZZZ30","ZZZZZZ31","ZZZZZZ32","ZZZZZZ33","ZZZZZZ34","ZZZZZZ35","ZZZZZZ36","ZZZZZZ37","ZZZZZZ38","ZZZZZZ39","ZZZZZZ40","ZZZZZZ41","ZZZZZZ42","ZZZZZZ43","ZZZZZZ44","ZZZZZZ45","ZZZZZZ46","ZZZZZZ47","ZZZZZZ48","ZZZZZZ49","ZZZZZZ50","ZZZZZZ51","ZZZZZZ52","ZZZZZZ53","ZZZZZZ54","ZZZZZZ55","ZZZZZZ56","ZZZZZZ57","ZZZZZZ58","ZZZZZZ59","ZZZZZZ60","ZZZZZZ61","ZZZZZZ62","ZZZZZZ63","ZZZZZZ64","ZZZZZZ65","ZZZZZZ66","ZZZZZZ67","ZZZZZZ68","ZZZZZZ69","ZZZZZZ70","ZZZZZZ71","ZZZZZZ72","ZZZZZZ73","ZZZZZZ74","ZZZZZZ75","ZZZZZZ76","ZZZZZZ77","ZZZZZZ78","ZZZZZZ79","ZZZZZZ80","ZZZZZZ81","ZZZZZZ82","ZZZZZZ83","ZZZZZZ84","ZZZZZZ85","ZZZZZZ86","ZZZZZZ87","ZZZZZZ88","ZZZZZZ89","ZZZZZZ90","ZZZZZZ91","ZZZZZZ92","ZZZZZZ93","ZZZZZZ94","ZZZZZZ95","ZZZZZZ96","ZZZZZZ97","ZZZZZZ98","ZZZZZZ99"]}' (≤1 rps) → verify 200 + pubkey map for valid only at 100-ID scale
+
+[LEARN] REJECTED IDOR @ ds-apip/api/apip.threema.ch check_revocation_key GET form: validation-order oracle disproven — ECHOECHO vs ZZZZZZZZ produce byte-identical "Identity not found"; no identity-state differential via GET query params on this endpoint.
+[LEARN] ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 safe-* hosts): credential-gated 400 baseline stable — route-existence oracle + Basic-auth gating hold; HSTS/Expect-CT still absent on the GET 400.
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy in `determineKdfParams()`, derived key immediately purged — not used for real encryption
+[LEARN] REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE (requires separate renderer exploit chain), not a standalone class
+[LEARN] REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
+
+[RISK] chat: 60 reason: g-*.0.threema.ch prod pattern still unenumerated; staging g-*.0.test reachable but likely out of scope; core messaging infra but no visible HTTP endpoints
+[RISK] web: 92 reason: ds-apip/api/apip directory cluster — 3 prod hosts with public 200/404 identity oracle + fetch_bulk 100+ batch + 5 challenge endpoints + CORS * + no rate-limit; safe-01 backup API with permissive CORS + Authorization header + HSTS gap + 5 hostnames; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed
+[RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve (split routing 203.56.112.247 | 203.56.114.247), uniform 403 on HTTPS; WSS paths high-entropy; auth model in source, not passively enumerable
+[RISK] safe: 88 reason: safe-01.live with CORS *, write-capable methods, Access-Control-Allow-Headers: Authorization, HSTS+Expect-CT on preflight but NOT on credential-gated GET 400; backup API credential-gated (400) but cross-origin auth requests possible; 5 hostnames same IP; no 429 observed; existence oracle via 400-vs-404 path distinction
+[RISK] desktop-src: 95 reason: Windows key-storage ACL bypass CONFIRMED at source level (95 confidence) — full identity keypair + message DB decryption chain RAG-verified (15 paths); Electron sandbox disabled + nodeIntegrationInWorker: true (65 confidence, conditional RCE); staging URLs baked into builds; Argon2id + DPAPI decent but weak on Windows

@@ -27908,3 +27908,247 @@ All 6 source paths verified against the freshly cloned repo. Now writing the POC
 [93m[1m! [0mpermission requested: external_directory (/tmp/opencodes/threema-desktop/*); auto-rejecting
 [0m✗ [0mWrite /tmp/opencodes/threema-desktop/key-storage-acl-bypass-poc.py failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST laguna 2026-08-08 21:04:15 UTC =====
+[0m
+> build · laguna-s-2.1-free
+[0m
+[0m✱ [0mGlob "**/*.md"[90m in . · 100 matches[0m
+[0m→ [0mRead /tmp/opencode
+I'll analyze the current state and produce the structured 8-step analysis. Let me first check the workspace for any new artifacts.
+[0m→ [0mRead triage/run-2026-08-08-20-52.md
+[0m→ [0mRead leads/lead-laguna.md
+[0m→ [0mRead leads/lead-laguna.md[90m [offset=351][0m
+[0m→ [0mRead leads/reposcan-latest.md
+[0m→ [0mRead inventory/threema.md
+[0m→ [0mRead probe-results.md
+[0m
+[0m$ [0mls -la /tmp/opencode/ 2>/dev/null; find /tmp/opencode -name "*.py" -o -name "key-storage*" 2>/dev/null | head -20; echo "---"; ls -la /tmp/opencode/threema-desktop/ 2>/dev/null || echo "no threema-desktop clone"
+total 16
+drwxr-xr-x  2 runner runner  4096 Aug  8 20:57 .
+drwxrwxrwt 15 root   root   12288 Aug  8 20:57 ..
+---
+no threema-desktop clone
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reports/ 2>/dev/null; ls -la /home/runner/work/threema-hunt/threema-hunt/knowledge/ 2>/dev/null
+total 4396
+drwxr-xr-x  2 runner runner    4096 Aug  8 20:57 .
+drwxr-xr-x 11 runner runner    4096 Aug  8 20:57 ..
+-rw-r--r--  1 runner runner 1574111 Aug  8 20:57 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 2421132 Aug  8 20:57 analyst-laguna.log
+-rw-r--r--  1 runner runner   20071 Aug  8 20:57 analyst-ling3.log
+-rw-r--r--  1 runner runner    3600 Aug  8 20:57 analyst-longcat.log
+-rw-r--r--  1 runner runner  417038 Aug  8 20:57 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    2895 Aug  8 20:57 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      52 Aug  8 20:57 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  8 20:57 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  8 20:57 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner    8087 Aug  8 20:57 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  140611 Aug  8 20:57 hypotheses.md
+-rw-r--r--  1 runner runner   11764 Aug  8 20:57 valid-bugs.md
+total 36
+drwxr-xr-x  2 runner runner  4096 Aug  8 20:57 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 20:57 ..
+-rw-r--r--  1 runner runner 26867 Aug  8 20:57 index.md
+[0m
+[0m✗ [0mRead triage/run-2026-08-08-20-37.md failed
+[91m[1mError: [0mFile not found: /home/runner/work/threema-hunt/threema-hunt/triage/run-2026-08-08-20-37.md
+[0m
+[0m$ [0mfind / -path "*/threema-desktop" -type d 2>/dev/null | head -5; echo "---"; ls /home/runner/work/threema-hunt/ 2>/dev/null
+(no output)
+
+<shell_metadata>
+shell tool terminated command after exceeding timeout 120000 ms. If this command is expected to take longer and is not waiting for interactive input, retry with a larger timeout value in milliseconds.
+</shell_metadata>
+[0m
+[0m✱ [0mGlob "*.md"[90m in triage · 28 matches[0m
+[0m→ [0mRead knowledge/index.md
+I see the knowledge base is comprehensive through 2026-08-08 20:37 UTC, but the POC artifacts don't actually exist on disk. My state is POC targeting desktop. Let me clone the repo and verify the source paths, then produce the 8-step analysis.
+[0m
+[0m$ [0mgit clone --depth 1 https://github.com/threema-ch/threema-desktop.git /tmp/opencode/threema-desktop 2>&1 | tail -5
+Cloning into '/tmp/opencode/threema-desktop'...
+[0m
+[0m$ [0mls /tmp/opencode/threema-desktop/apps/desktop/src/common/node/ 2>/dev/null | head -20; echo "---"; ls /tmp/opencode/threema-desktop/apps/desktop/src/electron/ 2>/dev/null | head -20
+compressor.ts
+crypto
+db
+electron-settings.ts
+file-storage
+fs.ts
+key-storage
+logging.ts
+old-profiles.ts
+safe-storage
+tsconfig.json
+utils.ts
+---
+electron-main.ts
+electron-preload.ts
+electron-utils.ts
+screenshare-preload.ts
+tls-cert-verifier.ts
+tsconfig.json
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/fs.ts[90m [limit=10, offset=35][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts[90m [limit=15, offset=555][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [limit=15, offset=938][0m
+[0m
+[0m$ [0mgrep -n "fileModeInternalObjectIfPosix\|keystorage\|\.bin\|safeStorage\|encryptString\|argon2\|Argon2id\|XSalsa20\|Poly1305\|deriveKeyFromPassword" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts | head -30
+3:import * as argon2 from 'argon2';
+18:    type Argon2idParameters,
+28: * Key material for password-based encryption/decryption (Argon2id KDF + XSalsa20-Poly1305).
+35:    readonly params: Argon2idParameters;
+40: * XSalsa20-Poly1305).
+49: * Derive a 32-byte key from a low-entropy password using `Argon2id`.
+53:export async function deriveKeyFromPassword(
+60:    const rawHash = await argon2.hash(password, {
+61:        // Use Argon2id variant.
+62:        type: argon2.argon2id,
+91: * Decrypt bytes that were encrypted with a password-derived key (Argon2id + XSalsa20-Poly1305).
+102:    // Derive the key from the password using Argon2id.
+103:    const key = await deriveKeyFromPassword(services, keyMaterial);
+118: * Encrypt bytes using a password-derived key (Argon2id + XSalsa20-Poly1305).
+129:    // Derive the key from the password using Argon2id.
+130:    const key = await deriveKeyFromPassword(services, keyMaterial);
+146: * Decrypt bytes that were encrypted with a Remote Secret-derived key (BLAKE2b + XSalsa20-Poly1305).
+173: * Encrypt bytes using a Remote Secret-derived key (BLAKE2b + XSalsa20-Poly1305).
+201: * Benchmark the current hardware and determine Argon2id KDF parameters that target
+204: * This function runs Argon2id with the minimum parameters and extrapolates from the measured
+209:): Promise<Argon2idParameters> {
+222:    const benchmarkKey = await deriveKeyFromPassword(services, {
+[0m
+[0m$ [0mgrep -rn "ck\b\|databaseKey\|identityData\|ClientKey\|RawDatabaseKey\|Ed25519\|privateKey\|identity.*key" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/inner/v3.ts 2>/dev/null | head -20; echo "---"; ls /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/inner/ 2>/dev/null
+---
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop -name "v3.ts" -path "*/inner/*" 2>/dev/null; echo "---"; grep -rn "ck\|databaseKey\|ClientKey\|identityData\|innerKeyStorage\|InnerKeyStorage" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/ --include="*.ts" | grep -v "test\|spec\|node_modules" | head -30
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts
+---
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts:30: * Used in {@link InnerKeyStorageV1}, as well as the intermediate key storage layer in newer
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts:54:    services: Pick<ServicesForKeyStorage, 'logging'>,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts:98:    services: Pick<ServicesForKeyStorage, 'crypto' | 'logging'>,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts:125:    services: Pick<ServicesForKeyStorage, 'crypto' | 'logging'>,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts:153:    services: Pick<ServicesForKeyStorage, 'crypto'>,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts:180:    services: Pick<ServicesForKeyStorage, 'crypto'>,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts:208:    services: Pick<ServicesForKeyStorage, 'crypto' | 'logging'>,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts:264:    // Sanity-check parameters.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:10:    InnerKeyStorage_Version,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:24:    type DecryptedEncodedInnerKeyStorageV1Bytes,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:28:    type DecryptedEncodedInnerKeyStorageV2Bytes,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:32:    type DecryptedEncodedInnerKeyStorageV3Bytes,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:58:import {pick} from '~/common/utils/object';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:63: * Read a deprecated key storage file (OuterKeyStorageV1 + InnerKeyStorageV1, no intermediate
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:83:    services: Pick<ServicesForKeyStorage, 'crypto' | 'logging'>,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:109:    )) as unknown as DecryptedEncodedInnerKeyStorageV1Bytes;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:123:    > = pick(validatedInner, ['onPremConfig', 'workCredentials'] as const);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:126:        ['identityData', 'dgk', 'databaseKey', 'deviceIds', 'deviceCookie'] as const,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:181: * @param onIntermediateDecoded Optional callback invoked after the intermediate layer has been
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:187:    services: Pick<ServicesForKeyStorage, 'crypto' | 'electron' | 'logging' | 'systemInfo'>,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:311:    // Now that the intermediate key storage has been decoded, execute the callback with the
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:367:    const innerVersion = bytesLeToU16(encodedInner.subarray(0, 2)) as InnerKeyStorage_Version;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:369:        case InnerKeyStorage_Version.V1_0:
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:370:        case InnerKeyStorage_Version.V1_1:
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:376:        case InnerKeyStorage_Version.V2_0: {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:379:                encodedInner as unknown as DecryptedEncodedInnerKeyStorageV2Bytes,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:386:                'identityData',
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:388:                'databaseKey',
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:401:        case InnerKeyStorage_Version.V3_0: {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:403:                encodedInner as unknown as DecryptedEncodedInnerKeyStorageV3Bytes,
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts[90m [limit=20, offset=55][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts[90m [limit=20][0m
+[0m
+[0m$ [0mgrep -n "PRAGMA key\|databaseKey\|pragmaKey\|dbKey\|pragma key\|SQLCIPHER\|sqlcipher" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/../../db/sqlite.ts 2>/dev/null | head -10; echo "---"; grep -rn "fileModeInternalObjectIfPosifPosix\|keystorage.bin\|passwordPath\|KEY_STORAGE_PATH\|SAFE_STORAGE_PASSWORD_PATH\|keystore" /tmp/opencode/threema-desktop/apps/desktop/config/vite.config.ts | head -20
+---
+338:        DEPRECATED_KEY_STORAGE_PATH: ['data', 'keystorage.pb3'],
+339:        KEY_STORAGE_PATH: ['data', 'keystorage.bin'],
+344:        SAFE_STORAGE_PASSWORD_PATH: ['data', 'keystorage.password.bin'],
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop -name "sqlite.ts" -path "*/db/*" 2>/dev/null; echo "---"; grep -rn "PRAGMA key\|databaseKey\|pragmaKey\|RawDatabaseKey" /tmp/opencode/threema-desktop/apps/desktop/src/common/db/ 2>/dev/null | head -15
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/db/sqlite.ts
+---
+/tmp/opencode/threema-desktop/apps/desktop/src/common/db/index.ts:77:export type RawDatabaseKey = WeakOpaque<RawKey<32>, {readonly RawDatabaseKey: unique symbol}>;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/db/index.ts:80: * Wrap a key into a {@link RawDatabaseKey}.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/db/index.ts:84:export function wrapRawDatabaseKey(key: Uint8Array): RawDatabaseKey {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/db/index.ts:85:    return wrapRawKey(key, DATABASE_KEY_LENGTH) as RawDatabaseKey;
+[0m
+[0m$ [0mgrep -n "PRAGMA\|pragma\|databaseKey\|dbKey\|rawDatabaseKey\|RawDatabaseKey" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/db/sqlite.ts | head -15
+48:    RawDatabaseKey,
+203:     * Note: The {@link dbKey} will be consumed and purged after initialization!
+209:        dbKey: RawDatabaseKey,
+218:                if (message.startsWith('PRAGMA key')) {
+219:                    this._log.debug('PRAGMA key <redacted>');
+237:            const dbKeyHex: string = bytesToHex(dbKey.unwrap());
+238:            assert(dbKeyHex.length === 64);
+239:            this._rawDb.pragma('cipher_compatibility = 4');
+240:            this._rawDb.pragma(`key = "x'${dbKeyHex}'"`);
+242:        dbKey.purge();
+245:        const provider: unknown = this._rawDb.pragma('cipher_provider', {simple: true});
+253:        this._rawDb.pragma('cipher_log_source = NONE');
+254:        this._rawDb.pragma('cipher_log_source = CORE');
+255:        this._rawDb.pragma('cipher_log_source = MUTEX');
+256:        this._rawDb.pragma('cipher_log_source = PROVIDER');
+[0m
+[0m$ [0mgrep -n "sandbox\|nodeIntegration\|nodeIntegrationInWorker\|contextIsolation\|webPreferences\|TODO\|DEK-79\|DESK-79" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts | head -20
+981:                    // TODO(DESK-1122): Improve this
+991:                // @ts-expect-error: TODO(DESK-684): Don't access private properties
+999:                // @ts-expect-error: TODO(DESK-684): Don't access private properties
+1059:            // TODO(DESK-1458) Enable spellcheck in other systems as well
+1234:            webPreferences: {
+1240:                // `contextIsolation`, and sandboxing is enabled by default.
+1242:                // Unfortunately we cannot get rid of `nodeIntegrationInWorker` because preload
+1251:                nodeIntegration: false,
+1252:                nodeIntegrationInWorker: true, // TODO(DESK-79): Change to false once worker preload scripts are supported in Electron
+1253:                nodeIntegrationInSubFrames: false,
+1255:                // TODO(DESK-79): Enable `sandbox: true` once worker preload scripts are supported in Electron
+1262:                contextIsolation: true,
+1358:            // TODO(DESK-1512) Add a mapping for different languages
+1484:            case 'sandbox':
+1489:                // TODO(DESK-1324): For OnPrem builds, we don't know the valid domain patterns in
+1552:                        'sandbox allow-downloads allow-same-origin allow-scripts allow-forms allow-popups',
+1673:    // In internal test builds on sandbox, we enable crash reporting.
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [limit=30, offset=1234][0m
+[0m
+[0m$ [0mgrep -rn "require(\|import(\|eval(\|\.mainModule\|child_process\|new Function" /tmp/opencode/threema-desktop/apps/desktop/src/worker/ 2>/dev/null | head -10; echo "EXIT: $?"
+EXIT: 0
+[0m
+[0m$ [0mgrep -rn "safeStorage\|encryptString\|decryptString\|isEncryptionAvailable" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts | head -10; echo "---"; grep -rn "safeStorage\|electron.safeStorage\|CryptProtect\|DPAPI" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/safe-storage/ 2>/dev/null | head -10
+915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+916:            if (!fs.existsSync(safeStoragePasswordPath)) {
+921:            if (electron.safeStorage.isEncryptionAvailable()) {
+923:                    const encryptedPassword = fs.readFileSync(safeStoragePasswordPath);
+924:                    return electron.safeStorage.decryptString(encryptedPassword);
+930:                    'Electron safeStorage is not available (no password manager?), loading password skipped.',
+940:                if (electron.safeStorage.isEncryptionAvailable()) {
+941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+943:                        const encryptedPassword = electron.safeStorage.encryptString(password);
+945:                        fs.writeFileSync(safeStoragePasswordPath, encryptedPassword, options);
+---
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/safe-storage/helpers.ts:8: * Returns the path to the `electron.safeStorage` password file in the given `profileDirectoryPath`.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/safe-storage/helpers.ts:18: * Deletes the password file for `electron.safeStorage` in the given `profileDirectoryPath`, if it
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/safe-storage/helpers.ts:22:    const safeStoragePasswordPath = getSafeStoragePasswordPath(profileDirectoryPath);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/safe-storage/helpers.ts:25:        fs.unlinkSync(safeStoragePasswordPath);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/safe-storage/helpers.ts:26:        log?.info(`Password file '${safeStoragePasswordPath}' deleted`);
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/safe-storage/helpers.ts:28:        log?.info(`Password file '${safeStoragePasswordPath}' does NOT exist`);
+[0m
+[0m$ [0mgrep -rn "require(\|import(\|eval(\|\.mainModule\|child_process\|new Function" /tmp/opencode/threema-desktop/apps/desktop/src/worker/; echo "grep_exit=$?"
+grep_exit=1
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts[90m [limit=15, offset=220][0m
+[0m
+[0m$ [0mmkdir -p /tmp/opencode/threema-hunt/threema-desktop /home/runner/work/threema-hunt/threema-hunt/reports
+(no output)
+[0m
+All source paths verified. Let me write the POC script and report, then produce the 8-step analysis.
+[0m← [0mWrite /tmp/opencode/threema-hunt/threema-desktop/key-storage-acl-bypass-poc.py
+Wrote file successfully.
+[0m
+[0m$ [0mpython3 /tmp/opencode/threema-hunt/threema-desktop/key-storage-acl-bypass-poc.py --show-source 2>&1 | head -120
+File "/tmp/opencode/threema-hunt/threema-desktop/key-storage-acl-bypass-poc.py", line 130
+    print('  sqlite3 "$env:APPDATA\\ThreemaDesktop\\data\\database.db" "PRAGMA key = \\"x\\'<databaseKey_hex>\\'\\"; SELECT count(*) FROM messages;"')
+                                                                                                              ^
+SyntaxError: unexpected character after line continuation character
+[0m
+[0m→ [0mRead /tmp/opencode/threema-hunt/threema-desktop/key-storage-acl-bypass-poc.py[90m [limit=5, offset=125][0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/opencodecheck/threema-desktop/*); auto-rejecting
+[0m✗ [0mEdit /tmp/opencodecheck/threema-desktop/key-storage-acl-bypass-poc.py failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
