@@ -105,3 +105,10 @@
   - - **Verdict: HOLD.** OpenAPI flags it "currently buggy" but requires AUTH_HELPED with valid Work license. Retain for program-provided test credentials.
   - - VERDICT: VALID
   - - VERDICT: VALID
+
+- 5 lead(s) marked VALID at 2026-08-08 18:19:30 UTC
+  - | Q4 GET/HEAD proof? | ✅ Yes — `GET /identity/{id}` returns 200/404; `POST /identity/fetch_bulk` returns pubkeys for valid IDs |
+  - **Verdict: VALID**
+  - **Verdict: VALID** (with note: requires local/same-user access on Windows)
+  - | 1 | Directory cluster identity→pubkey enumeration (fetch_bulk + CORS *, no rate limit) | **VALID** | 3.7 | Medium |
+  - | 2 | Desktop Windows key-storage ACL bypass → identity + DB compromise | **VALID** | 7.1 | Medium-High |
