@@ -83,3 +83,4 @@ verify_steps: [PASSIVE: POST /identity/fetch_bulk {"identities":["id1","id2",...
 impact: Attacker can enumerate all valid identity IDs in a single batch, retrieve their public keys, and build a target list for further attacks
 testability: PASSIVE
 [NEXT] HUMAN: Run verify-acl-bypass.ps1 on an authorized Windows host with Threema Desktop installed to confirm the Windows ACL bypass for key storage (master password recovery possible via fileModeInternalObjectIfPosix() returning {} on Windows)
+## 2026-08-08 15:46:31 UTC [safe] (model ling3)

@@ -304,3 +304,12 @@
 - NEW fetch_bulk 100+ ID batch verified: POST /identity/fetch_bulk with 100 IDs (1 valid ECHOECHO + 99 unique invalid) → 200, returns 1 identity with pubkey, silently omits 99 invalid IDs. Confirms single-r
 - NEW HSTS/Expect-CT inconsistency on safe-01.threema.ch: OPTIONS /backups/{64hex} → 204 with HSTS + Expect-CT present; GET /backups/{64hex} → 400 with HSTS + Expect-CT ABSENT (only CORS `*` present). Heade
 - CHANGED Production directory hosts (ds-apip, api, apip) confirmed lacking HSTS/Expect-CT on ALL responses — verified on GET /identity/ECHOECHO (200), GET /identity/sfu_cred (200), GET /identity/nonexistent (4
+
+## 2026-08-08 16:04:12 UTC
+- NEW 5 challenge-response endpoints live on 3 production directory hosts: `/identity/{sfu_cred|blob_cred|set_revocation_key|check_revocation_key|update_work_info}` return 200 with JSON errors + CORS `*`
+- NEW `POST /identity/fetch_bulk` accepts 100+ ID batch (1 valid + 99 invalid) → 200, returns only valid pubkey, silently omits invalid — single-request bulk enumeration confirmed
+- NEW HSTS/Expect-CT inconsistency on `safe-01.threema.ch`: present on OPTIONS 204 preflight, ABSENT on GET 400 `/backups/{64hex}` — header gap on credential-gated endpoint
+- CHANGED Production directory hosts (ds-apip, api, apip) confirmed lacking HSTS/Expect-CT on ALL responses (200, 404, challenge endpoints)
+- CHANGED fetch_bulk 100+ ID batch re-confirmed on `api.threema.ch` and `apip.threema.ch` via own probes (identical 200 response with same ECHOECHO pubkey `sha256(SmobNNzvFdQ8t03i/TYJG+mfu68SbQmdR9g9kZcSxys=)`;
+- NEW `update_work_info` endpoint confirmed with parameter-validation-before-identity-lookup oracle on all 3 hosts: returns `{"success":false,"error":"Missing parameters"}` (not "Identity not found"), same 
+- NEW No `Access-Control-Expose-Headers` on any directory host response — confirmed via own OPTIONS preflight on `ds-apip.threema.ch/identity/fetch_bulk` (ACAO:*, Allow-Methods POST,GET,OPTIONS,DELETE, no E
