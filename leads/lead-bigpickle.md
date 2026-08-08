@@ -1774,3 +1774,28 @@ evidence_needed: >N-ID batch shape; invalid-only batch → empty 200 vs error.
 verify_steps: PASSIVE, gated on GO: single POST ~20 synthetic valid-format+invalid IDs at 1 rps; no real user IDs.
 impact: valid-ID enumeration at scale; low-medium (pubkeys public by design).
 testability: PASSIVE
+## 2026-08-08 13:07:49 UTC [chat] (model bigpickle)
+class: MISCONFIG
+asset: threema-desktop apps/desktop/src/common/node/{fs.ts:41, key-storage/index.ts:559-560, electron-main.ts:944-945, crypto.ts:53-88, inner/v3.ts:65,70, sqlite.ts:239-240}
+confidence: 95
+reasoning: fileModeInternalObjectIfPosix() returns {} on win32 → keystorage.bin + keystorage.password.bin written with no explicit ACE; safeStorage (DPAPI CurrentUser) with {} options → password recoverable by same-user process; Argon2id + XSalsa20-Poly1305 decrypt yields ck (32B Ed25519) + databaseKey (32B SQLCipher raw key).
+evidence_needed: (1) Windows DACL audit — 0 explicit ACEs on both files; (2) DPAPI Unprotect → master password; (3) full decrypt chain → ck + databaseKey; (4) PRAGMA key decrypts threema.sqlite.
+verify_steps: AUTH_HELPED-LOCAL (authorized Windows host with Desktop installed): verify-acl-bypass.ps1 (Get-Acl both files), verify-acl-bypass.js (ProtectedData.Unprotect → Argon2id → XSalsa20-Poly1305 → v3 protobuf), then sqlcipher PRAGMA key.
+impact: full message history + permanent identity private key extraction by any same-user process; High on Windows.
+testability: HUMAN_ONLY
+class: IDOR
+asset: https://safe-01.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: GET /backups/{64hex} → 400 (credential-gated) vs /backup/{x} → 404 (no route) on all 5 hosts; whether 400 status/body/headers vary with ID validity never measured.
+evidence_needed: byte-for-byte comparison of 2-3 random 64-hex GETs vs known 400 baseline.
+verify_steps: PASSIVE, gated on GO: 3 single GETs at 1 rps (2 random 64-hex, 1 control) `curl -s -w "\n%{http_code} %{size_download}"` + sha256 body compare; no real user IDs.
+impact: if variant → backup-existence oracle, but backupId is 128-bit random → non-enumerable; no data access. Low.
+testability: PASSIVE
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (mirrors api.threema.ch, apip.threema.ch)
+confidence: 50
+reasoning: silent-omit of invalid IDs confirmed on 3 prod hosts, CORS `*`, no 429 across 30 POSTs; batch cap (>N) and invalid-only shape (empty-200 vs 400) unmeasured → hostile-page enumeration bound unknown.
+evidence_needed: single POST with ~20 mixed synthetic valid-format + invalid IDs; invalid-only batch shape.
+verify_steps: PASSIVE, gated on GO: one POST per host at 1 rps with synthetic IDs (no real user IDs); compare status/body.
+impact: bounds or scales identity→pubkey enumeration from a hostile page; enables targeted phishing/metadata correlation; low-medium (pubkeys public by design).
+testability: PASSIVE

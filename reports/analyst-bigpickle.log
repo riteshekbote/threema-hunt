@@ -15753,3 +15753,64 @@ testability: PASSIVE
 - [RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} split routing confirmed at source level (MediatorUrl nibble/byte); uniform 403 on HTTPS; WSS paths high-entropy; auth model not passively enumerable.
 - [RISK] safe: 85 reason: safe-01 live with CORS \*, write-capable methods, Access-Control-Allow-Headers: Authorization, HSTS+Expect-CT; 5 hostnames same IP; backup API Basic-gated (400) but credentialed cross-origin requests possible; no 429 observed.
 - [RISK] desktop-src: 95 reason: Windows key-storage ACL bypass CONFIRMED at source level (95) — full identity keypair + message DB decryption chain RAG-verified (15 paths); Electron sandbox disabled + nodeIntegrationInWorker: true (65, conditional RCE); staging URLs baked into builds; Argon2id+DPAPI decent but weak on Windows.
+===== ANALYST bigpickle 2026-08-08 13:10:07 UTC =====
+[0m
+> build · big-pickle
+[0m
+STEP 1 — DELTA
+- [CHANGED] billing.threema.ch: baseline TIMEOUT superseded — now 301 → threema.ch (redirect-only, no app surface) [inventory 12:06:35, not yet in KB]
+- [NEW] mediator-{X}.threema.ch/{XX}/ and rendezvous-{X}.threema.ch/{XX}/ WSS path-segment patterns confirmed from client config (KB holds only the DNS split-routing)
+- [NEW] ds-apip.threema.ch canonical directory-server hostname attributed to `config/vite.config.ts` + OpenAPI (KB lists its endpoints but not the canonical-hostname source)
+- [NEW] threema-desktop worker/ tree contains 0 dynamic sinks (require/import/eval/child_process/new Function) — Electron RCE escalation is conditional
+
+STEP 2 — PRIORITIZE
+- [PRIO] threema-desktop (Windows key-storage ACL bypass): 7.85 — attack_surface:7 business:10 tech:8 gate:8 cloud:2 fresh:10
+- [PRIO] safe-*.threema.ch (backup API pre-auth ID-validity oracle + CORS credentialed path): 7.10 — attack_surface:8 business:9 tech:6 gate:5 cloud:4 fresh:8
+- [PRIO] ds-apip.threema.ch/api.threema.ch/apip.threema.ch (fetch_bulk batch-cap + enumeration throughput): 6.75 — attack_surface:6 business:6 tech:5 gate:10 cloud:5 fresh:10
+
+STEP 3 — HYPOTHESES
+- [HYP] Windows key-storage ACL bypass → master password recovery → identity keypair + DB decryption
+class: MISCONFIG
+asset: threema-desktop apps/desktop/src/common/node/{fs.ts:41, key-storage/index.ts:559-560, electron-main.ts:944-945, crypto.ts:53-88, inner/v3.ts:65,70, sqlite.ts:239-240}
+confidence: 95
+reasoning: fileModeInternalObjectIfPosix() returns {} on win32 → keystorage.bin + keystorage.password.bin written with no explicit ACE; safeStorage (DPAPI CurrentUser) with {} options → password recoverable by same-user process; Argon2id + XSalsa20-Poly1305 decrypt yields ck (32B Ed25519) + databaseKey (32B SQLCipher raw key).
+evidence_needed: (1) Windows DACL audit — 0 explicit ACEs on both files; (2) DPAPI Unprotect → master password; (3) full decrypt chain → ck + databaseKey; (4) PRAGMA key decrypts threema.sqlite.
+verify_steps: AUTH_HELPED-LOCAL (authorized Windows host with Desktop installed): verify-acl-bypass.ps1 (Get-Acl both files), verify-acl-bypass.js (ProtectedData.Unprotect → Argon2id → XSalsa20-Poly1305 → v3 protobuf), then sqlcipher PRAGMA key.
+impact: full message history + permanent identity private key extraction by any same-user process; High on Windows.
+testability: HUMAN_ONLY
+- [HYP] safe-*.threema.ch backup route 400-body variance reveals pre-auth ID-validity oracle
+class: IDOR
+asset: https://safe-01.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: GET /backups/{64hex} → 400 (credential-gated) vs /backup/{x} → 404 (no route) on all 5 hosts; whether 400 status/body/headers vary with ID validity never measured.
+evidence_needed: byte-for-byte comparison of 2-3 random 64-hex GETs vs known 400 baseline.
+verify_steps: PASSIVE, gated on GO: 3 single GETs at 1 rps (2 random 64-hex, 1 control) `curl -s -w "\n%{http_code} %{size_download}"` + sha256 body compare; no real user IDs.
+impact: if variant → backup-existence oracle, but backupId is 128-bit random → non-enumerable; no data access. Low.
+testability: PASSIVE
+- [HYP] fetch_bulk batch-size cap and invalid-only response shape bound enumeration throughput
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (mirrors api.threema.ch, apip.threema.ch)
+confidence: 50
+reasoning: silent-omit of invalid IDs confirmed on 3 prod hosts, CORS `*`, no 429 across 30 POSTs; batch cap (>N) and invalid-only shape (empty-200 vs 400) unmeasured → hostile-page enumeration bound unknown.
+evidence_needed: single POST with ~20 mixed synthetic valid-format + invalid IDs; invalid-only batch shape.
+verify_steps: PASSIVE, gated on GO: one POST per host at 1 rps with synthetic IDs (no real user IDs); compare status/body.
+impact: bounds or scales identity→pubkey enumeration from a hostile page; enables targeted phishing/metadata correlation; low-medium (pubkeys public by design).
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+- All 3 survive (conf ≥ 40, no rejected class, concrete verify_steps). H2 impact is negligible if oracle confirms (non-enumerable), but it resolves a standing lead at 3 requests → kept as cheap closure.
+- [FINAL] 1) Desktop key-storage ACL bypass → master-password + identity keypair + DB decryption (95) 2) fetch_bulk batch-cap/invalid-only shape (50) 3) safe-01 400-body ID-validity oracle closure (45)
+
+STEP 5 — NEXT ACTION
+- [NEXT] PROBE: Resolve safe-01 existence-oracle lead — 3 single GETs at 1 rps, no real IDs: `curl -s -w "\n%{http_code} %{size_download}\n" https://safe-01.threema.ch/backups/<64hexA>` , same for `<64hexB>`, plus control repeat of the known-400 baseline ID; sha256-compare bodies. Identical → REJECT oracle; variant → oracle exists (non-enumerable, Low). Desktop AUTH_HELPED-LOCAL verify remains queued pending an authorized Windows host.
+
+STEP 6 — LEARNING
+- [LEARN] REJECTED MISCONFIG @ threema-desktop worker/ tree: 0 dynamic sinks (require/import/eval/child_process/new Function) → electron-main `sandbox:false` is necessary-but-insufficient for RCE; escalation hypothesis weakened
+- [LEARN] ACCEPTED OTHER @ billing.threema.ch: baseline TIMEOUT superseded — now 301 → threema.ch (redirect-only, no app surface)
+
+STEP 7 — RISK SCORE
+- [RISK] chat: 60 reason: g-*.0 prod pattern enumerated; staging collapses to one IP; no passive in-band divergence (auth-gated handshake, 0-byte 5222); core messaging infra with minimal HTTP exposure
+- [RISK] web: 90 reason: 3-prod-host directory cluster with public 200/404 identity oracle + fetch_bulk + CORS * + no rate-limit (30 POSTs all 200); safe-01 CORS * with Authorization header; work/broadcast/gateway cockpits with PHP sessions/CSP/Sentry; staging work public API divergence
+- [RISK] sync: 60 reason: mediator/rendezvous split-routing DNS (112.247 | 114.247) + uniform 403; WSS path segments high-entropy; auth model source-only, not passively enumerable
+- [RISK] safe: 85 reason: safe-01 live with CORS *, write-capable methods (GET,HEAD,PUT,PATCH,POST,DELETE), Access-Control-Allow-Headers: Authorization, HSTS+Expect-CT; backup API credential-gated (400) but credentialed cross-origin requests possible; 5 hostnames same IP; no 429 observed
+- [RISK] desktop-src: 95 reason: Windows key-storage ACL bypass RAG-VERIFIED (identity keypair + message DB decryption chain, 15 paths); Electron sandbox disabled + nodeIntegrationInWorker:true (RCE conditional — 0 dynamic sinks); staging URLs baked into builds

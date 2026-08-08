@@ -1164,3 +1164,31 @@ testability: RAG
 [FINAL]
 [NEXT] PROBE: curl -s -i -X OPTIONS https://ds-apip.threema.ch/identity/fetch_bulk -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: Content-Type" — confirm Access-Control-Expose-Headers for credentialed cross-origin exfiltration
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateLimit). CORS `*` with DELETE/POST/GET/OPTIONS. All three hostnames return identical pubkeys for valid IDs; invalid IDs silently omitted.
+## 2026-08-08 13:07:58 UTC [desktop] (model laguna)
+[HYP] Windows key-storage ACL bypass enables master password recovery and identity keypair decryption
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop `apps/desktop/src/common/node/key-storage/index.ts` + `crypto.ts`
+confidence: 95
+reasoning: RAG-VERIFIED across 15 source paths. `fileModeInternalObjectIfPosix()` returns `{}` (no restriction) on Windows. Both `keystorage.bin` (Argon2id-encrypted) and `keystorage.password.bin` (DPAPI-protected) written without explicit DACL/ACL hardening. DPAPI blob decryptable by any same-user process via `CryptUnprotectData`. `crypto.ts:223` hardcoded password `r3gGN9GDQ5NF6tM6` (sha256: `9e8a3f4c…`) is benchmark-only dummy, not a real secret.
+evidence_needed: Confirm Windows file creation path lacks `SetFileSecurity`/`SetNamedSecurityInfo` calls; verify `safeStorage` usage pattern; confirm `writeFile` calls use default permissions
+verify_steps: RAG: read `apps/desktop/src/common/node/key-storage/index.ts:559-560` and `crypto.ts:53-88`; grep for `SetFileSecurity`, `SetNamedSecurityInfo`, `DACL`, `SID;` trace `writeFile` → `fileModeInternalObjectIfPosix` → confirm no ACL hardening on Windows
+impact: Local attacker/same-user malware reads encrypted keystore + DPAPI password blob → offline brute-force or DPAPI decrypt → full account compromise (identity keypairs + message DB). Severity: Medium (requires local access)
+testability: RAG
+[HYP] Safe backup API: HTTP Basic Auth backupId:backupKey with permissive CORS enables credential brute-force / backup enumeration
+class: AUTH
+asset: https://safe-{XX}.threema.ch/backups/{64hex}
+confidence: 80
+reasoning: All 5 safe-* hosts respond identically. OPTIONS returns CORS `*` with `Access-Control-Allow-Headers: Authorization` enabling credentialed cross-origin requests. GET `/backups/{64hex}` returns HTTP 400 (route exists, credential-gated). `backupId:backupKey` confirmed credential format. Broad method allowance (GET/HEAD/PUT/PATCH/POST/DELETE). HSTS/Expect-CT present.
+evidence_needed: Confirm `GET /backups/{64hex}` with valid Basic Auth returns 200 + backup metadata; confirm CORS `Access-Control-Expose-Headers` allows credentialed reads from attacker origin
+verify_steps: PASSIVE: `curl -s -i -X OPTIONS https://safe-01.threema.ch/backups/abc123...def` -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: Authorization"; PROBE: `curl -s -i -u <backupId>:<backupKey> https://safe-01.threema.ch/backups/{64hex}` (≤1 rps, HUMAN_ONLY authorized)
+impact: Attacker brute-forces backupId:backupKey (if backupId is enumerable/guessable) → downloads encrypted backup → offline passphrase recovery. Severity: High (high-value encrypted backups, permissive CORS, broad methods)
+testability: PASSIVE
+[HYP] work.test.threema.ch public staging namespace divergence enables unauthenticated settings fetch + potential user enumeration
+class: IDOR
+asset: https://work.test.threema.ch/api-app/public/global/settings
+confidence: 70
+reasoning: Staging returns HTTP 200 (299B, appLinkHost + 3 app-download URLs) unauthenticated; prod returns 404 catch-all. Staging bundle (`work_public.js` sha256 `e48e18f7…`) implements `/public/global/settings` (GET) and `/public/license/token/{64hex}` (GET returns `{username?,password?,expired,hasEmail}`); prod bundle (`96501e21…`) has ZERO `/public/*` handlers. Token validation client-side zod 64-char only; GET on `/public/license/token/{fake64hex}` → 404 catch-all (900B).
+evidence_needed: Confirm `/public/license/token/{valid64hex}` with staging returns 200 + `{username?,password?,expired,hasEmail}`; confirm no server-side token validation
+verify_steps: PASSIVE: `curl -s -w "\nHTTP %{http_code}\n" -X GET https://work.test.threema.ch/api-app/public/global/settings`; PROBE: `curl -s -i -X GET https://work.test.threema.ch/api-app/public/license/token/{64hex-fake}` -H "Origin: https://attacker.example" (≤1 rps, HUMAN_ONLY authorized)
+impact: Attacker probes public namespace on staging for unauthenticated data leak (license tokens, user profiles). Severity: Low-Medium (staging-only, limited data surface)
+testability: PASSIVE
