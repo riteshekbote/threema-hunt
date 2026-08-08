@@ -2297,3 +2297,9 @@ verify_steps: AUTH_HELPED-LOCAL (authorized Windows host with Desktop installed)
 impact: full message history + permanent identity private key extraction by any same-user process; High on Windows.
 testability: HUMAN_ONLY
 [NEXT] PROBE: safe-01 backup existence-oracle test — 3 single GETs at 1 rps on `https://safe-01.threema.ch/backups/{rand1}` / `{rand2}` / known-baseline-64hex, capture `%{http_code} %{size_download}` + sha256 of bodies and compare against the recorded 400 baseline (determines if 400 is byte-invariant = no oracle, or variant = existence oracle). No real user IDs, GET only. Top pending is the HUMAN_ONLY Windows ACL verification pending operator GO.
+## 2026-08-08 14:22:54 UTC [chat] (model bigpickle)
+evidence_needed: (1) Windows DACL audit — 0 explicit ACEs on both files; (2) DPAPI Unprotect → master password; (3) full decrypt chain → ck + databaseKey; (4) PRAGMA key decrypts threema.sqlite.
+verify_steps: AUTH_HELPED-LOCAL (authorized Windows host with Desktop installed): verify-acl-bypass.ps1 (Get-Acl both files), verify-acl-bypass.js (ProtectedData.Unprotect → Argon2id → XSalsa20-Poly1305 → v3 protobuf), then sqlcipher PRAGMA key.
+impact: full message history + permanent identity private key extraction by any same-user process; High on Windows.
+testability: HUMAN_ONLY
+[NEXT] PROBE: safe-01 backup existence-oracle test — 3 single GETs at 1 rps on `https://safe-01.threema.ch/backups/{rand1}` / `{rand2}` / known-baseline-64hex, capture `%{http_code} %{size_download}` + sha256 of bodies and compare against the recorded 400 baseline (determines if 400 is byte-invariant = no oracle, or variant = existence oracle). No real user IDs, GET only. Top pending is the HUMAN_ONLY Windows ACL verification pending operator GO.
