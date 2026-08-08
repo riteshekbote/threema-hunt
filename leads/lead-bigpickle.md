@@ -3182,3 +3182,28 @@ evidence_needed: any non-404 (200/400/401) to a well-formed 64-hex token on stag
 verify_steps: PASSIVE, weekly gated: single GET /api-app/public/global/settings + single GET /api-app/public/license/token/{64 zeros}; escalate only on non-404; ≤1 rps.
 impact: if shipped, unauth license-token→credential oracle; low (high-entropy tokens).
 testability: PASSIVE
+## 2026-08-08 22:14:24 UTC [chat] (model bigpickle)
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop (keystorage.bin + keystorage.password.bin, fs.ts:41, index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, sqlite.ts:240)
+confidence: 90
+reasoning: RAG-verified 6 core paths (+9 supporting): `{}` file mode on win32 → no ACL; ck (Ed25519 private key) + databaseKey (SQLCipher PRAGMA) stored behind DPAPI-only password that any same-user process can unprotect. Accepted finding, stable across cycles.
+evidence_needed: none beyond source chain already verified; exploitability depends on same-user process access to %APPDATA%.
+verify_steps: PASSIVE static analysis only — no live probes needed; chain is source-complete.
+impact: same-user code → master password + identity keypair + full message-DB decryption; High (local, requires local access).
+testability: PASSIVE
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (+ api/apip)
+confidence: 95
+reasoning: 100-ID batch (1 valid + 99 invalid) → 200, single valid pubkey, silent omission; 30 sequential POSTs, no 429; CORS `*` with POST/GET/OPTIONS/DELETE on all 3 prod hosts. Enumeration cost per-ID is already bounded by accepted probe evidence.
+evidence_needed: no new probe required — extrapolate full-keyspace enumeration throughput from recorded batch behaviour; option to confirm batch-size ceiling with one gated 500-ID POST at ≤1 rps.
+verify_steps: reuse accepted 100-ID batch evidence; optional single 500-ID POST at ≤1 rps to confirm no batch-size ceiling.
+impact: unauth identity→pubkey mapping for arbitrary valid IDs; privacy/social-graph leakage at scale; Medium-High, fully unauth.
+testability: PASSIVE
+class: OTHER
+asset: https://saltyrtc-{00..ff}.threema.ch:443 (00-3f/40-7f→114.198/199, 80-bf/c0-ff→112.198/199)
+confidence: 70
+reasoning: GET / → HTTP 426 Upgrade Required (recorded), proving TLS-terminated HTTP→WS upgrade gate; AAAA split confirms 4-node pool; threema-web SALTYRTC_HOST pattern (webclient.ts:545). Only chat-surface host answering in-band vs g-* silent 5222/443.
+evidence_needed: operator scope ruling (hostname not in scope.yml g-*.0 pattern), then WS-upgrade handshake → 101 vs 426.
+verify_steps: HUMAN_ONLY — after ruling: `curl -sk -i --max-time 5 -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: MTIzNDU2Nzg5MDEyMzQ1Ng==" https://saltyrtc-00.threema.ch/` (≤1 rps); record 101 vs 426 vs close.
+impact: chat-signaling control plane passively reachable where g-* is closed — SaltyRTC server-key/framing fingerprint, future handshake recon; Low-Medium, scope-gated.
+testability: HUMAN_ONLY
