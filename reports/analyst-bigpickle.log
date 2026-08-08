@@ -20794,3 +20794,56 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK SCORE
 [RISK] chat: 25 | 5222 handshake-gated (0-byte hello without auth frame), 443 closes pre-TLS, pool mapped, no in-band divergence, staging excluded | web: 35 | staging/prod /public/* bundle divergence + license-token route (404 this cycle) + namespace-gated auth (302) | sync: 15 | mediator/rendezvous uniform 403, split-DNS routing only, no auth bypass observed | safe: 30 | credential-gated (400 unauth), CORS `*` + ACAH:Authorization, HSTS absent on GET 400 | desktop-src: 40 | RAG-verified Windows ACL key-storage gap (top finding) + conditional sandbox/worker gap, no new contradiction.
+===== ANALYST bigpickle 2026-08-08 20:10:15 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "safe01:%{http_code}" --max-time 15 "https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000"; echo; curl -s -o /dev/null -w "dsapip:%{http_code}" --max-time 15 "https://ds-apip.threema.ch/identity/ECHOECHO"; echo; curl -s -o /dev/null -w "worktest:%{http_code}" --max-time 15 "https://work.test.threema.ch/api-app/public/global/settings"
+safe01:400
+dsapip:200
+worktest:200
+[0m
+STEP 1 — DELTA
+Baseline probes re-confirmed live this cycle: safe-01 `/backups/{64 zeros}` → 400 (credential-gated), ds-apip `/identity/ECHOECHO` → 200 (oracle live), work.test `/api-app/public/global/settings` → 200 (staging-only public route). No behavioral change on any tracked surface.
+NO_DELTA
+
+STEP 2 — PRIORITIZE
+[PRIO] safe-{01,1a,1b,02,00}.threema.ch /backups/{64hex} | score 5.15 | attack_surface 5, business_value 8 (keypair+history), tech_exposure 4 (Basic auth REST), gate_ease 4 (credential-gated 400), cloud_surface 3, freshness 4
+[PRIO] work.test.threema.ch /api-app/public/* | score 5.70 | attack_surface 6, business_value 7, tech_exposure 5 (zod 64-hex, namespaced API), gate_ease 6 (public ns open, 1 live route), cloud_surface 2, freshness 6
+[PRIO] ds-apip/api/apip.threema.ch directory hosts | score 5.15 | attack_surface 6, business_value 5 (identity→pubkey oracle), tech_exposure 3, gate_ease 9 (unauthenticated), cloud_surface 3, freshness 3
+
+STEP 3 — HYPOTHESES
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: OPTIONS → 204 CORS `*` + Access-Control-Allow-Headers: Authorization on all 5 hosts; GET /backups/{64hex} byte-identical 400 with and without bogus Basic (re-confirmed 400 this cycle); route exists, credential-gated; HSTS/Expect-CT absent on the GET 400.
+evidence_needed: valid program-issued test backupId:backupKey → response ≠ 400 (200+payload or 401/403); any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED: single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+
+[HYP] work.test license-token backend ships → unauth 64-hex credential oracle
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 40
+reasoning: staging bundle v2.25.1 ships GET {username?,password?,expired,hasEmail} + PUT; backend method-agnostic 404 (900B) all cycles incl. this; prod bundle zero /public/* handlers; 64-char check client-side zod only.
+evidence_needed: any non-404 (200/400/401) to a well-formed 64-hex token on staging.
+verify_steps: PASSIVE, gated: single GET /api-app/public/global/settings + single GET /api-app/public/license/token/{64 zeros}; escalate only on non-404; ≤1 rps; never real tokens.
+impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] Directory identity-state fingerprint via check_revocation_key GET form: DISCONFIRMED previous cycle — `?identity=ECHOECHO&revocation_key={64 zeros}` and `?identity=ZZZZZZZZ&revocation_key={64 zeros}` both → byte-identical `{"success":false,"error":"Identity not found"}`; no differential, no leak on this GET form. Evidence disproves.
+[PARKED] Windows key-storage ACL bypass: already ACCEPTED/RAG-verified; not a new-test hypothesis; testability HUMAN_ONLY.
+[FINAL] 1. Safe backup credentialed read (AUTH, 45, AUTH_HELPED) — highest upside, sole unresolved AUTH blocker. 2. work.test license-token (MISCONFIG, 40, PASSIVE) — weekly gated re-probe only.
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: Request program-issued test backupId:backupKey from the operator for the safe-backup hypothesis (highest-value AUTH_HELPED blocker; safe: 30 risk). Upon receipt, run exactly one `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps) and diff status/body/Access-Control-Expose-Headers vs the known byte-identical 400 baseline; escalate to a lead only on ≠400 or new Expose-Headers.
+
+STEP 6 — LEARNING
+[LEARN] REJECTED IDOR @ ds-apip/api/apip.threema.ch check_revocation_key GET form: validation-order oracle disproven — ECHOECHO vs ZZZZZZZZ produce byte-identical "Identity not found"; no identity-state differential via GET query params on this endpoint.
+[LEARN] ACCEPTED MISCONFIG @ safe-01.threema.ch: credential-gated 400 baseline stable (re-confirmed this cycle) — route-existence oracle + Basic-auth gating hold; HSTS/Expect-CT still absent on the GET 400.
+
+STEP 7 — RISK SCORE
+[RISK] chat: 25 | 5222 handshake-gated (0-byte hello without auth frame), 443 closes pre-TLS, pool fully mapped, no in-band divergence, staging excluded | web: 35 | staging/prod /public/* bundle divergence + license-token route (404) + namespace-gated auth (302) | sync: 15 | mediator/rendezvous uniform 403, split-DNS routing only, no auth bypass observed | safe: 30 | credential-gated (400 unauth), CORS `*` + ACAH:Authorization, HSTS absent on GET 400 | desktop-src: 40 | RAG-verified Windows ACL key-storage gap (top finding) + conditional sandbox/worker gap, no new contradiction.

@@ -2389,3 +2389,4 @@ testability: PASSIVE + AUTH_HELPED
 [RISK] safe: 88 reason: safe-01.live with CORS `*`, write-capable methods, `Access-Control-Allow-Headers: Authorization`, HSTS+Expect-CT on preflight but NOT on credential-gated GET 400 (re-confirmed this cycle); backup API credential-gated (400) but cross-origin auth requests possible; 5 hostnames same IP; no 429 observed; existence oracle via 400-vs-404 path distinction
 [RISK] desktop-src: 95 reason: Windows key-storage ACL bypass CONFIRMED at source level (6 core paths + 9 supporting paths RAG-verified against live repo) — full identity keypair + message DB decryption chain verified; Electron sandbox disabled + nodeIntegrationInWorker: true (conditional RCE); staging URLs baked into builds; Argon2id + DPAPI decent but weak on Windows
 ## 2026-08-08 19:38:44 UTC [desktop] (model laguna)
+## 2026-08-08 20:10:04 UTC [desktop] (model laguna)
