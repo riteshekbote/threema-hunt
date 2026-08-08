@@ -2741,3 +2741,4 @@ verify_steps: AUTH_HELPED: curl -u "testBackupId:testBackupKey" https://safe-01.
 impact: valid creds → full identity keypair + message-history backup read cross-origin; High with creds.
 testability: AUTH_HELPED
 [NEXT] PROBE (gated on operator GO): measure fetch_bulk batch cap — single POST `{"identities":[<~10 valid-format>,"ZZZZZZZZ",<invalid>]}` to `https://ds-apip.threema.ch/identity/fetch_bulk` (≤1 rps, synthetic IDs only, no real user IDs), then one invalid-only batch; record status/body shape vs known silent-omit 200. Top pending HUMAN_ONLY: Windows ACL verification on authorized host.
+## 2026-08-08 15:16:14 UTC [chat] (model bigpickle)

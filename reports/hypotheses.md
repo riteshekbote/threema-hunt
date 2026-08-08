@@ -518,3 +518,72 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in determineKdfParams(), derived key immediately purged, not used for real encryp
 - LEARN: REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not
 - LEARN: (no new learnings this cycle)
+
+## RANKED HYPOTHESES 2026-08-08 15:30:23 UTC
+- [95] threema-desktop: Windows key-storage ACL bypass → master password recovery → identity keypair + message DB decryption (from reports/hypotheses-nemotron3.txt)
+- [95] threema-desktop: Windows key-storage ACL bypass — master password recovery via fileModeInternalObjectIfPosix() returning {} on Windows, keystorage.bin and keystorage.password.bin written without ACL restrictions, safeStorage (DPAPI) password recoverable by same-user processes (from reports/hypotheses-ling3.txt)
+- [45] https://ds-apip.threema.ch/identity/{blob_cred|sfu_cred|set_revocation_key|check_revocation_key|update_work_info}: Unprobed challenge endpoints expose route presence + challenge-oracle unauth (from reports/hypotheses-laguna.txt)
+- NEXT(hypotheses-nemotron3.txt): AUTH_HELPED-LOCAL: Execute Windows ACL bypass verification on authorized Windows host with Threema Desktop installed — run `verify-acl-bypass.ps1` to confirm 0 
+- NEXT(hypotheses-laguna.txt): AUTH_HELPED-LOCAL: Execute Windows ACL bypass verification on authorized Windows host with Threema Desktop installed — run `verify-acl-bypass.ps1` to confirm 0 
+- NEXT(hypotheses-ling3.txt): HUMAN: Run verify-acl-bypass.ps1 on an authorized Windows host with Threema Desktop installed to confirm the Windows ACL bypass for key storage (master password
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin w
+- LEARN: ACCEPTED AUTH @ safe-*.threema.ch: Backup API uses HTTP Basic Auth (backupId:backupKey); OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: Unauthenticated identity→pubkey oracle via GET /identity/{id} (200/404) AND POST /identity/fe
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DEK-79) and nodeIntegrationInWorker: true (TODO DEK-79) — L1240 co
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in determineKdfParams(), derived key immediately purged, not used for real encryp
+- LEARN: REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin w
+- LEARN: ACCEPTED AUTH @ safe-*.threema.ch: Backup API uses HTTP Basic Auth (backupId:backupKey); OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: Unauthenticated identity→pubkey oracle via GET /identity/{id} (200/404) AND POST /identity/fe
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DEK-79) and nodeIntegrationInWorker: true (TODO DEK-79) — L1240 co
+- LEARN: ACCEPTED MISCONFIG @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work A
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed)
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in determineKdfParams(), derived key immediately purged, not used for real encryp
+- LEARN: REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin w
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin w
+- LEARN: ACCEPTED AUTH @ safe-*.threema.ch: Backup API uses HTTP Basic Auth (backupId:backupKey); OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: Unauthenticated identity→pubkey oracle via GET /identity/{id} (200/404) AND POST /identity/fe
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DEK-79) and nodeIntegrationInWorker: true (TODO DEK-79) — L1240 co
+- LEARN: ACCEPTED MISCONFIG @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work A
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed)
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in determineKdfParams(), derived key immediately purged, not used for real encryp
+- LEARN: REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin w
+- LEARN: ACCEPTED AUTH @ safe-*.threema.ch: Backup API uses HTTP Basic Auth (backupId:backupKey); OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: Unauthenticated identity→pubkey oracle via GET /identity/{id} (200/404) AND POST /identity/fe
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DEK-79) and nodeIntegrationInWorker: true (TODO DEK-79) — L1240 co
+- LEARN: ACCEPTED MISCONFIG @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work A
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed)
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in determineKdfParams(), derived key immediately purged, not used for real encryp
+- LEARN: REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin w
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin w
+- LEARN: ACCEPTED AUTH @ safe-*.threema.ch: Backup API uses HTTP Basic Auth (backupId:backupKey); OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: Unauthenticated identity→pubkey oracle via GET /identity/{id} (200/404) AND POST /identity/fe
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DEK-79) and nodeIntegrationInWorker: true (TODO DEK-79) — L1240 co
+- LEARN: ACCEPTED MISCONFIG @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work A
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed)
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in determineKdfParams(), derived key immediately purged, not used for real encryp
+- LEARN: REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: POST /identity/fetch_bulk accepts 100+ ID batch in single request, returns pubkeys for valid 
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: 5 challenge-response endpoints (/identity/{sfu_cred|blob_cred|set_revocation_key|check_revoc
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 response for /backups/{64hex} — header inconsiste
+- LEARN: REJECTED MISCONFIG @ production directory servers lack HSTS/Expect-CT: missing security headers on by-design public read endpoints — defense-in-depth gap only, 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin w
+- LEARN: ACCEPTED AUTH @ safe-*.threema.ch: Backup API uses HTTP Basic Auth (backupId:backupKey); OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` is benchmark-only dummy in determineKdfParams(), derived key immediately purged — not 
+- LEARN: REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: POST `/identity/fetch_bulk` accepts 100+ ID batch in single request, returns pubkeys for vali
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: 5 challenge-response endpoints (`/identity/{sfu_cred|blob_cred|set_revocation_key|check_revo
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 response for `/backups/{64hex}` — header inconsis
+- LEARN: REJECTED MISCONFIG @ production directory servers lack HSTS/Expect-CT: missing security headers on by-design public read endpoints — defense-in-depth gap only, 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): `fileModeInternalObjectIfPosix()` returns `{}` on Windows → keystorage.bin + keystorage.password.bin
+- LEARN: ACCEPTED AUTH @ safe-*.threema.ch: Backup API uses HTTP Basic Auth (backupId:backupKey); OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DEK-79) and nodeIntegrationInWorker: true (TODO DEK-79) — L1240 co
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in determineKdfParams(), derived key immediately purged — not used for real encry
+- LEARN: REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not
