@@ -92,6 +92,11 @@
 - 2026-08-08 REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not vulnerable.
 - 2026-08-08 ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — `keystorage.bin` and `keystorage.password.bin` written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes.
 - 2026-08-08 ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: Staging directory server publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+- 2026-08-08 ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: POST /identity/fetch_bulk returns pubkeys for valid IDs only, silently omits invalid IDs, CORS `*` with DELETE/POST/GET/OPTIONS — confirmed on all 3 production hosts
+- 2026-08-08 ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DEK-79) and nodeIntegrationInWorker: true (TODO DEK-79) — L1240 comment incorrect per Electron docs; RCE exploitability is CONDITIONAL (requires separate renderer-side exploit chain)
+- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: /api-app/public/global/settings returns 200 unauthenticated on staging but 404 on prod — public staging-only work API endpoint confirmed (299B, appLinkHost + 3 app-download URLs only)
+- 2026-08-08 ACCEPTED MISCONFIG @ work.test.threema.ch: work_public.js v2.25.1 staging build (sha256 e48e18f7…, 1,443,948 B) implements /public/* routes; prod build (sha256 96501e21…, 1,400,541 B) has ZERO /public/* handlers — bundle divergence confirmed
+- 2026-08-08 REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` is benchmark-only dummy in determineKdfParams(), derived key immediately purged (benchmarkKey.purge()) — not used for real encryption
 === INVENTORY gladia ===
 # Inventory: threema
 
