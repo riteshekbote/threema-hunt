@@ -83,3 +83,13 @@
   - **Verdict: HOLD.** OpenAPI flags it "currently buggy" but requires AUTH_HELPED with valid Work license. Retain for program-provided test credentials.
   - | Q3 Real impact? | ⚠️ LOW — route presence + parameter-validation oracle; challenge-response still requires valid identity+secret |
   - | **VALID (new)** | **0** | No novel, reportable findings |
+
+- 8 lead(s) marked VALID at 2026-08-08 17:19:51 UTC
+  - VERDICT: VALID
+  - | **VALID** | 6 | Directory cluster IDOR, Desktop Windows key-storage ACL bypass, Safe backup CORS, Safe HSTS inconsistency, Challenge-parameter-oracle, work.test bundle divergence |
+  - VERDICT: VALID
+  - VERDICT: VALID
+  - VERDICT: VALID (low severity)
+  - VERDICT: VALID (low severity)
+  - VERDICT: VALID (low severity)
+  - VALID (report immediately):
