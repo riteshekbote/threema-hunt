@@ -446,3 +446,28 @@ verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64zeros}` week
 impact: if route enabled: unauthenticated 64-hex license-token→credential oracle; severity low (tokens high-entropy).
 testability: PASSIVE
 [NEXT] PROBE: weekly staging catch-up re-check — `GET https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000`, `GET https://work.test.threema.ch/api-app/public/global/settings`, and re-hash `GET https://work.test.threema.ch/cache/work_public.js`; escalate if license-token ≠404 (never real tokens). Executed this cycle: all three unchanged (404/200/hash-match), next run ~2026-08-15. ≤1 rps, GET only. Chat CSP handshake and /identities tests remain AUTH_HELPED (blocked on an authorized staging test identity).
+## 2026-08-08 04:43:34 UTC [chat] (model bigpickle)
+class: AUTH
+asset: https://broadcast.threema.ch (v2.28.1, csrf_public_login_access)
+confidence: 50
+reasoning: Fresh prod surface (was TIMEOUT). Live login form embeds `csrf_public_login_access`; bundle implements full attestation+assertion ceremonies (challenge POST → `assertion_response` POST). Served without CSP/HSTS. Ceremony endpoint paths are minified/derived and not yet resolved.
+evidence_needed: Resolved ceremony endpoint paths; whether challenge endpoint is unauth-reachable; rate limiting on challenge issuance.
+verify_steps: PASSIVE: resolve minified endpoint map feeding the `${l}`/`${o}`/`${s}`/`${r}` ceremony URLs in broadcast_public.js; then single GET of each endpoint on https://broadcast.threema.ch, record status + rate-limit headers; full assertion requires a passkey (AUTH_HELPED). ≤1 rps.
+impact: unauth passkey-ceremony DoS/abuse; assertion-validation flaw would be account-level — unproven; severity low→high contingent on endpoint reachability.
+testability: PASSIVE
+class: AUTH
+asset: https://gateway.threema.ch (/en/login, /en/signup, /en/forgot-password, /api/*)
+confidence: 50
+reasoning: Fresh messaging-gateway control plane; login served with NO HSTS/Expect-CT/CSP (weaker posture than shop); `/api/`+`/api/v1/` nginx-403 (routes gated, not absent); `trusted_redirect_origins` field present on login. No staging mirror (gateway.test 403) → no divergence oracle.
+evidence_needed: POST targets + CSRF/captcha presence on signup/forgot-password; whether any /api path escapes the nginx deny.
+verify_steps: PASSIVE: GET /en/signup and /en/forgot-password, capture CSRF field names/POST targets/captcha; GET a small set of plausible /api paths; do NOT submit POSTs (side effects). ≤1 rps.
+impact: unauthenticated surface of a customer-facing messaging gateway; credential-page transport hardening gap; severity low (no vuln proven).
+testability: PASSIVE
+class: BUSLOGIC
+asset: https://shop.threema.ch/en/redeem + /en/retrieve-keys
+confidence: 45
+reasoning: Two unauthenticated POST forms (email+promo_code; email+invoice_ref) on fresh prod; if responses differentiate valid/invalid code+ref with no rate limit they become redemption/receipt oracles. Counter-weight: full HSTS/Expect-CT/CSP + hCaptcha frame — likely captcha-gated.
+evidence_needed: whether a GET variant exists; whether response delta leaks code validity without submission.
+verify_steps: PASSIVE-first: inspect forms for CSRF/hCaptcha and probe for GET variants; any submission oracle requires one-shot authorized POSTs (AUTH_HELPED). ≤1 rps.
+impact: promo-code/invoice enumeration → discount or PII; severity low (high-entropy codes, captcha likely).
+testability: AUTH_HELPED

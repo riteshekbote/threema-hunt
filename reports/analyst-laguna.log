@@ -5727,3 +5727,465 @@ All source-verified. Compiling the 8-step analyst output:
 - sync: 25 — mediator-/rendezvous-*.threema.ch uniform 403; DNS split routing noted but no auth bypass or data exposure found.
 - safe: 82 — backup service fully reachable with credential-gated route exposing existence oracle, permissive CORS `*` with `Authorization` header, all write methods exposed, no rate-limit across 5 hosts; high-value asset (identity keypair + message history).
 - desktop-src: 88 — Verified in source: Windows key-storage files written without ACL (fs.ts:41, key-storage/index.ts:559, electron-main.ts:945); `nodeIntegrationInWorker: true` + `sandbox: false` + direct `node:fs` import in backend-worker (worker/backend/electron/index.ts:11); restores full identity private key + database key (restore-db.ts:45-46). Highest program-surface exposure.
+===== ANALYST laguna 2026-08-08 04:43:47 UTC =====
+[0m
+> build · laguna-s-2.1-free
+[0m
+I'll start by performing the RAG verification on the desktop source code to confirm the hypotheses, then produce the structured analysis.
+[0m$ [0mcd /tmp/opencode && rm -rf threema-desktop && git clone --depth 1 https://github.com/threema-ch/threema-desktop.git 2>&1 && ls -la threema-desktop
+Cloning into 'threema-desktop'...
+total 704
+drwxr-xr-x 12 runner runner   4096 Aug  8 04:40 .
+drwxr-xr-x  3 runner runner   4096 Aug  8 04:40 ..
+drwxr-xr-x  3 runner runner   4096 Aug  8 04:40 .devcontainer
+-rw-r--r--  1 runner runner    253 Aug  8 04:40 .editorconfig
+drwxr-xr-x  7 runner runner   4096 Aug  8 04:40 .git
+-rw-r--r--  1 runner runner     63 Aug  8 04:40 .gitattributes
+-rw-r--r--  1 runner runner    189 Aug  8 04:40 .gitignore
+drwxr-xr-x  3 runner runner   4096 Aug  8 04:40 .gitlab
+-rw-r--r--  1 runner runner  47542 Aug  8 04:40 .gitlab-ci.yml
+-rw-r--r--  1 runner runner      0 Aug  8 04:40 .gitmodules
+drwxr-xr-x  2 runner runner   4096 Aug  8 04:40 .licenses
+-rw-r--r--  1 runner runner      8 Aug  8 04:40 .nvmrc
+-rw-r--r--  1 runner runner   1242 Aug  8 04:40 .prettierignore
+-rw-r--r--  1 runner runner    983 Aug  8 04:40 .prettierrc.yml
+drwxr-xr-x  2 runner runner   4096 Aug  8 04:40 .vscode
+-rw-r--r--  1 runner runner  13991 Aug  8 04:40 AGENTS.md
+-rw-r--r--  1 runner runner    857 Aug  8 04:40 CONTRIBUTING.md
+-rw-r--r--  1 runner runner  68024 Aug  8 04:40 LICENSE-3RD-PARTY.txt
+-rw-r--r--  1 runner runner  34520 Aug  8 04:40 LICENSE.txt
+-rw-r--r--  1 runner runner   9563 Aug  8 04:40 README.md
+-rw-r--r--  1 runner runner    743 Aug  8 04:40 SECURITY.md
+drwxr-xr-x  4 runner runner   4096 Aug  8 04:40 apps
+drwxr-xr-x  6 runner runner   4096 Aug  8 04:40 containers
+-rw-r--r--  1 runner runner     21 Aug  8 04:40 contributors.csv
+drwxr-xr-x  3 runner runner   4096 Aug  8 04:40 docs
+-rw-r--r--  1 runner runner  10248 Aug  8 04:40 logo_dark.svg
+-rw-r--r--  1 runner runner  10270 Aug  8 04:40 logo_light.svg
+-rw-r--r--  1 runner runner   9008 Aug  8 04:40 package.json
+drwxr-xr-x 17 runner runner   4096 Aug  8 04:40 packages
+-rw-r--r--  1 runner runner 403246 Aug  8 04:40 pnpm-lock.yaml
+-rw-r--r--  1 runner runner   1832 Aug  8 04:40 pnpm-workspace.yaml
+drwxr-xr-x  2 runner runner   4096 Aug  8 04:40 scripts
+-rw-r--r--  1 runner runner   2320 Aug  8 04:40 turbo.jsonc
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && ls apps/desktop/src/electron/ apps/desktop/src/common/node/key-storage/
+apps/desktop/src/common/node/key-storage/:
+crypto.ts
+helpers.ts
+index.ts
+migration.ts
+
+apps/desktop/src/electron/:
+electron-main.ts
+electron-preload.ts
+electron-utils.ts
+screenshare-preload.ts
+tls-cert-verifier.ts
+tsconfig.json
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "sandbox\|webPreferences\|nodeIntegrationInWorker\|nodeIntegration\|contextIsolation" apps/desktop/src/electron/electron-main.ts | head -40
+1234:            webPreferences: {
+1240:                // `contextIsolation`, and sandboxing is enabled by default.
+1242:                // Unfortunately we cannot get rid of `nodeIntegrationInWorker` because preload
+1251:                nodeIntegration: false,
+1252:                nodeIntegrationInWorker: true, // TODO(DESK-79): Change to false once worker preload scripts are supported in Electron
+1253:                nodeIntegrationInSubFrames: false,
+1255:                // TODO(DESK-79): Enable `sandbox: true` once worker preload scripts are supported in Electron
+1262:                contextIsolation: true,
+1484:            case 'sandbox':
+1552:                        'sandbox allow-downloads allow-same-origin allow-scripts allow-forms allow-popups',
+1673:    // In internal test builds on sandbox, we enable crash reporting.
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "fileModeInternalObjectIfPosix\|mode:" apps/desktop/src/common/node/key-storage/index.ts | head -30
+28:import {fileModeInternalObjectIfPosix} from '~/common/node/fs';
+560:                ...fileModeInternalObjectIfPosix(),
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "new Worker\|nodeIntegrationInWorker" apps/desktop/src/ --include="*.ts" --include="*.tsx" | head -40
+apps/desktop/src/common/dom/webrtc/group-call.ts:281:            const mediaCryptoWorker = new Worker(
+apps/desktop/src/app/app.ts:407:    const worker = new Worker(
+apps/desktop/src/worker/backend/media-crypto-worker.ts:332:        this.#_keys.push(new WorkerParticipantCallMediaKey(this._gckh, successor));
+apps/desktop/src/worker/backend/media-crypto-worker.ts:653:        const key = new WorkerParticipantCallMediaKey(gckh, source);
+apps/desktop/src/electron/electron-utils.ts:99:            nodeIntegrationInWorker: false,
+apps/desktop/src/electron/electron-main.ts:1242:                // Unfortunately we cannot get rid of `nodeIntegrationInWorker` because preload
+apps/desktop/src/electron/electron-main.ts:1252:                nodeIntegrationInWorker: true, // TODO(DESK-79): Change to false once worker preload scripts are supported in Electron
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [offset=1230, limit=45][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/fs.ts[90m [limit=60][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts[90m [offset=540, limit=30][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts[90m [limit=120][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [limit=60, offset=930][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts[90m [limit=100, offset=1][0m
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "require(\|import(\|eval(\|process\.mainModule\|child_process\|fs\.\|crypto\.\|net\.\|os\.\|path\.\|execFile\|spawnSync\|execSync" apps/desktop/src/worker/backend/backend-worker.ts 2>/dev/null; echo "---"; grep -rn "require(\|import(\|eval(" apps/desktop/src/worker/ --include="*.ts" | head -30
+---
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "safeStorage\|encryptString\|STORE_USER_PASSWORD\|keystorage.password\|password.bin" apps/desktop/src/electron/electron-main.ts | head -20
+915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+916:            if (!fs.existsSync(safeStoragePasswordPath)) {
+921:            if (electron.safeStorage.isEncryptionAvailable()) {
+923:                    const encryptedPassword = fs.readFileSync(safeStoragePasswordPath);
+924:                    return electron.safeStorage.decryptString(encryptedPassword);
+930:                    'Electron safeStorage is not available (no password manager?), loading password skipped.',
+936:            ElectronIpcCommand.STORE_USER_PASSWORD,
+940:                if (electron.safeStorage.isEncryptionAvailable()) {
+941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+943:                        const encryptedPassword = electron.safeStorage.encryptString(password);
+945:                        fs.writeFileSync(safeStoragePasswordPath, encryptedPassword, options);
+952:                        'Electron safeStorage is not available (no password manager?), storing password skipped.',
+983:                    isSafeStorageAvailable: electron.safeStorage.isEncryptionAvailable(),
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "new Worker(" apps/desktop/src/ --include="*.ts" --include="*.tsx" -A 5 | head -60
+apps/desktop/src/common/dom/webrtc/group-call.ts:281:            const mediaCryptoWorker = new Worker(
+apps/desktop/src/common/dom/webrtc/group-call.ts-282-                new URL('../../../worker/backend/media-crypto-worker.ts', import.meta.url),
+apps/desktop/src/common/dom/webrtc/group-call.ts-283-                {
+apps/desktop/src/common/dom/webrtc/group-call.ts-284-                    name: 'Media Crypto Worker',
+apps/desktop/src/common/dom/webrtc/group-call.ts-285-                    type: 'module',
+apps/desktop/src/common/dom/webrtc/group-call.ts-286-                },
+--
+apps/desktop/src/app/app.ts:407:    const worker = new Worker(
+apps/desktop/src/app/app.ts-408-        new URL(
+apps/desktop/src/app/app.ts-409-            // eslint-disable-next-line prefer-template
+apps/desktop/src/app/app.ts-410-            '../worker/backend/' + import.meta.env.BUILD_TARGET + '/backend-worker.ts',
+apps/desktop/src/app/app.ts-411-            import.meta.url,
+apps/desktop/src/app/app.ts-412-        ),
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "require(\|import(\|eval(\|process\.mainModule\|child_process\|fs\.\|net\.\|crypto\." apps/desktop/src/worker/ --include="*.ts" | head -30; echo "==="; ls -la apps/desktop/src/worker/
+apps/desktop/src/worker/backend/media-crypto-worker.ts:240:            decryptedPayload = await self.crypto.subtle.decrypt(
+apps/desktop/src/worker/backend/media-crypto-worker.ts:586:        const encryptedPayload = await self.crypto.subtle.encrypt(
+apps/desktop/src/worker/backend/electron/index.ts:62:            fs.mkdirSync(path.dirname(logFilePath), {
+apps/desktop/src/worker/backend/electron/index.ts:119:            fs.mkdirSync(path.dirname(keyStoragePath), {
+apps/desktop/src/worker/backend/electron/index.ts:135:            fs.mkdirSync(fileStoragePath, {
+apps/desktop/src/worker/backend/electron/index.ts:144:            fs.mkdirSync(fileStoragePath, {
+apps/desktop/src/worker/backend/electron/index.ts:178:                    fs.rmSync(databasePath, {force: true});
+===
+total 12
+drwxr-xr-x  3 runner runner 4096 Aug  8 04:40 .
+drwxr-xr-x 15 runner runner 4096 Aug  8 04:40 ..
+drwxr-xr-x  3 runner runner 4096 Aug  8 04:40 backend
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "databaseKey\|identityData\|identity\.identity\|identity\.privateKey\|restore-db" apps/desktop/src/ --include="*.ts" | head -30
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:157:            missingIdentities.delete(identity.identity);
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:158:            result.set(identity.identity, identity);
+apps/desktop/src/common/dom/backend/remote-secret/index.ts:86:            keyStorageContents.inner.identityData.ck,
+apps/desktop/src/common/dom/backend/remote-secret/index.ts:95:            keyStorageContents.inner.identityData.ck,
+apps/desktop/src/common/dom/backend/join.ts:554:        const identity = essentialData.identityData.identity;
+apps/desktop/src/common/dom/backend/join.ts:555:        const rawCk = essentialData.identityData.ck;
+apps/desktop/src/common/dom/backend/join.ts:556:        const serverGroup = essentialData.identityData.cspServerGroup;
+apps/desktop/src/common/dom/backend/join.ts:568:        const cspDeviceCookie = essentialData.identityData.cspDeviceCookie;
+apps/desktop/src/common/dom/backend/index.ts:55:import {unlockDatabaseKey, transferOldMessages} from '~/common/dom/backend/restore-db';
+apps/desktop/src/common/dom/backend/index.ts:595:    identityData: IdentityData,
+apps/desktop/src/common/dom/backend/index.ts:621:        identityData,
+apps/desktop/src/common/dom/backend/index.ts:700:    identityData: IdentityData,
+apps/desktop/src/common/dom/backend/index.ts:705:    databaseKey: RawDatabaseKey,
+apps/desktop/src/common/dom/backend/index.ts:723:            identityData.identity,
+apps/desktop/src/common/dom/backend/index.ts:736:                    identityData: {
+apps/desktop/src/common/dom/backend/index.ts:737:                        identity: identityData.identity,
+apps/desktop/src/common/dom/backend/index.ts:739:                        serverGroup: identityData.serverGroup,
+apps/desktop/src/common/dom/backend/index.ts:743:                    databaseKey,
+apps/desktop/src/common/dom/backend/index.ts:1158:            {userIdentity: keyStorageContents.identityData.identity},
+apps/desktop/src/common/dom/backend/index.ts:1159:            keyStorageContents.databaseKey,
+apps/desktop/src/common/dom/backend/index.ts:1166:            new Identity(keyStorageContents.identityData.identity),
+apps/desktop/src/common/dom/backend/index.ts:1170:        const identityData = {
+apps/desktop/src/common/dom/backend/index.ts:1171:            identity: keyStorageContents.identityData.identity,
+apps/desktop/src/common/dom/backend/index.ts:1176:                keyStorageContents.identityData.ck,
+apps/desktop/src/common/dom/backend/index.ts:1178:            serverGroup: keyStorageContents.identityData.serverGroup,
+apps/desktop/src/common/dom/backend/index.ts:1188:            identityData,
+apps/desktop/src/common/dom/backend/index.ts:1239:        const databaseKey = wrapRawDatabaseKey(
+apps/desktop/src/common/dom/backend/index.ts:1242:        const databaseKeyForKeyStorage = wrapRawDatabaseKey(databaseKey.unwrap().slice());
+apps/desktop/src/common/dom/backend/index.ts:1275:            databaseKey,
+apps/desktop/src/common/dom/backend/index.ts:1290:        const identityData: IdentityData = {
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && ls -la apps/desktop/src/worker/backend/ && grep -rn "nodeIntegrationInWorker\|sandbox\|webPreferences\|Worker\|require\|ipcRenderer\|contextBridge" apps/desktop/src/worker/backend/electron/index.ts | head -30
+total 56
+drwxr-xr-x 3 runner runner  4096 Aug  8 04:40 .
+drwxr-xr-x 3 runner runner  4096 Aug  8 04:40 ..
+-rw-r--r-- 1 runner runner  3467 Aug  8 04:40 backend-worker.ts
+-rw-r--r-- 1 runner runner   395 Aug  8 04:40 config.ts
+drwxr-xr-x 2 runner runner  4096 Aug  8 04:40 electron
+-rw-r--r-- 1 runner runner 30540 Aug  8 04:40 media-crypto-worker.ts
+-rw-r--r-- 1 runner runner   217 Aug  8 04:40 tsconfig.json
+205:    // Note: This is required because otherwise the app would race with our above `await` call and
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && cat apps/desktop/src/worker/backend/backend-worker.ts 2>/dev/null | head -40; echo "==="; ls apps/desktop/src/worker/backend/
+import type {ClientInfo} from '@threema/libthreema-wasm';
+
+import {
+    Backend,
+    type BackendCreator,
+    type BackendInit,
+    type CertificatePinRecoveryHandle,
+    type DeviceLinkingSetup,
+    type FactoriesForBackend,
+    type LoadingStateSetup,
+} from '~/common/dom/backend';
+import {createEndpointService, ensureEndpoint} from '~/common/dom/utils/endpoint';
+import {extractErrorTraceback} from '~/common/error';
+import {TRANSFER_HANDLER} from '~/common/index';
+import type {TestDataJson} from '~/common/test-data';
+import {setAssertFailLogger} from '~/common/utils/assert';
+import {PROXY_HANDLER, type ProxyEndpoint} from '~/common/utils/endpoint';
+import {BACKEND_WORKER_CONFIG} from '~/worker/backend/config';
+
+declare const self: DedicatedWorkerGlobalScope;
+
+/**
+ * This is the common entrypoint for the backend worker, invoked by the app
+ * via the specific 'electron' loader entrypoint.
+ */
+export function main(factories: FactoriesForBackend): void {
+    const logging = factories.logging('bw', BACKEND_WORKER_CONFIG.LOG_DEFAULT_STYLE);
+    {
+        const assertFailLogger = logging.logger('assert');
+        setAssertFailLogger((error) => assertFailLogger.error(extractErrorTraceback(error)));
+    }
+    const log = logging.logger('main');
+
+    // Greet with version!
+    log.info(`Loaded worker: ${import.meta.env.BUILD_VERSION} (${import.meta.env.BUILD_HASH})`);
+
+    // The worker exposes backend creation functions that run in the context of the worker, but
+    // which can be called from the main thread (through the backend controller).
+    const endpoint = createEndpointService({logging});
+    const services = {
+===
+backend-worker.ts
+config.ts
+electron
+media-crypto-worker.ts
+tsconfig.json
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "getSafeStoragePasswordPath\|keystorage.password\|password.bin" apps/desktop/src/ --include="*.ts" | head -20
+apps/desktop/src/common/node/safe-storage/helpers.ts:13:export function getSafeStoragePasswordPath(profileDirectoryPath: string): string {
+apps/desktop/src/common/node/safe-storage/helpers.ts:22:    const safeStoragePasswordPath = getSafeStoragePasswordPath(profileDirectoryPath);
+apps/desktop/src/electron/electron-main.ts:39:import {getSafeStoragePasswordPath} from '~/common/node/safe-storage/helpers';
+apps/desktop/src/electron/electron-main.ts:915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+apps/desktop/src/electron/electron-main.ts:941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/safe-storage/helpers.ts
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/backend-worker.ts
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts[90m [limit=80, offset=1][0m
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "SAFE_STORAGE_PASSWORD_PATH" apps/desktop/src/ --include="*.ts" -A 2
+apps/desktop/src/common/vite-client.d.ts:348:    readonly SAFE_STORAGE_PASSWORD_PATH: readonly string[];
+apps/desktop/src/common/vite-client.d.ts-349-    readonly ARGON2_MIN_MEMORY_BYTES: import('./types').u53;
+apps/desktop/src/common/vite-client.d.ts-350-
+--
+apps/desktop/src/common/config.ts:136:    readonly SAFE_STORAGE_PASSWORD_PATH: readonly string[];
+apps/desktop/src/common/config.ts-137-}
+apps/desktop/src/common/config.ts-138-
+--
+apps/desktop/src/common/config.ts:176:    | 'SAFE_STORAGE_PASSWORD_PATH'
+apps/desktop/src/common/config.ts-177-> = {
+apps/desktop/src/common/config.ts-178-    MEDIATOR_FRAME_MIN_BYTE_LENGTH: 4,
+--
+apps/desktop/src/common/config.ts:193:    SAFE_STORAGE_PASSWORD_PATH: import.meta.env.SAFE_STORAGE_PASSWORD_PATH,
+apps/desktop/src/common/config.ts-194-};
+apps/desktop/src/common/config.ts-195-
+--
+apps/desktop/src/common/node/safe-storage/helpers.ts:14:    return path.join(profileDirectoryPath, ...STATIC_CONFIG.SAFE_STORAGE_PASSWORD_PATH);
+apps/desktop/src/common/node/safe-storage/helpers.ts-15-}
+apps/desktop/src/common/node/safe-storage/helpers.ts-16-
+--
+apps/desktop/src/test/mocha/common/backend-mocks.ts:227:    SAFE_STORAGE_PASSWORD_PATH: ['/tmp/desktop-mocha-tests'],
+apps/desktop/src/test/mocha/common/backend-mocks.ts-228-    DATABASE_PATH: ':memory:',
+apps/desktop/src/test/mocha/common/backend-mocks.ts-229-    USER_AGENT: 'Threema Desktop Mocha Tests',
+--
+apps/desktop/src/test/karma/common/dom/network/protocol/config-mock.ts:33:    SAFE_STORAGE_PASSWORD_PATH: ['/tmp/desktop-mocha-tests'],
+apps/desktop/src/test/karma/common/dom/network/protocol/config-mock.ts-34-    DATABASE_PATH: ':memory:',
+apps/desktop/src/test/karma/common/dom/network/protocol/config-mock.ts-35-    USER_AGENT: 'Threema Desktop Mocha Tests',
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts[90m [limit=130, offset=80][0m
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "require(" apps/desktop/src/worker/ --include="*.ts" | head -20; echo "==="; grep -rn "import(" apps/desktop/src/worker/ --include="*.ts" | head -20
+===
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "SAFE_STORAGE_PASSWORD_PATH" apps/desktop/ --include="*.ts" --include="*.json" --include="*.yml" --include="*.yaml" -l | head -10; echo "==="; grep -rn "SAFE_STORAGE_PASSWORD_PATH" apps/desktop/ --include="*.ts" | grep -v "vite-client\|config.ts\|backend-mocks\|config-mock" | head -10; echo "==="; grep -rn "keystorage.password\|password.bin\|SAFE_STORAGE_PASSWORD_PATH" apps/desktop/ --include="*.ts" | grep -v "vite-client\|config.ts\|backend-mocks\|config-mock\|helpers.ts" | head -10; echo "==="; grep -rn "\.env\|SAFE_STORAGE" apps/desktop/ --include="*.ts" --include="*.json" --include="*.yml" | head -20
+apps/desktop/config/vite.config.ts
+apps/desktop/src/common/vite-client.d.ts
+apps/desktop/src/common/config.ts
+apps/desktop/src/common/node/safe-storage/helpers.ts
+apps/desktop/src/test/mocha/common/backend-mocks.ts
+apps/desktop/src/test/karma/common/dom/network/protocol/config-mock.ts
+===
+apps/desktop/src/common/node/safe-storage/helpers.ts:14:    return path.join(profileDirectoryPath, ...STATIC_CONFIG.SAFE_STORAGE_PASSWORD_PATH);
+===
+===
+apps/desktop/config/build.ts:2:// `import.meta.env` since that can lead to circular imports.
+apps/desktop/config/vite.config.ts:158:                SENTRY_DSN: process.env.SENTRY_DSN,
+apps/desktop/config/vite.config.ts:159:                MINIDUMP_ENDPOINT: process.env.MINIDUMP_ENDPOINT,
+apps/desktop/config/vite.config.ts:247:    const buildFlavor = determineBuildFlavor(env.variant, env.environment);
+apps/desktop/config/vite.config.ts:313:        BUILD_ENVIRONMENT: env.environment,
+apps/desktop/config/vite.config.ts:329:        GIT_REVISION: process.env.GIT_REVISION ?? '',
+apps/desktop/config/vite.config.ts:344:        SAFE_STORAGE_PASSWORD_PATH: ['data', 'keystorage.password.bin'],
+apps/desktop/config/vite.config.ts:354:            env.environment !== 'onprem'
+apps/desktop/config/vite.config.ts:424:            WEBRTC: env.environment === 'sandbox',
+apps/desktop/config/vite.config.ts:429:            CONFERENCE_CALLS: env.environment === 'sandbox',
+apps/desktop/config/vite.config.ts:433:        ...makeBuildConfig(env.environment),
+apps/desktop/config/vite.config.ts:438:    const [target, entry, variant, environment] = process.env.VITE_MAKE?.split(',', 5) ?? [];
+apps/desktop/config/vite.config.ts:462:        console.error(`Got VITE_MAKE=${process.env.VITE_MAKE ?? ''}`);
+apps/desktop/config/vite.config.ts:474:    if (process.env.VITE_PORT !== undefined) {
+apps/desktop/config/vite.config.ts:475:        env.devServerPort = Number.parseInt(process.env.VITE_PORT, 10);
+apps/desktop/config/vite.config.ts:482:            BUILD_ENVIRONMENTS.indexOf(env.environment);
+apps/desktop/config/vite.config.ts:666:            // Inject config into import.meta.env.*
+apps/desktop/config/vite.config.ts:669:                    `import.meta.env.${key}`,
+apps/desktop/src/common/dom/utils/browser.ts:166:    const version = import.meta.env.BUILD_VERSION;
+apps/desktop/src/common/dom/utils/endpoint.ts:61:    if (import.meta.env.DEBUG) {
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && find . -name "*.env*" -o -name "*.env" 2>/dev/null | head -20; echo "==="; grep -rn "SAFE_STORAGE_PASSWORD_PATH\|safestorage\|password_file\|safestorage_password" . --include="*.json" --include="*.yml" --include="*.yaml" --include="*.ts" 2>/dev/null | grep -v "node_modules\|vite-client\|config.ts\|backend-mocks\|config-mock\|helpers.ts" | head -20
+===
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/config/vite.config.ts[90m [limit=15, offset=340][0m
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "identity\.identity\|databaseKey\|identityData\." apps/desktop/src/common/dom/backend/restore-db.ts 2>/dev/null | head -20; echo "==="; ls apps/desktop/src/common/dom/backend/
+45:        dbKey: keyStorageContents.inner.databaseKey,
+46:        oldUserIdentity: keyStorageContents.inner.identityData.identity,
+===
+background-jobs.ts
+controller.ts
+index.ts
+join.ts
+loading-screen-progress.ts
+onprem
+remote-secret
+restore-db.ts
+spki.ts
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -n "sandbox" apps/desktop/src/electron/electron-main.ts | head -10; echo "==="; grep -n "webPreferences\|nodeIntegration\|sandbox\|contextIsolation" apps/desktop/src/electron/electron-utils.ts | head -15
+1240:                // `contextIsolation`, and sandboxing is enabled by default.
+1255:                // TODO(DESK-79): Enable `sandbox: true` once worker preload scripts are supported in Electron
+1484:            case 'sandbox':
+1552:                        'sandbox allow-downloads allow-same-origin allow-scripts allow-forms allow-popups',
+1673:    // In internal test builds on sandbox, we enable crash reporting.
+===
+97:        webPreferences: {
+98:            nodeIntegration: false,
+99:            nodeIntegrationInWorker: false,
+100:            nodeIntegrationInSubFrames: false,
+108:            contextIsolation: true,
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-utils.ts[90m [limit=25, offset=90][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/restore-db.ts[90m [limit=80, offset=30][0m
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "evaluateFunction\|executeJavaScript\|eval(\|new Function\|vm\.runInContext\|vm\.runInNewContext\|vm\.runInThisContext\|child_process\|exec\|execFile\|spawn\|execSync\|execFileSync" apps/desktop/src/ --include="*.ts" | grep -v "test/\|__test__\|node_modules\|.spec.\|evaluator" | head -30
+apps/desktop/src/common/utils/callback.ts:13:     * Whether to re-execute calls that were suppressed while the queue was suspended. Defaults to
+apps/desktop/src/common/utils/callback.ts:77:            // Re-execute calls that were buffered while the dispatcher was suspended.
+apps/desktop/src/common/utils/video.ts:209:        await conversion.execute();
+apps/desktop/src/common/utils/queue.ts:13:     * Consume the value with an optional executor. This ensures that the value
+apps/desktop/src/common/utils/queue.ts:14:     * is only consumed if the executor ran successfully. Any exception thrown
+apps/desktop/src/common/utils/queue.ts:17:    consume: (<T>(executor: (value: V) => T) => T) & (() => V);
+apps/desktop/src/common/utils/queue.ts:70:            consume: <T>(executor?: (value: V) => T): T => {
+apps/desktop/src/common/utils/queue.ts:75:                // Run the executor, if any
+apps/desktop/src/common/utils/queue.ts:76:                const result = executor !== undefined ? executor(value) : value;
+apps/desktop/src/common/utils/queue.ts:177:                consume: <T>(executor?: (value: V) => T): T => {
+apps/desktop/src/common/utils/queue.ts:182:                    // Run the executor, if any
+apps/desktop/src/common/utils/queue.ts:183:                    const result = executor !== undefined ? executor(value) : value;
+apps/desktop/src/common/utils/regex.ts:1:// Note: It is safe to disable this rule because we do not call .text or .exec
+apps/desktop/src/common/utils/audio.ts:129:        await conversionResult.execute();
+apps/desktop/src/common/network/protocol/controller.ts:135:            executor: (resolve) => {
+apps/desktop/src/common/network/protocol/controller.ts:176:            executor: (resolve) => {
+apps/desktop/src/common/network/protocol/task/index.ts:123:    readonly step: <T>(executor: () => Promise<T>) => Promise<T>;
+apps/desktop/src/common/network/protocol/task/index.ts:190:     * Run an executor within a transaction.
+apps/desktop/src/common/network/protocol/task/index.ts:193:     * called at least once before the executor will be called. It needs to
+apps/desktop/src/common/network/protocol/task/index.ts:197:     * IMPORTANT: Data returned by the executor must be protected against
+apps/desktop/src/common/network/protocol/task/index.ts:204:        executor: (state: TransactionRunning<S>) => Promise<T>,
+apps/desktop/src/common/network/protocol/task/index.ts:219: * A task that can be directly executed by the task manager.
+apps/desktop/src/common/network/protocol/task/index.ts:281: * A Task that may not be executed by the task manager, but is only used for composition.
+apps/desktop/src/common/network/protocol/task/manager.ts:201:    public async step<T>(executor: () => Promise<T>): Promise<T> {
+apps/desktop/src/common/network/protocol/task/manager.ts:202:        // Ensure the task has not been aborted, then run the executor
+apps/desktop/src/common/network/protocol/task/manager.ts:206:        return await executor();
+apps/desktop/src/common/network/protocol/task/manager.ts:399:        executor: (state: TransactionRunning<S>) => Promise<T>,
+apps/desktop/src/common/network/protocol/task/manager.ts:524:        // Run the executor while the transaction is open. Skip the executor
+apps/desktop/src/common/network/protocol/task/manager.ts:530:            this._log.debug('Transaction open, skipping executor due to precondition abort');
+apps/desktop/src/common/network/protocol/task/manager.ts:533:            this._log.debug('Transaction open, running executor');
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -n "getKeyStoragePath\|KEYSTORAGE_FILE\|keystorage.bin" apps/desktop/src/common/node/key-storage/helpers.ts | head -10
+42:export function getKeyStoragePath(profileDirectoryPath: string): string {
+51: * {@link getKeyStoragePath}.
+68:    return fs.existsSync(getKeyStoragePath(profileDirectoryPath));
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts[90m [limit=60][0m
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -n "decryptString\|encryptedPassword\|passwordFile\|getPassword\|userPassword\|masterPassword" apps/desktop/src/electron/electron-main.ts | head -25
+923:                    const encryptedPassword = fs.readFileSync(safeStoragePasswordPath);
+924:                    return electron.safeStorage.decryptString(encryptedPassword);
+943:                        const encryptedPassword = electron.safeStorage.encryptString(password);
+945:                        fs.writeFileSync(safeStoragePasswordPath, encryptedPassword, options);
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [limit=30, offset=905][0m
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -n "KEY_STORAGE_PATH\|DATA_DIRECTORY_PATH" apps/desktop/config/vite.config.ts | head -5
+338:        DEPRECATED_KEY_STORAGE_PATH: ['data', 'keystorage.pb3'],
+339:        KEY_STORAGE_PATH: ['data', 'keystorage.bin'],
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "LOAD_USER_PASSWORD\|GET_USER_PASSWORD\|STORE_USER_PASSWORD\|RETRIEVE_USER_PASSWORD\|user.*password\|password.*stored\|RETRIEVE" apps/desktop/src/electron/electron-main.ts | head -15; echo "==="; grep -rn "LOAD_USER_PASSWORD\|RETRIEVE_USER\|GET_USER\|password" apps/desktop/src/electron/electron-main.ts | head -30
+912:        electron.ipcMain.handle(ElectronIpcCommand.LOAD_USER_PASSWORD, (event) => {
+936:            ElectronIpcCommand.STORE_USER_PASSWORD,
+1150:            async (event, oppfUrl: string, username: string, password: string, userAgent: string) =>
+1151:                await getOppFile(event, oppfUrl, username, password, userAgent, log),
+1156:            async (event, oppfUrl: string, username: string, password: string, userAgent: string) =>
+1157:                await checkOppFile(event, oppfUrl, username, password, userAgent, log),
+===
+912:        electron.ipcMain.handle(ElectronIpcCommand.LOAD_USER_PASSWORD, (event) => {
+917:                log.info('Password file not found, loading password skipped.');
+926:                    log.warn(`Failed to read or decrypt the password.`);
+930:                    'Electron safeStorage is not available (no password manager?), loading password skipped.',
+937:            (event, password: string) => {
+943:                        const encryptedPassword = electron.safeStorage.encryptString(password);
+948:                        log.error(`Failed to store or encrypt the password.`);
+952:                        'Electron safeStorage is not available (no password manager?), storing password skipped.',
+1150:            async (event, oppfUrl: string, username: string, password: string, userAgent: string) =>
+1151:                await getOppFile(event, oppfUrl, username, password, userAgent, log),
+1156:            async (event, oppfUrl: string, username: string, password: string, userAgent: string) =>
+1157:                await checkOppFile(event, oppfUrl, username, password, userAgent, log),
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "link.preview\|link-preview\|linkPreview\|url.fetch\|fetchUrl\|linkPreview\|attachment\|deserialize\|decodeMessage\|processMessage\|incoming" apps/desktop/src/common/dom/backend/ --include="*.ts" | grep -i "worker\|preview\|fetch\|decode\|process" | head -25
+(no output)
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "libthreema\|processMessage\|decryptMessage\|decryptReceived\|attachment\|linkPreview\|urlPreview" apps/desktop/src/common/ --include="*.ts" -l | head -15
+apps/desktop/src/common/dom/network/protocol/rendezvous.ts
+apps/desktop/src/common/dom/backend/remote-secret/index.ts
+apps/desktop/src/common/dom/backend/index.ts
+apps/desktop/src/common/dom/backend/controller.ts
+apps/desktop/src/common/network/protocol/task/d2m/reflected.ts
+apps/desktop/src/common/network/protocol/task/libthreema/utils.ts
+apps/desktop/src/common/network/protocol/task/libthreema/work-properties-update.ts
+apps/desktop/src/common/network/protocol/task/libthreema/remote-secret-monitor.ts
+apps/desktop/src/common/network/protocol/task/libthreema/remote-secret-delete.ts
+apps/desktop/src/common/network/protocol/task/libthreema/identity-create.ts
+apps/desktop/src/common/network/protocol/task/libthreema/index.ts
+apps/desktop/src/common/network/protocol/task/libthreema/remote-secret-create.ts
+apps/desktop/src/common/test-data.ts
+apps/desktop/src/common/model/settings/profile.ts
+apps/desktop/src/common/model/message/file-scanner-types.ts
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "processPushMessage\|processPush\|receivePush\|receiveMessage\|decryptMessage\|processMessage\|libthreema\.\|Libthreema\|incomingMessage\|handlePush\|processData" apps/desktop/src/common/dom/backend/controller.ts apps/desktop/src/common/dom/backend/index.ts apps/desktop/src/common/network/ --include="*.ts" | head -25
+apps/desktop/src/common/network/protocol/task/csp/incoming-message.ts:810:            let incomingMessageReflectedAt;
+apps/desktop/src/common/network/protocol/task/csp/incoming-message.ts:812:                incomingMessageReflectedAt = await this._reflectMessage(
+apps/desktop/src/common/network/protocol/task/csp/incoming-message.ts:831:                        instructions.initFragment.receivedAt = incomingMessageReflectedAt;
+apps/desktop/src/common/network/protocol/task/csp/incoming-message.ts:2060:                    incomingMessage: getD2dIncomingMessage(this._id, sender, reflectFragment),
+apps/desktop/src/common/network/protocol/task/csp/group-sync/incoming-group-setup.ts:463:                    incomingMessage: this._reflectGroupSetup,
+apps/desktop/src/common/network/protocol/task/manager.ts:331:                                    incomingMessage: undefined,
+apps/desktop/src/common/network/protocol/task/manager.ts:332:                                    incomingMessageUpdate: undefined,
+apps/desktop/src/common/network/protocol/task/d2m/reflected.ts:44:            return await this._processMessage(handle);
+apps/desktop/src/common/network/protocol/task/d2m/reflected.ts:56:    private async _processMessage(handle: PassiveTaskCodecHandle): Promise<void> {
+apps/desktop/src/common/network/protocol/task/d2d/index.ts:58:        case 'incomingMessage':
+apps/desktop/src/common/network/protocol/task/d2d/index.ts:61:                envelope.incomingMessage,
+apps/desktop/src/common/network/protocol/task/d2d/index.ts:66:        case 'incomingMessageUpdate':
+apps/desktop/src/common/network/protocol/task/d2d/index.ts:69:                envelope.incomingMessageUpdate,
+apps/desktop/src/common/network/protocol/task/d2d/reflect-message-update.ts:121:        const incomingMessageUpdate = IncomingMessageUpdate.serialize(validatedMessage);
+apps/desktop/src/common/network/protocol/task/d2d/reflect-message-update.ts:122:        return {incomingMessageUpdate};
+apps/desktop/src/common/network/protocol/task/libthreema/utils.ts:11: * Create a {@link ClientInfo} object used by libthreema.
+apps/desktop/src/common/network/protocol/task/libthreema/utils.ts:30: * Create a {@link WorkContext} object used by libthreema.
+apps/desktop/src/common/network/protocol/task/libthreema/work-properties-update.ts:8:import type {LibthreemaTask} from '~/common/network/protocol/task/libthreema';
+apps/desktop/src/common/network/protocol/task/libthreema/work-properties-update.ts:17:export class WorkPropertiesUpdateTask implements LibthreemaTask<Promise<boolean>> {
+apps/desktop/src/common/network/protocol/task/libthreema/work-properties-update.ts:19:    private readonly _libthreemaTask: libthreema.WorkPropertiesUpdateTask;
+apps/desktop/src/common/network/protocol/task/libthreema/work-properties-update.ts:24:        private readonly _workProperties: libthreema.WorkProperties,
+apps/desktop/src/common/network/protocol/task/libthreema/work-properties-update.ts:32:        this._log = this._services.logging.logger('libthreema.work-properties-update-task');
+apps/desktop/src/common/network/protocol/task/libthreema/work-properties-update.ts:34:        const context: libthreema.WorkPropertiesUpdateContext = {
+apps/desktop/src/common/network/protocol/task/libthreema/work-properties-update.ts:42:        this._libthreemaTask = libthreema.WorkPropertiesUpdateTask.new(
+apps/desktop/src/common/network/protocol/task/libthreema/remote-secret-monitor.ts:10:    LibthreemaRecurringTask,
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/opencored/*, /tmp/opencode/threema-desktop/*); auto-rejecting
+[0m✗ [0mcd /tmp/opencored/threema-desktop 2>/dev/null || cd /tmp/opencode/threema-desktop && grep -rn "linkPreview\|LinkPreview\|link.preview\|preview.*url\|fetchPreview\|urlPreview\|attachment.*worker\|mediaCrypto\|media-crypto\|mediaCrypto" apps/desktop/src/ --include="*.ts" | head -20; echo "==="; grep -rn "new Worker" apps/desktop/src/ --include="*.ts" -B2 -A8 | head -40 failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

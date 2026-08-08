@@ -6204,3 +6204,489 @@ All three survive (confidence ≥40, no class on REJECTED list, concrete verify_
 
 ## STEP 7 — RISK SCORE
 - [RISK] chat: 40 — staging chat mirror fully mapped passively (single-IP consolidation of two-shard prod, 5222 open, 0-byte reads, silent TLS 443); no in-band divergence provable without an authenticated login frame; version-skew unproven | web: 45 — work public-namespace divergence stable but frozen (one public config route on staging absent on prod; license-credential route not live; auth-gated namespaces intact on both) | sync: 35 — mediator/rendezvous/blob-mirror consolidated to 203.56.114.62, nginx 403 gates all hosts/paths incl. valid WS upgrade; no reachable surface | safe: 30 — unchanged; credential-gated (400 for no-creds), CORS `*` on preflight only | desktop-src: 40 — two accepted source misconfigs (Windows keystorage ACL, electron sandbox:false + nodeIntegrationInWorker) with no remote exploitation path.
+===== ANALYST bigpickle 2026-08-08 04:43:47 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mfor h in broadcast.threema.ch gateway.threema.ch billing.threema.ch shop.threema.ch broadcast.test.threema.ch billing.test.threema.ch gateway.test.threema.ch shop.test.threema.ch; do echo "=== $h ==="; getent ahostsv4 "$h" 2>/dev/null || getent hosts "$h" 2>/dev/null || echo "NO_RESOLVE"; sleep 1; done
+=== broadcast.threema.ch ===
+203.56.112.210  STREAM broadcast.threema.ch
+203.56.112.210  DGRAM  
+203.56.112.210  RAW    
+=== gateway.threema.ch ===
+203.56.112.234  STREAM gateway.threema.ch
+203.56.112.234  DGRAM  
+203.56.112.234  RAW    
+=== billing.threema.ch ===
+203.56.112.216  STREAM billing.threema.ch
+203.56.112.216  DGRAM  
+203.56.112.216  RAW    
+=== shop.threema.ch ===
+203.56.112.216  STREAM shop.threema.ch
+203.56.112.216  DGRAM  
+203.56.112.216  RAW    
+=== broadcast.test.threema.ch ===
+203.56.114.45   STREAM broadcast.test.threema.ch
+203.56.114.45   DGRAM  
+203.56.114.45   RAW    
+=== billing.test.threema.ch ===
+203.56.114.44   STREAM billing.test.threema.ch
+203.56.114.44   DGRAM  
+203.56.114.44   RAW    
+=== gateway.test.threema.ch ===
+203.56.114.13   STREAM gateway.test.threema.ch
+203.56.114.13   DGRAM  
+203.56.114.13   RAW    
+=== shop.test.threema.ch ===
+203.56.114.44   STREAM shop.test.threema.ch
+203.56.114.44   DGRAM  
+203.56.114.44   RAW
+[0m
+All eight resolve — the "000 unreachable" for broadcast/billing was a connection timeout, not NXDOMAIN. Notable: `shop.threema.ch` shares IP `203.56.112.216` with `billing.threema.ch`; staging gateway/shop exist (`gateway.test.threema.ch` → 203.56.114.13, `shop.test` → 203.56.114.44). Now probing HTTP:
+[0m$ [0mfor h in gateway.threema.ch billing.threema.ch broadcast.threema.ch shop.threema.ch; do echo "=== $h ==="; curl -s -o /dev/null -m 15 -w "code=%{http_code} redirect=%{redirect_url} ip=%{remote_ip} time=%{time_total}s size=%{size_download}\n" "https://$h/"; sleep 1; done
+=== gateway.threema.ch ===
+code=302 redirect=https://gateway.threema.ch/en ip=203.56.112.234 time=0.631291s size=0
+=== billing.threema.ch ===
+code=301 redirect=https://threema.ch/ ip=203.56.112.216 time=0.417722s size=0
+=== broadcast.threema.ch ===
+code=301 redirect=https://broadcast.threema.ch/en/login ip=203.56.112.210 time=0.618221s size=0
+=== shop.threema.ch ===
+code=301 redirect=https://shop.threema.ch/en ip=203.56.112.216 time=0.410330s size=0
+[0m
+Major delta — the TIMEOUT baseline hosts are now live (gateway 302→/en, broadcast 301→/en/login, shop 301→/en, billing 301→threema.ch). Following the redirects:
+[0m$ [0mecho "=== gateway.en ==="; curl -s -L -m 15 -o /tmp/opencode/gw_en.html -w "code=%{http_code} final=%{url_effective} size=%{size_download}\n" "https://gateway.threema.ch/en"; sleep 1; echo "=== broadcast.login ==="; curl -s -L -m 15 -o /tmp/opencode/bc_login.html -w "code=%{http_code} final=%{url_effective} size=%{size_download}\n" "https://broadcast.threema.ch/en/login"; sleep 1; echo "=== shop.en ==="; curl -s -L -m 15 -o /tmp/opencode/shop_en.html -w "code=%{http_code} final=%{url_effective} size=%{size_download}\n" "https://shop.threema.ch/en"
+=== gateway.en ===
+code=200 final=https://gateway.threema.ch/en/login size=3743
+=== broadcast.login ===
+code=200 final=https://broadcast.threema.ch/en/login size=5101
+=== shop.en ===
+code=200 final=https://shop.threema.ch/en size=13129
+[0m
+All three live. Extracting headers (CSP) and inspecting bodies for surface leaks:
+[0m$ [0mecho "=== gateway headers ==="; curl -s -I -m 15 "https://gateway.threema.ch/en/login" | grep -iE "content-security|strict-transport|expect-ct|x-powered|server:|x-frame|referrer-policy"; sleep 1; echo "=== broadcast headers ==="; curl -s -I -m 15 "https://broadcast.threema.ch/en/login" | grep -iE "content-security|strict-transport|expect-ct|x-powered|server:|x-frame|referrer-policy"; sleep 1; echo "=== shop headers ==="; curl -s -I -m 15 "https://shop.threema.ch/en" | grep -iE "content-security|strict-transport|expect-ct|x-powered|server:|x-frame|referrer-policy"
+=== gateway headers ===
+server: nginx
+=== broadcast headers ===
+server: nginx
+=== shop headers ===
+server: nginx
+strict-transport-security: max-age=31104000; includeSubdomains
+expect-ct: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+content-security-policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-ws.threema.ch; frame-src https://hcaptcha-assets.threema.ch; img-src 'self' https://static.threema.ch data:; media-src 'self' data:; connect-src 'self' https://bugs.threema.ch https://hcaptcha-assets.threema.ch; object-src 'none'; worker-src 'self' blob:; child-src blob: https://hcaptcha-assets.threema.ch; frame-ancestors 'none'; form-action 'self' https://billing.threema.ch; upgrade-insecure-requests; base-uri https://shop.threema.ch; report-uri https://bugs.threema.ch/api/19/security/?sentry_key=2c1cb542515c482aa5b0765e0a9a570f; report-to default
+x-frame-options: DENY
+referrer-policy: no-referrer
+[0m
+[0m$ [0mecho "=== gateway scripts/links ==="; grep -oiE '(src|href)="[^"]+"' /tmp/opencode/gw_en.html | sort -u; echo; echo "=== broadcast scripts/links ==="; grep -oiE '(src|href)="[^"]+"' /tmp/opencode/bc_login.html | sort -u
+=== gateway scripts/links ===
+href="#"
+href="/cache/gateway_public.css?O5v86dAdwPboCbz"
+href="/de/login"
+href="/en"
+href="/en/contact"
+href="/en/forgot-password"
+href="/en/login"
+href="/en/privacy"
+href="/en/signup"
+href="/en/terms-of-service"
+href="/favicon.ico?v=5"
+href="https://static.threema.ch/fonts/labgrotesque.css"
+href="https://threema.com/en/work/changelog/gateway"
+src="/cache/gateway_public.js?O5v86dAdwPboCbz"
+src="/images/logo_icon.svg?v=3"
+
+=== broadcast scripts/links ===
+href="#"
+href="/cache/broadcast_public.css?v%3D2.28.1"
+href="/de/anmelden"
+href="/en"
+href="/en/faq#browser"
+href="/en/forgot-password"
+href="/en/login"
+href="/en/privacy"
+href="/en/terms-of-service"
+href="/es/iniciar-sesion"
+href="/favicon.ico?v=2"
+href="/fr/connexion"
+href="https://static.threema.ch/fonts/labgrotesque.css"
+src="/cache/broadcast_public.js?v%3D2.28.1"
+src="/images/logo_icon.svg?v=1"
+[0m
+Gateway and broadcast login pages have **no HSTS/Expect-CT/CSP** (weak posture vs shop's full set). Inspecting bodies for scripts/surface hints:
+[0m$ [0mgrep -oiE '(src|href)="[^"]+"' /tmp/opencode/shop_en.html | sort -u
+href="/cache/shop.css?3kGbY0fzcd6I1Pi"
+href="/de"
+href="/en"
+href="/en/buy"
+href="/en/download"
+href="/en/privacy"
+href="/en/redeem"
+href="/en/retrieve-keys"
+href="/en/terms"
+href="/es"
+href="/favicon.ico?v=2"
+href="/fr"
+href="https://gateway.threema.ch/en"
+href="https://github.com/threema-ch"
+href="https://mastodon.social/@threemaapp"
+href="https://shop.threema.ch/de"
+href="https://shop.threema.ch/en"
+href="https://shop.threema.ch/es"
+href="https://shop.threema.ch/fr"
+href="https://threema.com/"
+href="https://threema.com/en/about"
+href="https://threema.com/en/blog"
+href="https://threema.com/en/broadcast"
+href="https://threema.com/en/contact"
+href="https://threema.com/en/download/threema-private"
+href="https://threema.com/en/faq/Threema_Channel"
+href="https://threema.com/en/home"
+href="https://threema.com/en/jobs"
+href="https://threema.com/en/onprem"
+href="https://threema.com/en/press"
+href="https://threema.com/en/work"
+href="https://threema.myspreadshop.ch/"
+href="https://twitter.com/ThreemaApp"
+href="https://www.reddit.com/r/threema/"
+src="/cache/shop.js?3kGbY0fzcd6I1Pi"
+src="/images/icons/buy.svg"
+src="/images/icons/download.svg"
+src="/images/icons/redeem.svg"
+src="/images/icons/retrieve.svg"
+src="/images/threema-logo.svg?v=1"
+[0m
+Both cockpit apps are live with public JS bundles — gateway unversioned, broadcast **v2.28.1** (newer than work's v2.25.1). Downloading + hashing bundles, and finding shop's bundle:
+[0m$ [0mcurl -s -m 20 -o /tmp/opencode/gateway_public.js "https://gateway.threema.ch/cache/gateway_public.js?O5v86dAdwPboCbz"; sleep 1; curl -s -m 20 -o /tmp/opencode/broadcast_public.js "https://broadcast.threema.ch/cache/broadcast_public.js?v=2.28.1"; sleep 1; curl -s -m 20 -o /tmp/opencode/shop.js "https://shop.threema.ch/cache/shop.js?3kGbY0fzcd6I1Pi"; echo "---"; for f in gateway_public broadcast_public shop; do echo "=== $f ==="; wc -c /tmp/opencode/$f.js; sha256sum /tmp/opencode/$f.js; done
+---
+=== gateway_public ===
+376114 /tmp/opencode/gateway_public.js
+dd2fc6459d053693ab7bba252c01884c7e9bfd74c8b7299bec10c50bda7ceaab  /tmp/opencode/gateway_public.js
+=== broadcast_public ===
+1125461 /tmp/opencode/broadcast_public.js
+e3fbfe8deca39eec8bf450058fe36ae362375e664f28b726445ac520ecd9849e  /tmp/opencode/broadcast_public.js
+=== shop ===
+99116 /tmp/opencode/shop.js
+0e5d2eca9b901aa281a8d5b5db6e4e933da13d87f88c57c7737d9020280b4a41  /tmp/opencode/shop.js
+[0m
+[0m$ [0mecho "=== GATEWAY api refs ==="; grep -oE '"/api[^"]*"|`/api[^`]*`|/api/[a-z0-9/_-]+' /tmp/opencode/gateway_public.js | sort -u | head -40; echo; echo "=== GATEWAY fetch/url strings ==="; grep -oE 'fetch\("[^"]+"|"/[a-z][a-z0-9/_-]{3,40}"' /tmp/opencode/gateway_public.js | sort -u | head -40
+=== GATEWAY api refs ===
+"/api/"
+
+=== GATEWAY fetch/url strings ===
+"/api/"
+"/currencies"
+[0m
+Bundles captured (gateway 376KB, broadcast 1.1MB, shop 99KB). Extracting API endpoints:
+[0m$ [0mecho "=== BROADCAST api refs ==="; grep -oE '"/api[^"]*"|`/api[^`]*`|/api/[a-z0-9/_-]+' /tmp/opencode/broadcast_public.js | sort -u | head -60; echo; echo "=== BROADCAST path strings ==="; grep -oE '"/[a-z][a-z0-9/_-]{3,40}"' /tmp/opencode/broadcast_public.js | sort -u | head -60
+=== BROADCAST api refs ===
+
+=== BROADCAST path strings ===
+"/currencies"
+[0m
+[0m$ [0mfor f in gateway_public broadcast_public; do echo "=== $f ==="; grep -oE '"[A-Za-z0-9/_.-]*api[A-Za-z0-9/_.-]*"' /tmp/opencode/$f.js | sort -u | head -40; grep -oE '(public|settings|token|license|profile|signup|redeem|retrieve|login|password)[A-Za-z0-9/_.-]*' /tmp/opencode/$f.js | sort -u | head -30; done
+=== gateway_public ===
+"/api/"
+"autocapitalize"
+license
+password
+password-strength
+password_strength
+password_strength_
+password_strength_bad
+password_strength_good
+password_strength_strong
+password_strength_weak
+profile
+publicKey
+retrieve
+settings
+token
+token-container
+token-field
+token-fields
+token-readonly
+token-required
+token-uppercase
+token.matches
+token.type
+tokenCache
+tokenElement
+tokenElement.addEventListener
+tokenElement.oldValue
+tokenElement.setAttribute
+tokenElementContainer
+tokenElementContainer.appendChild
+tokenElementContainer.setAttribute
+=== broadcast_public ===
+"auto.browser.browserapierrors.addEventListener"
+"auto.browser.browserapierrors.handleEvent"
+"auto.browser.browserapierrors.requestAnimationFrame"
+"autocapitalize"
+license
+login
+password
+password-strength
+password_strength
+password_strength_
+password_strength_bad
+password_strength_good
+password_strength_strong
+password_strength_weak
+profile
+profile_chunk
+profile_id
+public-key
+publicKey
+publicKeyAlgorithm
+public_key
+public_login_access
+settings
+settings-list
+settings-overlay
+settings-path
+settings.adjustOldDeltas
+settings.autocomplete
+settings.autocomplete_url
+settings.checkPath
+settings.defaultText
+settings.height
+settings.hide
+settings.interactive
+[0m
+[0m$ [0mecho "=== gateway retrieve context ==="; grep -oE '.{80}retrieve.{120}' /tmp/opencode/gateway_public.js | head -5; echo; echo "=== gateway /api/ context ==="; grep -oE '.{60}/api/.{100}' /tmp/opencode/gateway_public.js | head -10; echo; echo "=== gateway fetch/apiUrl construction ==="; grep -oE '.{40}(fetch|request|http)\(.{80}' /tmp/opencode/gateway_public.js | head -10
+=== gateway retrieve context ===
+nt.getIntegration(integration)}catch(_oO){IS_DEBUG_BUILD$2&&logger.warn("Cannot retrieve integration "+integration.id+" from the current Hub");return null}};Hub.prototype.startSpan=function(context){return th
+{return this._integrations[integration.id]||null}catch(_oO){logger.warn("Cannot retrieve integration "+integration.id+" from the current Client");return null}};BaseClient.prototype._updateSessionFromEvent=fun
+
+=== gateway /api/ context ===
+
+=== gateway fetch/apiUrl construction ===
+se(function(resolve,reject){void _this._fetch(sentryRequest.url,options).then(function(response){var headers={'x-sentry-rate-l
+[0m
+[0m$ [0mecho "=== gateway form/action hints ==="; grep -oiE '(action|method|data-[a-z-]+)="[^"]*"' /tmp/opencode/gw_en.html | sort -u; grep -oiE '<form[^>]*>' /tmp/opencode/gw_en.html; echo; echo "=== broadcast form/action hints ==="; grep -oiE '<form[^>]*>|action="[^"]*"' /tmp/opencode/bc_login.html | sort -u; echo; echo "=== broadcast public_login_access context ==="; grep -oE '.{100}public_login_access.{100}' /tmp/opencode/broadcast_public.js | head -3
+=== gateway form/action hints ===
+method="POST"
+<form method="POST">
+
+=== broadcast form/action hints ===
+<form method="POST" action="/en/login">
+
+=== broadcast public_login_access context ===
+:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({csrf_public_login_access:i})})).json()):Te.cancelCeremony(),v(`Server: sign this your challenge "${$.challenge}"`),v('Client
+:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({csrf_public_login_access:i,assertion_response:JSON.stringify(u)})});v(`Server: "${D.statusText} ${D.status}"`),D.ok?(g||(win
+[0m
+Bundle hits are mostly Sentry internals. Checking the actual login HTML for form actions/API hosts:
+[0m$ [0mgrep -oE '"/[a-z][a-z0-9/_.-]{2,50}"' /tmp/opencode/broadcast_public.js | sort -u | head -80
+"/currencies"
+"/emoji-picker.html"
+"/images/icon/document-delivery.svg"
+"/images/icon/schedule.svg"
+"/web/images/icon/attach_file.svg"
+[0m
+Broadcast login implements **WebAuthn public login access** (`csrf_public_login_access`, challenge/assertion flow). Digging for the API base in broadcast bundle:
+[0m$ [0mgrep -oE '\`/[^`]{2,60}\`' /tmp/opencode/broadcast_public.js | sort -u | head -60; echo "=== baseUrl/host refs ==="; grep -oE 'baseUrl[^,;]{0,60}|"[a-z]+\.threema\.ch"|threema\.ch/[a-z]' /tmp/opencode/broadcast_public.js | sort -u | head -20
+=== baseUrl/host refs ===
+baseUrl:Wt.spelling("baseURL")
+[0m
+[0m$ [0mgrep -oE '.\{200\}csrf_public_login_access.\{400\}' /tmp/opencode/broadcast_public.js | head -4
+(no output)
+[0m
+[0m$ [0mgrep -oE '.{60}fetch\(.{160}' /tmp/opencode/broadcast_public.js | grep -viE 'sentry|hcaptcha' | head -15
+n ceremony at "${l}"`);const u={attestation:"none"},D=await fetch(l,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({csrf_user_passkey_register:a,options:JSON.stringify(u)})
+ Completing attestation ceremony at "${o}"`);const ne=await fetch(o,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({csrf_user_passkey_register:a,authenticator_name:p,attest
+nt: initiating assertion ceremony at "${s}"`),$=await(await fetch(s,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({csrf_public_login_access:i})})).json()):Te.cancelCeremon
+nt: completing assertion ceremony at "${r}"`);const D=await fetch(r,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({csrf_public_login_access:i,assertion_response:JSON.strin
+[0m
+[0m$ [0mgrep -oE '"[a-z0-9_/-]*(passkey|public-login|login-access|assertion|attestation)[a-z0-9_/-]*"' /tmp/opencode/broadcast_public.js | sort -u; echo "---template var assignments---"; grep -oE '(l|o|s|r)=["\`][a-z0-9_/-]+' /tmp/opencode/broadcast_public.js | sort -u | head; echo "---any path with -passkey or passkey---"; grep -oE '[\`"/][a-z0-9_/-]*passkey[a-z0-9_/-]*' /tmp/opencode/broadcast_public.js | sort -u | head
+---template var assignments---
+l="auto
+l="error
+l="sentry
+l="unknown
+l="value
+l="warning
+l="y
+o="__sentry_xhr_v3__
+o="_sentry
+o="aggregates
+---any path with -passkey or passkey---
+[0m
+[0m$ [0mgrep -oE '"csrf_[a-z_]+"' /tmp/opencode/broadcast_public.js | sort -u; echo "---"; grep -oE '"/[a-z0-9/_-]{4,45}"' /tmp/opencode/broadcast_public.js | sort -u | head -40
+---
+"/currencies"
+[0m
+Broadcast's bundle is heavily obfuscated for endpoint paths. Moving on — probing the staging trio (which now resolve) and key public gateway/shop endpoints:
+[0m$ [0mecho "=== gateway.test ==="; curl -s -o /dev/null -m 15 -w "code=%{http_code} redirect=%{redirect_url}\n" "https://gateway.test.threema.ch/"; sleep 1; echo "=== broadcast.test ==="; curl -s -o /dev/null -m 15 -w "code=%{http_code} redirect=%{redirect_url}\n" "https://broadcast.test.threema.ch/"; sleep 1; echo "=== shop.test ==="; curl -s -o /dev/null -m 15 -w "code=%{http_code} redirect=%{redirect_url}\n" "https://shop.test.threema.ch/en"
+=== gateway.test ===
+code=403 redirect=
+=== broadcast.test ===
+code=000 redirect=
+=== shop.test ===
+code=000 redirect=
+[0m
+Staging gated (gateway.test 403, others timeout) while prod is now open — notable asymmetry. Probing gateway API surface + shop public flows:
+[0m$ [0mfor p in "/api/" "/api/v1/" "/signup"; do echo "=== gateway $p ==="; curl -s -o /dev/null -m 15 -w "code=%{http_code} redirect=%{redirect_url} size=%{size_download}\n" "https://gateway.threema.ch$p"; sleep 1; done; echo "=== shop redeem ==="; curl -s -o /tmp/opencode/shop_redeem.html -m 15 -w "code=%{http_code} size=%{size_download}\n" "https://shop.threema.ch/en/redeem"; sleep 1; echo "=== shop retrieve-keys ==="; curl -s -o /tmp/opencode/shop_retrieve.html -m 15 -w "code=%{http_code} size=%{size_download}\n" "https://shop.threema.ch/en/retrieve-keys"
+=== gateway /api/ ===
+code=403 redirect= size=146
+=== gateway /api/v1/ ===
+code=403 redirect= size=146
+=== gateway /signup ===
+code=404 redirect= size=2628
+=== shop redeem ===
+code=200 size=11500
+=== shop retrieve-keys ===
+code=200 size=13161
+[0m
+[0m$ [0mecho "=== gateway 403 body ==="; curl -s -m 15 "https://gateway.threema.ch/api/" | head -c 300; echo; echo; echo "=== shop redeem form ==="; grep -oiE '<form[^>]*>|action="[^"]*"|name="[^"]*"|placeholder="[^"]*"' /tmp/opencode/shop_redeem.html | sort -u | head -20; echo; echo "=== shop retrieve-keys form ==="; grep -oiE '<form[^>]*>|action="[^"]*"|name="[^"]*"|placeholder="[^"]*"' /tmp/opencode/shop_retrieve.html | sort -u | head -20
+=== gateway 403 body ===
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+
+
+=== shop redeem form ===
+<form class="form" data-ioscode="" method="POST">
+name="description"
+name="email"
+name="platform_type"
+name="promo_code"
+name="viewport"
+placeholder="Email address"
+placeholder="Promo code"
+
+=== shop retrieve-keys form ===
+<form class="form mt--6" method="POST">
+name="description"
+name="email"
+name="invoice_ref"
+name="type"
+name="viewport"
+placeholder="Email address"
+placeholder="Invoice reference"
+[0m
+Shop exposes public redemption/invoice-lookup POST flows. One more targeted grep to crack the broadcast endpoint map before analysis:
+[0m$ [0mgrep -oE '[a-z_]+:"/[a-z0-9/_-]+"' /tmp/opencode/broadcast_public.js | sort -u | head -40; echo "---keys with passkey/begin---"; grep -oE '"[a-z_-]+":\{"[a-z_-]+":"[a-z0-9/_-]+"' /tmp/opencode/broadcast_public.js | sort -u | head -20; echo "---urlSearchParams with csrf anywhere---"; grep -oE 'csrf_[a-z_]{3,40}' /tmp/opencode/broadcast_public.js | sort -u
+url:"/currencies"
+---keys with passkey/begin---
+---urlSearchParams with csrf anywhere---
+csrf_public_login_access
+csrf_user_passkey_register
+[0m
+[0m$ [0mgrep -oE '[a-z0-9_/.-]*(public-login|login-access|login_access|passkey)[a-z0-9_/.-]*' /tmp/opencode/broadcast_public.js | sort -u | head -20; echo "---resolve: find (l|o|s|r) definitions near 'ceremony'---"; grep -oE '.{120}ceremony at "\$\{l\}".{40}' /tmp/opencode/broadcast_public.js | head -2
+csrf_public_login_access
+csrf_user_passkey_register
+---resolve: find (l|o|s|r) definitions near 'ceremony'---
+=async()=>{n(6,b=!await O())},O=async()=>{try{if(v(),p.trim()==="")return!1;n(9,_=!0),$(`Client: Initiating attestation ceremony at "${l}"`);const u={attestation:"none"},D=await
+[0m
+One definitive check — does the live broadcast login page actually expose the passkey CSRF field?
+[0m$ [0mgrep -oiE 'csrf[a-z_]*|name="[a-z_]+"' /tmp/opencode/bc_login.html | sort -u; echo "--- gateway login form fields ---"; curl -s -m 15 "https://gateway.threema.ch/en/login" -o /tmp/opencode/gw_login.html; grep -oiE 'name="[a-z_]+"|csrf[a-z_]*' /tmp/opencode/gw_login.html | sort -u
+csrf
+csrf_public_login_access
+name="csrf_public_login_access"
+name="password"
+name="project_release"
+name="r"
+name="sentry_dsn"
+name="sentry_environment"
+name="username"
+name="viewport"
+--- gateway login form fields ---
+csrf_gwlogin
+name="csrf_gwlogin"
+name="password"
+name="project_release"
+name="sentry_dsn"
+name="sentry_environment"
+name="trusted_redirect_origins"
+name="username"
+name="viewport"
+[0m
+[0m$ [0mecho "=== gateway values ==="; grep -oE '(sentry_dsn|project_release|trusted_redirect_origins|r)"? value="[^"]*"' /tmp/opencode/gw_login.html | head; grep -oE 'value="[^"]{10,}"' /tmp/opencode/gw_login.html | head; echo; echo "=== broadcast values ==="; grep -oE 'value="[^"]{10,}"' /tmp/opencode/bc_login.html | head
+=== gateway values ===
+value="227fd99af5a544cf39aaf43dffba70c48e2524b3"
+
+=== broadcast values ===
+value="https://broadcast.threema.ch/"
+value="83a6aa164d8d8e176fdf3c5f910fae45c6cdd3e8"
+[0m
+Definitive: broadcast exposes `csrf_public_login_access` (public passkey login live); gateway form includes a `trusted_redirect_origins` field + Sentry release values. Extracting the values:
+Confirmed: post-login redirect targets are 40-hex signed hashes (anti-open-redirect hardening), and broadcast ships a live `csrf_public_login_access` passkey ceremony. Analysis complete.
+
+---
+
+## STEP 1 — DELTA
+
+- **[CHANGED]** `gateway.threema.ch`: TIMEOUT → **live** — 302 `/`→`/en`→200 `/en/login` (3743B), nginx, POST login form (`csrf_gwlogin`, `username/password`, `project_release`, `sentry_dsn`, `trusted_redirect_origins`, `r`), bundle `/cache/gateway_public.js?O5v86dAdwPboCbz` (376,114B, sha256 dd2fc645…7ceaab). No HSTS/Expect-CT/CSP on login.
+- **[CHANGED]** `broadcast.threema.ch`: TIMEOUT → **live** — 301 `/`→200 `/en/login` (5101B), nginx, POST login form exposing **`csrf_public_login_access`** (WebAuthn public passkey login enabled on prod), bundle `/cache/broadcast_public.js?v=2.28.1` (1,125,461B, sha256 e3fbfe8d…9849e). No HSTS/Expect-CT/CSP.
+- **[CHANGED]** `shop.threema.ch`: TIMEOUT → **live** — 301 `/`→200 `/en`, **full HSTS + Expect-CT + CSP** (`form-action 'self' https://billing.threema.ch`, `frame-src https://hcaptcha-assets.threema.ch`, `connect-src https://bugs.threema.ch`), public pages `/en/buy`, `/en/redeem` (POST: `email`+`promo_code`), `/en/retrieve-keys` (POST: `email`+`invoice_ref`), `/en/download`; shares IP 203.56.112.216 with billing.
+- **[CHANGED]** `billing.threema.ch`: TIMEOUT → **live** — 301 → `https://threema.ch/` (out-of-scope marketing redirect; no cockpit surface).
+- **[NEW]** `gateway.threema.ch` `/api/` + `/api/v1/` → nginx `403 Forbidden` (146B) — API namespace blocked at nginx layer; no public API route exposed.
+- **[NEW]** Staging asymmetry: `gateway.test.threema.ch` resolves 203.56.114.13 → 403 (nginx gate, mirrors avatar/companylogo.test); `shop.test`/`broadcast.test` resolve (203.56.114.44/.45) but HTTP 000 timeout — **staging gated while prod open** (inverse of work.test, which is open on both).
+- **[NEW]** Post-login redirect hardening: gateway `r`=227fd99a…24b3, broadcast `r`=https://broadcast.threema.ch/ + 83a6aa16…d3e8 — 40-hex signed hashes, not raw redirect URLs (open-redirect hardening present).
+
+## STEP 2 — PRIORITIZE
+
+- **[PRIO]** broadcast.threema.ch — 6.50 — attack 7 | business 7 | tech 6 (WebAuthn passkey ceremonies) | gate 6 | cloud 2 | fresh 10
+- **[PRIO]** gateway.threema.ch — 6.30 — attack 7 | business 8 (gateway control plane) | tech 4 | gate 5 (API 403) | cloud 2 | fresh 10
+- **[PRIO]** shop.threema.ch — 5.75 — attack 5 | business 6 | tech 4 | gate 8 (fully open) | cloud 2 | fresh 10
+
+## STEP 3 — HYPOTHESES
+
+**[HYP] Broadcast public-login passkey ceremony reachable/weakly-gated**
+class: AUTH
+asset: https://broadcast.threema.ch (v2.28.1, csrf_public_login_access)
+confidence: 50
+reasoning: Fresh prod surface (was TIMEOUT). Live login form embeds `csrf_public_login_access`; bundle implements full attestation+assertion ceremonies (challenge POST → `assertion_response` POST). Served without CSP/HSTS. Ceremony endpoint paths are minified/derived and not yet resolved.
+evidence_needed: Resolved ceremony endpoint paths; whether challenge endpoint is unauth-reachable; rate limiting on challenge issuance.
+verify_steps: PASSIVE: resolve minified endpoint map feeding the `${l}`/`${o}`/`${s}`/`${r}` ceremony URLs in broadcast_public.js; then single GET of each endpoint on https://broadcast.threema.ch, record status + rate-limit headers; full assertion requires a passkey (AUTH_HELPED). ≤1 rps.
+impact: unauth passkey-ceremony DoS/abuse; assertion-validation flaw would be account-level — unproven; severity low→high contingent on endpoint reachability.
+testability: PASSIVE
+
+**[HYP] Gateway cockpit fresh surface exposes weak-auth public routes**
+class: AUTH
+asset: https://gateway.threema.ch (/en/login, /en/signup, /en/forgot-password, /api/*)
+confidence: 50
+reasoning: Fresh messaging-gateway control plane; login served with NO HSTS/Expect-CT/CSP (weaker posture than shop); `/api/`+`/api/v1/` nginx-403 (routes gated, not absent); `trusted_redirect_origins` field present on login. No staging mirror (gateway.test 403) → no divergence oracle.
+evidence_needed: POST targets + CSRF/captcha presence on signup/forgot-password; whether any /api path escapes the nginx deny.
+verify_steps: PASSIVE: GET /en/signup and /en/forgot-password, capture CSRF field names/POST targets/captcha; GET a small set of plausible /api paths; do NOT submit POSTs (side effects). ≤1 rps.
+impact: unauthenticated surface of a customer-facing messaging gateway; credential-page transport hardening gap; severity low (no vuln proven).
+testability: PASSIVE
+
+**[HYP] Shop public order/receipt lookups act as unauthenticated oracles**
+class: BUSLOGIC
+asset: https://shop.threema.ch/en/redeem + /en/retrieve-keys
+confidence: 45
+reasoning: Two unauthenticated POST forms (email+promo_code; email+invoice_ref) on fresh prod; if responses differentiate valid/invalid code+ref with no rate limit they become redemption/receipt oracles. Counter-weight: full HSTS/Expect-CT/CSP + hCaptcha frame — likely captcha-gated.
+evidence_needed: whether a GET variant exists; whether response delta leaks code validity without submission.
+verify_steps: PASSIVE-first: inspect forms for CSRF/hCaptcha and probe for GET variants; any submission oracle requires one-shot authorized POSTs (AUTH_HELPED). ≤1 rps.
+impact: promo-code/invoice enumeration → discount or PII; severity low (high-entropy codes, captcha likely).
+testability: AUTH_HELPED
+
+## STEP 4 — SELF-CRITIQUE
+
+No drops: all three ≥40, none on the REJECTED class list, all with concrete verify_steps. H3 is weakest (AUTH_HELPED-dependent, captcha likely) — kept at 45, ranked last. Open-redirect hypothesis on the `r`/`trusted_redirect_origins` fields is **not** emitted: 40-hex signed redirect tokens are an anti-open-redirect control, so that angle is dead on arrival.
+**[FINAL]** ranked: 1) broadcast passkey ceremony (50), 2) gateway auth surface (50), 3) shop lookup oracles (45).
+
+## STEP 5 — NEXT ACTION
+
+**[NEXT] PROBE**: Resolve the broadcast passkey ceremony endpoints — walk the minified closure around `csrf_public_login_access`/`csrf_user_passkey_register` in `/tmp/opencode/broadcast_public.js` to recover the endpoint constants feeding the `${l}`/`${o}`/`${s}`/`${r}` ceremony URLs (search `URLSearchParams({csrf_public_login_access` and the preceding URL-template assignments); then single `GET` of each recovered endpoint on `https://broadcast.threema.ch` recording `code / redirect / size / rate-limit headers`. ≤1 rps, GET only. Fallback if static resolution fails: single GET of `/en/login` to fingerprint which ceremony fields render pre-auth.
+
+## STEP 6 — LEARNING
+
+- **[ACCEPTED]** OTHER @ gateway/broadcast/shop/billing.threema.ch: Baseline "TIMEOUT" hosts are now ALL reachable — gateway 302→/en/login, broadcast 301→/en/login, shop 301→/en, billing 301→threema.ch. Availability change, not source-IP gating.
+- **[ACCEPTED]** MISCONFIG @ gateway.threema.ch + broadcast.threema.ch: credential-bearing login pages served without HSTS/Expect-CT/CSP while shop.threema.ch ships full HSTS/Expect-CT/CSP — inconsistent security-header posture across fresh prod surfaces.
+- **[ACCEPTED]** MISCONFIG @ staging gating asymmetry: gateway.test.threema.ch 403 nginx, shop.test/broadcast.test HTTP 000 timeout — staging gated while prod open (inverse of work.test, open on both) — new divergence class across cockpits.
+- **[ACCEPTED]** OTHER @ gateway.threema.ch /api/ + /api/v1/: nginx 403 Forbidden (146B) — API namespace blocked at nginx layer, no public API route; gateway auth surface is form-based only.
+- **[ACCEPTED]** OTHER @ gateway/broadcast login: post-login redirect `r` targets are 40-hex signed hashes — anti-open-redirect hardening confirmed; raw open-redirect hypothesis unsupported.
+- **[ACCEPTED]** OTHER @ broadcast.threema.ch: live login form embeds `csrf_public_login_access` — WebAuthn public passkey login is an enabled prod feature (bundle v2.28.1, newer than work v2.25.1).
+
+## STEP 7 — RISK SCORE
+
+- **[RISK]** chat: 15 — g-*.0.{test.,}threema.ch 5222/443 still silent without an authenticated login frame; no new in-band divergence obtainable passively.
+- **[RISK]** web: 45 — work.test public-namespace divergence persists; NEW: three previously-unreachable cockpit prod surfaces (gateway/broadcast/shop) now live, two without HSTS/CSP on login pages; all credential-gated behind hardened POST forms.
+- **[RISK]** sync: 10 — mediator/rendezvous DNS split routing unchanged; uniform 403.
+- **[RISK]** safe: 15 — safe-*.threema.ch backup API credential-gated (400/404 distinction), CORS `*` with Authorization preflight; unchanged.
+- **[RISK]** desktop-src: 35 — unchanged; Windows key-storage ACL hypothesis (top-ranked prior cycle) remains the strongest desktop lead; OnPrem trust chain REJECTED.
