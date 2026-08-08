@@ -897,3 +897,14 @@
 - NEXT(hypotheses-bigpickle.txt): HUMAN: Request program-issued test backupId:backupKey from the operator for the safe-backup hypothesis — the directory class is now at evidence saturation (iden
 - LEARN: REJECTED IDOR @ ds-apip/api/apip.threema.ch check_revocation_key GET form: validation-order oracle disproven — ECHOECHO vs ZZZZZZZZ produce byte-identical "Iden
 - LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 safe-* hosts): credential-gated 400 baseline stable — route-existence oracle + Basic-auth gating hold; HSTS/Expec
+
+## RANKED HYPOTHESES 2026-08-08 21:04:15 UTC
+- [95] https://ds-apip.threema.ch/identity/fetch_bulk: Directory bulk identity enumeration at scale via fetch_bulk (from reports/hypotheses-nemotron3.txt)
+- [60] https://saltyrtc-{00..ff}.threema.ch:443: saltyrtc-*.threema.ch is live SaltyRTC chat-signaling; WSS endpoint reachable vs g-* closed-443 (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ","AAAAAAAA","BBBB
+- NEXT(hypotheses-bigpickle.txt): HUMAN: Request operator scope ruling for `saltyrtc-{00..ff}.threema.ch` (256 hostnames → 203.56.112.198/.199, 203.56.114.198/.199; 443 open+silent) under "g-*.0
+- LEARN: REJECTED IDOR @ ds-apip/api/apip.threema.ch check_revocation_key GET form: validation-order oracle disproven — ECHOECHO vs ZZZZZZZZ produce byte-identical "Iden
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 safe-* hosts): credential-gated 400 baseline stable — route-existence oracle + Basic-auth gating hold; HSTS/Expec
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy in `determineKdfParams()`, derived
+- LEARN: REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE (requires separate renderer exploit chain), not a standalone class
+- LEARN: REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml

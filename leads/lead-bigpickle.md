@@ -3096,3 +3096,33 @@ verify_steps: PASSIVE, weekly gated: GET /api-app/public/global/settings + GET /
 impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
 testability: PASSIVE
 [NEXT] HUMAN: Request program-issued test backupId:backupKey from the operator for the safe-backup hypothesis — the directory class is now at evidence saturation (identity oracle + fetch_bulk 10k/request + no rate limit all confirmed), and license-token was re-probed this cycle (still 404). On receipt: exactly one `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff vs the known byte-identical 400 baseline; escalate only on ≠400 or new Access-Control-Expose-Headers.
+## 2026-08-08 21:02:57 UTC [chat] (model bigpickle)
+[HYP] saltyrtc-*.threema.ch is live SaltyRTC chat-signaling; WSS endpoint reachable vs g-* closed-443
+class: OTHER
+asset: https://saltyrtc-{00..ff}.threema.ch:443 (256 hostnames, 4 new IPs)
+confidence: 60
+reasoning: threema-web SALTYRTC_HOST=`saltyrtc-{prefix}.threema.ch`/443 (webclient.ts:545); all sampled prefixes resolve to NEW IPs 112.198/.199 + 114.198/.199; bare TCP 443 open+silent on all 4 (unlike g-* 443 which closes on ClientHello) — consistent with a TLS/WSS-terminated SaltyRTC signaling server.
+evidence_needed: operator confirmation the hostname pattern is within "chat services" scope; then a single WSS GET on one prefix (e.g. saltyrtc-00) to test TLS acceptance vs the g-* SYSCALL-close.
+verify_steps: HUMAN: request scope ruling for `saltyrtc-*.threema.ch` before any byte-level probe; if authorized, single `curl -sk -o /dev/null -w '%{http_code}' https://saltyrtc-00.threema.ch/` (≤1 rps).
+impact: if in scope and TLS-terminated, chat signaling handshake becomes probeable passively (server-key / protocol fingerprint); currently only blocked by scope, not by reachability.
+testability: HUMAN_ONLY
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic (re-confirmed 400 this cycle); route exists, credential-gated; HSTS/Expect-CT absent on the GET 400.
+evidence_needed: valid program-issued test backupId:backupKey → response ≠ 400 (200+payload or 401/403); any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED: single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[HYP] work.test license-token backend ships → unauth 64-hex credential oracle
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 40
+reasoning: staging bundle v2.25.1 ships GET {username?,password?,expired,hasEmail}+PUT; re-probe this cycle still 404/900B catch-all; prod bundle zero /public/* handlers; 64-char check client-side zod only.
+evidence_needed: any non-404 (200/400/401) to well-formed 64-hex token on staging.
+verify_steps: PASSIVE, weekly gated: GET /api-app/public/global/settings + GET /api-app/public/license/token/{64 zeros}; escalate only on non-404; ≤1 rps.
+impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
+testability: PASSIVE
+[NEXT] HUMAN: Request operator scope ruling for `saltyrtc-{00..ff}.threema.ch` (256 hostnames → 203.56.112.198/.199, 203.56.114.198/.199; 443 open+silent) under "g-*.0.threema.ch (chat services)" / chat-signaling coverage; if confirmed in scope, authorize one `curl -sk -o /dev/null -w '%{http_code}' https://saltyrtc-00.threema.ch/` (≤1 rps) to test TLS/WSS reachability vs the g-* SYSCALL-close. Standalone safe-backup test-creds request remains pending from prior cycles (still the top AUTH_HELPED blocker).
+[RISK] chat: 25 | g-* pool fully mapped (100 hosts/2 IPs, zero-padded), 443+5222 client-frame-gated, no in-band divergence, staging excluded; NEW saltyrtc-* signaling pool is a wider 256-host/4-IP chat surface but scope-ambiguous and untouched | web: 35 | staging/prod /public/* bundle divergence + license-token route (404 this cycle) + namespace-gated auth (302) | sync: 15 | mediator/rendezvous uniform 403, split-DNS routing only, no auth bypass observed | safe: 30 | credential-gated (400 unauth), CORS `*` + ACAH:Authorization, HSTS absent on GET 400 | desktop-src: 40 | RAG-verified Windows ACL key-storage gap (top finding) + conditional sandbox/worker gap, no new contradiction.
