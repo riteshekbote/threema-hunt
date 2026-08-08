@@ -1,13 +1,14 @@
-## 2026-08-08 10:18:01 UTC [web] (model nemotron3)
-[NEW] Safe backup API credential format identified: HTTP Basic Auth with `backupId:backupKey` (was generic "credential-gated")
-[NEW] Route path distinction `/backups/{64hex}` (400) vs `/backup/{x}` (404) confirmed across ALL 5 safe-* hosts (safe-01, safe-1a, safe-1b, safe-02, safe-00) behind single IP 203.56.112.231
-[CHANGED] Desktop key-storage Windows ACL bypass elevated from hypothesis to fully RAG-VERIFIED — all 15 source paths confirmed in freshly cloned repo (`fs.ts:41`, `index.ts:559-560`, `electron-main.ts:944-945`, `crypto.ts:53-88`, `inner/v3.ts:65,70`, `restore-db.ts:45-46`, `sqlite.ts:239-240`, `outer/v2.ts:80-92`, `intermediate/v1_1.ts:83-99`, `key-storage-file.proto:88-95/264-279`, `box.ts:409`, `tweetnacl.ts:124/154`, `common.ts:136-169`, `keys.ts:14-20`, `vite.config.ts:339,344`)
-[CHANGED] Desktop BrowserWindow `sandbox` property confirmed UNSET (defaults false) — L1255 `// TODO(DESK-79): Enable sandbox: true`; L1240 comment "sandboxing is enabled by default" is INCORRECT per Electron docs
-[NEW] work.test.threema.ch bundle divergence: `work_public.js` v2.25.1 different sha256 staging (`e48e18f7…`, 1,443,948 B) vs prod (`96501e21…`, 1,400,541 B) — prod has ZERO `/public/*` handlers
-[NEW] Identity→pubkey oracle confirmed on all 3 production hosts (ds-apip, api, apip) returning identical 200+pubkey with CORS `*`
-[NEW] fetch_bulk batch oracle confirmed: `POST /identity/fetch_bulk {"identities":["ECHOECHO","ZZZZZZZZ"]}` → returns only valid IDs, silently omits invalid, CORS `*`
-[NEW] No dynamic sinks (`require`/`import`/`eval`/`child_process`/`new Function`) found in worker/ tree — grep returned 0 matches, confirming BrowserWindow exploitability is conditional
+## 2026-08-08 10:53:31 UTC [web] (model nemotron3)
+[NEW] Desktop key-storage Windows ACL bypass fully RAG-verified (15 source paths confirmed in cloned repo)
+[NEW] Safe backup API credential format: HTTP Basic Auth `backupId:backupKey` confirmed across all 5 safe-* hosts
+[NEW] Route distinction `/backups/{64hex}` (400) vs `/backup/{x}` (404) confirmed across all 5 safe-* hosts
+[NEW] work.test.threema.ch bundle divergence: work_public.js v2.25.1 different builds staging vs prod (prod has ZERO `/public/*` handlers)
+[NEW] Identity→pubkey oracle confirmed on all 3 production hosts (ds-apip, api, apip) with CORS `*`
+[NEW] fetch_bulk batch oracle confirmed: returns only valid IDs, silently omits invalid, CORS `*`
+[NEW] No dynamic sinks (`require`/`import`/`eval`/`child_process`/`new Function`) in worker/ tree — Electron RCE conditional
 [NEW] work.test.threema.ch login CSP leaks staging surfaces: broadcast.test, avatar.test, companylogo.test, hcaptcha-work, billing.test
+[CHANGED] Desktop BrowserWindow `sandbox` unset (defaults false) — L1255 TODO DESK-79; L1240 comment incorrect per Electron docs
+[CHANGED] Desktop key-storage ACL bypass elevated from hypothesis to RAG-VERIFIED with all 15 source paths
 [PRIO] threema-desktop (Windows key-storage ACL bypass): 8.20 — attack_surface:7 business:10 tech:8 (DPAPI+Argon2id+XSalsa20 chain) gate:8 (local) cloud:2 fresh:10
 [PRIO] safe-*.threema.ch (backup API cross-origin credentialed read): 6.90 — attack_surface:8 business:9 tech:6 (CORS*, write methods, Basic Auth) gate:5 (cred-gated) cloud:4 fresh:8
 [PRIO] ds-apip.threema.ch/api.threema.ch/apip.threema.ch (directory identity→pubkey oracle): 6.40 — attack_surface:6 business:6 tech:5 (bulk API) gate:10 cloud:5 fresh:10

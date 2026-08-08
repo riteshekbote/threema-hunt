@@ -213,3 +213,15 @@
 - NEW fetch_bulk batch oracle confirmed: `POST /identity/fetch_bulk {"identities":["ECHOECHO","ZZZZZZZZ"]}` → returns only valid IDs, silently omits invalid, CORS `*`
 - NEW No dynamic sinks (`require`/`import`/`eval`/`child_process`/`new Function`) found in worker/ tree — grep returned 0 matches, confirming BrowserWindow exploitability is conditional
 - NEW work.test.threema.ch login CSP leaks staging surfaces: broadcast.test, avatar.test, companylogo.test, hcaptcha-work, billing.test
+
+## 2026-08-08 11:03:45 UTC
+- NEW Desktop key-storage Windows ACL bypass fully RAG-verified (15 source paths confirmed in cloned repo)
+- NEW Safe backup API credential format: HTTP Basic Auth `backupId:backupKey` confirmed across all 5 safe-* hosts
+- NEW Route distinction `/backups/{64hex}` (400) vs `/backup/{x}` (404) confirmed across all 5 safe-* hosts
+- NEW work.test.threema.ch bundle divergence: work_public.js v2.25.1 different builds staging vs prod (prod has ZERO `/public/*` handlers)
+- NEW Identity→pubkey oracle confirmed on all 3 production hosts (ds-apip, api, apip) with CORS `*`
+- NEW fetch_bulk batch oracle confirmed: returns only valid IDs, silently omits invalid, CORS `*`
+- NEW No dynamic sinks (`require`/`import`/`eval`/`child_process`/`new Function`) in worker/ tree — Electron RCE conditional
+- NEW work.test.threema.ch login CSP leaks staging surfaces: broadcast.test, avatar.test, companylogo.test, hcaptcha-work, billing.test
+- CHANGED Desktop BrowserWindow `sandbox` unset (defaults false) — L1255 TODO DESK-79; L1240 comment incorrect per Electron docs
+- CHANGED Desktop key-storage ACL bypass elevated from hypothesis to RAG-VERIFIED with all 15 source paths
