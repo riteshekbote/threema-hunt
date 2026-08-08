@@ -8807,3 +8807,635 @@ testability: PASSIVE + AUTH_HELPED
 - [RISK] sync: **35** — mediator/rendezvous WSS split routing (0-7→.247, 8-f→.114.247) uniform 403; no passive divergence; requires dgid/reconstruction (out of POC-desktop scope).
 - [RISK] safe: **75** — backup API credential-gated with CORS `*`, exposes `Authorization` header, write methods (PUT/PATCH/POST/DELETE) advertised, 400-vs-404 existence oracle, HSTS present but no `Access-Control-Allow-Credentials`/`Expose-Headers` yet confirmed; full identity+history exfiltration if creds obtained.
 - [RISK] desktop-src: **80** — Windows `keystorage.bin` (Argon2id-encrypted, key-storage ACL bypass) + `keystorage.password.bin` (DPAPI-only, no ACL restriction) enable same-user-process recovery of the master password → Ed25519 ClientKey (`ck`) + DB key → full identity + message-store decrypt without master password; plus BrowserWindow `sandbox: false` + `nodeIntegrationInWorker: true` widening worker blast radius.
+===== ANALYST laguna 2026-08-08 09:15:49 UTC =====
+[0m
+> build · laguna-s-2.1-free
+[0m
+[0m$ [0mls -la
+total 160
+drwxr-xr-x 11 runner runner  4096 Aug  8 09:06 .
+drwxr-xr-x  3 runner runner  4096 Aug  8 09:06 ..
+drwxr-xr-x  7 runner runner  4096 Aug  8 09:06 .git
+drwxr-xr-x  3 runner runner  4096 Aug  8 09:06 .github
+-rw-r--r--  1 runner runner  1049 Aug  8 09:06 README.md
+-rw-r--r--  1 runner runner    39 Aug  8 09:06 analyst-out.txt
+-rw-r--r--  1 runner runner 41662 Aug  8 09:06 analyst-prompt.txt
+-rw-r--r--  1 runner runner 38598 Aug  8 09:06 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  8 09:06 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  8 09:06 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  8 09:06 leads
+drwxr-xr-x  2 runner runner  4096 Aug  8 09:06 reports
+drwxr-xr-x  3 runner runner  4096 Aug  8 09:06 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  8 09:06 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  8 09:06 scripts
+-rw-r--r--  1 runner runner    34 Aug  8 09:06 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  8 09:06 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  8 09:06 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  8 09:06 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  8 09:06 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  8 09:06 triage
+[0m
+[0m✱ [0mGlob "**/*.md"[90m 52 matches[0m
+[0m→ [0mRead state_laguna.json
+[0m✗ [0mRead lead-laguna.md failed
+[91m[1mError: [0mFile not found: /home/runner/work/threema-hunt/threema-hunt/lead-laguna.md
+[0m→ [0mRead analyst-out.txt
+[0m→ [0mRead triage/run-2026-08-08-08-59.md
+[0m→ [0mRead knowledge/index.md
+[0m→ [0mRead ctx.txt
+[0m→ [0mRead reports/hypotheses.md
+[0m→ [0mRead reports/valid-bugs.md
+[0m→ [0mRead leads/reposcan-latest.md
+[0m→ [0mRead leads/reposcan-2026-08-08-08-42.md
+[0m→ [0mRead analyst-prompt.txt
+[0m→ [0mRead triage
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/
+total 52
+drwxr-xr-x  3 runner runner  4096 Aug  8 09:06 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 09:06 ..
+-rw-r--r--  1 runner runner    43 Aug  8 09:06 analysis.txt
+-rw-r--r--  1 runner runner    40 Aug  8 09:06 grep-delta.txt
+-rw-r--r--  1 runner runner  7433 Aug  8 09:06 grep-hits.prev.txt
+-rw-r--r--  1 runner runner  7433 Aug  8 09:06 grep-hits.txt
+-rw-r--r--  1 runner runner 15258 Aug  8 09:06 rag.txt
+drwxr-xr-x 18 runner runner  4096 Aug  8 09:06 threema-ch
+[0m
+[0m→ [0mRead reposcan-raw/grep-delta.txt
+[0m→ [0mRead reposcan-raw/analysis.txt
+[0m→ [0mRead reposcan-raw/rag.txt
+[0m→ [0mRead triage/run-2026-08-08-08-07.md
+[0m→ [0mRead triage/run-2026-08-08-07-15.md
+[0m→ [0mRead README.md
+[0m→ [0mRead scope.yml
+[0m→ [0mRead triage/run-2026-08-08-07-07.md
+[0m→ [0mRead triage/run-2026-08-08-06-01.md
+[0m→ [0mRead inventory/threema.md[90m [limit=120][0m
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/
+total 72
+drwxr-xr-x 18 runner runner 4096 Aug  8 09:06 .
+drwxr-xr-x  3 runner runner 4096 Aug  8 09:06 ..
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 app-remote-protocol
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 compose-area
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 push-relay
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 threema-android
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 threema-bot-sdk
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 threema-desktop
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 threema-ios
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 threema-markup
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 threema-msgapi-sdk-java
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 threema-msgapi-sdk-php
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 threema-msgapi-sdk-python
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 threema-msgapi-sdk-rust
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 threema-web
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 threema-web-electron
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 wasm-minisign-verify
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 webrtc-build-docker
+[0m
+[0m→ [0mRead state_nemotron3.json
+Let me check the most recent reposcan and look at the threema-desktop repo structure.
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/ 2>/dev/null; echo "---"; ls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/ 2>/dev/null
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 .
+drwxr-xr-x 18 runner runner 4096 Aug  8 09:06 ..
+---
+app-remote-protocol
+compose-area
+push-relay
+threema-android
+threema-bot-sdk
+threema-desktop
+threema-ios
+threema-markup
+threema-msgapi-sdk-java
+threema-msgapi-sdk-php
+threema-msgapi-sdk-python
+threema-msgapi-sdk-rust
+threema-web
+threema-web-electron
+wasm-minisign-verify
+webrtc-build-docker
+[0m
+[0m→ [0mRead triage/run-2026-08-08-04-24.md
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -type f 2>/dev/null | head -20; echo "---"; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw -name "fs.ts" 2>/dev/null; echo "---"; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw -name "electron-main.ts" 2>/dev/null
+---
+---
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch -name "*.ts" -path "*key-storage*" 2>/dev/null; echo "---"; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch -name "restore-db*" 2>/dev/null; echo "---"; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch -name "vite.config*" 2>/dev/null
+---
+---
+[0m
+[0m→ [0mRead reposcan-raw/grep-hits.txt
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/scripts/; echo "==="; ls -la /home/runner/work/threema-hunt/threema-hunt/.github/
+total 16
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 .
+drwxr-xr-x 11 runner runner 4096 Aug  8 09:06 ..
+-rw-r--r--  1 runner runner 7771 Aug  8 09:06 sync-issues.py
+===
+total 12
+drwxr-xr-x  3 runner runner 4096 Aug  8 09:06 .
+drwxr-xr-x 11 runner runner 4096 Aug  8 09:06 ..
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 workflows
+[0m
+[0m→ [0mRead triage/run-2026-08-08-02-24.md
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/.github/workflows/
+total 52
+drwxr-xr-x 2 runner runner  4096 Aug  8 09:06 .
+drwxr-xr-x 3 runner runner  4096 Aug  8 09:06 ..
+-rw-r--r-- 1 runner runner 12879 Aug  8 09:06 hunt.yml
+-rw-r--r-- 1 runner runner 12737 Aug  8 09:06 reposcan.yml
+-rw-r--r-- 1 runner runner  1019 Aug  8 09:06 sync-issues.yml
+-rw-r--r-- 1 runner runner  6874 Aug  8 09:06 triage.yml
+[0m
+[0m$ [0mwc -l /home/runner/work/threema-hunt/threema-hunt/leads/lead-laguna.md /home/runner/work/threema-hunt/threema-hunt/leads/lead-bigpickle.md /home/runner/work/threema-hunt/threema-hunt/leads/lead-nemotron3.md /home/runner/work/threema-hunt/threema-hunt/leads/lead-ling3.md /home/runner/work/threema-hunt/threema-hunt/leads/lead-longcat.md
+534 /home/runner/work/threema-hunt/threema-hunt/leads/lead-laguna.md
+  1120 /home/runner/work/threema-hunt/threema-hunt/leads/lead-bigpickle.md
+   899 /home/runner/work/threema-hunt/threema-hunt/leads/lead-nemotron3.md
+    42 /home/runner/work/threema-hunt/threema-hunt/leads/lead-ling3.md
+    21 /home/runner/work/threema-hunt/threema-hunt/leads/lead-longcat.md
+  2616 total
+[0m
+[0m→ [0mRead leads/reposcan-2026-08-08-08-37.md
+Let me check the latest lead files from each model and the GitHub workflows to understand the automation.
+Now let me try to clone the threema-desktop repo to verify the source code claims from the KB — this is the POC phase work.
+[0m
+[0m$ [0mgit clone --depth 1 https://github.com/threema-ch/threema-desktop.git /tmp/opencode/threema-desktop 2>&1 | tail -5
+Cloning into '/tmp/opencode/threema-desktop'...
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop -name "fs.ts" -path "*/node/*" 2>/dev/null; find /tmp/opencode/threema-desktop -name "electron-main.ts" 2>/dev/null; find /tmp/opencode/threema-desktop -name "crypto.ts" -path "*key-storage*" 2>/dev/null; find /tmp/opencode/threema-desktop -name "index.ts" -path "*key-storage*" 2>/dev/null; find /tmp/opencode/threema-desktop -name "restore-db*" 2>/dev/null
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/fs.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/restore-db.ts
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/fs.ts
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts
+[0m✗ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/inner/v1.ts failed
+[91m[1mError: [0mFile not found: /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/inner/v1.ts
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/restore-db.ts
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop -name "keys.ts" -path "*common*" 2>/dev/null | head -5
+/tmp/opencode/threema-desktop/apps/desktop/src/common/network/types/keys.ts
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop -path "*key-storage*" -name "*.ts" 2>/dev/null | sort
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/modals/key-storage-migration-failed-modal/props.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/common.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/common.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v2.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/intermediate/v1.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/intermediate/v1_1.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/common.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/v1.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/v2.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/test/mocha/common/node/key-storage/file-system-key-storage.spec.ts
+[0m
+[0m$ [0mgrep -rn "safeStorage\|STORE_USER_PASSWORD\|keystorage.password" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null | head -20
+915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+916:            if (!fs.existsSync(safeStoragePasswordPath)) {
+921:            if (electron.safeStorage.isEncryptionAvailable()) {
+923:                    const encryptedPassword = fs.readFileSync(safeStoragePasswordPath);
+924:                    return electron.safeStorage.decryptString(encryptedPassword);
+930:                    'Electron safeStorage is not available (no password manager?), loading password skipped.',
+936:            ElectronIpcCommand.STORE_USER_PASSWORD,
+940:                if (electron.safeStorage.isEncryptionAvailable()) {
+941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+943:                        const encryptedPassword = electron.safeStorage.encryptString(password);
+945:                        fs.writeFileSync(safeStoragePasswordPath, encryptedPassword, options);
+952:                        'Electron safeStorage is not available (no password manager?), storing password skipped.',
+983:                    isSafeStorageAvailable: electron.safeStorage.isEncryptionAvailable(),
+[0m
+[0m$ [0mgrep -rn "ck\b\|privateKey\|ClientKey\|Ed25519\|identityData" /tmp/opencode/threema-desktop/apps/desktop/src/common/network/types/keys.ts 2>/dev/null | head -20
+15: * The raw Client Key (often internally referred to as `ck` in the code and documentation) is a 32
+19: *            {@link ClientKey} ASAP.
+21:export type RawClientKey = WeakOpaque<RawKey<32>, {readonly RawClientKey: unique symbol}>;
+24: * Wrap a key into a {@link RawClientKey}.
+28:export function wrapRawClientKey(key: Uint8Array): RawClientKey {
+29:    return wrapRawKey(key, NACL_CONSTANTS.KEY_LENGTH) as RawClientKey;
+33: * The Client Key (often internally referred to as `ck` in the code and documentation) is a 32
+38:export type ClientKey = WeakOpaque<
+40:    {readonly ClientKey: unique symbol}
+63:export type TemporaryClientKey = WeakOpaque<
+65:    {readonly TemporaryClientKey: unique symbol}
+134:    crypto: Pick<CryptoBackend, 'randomBytes'>,
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [offset=910, limit=60][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/network/types/keys.ts
+[0m
+[0m$ [0mgrep -n "sandbox\|nodeIntegrationInWorker\|nodeIntegration\|contextIsolation\|webPreferences\|new BrowserWindow" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts | head -30
+1234:            webPreferences: {
+1240:                // `contextIsolation`, and sandboxing is enabled by default.
+1242:                // Unfortunately we cannot get rid of `nodeIntegrationInWorker` because preload
+1251:                nodeIntegration: false,
+1252:                nodeIntegrationInWorker: true, // TODO(DESK-79): Change to false once worker preload scripts are supported in Electron
+1253:                nodeIntegrationInSubFrames: false,
+1255:                // TODO(DESK-79): Enable `sandbox: true` once worker preload scripts are supported in Electron
+1262:                contextIsolation: true,
+1484:            case 'sandbox':
+1552:                        'sandbox allow-downloads allow-same-origin allow-scripts allow-forms allow-popups',
+1673:    // In internal test builds on sandbox, we enable crash reporting.
+[0m
+[0m$ [0mgrep -rn "new Worker\|backend-worker\|media-crypto-worker" /tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts 2>/dev/null | head -10; echo "==="; grep -rn "new Worker\|backend-worker\|media-crypto-worker" /tmp/opencode/threema-desktop/apps/desktop/src/app/ 2>/dev/null | head -20
+407:    const worker = new Worker(
+410:            '../worker/backend/' + import.meta.env.BUILD_TARGET + '/backend-worker.ts',
+===
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/settings/internal/about/internal/clear-logs-modal/ClearLogsModal.svelte:73:          key={$i18n.t('dialog--clear-logs.label--backend-worker-log-path', 'Backend Worker Log')}
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/settings/internal/about/internal/toggle-logger-modal/ToggleLoggerModal.svelte:72:              'dialog--toggle-logger.label--backend-worker-log-path',
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/settings/internal/about/internal/toggle-logger-modal/ToggleLoggerModal.svelte:115:              'dialog--toggle-logger.label--backend-worker-log-path',
+/tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts:407:    const worker = new Worker(
+/tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts:410:            '../worker/backend/' + import.meta.env.BUILD_TARGET + '/backend-worker.ts',
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [offset=1230, limit=45][0m
+[0m
+[0m$ [0mgrep -rn "node:fs\|node:path\|require(\|import(\|eval(\|child_process\|process\.mainModule\|new Function" /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts 2>/dev/null | head -15
+1:import * as fs from 'node:fs';
+2:import * as path from 'node:path';
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [limit=15, offset=895][0m
+[0m
+[0m$ [0mgrep -rn "getSafeStoragePasswordPath" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null | head -10; echo "==="; grep -rn "KEY_STORAGE_PATH\|keystorage" /tmp/opencode/threema-desktop/apps/desktop/src/common/config.ts 2>/dev/null | head -10; echo "==="; find /tmp/opencode/threema-desktop -name "config.ts" -path "*/common/*" 2>/dev/null
+39:import {getSafeStoragePasswordPath} from '~/common/node/safe-storage/helpers';
+915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+===
+104:    readonly DEPRECATED_KEY_STORAGE_PATH: readonly string[];
+109:    readonly KEY_STORAGE_PATH: readonly string[];
+170:    | 'KEY_STORAGE_PATH'
+171:    | 'DEPRECATED_KEY_STORAGE_PATH'
+183:    DEPRECATED_KEY_STORAGE_PATH: import.meta.env.DEPRECATED_KEY_STORAGE_PATH,
+184:    KEY_STORAGE_PATH: import.meta.env.KEY_STORAGE_PATH,
+===
+/tmp/opencode/threema-desktop/apps/desktop/src/common/config.ts
+[0m
+[0m$ [0mgrep -rn "require(\|import(\|eval(\|child_process\|process\.mainModule\|new Function\|vm\.run" /tmp/opencode/threema-desktop/apps/desktop/src/worker/ 2>/dev/null | head -20; echo "EXIT: $?"
+EXIT: 0
+[0m
+[0m$ [0mls -la /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/ 2>/dev/null
+total 32
+drwxr-xr-x 2 runner runner 4096 Aug  8 09:08 .
+drwxr-xr-x 3 runner runner 4096 Aug  8 09:08 ..
+-rw-r--r-- 1 runner runner  385 Aug  8 09:08 backend-worker.ts
+-rw-r--r-- 1 runner runner 8562 Aug  8 09:08 index.ts
+-rw-r--r-- 1 runner runner  521 Aug  8 09:08 tsconfig.json
+-rw-r--r-- 1 runner runner  269 Aug  8 09:08 types.ts
+[0m
+[0m$ [0mgrep -c "require(\|import(\|eval(\|child_process\|process\.mainModule\|new Function\|vm\.run" /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts 2>/dev/null; echo "---"; grep -rn "require(\|import(\|eval(\|child_process\|process\.mainModule\|new Function\|vm\.run" /tmp/opencode/threema-desktop/apps/desktop/src/worker/ 2>/dev/null; echo "GREP_DONE"
+0
+---
+GREP_DONE
+[0m
+[0m$ [0mgrep -rn "KEY_STORAGE_PATH\|keystorage\|profile" /tmp/opencode/threema-desktop/apps/desktop/config/vite.config.ts 2>/dev/null | head -20; echo "==="; find /tmp/opencode/threema-desktop/apps/desktop -name "*.env*" -o -name "*.config.*" | head -10
+338:        DEPRECATED_KEY_STORAGE_PATH: ['data', 'keystorage.pb3'],
+339:        KEY_STORAGE_PATH: ['data', 'keystorage.bin'],
+344:        SAFE_STORAGE_PASSWORD_PATH: ['data', 'keystorage.password.bin'],
+===
+/tmp/opencode/threema-desktop/apps/desktop/svelte.config.js
+/tmp/opencode/threema-desktop/apps/desktop/config/svelte.config.js
+/tmp/opencode/threema-desktop/apps/desktop/config/i18next-parser.config.js
+/tmp/opencode/threema-desktop/apps/desktop/config/vite.config.ts
+/tmp/opencode/threema-desktop/apps/desktop/eslint.config.mjs
+/tmp/opencode/threema-desktop/apps/desktop/playwright.config.ts
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop -name "helpers.ts" -path "*safe-storage*" 2>/dev/null; echo "==="; cat /tmp/opencode/threema-desktop/apps/desktop/src/common/node/safe-storage/helpers.ts 2>/dev/null | head -30
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/safe-storage/helpers.ts
+===
+import * as fs from 'node:fs';
+import path from 'node:path';
+
+import {STATIC_CONFIG} from '~/common/config';
+import type {Logger} from '~/common/logging';
+
+/**
+ * Returns the path to the `electron.safeStorage` password file in the given `profileDirectoryPath`.
+ * Important: The path is not validated, so it might not exist.
+ *
+ * @param profileDirectoryPath Path to the Threema profile directory to use as the base path.
+ */
+export function getSafeStoragePasswordPath(profileDirectoryPath: string): string {
+    return path.join(profileDirectoryPath, ...STATIC_CONFIG.SAFE_STORAGE_PASSWORD_PATH);
+}
+
+/**
+ * Deletes the password file for `electron.safeStorage` in the given `profileDirectoryPath`, if it
+ * exists. Otherwise, this is a no-op, and will not throw.
+ */
+export function deleteSafeStoragePasswordFile(profileDirectoryPath: string, log?: Logger): void {
+    const safeStoragePasswordPath = getSafeStoragePasswordPath(profileDirectoryPath);
+
+    try {
+        fs.unlinkSync(safeStoragePasswordPath);
+        log?.info(`Password file '${safeStoragePasswordPath}' deleted`);
+    } catch {
+        log?.info(`Password file '${safeStoragePasswordPath}' does NOT exist`);
+    }
+}
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts[90m [offset=400, limit=25][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts[90m [limit=50][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/backend-worker.ts
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts[90m [offset=50][0m
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop/apps/desktop/src/worker -name "backend-worker.ts" 2>/dev/null; echo "==="; cat /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/backend-worker.ts 2>/dev/null | head -80
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/backend-worker.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/backend-worker.ts
+===
+import type {ClientInfo} from '@threema/libthreema-wasm';
+
+import {
+    Backend,
+    type BackendCreator,
+    type BackendInit,
+    type CertificatePinRecoveryHandle,
+    type DeviceLinkingSetup,
+    type FactoriesForBackend,
+    type LoadingStateSetup,
+} from '~/common/dom/backend';
+import {createEndpointService, ensureEndpoint} from '~/common/dom/utils/endpoint';
+import {extractErrorTraceback} from '~/common/error';
+import {TRANSFER_HANDLER} from '~/common/index';
+import type {TestDataJson} from '~/common/test-data';
+import {setAssertFailLogger} from '~/common/utils/assert';
+import {PROXY_HANDLER, type ProxyEndpoint} from '~/common/utils/endpoint';
+import {BACKEND_WORKER_CONFIG} from '~/worker/backend/config';
+
+declare const self: DedicatedWorkerGlobalScope;
+
+/**
+ * This is the common entrypoint for the backend worker, invoked by the app
+ * via the specific 'electron' loader entrypoint.
+ */
+export function main(factories: FactoriesForBackend): void {
+    const logging = factories.logging('bw', BACKEND_WORKER_CONFIG.LOG_DEFAULT_STYLE);
+    {
+        const assertFailLogger = logging.logger('assert');
+        setAssertFailLogger((error) => assertFailLogger.error(extractErrorTraceback(error)));
+    }
+    const log = logging.logger('main');
+
+    // Greet with version!
+    log.info(`Loaded worker: ${import.meta.env.BUILD_VERSION} (${import.meta.env.BUILD_HASH})`);
+
+    // The worker exposes backend creation functions that run in the context of the worker, but
+    // which can be called from the main thread (through the backend controller).
+    const endpoint = createEndpointService({logging});
+    const services = {
+        logging,
+        endpoint,
+    };
+
+    const creator: BackendCreator = {
+        [TRANSFER_HANDLER]: PROXY_HANDLER,
+        hasIdentity: () => Backend.hasIdentity(factories, services),
+        fromKeyStorage: async (
+            init: BackendInit,
+            keyStoragePassword: string,
+            loadingStateSetup: ProxyEndpoint<LoadingStateSetup>,
+            certificatePinRecoveryHandle: ProxyEndpoint<CertificatePinRecoveryHandle>,
+        ) => {
+            log.info('Creating backend from key storage');
+            return await Backend.createFromKeyStorage(
+                init,
+                factories,
+                services,
+                keyStoragePassword,
+                loadingStateSetup,
+                certificatePinRecoveryHandle,
+            );
+        },
+        fromDeviceJoin: async (
+            init: BackendInit,
+            deviceLinkingSetup: ProxyEndpoint<DeviceLinkingSetup>,
+            shouldRestoreOldMessages: boolean,
+        ) => {
+            log.info('Creating backend from device join');
+            return await Backend.createFromDeviceJoin(
+                init,
+                factories,
+                services,
+                deviceLinkingSetup,
+                shouldRestoreOldMessages,
+            );
+        },
+        fromTestConfiguration: async (
+            init: BackendInit,
+            clientInfo: ClientInfo,
+[0m
+[0m$ [0mgrep -rn "databaseKey\|RawDatabaseKey\|sqlcipher\|SQLCIPHER\|cipher\|set_key\|PRAGMA" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/db/sqlite.ts 2>/dev/null | head -20
+3:import DatabaseConstructor, {type Database} from 'better-sqlcipher';
+48:    RawDatabaseKey,
+209:        dbKey: RawDatabaseKey,
+218:                if (message.startsWith('PRAGMA key')) {
+219:                    this._log.debug('PRAGMA key <redacted>');
+235:        // https://www.zetetic.net/sqlcipher/sqlcipher-api/#example-2-raw-key-data-without-key-derivation
+239:            this._rawDb.pragma('cipher_compatibility = 4');
+244:        // Check cipher provider
+245:        const provider: unknown = this._rawDb.pragma('cipher_provider', {simple: true});
+247:            throw new Error(`Invalid cipher provider: ${provider}`);
+249:        this._log.info('Using cipher provider:', provider);
+253:        this._rawDb.pragma('cipher_log_source = NONE');
+254:        this._rawDb.pragma('cipher_log_source = CORE');
+255:        this._rawDb.pragma('cipher_log_source = MUTEX');
+256:        this._rawDb.pragma('cipher_log_source = PROVIDER');
+268:        // [2] https://www.zetetic.net/sqlcipher/design/
+329:        dbKey: RawDatabaseKey,
+[0m
+[0m$ [0mgrep -rn "databaseKey\|RawDatabaseKey\|wrapRawDatabaseKey\|decryptDatabase\|database.*key" /tmp/opencode/threema-desktop/apps/desktop/src/common/db/ 2>/dev/null | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/common/db/index.ts:67: * Key length of a database key in bytes.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/db/index.ts:72: * Raw database key (32 bytes).
+/tmp/opencode/threema-desktop/apps/desktop/src/common/db/index.ts:77:export type RawDatabaseKey = WeakOpaque<RawKey<32>, {readonly RawDatabaseKey: unique symbol}>;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/db/index.ts:80: * Wrap a key into a {@link RawDatabaseKey}.
+/tmp/opencode/threema-desktop/apps/desktop/src/common/db/index.ts:84:export function wrapRawDatabaseKey(key: Uint8Array): RawDatabaseKey {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/db/index.ts:85:    return wrapRawKey(key, DATABASE_KEY_LENGTH) as RawDatabaseKey;
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/db/sqlite.ts[90m [limit=80, offset=200][0m
+[0m
+[0m$ [0mgrep -n "keystore\|keystorage\|profileDir\|appPath\|APPDATA\|userData\|\.threema" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null | head -20
+92:const ELECTRON_PATH_USER_DATA = 'userData';
+344:function getMainAppLogPath(appPath: string): string {
+345:    return path.join(appPath, ...import.meta.env.LOG_PATH.MAIN_AND_APP);
+348:function getBackendWorkerLogPath(appPath: string): string {
+349:    return path.join(appPath, ...import.meta.env.LOG_PATH.BACKEND_WORKER);
+352:function getWebrtcStatsLogPath(appPath: string): string {
+353:    return path.join(appPath, ...import.meta.env.LOG_PATH.WEBRTC_STATS);
+356:function clearLogs(appPath: string): void {
+357:    const mainAppLogPath = getMainAppLogPath(appPath);
+365:    const logBackendPath = getBackendWorkerLogPath(appPath);
+373:    const webrtcStatsLogPath = getWebrtcStatsLogPath(appPath);
+385:function generateLogFileInfo(type: 'app' | 'bw' | 'webrtc', appPath: string): LogFileInfo {
+390:            logPath = getMainAppLogPath(appPath);
+393:            logPath = getBackendWorkerLogPath(appPath);
+396:            logPath = getWebrtcStatsLogPath(appPath);
+415:    readonly appPath: string;
+468:    const appPath = path.join(
+472:    if (!fs.existsSync(appPath)) {
+473:        log.info(`Creating app data directory at ${appPath}`);
+474:        fs.mkdirSync(appPath, {recursive: true, ...directoryModeInternalObjectIfPosix()});
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/db/index.ts[90m [limit=30, offset=60][0m
+I've now cloned the repo and fully RAG-verified all source code claims. Let me verify the last link in the chain — the SQLCipher database key usage:
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [limit=30, offset=465][0m
+[0m
+[0m$ [0mgrep -n "getPersistentAppDataBaseDir" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null | head -5
+58:    getPersistentAppDataBaseDir,
+469:        ...getPersistentAppDataBaseDir(),
+[0m
+[0m$ [0mgrep -rn "getPersistentAppDataBaseDir" /tmp/opencode/threema-desktop/apps/desktop/src/electron/ 2>/dev/null | head -10; echo "==="; grep -rn "function getPersistentAppDataBaseDir\|export.*getPersistentAppDataBaseDir" /tmp/opencode/threema-desktop/apps/desktop/src/ 2>/dev/null | head -10
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-utils.ts:47:export function getPersistentAppDataBaseDir(): string[] {
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:58:    getPersistentAppDataBaseDir,
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:469:        ...getPersistentAppDataBaseDir(),
+===
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-utils.ts:47:export function getPersistentAppDataBaseDir(): string[] {
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-utils.ts[90m [limit=30, offset=40][0m
+[0m
+[0m# [0mTodos
+[✓] STEP 1: DELTA analysis (reposcan 08:42 = 0 new hits)
+[✓] STEP 2: Prioritize top existing desktop assets
+[✓] STEP 3: Emit top 3 hypotheses (desktop-focused)
+[✓] STEP 4: Self-critique and re-rank
+[•] STEP 5: Next action for POC phase
+[✓] STEP 6: Learning from RAG verification
+[✓] STEP 7: Risk score assessment
+[0m
+All source claims fully RAG-verified. The complete attack chain is confirmed in source:
+[0m$ [0mgrep -rn "SetNamedSecurityInfo\|SetFileSecurity\|SetSecurityInfo\|DACL\|explicit.*ace\|AddAccessAllowedAce\|InitAccessAllowedAce\|SECURITY_ATTRIBUTES\|SetFileAttributes" /tmp/opencode/threema-desktop/apps/desktop/src/ 2>/dev/null | head -20; echo "GREP_EXIT: $?"
+GREP_EXIT: 0
+[0m
+[0m$ [0mgrep -rn "safeStorage\|encryptString\|decryptString\|safeStoragePassword" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null
+915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+916:            if (!fs.existsSync(safeStoragePasswordPath)) {
+921:            if (electron.safeStorage.isEncryptionAvailable()) {
+923:                    const encryptedPassword = fs.readFileSync(safeStoragePasswordPath);
+924:                    return electron.safeStorage.decryptString(encryptedPassword);
+930:                    'Electron safeStorage is not available (no password manager?), loading password skipped.',
+940:                if (electron.safeStorage.isEncryptionAvailable()) {
+941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+943:                        const encryptedPassword = electron.safeStorage.encryptString(password);
+945:                        fs.writeFileSync(safeStoragePasswordPath, encryptedPassword, options);
+952:                        'Electron safeStorage is not available (no password manager?), storing password skipped.',
+983:                    isSafeStorageAvailable: electron.safeStorage.isEncryptionAvailable(),
+[0m
+## STEP 1 — DELTA
+
+**NO_DELTA.** The reposcan at 2026-08-08 08:42:14 UTC scanned 6656 code/config files with 56 hits — identical to the previous scan (grep-delta.txt: "0 new hit lines vs previous scan"). All 56 hits are known test fixtures (iOS Swift test passwords like `shootdeathstar`/sha256 `6e55663a…`), staging endpoint URLs from `directory.openapi.yml` (already ACCEPTED in KB), the benchmark dummy password at `crypto.ts:223` (already REJECTED), and benign constants (Sentry public DSNs, column names). No new surface discovered since 08:33:27 UTC.
+
+RAG verification today (cloned `github.com/threema-ch/threema-desktop`) confirmed all previously-claimed source line numbers and the full decryption chain — no new misconfig, but full source-level validation of existing hypotheses.
+
+## STEP 2 — PRIORITIZE
+
+Since NO_DELTA, scoring top existing assets (desktop-focused per POC phase):
+
+| Asset | attack | business | tech | gate | cloud | fresh | Priority |
+|---|---|---|---|---|---|---|---|
+| Desktop Windows key-storage ACL bypass (`fs.ts:40`, `index.ts:559`, `electron-main.ts:943`) | 9 | 10 | 8 | 9 (same-user only) | 0 | 10 | **8.9** |
+| Desktop BrowserWindow `sandbox:false` + `nodeIntegrationInWorker:true` (`electron-main.ts:1252,1255`) | 8 | 9 | 7 | 1 (needs XSS chain) | 0 | 8 | **7.2** |
+| Directory IDOR — `ds-apip.threema.ch` + `api.threema.ch` + `apip.threema.ch` (`GET /identity/{id}`, `POST /identity/fetch_bulk`) | 7 | 8 | 6 | 10 | 0 | 3 | **6.9** |
+| Safe backup CORS — `safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}` | 5 | 7 | 5 | 2 (cred-gated) | 5 | 2 | **4.7** |
+
+## STEP 3 — HYPOTHESES
+
+**[HYP] Desktop Windows key-storage ACL bypass → full identity + message-db compromise**
+```
+class: MISCONFIG
+asset: apps/desktop/src/common/node/{fs.ts:40-41, key-storage/index.ts:555-561, electron-main.ts:924,940-945} + inner/v3.ts:65,70 + sqlite.ts:236-240 + vite.config.ts:339,344
+confidence: 95
+reasoning: RAG-VERIFIED TODAY: fileModeInternalObjectIfPosix() returns {} on win32 (fs.ts:41). _writeOrOverrideFile (index.ts:559-561) spreads {} → no ACL on keystorage.bin. STORE_USER_PASSWORD (electron-main.ts:944-945) writes keystorage.password.bin via safeStorage.encryptString (DPAPI) with same {} options → no ACL. deriveKeyFromPassword (crypto.ts:53-88) uses Argon2id + XSalsa20-Poly1305. Inner layer v3 (v3.ts:65,70) decodes protobuf to identityData.ck (32-byte Ed25519 private key, keys.ts:14-20) + databaseKey (32-byte RawDatabaseKey, db/index.ts:69,77). SqliteDatabaseBackend (sqlite.ts:236-242) uses dbKey directly as SQLCipher PRAGMA key. File paths confirmed: KEY_STORAGE_PATH=['data','keystorage.bin'], SAFE_STORAGE_PASSWORD_PATH=['data','keystorage.password.bin'] (vite.config.ts:339,344). Windows base dir: %APPDATA%\ThreemaDesktop (electron-utils.ts:65-69). restore-db.ts:44-47 confirms dbKey + identity extraction.
+evidence_needed: (1) Windows DACL audit of both files showing blank/no explicit ACE; (2) CryptUnprotectData on keystorage.password.bin → recovers master password; (3) Argon2id(masterPassword, salt) → decrypt outer → decode inner v3 protobuf → extract ck + databaseKey; (4) databaseKey as SQLCipher pragma key → decrypt SQLite message DB.
+verify_steps: RAG (DONE — all line numbers confirmed in cloned source). AUTH_HELPED-LOCAL: powershell Get-Acl "$env:APPDATA\ThreemaDesktop\*\data\keystorage.password.bin" → no explicit ACE; powershell [Security.Cryptography.ProtectedData]::Unprotect(...) → password bytes; node: argon2.hash(pw,{type:argon2id,salt,raw:true}) → XSalsa20-Poly1305 decrypt → decode InnerKeyStorageV3 protobuf → ck + databaseKey → sqlite3 with PRAGMA key.
+impact: Any co-located same-user malware/process exfiltrates the victim's full Threema identity (Ed25519/ClientKey private key) + SQLite message-db encryption key → offline decrypt of entire local message store WITHOUT the Threema master password. No network auth required. Severity: High.
+testability: RAG (source fully verified) + AUTH_HELPED-LOCAL (Windows DACL + DPAPI round-trip, ≤1 rps, no remote call)
+```
+
+**[HYP] Desktop BrowserWindow sandbox disabled + nodeIntegrationInWorker exposes Node require in worker**
+```
+class: MISCONFIG
+asset: apps/desktop/src/electron/electron-main.ts:1234-1268 (webPreferences) + apps/desktop/src/worker/backend/electron/index.ts:1-2 + apps/desktop/src/app/app.ts:407-417
+confidence: 65
+reasoning: RAG-VERIFIED: webPreferences has nodeIntegration:false (L1251), nodeIntegrationInWorker:true (L1252 TODO DEK-79), contextIsolation:true (L1262), but NO sandbox property (L1255 TODO DEK-79 says "Enable sandbox: true" → defaults to false per Electron docs; L1240 comment "sandboxing is enabled by default" is INCORRECT). Backend-worker (app.ts:407) imports node:fs + node:path (index.ts:1-2), instantiates SqliteDatabaseBackend + FileSystemKeyStorage + ZlibCompressor — Node is live in worker. Worker processes Threema protobuf messages + attachments via @threema/libthreema-wasm.
+evidence_needed: A secondary deserialization/code-exec bug in worker's processing of attacker-controlled message/attachment content reaching a Node API at runtime; confirmation that sandbox remains unset (default false) per Electron docs.
+verify_steps: RAG (DONE — source confirms sandbox unset L1255 + nodeIntegrationInWorker:true L1252 + node:fs/node:path in worker L1-2 + backend-worker spawn app.ts:407). TRACE: grep for dynamic sinks (require/import/eval/child_process/new Function) in worker/ → NONE found (0 matches), confirming exploitability conditional on secondary bug.
+impact: A secondary deserialization/code-exec bug in backend-worker processing attacker-supplied Threema message or attachment → worker-context code exec → Node require (nodeIntegrationInWorker:true) → OS command execution on desktop host. Severity: High (RCE, conditional on secondary bug).
+testability: RAG (source verified, no direct sink — conditional on secondary bug discovery in worker protobuf/attachment processing)
+```
+
+**[HYP] Desktop crypto.ts:223 hardcoded password**
+```
+class: MISCONFIG
+asset: apps/desktop/src/common/node/key-storage/crypto.ts:222-233
+confidence: 95
+reasoning: RAG-VERIFIED: hardcoded password 'r3gGN9GDQ5NF6tM6' (sha256 52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c) appears ONLY in determineKdfParams() (L222-231) as a benchmark parameter to calibrate Argon2id runtime. The derived key is immediately purged via benchmarkKey.purge() (L233). Never persisted, never used for encryption.
+evidence_needed: Source confirms benchmarkKey.purge() at L233; password never leaves function scope.
+verify_steps: RAG (DONE): grep -n "r3gGN9GD" crypto.ts → only at L223 in determineKdfParams; grep "benchmarkKey.purge" → L233 confirms purge. No other references.
+impact: None — benchmark-only dummy, key immediately purged.
+testability: RAG (PASSIVE, source verified)
+```
+
+## STEP 4 — SELF-CRITIQUE
+
+- **Windows key-storage ACL bypass** (conf 95): Not dropped — confidence ≥40, class MISCONFIG not on REJECTED list, concrete verify_steps exist, RAG-VERIFIED today. **KEEP**.
+- **BrowserWindow sandbox** (conf 65): Not dropped — confidence ≥40, class MISCONFIG not on REJECTED list, verify_steps exist. Exploitability is conditional but the misconfiguration itself is source-confirmed. **KEEP (HOLD)**.
+- **crypto.ts:223 hardcoded password** (conf 95): **DROP** — this is on the REJECTED list (knowledge/index.md line 24/64). The password is a benchmark-only dummy. **[PARKED] crypto.ts:223 hardcoded password: REJECTED — benchmark-only dummy, key immediately purged via benchmarkKey.purge() at L233. Confirmed via RAG today.**
+
+[FINAL] ranked:
+1. Desktop Windows key-storage ACL bypass (conf 95, RAG-verified, AUTH_HELPED-LOCAL)
+2. Desktop BrowserWindow sandbox:false + nodeIntegrationInWorker gap (conf 65, RAG-verified, conditional on secondary bug)
+
+## STEP 5 — NEXT ACTION
+
+[RAG] Clone `github.com/threema-ch/threema-desktop` (done) — read `apps/desktop/src/common/native/app-bridge/` and trace how `electron.safeStorage` (DPAPI) is invoked at runtime on Windows, and grep `apps/desktop/src/` for any Windows-specific code path that bypasses `fileModeInternalObjectIfPosif()`. Specifically verify `electron-main.ts:912-957` `STORE_USER_PASSWORD`/`LOAD_USER_PASSWORD` IPC handlers and confirm no Windows-specific ACL hardening (e.g., `SetNamedSecurityInfo`) exists anywhere in the codebase. If none found, the ACL bypass is fully confirmed for the POC.
+
+(Rationale: This is the POC phase on desktop. The Windows key-storage ACL bypass is the top finding (conf 95). RAG just verified all source claims — the remaining gap is confirming there's NO compensating Windows-specific ACL code that might have been missed. The grep above already shows `fs.writeFileSync(safeStoragePasswordPath, encryptedPassword, options)` where `options = {...fileModeInternalObjectIfPosix()}` = `{}` on Windows, with no additional `SetNamedSecurityInfo`/`SetFileSecurity` calls visible. Let me verify this negative claim fully.)
+[0m$ [0mgrep -rn "SetNamedSecurityInfo\|SetFileSecurity\|DACL\|SECURITY_ATTRIBUTES\|SetFileAttributes\|access.*control\|acl.*restrict\|permission.*file" /tmp/opencode/threema-desktop/ --include="*.ts" --include="*.c" --include="*.cpp" --include="*.h" --include="*.js" 2>/dev/null | grep -iv "test\|spec\|mock\|eslint\|node_modules" | head -20; echo "GREP_EXIT: $?"
+GREP_EXIT: 0
+[0m
+[0m# [0mTodos
+[✓] STEP 1: DELTA analysis (reposcan 08:42 = 0 new hits)
+[✓] STEP 2: Prioritize top existing desktop assets
+[✓] STEP 3: Emit top 3 hypotheses (desktop-focused)
+[✓] STEP 4: Self-critique and re-rank
+[✓] STEP 5: Next action for POC phase
+[✓] STEP 6: Learning from RAG verification
+[✓] STEP 7: Risk score assessment
+[0m
+RAG confirms: zero Windows-specific ACL hardening code anywhere in the codebase. The attack chain is fully source-verified.
+
+## STEP 5 (continued) — NEXT ACTION
+
+[AUTH_HELPED-LOCAL] On a Windows host with Threema Desktop installed: (1) `powershell Get-Acl "$env:APPDATA\ThreemaDesktop\*\data\keystorage.password.bin"` → confirm no explicit ACE; (2) `powershell [Security.Cryptography.ProtectedData]::Unprotect([System.IO.File]::ReadAllBytes('...\keystorage.password.bin'),$null,[Security.Cryptography.DataProtectionScope]::CurrentUser)` → recover master password bytes; (3) Node script: `argon2.hash(password, {type:argon2.argon2id, salt, raw:true})` → XSalsa20-Poly1305 decrypt outer layer (helpers.ts:226-233) → decode InnerKeyStorageV3 protobuf (v3.ts:110-122, strip 2-byte version prefix) → extract `identityData.ck` (line 65) + `databaseKey` (line 70); (4) `sqlite3` with `PRAGMA key = "x'<databaseKey hex>'"` → decrypt message DB (sqlite.ts:236-240).
+
+## STEP 6 — LEARNING
+
+- **REJECTED** MISCONFIG @ crypto.ts:223: RAG-VERIFIED today — password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) is benchmark-only dummy in `determineKdfParams()`, derived key immediately purged via `benchmarkKey.purge()` at L233. Never used for real encryption. (Already in KB, confidence strengthened.)
+- **ACCEPTED (strengthened)** MISCONFIG @ desktop key-storage Windows ACL: RAG-VERIFIED today — `fileModeInternalObjectIfPosif()` returns `{}` on win32 (fs.ts:41); `_writeOrOverrideFile` (index.ts:559-561) and `STORE_USER_PASSWORD` (electron-main.ts:944-945) both write with `{}` options → no ACL restriction; full decryption chain confirmed through `helpers.ts` (Argon2id+XSalsa20-Poly1305) → `inner/v3.ts` (identityData.ck + databaseKey) → `sqlite.ts:236-242` (SQLCipher pragma key). Zero Windows ACL hardening code exists in codebase. Confidence 75→95.
+- **ACCEPTED (confirmed)** MISCONFIG @ desktop electron-main.ts BrowserWindow: RAG-VERIFIED — `nodeIntegrationInWorker: true` (L1252, TODO DEK-79), `sandbox` NOT set (L1255 TODO DEK-79, defaults to false), `nodeIntegration: false` (L1251), `contextIsolation: true` (L1262). Worker imports `node:fs`/`node:path` (index.ts:1-2). No dynamic sinks (require/import/eval/etc.) found in `worker/` — exploitability confirmed conditional on secondary bug.
+- **REJECTED** MISCONFIG @ desktop OnPrem config trust: Already in KB (Ed25519 sig verification + HTTPS/WSS validation confirmed secure). No new evidence to change.
+- **REJECTED** MISCONFIG @ staging `.test` variants: All staging subdomains (`*.test.threema.ch`) remain out of scope per scope.yml (only production hostnames listed). No new staging divergence since 08:08.
+
+## STEP 7 — RISK SCORE
+
+| Surface | Score | Reason |
+|---|---|---|
+| chat | 12 | `g-*.0.threema.ch` in scope but requires authenticated CSP protocol handshake; staging `.test` variants out of scope; TCP 5222 silent without client login frame |
+| web | 35 | Directory IDOR on 3 production hosts (ds-apip/api/apip) with CORS * + no rate limit — already ACCEPTED; staging directory/work servers publicly reachable with identical API; safe backup server credential-gated |
+| sync | 15 | mediator/rendezvous staging `.test` out of scope; prod uniform 403 gate; no passive divergence found |
+| safe | 25 | Safe backup API credential-gated (400 without auth); CORS * + Authorization header on cred-gated endpoint is defense-in-depth only; no unauth data access |
+| desktop-src | 75 | Windows key-storage ACL bypass (conf 95, fully RAG-verified) → credential-free identity + message-DB compromise; BrowserWindow sandbox:false + nodeIntegrationInWorker hardening gap; full attack chain source-confirmed |
+**Summary:** Today's RAG run cloned `github.com/threema-ch/threema-desktop` and source-verified the full Windows key-storage ACL bypass attack chain end-to-end (fs.ts:41 → index.ts:559 → crypto.ts:53-88 → v3.ts:65,70 → sqlite.ts:236-242). Zero Windows ACL hardening code exists in the codebase. Confidence: 75→95. The reposcan delta remains 0. Next step: Windows runtime proof (AUTH_HELPED-LOCAL, HUMAN_ONLY for the DACL + DPAPI round-trip).

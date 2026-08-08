@@ -9034,3 +9034,404 @@ STEP 7 — RISK SCORE
 [RISK] sync: 40 reason: mediator/rendezvous uniform 403; WSS paths high-entropy; auth model in source
 [RISK] safe: 65 reason: credential-gated but CORS `*` + Authorization header + write-capable methods + 5 hostnames/1 IP; no 429 observed; no data access demonstrated
 [RISK] desktop-src: 75 reason: one real (unproven-on-Windows) finding — key-storage ACL gap; sandbox:false HOLD; OnPrem trust chain secure; no new secrets in scans
+===== ANALYST bigpickle 2026-08-08 09:15:49 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/ 2>/dev/null; echo "---"; ls /tmp/opencode 2>/dev/null | head -50
+total 144
+drwxr-xr-x 11 runner runner  4096 Aug  8 09:06 .
+drwxr-xr-x  3 runner runner  4096 Aug  8 09:06 ..
+drwxr-xr-x  7 runner runner  4096 Aug  8 09:06 .git
+drwxr-xr-x  3 runner runner  4096 Aug  8 09:06 .github
+-rw-r--r--  1 runner runner  1049 Aug  8 09:06 README.md
+-rw-r--r--  1 runner runner    32 Aug  8 09:06 analyst-out.txt
+-rw-r--r--  1 runner runner 35136 Aug  8 09:06 analyst-prompt.txt
+-rw-r--r--  1 runner runner 32072 Aug  8 09:06 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  8 09:06 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  8 09:06 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  8 09:06 leads
+drwxr-xr-x  2 runner runner  4096 Aug  8 09:06 reports
+drwxr-xr-x  3 runner runner  4096 Aug  8 09:06 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  8 09:06 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  8 09:06 scripts
+-rw-r--r--  1 runner runner    34 Aug  8 09:06 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  8 09:06 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  8 09:06 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  8 09:06 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  8 09:06 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  8 09:06 triage
+---
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/ 2>/dev/null; echo "---LEADS---"; ls -la /home/runner/work/threema-hunt/threema-hunt/leads/ 2>/dev/null; echo "---SCRIPTS---"; ls -la /home/runner/work/threema-hunt/threema-hunt/scripts/ 2>/dev/null
+total 52
+drwxr-xr-x  3 runner runner  4096 Aug  8 09:06 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 09:06 ..
+-rw-r--r--  1 runner runner    43 Aug  8 09:06 analysis.txt
+-rw-r--r--  1 runner runner    40 Aug  8 09:06 grep-delta.txt
+-rw-r--r--  1 runner runner  7433 Aug  8 09:06 grep-hits.prev.txt
+-rw-r--r--  1 runner runner  7433 Aug  8 09:06 grep-hits.txt
+-rw-r--r--  1 runner runner 15258 Aug  8 09:06 rag.txt
+drwxr-xr-x 18 runner runner  4096 Aug  8 09:06 threema-ch
+---LEADS---
+total 800
+drwxr-xr-x  2 runner runner   4096 Aug  8 09:06 .
+drwxr-xr-x 11 runner runner   4096 Aug  8 09:06 ..
+-rw-r--r--  1 runner runner 144528 Aug  8 09:06 lead-bigpickle.md
+-rw-r--r--  1 runner runner  87890 Aug  8 09:06 lead-laguna.md
+-rw-r--r--  1 runner runner   2536 Aug  8 09:06 lead-ling3.md
+-rw-r--r--  1 runner runner   1032 Aug  8 09:06 lead-longcat.md
+-rw-r--r--  1 runner runner 139859 Aug  8 09:06 lead-nemotron3.md
+-rw-r--r--  1 runner runner  11048 Aug  8 09:06 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner  13399 Aug  8 09:06 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner  13429 Aug  8 09:06 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner  11241 Aug  8 09:06 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner   6565 Aug  8 09:06 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner   9511 Aug  8 09:06 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner  13472 Aug  8 09:06 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner  10507 Aug  8 09:06 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner  13665 Aug  8 09:06 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner  10938 Aug  8 09:06 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner  17321 Aug  8 09:06 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner  15373 Aug  8 09:06 reposcan-2026-08-07-23-19.md
+-rw-r--r--  1 runner runner  11670 Aug  8 09:06 reposcan-2026-08-07-23-50.md
+-rw-r--r--  1 runner runner  14267 Aug  8 09:06 reposcan-2026-08-08-00-01.md
+-rw-r--r--  1 runner runner  12628 Aug  8 09:06 reposcan-2026-08-08-00-19.md
+-rw-r--r--  1 runner runner  13392 Aug  8 09:06 reposcan-2026-08-08-02-10.md
+-rw-r--r--  1 runner runner  13822 Aug  8 09:06 reposcan-2026-08-08-02-23.md
+-rw-r--r--  1 runner runner  13194 Aug  8 09:06 reposcan-2026-08-08-03-52.md
+-rw-r--r--  1 runner runner  14260 Aug  8 09:06 reposcan-2026-08-08-04-47.md
+-rw-r--r--  1 runner runner  15327 Aug  8 09:06 reposcan-2026-08-08-05-01.md
+-rw-r--r--  1 runner runner  13092 Aug  8 09:06 reposcan-2026-08-08-05-29.md
+-rw-r--r--  1 runner runner  11228 Aug  8 09:06 reposcan-2026-08-08-05-48.md
+-rw-r--r--  1 runner runner  10378 Aug  8 09:06 reposcan-2026-08-08-06-08.md
+-rw-r--r--  1 runner runner  11257 Aug  8 09:06 reposcan-2026-08-08-06-56.md
+-rw-r--r--  1 runner runner  11788 Aug  8 09:06 reposcan-2026-08-08-07-12.md
+-rw-r--r--  1 runner runner   9790 Aug  8 09:06 reposcan-2026-08-08-07-53.md
+-rw-r--r--  1 runner runner  10972 Aug  8 09:06 reposcan-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner  13672 Aug  8 09:06 reposcan-2026-08-08-08-37.md
+-rw-r--r--  1 runner runner   6321 Aug  8 09:06 reposcan-2026-08-08-08-42.md
+-rw-r--r--  1 runner runner   6321 Aug  8 09:06 reposcan-latest.md
+---SCRIPTS---
+total 16
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 .
+drwxr-xr-x 11 runner runner 4096 Aug  8 09:06 ..
+-rw-r--r--  1 runner runner 7771 Aug  8 09:06 sync-issues.py
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/ 2>/dev/null; echo "---LATEST---"; cat /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-latest.md 2>/dev/null | head -80
+app-remote-protocol
+compose-area
+push-relay
+threema-android
+threema-bot-sdk
+threema-desktop
+threema-ios
+threema-markup
+threema-msgapi-sdk-java
+threema-msgapi-sdk-php
+threema-msgapi-sdk-python
+threema-msgapi-sdk-rust
+threema-web
+threema-web-electron
+wasm-minisign-verify
+webrtc-build-docker
+---LATEST---
+
+===== REPOSCAN 2026-08-08 08:42:14 UTC =====
+## Grep hits:
+SCAN SUMMARY: 6656 code/config files scanned, 56 hits
+reposcan-raw/threema-ch/threema-ios/Threema/AppMigration.swift:873: let persistenceKeyLicensePassword = "Threema license password"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/SafeDataTests.swift:11: serverPassword: "password1",
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift:15: let expectedAuthToken = "authToken"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift:18: let expectedPassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:50: licenseStoreMock.licensePassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:72: (username: nil as String?, password: "testPassword" as String?, description: "nil username"),
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:148: licenseStoreMock.licensePassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:13: let expectedPassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:37: (username: nil as String?, password: "validPassword" as String?, description: "nil username"),
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:103: password: "testPassword",
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:67: let result = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:76: let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:105: let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift:30: let password = "abcdefghijkl"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift:227: let validPassword = "ABcd!@#tgk092"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:28: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:76: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:120: safePassword: "shootdeathstar"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift:38: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift:83: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt:49: """sfuToken='********', expirationDate=$expirationDate)"""
+reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:911: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/storage/models/WebClientSessionModel.java:28: public static final String COLUMN_PUSH_TOKEN = "push_token";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/storage/databaseupdate/DatabaseUpdateToVersion37.java:48: static final String COLUMN_PUSH_TOKEN = "push_token";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/utils/IceCandidateParser.java:43: public final static String TOKEN = "[a-zA-Z]+";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/webclient/converter/ClientInfo.java:37: private final static String PUSH_TOKEN = "pushToken";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt:70: "iceUsernameFragment='$iceUsernameFragment', icePassword='$icePassword', " +
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/notifications/NotificationChannels.kt:52: const val NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/dialogs/PasswordEntryDialog.java:47: public static final @NonNull String KEY_PASSWORD = "password";
+reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:15: publicApiKey = "b3e20afbf356a8748bb62ac165aa780c",
+reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:19: publicApiKey = "615af77cb3d980c41b3b04b07417cc7d",
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:147: DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:153: WORK_SERVER_LEGACY_URL: 'https://ds-apip-work.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:154: WORK_SERVER_URL: 'https://work.test.threema.ch/',
+
+## Model analysis:
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node -name "key-storage*" 2>/dev/null; echo "---"; date -u
+---
+Sat Aug  8 09:06:30 UTC 2026
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src -type d -name "node" 2>/dev/null; echo "---FIND key-storage---"; grep -rl "key-storage\|keystorage" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop --include="*.ts" 2>/dev/null | head -30
+---FIND key-storage---
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/ 2>/dev/null; echo "---"; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -iname "*keystor*" 2>/dev/null | head; echo "---fs.ts---"; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -name "fs.ts" -path "*node*" 2>/dev/null | head
+---
+---fs.ts---
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/ 2>/dev/null; echo "EXIT:$?"; echo "---other dirs---"; ls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-ios 2>/dev/null | head -5
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  8 09:06 .
+drwxr-xr-x 18 runner runner 4096 Aug  8 09:06 ..
+EXIT:0
+---other dirs---
+[0m
+[0m$ [0mfor d in /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/*/; do echo "$(basename $d): $(ls "$d" | wc -l) entries"; done; echo "---grep-delta---"; cat /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/grep-delta.txt; echo "---analysis---"; cat /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/analysis.txt
+app-remote-protocol: 0 entries
+compose-area: 0 entries
+push-relay: 0 entries
+threema-android: 0 entries
+threema-bot-sdk: 0 entries
+threema-desktop: 0 entries
+threema-ios: 0 entries
+threema-markup: 0 entries
+threema-msgapi-sdk-java: 0 entries
+threema-msgapi-sdk-php: 0 entries
+threema-msgapi-sdk-python: 0 entries
+threema-msgapi-sdk-rust: 0 entries
+threema-web-electron: 0 entries
+threema-web: 0 entries
+wasm-minisign-verify: 0 entries
+webrtc-build-docker: 0 entries
+---grep-delta---
+DELTA: 0 new hit lines vs previous scan
+---analysis---
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m
+[0m$ [0mgrep -n -i "fileModeInternalObjectIfPosix\|safeStorage\|keystorage" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/rag.txt | head -20; echo "---RAG head---"; head -30 /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/rag.txt
+27:- 2026-08-07 ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — `keystorage.bin` and `keystorage.password.bin` written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes.
+75:- 2026-08-08 ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — `keystorage.bin` and `keystorage.password.bin` written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes
+---RAG head---
+=== KNOWLEDGE BASE (RAG) ===
+# Knowledge Base (seed)
+
+## Program rules (from scope.yml)
+- In scope: Android source, iOS source, Desktop 2.x source (threema-desktop), g-*.0.threema.ch, mediator-*.threema.ch, rendezvous-*.threema.ch, apip.threema.ch, safe-*.threema.ch, work.threema.ch, broadcast.threema.ch, gateway.threema.ch, shop.threema.ch, billing.threema.ch
+- ALL other targets and third-party services are OUT of scope
+- Passive-first: GET/HEAD only, <=1 rps, no account creation, no data modification
+- Secrets in commits: sha256 only, never raw
+
+## Baseline surface (2026-08-07 passive recon)
+- apip.threema.ch: HTTP 403 on /
+- work.threema.ch: 301 (redirect)
+- shop.threema.ch: 301 (redirect)
+- broadcast.threema.ch / gateway.threema.ch / billing.threema.ch: TIMEOUT (retry; note gating)
+- GitHub org threema-ch (23 repos): threema-android (Kotlin), threema-ios (Swift), threema-desktop (TS), threema-web (TS), threema-web-electron, threema-msgapi-sdk-{php,java,python,rust}, threema-bot-sdk, push-relay (Rust), app-remote-protocol, webrtc-build-docker, apns-h2, etc.
+
+## Rejected / parked
+- (none yet)
+- 2026-08-07 ACCEPTED AUTH @ apip.threema.ch: CORS misconfiguration enabling cross-origin API probes confirmed via passive HEAD/GET.
+- 2026-08-07 ACCEPTED OTHER @ threema-desktop: Electron attack surface confirmed in scope; static analysis is valid passive-first approach.
+- 2026-08-07 ACCEPTED IDOR @ ds-apip.threema.ch: Public `GET /identity/{id}` returns 200/404 oracle with permissive CORS and no observable rate limit — confirmed via passive probes.
+- 2026-08-07 ACCEPTED IDOR @ ds-apip.threema.ch: Unauthenticated identity→pubkey oracle confirmed via GET /identity/{id} (200/404) AND POST /identity/fetch_bulk (returns pubkeys for valid IDs only, no auth).
+- 2026-08-07 ACCEPTED AUTH @ apip.threema.ch: CORS misconfiguration confirmed — Access-Control-Allow-Origin: *, methods include POST/GET/OPTIONS/DELETE — cross-origin API probes enabled from any attacker origin.
+- 2026-08-07 ACCEPTED OTHER @ api.threema.ch: Previously a "candidate ID/directory sibling"; now confirmed as an active directory server with identical endpoints and CORS headers as ds-apip.threema.ch.
+- 2026-08-07 REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in `determineKdfParams()`, derived key immediately purged, not used for any real encryption.
+- 2026-08-07 REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not vulnerable.
+- 2026-08-07 ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — `keystorage.bin` and `keystorage.password.bin` written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes.
+- 2026-08-07 ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateLimit). CORS `*` with DELETE/POST/GET/OPTIONS. All three hostnames return identical pubkeys for valid IDs; invalid IDs silently omitted.
+- 2026-08-07 ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: Staging directory server publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+- 2026-08-07 ACCEPTED MISCONFIG @ ds-apip.test.threema.ch + apip.test.threema.ch: Staging directory servers publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/state_bigpickle.json; echo "---TRIAGE---"; ls /home/runner/work/threema-hunt/threema-hunt/triage/ 2>/dev/null; echo "---REPORTS---"; ls /home/runner/work/threema-hunt/threema-hunt/reports/ 2>/dev/null | head; echo "---KNOWLEDGE---"; ls /home/runner/work/threema-hunt/threema-hunt/knowledge/ 2>/dev/null
+{"phase": "POC", "target": "chat"}---TRIAGE---
+run-2026-08-07-20-10.md
+run-2026-08-07-21-03.md
+run-2026-08-07-21-56.md
+run-2026-08-07-22-56.md
+run-2026-08-07-23-55.md
+run-2026-08-08-02-24.md
+run-2026-08-08-04-24.md
+run-2026-08-08-06-01.md
+run-2026-08-08-07-07.md
+run-2026-08-08-07-15.md
+run-2026-08-08-08-07.md
+run-2026-08-08-08-59.md
+---REPORTS---
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+---KNOWLEDGE---
+index.md
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/triage/run-2026-08-08-08-59.md 2>/dev/null | head -60; echo "===07-15==="; cat /home/runner/work/threema-hunt/threema-hunt/triage/run-2026-08-08-07-15.md 2>/dev/null | head -40
+===== TRIAGE 2026-08-08 08:59:06 UTC =====
+[0m
+> build · longcat-2.0-free
+[0m
+The leads list is missing — your message was cut off after "LEADS:". Please provide the probe results so I can triage them against the 7-Question Gate.
+===07-15===
+
+===== TRIAGE 2026-08-08 07:15:49 UTC =====
+[0m
+> build · longcat-2.0-free
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt -name "scope.yml" -o -name "scope.yaml" 2>/dev/null | head -20
+/home/runner/work/threema-hunt/threema-hunt/scope.yml
+[0m
+[0m→ [0mRead .
+The leads list is empty. I need to:
+
+1. **Check scope.yml** to know what's in scope
+2. **Get the actual probe results** (URLs, findings) to triage
+
+Let me check the scope first, then ask for the leads.
+[0m→ [0mRead scope.yml
+[0m→ [0mRead probe-results.txt
+[0m→ [0mRead leads
+[0m→ [0mRead new-leads.txt
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead leads/lead-laguna.md
+[0m→ [0mRead leads/lead-ling3.md
+[0m→ [0mRead leads/lead-longcat.md
+[0m→ [0mRead leads/lead-nemotron3.md
+[0m✗ [0mRead reposcan-latest.md failed[90m [limit=100][0m
+[91m[1mError: [0mFile not found: /home/runner/work/threema-hunt/threema-hunt/reposcan-latest.md
+[0m→ [0mRead triage-output.txt[90m [limit=100][0m
+Now I have the full picture. Let me check the reposcan-latest and triage-output for duplicate tracking context:
+I now have all the data needed. Let me consolidate the unique leads across all 5 models and triage each against the 7-Question Gate.
+
+---
+
+# THREEMA HUNT — TRIAGE REPORT
+
+## Scope Recap (scope.yml)
+
+**In-scope assets:**
+- Android/iOS/Desktop source code (threema-ch org)
+- `g-*.0.threema.ch` (chat services)
+- `mediator-*.threema.ch`, `rendezvous-*.threema.ch` (multi-device sync/linking)
+[0m
+[0m→ [0mRead scope.yml
+[0m→ [0mRead knowledge/index.md
+[0m
+[0m$ [0mgrep -n -i "fileModeInternalObjectIfPosix\|key-storage\|keystorage.bin\|safeStorage" /home/runner/work/threema-hunt/threema-hunt/leads/lead-bigpickle.md 2>/dev/null | head -20; echo "---laguna---"; grep -n -i "fileModeInternalObjectIfPosix" /home/runner/work/threema-hunt/threema-hunt/leads/lead-laguna.md 2>/dev/null | head -10
+38:[HYP] threema-desktop key-storage KDF parameter weakness
+40:asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/key-storage/crypto.ts)
+44:verify_steps: PASSIVE: static read of crypto.ts `determineKdfParams()` and the storage backend (safeStorage vs plaintext file). No live requests.
+149:[LEARN] ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — `keystorage.bin` and `keystorage.password.bin` written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes.
+188:[HYP] threema-desktop Windows key storage: keystorage.bin and keystorage.password.bin written without ACL restrictions
+190:asset: github.com/threema-ch/threema-desktop `apps/desktop/src/common/node/key-storage/index.ts`
+192:reasoning: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — both `keystorage.bin` (Argon2id-encrypted) and `keystorage.password.bin` (DPAPI-protected) written without explicit DACL/ACL; safeStorage (DPAPI) password blob recoverable by any same-user process via CryptUnprotectData
+194:verify_steps: RAG: read `apps/desktop/src/common/node/key-storage/index.ts` and `keystore.ts`; search for `fileModeInternalObjectIfPosix`, `safeStorage`, `writeFile`, `chmod`, `SetFileSecurity`
+476:verify_steps: RAG: read `apps/desktop/src/common/node/key-storage/index.ts` and `keystore.ts`; search for `fileModeInternalObjectIfPosix`, `safeStorage`, `writeFile`, `chmod`, `SetFileSecurity`
+750:asset: threema-desktop `apps/desktop/src/common/node/key-storage/index.ts` (fileModeInternalObjectIfPosix) + keystorage.password.bin (DPAPI)
+752:reasoning: Accepted RAG: fileModeInternalObjectIfPosix() returns {} on Windows, so keystorage.bin (Argon2id-wrapped, key = user master password) and keystorage.password.bin (Electron safeStorage = Windows DPAPI under current user) are written with NO POSIX ACL restriction on disk. On Windows, CryptProtectData is reversible by ANY same-user process — so a co-located malicious app/service running as the same Windows identity can decrypt keystorage.password.bin → recover master key → decrypt keystorage.bin → plaintext identity keypair + message DB.
+753:evidence_needed: Source confirm fileModeInternalObjectIfPosix() path returns {} for Windows (not {mode:0o600}); confirm keystorage.password.bin written with safeStorage/encryption; confirm master password is the Argon2id input to keystorage.bin (no per-install salt/seal beyond the password).
+754:verify_steps: RAG: clone threema-desktop, read `apps/desktop/src/common/node/key-storage/index.ts` around fileModeInternalObjectIfPosix; read crypto.ts KDF flow to confirm master-password→keystorage.bin; confirm safeStorage usage on Windows path.
+766:[NEXT] RAG: clone github.com/threema-ch/threema-desktop, then read `apps/desktop/src/electron/electron-main.ts` BrowserWindow webPreferences to capture exact line numbers for `sandbox`/`nodeIntegrationInWorker`/`nodeIntegration`/`contextIsolation`, and read `apps/desktop/src/common/node/key-storage/index.ts` `fileModeInternalObjectIfPosix` to confirm Windows returns `{}` (no ACL). Also grep `new Worker(` across `apps/desktop/src/` to enumerate worker content sources. This materially advances the desktop POC (top-ranked RAG hypothesis) and resolves the 65+75 confidence desktop leads to verified line-level evidence.
+767:[HYP] Desktop Windows key-storage ACL bypass → master-password recovery → identity keypair + DB decryption
+769:asset: apps/desktop/src/common/node/{fs,key-storage/index.ts,crypto.ts} + electron-main.ts STORE_USER_PASSWORD (line 944)
+771:reasoning: `fileModeInternalObjectIfPosix()` (fs.ts:41) returns `{}` on win32 so `keystorage.bin` (_writeOrOverrideFile @ index.ts:559) and `keystorage.password.bin` (electron-main.ts:944-945) are persisted with NO ACL restriction. The latter is encrypted via `electron.safeStorage.encryptString` (electron-main.ts:943) = Windows DPAPI under the current user. `keystorage.bin` outer layer is Argon2id-wrapped by the master password (crypto.ts:53-88), inner layer exposes `identityData.identity` (private key) + `databaseKey` (restore-db.ts:44-47).
+772:evidence_needed: Windows file-object ACL audit of `keystorage.bin` and `keystorage.password.bin` (DACL = blank/default) + reproduction: co-located same-user process calling `CryptUnprotectData` on the password file, then Argon2id(masterPassword)+salt-from-file → XSalsa20 decrypt → identity private key.
+773:verify_steps: RAG (PASSIVE): confirm on-disk DACL — source already proves `mode` omitted on Windows. AUTH_HELPED (same-user only): `powershell Get-Acl` on both files to show no explicit ACE; then `CryptProtect`/`CryptUnprotectData` round-trip via DPAPI on the password blob; then `argon2` node derivation with salt embedded in keystorage.bin outer layer to decrypt the intermediate key storage. ≤1 rps, no remote call.
+797:[FINAL] ranked: 1) Desktop Windows key-storage ACL bypass (95, RAG/AUTH_HELPED-local), 2) Safe backup cross-origin credentialed access (75, PASSIVE/AUTH_HELPED), 3) Desktop BrowserWindow sandbox+worker gap (65, RAG).
+---laguna---
+40:reasoning: `fileModeInternalObjectIfPosix()` → `0600` on POSIX only; Windows writes no mode → `keystorage.bin` readable by other local processes; password file uses Electron `safeStorage` (OS-level). Local-access prerequisite.
+96:[CHANGED] RAG finding: Desktop key storage confirmed — `fileModeInternalObjectIfPosix()` returns `{}` (no restriction) on Windows. Both `keystorage.bin` (Argon2id-encrypted) and `keystorage.password.bin` (DPAPI-via-`electron.safeStorage`-encrypted) are written without Windows ACL restrictions. Any same-user process can read both files and decrypt the password via DPAPI.
+105:reasoning: `fileModeInternalObjectIfPosix()` returns `{}` on Windows (no POSIX mode set), so `keystorage.bin` is written with default Windows ACLs. `_writeOrOverrideFile()` in index.ts passes this empty object to `fsPromises.writeFile()`. The password file `keystorage.password.bin` is encrypted via `electron.safeStorage.encryptString()` (DPAPI on Windows) but is also written with `fileModeInternalObjectIfPosix()` → no ACL restriction. Any same-user process can read both files and decrypt the password via DPAPI, then use it to decrypt the Argon2id-encrypted `keystorage.bin` containing private keys and DB encryption key.
+128:[PARKED] Desktop key storage Windows permissions (original): Refiled as NEW hypothesis with increased confidence (45→75) based on RAG confirmation of `fileModeInternalObjectIfPosix()` returning `{}` on Windows and `electron.safeStorage` usage confirmed in `electron-main.ts:944-945`. Testability remains HUMAN_ONLY.
+135:[LEARN] ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — `keystorage.bin` and `keystorage.password.bin` written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes.
+176:reasoning: fileModeInternalObjectIfPosix() returns {} on Windows (no POSIX mode set), so keystorage.bin is written with default Windows ACLs (no restriction). _writeOrOverrideFile() in index.ts passes this empty object to fsPromises.writeFile(). Password file keystorage.password.bin is encrypted via electron.safeStorage.encryptString() (DPAPI on Windows) but is also written with fileModeInternalObjectIfPosix() → no ACL restriction. Any same-user process can read both files and decrypt the password via DPAPI, then use it to decrypt the Argon2id-encrypted keystorage.bin containing private keys and DB encryption key.
+243:asset: apps/desktop/src/common/node/key-storage/index.ts + electron-main.ts + common/node/fs.ts (`fileModeInternalObjectIfPosix()`)
+245:reasoning: RAG confirms `fileModeInternalObjectIfPosix()` returns `{}` on Windows, so `keystorage.bin` is written with default ACLs (no restriction) and `_writeOrOverrideFile` passes that empty object to `fsPromises.writeFile`. `keystorage.password.bin` is DPAPI-encrypted but likewise written with no ACL restriction; any same-user process can read both and decrypt via DPAPI then Argon2id.
+358:asset: threema-desktop `apps/desktop/src/common/node/key-storage/index.ts` (fileModeInternalObjectIfPosix) + keystorage.password.bin (DPAPI)
+360:reasoning: Accepted RAG: fileModeInternalObjectIfPosix() returns {} on Windows, so keystorage.bin (Argon2id-wrapped, key = user master password) and keystorage.password.bin (Electron safeStorage = Windows DPAPI under current user) are written with NO POSIX ACL restriction on disk. On Windows, CryptProtectData is reversible by ANY same-user process — so a co-located malicious app/service running as the same Windows identity can decrypt keystorage.password.bin → recover master key → decrypt keystorage.bin → plaintext identity keypair + message DB.
+[0m
+STEP 1 — DELTA
+- [NEW] reposcan-raw/threema-ch/* (all 16 repo dirs) are EMPTY placeholders — local re-verification of `fileModeInternalObjectIfPosix()` call sites (fs.ts:41, index.ts:559, electron-main.ts:943-945) is impossible this cycle; key-storage proof packet rests on prior RAG artifacts (lead-bigpickle.md:750-773, lead-laguna.md:96-105).
+- [NEW] reposcan 08:42 UTC: 56 grep hits / 6656 files, grep-delta = 0 new lines vs previous — source surface stable, no new leads.
+- [CHANGED] triage run-2026-08-08-08-59.md aborted ("leads list missing") — no triage decisions this cycle.
+- [CHANGED] GO/NO-GO gate STILL OPEN: scope.yml:4 `disclosure_policy: TBD`; no operator confirmation of authorization/reporting channel in any artifact through 08:59.
+
+STEP 2 — PRIORITIZE
+- [PRIO] ds-apip.threema.ch directory cluster (/identity/{id}, /identity/fetch_bulk across 3 hosts) — priority 7.35; attack 8, business 7, tech 6 (REST JSON, CORS *), gate 10, cloud 4, fresh 8
+- [PRIO] work.test.threema.ch /api-app/public/* (license-token route, settings) — priority 6.70; attack 6, business 6, tech 7 (zod, GET+PUT), gate 9, cloud 4, fresh 9
+- [PRIO] safe-01.threema.ch /backups/{64hex} (5 hostnames/1 IP) — priority 5.55; attack 5, business 8, tech 6 (CORS Authorization), gate 2, cloud 4, fresh 7
+- [PRIO] threema-desktop key-storage Windows ACL (sole triage-survivor) — priority 4.70; attack 4, business 8, tech 6 (DPAPI/Argon2id), gate 2, cloud 0, fresh 5
+
+STEP 3 — HYPOTHESES
+[HYP] fetch_bulk batch-size cap and enumeration throughput unmeasured
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (mirrors api/apip)
+confidence: 45
+reasoning: KB confirms unauth fetch_bulk returns pubkeys for valid IDs only (silent omit) with CORS * + no 429 across 30 sequential POSTs; batch-size cap and large-batch response shape never measured. CORS `*` with POST allowed means a hostile page can enumerate from a visitor's browser cross-origin.
+evidence_needed: whether a >N-ID batch yields partial/silent-omit vs 400/413; whether invalid-only batch returns empty array (200) — response-shape oracle at scale.
+verify_steps: PASSIVE, gated on operator confirmation: single POST fetch_bulk with ~20 synthetic IDs (valid-format + invalid mix), 1 rps, record status/body; no real user IDs; no POSTs until GO confirmed.
+impact: valid-ID enumeration at scale from any origin; low-medium (pubkeys are public by design; enumeration is the incremental harm).
+testability: PASSIVE
+
+[HYP] work.test license-token backend ships → unauthenticated 64-hex credential oracle
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 40
+reasoning: staging bundle v2.25.1 implements GET {username?,password?,expired,hasEmail} + PUT for 64-char tokens; backend currently 404 catch-all (method-agnostic). If the route deploys, fake-64hex → ≠404 becomes a valid-format oracle and any valid token leaks license creds unauth.
+evidence_needed: response ≠404 HTML catch-all (900B) for a 64-char token on staging.
+verify_steps: PASSIVE, gated: weekly single GET /api-app/public/global/settings + single GET /api-app/public/license/token/{64zeros}; escalate only on non-404; ≤1 rps; never real tokens.
+impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
+testability: PASSIVE
+
+[HYP] safe-01 backup existence oracle pre-auth via response-shape
+class: AUTH
+asset: https://safe-01.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: KB shows /backups/{64hex} → 400 (credential-gated route) vs /backup/{x} → 404 (no route) — backend distinguishes routes pre-auth. Open: within /backups/*, is 400 invariant across IDs or does shape vary (401/404) by ID validity?
+evidence_needed: whether 400 is byte-invariant for random 64-hex IDs (no oracle) vs variant (existence oracle).
+verify_steps: PASSIVE, gated: 2-3 single GETs of random 64-hex IDs, 1 rps, compare status/body against known 400 baseline; no real-user IDs.
+impact: if variant, backup-existence oracle; low-medium, no data access.
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] safe-01 backup-ID brute-force enumeration: 64-hex space infeasible, only shape-differential testable; superseded by the response-shape hypothesis above.
+- [PARKED] broadcast passkey ceremony (lead-bigpickle): no new evidence this cycle, not in top-3 asset set, self-DoS-only impact.
+- All three hypotheses survive: confidence ≥40, no REJECTED classes, concrete verify_steps, all gated (no live execution until GO).
+- [FINAL] 1) ds-apip fetch_bulk batch-shape oracle (45, PASSIVE-gated), 2) safe-01 backup existence oracle (45, PASSIVE-gated), 3) work.test license-token catch-up (40, PASSIVE-gated).
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: GO/NO-GO gate — no operator confirmation has arrived through 08:59 UTC (scope.yml disclosure_policy still TBD). Escalate ONE consolidated decision request: (a) confirm active authorized Threema program + reporting channel, (b) if confirmed → execute the three PASSIVE-gated probes above (fetch_bulk batch, safe-01 ID-shape, work.test catch-up) plus Windows-host key-storage ACL proof; (c) if not confirmed → hold all live probing. Until a GO lands, emit analysis-only cycles (this cycle executed zero network requests; repos empty, so no static scan possible either).
+
+STEP 6 — LEARNING
+- [LEARN] 2026-08-08 (no new learnings this cycle — zero probes executed pending gate; reposcan delta 0).
+
+STEP 7 — RISK SCORE
+- [RISK] chat: 40 reason: g-*.0.threema.ch prod silent without login frame; staging .test out of scope; no HTTP surface
+- [RISK] web: 70 reason: directory cluster + cockpits live with public endpoints + CORS *; most leads triaged invalid/by-design; work.test bundle divergence remains sole live lead, backend not shipped
+- [RISK] sync: 40 reason: mediator/rendezvous uniform 403; WSS high-entropy; auth model in source
+- [RISK] safe: 65 reason: credential-gated but CORS * + Authorization + write-capable methods + 5 hostnames/1 IP; no 429 observed; existence-oracle question open
+- [RISK] desktop-src: 75 reason: sole triage-surviving finding (key-storage Windows ACL, unproven on Windows) — evidence packet solid from prior RAG, no code re-scan possible (empty repos)
