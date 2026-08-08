@@ -11283,3 +11283,3029 @@ STEP 7 — RISK SCORE
 - [RISK] sync: 20 — mediator/rendezvous uniform 403 on HTTPS, DNS split routing fully mapped; minimal passively-observable attackable surface.
 - [RISK] safe: 35 — Basic-auth gated (backupId:backupKey) but CORS `*` + credentialed preflight + open route-shape-oracle hypothesis + no HSTS/Expect-CT; existence-oracle proof would raise this.
 - [RISK] desktop-src: 50 — RAG-verified Windows keystorage ACL gap (top finding), `sandbox:false` + `nodeIntegrationInWorker:true` TODOs, but zero dynamic sinks in worker/ tree limits RCE; public source enables deep review.
+===== ANALYST bigpickle 2026-08-08 11:51:30 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/ && echo "---" && ls /tmp/opencode/ 2>/dev/null
+README.md
+analyst-out.txt
+analyst-prompt.txt
+ctx.txt
+inventory
+knowledge
+leads
+reports
+reposcan-raw
+scope.yml
+scripts
+state_bigpickle.json
+state_laguna.json
+state_ling3.json
+state_longcat.json
+state_nemotron3.json
+triage
+---
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reports/ /home/runner/work/threema-hunt/threema-hunt/scripts/ /home/runner/work/threema-hunt/threema-hunt/triage/ 2>/dev/null; echo "---"; cat /home/runner/work/threema-hunt/threema-hunt/state_bigpickle.json 2>/dev/null | head -50
+/home/runner/work/threema-hunt/threema-hunt/reports/:
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+
+/home/runner/work/threema-hunt/threema-hunt/scripts/:
+sync-issues.py
+
+/home/runner/work/threema-hunt/threema-hunt/triage/:
+run-2026-08-07-20-10.md
+run-2026-08-07-21-03.md
+run-2026-08-07-21-56.md
+run-2026-08-07-22-56.md
+run-2026-08-07-23-55.md
+run-2026-08-08-02-24.md
+run-2026-08-08-04-24.md
+run-2026-08-08-06-01.md
+run-2026-08-08-07-07.md
+run-2026-08-08-07-15.md
+run-2026-08-08-08-07.md
+run-2026-08-08-08-59.md
+run-2026-08-08-09-54.md
+run-2026-08-08-10-53.md
+run-2026-08-08-11-44.md
+---
+{"phase": "POC", "target": "chat"}
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/state_bigpickle.json; echo "==="; ls -la /home/runner/work/threema-hunt/threema-hunt/knowledge/ /home/runner/work/threema-hunt/threema-hunt/inventory/ 2>/dev/null
+{"phase": "POC", "target": "chat"}===
+/home/runner/work/threema-hunt/threema-hunt/inventory/:
+total 36
+drwxr-xr-x  2 runner runner  4096 Aug  8 11:44 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 11:45 ..
+-rw-r--r--  1 runner runner 27252 Aug  8 11:44 threema.md
+
+/home/runner/work/threema-hunt/threema-hunt/knowledge/:
+total 24
+drwxr-xr-x  2 runner runner  4096 Aug  8 11:44 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 11:45 ..
+-rw-r--r--  1 runner runner 14889 Aug  8 11:44 index.md
+[0m
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m
+[0m$ [0mtail -60 /home/runner/work/threema-hunt/threema-hunt/reports/analyst-bigpickle.log
+STEP 1 — DELTA
+- [NEW] hypotheses-laguna.txt: pins concrete target `%APPDATA%\ThreemaDesktop\data\keystorage.bin` for the desktop ACL hypothesis — new artifact, not a new host
+- [NEW] hypotheses-bigpickle.txt: work.test `/api-app/public/license/token/{64hex}` backend-ships hypothesis formally ranked [40] — prior KB OTHER entry now a scored lead
+- [NEW] Ranked top-1 (desktop keystorage ACL) now [95] with two independent hypothesis sources (nemotron3 + laguna) converged
+- NO other delta: all hosts/endpoints unchanged from 2026-08-07/08 baselines; no live probes ran this cycle (GO gate open, static-only)
+
+STEP 2 — PRIORITIZE
+- [PRIO] threema-desktop keystorage (Windows ACL) | 5.4 | attack 7 business 8 tech 5 gate 2 cloud 0 fresh 6
+- [PRIO] safe-*.threema.ch `/backups/{64hex}` | 5.2 | attack 4 business 5 tech 4 gate 9 cloud 6 fresh 4
+- [PRIO] work.test.threema.ch `/api-app/public/license/token/{64hex}` | 4.95 | attack 3 business 4 tech 4 gate 10 cloud 3 fresh 8
+- [PRIO] ds-apip.threema.ch `/identity/fetch_bulk` | 4.65 | attack 5 business 3 tech 3 gate 10 cloud 4 fresh 3
+
+STEP 3 — HYPOTHESES
+- [HYP] Windows keystorage ACL bypass → same-user master-password/DPAPI recovery
+  class: MISCONFIG
+  asset: threema-desktop `%APPDATA%\ThreemaDesktop\data\keystorage.bin` + `keystorage.password.bin`
+  confidence: 65
+  reasoning: RAG-verified `fileModeInternalObjectIfPosix()` returns `{}` on Windows (fs.ts:41) → files written without ACL; safeStorage/DPAPI still binds password to user account; worker/ tree has zero dynamic sinks so RCE chain conditional — local ACL gap is the primary residual risk.
+  evidence_needed: same-user non-elevated process reading/decrypting keystorage while app idle or after logout; assert zero ACL via icacls.
+  verify_steps: AUTH_HELPED: authorized Windows VM with own test install — enumerate `%APPDATA%\ThreemaDesktop\data`, run `icacls` on both files, DPAPI-decrypt password under same user without elevation; report hashes, never raw secrets.
+  impact: if proven, identity keypair + message DB decryption by any same-user process; high locally, low remotely.
+  testability: AUTH_HELPED
+- [HYP] safe-01 backup-existence oracle via 400 response-shape variance
+  class: AUTH
+  asset: https://safe-01.threema.ch/backups/{64hex}
+  confidence: 45
+  reasoning: `/backups/{64hex}` → 400 (Basic-gated route) vs `/backup/{x}` → 404 (no route); 400 byte-invariance across random IDs never measured → if body/status varies with ID validity, an oracle exists.
+  evidence_needed: status/body variation across 2-3 random 64-hex IDs vs known 400 baseline.
+  verify_steps: PASSIVE, gated on operator GO: 3 single GETs of random 64-hex at 1 rps, compare to baseline 400; no real-user IDs.
+  impact: if variant, backup-existence oracle enabling targeted credential attacks; low-medium, no data access.
+  testability: PASSIVE
+- [HYP] work.test license-token backend ships → unauth 64-hex credential oracle
+  class: AUTH
+  asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+  confidence: 40
+  reasoning: staging bundle implements GET returning {username?,password?,expired,hasEmail} with zod 64-char validation; backend currently 404 for GET/PUT/OPTIONS (fake token) → if backend deploys, 404-vs-credential response becomes a testable oracle.
+  evidence_needed: weekly single GET of `{64zeros}` returning non-404 signals route shipped; then structural-valid vs invalid token comparison.
+  verify_steps: PASSIVE, gated: 1 GET `/api-app/public/license/token/{64zeros}` weekly at ≤1 rps; escalate only on non-404; never real tokens.
+  impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
+  testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+- Retained: desktop keystorage [65] — survives (≥40, MISCONFIG not on REJECTED list, concrete AUTH_HELPED steps)
+- Retained: safe-01 oracle [45] — survives (≥40, concrete 3-request PASSIVE steps)
+- Retained: work.test license-token [40] — borderline but survives (exactly at threshold, concrete weekly-passive steps)
+- [PARKED] fetch_bulk batch-size/invalid-only shape: dropped from top-3 slots by priority (4.65 < 4.95); hypothesis itself still valid from prior cycle, gated on GO.
+- [FINAL] 1) Desktop keystorage [65] 2) safe-01 existence oracle [45] 3) work.test license-token [40]
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: Operator confirmation still absent — request (a) confirmation of active authorized program + reporting channel, (b) GO/NO-GO. If GO: first probe = 3× single GET `https://safe-01.threema.ch/backups/{random64hex}` at 1 rps vs the known 400 baseline (existence-oracle test), then the fetch_bulk invalid-only batch shape (single POST ~20 synthetic IDs). While gate open: continue static RAG (directory.openapi.yml remaining schemas) in parallel — no live HTTP.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): two independent hypothesis sources converged at [95]; RAG-verified line-level (fs.ts:41, index.ts:559-560, electron-main.ts:944-945/1234-1268); runtime proof still pending (AUTH_HELPED) — no class newly proven dead/alive this cycle (static-only).
+
+STEP 7 — RISK SCORE
+- [RISK] chat: 20 — TCP 5222/443 read-only connects return 0 bytes both staging+prod; handshake requires authenticated login frame; no passive in-band divergence obtainable.
+- [RISK] web: 45 — work.test staging divergence (public-only namespace live, bundle sha mismatch, license-token endpoint could ship), login CSP leaks 5 staging surfaces, `/api-app/me/profile` 302-gated; prod misses HSTS/Expect-CT on directory hosts.
+- [RISK] sync: 20 — mediator/rendezvous uniform 403 on HTTPS, DNS split routing fully mapped; minimal passively-observable attackable surface.
+- [RISK] safe: 35 — Basic-auth gated (backupId:backupKey) but CORS `*` + credentialed preflight + open route-shape-oracle hypothesis + no HSTS/Expect-CT; existence-oracle proof would raise this.
+- [RISK] desktop-src: 50 — RAG-verified Windows keystorage ACL gap (top finding), `sandbox:false` + `nodeIntegrationInWorker:true` TODOs, but zero dynamic sinks in worker/ tree limits RCE; public source enables deep review.
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/ 2>/dev/null | head -30; echo "==="; ls /tmp/opencode/ 2>/dev/null
+analysis.txt
+grep-delta.txt
+grep-hits.prev.txt
+grep-hits.txt
+rag.txt
+threema-ch
+===
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/ 2>/dev/null; echo "==="; ls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/ 2>/dev/null | head
+app-remote-protocol
+compose-area
+push-relay
+threema-android
+threema-bot-sdk
+threema-desktop
+threema-ios
+threema-markup
+threema-msgapi-sdk-java
+threema-msgapi-sdk-php
+threema-msgapi-sdk-python
+threema-msgapi-sdk-rust
+threema-web
+threema-web-electron
+wasm-minisign-verify
+webrtc-build-docker
+===
+[0m
+[0m$ [0mtail -40 /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/rag.txt; echo "==="; tail -30 /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/analysis.txt
+# Inventory: threema
+
+## Seed 2026-08-07 (passive recon)
+
+### Hosts (in scope)
+- g-*.0.threema.ch (chat) — hostname pattern unknown, enumerate once discovered
+- mediator-*.threema.ch (sync) — pattern unknown
+- rendezvous-*.threema.ch (linking) — pattern unknown
+- apip.threema.ch — 403 on /
+- safe-*.threema.ch (backup) — pattern unknown
+- work.threema.ch — 301
+- broadcast.threema.ch — timeout
+- gateway.threema.ch — timeout
+- shop.threema.ch — 301
+- billing.threema.ch — timeout
+
+### Source code (in scope)
+- github.com/threema-ch/threema-android (Kotlin)
+- github.com/threema-ch/threema-ios (Swift)
+- github.com/threema-ch/threema-desktop (TS) — Desktop 2.x
+- github.com/threema-ch/threema-web (TS)
+- github.com/threema-ch/threema-web-electron
+- github.com/threema-ch/threema-msgapi-sdk-* (php/java/python/rust)
+- github.com/threema-ch/threema-bot-sdk (Rust)
+- github.com/threema-ch/push-relay (Rust)
+- github.com/threema-ch/app-remote-protocol
+
+### Open questions
+- Actual hostnames matching g-*/mediator-*/rendezvous-*/safe-* patterns
+- Auth model of apip.threema.ch (ID service)
+- Whether billing/shop share a backend
+
+## 2026-08-07 18:40:46 UTC
+- CHANGED work.threema.ch: Now responds with 301 to /en/login (was 301, now confirmed PHP session cookie, CSP, Sentry reporting)
+- CHANGED shop.threema.ch: Now responds with 301 to /en (was 301, now confirmed CSP, Sentry, hCaptcha subdomain)
+- CHANGED broadcast.threema.ch: Now responds 301 to /en/login (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+- CHANGED gateway.threema.ch: Now responds 302 to /en (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+- CHANGED billing.threema.ch: Now responds 301 to threema.ch (was TIMEOUT, now redirects to main site)
+- CHANGED apip.threema.ch: Confirmed 403 with CORS headers allowing POST/GET/OPTIONS/DELETE (was 403, now detailed)
+- NEW api.threema.ch: Returns 403 with same CORS headers as apip.threema.ch (likely related ID service)
+===
+|------|------|----------|
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
+| threema-android/domain/protocol/src/directory.openapi.yml | 7, 911 | Same staging directory endpoints |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | Same staging directory endpoints |
+| threema-desktop/apps/desktop/config/vite.config.ts | 147, 153, 154 | `ds-apip.test.threema.ch`, `ds-apip-work.test.threema.ch`, `work.test.threema.ch` |
+| threema-desktop/apps/desktop/config/vite.config.ts | 146, 149, 151 | `mediator-*.test.threema.ch`, `blob-mirror-*.test.threema.ch`, `rendezvous-*.test.threema.ch` |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 7, 911 | Same staging directory endpoints |
+
+#### INTERESTING (config patterns, not secrets)
+
+| File | Line | Note |
+|------|------|------|
+| threema-desktop/apps/desktop/config/vite.config.ts | 133-144 | `CHAT_SERVER_KEY`: 32-byte **public key** (Ed25519 verification key for chat server, not secret) |
+| threema-desktop/apps/desktop/config/vite.config.ts | 158-159 | `SENTRY_DSN`, `MINIDUMP_ENDPOINT`: Properly loaded from `process.env` (good pattern) |
+| threema-desktop/packages/webrtc/src/sdp/ice-password.ts | 12 | Validation error message only |
+
+---
+
+### VERDICT
+
+| Candidate | Category | REPORT_CANDIDATE |
+|-----------|----------|------------------|
+| crypto.ts:223 `'r3gGN9GDQ5NF6tM6'` | TEST_OR_EXAMPLE (benchmark dummy) | **NO** — REJECTED in KB; key purged after benchmark |
+| SentryConfig.kt publicApiKey | TEST_OR_EXAMPLE (public DSN) | **NO** — Public error-reporting key |
+| All test passwords/fixtures | TEST_OR_EXAMPLE | **NO** — Test code only |
+| All `*_PASSWORD`, `*_TOKEN` constants | TEST_OR_EXAMPLE | **NO** — Constant names, not values |
+| Staging endpoints in openapi.yml / vite.config.ts | ENDPOINT_LEAK | **NO** — Known staging hosts, already in scope/recon |
+| CHAT_SERVER_KEY (32-byte array) | INTERESTING | **NO** — Public verification key |
+
+**No REAL_SECRET findings in this scan.** All hardcoded values are test fixtures, constant names, public keys, or the known-rejected benchmark dummy.
+[0m
+[0m✱ [0mGlob "**/directory.openapi.yml"[90m in reposcan-raw/threema-ch · 0 matches[0m
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/ 2>/dev/null | head; echo "==="; ls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-ios/ 2>/dev/null | head
+===
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch -maxdepth 3 -type d 2>/dev/null | head -30; echo "==="; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch -name "*.openapi.yml" 2>/dev/null | head
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-ios
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/wasm-minisign-verify
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/compose-area
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-web-electron
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-msgapi-sdk-rust
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-web
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/app-remote-protocol
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-android
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-bot-sdk
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-msgapi-sdk-python
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/webrtc-build-docker
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-msgapi-sdk-php
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-msgapi-sdk-java
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/push-relay
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-markup
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop
+===
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch -name "*.openapi.yml" -o -name "*.yaml" 2>/dev/null | grep -i -E "openapi|threema-protocols" | head; echo "==="; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-ios -maxdepth 3 -type d 2>/dev/null | head -20
+===
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-ios
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-ios -type f 2>/dev/null | head -20; echo "==="; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -type f 2>/dev/null | head -20
+===
+[0m
+[0m$ [0mdu -sh /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/*/ 2>/dev/null; echo "==="; cat /home/runner/work/threema-hunt/threema-hunt/knowledge/index.md | head -80
+4.0K	/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/app-remote-protocol/
+4.0K	/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/compose-area/
+4.0K	/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/push-relay/
+4.0K	/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-android/
+4.0K	/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-bot-sdk/
+4.0K	/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/
+4.0K	/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-ios/
+4.0K	/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-markup/
+4.0K	/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-msgapi-sdk-java/
+4.0K	/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-msgapi-sdk-php/
+4.0K	/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-msgapi-sdk-python/
+4.0K	/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-msgapi-sdk-rust/
+4.0K	/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-web-electron/
+4.0K	/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-web/
+4.0K	/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/wasm-minisign-verify/
+4.0K	/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/webrtc-build-docker/
+===
+# Knowledge Base (seed)
+
+## Program rules (from scope.yml)
+- In scope: Android source, iOS source, Desktop 2.x source (threema-desktop), g-*.0.threema.ch, mediator-*.threema.ch, rendezvous-*.threema.ch, apip.threema.ch, safe-*.threema.ch, work.threema.ch, broadcast.threema.ch, gateway.threema.ch, shop.threema.ch, billing.threema.ch
+- ALL other targets and third-party services are OUT of scope
+- Passive-first: GET/HEAD only, <=1 rps, no account creation, no data modification
+- Secrets in commits: sha256 only, never raw
+
+## Baseline surface (2026-08-07 passive recon)
+- apip.threema.ch: HTTP 403 on /
+- work.threema.ch: 301 (redirect)
+- shop.threema.ch: 301 (redirect)
+- broadcast.threema.ch / gateway.threema.ch / billing.threema.ch: TIMEOUT (retry; note gating)
+- GitHub org threema-ch (23 repos): threema-android (Kotlin), threema-ios (Swift), threema-desktop (TS), threema-web (TS), threema-web-electron, threema-msgapi-sdk-{php,java,python,rust}, threema-bot-sdk, push-relay (Rust), app-remote-protocol, webrtc-build-docker, apns-h2, etc.
+
+## Rejected / parked
+- (none yet)
+- 2026-08-07 ACCEPTED AUTH @ apip.threema.ch: CORS misconfiguration enabling cross-origin API probes confirmed via passive HEAD/GET.
+- 2026-08-07 ACCEPTED OTHER @ threema-desktop: Electron attack surface confirmed in scope; static analysis is valid passive-first approach.
+- 2026-08-07 ACCEPTED IDOR @ ds-apip.threema.ch: Public `GET /identity/{id}` returns 200/404 oracle with permissive CORS and no observable rate limit — confirmed via passive probes.
+- 2026-08-07 ACCEPTED IDOR @ ds-apip.threema.ch: Unauthenticated identity→pubkey oracle confirmed via GET /identity/{id} (200/404) AND POST /identity/fetch_bulk (returns pubkeys for valid IDs only, no auth).
+- 2026-08-07 ACCEPTED AUTH @ apip.threema.ch: CORS misconfiguration confirmed — Access-Control-Allow-Origin: *, methods include POST/GET/OPTIONS/DELETE — cross-origin API probes enabled from any attacker origin.
+- 2026-08-07 ACCEPTED OTHER @ api.threema.ch: Previously a "candidate ID/directory sibling"; now confirmed as an active directory server with identical endpoints and CORS headers as ds-apip.threema.ch.
+- 2026-08-07 REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in `determineKdfParams()`, derived key immediately purged, not used for any real encryption.
+- 2026-08-07 REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not vulnerable.
+- 2026-08-07 ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — `keystorage.bin` and `keystorage.password.bin` written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes.
+- 2026-08-07 ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateLimit). CORS `*` with DELETE/POST/GET/OPTIONS. All three hostnames return identical pubkeys for valid IDs; invalid IDs silently omitted.
+- 2026-08-07 ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: Staging directory server publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+- 2026-08-07 ACCEPTED MISCONFIG @ ds-apip.test.threema.ch + apip.test.threema.ch: Staging directory servers publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+- 2026-08-07 ACCEPTED OTHER @ safe-01.threema.ch: Backup server publicly reachable with permissive CORS (Access-Control-Allow-Origin: *, methods GET/HEAD/PUT/PATCH/POST/DELETE) and HSTS/Expect-CT; no auth observed on root.
+- 2026-08-07 ACCEPTED AUTH @ safe-01.threema.ch: Backup API is credential-gated — `GET /backups/{64hex}` returns HTTP 400 (not 200/401/404) for unauthenticated requests; OPTIONS preflight returns CORS `*` with `Access-Control-Allow-Headers: Authorization` enabling credentialed cross-origin requests.
+- 2026-08-07 ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has `sandbox: false` (TODO DEK-79) and `nodeIntegrationInWorker: true` (TODO DEK-79); `nodeIntegration: false` + `contextIsolation: true` are set.
+- 2026-08-07 ACCEPTED OTHER @ ds-apip-work.threema.ch: Work directory prod backend confirmed live — 401 on all paths (/identity/*, /identities), CORS `*`, no HSTS/Expect-CT.
+- 2026-08-07 REJECTED OTHER @ apip.threema.ch/identity/ws/revoke: returns 404 on both apip and ds-apip hosts — endpoint not publicly routable at documented path; hypothesis mis-targeted.
+- 2026-08-07 REJECTED OTHER @ apip.threema.ch/api/v1/pubkeys/{id}: returns 404 — dead endpoint candidate disproven.
+- 2026-08-07 ACCEPTED MISCONFIG @ g-{XX}.0.test.threema.ch: Staging chat cluster resolves to 203.56.114.34 (split from prod chat IPs 203.56.112.202/.204); HTTPS not HTTP-accessible (likely WSS/TCP 5222); staging chat hostnames may be out of scope per scope.yml.
+- 2026-08-07 ACCEPTED OTHER @ ds-apip-work.test.threema.ch: Work directory staging backend confirmed live — 401 on all paths, CORS `*`, no HSTS/Expect-CT
+- 2026-08-07 ACCEPTED OTHER @ work.test.threema.ch: Staging work web app confirmed live — 301 to /en/login, HSTS + Expect-CT, CSP with `*.test.threema.ch` refs, Sentry
+- 2026-08-07 ACCEPTED OTHER @ safe-*.threema.ch DNS pattern: safe-01, safe-1a, safe-1b, safe-02, safe-00 all resolve to 203.56.112.231 (single IP, 5 hostnames)
+- 2026-08-07 ACCEPTED OTHER @ mediator-{0..f}/rendezvous-{0..f}.threema.ch DNS split routing: indices 0-7 → 203.56.112.247; indices 8-f → 203.56.114.247; all uniform 403 on HTTPS
+- 2026-08-07 ACCEPTED OTHER @ Safe-01 backup API path distinction: `GET /backups/{64hex}` → HTTP 400 "Bad Request" (route exists, credential-gated) vs `GET /backup/{x}` → HTTP 404 150 bytes (no route)
+- 2026-08-07 ACCEPTED MISCONFIG @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work API endpoint confirmed.
+- 2026-08-07 ACCEPTED AUTH @ work.test.threema.ch: `/api-app/me/profile` and `/api-app/global/settings` → 302; only the `/api-app/public/*` namespace is open (namespace gating confirmed).
+- 2026-08-07 ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed).
+- 2026-08-07 ACCEPTED OTHER @ work.test.threema.ch: liveness endpoints `/ping` (204) and `/info/ping.php` (200 empty) identical on staging and prod — no divergence.
+- 2026-08-08 ACCEPTED IDOR @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work API endpoint confirmed
+- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed)
+- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.ch, hcaptcha-work.threema.ch, billing.test.threema.ch
+- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: `__HOST-HTTP-SESSIONID` cookie set on unauthenticated GET /en/login (Secure/HttpOnly/SameSite=Strict)
+- 2026-08-08 ACCEPTED AUTH @ work.test.threema.ch: `/api-app/me/profile` and `/api-app/global/settings` → 302; only `/api-app/public/*` namespace is open (namespace gating confirmed)
+- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: `/info/ping.php` → 200 empty and `/ping` → 204 identical on staging and prod — no divergence
+- 2026-08-08 ACCEPTED MISCONFIG @ work.test.threema.ch bundle divergence: work_public.js v2.25.1 DIFFERENT builds staging vs prod (staging sha256 e48e18f79df0125e8942f8fd9566f0c7924d15d7229377b553cf666b1bca7b87, 1,443,948 B; prod 96501e2139ad9647e578ad1e03befca380d4f82c49434f3f3b13a14f354b67a7, 1,400,541 B); staging implements /api-app/public/global/settings (GET) + /api-app/public/license/token/{licenseToken} (GET returns {username?,password?,expired,hasEmail}; PUT void; zod 64-char token); prod bundle has ZERO /public/* handlers.
+- 2026-08-08 ACCEPTED OTHER @ work.threema.ch: prod DOES route /api-app — GET /api-app/me/profile → 302 to /en/login?r=%2Fapi-app%2Fme%2Fprofile; only /public/* namespace absent on prod (404 catch-all) — divergence is public-namespace-specific.
+- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: /api-app/public/license/token/{64hex} → 404 HTML catch-all (900B) for GET, PUT, AND OPTIONS — method-agnostic; backend route not deployed; 64-char validation is client-side-only zod; not an oracle today.
+- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: /api-app/public/* namespace map closed on both hosts — /, /global/, /config, /registration, /license/, /global/app-downloads all 404 staging+prod; sole live public route = /api-app/public/global/settings (200, 299B, only appLinkHost + 3 app-download URLs, no license/user data).
+- 2026-08-08 ACCEPTED OTHER @ g-*.0.{test.,}threema.ch chat: read-only TCP connect to 5222 returns 0 bytes on BOTH staging (203.56.114.34) and prod (203.56.112.202) — no server-hello pushed without client frame (source: CspSocket reads SERVER_HELLO_LEN=80 then SERVER_LOGIN_ACK_LEN=32); 443 also closes without TLS handshake both hosts. No passive in-band divergence obtainable; handshake requires authenticated login frame.
+- 2026-08-08 ACCEPTED OTHER @ hcaptcha-work.threema.ch: 200 serving hCaptcha's own Webflow marketing page (Last Published 2026-07-30) — third-party captcha host, out-of-scope service.
+- 2026-08-08 ACCEPTED OTHER @ avatar.test.threema.ch / companylogo.test.threema.ch: 403, byte-identical posture to prod avatar/companylogo 403 — no divergence; broadcast.test / billing.test → 000 (unreachable, matches prod TIMEOUT).
+- 2026-08-08 ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: Unauthenticated identity→pubkey oracle via GET /identity/{id} (200/404) AND POST /identity/fetch_bulk (returns pubkeys for valid IDs only, no auth) — confirmed via passive probes
+- 2026-08-08 ACCEPTED AUTH @ apip.threema.ch/ds-apip.threema.ch/api.threema.ch: CORS misconfiguration — Access-Control-Allow-Origin: *, methods include POST/GET/OPTIONS/DELETE — cross-origin API probes enabled from any attacker origin
+- 2026-08-08 ACCEPTED MISCONFIG @ ds-apip.test.threema.ch/apip.test.threema.ch: Staging directory servers publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production
+- 2026-08-08 ACCEPTED AUTH @ safe-01.threema.ch: Backup API credential-gated — GET /backups/{64hex} returns HTTP 400 for unauth; OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization enabling credentialed cross-origin requests
+- 2026-08-08 ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has `sandbox: false` (TODO DEK-79) and `nodeIntegrationInWorker: true` (TODO DEK-79)
+- 2026-08-08 REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in `determineKdfParams()`, derived key immediately purged, not used for real encryption
+- 2026-08-08 REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not vulnerable
+- 2026-08-08 (no new learnings this cycle)
+- 2026-08-08 ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateLimit). CORS `*` with DELETE/POST/GET/OPTIONS. All three hostnames return identical pubkeys for valid IDs; invalid IDs silently omitted.
+- 2026-08-08 ACCEPTED MISCONFIG @ ds-apip.test.threema.ch + apip.test.threema.ch: Staging directory servers publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+- 2026-08-08 ACCEPTED OTHER @ safe-01.threema.ch: Backup server publicly reachable with permissive CORS (Access-Control-Allow-Origin: *, methods GET/HEAD/PUT/PATCH/POST/DELETE) and HSTS/Expect-CT; no auth observed on root.
+- 2026-08-08 ACCEPTED MISCONFIG @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work API endpoint confirmed.
+- 2026-08-08 ACCEPTED AUTH @ work.test.threema.ch: `/api-app/me/profile` and `/api-app/global/settings` → 302; only the `/api-app/public/*` namespace is open (namespace gating confirmed).
+- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed).
+- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: liveness endpoints `/ping` (204) and `/info/ping.php` (200 empty) identical on staging and prod — no divergence.
+- 2026-08-08 ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — `keystorage.bin` and `keystorage.password.bin` written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes
+- 2026-08-08 ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DEK-79) and nodeIntegrationInWorker: true (TODO DEK-79)
+- 2026-08-08 REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in determineKdfParams(), derived key immediately purged, not used for real encryption
+- 2026-08-08 ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: fileModeInternalObjectIfPosix() returns {} on Windows — keystorage.bin and keystorage.password.bin written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes
+- 2026-08-08 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes — RAG-VERIFIED with 15 source paths
+- 2026-08-08 ACCEPTED AUTH @ safe-*.threema.ch: Backup API uses HTTP Basic Auth (backupId:backupKey); OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization enabling credentialed cross-origin requests — confirmed across all 5 hosts
+- 2026-08-08 ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: Unauthenticated identity→pubkey oracle via GET /identity/{id} (200/404) AND POST /identity/fetch_bulk (returns pubkeys for valid IDs only, no auth) — confirmed via passive probes on all 3 production hosts
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/; echo "==="; head -50 /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/grep-delta.txt
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  8 11:44 .
+drwxr-xr-x 18 runner runner 4096 Aug  8 11:44 ..
+===
+DELTA: 0 new hit lines vs previous scan
+[0m
+[0m→ [0mRead triage/run-2026-08-08-11-44.md
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/state_laguna.json /home/runner/work/threema-hunt/threema-hunt/state_nemotron3.json /home/runner/work/threema-hunt/threema-hunt/state_ling3.json /home/runner/work/threema-hunt/threema-hunt/state_longcat.json 2>/dev/null; echo "==="; tail -20 /home/runner/work/threema-hunt/threema-hunt/reports/hypotheses-nemotron3.txt
+{"phase": "POC", "target": "desktop"}{"phase": "POC", "target": "web"}{"phase": "POC", "target": "safe"}{"phase": "POC", "target": "sync"}===
+evidence_needed: Confirm bulk endpoint accepts arbitrary ID lists (100+) and returns pubkey map; verify no rate limit at higher volumes (passive 1 rps only); confirm CORS * on all three hosts for both endpoints.
+verify_steps: PASSIVE (DONE): curl GET /identity/{valid,invalid} → 200/404 on all 3; curl POST fetch_bulk with mixed IDs → valid-only pubkeys; curl OPTIONS → CORS *; 30 POSTs at 1 rps → no 429.
+impact: Unauthenticated enumeration of all valid Threema IDs + public key extraction at scale across 3 production directory servers; enables targeted attacks, social engineering, metadata correlation. Severity: Medium.
+testability: PASSIVE
+[FINAL] 1) Windows key-storage ACL bypass → master-password recovery → identity keypair + DB decryption (95) 2) Directory identity→pubkey oracle across 3 production hosts with CORS * + no rate limit (90) 3) Safe backup cross-origin credentialed read + existence-enumeration oracle (75)
+[NEXT] AUTH_HELPED-LOCAL: Execute Windows ACL bypass verification on authorized Windows host with Threema Desktop installed — run `verify-acl-bypass.ps1` to confirm 0 explicit ACEs on both `keystorage.bin` and `keystorage.password.bin`, recover master password via DPAPI `ProtectedData.Unprotect`, then run `verify-acl-bypass.js` to confirm Argon2id + XSalsa20-Poly1305 decryption yields `ck` (32-byte Ed25519 secret key) + `databaseKey` (32-byte SQLCipher key), and decrypt `threema.sqlite` with `PRAGMA key`.
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes — RAG-VERIFIED with 15 source paths
+[LEARN] ACCEPTED AUTH @ safe-*.threema.ch: Backup API uses HTTP Basic Auth (backupId:backupKey); OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization enabling credentialed cross-origin requests — confirmed across all 5 hosts
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: Unauthenticated identity→pubkey oracle via GET /identity/{id} (200/404) AND POST /identity/fetch_bulk (returns pubkeys for valid IDs only, no auth) — confirmed via passive probes on all 3 production hosts
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DEK-79) and nodeIntegrationInWorker: true (TODO DEK-79) — L1240 comment incorrect per Electron docs
+[LEARN] ACCEPTED MISCONFIG @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work API endpoint confirmed
+[LEARN] ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed)
+[LEARN] ACCEPTED OTHER @ work.test.threema.ch: login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.ch, hcaptcha-work.threema.ch, billing.test.threema.ch
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in determineKdfParams(), derived key immediately purged, not used for real encryption
+[LEARN] REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not vulnerable
+[RISK] chat: 60 reason: g-*.0.threema.ch prod pattern still unenumerated; staging g-*.0.test reachable but likely out of scope; core messaging infra but no visible HTTP endpoints
+[RISK] web: 90 reason: ds-apip/api/apip directory cluster — 3 prod hosts with public 200/404 identity oracle + fetch_bulk 200 + CORS * + no rate-limit (30 POSTs all 200); safe-01 backup API with permissive CORS + Authorization header + 5 hostnames; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed
+[RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve (split routing 203.56.112.247 | 203.56.114.247), uniform 403 on HTTPS; WSS paths high-entropy; auth model in source, not passively enumerable
+[RISK] safe: 85 reason: safe-01.live with CORS *, write-capable methods (GET,HEAD,PUT,PATCH,POST,DELETE), Access-Control-Allow-Headers: Authorization, HSTS+Expect-CT; backup API credential-gated (400) but cross-origin auth requests possible; 5 hostnames same IP; no 429 observed
+[RISK] desktop-src: 95 reason: Windows key-storage ACL bypass CONFIRMED at source level (95 confidence) — full identity keypair + message DB decryption chain RAG-verified (15 paths); Electron sandbox disabled + nodeIntegrationInWorker: true (65 confidence, conditional RCE); staging URLs baked into builds; Argon2id + DPAPI decent but weak on Windows
+[0m
+[0m$ [0mls -la /tmp/opencode/ 2>/dev/null; echo "==="; find / -maxdepth 4 -name "threema-desktop" -type d 2>/dev/null | head; echo "==="; git -C /home/runner/work/threema-hunt/threema-hunt log --oneline -5 2>/dev/null
+total 16
+drwxr-xr-x  2 runner runner  4096 Aug  8 11:45 .
+drwxrwxrwt 15 root   root   12288 Aug  8 11:45 ..
+===
+===
+1ee1a2e triage 2026-08-08-11-44
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/grep-hits.txt 2>/dev/null | wc -l; head -40 /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/grep-hits.txt
+49
+SCAN SUMMARY: 6656 code/config files scanned, 56 hits
+reposcan-raw/threema-ch/threema-ios/Threema/AppMigration.swift:873: let persistenceKeyLicensePassword = "Threema license password"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/SafeDataTests.swift:11: serverPassword: "password1",
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift:15: let expectedAuthToken = "authToken"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift:18: let expectedPassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:50: licenseStoreMock.licensePassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:72: (username: nil as String?, password: "testPassword" as String?, description: "nil username"),
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:148: licenseStoreMock.licensePassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:13: let expectedPassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:37: (username: nil as String?, password: "validPassword" as String?, description: "nil username"),
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:103: password: "testPassword",
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:67: let result = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:76: let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:105: let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift:30: let password = "abcdefghijkl"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift:227: let validPassword = "ABcd!@#tgk092"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:28: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:76: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:120: safePassword: "shootdeathstar"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift:38: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift:83: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt:49: """sfuToken='********', expirationDate=$expirationDate)"""
+reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:911: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/storage/models/WebClientSessionModel.java:28: public static final String COLUMN_PUSH_TOKEN = "push_token";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/storage/databaseupdate/DatabaseUpdateToVersion37.java:48: static final String COLUMN_PUSH_TOKEN = "push_token";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/utils/IceCandidateParser.java:43: public final static String TOKEN = "[a-zA-Z]+";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/webclient/converter/ClientInfo.java:37: private final static String PUSH_TOKEN = "pushToken";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt:70: "iceUsernameFragment='$iceUsernameFragment', icePassword='$icePassword', " +
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/notifications/NotificationChannels.kt:52: const val NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/dialogs/PasswordEntryDialog.java:47: public static final @NonNull String KEY_PASSWORD = "password";
+reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:15: publicApiKey = "b3e20afbf356a8748bb62ac165aa780c",
+reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:19: publicApiKey = "615af77cb3d980c41b3b04b07417cc7d",
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:147: DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:153: WORK_SERVER_LEGACY_URL: 'https://ds-apip-work.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:154: WORK_SERVER_URL: 'https://work.test.threema.ch/',
+[0m
+[0m$ [0mtimeout 20 git ls-remote https://github.com/threema-ch/threema-desktop.git HEAD 2>&1 | head -3; echo "==="; git -C /home/runner/work/threema-hunt/threema-hunt status 2>&1 | head -5
+9ae421c6b749f67e83b0ef7d1020490f848977a0	HEAD
+===
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+[0m
+[0m$ [0mgit clone --depth 1 https://github.com/threema-ch/threema-desktop.git /tmp/opencode/threema-desktop 2>&1 | tail -2
+Cloning into '/tmp/opencode/threema-desktop'...
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && git log -1 --format="%H %ci" && find . -name "directory.openapi.yml" 2>/dev/null
+9ae421c6b749f67e83b0ef7d1020490f848977a0 2026-07-16 20:03:47 +0200
+./packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -n "paths:" packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml; wc -l packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml
+914:paths:
+1470 packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -n "^  /" packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml
+915:  /identity/blob_cred:
+947:  /identity/revoke:
+977:  /identity/set_revocation_key:
+1008:  /identity/check_revocation_key:
+1040:  /identity/ws/revoke:
+1063:  /identity/sfu_cred:
+1095:  /identity/update_work_info:
+1137:  /fetch2:
+1166:  /identities:
+1197:  /directory:
+1230:  /api-client/v1/user-properties:
+1309:  /api-client/v1/remote-secret:
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '915,947p' packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml
+/identity/blob_cred:
+    post:
+      summary: Blob Server Credentials
+      description: |-
+        Retrieve blob server authentication credentials.
+
+        The first call without the challenge response properties initiates the
+        challenge request. The second call must repeat the exact same properties
+        and the challenge response.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - *blob-credentials-request
+                - !merge-objects
+                  - *auth-challenge-response
+                  - *blob-credentials-request
+      responses:
+        '200':
+          description: Success... or not.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - *auth-challenge-request
+                  - *blob-credentials-response-ok
+                  - *blob-credentials-response-error
+        '429':
+          description: Rate limit exceeded.
+
+  /identity/revoke:
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '947,1010p' packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml
+/identity/revoke:
+    post:
+      summary: ID Revocation by Client Key
+      description: |-
+        Revoke a Threema ID by proofing the knowledge of the client key.
+
+        The first call without the challenge response properties initiates the
+        challenge request. The second call must repeat the exact same properties
+        and the challenge response.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - *id-revocation-request
+                - !merge-objects
+                  - *id-revocation-request
+                  - *auth-challenge-response
+      responses:
+        '200':
+          description: Success... or not.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - *auth-challenge-request
+                  - *id-revocation-response-ok
+                  - *id-revocation-response-error
+
+  /identity/set_revocation_key:
+    post:
+      summary: Set ID Revocation Key
+      description: |-
+        Set the revocation key for an identity.
+
+        The first call without the challenge response properties initiates the
+        challenge request. The second call must repeat the exact same properties
+        and the challenge response.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - *id-revocation-request-v1
+                - !merge-objects
+                  - *id-revocation-request-v1
+                  - *auth-challenge-response
+
+      responses:
+        '200':
+          description: Success... or not.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - *auth-challenge-request
+                  - *id-revocation-response-ok
+                  - *id-revocation-response-error
+
+  /identity/check_revocation_key:
+    post:
+      summary: Check ID Revocation Key
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '1010,1166p' packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml
+summary: Check ID Revocation Key
+      description: |-
+        Check whether a revocation key is set for a given ID
+
+        The first call without the challenge response properties initiates the
+        challenge request. The second call must repeat the exact same properties
+        and the challenge response.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - *id-revocation-request
+                - !merge-objects
+                  - *id-revocation-request-v1
+                  - *auth-challenge-response
+
+      responses:
+        '200':
+          description: Success... or not.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - *auth-challenge-request
+                  - *id-revocation-response-error
+                  - *id-revocation-key-check-response-found
+                  - *id-revocation-key-check-response-empty
+
+  /identity/ws/revoke:
+    post:
+      summary: ID Revocation by User-set Key
+      description:
+        Revoke a Threema ID with a user-set key previously derived from a
+        password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - *id-revocation-request-v1
+      responses:
+        '200':
+          description: Success... or not.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - *id-revocation-response-ok
+                  - *id-revocation-response-error
+
+  /identity/sfu_cred:
+    post:
+      summary: SFU Information
+      description: |-
+        Retrieve SFU information including URLs and authentication credentials.
+
+        The first call without the challenge response properties initiates the
+        challenge request. The second call must repeat the exact same properties
+        and the challenge response.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - *sfu-credentials-request
+                - !merge-objects
+                  - *auth-challenge-response
+                  - *sfu-credentials-request
+      responses:
+        '200':
+          description: Success... or not.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - *auth-challenge-request
+                  - *sfu-credentials-response-ok
+                  - *sfu-credentials-response-error
+        '429':
+          description: Rate limit exceeded.
+
+  /identity/update_work_info:
+    post:
+      summary: Work Properties (Legacy)
+      description: |-
+        Update Work properties associated to the currently used Threema ID. Only
+        used by the _Work_ flavour of Threema.
+
+        The first call without the challenge response properties initiates the
+        challenge request. The second call must repeat the exact same properties
+        and the challenge response.
+
+        Note 1: All data of the request must be sourced **exclusively** from MDM
+        parameters. For example, the data source for `nickname` must be
+        `th_nickname` and not the custom nickname chosen by the user.
+
+        Note 2: This endpoint is intended to be replaced with the new _Work
+        Properties_ endpoint eventually, see PRD-186.
+
+        TODO(SE-368): When sending/receiving steps.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - *work-properties-legacy-request
+                - !merge-objects
+                  - *auth-challenge-response
+                  - *work-properties-legacy-request
+      responses:
+        '200':
+          description: Success... or not.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - *auth-challenge-request
+                  - *work-properties-legacy-response-ok
+                  - *work-properties-legacy-response-error
+        '429':
+          description: Rate limit exceeded.
+
+  /fetch2:
+    post:
+      summary: Work Sync
+      description: |-
+        Full sync of all data associated to the Work subscription. Only used by
+        the _Work_ flavour of Threema.
+
+        TODO(SE-368): When sending/receiving steps.
+      servers: *work-servers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: !merge-objects
+              - *work-credentials
+              - *sync-work-data-request
+      responses:
+        '200':
+          description: Work subscription data.
+          content:
+            application/json:
+              schema: *sync-work-data-response
+        '400':
+          description: Invalid request.
+        '401':
+          description: Invalid username or password.
+        '429':
+          description: Rate limit exceeded.
+
+  /identities:
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '1166,1470p' packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml
+/identities:
+    post:
+      summary: Work Contacts
+      description: |-
+        Request properties associated to a contact of the same Work subscription.
+
+        Note: This endpoint is currently buggy. See TWRK-1633 for a list of bugs.
+
+        TODO(SE-368): When sending/receiving steps. Send before adding a new
+        contact.
+      servers: *work-servers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: !merge-objects
+              - *work-credentials
+              - *work-contacts-request
+      responses:
+        '200':
+          description: Matching Work contacts in the same Work subscription.
+          content:
+            application/json:
+              schema: *work-contacts-response
+        '400':
+          description: Invalid request.
+        '401':
+          description: Invalid username or password.
+        '429':
+          description: Rate limit exceeded.
+
+  /directory:
+    post:
+      summary: Work Directory
+      description: |-
+        Search for contacts in the same Work subscription as the user.
+
+        TODO(SE-368): When sending/receiving steps.
+      servers: *work-servers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - !merge-objects
+                  - *work-credentials
+                  - *work-directory-request-wildcard
+                - !merge-objects
+                  - *work-credentials
+                  - *work-directory-request-specific
+      responses:
+        '200':
+          description: Queried Work contacts of the same Work subscription.
+          content:
+            application/json:
+              schema: *work-directory-response
+        '400':
+          description: Invalid request.
+        '401':
+          description: Invalid username or password.
+        '429':
+          description: Rate limit exceeded.
+
+  /api-client/v1/user-properties:
+    post:
+      summary: Work Properties
+      description: |-
+        Update Work properties associated to the currently used Threema ID. Only
+        used by the _Work_ flavour of Threema.
+
+        The first call without the challenge response properties initiates the
+        challenge request. The second call must repeat the exact same properties
+        and the challenge response.
+
+        Note 1: All data (except for the availability status) of the request
+        must be sourced **exclusively** from MDM parameters. For example, the
+        data source for `nickname` must be `th_nickname` and not the custom
+        nickname chosen by the user.
+
+        Note 2: This endpoint is intended to replace the old _Work Properties
+        (Legacy)_ endpoint eventually, see PRD-186.
+
+        When receiving this request without the challenge response:
+
+        1. If the request could not be decoded, respond with status code `400`.
+        2. Respond with an authentication challenge tied to the provided data
+           with purpose _set_.
+
+        When receiving this request with the challenge response:
+
+        1.  If the request could not be decoded, respond with status code `400`.
+        2.  If the Work `credentials` are invalid, respond with status code
+            `401` and code `invalid-credentials`.
+        3.  If the `challenge` expired, respond with status code `401` and code
+            `challenge-expired`.
+        4.  If the `challenge` is not tied to the provided data or does not have
+            the purpose _set_, respond with status code `401` and code
+            `invalid-challenge-response`.
+        5.  If the `response` is not the correctly _signed_ `challenge`, respond
+            with status code `401` and code `invalid-challenge-response`.
+        6.  Decode `properties` into a `directory.WorkProperties` message. If
+            this fails, respond with status code `400`.
+        7.  Update the work properties of the respective user and let `changes`
+            be the set of changes that were applied, including a UNIX-ish
+            timestamp in milliseconds on when the change was applied.
+        8.  If `changes` is empty, respond with status code `204`.
+        9.  For each `contact` of the work contacts in the same subscription as
+            the respective user, schedule sending a `csp_e2e.WorkSyncDelta` via
+            `*3MAW0RK` to `contact` with `changes`.
+        10. Respond with status code `204`.
+      servers: *work-servers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - !merge-objects
+                  - *work-credentials-with-identity
+                  - *work-properties-request
+                - !merge-objects
+                  - *work-credentials-with-identity
+                  - *work-auth-challenge-response
+                  - *work-properties-request
+      responses:
+        '200':
+          description: Authentication challenge.
+          content:
+            application/json:
+              schema: *work-auth-challenge-request
+        '204':
+          description: Success.
+        '400':
+          description: Invalid request.
+        '401':
+          description: Authentication failed.
+          content:
+            application/json:
+              schema: *work-auth-failed
+        '429':
+          description: Rate limit exceeded.
+
+  /api-client/v1/remote-secret:
+    put:
+      summary: Create Remote Secret
+      description: |-
+        Create a new Remote Secret.
+
+        The first call without the challenge response properties initiates the
+        challenge request. The second call must repeat the exact same properties
+        and the challenge response.
+
+        When receiving this request without the challenge response:
+
+        1. If the request could not be decoded, respond with status code `400`.
+        2. Respond with an authentication challenge tied to the provided data
+           with purpose _create_.
+
+        When receiving this request with the challenge response:
+
+        1. If the request could not be decoded, respond with status code `400`.
+        2. If the Work `credentials` are invalid, respond with status code `401`
+           and code `invalid-credentials`.
+        3. If the `challenge` expired, respond with status code `401` and code
+           `challenge-expired`.
+        4. If the `challenge` is not tied to the provided data or does not have
+           the purpose _create_, respond with status code `401` and code
+           `invalid-challenge-response`.
+        5. If the `response` is not the correctly _signed_ `challenge`, respond
+           with status code `401` and code `invalid-challenge-response`.
+        6. Create a new random Remote Secret Authentication Token and let
+           `remote-secret-authentication-token` be the result.
+        7. Add a new entry for the Remote Secret `secret` tied to `identity` and
+           `remote-secret-authentication-token`.
+        8. Respond with status code `200` and the
+           `remote-secret-authentication-token`.
+      servers: *work-servers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - !merge-objects
+                  - *work-credentials-with-identity
+                  - *remote-secret-create-request
+                - !merge-objects
+                  - *work-credentials-with-identity
+                  - *work-auth-challenge-response
+                  - *remote-secret-create-request
+      responses:
+        '200':
+          description: Success or authentication challenge.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - *work-auth-challenge-request
+                  - *remote-secret-create-response
+        '400':
+          description: Invalid request.
+        '401':
+          description: Authentication failed.
+          content:
+            application/json:
+              schema: *work-auth-failed
+        '429':
+          description: Rate limit exceeded.
+
+    delete:
+      summary: Delete Remote Secret
+      description: |-
+        Remove an existing Remote Secret.
+
+        The first call without the challenge response properties initiates the
+        challenge request. The second call must repeat the exact same properties
+        and the challenge response.
+
+        When receiving this request without the challenge response:
+
+        1. If the request could not be decoded, respond with status code `400`.
+        2. Respond with an authentication challenge tied to the provided data
+           with purpose _delete_.
+
+        When receiving this request with the challenge response:
+
+        1. If the request could not be decoded, respond with status code `400`.
+        2. If the Work `credentials` are invalid, respond with status code `401`
+           and code `invalid-credentials`.
+        3. If the `challenge` expired, respond with status code `401` and code
+           `challenge-expired`.
+        4. If the `challenge` is not tied to the provided data or does not have
+           the purpose _delete_, respond with status code `401` and code
+           `invalid-challenge-response`.
+        5. If the `response` is not the correctly _signed_ `challenge`, respond
+           with status code `401` and code `invalid-challenge-response`.
+        6. Remove any existing Remote Secret entry tied to `identity` and
+           `remoteSecretAuthenticationToken`.
+        7. Respond with status code `204`.
+      servers: *work-servers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - !merge-objects
+                  - *work-credentials-with-identity
+                  - *remote-secret-delete-request
+                - !merge-objects
+                  - *work-credentials-with-identity
+                  - *work-auth-challenge-response
+                  - *remote-secret-delete-request
+      responses:
+        '200':
+          description: Authentication challenge.
+          content:
+            application/json:
+              schema: *work-auth-challenge-request
+        '204':
+          description: Success.
+        '400':
+          description: Invalid request.
+        '401':
+          description: Authentication failed.
+          content:
+            application/json:
+              schema: *work-auth-failed
+        '429':
+          description: Rate limit exceeded.
+
+    post:
+      summary: Fetch Remote Secret
+      description: |-
+        Fetch an existing Remote Secret.
+
+        When receiving this request:
+
+        1. Look up a Remote Secret tied to `identity` and
+           `remoteSecretAuthenticationToken` and let `secret` be the result.
+        2. If `secret` is not defined, respond with status code `404`.
+        3. If the access to `secret` is blocked, respond with status code `403`.
+        4. Respond with status code `200` and `secret` along with the associated
+           configuration for `identity`.
+      servers: *work-servers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *remote-secret-fetch-request
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema: *remote-secret-fetch-response
+        '400':
+          description: Invalid request.
+        '403':
+          description: Access to the Remote Secret blocked.
+        '404':
+          description: Remote Secret does not exist.
+        '429':
+          description: Rate limit exceeded.
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -n "components:\|^    \w.*-request\|^    \w.*-response\|^\s*[a-zA-Z0-9_-]*request:\|remote-secret\|work-credentials\|sfu-credentials\|blob-credentials" packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | head -60
+230:  remote-secret: &remote-secret
+234:  remote-secret-authentication-token: &remote-secret-authentication-token
+242:  auth-challenge-request: &auth-challenge-request
+285:  work-auth-challenge-request: &work-auth-challenge-request
+347:  blob-credentials-request: &blob-credentials-request
+354:  blob-credentials-response:
+355:    ok: &blob-credentials-response-ok
+384:    error: &blob-credentials-response-error
+400:  id-revocation-request: &id-revocation-request
+432:    found: &id-revocation-key-check-response-found
+448:    empty: &id-revocation-key-check-response-empty
+458:    ok: &id-revocation-response-ok
+468:    error: &id-revocation-response-error
+483:  sfu-credentials-request: &sfu-credentials-request
+490:  sfu-credentials-response:
+491:    ok: &sfu-credentials-response-ok
+539:    error: &sfu-credentials-response-error
+554:  work-properties-legacy-request: &work-properties-legacy-request
+575:    ok: &work-properties-legacy-response-ok
+584:    error: &work-properties-legacy-response-error
+599:  work-credentials: &work-credentials
+608:  work-credentials-with-identity: &work-credentials-with-identity
+619:  sync-work-data-request: &sync-work-data-request
+730:  work-contacts-request: &work-contacts-request
+845:  work-properties-request: &work-properties-request
+852:  remote-secret-create-request: &remote-secret-create-request
+857:      secret: *remote-secret
+859:  remote-secret-create-response: &remote-secret-create-response
+864:      secretAuthenticationToken: *remote-secret-authentication-token
+866:  remote-secret-delete-request: &remote-secret-delete-request
+871:      secretAuthenticationToken: *remote-secret-authentication-token
+873:  remote-secret-fetch-request: &remote-secret-fetch-request
+878:      secretAuthenticationToken: *remote-secret-authentication-token
+880:  remote-secret-fetch-response: &remote-secret-fetch-response
+887:      secret: *remote-secret
+930:                - *blob-credentials-request
+933:                  - *blob-credentials-request
+942:                  - *blob-credentials-response-ok
+943:                  - *blob-credentials-response-error
+1078:                - *sfu-credentials-request
+1081:                  - *sfu-credentials-request
+1090:                  - *sfu-credentials-response-ok
+1091:                  - *sfu-credentials-response-error
+1151:              - *work-credentials
+1182:              - *work-credentials
+1212:                  - *work-credentials
+1215:                  - *work-credentials
+1285:                  - *work-credentials-with-identity
+1288:                  - *work-credentials-with-identity
+1309:  /api-client/v1/remote-secret:
+1338:           `remote-secret-authentication-token` be the result.
+1340:           `remote-secret-authentication-token`.
+1342:           `remote-secret-authentication-token`.
+1351:                  - *work-credentials-with-identity
+1352:                  - *remote-secret-create-request
+1354:                  - *work-credentials-with-identity
+1356:                  - *remote-secret-create-request
+1365:                  - *remote-secret-create-response
+1414:                  - *work-credentials-with-identity
+1415:                  - *remote-secret-delete-request
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '1,60p' packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml
+.references:
+  # Servers
+
+  work-servers: &work-servers
+    - url: https://ds-apip-work.threema.ch
+      description: Production server
+    - url: https://ds-apip-work.test.threema.ch
+      description: Sandbox server
+
+  # Primitives
+
+  base64: &base64
+    type: string
+    format: byte
+
+  u16: &u16
+    type: integer
+    minimum: 0
+    maximum: 65535
+
+  u32: &u32
+    type: integer
+    minimum: 0
+    maximum: 4294967295
+
+  u64: &u64
+    type: integer
+    minimum: 0
+    maximum: 18446744073709551615
+
+  # Common
+
+  identity: &identity
+    description: A Threema ID.
+    type: string
+    minLength: 8
+    maxLength: 8
+    pattern: ^[0-9A-Z*]{1}[0-9A-Z]{7}$
+    example: ECHOECHO
+
+  public-key: &public-key
+    <<: *base64
+    description: Public Key (32 bytes, base64) associated to a Threema ID.
+    example: ZWNob2VjaG9lY2hvZWNob2VjaG9lY2hvZWNob2VjaG8=
+
+  app-version: &app-version
+    description: |-
+      App version. This is the CSP `client-info` but with the following special postfix:
+
+      1. If at least one Threema-MDM parameter and at least one external MDM parameter is active, append `;me`
+      2. If at least one Threema-MDM parameter is active, append `;m`
+      3. If at least one external MDM parameter is active, append `;e`
+      4. If no MDM parameter is active, don't append. (A lone `;` is also acceptable.)
+    type: string
+    minLength: 1
+    example: 1.2.3;Q;de/DE;...
+
+  work-server-time-ms: &work-server-time-ms
+    description: |-
+      Current UNIX-ish timestamp in milliseconds of the server.
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '230,347p' packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml
+remote-secret: &remote-secret
+    <<: *base64
+    description: Remote Secret (32 bytes, base64).
+
+  remote-secret-authentication-token: &remote-secret-authentication-token
+    <<: *base64
+    description: |-
+      Remote Secret Authentication Token (32 bytes, base64). Allows to retrieve
+      an associated Remote Secret.
+
+  # Authentication challenge/response
+
+  auth-challenge-request: &auth-challenge-request
+    description: Authentication required.
+    type: object
+    required:
+      - token
+      - tokenRespKeyPub
+    properties:
+      token:
+        <<: *base64
+        description: An arbitrary challenge token (base64) to be _signed_.
+      tokenRespKeyPub:
+        <<: *base64
+        description: |-
+          The public key (CPK, 32 bytes, base64) to derive a shared secret for
+          solving the challenge.
+
+  auth-challenge-response: &auth-challenge-response
+    type: object
+    required:
+      - token
+      - response
+    properties:
+      token:
+        <<: *base64
+        description: The token of the challenge request (base64).
+      response:
+        <<: *base64
+        description: |-
+          The token of the challenge request, _signed_ in the following way:
+
+          ```text
+          base64(
+            BLAKE2b(
+              key=BLAKE2b(
+                key=X25519HSalsa20(CK.secret, CPK.public),
+                salt='dir',
+                personal='3ma-csp',
+              ),
+              input=<token>
+            )
+          )
+          ```
+
+  work-auth-challenge-request: &work-auth-challenge-request
+    description: |-
+      Authentication challenge request for a Work endpoint.
+    type: object
+    required:
+      - challengePublicKey
+      - challenge
+    properties:
+      challengePublicKey:
+        <<: *base64
+        description: |-
+          The public key (CPK, 32 bytes, base64) to derive a shared secret for
+          solving the challenge.
+      challenge:
+        <<: *base64
+        description: An arbitrary challenge (base64) to be _signed_.
+
+  work-auth-challenge-response: &work-auth-challenge-response
+    description: |-
+      Authentication challenge response for a Work endpoint.
+    type: object
+    required:
+      - challenge
+      - response
+    properties:
+      challenge:
+        <<: *base64
+        description: The challenge (base64).
+      response:
+        <<: *base64
+        description: |-
+          The challenge, _signed_ in the following way:
+
+          ```text
+          base64(
+            BLAKE2b(
+              key=BLAKE2b(
+                key=X25519HSalsa20(CK.secret, CPK.public),
+                salt='wdir',
+                personal='3ma-csp',
+              ),
+              input=<token>
+            )
+          )
+          ```
+
+  work-auth-failed: &work-auth-failed
+    type: object
+    required:
+      - code
+    properties:
+      code:
+        type: string
+        anyOf:
+          - enum:
+              - invalid-credentials
+              - challenge-expired
+              - invalid-challenge-response
+          - {}
+
+  # Request/response data fragments
+
+  blob-credentials-request: &blob-credentials-request
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "remote-secret\|remoteSecret\|RemoteSecret" --include="*.ts" --include="*.tsx" packages/libthreema-wasm/ apps/ 2>/dev/null | grep -v node_modules | head -20
+apps/desktop/src/common/dom/electron-service.ts:14:import type {RemoteSecretErrorType} from '~/common/remote-secret';
+apps/desktop/src/common/dom/electron-service.ts:57:            getRemoteSecretLaunchParameter: this.getRemoteSecretLaunchParameter.bind(this),
+apps/desktop/src/common/dom/electron-service.ts:58:            remoteSecretErrorRestartApp: this.remoteSecretErrorRestartApp.bind(this),
+apps/desktop/src/common/dom/electron-service.ts:61:            remoteSecretSystemSuspensionRestartApp:
+apps/desktop/src/common/dom/electron-service.ts:62:                this.remoteSecretSystemSuspensionRestartApp.bind(this),
+apps/desktop/src/common/dom/electron-service.ts:64:            remoteSecretSystemSuspensionRestartParameter:
+apps/desktop/src/common/dom/electron-service.ts:65:                this.getRemoteSecretSystemSuspensionRestartParameter.bind(this),
+apps/desktop/src/common/dom/electron-service.ts:192:    public remoteSecretErrorRestartApp(errorType: RemoteSecretErrorType): void {
+apps/desktop/src/common/dom/electron-service.ts:193:        this._api.remoteSecretErrorRestartApp(errorType);
+apps/desktop/src/common/dom/electron-service.ts:197:    public remoteSecretSystemSuspensionRestartApp(): void {
+apps/desktop/src/common/dom/electron-service.ts:198:        this._api.remoteSecretSystemSuspensionRestartApp();
+apps/desktop/src/common/dom/electron-service.ts:202:    public getRemoteSecretLaunchParameter(): RemoteSecretErrorType | undefined {
+apps/desktop/src/common/dom/electron-service.ts:203:        return this._api.getRemoteSecretLaunchParameter();
+apps/desktop/src/common/dom/electron-service.ts:207:    public getRemoteSecretSystemSuspensionRestartParameter(): boolean {
+apps/desktop/src/common/dom/electron-service.ts:208:        return this._api.getRemoteSecretSystemSuspensionRestartParameter();
+apps/desktop/src/common/dom/backend/remote-secret/index.ts:3:import type {KeyStorageRemoteSecretWriteData} from '~/common/key-storage';
+apps/desktop/src/common/dom/backend/remote-secret/index.ts:5:import {RemoteSecretCreateTask} from '~/common/network/protocol/task/libthreema/remote-secret-create';
+apps/desktop/src/common/dom/backend/remote-secret/index.ts:6:import {RemoteSecretDeleteTask} from '~/common/network/protocol/task/libthreema/remote-secret-delete';
+apps/desktop/src/common/dom/backend/remote-secret/index.ts:10:    RemoteSecretAuthenticationToken,
+apps/desktop/src/common/dom/backend/remote-secret/index.ts:17:export async function handleRemoteSecretMdmParameterChange(
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -n "fetch_bulk\|fetch-bulk" -r packages/libthreema-wasm/ 2>/dev/null | head; echo "==="; sed -n '1040,1063p' packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml
+packages/libthreema-wasm/libs/libthreema/lib/src/common/config.rs:525:        self.0.0.path(format_args!("identity/fetch_bulk"))
+===
+  /identity/ws/revoke:
+    post:
+      summary: ID Revocation by User-set Key
+      description:
+        Revoke a Threema ID with a user-set key previously derived from a
+        password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - *id-revocation-request-v1
+      responses:
+        '200':
+          description: Success... or not.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - *id-revocation-response-ok
+                  - *id-revocation-response-error
+
+  /identity/sfu_cred:
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '490,560p' packages/libthreema-wasm/libs/libthreema/lib/src/common/config.rs
+/// Available ports the chat server is listening on.
+    pub ports: Vec<u16>,
+}
+impl ChatServerAddress {
+    // IMPORTANT: This template string must be stable because it is used in the OPPF file!
+    const PREFIX_8: &'static str = "serverGroupPrefix8";
+
+    /// Retrieve all valid CSP addresses (hostname + port combinations).
+    ///
+    /// # Panics
+    ///
+    /// If the internal placeholder could not be replaced.
+    #[must_use]
+    pub fn addresses(&self, server_group: ChatServerGroup) -> Vec<(String, u16)> {
+        let hostname = map_placeholders(&self.hostname, |key| match key {
+            Self::PREFIX_8 => Some(format!("{:x}", server_group.0)),
+            _ => None,
+        });
+        self.ports.iter().map(|port| (hostname.clone(), *port)).collect()
+    }
+}
+
+/// Directory server base URL.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DirectoryServerBaseUrl(HttpsBaseUrl);
+impl DirectoryServerBaseUrl {
+    pub(crate) fn create_identity_path(&self) -> String {
+        self.0.0.path(format_args!("identity/create"))
+    }
+
+    pub(crate) fn update_work_properties_path(&self) -> String {
+        self.0.0.path(format_args!("identity/update_work_info"))
+    }
+
+    pub(crate) fn request_identities_path(&self) -> String {
+        self.0.0.path(format_args!("identity/fetch_bulk"))
+    }
+}
+
+/// Blob server upload URL.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BlobServerUploadUrl(HttpsUrl);
+impl BlobServerUploadUrl {
+    #[expect(dead_code, reason = "Will use later")]
+    pub(crate) fn path(&self) -> &str {
+        &self.0.0.0
+    }
+}
+
+/// Blob server download URL.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BlobServerDownloadUrl(HttpsUrl);
+impl BlobServerDownloadUrl {
+    #[expect(dead_code, reason = "Will use later")]
+    pub(crate) fn path(&self, blob_id: BlobId) -> String {
+        blob_id_template_url::path(&self.0.0, blob_id)
+    }
+}
+
+/// Blob server URL to mark a blob as _downloaded_.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BlobServerDoneUrl(HttpsUrl);
+impl BlobServerDoneUrl {
+    #[expect(dead_code, reason = "Will use later")]
+    pub(crate) fn path(&self, blob_id: BlobId) -> String {
+        blob_id_template_url::path(&self.0.0, blob_id)
+    }
+}
+
+/// Blob server configuration.
+#[derive(Debug, Clone, PartialEq, Eq)]
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && ls packages/libthreema-wasm/libs/libthreema/lib/src/ 2>/dev/null; find . -path ./node_modules -prune -o -name "*.rs" -print 2>/dev/null | xargs grep -ln "fetch_bulk\|sfu_cred\|blob_cred\|revocation" 2>/dev/null | head
+bindings
+cli
+common
+crypto
+csp
+csp_e2e
+d2d_rendezvous
+d2m
+https
+id_backup
+lib.rs
+model
+remote_secret
+utils
+work
+./packages/libthreema-wasm/libs/libthreema/lib/src/common/config.rs
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && ls packages/libthreema-wasm/libs/libthreema/lib/src/remote_secret/ packages/libthreema-wasm/libs/libthreema/lib/src/https/ 2>/dev/null; echo "==="; grep -rn "user-properties\|remote-secret\|update_work_info" packages/libthreema-wasm/libs/libthreema/lib/src/https/ 2>/dev/null | head
+packages/libthreema-wasm/libs/libthreema/lib/src/https/:
+directory.rs
+endpoint.rs
+mod.rs
+work_directory.rs
+
+packages/libthreema-wasm/libs/libthreema/lib/src/remote_secret/:
+mod.rs
+monitor.rs
+setup
+===
+packages/libthreema-wasm/libs/libthreema/lib/src/https/work_directory.rs:704:            "https://work.example.threema.ch/api-client/v1/user-properties"
+packages/libthreema-wasm/libs/libthreema/lib/src/https/work_directory.rs:732:            "https://work.example.threema.ch/api-client/v1/user-properties"
+packages/libthreema-wasm/libs/libthreema/lib/src/https/work_directory.rs:757:            "https://work.example.threema.ch/api-client/v1/remote-secret"
+packages/libthreema-wasm/libs/libthreema/lib/src/https/work_directory.rs:783:            "https://work.example.threema.ch/api-client/v1/remote-secret"
+packages/libthreema-wasm/libs/libthreema/lib/src/https/work_directory.rs:819:            "https://work.example.threema.ch/api-client/v1/remote-secret"
+packages/libthreema-wasm/libs/libthreema/lib/src/https/work_directory.rs:848:            "https://work.example.threema.ch/api-client/v1/remote-secret"
+packages/libthreema-wasm/libs/libthreema/lib/src/https/work_directory.rs:873:            "https://work.example.threema.ch/api-client/v1/remote-secret"
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -n "pub fn\|pub async fn\|fn remote_secret\|RemoteSecret" packages/libthreema-wasm/libs/libthreema/lib/src/https/work_directory.rs | head -30
+9:        keys::{ClientKey, PublicKey, RemoteSecret, RemoteSecretAuthenticationToken},
+294:struct WorkCreateRemoteSecretRequest<'body> {
+302:    remote_secret: &'body [u8; RemoteSecret::LENGTH],
+311:    remote_secret: &RemoteSecret,
+320:        body: serde_json::to_vec(&WorkCreateRemoteSecretRequest {
+330:struct WorkCreateRemoteSecretAuthenticatedRequest<'body> {
+332:    request: WorkCreateRemoteSecretRequest<'body>,
+345:    remote_secret: &RemoteSecret,
+354:        body: serde_json::to_vec(&WorkCreateRemoteSecretAuthenticatedRequest {
+355:            request: WorkCreateRemoteSecretRequest {
+367:struct WorkCreateRemoteSecretResponse {
+369:    remote_secret_authentication_token: [u8; RemoteSecretAuthenticationToken::LENGTH],
+375:) -> Result<RemoteSecretAuthenticationToken, HttpsEndpointError> {
+377:    let response: WorkCreateRemoteSecretResponse = serde_json::from_slice(&response.body)?;
+378:    Ok(RemoteSecretAuthenticationToken(
+384:struct WorkDeleteRemoteSecretRequest<'body> {
+392:    remote_secret_authentication_token: &'body [u8; RemoteSecretAuthenticationToken::LENGTH],
+401:    remote_secret_authentication_token: &RemoteSecretAuthenticationToken,
+410:        body: serde_json::to_vec(&WorkDeleteRemoteSecretRequest {
+420:struct WorkDeleteRemoteSecretAuthenticatedRequest<'body> {
+422:    request: WorkDeleteRemoteSecretRequest<'body>,
+435:    remote_secret_authentication_token: &RemoteSecretAuthenticationToken,
+444:        body: serde_json::to_vec(&WorkDeleteRemoteSecretAuthenticatedRequest {
+445:            request: WorkDeleteRemoteSecretRequest {
+463:struct WorkFetchRemoteSecretRequest<'body> {
+465:    remote_secret_authentication_token: &'body [u8; RemoteSecretAuthenticationToken::LENGTH],
+472:    remote_secret_authentication_token: &RemoteSecretAuthenticationToken,
+479:        body: serde_json::to_vec(&WorkFetchRemoteSecretRequest {
+487:pub(crate) struct WorkFetchRemoteSecretResponse {
+489:    pub(crate) remote_secret: [u8; RemoteSecret::LENGTH],
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '455,560p' packages/libthreema-wasm/libs/libthreema/lib/src/https/work_directory.rs
+/// Process the result after attempting to remove a remote secret.
+pub(crate) fn handle_delete_remote_secret_result(result: HttpsResult) -> Result<(), HttpsEndpointError> {
+    let _ = handle_status(result, |_| None)?;
+    Ok(())
+}
+
+#[derive(Debug, Serialize)]
+struct WorkFetchRemoteSecretRequest<'body> {
+    #[serde(rename = "secretAuthenticationToken", with = "base64::fixed_length")]
+    remote_secret_authentication_token: &'body [u8; RemoteSecretAuthenticationToken::LENGTH],
+}
+
+/// Retrieve a remote secret.
+pub(crate) fn request_remote_secret(
+    client_info: &ClientInfo,
+    work_server_url: &WorkServerBaseUrl,
+    remote_secret_authentication_token: &RemoteSecretAuthenticationToken,
+) -> HttpsRequest {
+    HttpsRequest {
+        timeout: TIMEOUT,
+        url: work_server_url.remote_secret_path(),
+        method: HttpsMethod::Post,
+        headers: https_headers(None).accept("application/json").build(client_info),
+        body: serde_json::to_vec(&WorkFetchRemoteSecretRequest {
+            remote_secret_authentication_token: &remote_secret_authentication_token.0,
+        })
+        .expect("Failed to create remote secret request body"),
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct WorkFetchRemoteSecretResponse {
+    #[serde(rename = "secret", with = "base64::fixed_length")]
+    pub(crate) remote_secret: [u8; RemoteSecret::LENGTH],
+
+    #[serde(rename = "checkIntervalS")]
+    pub(crate) check_interval_s: u32,
+
+    #[serde(rename = "nMissedChecksMax")]
+    pub(crate) n_missed_checks_max: u16,
+}
+
+/// Process the result after attempting to retrieve a remote secret.
+pub(crate) fn handle_remote_secret_result(
+    result: HttpsResult,
+) -> Result<WorkFetchRemoteSecretResponse, HttpsEndpointError> {
+    let response = handle_status(result, |status| match status {
+        403 => Some(HttpsEndpointError::Forbidden),
+        404 => Some(HttpsEndpointError::NotFound),
+        _ => None,
+    })?;
+    let remote_secret_response: WorkFetchRemoteSecretResponse = serde_json::from_slice(&response.body)?;
+    Ok(remote_secret_response)
+}
+
+#[cfg(test)]
+mod tests {
+    use assert_matches::assert_matches;
+    use data_encoding::HEXLOWER;
+    use prost::Message as _;
+    use rstest::rstest;
+    use serde_json::json;
+
+    use super::*;
+    use crate::{
+        common::config::{Config, WorkCredentials, WorkFlavor},
+        https::HttpsResponse,
+        protobuf,
+        work::properties::{WorkAvailabilityStatus, WorkProperties},
+    };
+
+    fn work_server_url() -> WorkServerBaseUrl {
+        Config::testing().work_server_url
+    }
+
+    fn work_context() -> WorkContext {
+        WorkContext {
+            credentials: WorkCredentials {
+                username: "klo".to_owned(),
+                password: "bürste".to_owned(),
+            },
+            flavor: WorkFlavor::Work,
+        }
+    }
+
+    fn work_properties() -> WorkProperties {
+        WorkProperties {
+            availability_status: Some(WorkAvailabilityStatus {
+                category: protobuf::d2d_sync::WorkAvailabilityStatusCategory::Busy,
+                description: None,
+            }),
+        }
+    }
+
+    #[test]
+    fn common_status_challenge_expired() {
+        assert_matches!(
+            handle_status(
+                Ok(HttpsResponse {
+                    status: 401,
+                    body: br#"{"code": "challenge-expired"}"#.to_vec(),
+                }),
+                |_| None
+            ),
+            Err(HttpsEndpointError::ChallengeExpired)
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -n "remote_secret_path\|user_properties_path\|work_directory\|fetch2\|identities_path\|directory_path\|update_work_info\|identity_create\|api-client" packages/libthreema-wasm/libs/libthreema/lib/src/common/config.rs | head -30
+521:        self.0.0.path(format_args!("identity/update_work_info"))
+524:    pub(crate) fn request_identities_path(&self) -> String {
+586:    pub(crate) fn remote_secret_path(&self) -> String {
+587:        self.0.0.path(format_args!("api-client/v1/remote-secret"))
+591:        self.0.0.path(format_args!("api-client/v1/user-properties"))
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -n "fn request_identities\|fn handle\|FetchIdentitiesRequest\|identities\|fetch_bulk" packages/libthreema-wasm/libs/libthreema/lib/src/https/directory.rs | head -30
+44:fn handle_status<TStatusFn: FnOnce(u16) -> Option<HttpsEndpointError>>(
+74:fn handle_status_and_awkward_response<TStatusFn: FnOnce(u16) -> Option<HttpsEndpointError>>(
+120:pub(crate) fn handle_authentication_challenge(
+141:    identities: &'request [ThreemaId],
+144:/// Request identity properties tied to a set of identities.
+145:pub(crate) fn request_identities(
+149:    identities: &[ThreemaId],
+153:        url: directory_server_url.request_identities_path(),
+156:        body: serde_json::to_vec(&IdentitiesRequest { identities })
+157:            .expect("Failed to create directory identities request body"),
+239:    #[serde(rename = "identities")]
+240:    identities: Vec<ValidIdentity>,
+243:/// Process the identities result and map it to all valid identities.
+246:pub(crate) fn handle_identities_result(result: HttpsResult) -> Result<Vec<ContactInit>, HttpsEndpointError> {
+248:    let IdentitiesResponse { identities } = serde_json::from_slice(&response.body)?;
+249:    Ok(identities.into_iter().map(ContactInit::from).collect())
+328:pub(crate) fn handle_create_identity_result(
+413:pub(crate) fn handle_update_work_properties_result(result: HttpsResult) -> Result<(), HttpsEndpointError> {
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '130,260p' packages/libthreema-wasm/libs/libthreema/lib/src/https/directory.rs
+.0
+            .chain_update(&challenge.challenge)
+            .finalize()
+            .into_bytes()
+            .into(),
+    };
+    Ok(response)
+}
+
+#[derive(Serialize)]
+struct IdentitiesRequest<'request> {
+    identities: &'request [ThreemaId],
+}
+
+/// Request identity properties tied to a set of identities.
+pub(crate) fn request_identities(
+    client_info: &ClientInfo,
+    directory_server_url: &DirectoryServerBaseUrl,
+    mode: &Flavor,
+    identities: &[ThreemaId],
+) -> HttpsRequest {
+    HttpsRequest {
+        timeout: TIMEOUT,
+        url: directory_server_url.request_identities_path(),
+        method: HttpsMethod::Post,
+        headers: https_headers(mode).accept("application/json").build(client_info),
+        body: serde_json::to_vec(&IdentitiesRequest { identities })
+            .expect("Failed to create directory identities request body"),
+    }
+}
+
+#[derive(Deserialize_repr)]
+#[repr(u8)]
+enum IdentityType {
+    Regular = 0,
+    Work = 1,
+}
+impl From<IdentityType> for protobuf_contact::IdentityType {
+    fn from(r#type: IdentityType) -> Self {
+        match r#type {
+            IdentityType::Regular => protobuf_contact::IdentityType::Regular,
+            IdentityType::Work => protobuf_contact::IdentityType::Work,
+        }
+    }
+}
+
+#[derive(Default, Deserialize_repr)]
+#[repr(u8)]
+enum ActivityState {
+    #[default]
+    Active = 0,
+    Inactive = 1,
+}
+impl From<ActivityState> for protobuf_contact::ActivityState {
+    fn from(state: ActivityState) -> Self {
+        match state {
+            ActivityState::Active => protobuf_contact::ActivityState::Active,
+            ActivityState::Inactive => protobuf_contact::ActivityState::Inactive,
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct ValidIdentity {
+    #[serde(rename = "identity")]
+    identity: ThreemaId,
+
+    #[serde(rename = "type")]
+    identity_type: IdentityType,
+
+    #[serde(rename = "publicKey", with = "base64::fixed_length")]
+    public_key: [u8; PublicKey::LENGTH],
+
+    // Note: OnPrem directory omits this parameter for some reason, so we need a default
+    #[serde(default, rename = "state")]
+    activity_state: ActivityState,
+
+    #[serde(rename = "featureMask")]
+    feature_mask: u64,
+}
+impl From<ValidIdentity> for ContactInit {
+    fn from(entry: ValidIdentity) -> Self {
+        ContactInit {
+            identity: entry.identity,
+            public_key: PublicKey::from(entry.public_key),
+            created_at: utc_now_ms(),
+            first_name: None,
+            last_name: None,
+            nickname: None,
+            verification_level: protobuf_contact::VerificationLevel::Unverified,
+            work_verification_level: protobuf_contact::WorkVerificationLevel::None,
+            identity_type: entry.identity_type.into(),
+            acquaintance_level: protobuf_contact::AcquaintanceLevel::GroupOrDeleted,
+            activity_state: entry.activity_state.into(),
+            feature_mask: FeatureMask(entry.feature_mask),
+            sync_state: protobuf_contact::SyncState::Initial,
+            work_last_full_sync_at: None,
+            work_availability_status: None,
+            read_receipt_policy_override: None,
+            typing_indicator_policy_override: None,
+            notification_trigger_policy_override: None,
+            conversation_category: protobuf::d2d_sync::ConversationCategory::Default,
+            conversation_visibility: protobuf::d2d_sync::ConversationVisibility::Normal,
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct IdentitiesResponse {
+    #[serde(rename = "identities")]
+    identities: Vec<ValidIdentity>,
+}
+
+/// Process the identities result and map it to all valid identities.
+///
+/// IMPORTANT: Identities that do not exist or have already been revoked will not be included!
+pub(crate) fn handle_identities_result(result: HttpsResult) -> Result<Vec<ContactInit>, HttpsEndpointError> {
+    let response = handle_status(result, |_| None)?;
+    let IdentitiesResponse { identities } = serde_json::from_slice(&response.body)?;
+    Ok(identities.into_iter().map(ContactInit::from).collect())
+}
+
+#[derive(Serialize)]
+struct CreateIdentityRequest {
+    #[serde(rename = "publicKey", with = "base64::fixed_length")]
+    public_key: [u8; PublicKey::LENGTH],
+}
+
+/// Request an authentication challenge to create an identity.
+pub(crate) fn create_identity_authentication_request(
+    client_info: &ClientInfo,
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '560,620p' packages/libthreema-wasm/libs/libthreema/lib/src/common/config.rs; echo "==="; grep -rn "identity/create\|identity/revoke\|blob_cred\|sfu_cred\|set_revocation_key\|check_revocation_key\|directory/\|fetch2" packages/libthreema-wasm/libs/libthreema/lib/src/common/ packages/libthreema-wasm/libs/libthreema/lib/src/https/ 2>/dev/null | head
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[expect(clippy::struct_field_names, reason = "All fields intentionally end with URL")]
+pub struct BlobServerConfig {
+    /// Blob server upload URL.
+    pub upload_url: BlobServerUploadUrl,
+
+    /// Blob server download URL.
+    pub download_url: BlobServerDownloadUrl,
+
+    /// Blob server URL to mark a blob as _downloaded_.
+    pub done_url: BlobServerDoneUrl,
+}
+
+/// Legacy work directory server base URL.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct WorkServerLegacyBaseUrl(HttpsBaseUrl);
+impl WorkServerLegacyBaseUrl {
+    pub(crate) fn request_contacts_path(&self) -> String {
+        self.0.0.path(format_args!("identities"))
+    }
+}
+
+/// Work directory server base URL.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct WorkServerBaseUrl(HttpsBaseUrl);
+impl WorkServerBaseUrl {
+    pub(crate) fn remote_secret_path(&self) -> String {
+        self.0.0.path(format_args!("api-client/v1/remote-secret"))
+    }
+
+    pub(crate) fn work_properties_path(&self) -> String {
+        self.0.0.path(format_args!("api-client/v1/user-properties"))
+    }
+}
+
+/// Avatar base server URL for Threema Gateway IDs.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct GatewayAvatarBaseServerUrl(HttpsBaseUrl);
+impl GatewayAvatarBaseServerUrl {
+    #[expect(dead_code, reason = "Will use later")]
+    pub(crate) fn path(&self, threema_id: ThreemaId) -> String {
+        self.0.0.path(format_args!("{threema_id}"))
+    }
+}
+
+/// Threema Safe server URL.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SafeServerBaseUrl(HttpsBaseUrl);
+impl SafeServerBaseUrl {
+    // IMPORTANT: This template string must be stable because it is used in the OPPF file!
+    const PREFIX_8: &'static str = "backupIdPrefix8";
+
+    #[expect(dead_code, reason = "Will use later")]
+    pub(crate) fn path(&self, backup_id: &[u8], path: fmt::Arguments) -> String {
+        let prefix = *backup_id
+            .first()
+            .expect("Backup ID should contain at least one byte");
+        let base_url = self.0.0.map_placeholders(|key| match key {
+            Self::PREFIX_8 => Some(format!("{prefix:x}")),
+            _ => None,
+        });
+===
+packages/libthreema-wasm/libs/libthreema/lib/src/common/config.rs:517:        self.0.0.path(format_args!("identity/create"))
+packages/libthreema-wasm/libs/libthreema/lib/src/common/config.rs:1694:                        "https://onprem.example.threema.ch/directory/".to_owned()
+packages/libthreema-wasm/libs/libthreema/lib/src/common/config.rs:1742:                        "https://onprem.example.threema.ch/directory/".to_owned()
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '620,680p' packages/libthreema-wasm/libs/libthreema/lib/src/common/config.rs
+});
+        format!("{base_url}{path}")
+    }
+}
+
+/// Rendezvous server URL with placeholders.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RendezvousServerBaseUrl(WssBaseUrl);
+impl RendezvousServerBaseUrl {
+    // IMPORTANT: These template strings must be stable because they're used in the OPPF file!
+    const PREFIX_4: &'static str = "rendezvousPathPrefix4";
+    const PREFIX_8: &'static str = "rendezvousPathPrefix8";
+
+    #[expect(dead_code, reason = "Will use later")]
+    pub(crate) fn path(&self, rendezvous_path: &[u8], path: fmt::Arguments) -> String {
+        let prefix = *rendezvous_path
+            .first()
+            .expect("Rendezvous Path should contain at least one byte");
+        let base_url = self.0.0.map_placeholders(|key| match key {
+            Self::PREFIX_4 => Some(format!("{:x}", prefix >> 4_u8)),
+            Self::PREFIX_8 => Some(format!("{prefix:x}")),
+            _ => None,
+        });
+        format!("{base_url}{path}")
+    }
+}
+
+/// Mediator server base URL.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MediatorServerBaseUrl(WssBaseUrl);
+impl MediatorServerBaseUrl {
+    pub(crate) fn path(&self, device_group_path_key: &DeviceGroupPathKey, path: fmt::Arguments) -> String {
+        device_group_id_template_url::path(&self.0.0.0, device_group_path_key, Some(path))
+    }
+}
+
+/// Blob mirror server upload URL.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BlobMirrorServerUploadUrl(HttpsUrl);
+impl BlobMirrorServerUploadUrl {
+    #[expect(dead_code, reason = "Will use later")]
+    pub(crate) fn path(&self, device_group_path_key: &DeviceGroupPathKey) -> String {
+        device_group_id_template_url::path(&self.0.0, device_group_path_key, None)
+    }
+}
+
+/// Blob mirror server download URL.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BlobMirrorServerDownloadUrl(HttpsUrl);
+impl BlobMirrorServerDownloadUrl {
+    #[expect(dead_code, reason = "Will use later")]
+    pub(crate) fn path(&self, device_group_path_key: &DeviceGroupPathKey, blob_id: BlobId) -> String {
+        device_group_id_and_blob_id_template_url::path(&self.0.0, device_group_path_key, blob_id)
+    }
+}
+
+/// Blob mirror server URL to mark a blob as _downloaded_.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BlobMirrorServerDoneUrl(HttpsUrl);
+impl BlobMirrorServerDoneUrl {
+    #[expect(dead_code, reason = "Will use later")]
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "backupIdPrefix8\|safe-\|safe_server_url\|SafeServerBaseUrl\|safeServer" packages/libthreema-wasm/libs/libthreema/lib/src/common/config.rs | head; echo "==="; grep -rn "safe" packages/libthreema-wasm/libs/libthreema/lib/src/id_backup/*.rs 2>/dev/null | head -20
+607:pub struct SafeServerBaseUrl(HttpsBaseUrl);
+608:impl SafeServerBaseUrl {
+610:    const PREFIX_8: &'static str = "backupIdPrefix8";
+723:    [ SafeServerBaseUrl ];
+748:    [ SafeServerBaseUrl ]           [ HttpsBaseUrl ];
+926:    pub safe_server_url: SafeServerBaseUrl,
+1048:                safe_server_url: SafeServerBaseUrl(config.safe_server.base_url),
+1103:    pub safe_server_url: SafeServerBaseUrl,
+1181:            safe_server_url: SafeServerBaseUrl(
+1183:                    "https://safe-{{{}}}.threema.ch/",
+===
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '1175,1200p' packages/libthreema-wasm/libs/libthreema/lib/src/common/config.rs; echo "==="; grep -rn "safe-01\|safe-00\|safe-1a\|backups" packages/libthreema-wasm/libs/libthreema/lib/src/ --include="*.rs" 2>/dev/null | grep -i "url\|host\|prefix" | head
+gateway_avatar_server_url: GatewayAvatarBaseServerUrl(
+                HttpsBaseUrl::try_from("https://avatar.threema.ch/".to_owned())
+                    .expect("Production Gateway Avatar Server URL invalid"),
+            ),
+
+            safe_server_url: SafeServerBaseUrl(
+                HttpsBaseUrl::try_from(format!(
+                    "https://safe-{{{}}}.threema.ch/",
+                    SafeServerBaseUrl::PREFIX_8
+                ))
+                .expect("Production Safe Server URL invalid"),
+            ),
+
+            multi_device: Some(MultiDeviceConfig {
+                rendezvous_server_url: RendezvousServerBaseUrl(
+                    WssBaseUrl::try_from(format!(
+                        "wss://rendezvous-{{{}}}.threema.ch/{{{}}}/",
+                        RendezvousServerBaseUrl::PREFIX_4,
+                        RendezvousServerBaseUrl::PREFIX_8,
+                    ))
+                    .expect("Production Rendezvous Server URL invalid"),
+                ),
+
+                mediator_server_url: MediatorServerBaseUrl(
+                    WssBaseUrl::try_from(format!(
+===
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -n "work_server_url\|ds-apip-work" packages/libthreema-wasm/libs/libthreema/lib/src/common/config.rs | head; echo "==="; sed -n '1095,1115p' packages/libthreema-wasm/libs/libthreema/lib/src/common/config.rs
+920:    pub work_server_url: WorkServerBaseUrl,
+1046:                work_server_url: WorkServerBaseUrl(config.work_server.base_url),
+1097:    pub work_server_url: WorkServerBaseUrl,
+1167:                HttpsBaseUrl::try_from("https://ds-apip-work.threema.ch/".to_owned())
+1171:            work_server_url: WorkServerBaseUrl(
+1290:                HttpsBaseUrl::try_from("https://ds-apip-work.test.threema.ch/".to_owned())
+1294:            work_server_url: WorkServerBaseUrl(
+1414:                HttpsBaseUrl::try_from("https://ds-apip-work.example.threema.ch/".to_owned())
+1418:            work_server_url: WorkServerBaseUrl(
+1494:        let work_server_legacy_url = WorkServerLegacyBaseUrl(config.work_server_url.0.clone());
+===
+
+    /// Work server URL.
+    pub work_server_url: WorkServerBaseUrl,
+
+    /// Avatar server URL for Threema Gateway IDs.
+    pub gateway_avatar_server_url: GatewayAvatarBaseServerUrl,
+
+    /// Threema Safe server URL.
+    pub safe_server_url: SafeServerBaseUrl,
+
+    /// Multi-device configuration.
+    pub multi_device: Option<MultiDeviceConfig>,
+
+    /// Predefined contacts.
+    pub predefined_contacts: HashMap<ThreemaId, PredefinedContact>,
+}
+
+impl Config {
+    pub(crate) fn production() -> Self {
+        Self {
+            chat_server_address: ChatServerAddress {
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '60,120p' packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml; echo "=== servers block ==="; grep -n "servers:" packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml
+Current UNIX-ish timestamp in milliseconds of the server.
+
+      This timestamp can be used to check if a work contact change from a
+      `WorkSyncDelta` is relevant compared to the most recent full sync of that
+      work contact through this (or another) endpoint.
+    type: integer
+    minimum: 0
+
+  work-username: &work-username
+    description: Work license username.
+    type: string
+    minLength: 1
+    example: echoecho@threema.ch
+
+  work-password: &work-password
+    description: Work license password.
+    type: string
+    minLength: 1
+    example: super-secret-password
+
+  work-nickname: &work-nickname
+    description: |-
+      User's nickname sourced from the MDM parameter `th_nickname`. Empty is
+      equivalent to unset.
+    type: string
+    example: personal-🦜
+
+  work-first-name: &work-first-name
+    description: |-
+      User's first name sourced from the MDM parameter `th_firstname`. Empty is
+      equivalent to unset.
+    type: string
+    example: Aria
+
+  work-last-name: &work-last-name
+    description: |-
+      User's last name sourced from the MDM parameter `th_lastname`. Empty is
+      equivalent to unset.
+    type: string
+    example: Reverb
+
+  work-availability-status: &work-availability-status
+    <<: *base64
+    description: |-
+      User's availability status as defined by
+      `d2d_sync.WorkAvailabilityStatus`, encoded as base64.
+      `d2d_sync.WorkAvailabilityStatus` with
+      `WorkAvailabilityStatusCategory.NONE` is equivalent to unset (and vice
+      versa, no matter whether a description has been provided or not).
+
+  work-user-identifier: &work-user-identifier
+    description: |-
+      Custom unique identifier of the user (e.g. employee number), sourced from
+      the MDM parameter `th_csi`. Also known as _Customer Specific Identifier_.
+      Empty is equivalent to unset.
+    type: string
+
+  work-job-title: &work-job-title
+    description: |-
+      Job title of the user, sourced from the MDM parameter `th_job_title`.
+      Empty is equivalent to unset.
+=== servers block ===
+4:  work-servers: &work-servers
+908:servers:
+1145:      servers: *work-servers
+1176:      servers: *work-servers
+1204:      servers: *work-servers
+1277:      servers: *work-servers
+1343:      servers: *work-servers
+1406:      servers: *work-servers
+1451:      servers: *work-servers
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '905,915p' packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml; echo "==="; grep -rn "blob_cred\|sfu_cred\|set_revocation_key\|check_revocation_key" packages/libthreema-wasm/libs/libthreema/lib/src/https/directory.rs | head
+properties.
+  version: 1.0.0
+
+servers:
+  - url: https://ds-apip.threema.ch
+    description: Production server
+  - url: https://ds-apip.test.threema.ch
+    description: Sandbox server
+
+paths:
+  /identity/blob_cred:
+===
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "blob_cred\|sfu_cred\|set_revocation_key\|check_revocation_key\|identity/revoke" packages/libthreema-wasm/libs/libthreema/lib/src/ | head -20
+(no output)
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "blob_cred\|sfu_cred\|set_revocation_key\|check_revocation_key" packages/ apps/ 2>/dev/null | grep -v node_modules | grep -v ".map" | head -20
+packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml:915:  /identity/blob_cred:
+packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml:977:  /identity/set_revocation_key:
+packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml:1008:  /identity/check_revocation_key:
+packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml:1063:  /identity/sfu_cred:
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:271:                'identity/sfu_cred',
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "sfu_cred\|blob_cred\|sfu-cred\|blob-cred" apps/desktop/src/ 2>/dev/null | grep -v node_modules | head -20
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:271:                'identity/sfu_cred',
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '230,320p' apps/desktop/src/common/dom/network/protocol/fetch-directory.ts
+public async privateData(
+        identity: IdentityString,
+        ck: ClientKey,
+    ): Promise<IdentityPrivateData> {
+        const responseData = await this._authenticatedRequest(
+            'Private data',
+            'identity/fetch_priv',
+            {
+                identity,
+                appVariant:
+                    import.meta.env.BUILD_VARIANT === 'work' ||
+                    import.meta.env.BUILD_VARIANT === 'custom'
+                        ? 'work'
+                        : 'consumer',
+            },
+            ck,
+            IDENTITY_PRIVATE_DATA_SCHEMA,
+        );
+        if (responseData === undefined) {
+            throw new DirectoryError(
+                'invalid-response',
+                `Private data fetch request returned status 404`,
+            );
+        }
+        return responseData;
+    }
+
+    /** @inheritdoc */
+    public async sfuToken(identity: IdentityString, ck: ClientKey): Promise<SfuToken> {
+        // Re-use cached SFU token if possible
+        const token = this._cache.sfuToken.get();
+        if (token !== undefined) {
+            return token;
+        }
+
+        // No SFU token or it expired. Fetch and cache a new SFU token.
+        //
+        // Note: Apply lock to prevent multiple concurrent SFU token updates
+        return await this._lock.with(async () => {
+            const response = await this._authenticatedRequest(
+                'SFU token',
+                'identity/sfu_cred',
+                {identity},
+                ck,
+                SFU_TOKEN_SCHEMA,
+            );
+            if (response === undefined) {
+                throw new DirectoryError(
+                    'invalid-response',
+                    `SFU token fetch request returned status 404`,
+                );
+            }
+            return this._cache.sfuToken.set(response, response.expiration);
+        });
+    }
+
+    /**
+     * Send a non-authenticated GET request to the directory server and validate the response.
+     *
+     * @param description A description used in error messages. Example: "Identity".
+     * @param path The request path. Example: "identity/ECHOECHO".
+     * @param payload Optional object that will be encoded to JSON and used as body. If
+     *   present, the request will use the POST method. Otherwise, the request will use the GET
+     *   method.
+     * @param schema The valita schema used to parse the response
+     * @returns the response JSON validated against the provided schema, or `undefined` if the
+     *   directory server returns a 404 response
+     */
+    private async _request<TSchema extends v.Type>(
+        description: string,
+        path: string,
+        payload: Record<string, unknown> | undefined,
+        schema: TSchema,
+    ): Promise<v.Infer<TSchema> | undefined> {
+        // Run request with timeout
+        const abort = new AbortController();
+        const run = async (): Promise<v.Infer<TSchema> | undefined> => {
+            // Send request
+            let response: Response;
+            try {
+                response = await this._fetch(path, {
+                    ...(payload === undefined
+                        ? {method: 'GET'}
+                        : {method: 'POST', body: JSON.stringify(payload)}),
+                    signal: abort.signal,
+                });
+            } catch (error) {
+                throw new DirectoryError('fetch', `${description} fetch request errored`, {
+                    from: error,
+                });
+            }
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -n "'identity/\|fetch_priv\|privateData\|request(.*identity" apps/desktop/src/common/dom/network/protocol/fetch-directory.ts | head -40
+230:    public async privateData(
+236:            'identity/fetch_priv',
+271:                'identity/sfu_cred',
+383:     * @param path The request path. Example: "identity/fetch_priv".
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -n "fetch\|path\|_request\|_authenticatedRequest" apps/desktop/src/common/dom/network/protocol/fetch-directory.ts | head -50
+64: * Error response validation for the "fetch private data" endpoint.
+122:        const responseData = await this._request(
+139:        const responseData = await this._request(
+141:            `identity/fetch_bulk`,
+148:                `Bulk identity fetch request returned status 404`,
+173:            'The directory server authentication token can only be fetched in OnPrem environments',
+180:            const response = await this._fetch('auth_token', {method: 'GET', signal: abort.signal});
+184:                    `Authentication fetch failed with error: ${response.status}`,
+198:                    `Auth token fetch request did not return a valid response body: ${error}`,
+207:                    `Auth token fetch request response body validation against schema failed`,
+218:                // Abort any ongoing `fetch` request
+225:            throw new DirectoryError('fetch', error.message, {from: error});
+234:        const responseData = await this._authenticatedRequest(
+236:            'identity/fetch_priv',
+251:                `Private data fetch request returned status 404`,
+269:            const response = await this._authenticatedRequest(
+279:                    `SFU token fetch request returned status 404`,
+290:     * @param path The request path. Example: "identity/ECHOECHO".
+298:    private async _request<TSchema extends v.Type>(
+300:        path: string,
+310:                response = await this._fetch(path, {
+317:                throw new DirectoryError('fetch', `${description} fetch request errored`, {
+328:                    `${description} fetch request returned status ${response.status}`,
+334:                    `${description} fetch request returned status ${response.status}`,
+348:                    `${description} fetch request did not return a valid response body: ${error}`,
+357:                    `${description} fetch request response body validation against schema failed`,
+368:                // Abort any ongoing `fetch` request
+375:            throw new DirectoryError('fetch', error.message, {from: error});
+383:     * @param path The request path. Example: "identity/fetch_priv".
+391:    private async _authenticatedRequest<TSchema extends v.Type>(
+393:        path: string,
+407:                    response = await this._fetch(path, {
+414:                        'fetch',
+415:                        `${description} authentication fetch request errored`,
+426:                        `${description} authentication fetch request returned status ${response.status}`,
+440:                            `${description} authentication fetch request did not return a valid response body: ${challengeParseError}`,
+446:                    const message = `${description} authentication fetch failed: ${errorPayload.error}`;
+466:                response = await this._fetch(path, {
+472:                throw new DirectoryError('fetch', `${description} fetch request errored`, {
+482:                    `${description} fetch request returned status ${response.status}`,
+493:                    `${description} fetch request did not return a valid response body: ${error}`,
+510:                        `${description} fetch request response body validation against schema failed`,
+516:                const message = `${description} fetch failed: ${errorPayload.error}`;
+536:                // Abort any ongoing `fetch` request
+543:            throw new DirectoryError('fetch', error.message, {from: error});
+575:    private async _fetch(path: string, init: RequestInit): Promise<Response> {
+576:        return await fetch(new URL(path, this._services.config.DIRECTORY_SERVER_URL), {
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '100,175p' apps/desktop/src/common/dom/network/protocol/fetch-directory.ts
+public constructor(
+        private readonly _services: Pick<ServicesForBackend, 'config' | 'logging'>,
+        workData: IQueryableStore<ThreemaWorkCredentials | undefined> | undefined,
+    ) {
+        this._headers = {
+            'accept': 'application/json',
+            'user-agent': _services.config.USER_AGENT,
+        };
+
+        // OnPrem directory requires authentication using Threema Work credentials
+        if (import.meta.env.BUILD_ENVIRONMENT === 'onprem') {
+            const credentials = unwrap(
+                workData?.get(),
+                'Work credentials not passed to FetchDirectoryBackend in OnPrem build',
+            );
+            this._headers.authorization = `Basic ${u8aToBase64(UTF8.encode(`${credentials.username}:${credentials.password}`))}`;
+        }
+    }
+
+    /** @inheritdoc */
+    public async identity(identity: IdentityString): Promise<IdentityData> {
+        const responseData = await this._request(
+            'Identity data',
+            `identity/${identity}`,
+            undefined,
+            VALID_IDENTITY_DATA_SCHEMA,
+        );
+        return (
+            responseData ?? {
+                state: ActivityState.INVALID,
+            }
+        );
+    }
+
+    /** @inheritdoc */
+    public async identities(
+        identities: IdentityString[],
+    ): Promise<Map<IdentityString, IdentityData>> {
+        const responseData = await this._request(
+            'Bulk identity data',
+            `identity/fetch_bulk`,
+            {identities},
+            BULK_IDENTITIES_SCHEMA,
+        );
+        if (responseData === undefined) {
+            throw new DirectoryError(
+                'invalid-response',
+                `Bulk identity fetch request returned status 404`,
+            );
+        }
+
+        const missingIdentities = new Set(identities);
+        const result = new Map<IdentityString, IdentityData>();
+
+        // Add valid identities
+        for (const identity of responseData.identities) {
+            missingIdentities.delete(identity.identity);
+            result.set(identity.identity, identity);
+        }
+
+        // All missing identities either do not exist or have been revoked
+        for (const missingIdentity of missingIdentities) {
+            result.set(missingIdentity, {state: ActivityState.INVALID});
+        }
+
+        return result;
+    }
+
+    /** @inheritdoc */
+    public async authToken(): Promise<string> {
+        assert(
+            import.meta.env.BUILD_ENVIRONMENT === 'onprem',
+            'The directory server authentication token can only be fetched in OnPrem environments',
+        );
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '30,100p' apps/desktop/src/common/dom/network/protocol/fetch-directory.ts
+import type {ClientKey} from '~/common/network/types/keys';
+import {assert, unreachable, unwrap} from '~/common/utils/assert';
+import {ExpiringValue} from '~/common/utils/date';
+import {PROXY_HANDLER} from '~/common/utils/endpoint';
+import type {IQueryableStore} from '~/common/utils/store';
+/**
+ * Schema for the challenge payload returned by the directory server.
+ *
+ * This contains a binary token and an NaCl public key. To authenticate, the client calculates a
+ * response by encrypting the token in an NaCl Box using the private key of its Threema ID, the
+ * public key supplied by the server, and a random nonce.
+ */
+const CHALLENGE_PAYLOAD = v
+    .object({
+        token: v
+            .string()
+            .map((value) => base64ToU8a(value))
+            .map((a) => a as ReadonlyUint8Array),
+        tokenRespKeyPub: v
+            .string()
+            .map((value) => base64ToU8a(value))
+            .map((value) => ensurePublicKey(value)),
+    })
+    .rest(v.unknown());
+
+type ChallengePayload = v.Infer<typeof CHALLENGE_PAYLOAD>;
+
+const BULK_IDENTITIES_SCHEMA = v
+    .object({
+        identities: v.array(VALID_IDENTITY_DATA_SCHEMA),
+    })
+    .rest(v.unknown());
+
+/**
+ * Error response validation for the "fetch private data" endpoint.
+ */
+const ERROR_RESPONSE_SCHEMA = v
+    .object({
+        success: v.literal(false),
+        error: v.string().optional(),
+        errorType: v
+            .string()
+            .optional()
+            .map((errorType) => {
+                switch (errorType) {
+                    case 'invalid-identity':
+                    case 'invalid-token':
+                    case 'identity-transfer-prohibited':
+                        return errorType;
+                    default:
+                        return 'unknown';
+                }
+            }),
+    })
+    .rest(v.unknown());
+
+const DIRECTORY_TIMEOUT_MS = 10_000;
+
+/**
+ * Directory backend implementation based on the [Fetch API].
+ *
+ * [Fetch API]: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+ */
+export class FetchDirectoryBackend implements DirectoryBackend {
+    public readonly [TRANSFER_HANDLER] = PROXY_HANDLER;
+    private readonly _headers: Record<string, string>;
+    private readonly _lock = new AsyncLock();
+    private readonly _cache = {
+        sfuToken: new ExpiringValue<SfuToken>(),
+    } as const;
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && git log --oneline -5; echo "==="; grep -n "PRIVATE_DATA\|private.*data\|IdentityPrivateData\|d2dIdentityPrivateData" apps/desktop/src/common/dom/network/protocol/fetch-directory.ts apps/desktop/src/common/network/types/identity-private-data* 2>/dev/null | head; find apps/desktop/src -name "*private-data*" 2>/dev/null
+9ae421c Update version to v2.0-beta63
+===
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:21:    IDENTITY_PRIVATE_DATA_SCHEMA,
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:23:    type IdentityPrivateData,
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:64: * Error response validation for the "fetch private data" endpoint.
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:233:    ): Promise<IdentityPrivateData> {
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:246:            IDENTITY_PRIVATE_DATA_SCHEMA,
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "IDENTITY_PRIVATE_DATA_SCHEMA\|IdentityPrivateData" packages/ apps/ 2>/dev/null | grep -v node_modules | grep -v ".map" | head; echo "==="; find . -path ./node_modules -prune -o -name "*.ts" -print 2>/dev/null | xargs grep -ln "IDENTITY_PRIVATE_DATA_SCHEMA" 2>/dev/null | head
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:21:    IDENTITY_PRIVATE_DATA_SCHEMA,
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:23:    type IdentityPrivateData,
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:233:    ): Promise<IdentityPrivateData> {
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:246:            IDENTITY_PRIVATE_DATA_SCHEMA,
+apps/desktop/src/common/network/protocol/directory.ts:61:export const IDENTITY_PRIVATE_DATA_SCHEMA = v
+apps/desktop/src/common/network/protocol/directory.ts:79:export type IdentityPrivateData = Readonly<v.Infer<typeof IDENTITY_PRIVATE_DATA_SCHEMA>>;
+apps/desktop/src/common/network/protocol/directory.ts:131:    privateData: (identity: IdentityString, ck: ClientKey) => Promise<IdentityPrivateData>;
+apps/desktop/src/test/mocha/common/backend-mocks.ts:131:    type IdentityPrivateData,
+apps/desktop/src/test/mocha/common/backend-mocks.ts:265:    private _privateData: IdentityPrivateData | undefined = undefined;
+apps/desktop/src/test/mocha/common/backend-mocks.ts:271:    public setPrivateData(privateData: IdentityPrivateData): void {
+===
+./apps/desktop/src/common/dom/network/protocol/fetch-directory.ts
+./apps/desktop/src/common/network/protocol/directory.ts
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '1,90p' apps/desktop/src/common/network/protocol/directory.ts
+import * as v from '@badrap/valita';
+import {base64ToU8a} from '@threema/ts-utils/base64/base64-to-u8a';
+import {ensureU53} from '@threema/ts-utils/integer/u53';
+
+import {ensurePublicKey} from '~/common/crypto';
+import {ActivityState, IdentityType, IdentityTypeUtils, TransferTag} from '~/common/enum';
+import {BaseError, type BaseErrorOptions} from '~/common/error';
+import {TRANSFER_HANDLER} from '~/common/index';
+import {
+    ensureBaseUrl,
+    ensureFeatureMask,
+    ensureIdentityString,
+    ensureServerGroup,
+    type IdentityString,
+} from '~/common/network/types';
+import type {ClientKey} from '~/common/network/types/keys';
+import {registerErrorTransferHandler, type ProxyMarked} from '~/common/utils/endpoint';
+
+export const VALID_IDENTITY_DATA_SCHEMA = v
+    .object({
+        identity: v.string().map(ensureIdentityString),
+        // Note: In the case of OnPrem, the state fetched from the directory server will be undefined.
+        state: v
+            .union(v.literal(ActivityState.ACTIVE), v.literal(ActivityState.INACTIVE))
+            .optional(),
+        publicKey: v
+            .string()
+            .map((pk) => base64ToU8a(pk))
+            .map(ensurePublicKey),
+        featureMask: v.number().map(BigInt).map(ensureFeatureMask),
+        type: v.number().map((type) => IdentityTypeUtils.fromNumber(type, IdentityType.REGULAR)),
+    })
+    .rest(v.unknown());
+
+export type ValidIdentityData = Readonly<v.Infer<typeof VALID_IDENTITY_DATA_SCHEMA>>;
+
+const INVALID_IDENTITY_DATA_SCHEMA = v
+    .object({
+        state: v.literal(ActivityState.INVALID),
+    })
+    .rest(v.unknown());
+export type InvalidIdentityData = Readonly<v.Infer<typeof INVALID_IDENTITY_DATA_SCHEMA>>;
+
+/**
+ * Validation schema for identity data returned from the identity directory.
+ *
+ * @throws {Error} In case of an invalid property value or in case the identity has not been
+ *   assigned or has been permanently deleted.
+ * @throws {ValitaError} In case validation fails.
+ */
+export const IDENTITY_DATA_SCHEMA = v.union(
+    VALID_IDENTITY_DATA_SCHEMA,
+    INVALID_IDENTITY_DATA_SCHEMA,
+);
+
+/**
+ * Validated identity data returned from the identity directory.
+ */
+export type IdentityData = Readonly<v.Infer<typeof IDENTITY_DATA_SCHEMA>>;
+
+export const IDENTITY_PRIVATE_DATA_SCHEMA = v
+    .object({
+        identity: v.string().map(ensureIdentityString),
+        serverGroup: v.string().map(ensureServerGroup),
+        email: v.string().optional(),
+        mobileNo: v.string().optional(),
+    })
+    .rest(v.unknown());
+
+export const AUTH_TOKEN_SCHEMA = v
+    .object({
+        authToken: v.string(),
+    })
+    .rest(v.unknown());
+
+/**
+ * Validated identity data returned from the identity directory.
+ */
+export type IdentityPrivateData = Readonly<v.Infer<typeof IDENTITY_PRIVATE_DATA_SCHEMA>>;
+
+export const SFU_TOKEN_SCHEMA = v
+    .object({
+        sfuBaseUrl: v.string().map((url) => ({raw: url, parsed: ensureBaseUrl(url, 'https:')})),
+        allowedSfuHostnameSuffixes: v.array(v.string()),
+        sfuToken: v.string(),
+        expiration: v
+            .number()
+            .map(ensureU53)
+            .map((expiresInS) => {
+                const expiration = new Date();
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '340,455p' packages/libthreema-wasm/libs/libthreema/lib/src/https/work_directory.rs
+client_info: &ClientInfo,
+    work_server_url: &WorkServerBaseUrl,
+    identity: ThreemaId,
+    context: &WorkContext,
+    authentication: AuthenticationChallengeResponse,
+    remote_secret: &RemoteSecret,
+) -> HttpsRequest {
+    HttpsRequest {
+        timeout: TIMEOUT,
+        url: work_server_url.remote_secret_path(),
+        method: HttpsMethod::Put,
+        headers: https_headers(Some(context))
+            .accept("application/json")
+            .build(client_info),
+        body: serde_json::to_vec(&WorkCreateRemoteSecretAuthenticatedRequest {
+            request: WorkCreateRemoteSecretRequest {
+                identity,
+                credentials: (&context.credentials).into(),
+                remote_secret: &remote_secret.0,
+            },
+            authentication,
+        })
+        .expect("Failed to create remote secret creation request body"),
+    }
+}
+
+#[derive(Debug, Deserialize)]
+struct WorkCreateRemoteSecretResponse {
+    #[serde(rename = "secretAuthenticationToken", with = "base64::fixed_length")]
+    remote_secret_authentication_token: [u8; RemoteSecretAuthenticationToken::LENGTH],
+}
+
+/// Process the result after attempting to create a remote secret.
+pub(crate) fn handle_create_remote_secret_result(
+    result: HttpsResult,
+) -> Result<RemoteSecretAuthenticationToken, HttpsEndpointError> {
+    let response = handle_status(result, |_| None)?;
+    let response: WorkCreateRemoteSecretResponse = serde_json::from_slice(&response.body)?;
+    Ok(RemoteSecretAuthenticationToken(
+        response.remote_secret_authentication_token,
+    ))
+}
+
+#[derive(Debug, Serialize)]
+struct WorkDeleteRemoteSecretRequest<'body> {
+    #[serde(rename = "identity")]
+    identity: ThreemaId,
+
+    #[serde(flatten)]
+    credentials: WorkCredentials<'body>,
+
+    #[serde(rename = "secretAuthenticationToken", with = "base64::fixed_length")]
+    remote_secret_authentication_token: &'body [u8; RemoteSecretAuthenticationToken::LENGTH],
+}
+
+/// Request an authentication challenge to remove a remote secret.
+pub(crate) fn delete_remote_secret_authentication_request(
+    client_info: &ClientInfo,
+    work_server_url: &WorkServerBaseUrl,
+    context: &WorkContext,
+    identity: ThreemaId,
+    remote_secret_authentication_token: &RemoteSecretAuthenticationToken,
+) -> HttpsRequest {
+    HttpsRequest {
+        timeout: TIMEOUT,
+        url: work_server_url.remote_secret_path(),
+        method: HttpsMethod::Delete,
+        headers: https_headers(Some(context))
+            .accept("application/json")
+            .build(client_info),
+        body: serde_json::to_vec(&WorkDeleteRemoteSecretRequest {
+            identity,
+            credentials: (&context.credentials).into(),
+            remote_secret_authentication_token: &remote_secret_authentication_token.0,
+        })
+        .expect("Failed to create remote secret deletion challenge request body"),
+    }
+}
+
+#[derive(Debug, Serialize)]
+struct WorkDeleteRemoteSecretAuthenticatedRequest<'body> {
+    #[serde(flatten)]
+    request: WorkDeleteRemoteSecretRequest<'body>,
+
+    #[serde(flatten)]
+    authentication: AuthenticationChallengeResponse,
+}
+
+/// Remove a remote secret.
+pub(crate) fn delete_remote_secret_request(
+    client_info: &ClientInfo,
+    work_server_url: &WorkServerBaseUrl,
+    context: &WorkContext,
+    identity: ThreemaId,
+    authentication: AuthenticationChallengeResponse,
+    remote_secret_authentication_token: &RemoteSecretAuthenticationToken,
+) -> HttpsRequest {
+    HttpsRequest {
+        timeout: TIMEOUT,
+        url: work_server_url.remote_secret_path(),
+        method: HttpsMethod::Delete,
+        headers: https_headers(Some(context))
+            .accept("application/json")
+            .build(client_info),
+        body: serde_json::to_vec(&WorkDeleteRemoteSecretAuthenticatedRequest {
+            request: WorkDeleteRemoteSecretRequest {
+                identity,
+                credentials: (&context.credentials).into(),
+                remote_secret_authentication_token: &remote_secret_authentication_token.0,
+            },
+            authentication,
+        })
+        .expect("Failed to create remote secret deletion request body"),
+    }
+}
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && grep -n "api-client\|fetch_priv\|remote-secret\|user-properties\|blob_cred\|sfu_cred\|set_revocation\|check_revocation\|update_work_info\|revoke\|fetch2\|/identities\|/directory" inventory/threema.md | head -40
+48:- NEW `api.threema.ch` — 403 + same permissive CORS as apip (candidate ID/directory sibling).
+102:- NEW `ds-apip-work.threema.ch` — work directory prod backend; GET /, /identity/{id}, /identity/fetch_bulk, /identities → all 401 (credential-gated), CORS `*`, no HSTS/Expect-CT.
+109:- NEW `/identity/ws/revoke` → HTTP 404 on both `apip.threema.ch` and `ds-apip.threema.ch` (endpoint not publicly routable at these paths; OpenAPI documentation may be stale or route lives behind a different
+126:- NEW `apip.threema.ch/identity/ws/revoke` → 404 on both apip and ds-apip (dead endpoint)
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && sed -n '95,135p' inventory/threema.md
+- NEW work.test.threema.ch — staging work web app live: 301 /en/login, HSTS, Expect-CT, CSP with *.test.threema.ch refs, Sentry
+- NEW safe-01.threema.ch — backup server live: 404 on /, CORS *, methods GET/HEAD/PUT/PATCH/POST/DELETE, HSTS, Expect-CT
+- CHANGED apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
+- CHANGED Production directory servers (ds-apip, apip, api) all lack HSTS/Expect-CT; staging counterparts have both
+
+## 2026-08-07 22:43:53 UTC
+- NEW `g-{XX}.0.test.threema.ch` staging chat cluster — resolves to 203.56.114.34 (IPv4); HTTPS → HTTP 000 (not HTTP-accessible; likely WSS/TCP 5222); out of scope per scope.yml (only `g-*.0.threema.ch` lis
+- NEW `ds-apip-work.threema.ch` — work directory prod backend; GET /, /identity/{id}, /identity/fetch_bulk, /identities → all 401 (credential-gated), CORS `*`, no HSTS/Expect-CT.
+- NEW `ds-apip-work.test.threema.ch` — work directory staging; 401 on all paths, CORS `*`, no HSTS/Expect-CT.
+- NEW `work.test.threema.ch` — staging work web app; 301 to /en/login, HSTS + Expect-CT, CSP with `*.test.threema.ch` refs, Sentry.
+- NEW Safe-01 backup API behavior: `GET /backups/{64hex}` → HTTP 400 "Bad Request" (11 bytes) for all unauth requests (Express route exists behind credential check); `GET /backup/{x}` → 404 (150 bytes, no r
+- NEW `safe-*.threema.ch` DNS pattern confirmed: safe-01, safe-1a, safe-1b, safe-02, safe-00 → all 203.56.112.231.
+- NEW `mediator-{0..f}.threema.ch` and `rendezvous-{0..f}.threema.ch` DNS split routing: indices 0-7 → 203.56.112.247; indices 8-f → 203.56.114.247; all return uniform 403 on HTTPS.
+- NEW Electron BrowserWindow: `sandbox` NOT enabled (explicit TODO DEK-79) and `nodeIntegrationInWorker: true` (TODO DEK-79); `nodeIntegration: false` and `contextIsolation: true` are set.
+- NEW `/identity/ws/revoke` → HTTP 404 on both `apip.threema.ch` and `ds-apip.threema.ch` (endpoint not publicly routable at these paths; OpenAPI documentation may be stale or route lives behind a different
+- NEW `/api/v1/pubkeys/ECHOECHO` → HTTP 404 on `apip.threema.ch` (dead endpoint candidate from nemotron3 lead disproven).
+- CHANGED `safe-01.threema.ch` — from baseline "TIMEOUT/no response" → live nginx backup service (404 on root, 400 on /backups/{hex}, permissive CORS with write methods + Authorization header).
+- CHANGED Desktop OnPrem config trust → REJECTED as not vulnerable (Ed25519 signature verification against 3 hardcoded trusted public keys in vite.config.ts; HTTPS/WSS URL validation confirmed).
+- CHANGED `crypto.ts:223` hardcoded password → REJECTED as benchmark-only dummy (used in `determineKdfParams()` to calibrate Argon2id runtime; derived key immediately purged).
+
+## 2026-08-07 23:15:48 UTC
+- NEW `safe-*.threema.ch` DNS pattern confirmed: safe-01, safe-1a, safe-1b, safe-02, safe-00 → all resolve to 203.56.112.231 (single IP, 5 hostnames)
+- NEW `mediator-{0..f}.threema.ch` and `rendezvous-{0..f}.threema.ch` DNS split routing: indices 0-7 → 203.56.112.247; indices 8-f → 203.56.114.247; all return uniform 403 on HTTPS
+- NEW `work.test.threema.ch` staging work web app: 301 to /en/login, HSTS + Expect-CT, CSP with `*.test.threema.ch` refs, Sentry
+- NEW Safe-01 backup API path distinction: `GET /backups/{64hex}` → HTTP 400 "Bad Request" (route exists, credential-gated) vs `GET /backup/{x}` → HTTP 404 150 bytes (no route)
+- CHANGED `safe-01.threema.ch` — from baseline "TIMEOUT/no response" to live nginx backup service with permissive CORS (write methods + Authorization header), HSTS, Expect-CT
+
+## 2026-08-07 23:47:08 UTC
+- NEW `work.test.threema.ch` staging work web app confirmed live: 301 to /en/login, HSTS + Expect-CT, CSP with `*.test.threema.ch` refs, Sentry
+- NEW `safe-01.threema.ch` backup API credential-gated: `GET /backups/{64hex}` → HTTP 400 (route exists, credential check); OPTIONS returns CORS `*` + `Access-Control-Allow-Headers: Authorization`
+- NEW `threema-desktop` Electron BrowserWindow: `sandbox: false` (TODO DEK-79) + `nodeIntegrationInWorker: true` (TODO DEK-79) confirmed in source
+- NEW `apip.threema.ch/identity/ws/revoke` → 404 on both apip and ds-apip (dead endpoint)
+- NEW `apip.threema.ch/api/v1/pubkeys/{id}` → 404 (dead endpoint)
+- NEW `safe-*.threema.ch` DNS pattern: safe-01, safe-1a, safe-1b, safe-02, safe-00 → all 203.56.112.231
+- NEW `mediator-{0..f}/rendezvous-{0..f}.threema.ch` DNS split routing: 0-7 → 203.56.112.247; 8-f → 203.56.114.247; all 403 on HTTPS
+- NEW Safe-01 backup API path distinction: `GET /backups/{64hex}` → 400 (credential-gated) vs `GET /backup/{x}` → 404 (no route)
+- CHANGED `ds-apip-work.threema.ch` (prod) + `ds-apip-work.test.threema.ch` (staging): work directory backends confirmed live, 401 on all paths, CORS `*`, no HSTS/Expect-CT
+- NEW work.test.threema.ch `/api-app/public/global/settings` → 200 JSON (299B) unauthenticated; IDENTICAL path → 404 on production work.threema.ch — first confirmed staging-prod public-API divergence on the
+- NEW `/api-app/public/license/token/{licenseToken}` route exists in JS bundle; token validated as exactly 64 chars; fake 64-zero token → 404 (route present, token lookup fails).
+- NEW work.test.threema.ch login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.ch, hcaptcha-work.threema.ch, billing.test.threema.ch (for
+- NEW Staging work app sets `__HOST-HTTP-SESSIONID` cookie on unauthenticated GET /en/login (Secure/HttpOnly/SameSite=Strict).
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && grep -n "identity/revoke\|fetch_priv\|blob_cred\|sfu_cred\|set_revocation\|check_revocation\|update_work_info\|api-client\|fetch2" inventory/threema.md | head -20; echo "=== knowledge ==="; grep -rn "revoke\|fetch_priv\|blob_cred\|sfu_cred\|set_revocation\|check_revocation\|api-client" knowledge/index.md | head -20
+=== knowledge ===
+34:- 2026-08-07 REJECTED OTHER @ apip.threema.ch/identity/ws/revoke: returns 404 on both apip and ds-apip hosts — endpoint not publicly routable at documented path; hypothesis mis-targeted.
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && git log --format="%h %ci" -3 -- packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml; echo "==="; grep -n "fetch_priv\|email\|mobileNo" apps/desktop/src/common/dom/network/protocol/fetch-directory.ts | head; echo "=== revoke client-key in spec ==="; sed -n '947,950p' packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml
+9ae421c 2026-07-16 20:03:47 +0200
+===
+236:            'identity/fetch_priv',
+383:     * @param path The request path. Example: "identity/fetch_priv".
+=== revoke client-key in spec ===
+  /identity/revoke:
+    post:
+      summary: ID Revocation by Client Key
+      description: |-
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -n "fetch_priv" packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml; echo "exit=$?"; echo "=== appVariant + email/mobileNo context ==="; grep -rn "fetch_priv\|appVariant" packages/libthreema-wasm/libs/libthreema/lib/src/common/config.rs apps/desktop/src/common/network/protocol/directory.ts 2>/dev/null | head
+exit=1
+=== appVariant + email/mobileNo context ===
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && grep -rn "privateData\|transferProhibited\|identity-transfer-prohibited\|fetch_priv" apps/desktop/src/common/ --include="*.ts" 2>/dev/null | grep -v ".test." | head -20
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:77:                    case 'identity-transfer-prohibited':
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:230:    public async privateData(
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:236:            'identity/fetch_priv',
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:383:     * @param path The request path. Example: "identity/fetch_priv".
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:451:                        case 'identity-transfer-prohibited':
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:518:                    case 'identity-transfer-prohibited':
+apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:519:                        throw new DirectoryError('identity-transfer-prohibited', message);
+apps/desktop/src/common/dom/backend/index.ts:310: * - identity-transfer-prohibited: Restoring failed because user tried to link a Threema Work ID
+apps/desktop/src/common/dom/backend/index.ts:326:    | {readonly kind: 'identity-transfer-prohibited'}
+apps/desktop/src/common/dom/backend/index.ts:1608:        let privateData;
+apps/desktop/src/common/dom/backend/index.ts:1610:            privateData = await phase2Services.directory.privateData(joinResult.identity, ck);
+apps/desktop/src/common/dom/backend/index.ts:1615:                (error.type === 'identity-transfer-prohibited' || error.type === 'invalid-identity')
+apps/desktop/src/common/dom/backend/index.ts:1621:        if (privateData.serverGroup !== joinResult.serverGroup) {
+apps/desktop/src/common/dom/backend/index.ts:1627:                `Server group reported by directory server (${privateData.serverGroup}) does not match server group received from join protocol (${joinResult.serverGroup})`,
+apps/desktop/src/common/dom/backend/index.ts:1722:            serverGroup: privateData.serverGroup,
+apps/desktop/src/common/network/protocol/directory.ts:131:    privateData: (identity: IdentityString, ck: ClientKey) => Promise<IdentityPrivateData>;
+apps/desktop/src/common/network/protocol/directory.ts:158: * - identity-transfer-prohibited: The user tried to fetch information for a Work identity from a
+apps/desktop/src/common/network/protocol/directory.ts:168:    | 'identity-transfer-prohibited'
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '383,540p' apps/desktop/src/common/dom/network/protocol/fetch-directory.ts
+* @param path The request path. Example: "identity/fetch_priv".
+     * @param payload The request payload. Warning: The payload record will be modified by
+     *   this function!
+     * @param ck The {@link ClientKey} to be used for authentication
+     * @param schema The valita schema used to parse the response
+     * @returns the response JSON validated against the provided schema, or `undefined` if the
+     *   directory server returns a 404 response
+     */
+    private async _authenticatedRequest<TSchema extends v.Type>(
+        description: string,
+        path: string,
+        payload: Record<string, unknown>,
+        ck: ClientKey,
+        schema: TSchema,
+    ): Promise<v.Infer<TSchema> | undefined> {
+        // Run request with timeout
+        const abort = new AbortController();
+        const run = async (): Promise<v.Infer<TSchema> | undefined> => {
+            // Fetch challenge payload
+            let challenge;
+            {
+                // Send request
+                let response: Response;
+                try {
+                    response = await this._fetch(path, {
+                        method: 'POST',
+                        body: JSON.stringify(payload),
+                        signal: abort.signal,
+                    });
+                } catch (error) {
+                    throw new DirectoryError(
+                        'fetch',
+                        `${description} authentication fetch request errored`,
+                        {
+                            from: error,
+                        },
+                    );
+                }
+
+                // Process response
+                if (response.status !== 200) {
+                    throw new DirectoryError(
+                        'authentication',
+                        `${description} authentication fetch request returned status ${response.status}`,
+                    );
+                }
+                const body = (await response.json()) as unknown;
+                try {
+                    challenge = CHALLENGE_PAYLOAD.parse(body);
+                } catch (challengeParseError) {
+                    // Not a challenge payload! Check if it's an error payload.
+                    let errorPayload;
+                    try {
+                        errorPayload = ERROR_RESPONSE_SCHEMA.parse(body);
+                    } catch {
+                        throw new DirectoryError(
+                            'authentication',
+                            `${description} authentication fetch request did not return a valid response body: ${challengeParseError}`,
+                            {from: challengeParseError},
+                        );
+                    }
+
+                    // Handle error
+                    const message = `${description} authentication fetch failed: ${errorPayload.error}`;
+                    switch (errorPayload.errorType) {
+                        case 'invalid-identity':
+                            throw new DirectoryError('invalid-identity', message);
+                        case 'invalid-token':
+                        case 'identity-transfer-prohibited':
+                        case 'unknown':
+                            throw new DirectoryError('authentication', message);
+                        default:
+                            unreachable(errorPayload.errorType);
+                    }
+                }
+            }
+
+            // Encrypt token and add response to request payload
+            const authenticatedPayload = this._calculateResponse(challenge, payload, ck);
+
+            // Send signed request
+            let response: Response;
+            try {
+                response = await this._fetch(path, {
+                    signal: abort.signal,
+                    method: 'POST',
+                    body: JSON.stringify(authenticatedPayload),
+                });
+            } catch (error) {
+                throw new DirectoryError('fetch', `${description} fetch request errored`, {
+                    from: error,
+                });
+            }
+            if (response.status === 404) {
+                return undefined;
+            }
+            if (response.status !== 200) {
+                throw new DirectoryError(
+                    'invalid-response',
+                    `${description} fetch request returned status ${response.status}`,
+                );
+            }
+
+            // Get response JSON
+            let body: unknown;
+            try {
+                body = await response.json();
+            } catch (error) {
+                throw new DirectoryError(
+                    'invalid-response',
+                    `${description} fetch request did not return a valid response body: ${error}`,
+                    {from: error},
+                );
+            }
+
+            // Validate response JSON using schema
+            try {
+                return schema.parse(body);
+            } catch (error) {
+                // Fallback to parsing it as an error response with schema
+                let errorPayload;
+                try {
+                    errorPayload = ERROR_RESPONSE_SCHEMA.parse(body);
+                } catch {
+                    // Not an error payload either
+                    throw new DirectoryError(
+                        'invalid-response',
+                        `${description} fetch request response body validation against schema failed`,
+                        {from: error},
+                    );
+                }
+
+                // Handle error
+                const message = `${description} fetch failed: ${errorPayload.error}`;
+                switch (errorPayload.errorType) {
+                    case 'identity-transfer-prohibited':
+                        throw new DirectoryError('identity-transfer-prohibited', message);
+                    case 'invalid-token':
+                        throw new DirectoryError('authentication', message);
+                    case 'invalid-identity':
+                    case 'unknown':
+                        throw new DirectoryError('invalid-response', message);
+                    default:
+                        return unreachable(errorPayload.errorType);
+                }
+            }
+        };
+
+        try {
+            return await TIMER.waitFor(run(), DIRECTORY_TIMEOUT_MS);
+        } catch (error_) {
+            const error = ensureError(error_);
+            if (error instanceof TimeoutError) {
+                // Abort any ongoing `fetch` request
+                abort.abort();
+                throw new DirectoryError('timeout', error.message, {from: error});
+            }
+            if (error instanceof DirectoryError) {
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '852,905p' packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml
+remote-secret-create-request: &remote-secret-create-request
+    type: object
+    required:
+      - secret
+    properties:
+      secret: *remote-secret
+
+  remote-secret-create-response: &remote-secret-create-response
+    type: object
+    required:
+      - secretAuthenticationToken
+    properties:
+      secretAuthenticationToken: *remote-secret-authentication-token
+
+  remote-secret-delete-request: &remote-secret-delete-request
+    type: object
+    required:
+      - secretAuthenticationToken
+    properties:
+      secretAuthenticationToken: *remote-secret-authentication-token
+
+  remote-secret-fetch-request: &remote-secret-fetch-request
+    type: object
+    required:
+      - secretAuthenticationToken
+    properties:
+      secretAuthenticationToken: *remote-secret-authentication-token
+
+  remote-secret-fetch-response: &remote-secret-fetch-response
+    type: object
+    required:
+      - secret
+      - checkIntervalS
+      - nMissedChecksMax
+    properties:
+      secret: *remote-secret
+      checkIntervalS:
+        <<: *u32
+        description: |-
+          Amount of time in seconds until the Remote Secret should be fetched
+          again.
+      nMissedChecksMax:
+        <<: *u16
+        description: |-
+          The maximum number of fetches that may be missed until application
+          storage should be locked.
+
+openapi: 3.1.0
+
+info:
+  title: Directory and Work Directory Server APIs
+  description: |-
+    Maintains the directory of allocated Threema IDs and all associated
+    properties.
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '230,250p' apps/desktop/src/common/network/protocol/directory.ts; echo "=== fetch_priv in android/ios? ==="; grep -rn "fetch_priv\|fetchPriv" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/grep-hits.txt | head
+=== fetch_priv in android/ios? ===
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '155,170p' apps/desktop/src/common/network/protocol/directory.ts; echo "==="; grep -rn "fetch_priv" /tmp/opencode/threema-desktop/apps/ /tmp/opencode/threema-desktop/packages/ --include="*.ts" 2>/dev/null | grep -v node_modules | head
+* - timeout: Fetching data timed out.
+ * - fetch: An error occurred when fetching data from the server (e.g. a network connectivity error)
+ * - authentication: An error occurred during authenticating against the server
+ * - identity-transfer-prohibited: The user tried to fetch information for a Work identity from a
+ *   consumer app, or vice versa
+ * - invalid-identity: The identity is unknown or was revoked
+ * - invalid-response: We got an unexpected or invalid response from the server (e.g. an internal
+ *   server error, an empty response or a response that does not validate against the schema)
+ */
+export type DirectoryErrorType =
+    | 'timeout'
+    | 'fetch'
+    | 'authentication'
+    | 'identity-transfer-prohibited'
+    | 'invalid-identity'
+    | 'invalid-response'
+===
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:236:            'identity/fetch_priv',
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-directory.ts:383:     * @param path The request path. Example: "identity/fetch_priv".
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && sed -n '1137,1170p' packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml; echo "=== remote-secret POST no-auth check in rust ==="; grep -n "https_headers(None)" packages/libthreema-wasm/libs/libthreema/lib/src/https/work_directory.rs | head
+/fetch2:
+    post:
+      summary: Work Sync
+      description: |-
+        Full sync of all data associated to the Work subscription. Only used by
+        the _Work_ flavour of Threema.
+
+        TODO(SE-368): When sending/receiving steps.
+      servers: *work-servers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: !merge-objects
+              - *work-credentials
+              - *sync-work-data-request
+      responses:
+        '200':
+          description: Work subscription data.
+          content:
+            application/json:
+              schema: *sync-work-data-response
+        '400':
+          description: Invalid request.
+        '401':
+          description: Invalid username or password.
+        '429':
+          description: Rate limit exceeded.
+
+  /identities:
+    post:
+      summary: Work Contacts
+      description: |-
+        Request properties associated to a contact of the same Work subscription.
+=== remote-secret POST no-auth check in rust ===
+478:        headers: https_headers(None).accept("application/json").build(client_info),
+[0m
+RAG this cycle: fresh shallow clone of `threema-desktop` @ `9ae421c` (2026-07-16) and full parse of `directory.openapi.yml` + desktop client + Rust libthreema. Gate still open → static-only, no live HTTP.
+
+---
+
+## STEP 1 — DELTA
+- [NEW] `identity/fetch_priv` — **undocumented endpoint** (grep 0 hits in directory.openapi.yml) but implemented in desktop client `fetch-directory.ts:236`; returns `{identity, serverGroup, email?, mobileNo?}` (PII); error schema distinguishes `invalid-identity` / `invalid-token` / `identity-transfer-prohibited`.
+- [NEW] `POST /api-client/v1/remote-secret` (fetch) on ds-apip-work — Rust `work_directory.rs:478` builds the request with `https_headers(None)` → **no work credentials required**; body is only `{secretAuthenticationToken}`; 200→`{secret, checkIntervalS, nMissedChecksMax}` / 403 blocked / 404 missing.
+- [NEW] `/identity/revoke` (client-key revocation) is a **distinct documented path** (openapi line 947) never probed — KB REJECTED only `/identity/ws/revoke` (user-set key, line 1040).
+- [NEW] Full OpenAPI path map now closed: 12 documented paths; unprobed set = `blob_cred`, `revoke`, `set_revocation_key`, `check_revocation_key`, `sfu_cred`, `update_work_info`, `fetch2`, `identities`, `directory`, `user-properties`, `remote-secret`. Note `fetch_bulk` + `GET identity/{id}` are used by the client but absent from the spec.
+- [NEW] `/fetch2`, `/identities`, `/directory`, `/api-client/v1/user-properties` are work-credential-gated (401 invalid username/password documented) on ds-apip-work; remote-secret fetch is the only work-host path with **no** credential header.
+- NO new hosts; DNS/HTTP posture unchanged.
+
+## STEP 2 — PRIORITIZE
+- [PRIO] ds-apip `identity/fetch_priv` | 5.35 | attack 5 business 7 tech 6 gate 4 cloud 3 fresh 9
+- [PRIO] ds-apip-work `POST /api-client/v1/remote-secret` | 4.85 | attack 4 business 6 tech 5 gate 6 cloud 4 fresh 7
+- [PRIO] ds-apip `identity/revoke`+`set/check_revocation_key` | 4.7 | attack 4 business 5 tech 5 gate 8 cloud 3 fresh 6
+- [PRIO] ds-apip unprobed challenge set (`blob_cred`/`sfu_cred`/`update_work_info`) | 4.6 | attack 4 business 4 tech 5 gate 9 cloud 3 fresh 5
+
+## STEP 3 — HYPOTHESES
+- [HYP] Undocumented `fetch_priv` endpoint yields identity-type oracle + PII shape pre-challenge
+  class: AUTH
+  asset: https://ds-apip.threema.ch/identity/fetch_priv (mirrors apip/api)
+  confidence: 50
+  reasoning: Endpoint absent from OpenAPI but live in client; first POST without challenge returns either auth-challenge (route live) or typed error (`invalid-identity` vs `identity-transfer-prohibited`) → distinguishes unknown / consumer / Work identity without CK.
+  evidence_needed: single POST `{identity, appVariant}` per host → 200-challenge vs typed-error body; compare across 3 prod hosts + staging.
+  verify_steps: PASSIVE, gated: 3× single POST at 1 rps (synthetic ECHOECHO + fabricated ID) per host; read-only, no real identities, no signed challenge.
+  impact: identity-type (consumer/work/unknown) oracle distinct from the 200/404 existence oracle; if challenge flow leaks email/mobileNo shape pre-auth, low PII exposure.
+  testability: PASSIVE
+- [HYP] `remote-secret` fetch reachable without work credentials on ds-apip-work
+  class: AUTH
+  asset: https://ds-apip-work.threema.ch/api-client/v1/remote-secret
+  confidence: 45
+  reasoning: Rust client sends zero auth headers for the POST fetch (https_headers(None)); body is a single 32-byte base64 token. If route is live, response differentiates 200-secret vs 403-blocked vs 404-missing vs 401-gated — establishes whether the token is the sole bearer gate.
+  evidence_needed: single POST with fabricated base64 token (no creds) → status/body vs the known 401 baseline on ds-apip-work paths.
+  verify_steps: PASSIVE, gated: 1 POST at 1 rps, random 32-byte token, compare to ds-apip-work 401 baseline; no valid tokens.
+  impact: confirms bearer-only gate design; token is high-entropy so no enumeration; low, but documents a credential-less work-host endpoint.
+  testability: PASSIVE
+- [HYP] Client-key `revoke` + revocation-key endpoints routable where `ws/revoke` was 404
+  class: AUTH
+  asset: https://ds-apip.threema.ch/identity/{revoke|set_revocation_key|check_revocation_key}
+  confidence: 48
+  reasoning: KB rejected `/identity/ws/revoke` (404) but the spec documents a **separate** `/identity/revoke` (client-key proof) and two revocation-key paths, all challenge-first; first POST without response returns 200-challenge vs 404, differentiating live routes from dead ones.
+  evidence_needed: 1 GET+1 POST per path (no creds) → 200-challenge vs 404 vs 400; compare to ws/revoke 404 baseline.
+  verify_steps: PASSIVE, gated: 3 POSTs per path at 1 rps (max 9 requests), no identities, no challenge signatures.
+  impact: completes the directory route map pre-auth; if `check_revocation_key` challenge flow is reachable, adds a low-value existence check; no data access.
+  testability: PASSIVE
+
+## STEP 4 — SELF-CRITIQUE
+- Retained: fetch_priv [50] — undocumented endpoint is genuinely new; concrete 3-request steps; error-type oracle is testable passively.
+- Retained: remote-secret [45] — source-confirmed credential-less header; distinct from all prior 401-gated findings on that host.
+- Retained: revoke/revocation-key set [48] — **not** a re-run of the rejected `ws/revoke`; distinct documented path, concrete steps.
+- [PARKED] unprobed challenge set (blob_cred/sfu_cred/update_work_info): folded into the revoke hypothesis' route-map probe; not dropped as dead, deprioritized for slot economy.
+- [FINAL] 1) fetch_priv [50] 2) revoke/revocation-key set [48] 3) remote-secret fetch [45]
+
+## STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: GO/NO-GO gate still open — no operator confirmation arrived (static-only this cycle; RAG on `directory.openapi.yml` + desktop client completed). Request (a) confirmation of active authorized program + reporting channel, (b) GO/NO-GO. If GO, first live step = 3× single POST `https://ds-apip.threema.ch/identity/fetch_priv` with `{"identity":"XXXXXXXX","appVariant":"consumer"}` at 1 rps to test the undocumented-endpoint oracle, then the safe-01 backup 400-shape test; no signed challenges, no real identities, no other endpoints until GO.
+
+## STEP 6 — LEARNING
+- [LEARN] NO class newly proven dead/alive this cycle — static RAG only; all prior ACCEPTED/REJECTED standings unchanged.
+- [LEARN] CONFIRMED (source, not new) @ desktop: `fetch_bulk` + `GET identity/{id}` live client paths are absent from `directory.openapi.yml` — spec is a subset of deployed API; undocumented endpoints must be enumerated from client source, not spec.
+
+## STEP 7 — RISK SCORE
+- [RISK] chat: 20 | TCP 5222/443 read-only connects return 0 bytes both staging+prod; handshake requires authenticated login frame; no passive in-band divergence obtainable.
+- [RISK] web: 45 | Directory hosts expose undocumented `fetch_priv` (PII shape) + 11 unprobed spec paths; work.test staging divergence (public-only namespace live, bundle sha mismatch); prod directory hosts lack HSTS/Expect-CT.
+- [RISK] sync: 20 | mediator/rendezvous uniform 403 on HTTPS, split DNS routing fully mapped; minimal passively-observable surface.
+- [RISK] safe: 35 | Basic-auth gated (backupId:backupKey) but CORS `*` + credentialed preflight + unmeasured 400-shape oracle + no HSTS/Expect-CT.
+- [RISK] desktop-src: 50 | RAG-verified Windows keystorage ACL gap (top finding), `sandbox:false` + `nodeIntegrationInWorker:true` TODOs, zero dynamic sinks in worker/ tree; public source enables deep review; new undocumented endpoints found via client source this cycle.

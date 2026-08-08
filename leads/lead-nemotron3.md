@@ -1155,3 +1155,13 @@ testability: PASSIVE
 [RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve (split routing 203.56.112.247 | 203.56.114.247), uniform 403 on HTTPS; WSS paths high-entropy; auth model in source, not passively enumerable
 [RISK] safe: 85 reason: safe-01.live with CORS *, write-capable methods (GET,HEAD,PUT,PATCH,POST,DELETE), Access-Control-Allow-Headers: Authorization, HSTS+Expect-CT; backup API credential-gated (400) but cross-origin auth requests possible; 5 hostnames same IP; no 429 observed
 [RISK] desktop-src: 95 reason: Windows key-storage ACL bypass CONFIRMED at source level (95 confidence) — full identity keypair + message DB decryption chain RAG-verified (15 paths); Electron sandbox disabled + nodeIntegrationInWorker: true (65 confidence, conditional RCE); staging URLs baked into builds; Argon2id + DPAPI decent but weak on Windows
+## 2026-08-08 11:46:08 UTC [web] (model nemotron3)
+[PRIO] threema-desktop (Windows key-storage ACL bypass): 8.20 — attack_surface:7 business:10 tech:8 gate:8 cloud:2 fresh:10
+[PRIO] safe-*.threema.ch (backup API cross-origin credentialed read): 6.90 — attack_surface:8 business:9 tech:6 gate:5 cloud:4 fresh:8
+[PRIO] ds-apip.threema.ch/api.threema.ch/apip.threema.ch (directory identity→pubkey oracle): 6.40 — attack_surface:6 business:6 tech:5 gate:10 cloud:5 fresh:10
+[HYP] Windows key-storage ACL bypass → master password recovery → identity keypair + message DB decryption
+class: MISCONFIG
+asset: threema-desktop apps/desktop/src/common/node/{fs.ts:41, key-storage/index.ts:559-560, electron-main.ts:944-945, crypto.ts:53-88, inner/v3.ts:65,70, sqlite.ts:239-240}
+confidence: 95
+reasoning: RAG-VERIFIED: fileModeInternalObjectIfPosix() returns {} on win32 → keystorage.bin and keystorage.password.bin written with no ACL (default inheritable DACL). safeStorage.encryptString() = DPAPI CurrentUser with same {} options → password recoverable by any same-user process. Outer: Argon2id(masterPassword + salt) → XSalsa20-Poly1305 decrypt → inner v3 protobuf exposes identityData.ck (32-byte permanent Ed25519 ClientKey) + databaseKey (32-byte RawDatabaseKey). sqlite.ts uses databaseKey as SQLCipher PRAGMA key (raw 32-byte mode).
+evidence_needed: (1) Windows DACL audit showing no explicit ACE on both files; (2) DPAPI CryptUnprotectData on keystorage.password.bin → master password; (3) Argon2id derivation → XSalsa20-Poly1305 decrypt → protobuf decode → ck + databaseKey; (4) databaseKey as SQLCipher PRAGMA

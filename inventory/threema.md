@@ -245,3 +245,5 @@
 - NEW Identity→pubkey oracle confirmed across all 3 production hosts (ds-apip, api, apip) returning identical 200+pubkey with CORS `*`
 - NEW fetch_bulk batch oracle confirmed: `POST /identity/fetch_bulk {"identities":["ECHOECHO","ZZZZZZZZ"]}` → returns only valid IDs, silently omits invalid, CORS `*`
 - NEW No dynamic sinks (require/import/eval/child_process/new Function) found in worker/ tree — grep returned 0 matches, confirming BrowserWindow exploitability is conditional
+
+## 2026-08-08 11:51:30 UTC
