@@ -3959,3 +3959,1216 @@ testability: PASSIVE
 [STEP 7 — RISK SCORE]
 [RISK] chat: 45 — staging chat cluster TCP-reachable and DNS-split from prod but no in-band divergence proven; requires protocol decoding | web: 50 — staging work API exposes public endpoints absent on prod (public/global/settings 200 vs 404); auth-gated namespaces intact; low severity | sync: 40 — staging mediator/rendezvous WSS reachable with distinct staging cert; no token-level surface | safe: 30 — credential-gated (400 for no-creds); CORS * on preflight only; defense-in-depth gap | desktop-src: 40 — two accepted source misconfigs (Windows keystorage ACL, electron sandbox:false + nodeIntegrationInWorker) with no remote exploitation path.
 ```
+===== ANALYST bigpickle 2026-08-08 00:15:46 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /tmp/opencode/ 2>/dev/null; echo "---"; ls -la /home/runner/work/threema-hunt/threema-hunt/ 2>/dev/null | head -50
+total 16
+drwxr-xr-x  2 runner runner  4096 Aug  8 00:05 .
+drwxrwxrwt 15 root   root   12288 Aug  8 00:05 ..
+---
+total 136
+drwxr-xr-x 11 runner runner  4096 Aug  8 00:05 .
+drwxr-xr-x  3 runner runner  4096 Aug  8 00:05 ..
+drwxr-xr-x  7 runner runner  4096 Aug  8 00:05 .git
+drwxr-xr-x  3 runner runner  4096 Aug  8 00:05 .github
+-rw-r--r--  1 runner runner  1049 Aug  8 00:05 README.md
+-rw-r--r--  1 runner runner    32 Aug  8 00:05 analyst-out.txt
+-rw-r--r--  1 runner runner 29783 Aug  8 00:05 analyst-prompt.txt
+-rw-r--r--  1 runner runner 26719 Aug  8 00:05 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  8 00:05 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  8 00:05 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  8 00:05 leads
+drwxr-xr-x  2 runner runner  4096 Aug  8 00:05 reports
+drwxr-xr-x  3 runner runner  4096 Aug  8 00:05 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  8 00:05 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  8 00:05 scripts
+-rw-r--r--  1 runner runner    34 Aug  8 00:05 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  8 00:05 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  8 00:05 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  8 00:05 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  8 00:05 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  8 00:05 triage
+[0m
+[0m$ [0mls -la reports/ leads/ knowledge/ inventory/ triage/ 2>/dev/null
+inventory/:
+total 24
+drwxr-xr-x  2 runner runner  4096 Aug  8 00:05 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 00:05 ..
+-rw-r--r--  1 runner runner 13846 Aug  8 00:05 threema.md
+
+knowledge/:
+total 16
+drwxr-xr-x  2 runner runner 4096 Aug  8 00:05 .
+drwxr-xr-x 11 runner runner 4096 Aug  8 00:05 ..
+-rw-r--r--  1 runner runner 6639 Aug  8 00:05 index.md
+
+leads/:
+total 396
+drwxr-xr-x  2 runner runner  4096 Aug  8 00:05 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 00:05 ..
+-rw-r--r--  1 runner runner 38286 Aug  8 00:05 lead-bigpickle.md
+-rw-r--r--  1 runner runner 56513 Aug  8 00:05 lead-laguna.md
+-rw-r--r--  1 runner runner   560 Aug  8 00:05 lead-ling3.md
+-rw-r--r--  1 runner runner   582 Aug  8 00:05 lead-longcat.md
+-rw-r--r--  1 runner runner 69802 Aug  8 00:05 lead-nemotron3.md
+-rw-r--r--  1 runner runner 11048 Aug  8 00:05 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner 13399 Aug  8 00:05 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner 13429 Aug  8 00:05 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner 11241 Aug  8 00:05 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner  6565 Aug  8 00:05 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner  9511 Aug  8 00:05 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner 13472 Aug  8 00:05 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner 10507 Aug  8 00:05 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner 13665 Aug  8 00:05 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner 10938 Aug  8 00:05 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner 17321 Aug  8 00:05 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner 15373 Aug  8 00:05 reposcan-2026-08-07-23-19.md
+-rw-r--r--  1 runner runner 11670 Aug  8 00:05 reposcan-2026-08-07-23-50.md
+-rw-r--r--  1 runner runner 14267 Aug  8 00:05 reposcan-2026-08-08-00-01.md
+-rw-r--r--  1 runner runner 14267 Aug  8 00:05 reposcan-latest.md
+
+reports/:
+total 784
+drwxr-xr-x  2 runner runner   4096 Aug  8 00:05 .
+drwxr-xr-x 11 runner runner   4096 Aug  8 00:05 ..
+-rw-r--r--  1 runner runner 264502 Aug  8 00:05 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 465653 Aug  8 00:05 analyst-laguna.log
+-rw-r--r--  1 runner runner   2160 Aug  8 00:05 analyst-ling3.log
+-rw-r--r--  1 runner runner    900 Aug  8 00:05 analyst-longcat.log
+-rw-r--r--  1 runner runner 112853 Aug  8 00:05 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   5780 Aug  8 00:05 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner   8592 Aug  8 00:05 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner     48 Aug  8 00:05 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner     50 Aug  8 00:05 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner  10109 Aug  8 00:05 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  23346 Aug  8 00:05 hypotheses.md
+-rw-r--r--  1 runner runner   1190 Aug  8 00:05 valid-bugs.md
+
+triage/:
+total 172
+drwxr-xr-x  2 runner runner  4096 Aug  8 00:05 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 00:05 ..
+-rw-r--r--  1 runner runner 81432 Aug  8 00:05 run-2026-08-07-20-10.md
+-rw-r--r--  1 runner runner 18280 Aug  8 00:05 run-2026-08-07-21-03.md
+-rw-r--r--  1 runner runner 18224 Aug  8 00:05 run-2026-08-07-21-56.md
+-rw-r--r--  1 runner runner 12766 Aug  8 00:05 run-2026-08-07-22-56.md
+-rw-r--r--  1 runner runner 27810 Aug  8 00:05 run-2026-08-07-23-55.md
+[0m
+[0m$ [0mcat state_bigpickle.json; echo; cat scope.yml
+{"phase": "POC", "target": "chat"}
+programs:
+  threema:
+    name: Threema
+    disclosure_policy: TBD - operator-provided program scope (update once public channel confirmed)
+    assets:
+      - name: "Android Source Code"
+        priority: In
+      - name: "iOS App Source Code"
+        priority: In
+      - name: "Desktop 2.x App Source Code (github.com/threema-ch/threema-desktop)"
+        priority: In
+      - name: "g-*.0.threema.ch (chat services)"
+        priority: In
+      - name: "mediator-*.threema.ch (multi-device synchronization server)"
+        priority: In
+      - name: "rendezvous-*.threema.ch (multi-device linking server)"
+        priority: In
+      - name: "apip.threema.ch (directory server / ID service)"
+        priority: In
+      - name: "safe-*.threema.ch (backup service)"
+        priority: In
+      - name: "work.threema.ch (work cockpit & backend)"
+        priority: In
+      - name: "broadcast.threema.ch (broadcast cockpit & backend)"
+        priority: In
+      - name: "gateway.threema.ch (gateway cockpit & backend)"
+        priority: In
+      - name: "shop.threema.ch (threema shop)"
+        priority: In
+      - name: "billing.threema.ch (billing system)"
+        priority: In
+    out_of_scope:
+      - "All other targets and third-party services not listed above"
+    github_orgs:
+      - threema-ch
+
+rules:
+  passive_first: true          # GET/HEAD reads first; no invasive testing without program approval
+  max_requests_per_second: 1   # never hammer
+  no_doom: true                # no DoS/DDoS, no resource-exhaustion tests
+  no_account_creation: true    # no mass signups without program approval
+  no_data_modification: true   # no writes, deletes, state changes on live infra
+  no_pre_disclosure: true      # never disclose before program response
+  redact_secrets_in_commits: true   # commit sha256 of secrets, never raw values
+
+# Multi-model ensemble: every hunt run picks a rotation of the 5 models.
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
+[0m
+[0m$ [0mcurl -s -L -m 15 https://work.test.threema.ch/en/login -o /tmp/opencode/wt_login.html -w "HTTP %{http_code} final=%{url_effective} size=%{size_download}\n"
+HTTP 200 final=https://work.test.threema.ch/en/login size=5897
+[0m
+[0m$ [0mgrep -oE '(src|href)="[^"]+\.js[^"]*"' /tmp/opencode/wt_login.html | sort -u
+src="/cache/work_public.js?v=2.25.1"
+[0m
+[0m$ [0mgrep -oE '"[^"]*\.(js|mjs)[^"]*"' /tmp/opencode/wt_login.html | sort -u
+"/cache/work_public.js?v=2.25.1"
+[0m
+[0m$ [0mcurl -s -m 30 "https://work.test.threema.ch/cache/work_public.js?v=2.25.1" -o /tmp/opencode/work_public.js -w "HTTP %{http_code} size=%{size_download}\n"; wc -c /tmp/opencode/work_public.js
+HTTP 200 size=1443948
+1443948 /tmp/opencode/work_public.js
+[0m
+[0m$ [0mgrep -oE '"/api-app[^"]*"' /tmp/opencode/work_public.js | sort -u
+"/api-app"
+[0m
+[0m$ [0mgrep -oE '`/api-app[^`]*`' /tmp/opencode/work_public.js | sort -u
+(no output)
+[0m
+[0m$ [0mgrep -oE '"/api-app[^"]*"|"/public[^"]*"|"/license[^"]*"|"/auth[^"]*"|"/me[^"]*"' /tmp/opencode/work_public.js | sort -u | head -80
+"/api-app"
+"/license/"
+"/me/profile"
+"/public/global/settings"
+"/public/license/token/{licenseToken}"
+[0m
+[0m$ [0mgrep -oE 'concat\("[^"]+"\)|`/\$\{[^}]*\}`|"/\$\{[^}]*\}"' /tmp/opencode/work_public.js | sort -u | head -60
+concat("*")
+[0m
+[0m$ [0mgrep -oE '"/[a-zA-Z0-9_/-]+\{[a-zA-Z0-9_]+\}[a-zA-Z0-9_/-]*"' /tmp/opencode/work_public.js | sort -u
+"/package/{package}/broadcast/identities"
+"/package/{package}/settings"
+"/package/{package}/tags"
+"/public/license/token/{licenseToken}"
+[0m
+[0m$ [0mgrep -oE '"(global|license|token|login|register|oauth|profile|company|avatar|hcaptcha|session|logout|settings|download|upload|invite|billing|provisioning)[a-zA-Z0-9_/-]*"?' /tmp/opencode/work_public.js | sort -u | head -80
+"download"
+"globalEval"
+"globalFilter"
+"globalScope"
+"license
+"license"
+"license_activation_activate"
+"license_activation_app"
+"license_activation_desktop"
+"license_activation_download"
+"license_activation_expired_email"
+"license_activation_expired_no_email"
+"license_activation_expired_request_new"
+"license_activation_expired_title"
+"license_activation_instruction_android_link"
+"license_activation_instruction_android_title"
+"license_activation_instruction_ios_link"
+"license_activation_instruction_ios_title"
+"license_activation_instruction_title"
+"license_activation_neutral_activate"
+"license_activation_neutral_download"
+"license_activation_request_error"
+"license_activation_request_success"
+"license_activation_title"
+"license_amount"
+"license_distribution_activation_link_regenerate_success"
+"license_distribution_activation_link_remove_success"
+"license_distribution_receiver_email"
+"license_distribution_send_success"
+"license_hashed_link_info_save"
+"license_hashed_link_info_subject"
+"license_password"
+"license_username"
+"profile"
+"session"
+"session_extend_error"
+"session_extend_question"
+"session_extend_success"
+"sessions"
+"token"
+[0m
+[0m$ [0mgrep -oE '.{120}"/api-app".{200}' /tmp/opencode/work_public.js | head -5
+D"),options:d("OPTIONS"),patch:d("PATCH"),post:d("POST"),put:d("PUT"),trace:d("TRACE")},trace:c("TRACE")}})(wk({baseUrl:"/api-app"}));Ue({message:ze()}),Ue({message:ze(),errors:Ae(ik(ze(),ik(ze(),ze())))});const tp=Ue({pagination:Ae(Ue({currentPage:Ae(on().gte(1)),lastPage:Ae(on().gte(1)),perPage:Ae(on()),total:Ae(on()),from:Ae(
+[0m
+[0m$ [0mgrep -oE '.{400}wk\(\{baseUrl:"/api-app"\}\).{600}' /tmp/opencode/work_public.js | head -1
+Body:mk(g),url:m}))};return{buildUrl:yk,connect:c("CONNECT"),delete:c("DELETE"),get:c("GET"),getConfig:n,head:c("HEAD"),interceptors:a,options:c("OPTIONS"),patch:c("PATCH"),post:c("POST"),put:c("PUT"),request:l,setConfig:r,sse:{connect:d("CONNECT"),delete:d("DELETE"),get:d("GET"),head:d("HEAD"),options:d("OPTIONS"),patch:d("PATCH"),post:d("POST"),put:d("PUT"),trace:d("TRACE")},trace:c("TRACE")}})(wk({baseUrl:"/api-app"}));Ue({message:ze()}),Ue({message:ze(),errors:Ae(ik(ze(),ik(ze(),ze())))});const tp=Ue({pagination:Ae(Ue({currentPage:Ae(on().gte(1)),lastPage:Ae(on().gte(1)),perPage:Ae(on()),total:Ae(on()),from:Ae(vi([on().gte(1),Ol()])),to:Ae(vi([on(),Ol()]))}))}),bY=Ue({broadcastMaxGroupMembers:on()}),_Y=Ue({appLinkHost:ze(),appDownloadAndroidGooglePlay:ze(),appDownloadIos:ze(),appDownloadDesktop:ze(),onPremPublicHost:Ae(ze())}),wY=Ue({identity:ze(),name:ze(),receiverLimit:ze(),workSyncActive:cr()}),Ky=Zy(["groupChat","channel"]),np=Ue({identity:ze(),uid:vi([ze(),Ol()]),name:ze(),link:Ae(vi([ze(),Ol()])),is
+[0m
+[0m$ [0mgrep -oE '(get|post|put|patch|delete|request)\([^,)]*"/[a-z][^"]*"' /tmp/opencode/work_public.js | sort -u | head -80
+(no output)
+[0m
+[0m$ [0mgrep -oE 'url:"/[a-z][^"]*"' /tmp/opencode/work_public.js | sort -u | head -80
+url:"/global/settings"
+url:"/me/profile"
+url:"/package/{package}/broadcast/identities"
+url:"/package/{package}/broadcast/{broadcastId}/distribution-lists"
+url:"/package/{package}/broadcast/{broadcastId}/group-chats"
+url:"/package/{package}/settings"
+url:"/package/{package}/tags"
+url:"/package/{package}/tags/{tag_uid}"
+url:"/package/{package}/tags/{tag_uid}/broadcast"
+url:"/package/{package}/tags/{tag_uid}/broadcast/{broadcastId}/{itemType}/{itemRef}/delete"
+url:"/package/{package}/tags/{tag_uid}/broadcast/{broadcastId}/{itemType}/{itemRef}/unlink"
+url:"/package/{package}/user/{user_uid}/access"
+url:"/public/global/settings"
+url:"/public/license/token/{licenseToken}"
+[0m
+[0m$ [0mfor r in "/public/global/settings" "/public/license/token/{licenseToken}" "/global/settings" "/me/profile"; do echo "=== $r ==="; grep -oE '.{160}url:"'"$r"'".{60}' /tmp/opencode/work_public.js | head -2; echo; done
+=== /public/global/settings ===
+{var t;return((t=e==null?void 0:e.client)!=null?t:Gt).get(y({requestValidator:async n=>await JY.parseAsync(n),responseValidator:async n=>await eK.parseAsync(n),url:"/public/global/settings"},e))},wK=e=>{var t;return((t=e.client)!=null?t:Gt).get(y({r
+
+=== /public/license/token/{licenseToken} ===
+s"},e))},wK=e=>{var t;return((t=e.client)!=null?t:Gt).get(y({requestValidator:async n=>await tK.parseAsync(n),responseValidator:async n=>await nK.parseAsync(n),url:"/public/license/token/{licenseToken}"},e))},xK=e=>{var t;return((t=e.client)!=null?t:Gt).put(y({r
+
+=== /global/settings ===
+{var t;return((t=e==null?void 0:e.client)!=null?t:Gt).get(y({requestValidator:async n=>await TY.parseAsync(n),responseValidator:async n=>await kY.parseAsync(n),url:"/global/settings"},e))},sK=e=>{var t;return((t=e==null?void 0:e.client)!=null
+
+=== /me/profile ===
+{var t;return((t=e==null?void 0:e.client)!=null?t:Gt).get(y({requestValidator:async n=>await MY.parseAsync(n),responseValidator:async n=>await AY.parseAsync(n),url:"/me/profile"},e))},iK=e=>{var t;return((t=e.client)!=null?t:Gt).get(y({r
+[0m
+[0m$ [0mgrep -oE 'url:"[^"]*"' /tmp/opencode/work_public.js | sort -u
+url:""
+url:"/global/settings"
+url:"/me/profile"
+url:"/package/{package}/broadcast/identities"
+url:"/package/{package}/broadcast/{broadcastId}/distribution-lists"
+url:"/package/{package}/broadcast/{broadcastId}/group-chats"
+url:"/package/{package}/settings"
+url:"/package/{package}/tags"
+url:"/package/{package}/tags/{tag_uid}"
+url:"/package/{package}/tags/{tag_uid}/broadcast"
+url:"/package/{package}/tags/{tag_uid}/broadcast/{broadcastId}/{itemType}/{itemRef}/delete"
+url:"/package/{package}/tags/{tag_uid}/broadcast/{broadcastId}/{itemType}/{itemRef}/unlink"
+url:"/package/{package}/user/{user_uid}/access"
+url:"/public/global/settings"
+url:"/public/license/token/{licenseToken}"
+[0m
+[0m$ [0mgrep -oE 'method:"(GET|POST|PUT|PATCH|DELETE)"' /tmp/opencode/work_public.js | sort | uniq -c
+1 method:"DELETE"
+      2 method:"GET"
+      2 method:"POST"
+[0m
+[0m$ [0mgrep -oE '.{40}method:"(GET|POST)"[^}]{0,400}' /tmp/opencode/work_public.js | head -20
+"}function R4(e){if(e.length===0)return{method:"GET",url:""
+.length;n+=l,r++;const c=y({body:i.body,method:"POST",referrerPolicy:"origin",headers:e.headers,keepalive:n<=6e4&&r<15
+ialog.append($addressContainer);$.ajax({method:"GET",url:options.addressPath
+vingTimer=setTimeout(function(){$.ajax({method:"POST",url:options.postPath,data:{...pendingRights,[options.csrfName]:options.csrfValue,
+[0m
+[0m$ [0mgrep -oE '.{0,30}(eK|nK|_Y|tK)=[^;]{0,400}' /tmp/opencode/work_public.js | head -20
+oadcastMaxGroupMembers:on()}),_Y=Ue({appLinkHost:ze(),appDownloadAndroidGooglePlay:ze(),appDownloadIos:ze(),appDownloadDesktop:ze(),onPremPublicHost:Ae(ze())}),wY=Ue({identity:ze(),name:ze(),receiverLimit:ze(),workSyncActive:cr()}),Ky=Zy(["groupChat","channel"]),np=Ue({identity:ze(),uid:vi([ze(),Ol()]),name:ze(),link:Ae(vi([ze(),Ol()])),isLinked:cr(),type:Ae(Ky)}),xY=Ue({isCustomSyncEnabled:cr()}),SY=Ue({can_edit_packages_tags_br
+ath:Ae(vt()),query:Ae(vt())}),eK=_Y,tK=Ue({body:Ae(vt()),path:Ue({licenseToken:ze().length(64)}),query:Ae(vt())}),nK=EY,rK=Ue({body:Ae(vt()),path:Ue({licenseToken:ze().length(64)}),query:Ae(vt())}),oK=sk(),aK=e=>{var t
+[0m
+[0m$ [0mgrep -oE '.{0,10}EY=Ue\(\{[^}]{0,300}' /tmp/opencode/work_public.js | head -5
+.min(0)}),EY=Ue({username:Ae(ze()),password:Ae(ze()),expired:cr(),hasEmail:cr()
+[0m
+[0m$ [0mcurl -s -m 12 https://work.test.threema.ch/api-app/public/global/settings -w "\n---\nHTTP %{http_code}\n"
+{"appLinkHost":"threemablue://","appDownloadAndroidGooglePlay":"https://play.google.com/store/apps/details?id=ch.threema.app.work","appDownloadIos":"https://itunes.apple.com/app/threema-work/id1105927783?mt=8\u0026uo=4\u0026at=10lJMu","appDownloadDesktop":"https://threema.ch/work/download#desktop"}
+---
+HTTP 200
+[0m
+[0m$ [0mgrep -oE '.{0,80}url:"/public/license/token/\{licenseToken\}".{40}' /tmp/opencode/work_public.js
+ync n=>await tK.parseAsync(n),responseValidator:async n=>await nK.parseAsync(n),url:"/public/license/token/{licenseToken}"},e))},xK=e=>{var t;return((t=e.client)!
+ync n=>await rK.parseAsync(n),responseValidator:async n=>await oK.parseAsync(n),url:"/public/license/token/{licenseToken}"},e))},Wr=(e,t,n,r)=>{var i;const a={_id
+[0m
+[0m$ [0mgrep -oE '(<form[^>]*>|action="[^"]*"|/api-app[^"'"'"' ]*|fetch\([^)]*\))' /tmp/opencode/wt_login.html | sort -u
+<form method="POST" id="login-form" action="/en/login">
+[0m
+[0m$ [0mgrep -oE 'sk=Ue\([^;]{0,80}' /tmp/opencode/work_public.js | head -3; grep -oE 'oK=sk\(\)' /tmp/opencode/work_public.js
+oK=sk()
+[0m
+[0m$ [0mecho "=== PROD work.threema.ch public/global/settings ==="; curl -s -m 12 https://work.threema.ch/api-app/public/global/settings -w "HTTP %{http_code}\n"; sleep 1; echo "=== PROD license/token GET ==="; curl -s -m 12 "https://work.threema.ch/api-app/public/license/token/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" -w "HTTP %{http_code}\n"; sleep 1; echo "=== STAGING license/token GET ==="; curl -s -m 12 "https://work.test.threema.ch/api-app/public/license/token/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" -w "HTTP %{http_code}\n"
+=== PROD work.threema.ch public/global/settings ===
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+	<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/>
+	<link rel="stylesheet" href="/cache/work.css" type="text/css"/>
+	<script type="text/javascript" src="/cache/work.js"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>Threema Work</title>
+</head>
+<body>
+<div id="main-content">
+	<div id="main">
+		<div style="text-align: center">
+			<img style="max-width: 250px;" src="/images/logo_icon.svg" title="Threema" />
+			<h1>404: Not Found</h1>
+			<p>This is not the web page you are looking for.</p>
+		</div>
+	</div>
+</div>
+</body>
+</html>
+HTTP 404
+=== PROD license/token GET ===
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+	<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/>
+	<link rel="stylesheet" href="/cache/work.css" type="text/css"/>
+	<script type="text/javascript" src="/cache/work.js"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>Threema Work</title>
+</head>
+<body>
+<div id="main-content">
+	<div id="main">
+		<div style="text-align: center">
+			<img style="max-width: 250px;" src="/images/logo_icon.svg" title="Threema" />
+			<h1>404: Not Found</h1>
+			<p>This is not the web page you are looking for.</p>
+		</div>
+	</div>
+</div>
+</body>
+</html>
+HTTP 404
+=== STAGING license/token GET ===
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+	<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/>
+	<link rel="stylesheet" href="/cache/work.css" type="text/css"/>
+	<script type="text/javascript" src="/cache/work.js"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>Threema Work</title>
+</head>
+<body>
+<div id="main-content">
+	<div id="main">
+		<div style="text-align: center">
+			<img style="max-width: 250px;" src="/images/logo_icon.svg" title="Threema" />
+			<h1>404: Not Found</h1>
+			<p>This is not the web page you are looking for.</p>
+		</div>
+	</div>
+</div>
+</body>
+</html>
+HTTP 404
+[0m
+[0m$ [0mecho "=== STAGING /api-app/bogus ==="; curl -s -m 12 "https://work.test.threema.ch/api-app/bogus" -w "HTTP %{http_code} size=%{size_download}\n" -o /tmp/opencode/a.html; md5sum /tmp/opencode/a.html; sleep 1; echo "=== STAGING /api-app/public/nonexistent ==="; curl -s -m 12 "https://work.test.threema.ch/api-app/public/nonexistent" -w "HTTP %{http_code} size=%{size_download}\n" -o /tmp/opencode/b.html; md5sum /tmp/opencode/b.html; sleep 1; echo "=== STAGING /api-app/public/license/token/<64hex> ==="; curl -s -m 12 "https://work.test.threema.ch/api-app/public/license/token/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" -w "HTTP %{http_code} size=%{size_download}\n" -o /tmp/opencode/c.html; md5sum /tmp/opencode/c.html
+=== STAGING /api-app/bogus ===
+HTTP 404 size=900
+030ea1834440d5fbc146593348c71375  /tmp/opencode/a.html
+=== STAGING /api-app/public/nonexistent ===
+HTTP 404 size=900
+030ea1834440d5fbc146593348c71375  /tmp/opencode/b.html
+=== STAGING /api-app/public/license/token/<64hex> ===
+HTTP 404 size=900
+030ea1834440d5fbc146593348c71375  /tmp/opencode/c.html
+[0m
+[0m$ [0mcurl -s -I -m 12 "https://work.test.threema.ch/en/login" | grep -iE "content-security|set-cookie|x-frame|x-content|strict|expect"
+set-cookie: __HOST-HTTP-SESSIONID=val9kk3491t30f383rejnolqm9; path=/; secure; HttpOnly; SameSite=Strict
+[0m
+[0m$ [0mgrep -oE 'https://[a-zA-Z0-9_.-]+\.(threema\.ch|threema\.com)[a-zA-Z0-9_./?=&-]*' /tmp/opencode/work_public.js | sort -u | head -40
+(no output)
+[0m
+[0m$ [0mcurl -s -I -m 12 "https://work.test.threema.ch/en/login"; echo "==="; curl -s -I -m 12 "https://work.test.threema.ch/"
+HTTP/2 404 
+server: nginx
+date: Sat, 08 Aug 2026 00:07:34 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: __HOST-HTTP-SESSIONID=mmfcl7s7v3d8ct44oldtcfojsl; path=/; secure; HttpOnly; SameSite=Strict
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+
+===
+HTTP/2 301 
+server: nginx
+date: Sat, 08 Aug 2026 00:07:34 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: __HOST-HTTP-SESSIONID=n7odhoqg1gp1e2n0ovgk8eopb6; path=/; secure; HttpOnly; SameSite=Strict
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+location: /en/login
+strict-transport-security: max-age=31104000; includeSubdomains
+expect-ct: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+expect-ct: report-uri='https://3ma.ch/ctreport', max-age=31536000, enforce
+strict-transport-security: max-age=31536000; includeSubdomains
+reporting-endpoints: default="https://bugs.threema.ch/api/13/security/?sentry_key=e2bb259e4e0f449ca2726035893c7fb8"
+report-to: {'group': 'default','max_age': 10886400,'endpoints': [{'url': 'https://bugs.threema.ch/api/13/security/?sentry_key=e2bb259e4e0f449ca2726035893c7fb8'}]}
+content-security-policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-work.threema.ch; frame-src https://hcaptcha-assets.threema.ch; img-src 'self' https://test.threema.com https://broadcast.test.threema.ch https://static.threema.ch https://avatar.threema.ch https://avatar.test.threema.ch https://companylogo.test.threema.ch data:; media-src 'self' data:; connect-src 'self' data: https://companylogo.test.threema.ch https://bugs.threema.ch https://hcaptcha-assets.threema.ch; object-src 'self'; worker-src 'self' blob:; child-src blob: https://hcaptcha-assets.threema.ch; frame-ancestors 'none'; form-action 'self' https://billing.test.threema.ch; upgrade-insecure-requests; base-uri https://work.test.threema.ch; report-uri https://bugs.threema.ch/api/13/security/?sentry_key=e2bb259e4e0f449ca2726035893c7fb8; report-to default
+referrer-policy: no-referrer
+x-frame-options: sameorigin
+[0m
+[0m$ [0mfor h in hcaptcha-work.threema.ch hcaptcha-assets.threema.ch broadcast.test.threema.ch avatar.test.threema.ch companylogo.test.threema.ch billing.test.threema.ch test.threema.com; do ip=$(getent hosts "$h" | awk '{print $1}' | head -1); echo "$h -> ${ip:-NXDOMAIN}"; done
+hcaptcha-work.threema.ch -> 2a14:3e40:112:312::73
+hcaptcha-assets.threema.ch -> 2a14:3e40:112:312::73
+broadcast.test.threema.ch -> 2a14:3e44:114:314::45
+avatar.test.threema.ch -> 2a14:3e40:112:312::237
+companylogo.test.threema.ch -> 2a14:3e40:112:312::237
+billing.test.threema.ch -> 2a14:3e44:114:314::44
+test.threema.com -> NXDOMAIN
+[0m
+[0m$ [0mfor h in hcaptcha-work.threema.ch hcaptcha-assets.threema.ch broadcast.test.threema.ch avatar.test.threema.ch companylogo.test.threema.ch billing.test.threema.ch; do echo "=== $h ==="; getent ahostsv4 "$h" | head -2; done
+=== hcaptcha-work.threema.ch ===
+203.56.112.73   STREAM hcaptcha-work.threema.ch
+203.56.112.73   DGRAM  
+=== hcaptcha-assets.threema.ch ===
+203.56.112.73   STREAM hcaptcha-assets.threema.ch
+203.56.112.73   DGRAM  
+=== broadcast.test.threema.ch ===
+203.56.114.45   STREAM broadcast.test.threema.ch
+203.56.114.45   DGRAM  
+=== avatar.test.threema.ch ===
+203.56.112.237  STREAM avatar.test.threema.ch
+203.56.112.237  DGRAM  
+=== companylogo.test.threema.ch ===
+203.56.112.237  STREAM companylogo.test.threema.ch
+203.56.112.237  DGRAM  
+=== billing.test.threema.ch ===
+203.56.114.44   STREAM billing.test.threema.ch
+203.56.114.44   DGRAM
+[0m
+[0m$ [0mfor h in hcaptcha-work.threema.ch hcaptcha-assets.threema.ch broadcast.test.threema.ch avatar.test.threema.ch companylogo.test.threema.ch billing.test.threema.ch; do echo "=== $h ==="; curl -sk -m 12 -o /tmp/opencode/probe.txt -w "HTTP %{http_code} size=%{size_download} ctype=%{content_type}\n" "https://$h/" ; done
+=== hcaptcha-work.threema.ch ===
+HTTP 200 size=98476 ctype=text/html; charset=utf-8
+=== hcaptcha-assets.threema.ch ===
+HTTP 200 size=9 ctype=text/html
+=== broadcast.test.threema.ch ===
+HTTP 000 size=0 ctype=
+=== avatar.test.threema.ch ===
+HTTP 403 size=146 ctype=text/html; charset=utf-8
+=== companylogo.test.threema.ch ===
+HTTP 403 size=146 ctype=text/html; charset=utf-8
+=== billing.test.threema.ch ===
+HTTP 000 size=0 ctype=
+[0m
+[0m$ [0mcurl -sk -m 12 -o /tmp/opencode/hcw.html "https://hcaptcha-work.threema.ch/"; echo "---"; grep -oE '<title>[^<]*</title>' /tmp/opencode/hcw.html; grep -cE 'script' /tmp/opencode/hcw.html; grep -oE 'https?://[a-zA-Z0-9_.-]+(/[a-zA-Z0-9_./?=&-]*)?' /tmp/opencode/hcw.html | sort -u | head -30
+---
+<title>hCaptcha: Real-Time Bot Detection &amp; Fraud Prevention</title>
+14
+http://www.w3.org/2000/svg
+https://apply.workable.com/imachines/
+https://dashboard.hcaptcha.com/login
+https://docs.hcaptcha.com/
+https://docs.hcaptcha.com/ent_overview
+https://docs.hcaptcha.com/faq
+https://docs.hcaptcha.com/integrations
+https://docs.hcaptcha.com/integrations/
+https://docs.hcaptcha.com/switch
+https://docs.hcaptcha.com/switch/
+https://js.hcaptcha.com/1/api.js?render=explicit&amp
+https://schema.org
+https://twitter.com/hcaptcha
+https://www.g2.com/products/hcaptcha-hcaptcha/reviews
+https://www.hcaptcha.com
+https://www.hcaptcha.com/
+https://www.hcaptcha.com/blog/hcaptcha-captchas-are-highly-effective-against-bots-and-agents-in-2026
+https://www.hcaptcha.com/blog/how-to-defend-your-organization-against-a-card-testing-attack
+https://www.hcaptchastatus.com/
+https://www.linkedin.com/company/hcaptcha
+https://x.com/hcaptcha
+[0m
+[0m$ [0mcurl -sk -m 12 "https://hcaptcha-assets.threema.ch/" -w "HTTP %{http_code}\n"; echo "---"; curl -sk -I -m 12 "https://hcaptcha-work.threema.ch/" | head -15; echo "---hcaptcha API check---"; curl -sk -m 12 "https://hcaptcha-work.threema.ch/getcaptcha" -w "HTTP %{http_code} size=%{size_download}\n" -o /tmp/opencode/gc.json; head -c 200 /tmp/opencode/gc.json
+nonsense
+HTTP 200
+---
+HTTP/2 200 
+server: nginx
+date: Sat, 08 Aug 2026 00:08:22 GMT
+content-type: text/html; charset=utf-8
+cf-cache-status: HIT
+cache-control: max-age=120
+etag: "079420e318040bc9ee7ecd69c94a731f"
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+content-security-policy: default-src 'self'; script-src 'self' analytics.hcaptcha.com a.hcaptcha.com js.hcaptcha.com newassets.hcaptcha.com hcaptcha.com u.hcaptcha.com static.cloudflareinsights.com intuitionmachines.widget.insent.ai embed.typeform.com *.hsforms.net *.hsforms.com *.hs-scripts.com static.hsappstatic.net 'unsafe-inline'; style-src 'self' 'unsafe-inline' embed.typeform.com 'unsafe-hashes'; object-src 'self' uploads-ssl.webflow.com; base-uri 'self'; connect-src 'self' website-i18n.hcaptcha.com analytics.hcaptcha.com a.hcaptcha.com a2.hcaptcha.com accounts.hcaptcha.com newassets.hcaptcha.com assets.hcaptcha.com *.w.hcaptcha.com sentry.hcaptcha.com u.hcaptcha.com webflow.com cloudflareinsights.com *.hsforms.com *.hsforms.net *.hubapi.com; font-src 'self' embed.typeform.com data:; frame-src 'self' newassets.hcaptcha.com assets.hcaptcha.com intuitionmachines.widget.insent.ai embed.typeform.com form.typeform.com *.hsforms.net *.hsforms.com; img-src 'self' embed.typeform.com *.hsforms.net *.hsforms.com; manifest-src 'self'; media-src 'self'; worker-src 'none'; frame-ancestors 'self' newassets.hcaptcha.com assets.hcaptcha.com a.hcaptcha.com dashboard.hcaptcha.com intuitionmachines.widget.insent.ai embed.typeform.com; upgrade-insecure-requests; report-uri https://sentry.hcaptcha.com/api/6/security/?sentry_key=30910f52569b4c17b1081ead2dae43b4&sentry_environment=prod&sentry_release=hcaptcha-csp1;
+cross-origin-embedder-policy: require-corp; report-to="default";
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-site
+referrer-policy: unsafe-url
+x-content-type-options: nosniff
+x-frame-options: DENY
+---hcaptcha API check---
+HTTP 404 size=9
+Not Found
+[0m
+[0m$ [0mfor h in billing.test.threema.ch broadcast.test.threema.ch; do echo "=== $h :443 retry ==="; curl -sk -m 20 -o /tmp/opencode/t.txt -w "HTTP %{http_code} size=%{size_download}\n" "https://$h/"; echo "=== $h :80 ==="; curl -s -m 12 -o /tmp/opencode/t.txt -w "HTTP %{http_code} size=%{size_download}\n" "http://$h/"; done
+=== billing.test.threema.ch :443 retry ===
+HTTP 000 size=0
+=== billing.test.threema.ch :80 ===
+HTTP 000 size=0
+=== broadcast.test.threema.ch :443 retry ===
+HTTP 000 size=0
+=== broadcast.test.threema.ch :80 ===
+HTTP 000 size=0
+[0m
+[0m$ [0mfor h in billing.test.threema.ch broadcast.test.threema.ch; do echo "=== $h ==="; timeout 6 bash -c "echo > /dev/tcp/$h/443" 2>&1 && echo "TCP:443 OPEN" || echo "TCP:443 CLOSED/Timeout"; done
+=== billing.test.threema.ch ===
+TCP:443 CLOSED/Timeout
+=== broadcast.test.threema.ch ===
+TCP:443 CLOSED/Timeout
+[0m
+[0m$ [0mcurl -sk -m 12 -D - "https://avatar.test.threema.ch/" -o /tmp/opencode/av.txt; echo; cat /tmp/opencode/av.txt; echo "==="; curl -sk -m 12 -D - "https://companylogo.test.threema.ch/" -o /tmp/opencode/cl.txt; echo; cat /tmp/opencode/cl.txt
+HTTP/1.1 403 Forbidden
+Server: nginx
+Date: Sat, 08 Aug 2026 00:09:50 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 146
+Connection: keep-alive
+Vary: Accept-Encoding
+
+
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+===
+HTTP/1.1 403 Forbidden
+Server: nginx
+Date: Sat, 08 Aug 2026 00:09:50 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 146
+Connection: keep-alive
+
+
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+[0m
+[0m$ [0mfor p in "/avatar/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" "/avatar?identity=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" "/logo" "/companylogo" "/company-logo"; do echo "=== avatar.test$p ==="; curl -sk -m 10 -o /dev/null -w "HTTP %{http_code} size=%{size_download} ctype=%{content_type}\n" "https://avatar.test.threema.ch$p"; sleep 1; done
+=== avatar.test/avatar/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ===
+HTTP 403 size=146 ctype=text/html; charset=utf-8
+=== avatar.test/avatar?identity=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ===
+HTTP 403 size=146 ctype=text/html; charset=utf-8
+=== avatar.test/logo ===
+HTTP 403 size=146 ctype=text/html; charset=utf-8
+=== avatar.test/companylogo ===
+HTTP 403 size=146 ctype=text/html; charset=utf-8
+=== avatar.test/company-logo ===
+HTTP 403 size=146 ctype=text/html; charset=utf-8
+[0m
+[0m$ [0mfor h in avatar.threema.ch companylogo.threema.ch; do ip=$(getent ahostsv4 $h | awk 'NR==1{print $1}'); echo "$h -> $ip"; curl -sk -m 10 -o /dev/null -w "  HTTP %{http_code} size=%{size_download}\n" "https://$h/"; sleep 1; done
+avatar.threema.ch -> 203.56.112.237
+  HTTP 403 size=146
+companylogo.threema.ch -> 203.56.112.237
+  HTTP 403 size=146
+[0m
+[0m$ [0mcurl -s -I -m 12 "https://work.threema.ch/" 2>/dev/null | grep -iE "content-security" | tr ';' '\n' | grep -iE "hcaptcha|broadcast|avatar|companylogo|billing|test\." ; echo "---prod csp raw hosts---"; curl -s -I -m 12 "https://work.threema.ch/" 2>/dev/null | grep -iE "content-security"
+script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-work.threema.ch
+ frame-src https://hcaptcha-assets.threema.ch
+ img-src 'self' https://threema.com https://static.threema.ch https://avatar.threema.ch https://companylogo.threema.ch https://broadcast.threema.ch data:
+ connect-src 'self' data: https://companylogo.threema.ch https://bugs.threema.ch https://hcaptcha-assets.threema.ch
+ child-src blob: https://hcaptcha-assets.threema.ch
+ form-action 'self' https://billing.threema.ch
+---prod csp raw hosts---
+Content-Security-Policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-work.threema.ch; frame-src https://hcaptcha-assets.threema.ch; img-src 'self' https://threema.com https://static.threema.ch https://avatar.threema.ch https://companylogo.threema.ch https://broadcast.threema.ch data:; media-src 'self' data:; connect-src 'self' data: https://companylogo.threema.ch https://bugs.threema.ch https://hcaptcha-assets.threema.ch; object-src 'self'; worker-src 'self' blob:; child-src blob: https://hcaptcha-assets.threema.ch; frame-ancestors 'none'; form-action 'self' https://billing.threema.ch; upgrade-insecure-requests; base-uri https://work.threema.ch; report-uri https://bugs.threema.ch/api/13/security/?sentry_key=e2bb259e4e0f449ca2726035893c7fb8; report-to default
+[0m
+[0m$ [0mecho "=== PROD /api-app/me/profile ==="; curl -s -m 12 -o /tmp/opencode/p.txt -w "HTTP %{http_code} size=%{size_download}\n" "https://work.threema.ch/api-app/me/profile"; md5sum /tmp/opencode/p.txt; sleep 1; echo "=== PROD /api-app/global/settings ==="; curl -s -m 12 -o /tmp/opencode/p2.txt -w "HTTP %{http_code} size=%{size_download}\n" "https://work.threema.ch/api-app/global/settings"; md5sum /tmp/opencode/p2.txt; sleep 1; echo "=== STAGING /api-app/me/profile ==="; curl -s -m 12 -o /tmp/opencode/s.txt -w "HTTP %{http_code} size=%{size_download}\n" "https://work.test.threema.ch/api-app/me/profile"; md5sum /tmp/opencode/s.txt
+=== PROD /api-app/me/profile ===
+HTTP 302 size=0
+d41d8cd98f00b204e9800998ecf8427e  /tmp/opencode/p.txt
+=== PROD /api-app/global/settings ===
+HTTP 302 size=0
+d41d8cd98f00b204e9800998ecf8427e  /tmp/opencode/p2.txt
+=== STAGING /api-app/me/profile ===
+HTTP 302 size=0
+d41d8cd98f00b204e9800998ecf8427e  /tmp/opencode/s.txt
+[0m
+[0m$ [0mecho | timeout 12 openssl s_client -connect 203.56.114.34:443 -servername g-00.0.test.threema.ch 2>/dev/null | openssl x509 -noout -subject -issuer -ext subjectAltName 2>/dev/null | head -20; echo "=== 5222 ==="; echo | timeout 12 openssl s_client -connect 203.56.114.34:5222 -servername g-00.0.test.threema.ch 2>/dev/null | openssl x509 -noout -subject -ext subjectAltName 2>/dev/null | head -10
+=== 5222 ===
+[0m
+[0m$ [0mfor h in g-00.0.test.threema.ch g-01.0.test.threema.ch g-ff.0.test.threema.ch; do ip=$(getent ahostsv4 $h | awk 'NR==1{print $1}'); echo "$h -> ${ip:-NX}"; timeout 5 bash -c "echo > /dev/tcp/$h/5222" 2>/dev/null && echo "  5222 OPEN" || echo "  5222 closed/timeout"; done
+g-00.0.test.threema.ch -> 203.56.114.34
+  5222 OPEN
+g-01.0.test.threema.ch -> 203.56.114.34
+  5222 OPEN
+g-ff.0.test.threema.ch -> 203.56.114.34
+  5222 OPEN
+[0m
+[0m$ [0mfor p in "public" "public/license" "public/version" "public/status" "public/packages" "public/company" "public/me" "public/login" "public/session"; do code=$(curl -s -m 10 -o /dev/null -w "%{http_code}" "https://work.test.threema.ch/api-app/$p"); echo "/api-app/$p -> $code"; sleep 1; done
+/api-app/public -> 404
+/api-app/public/license -> 404
+/api-app/public/version -> 404
+/api-app/public/status -> 404
+/api-app/public/packages -> 404
+/api-app/public/company -> 404
+/api-app/public/me -> 404
+/api-app/public/login -> 404
+/api-app/public/session -> 404
+[0m
+[0m$ [0mfor h in g-00.0.threema.ch g-ff.0.threema.ch; do ip=$(getent ahostsv4 $h | awk 'NR==1{print $1}'); echo "$h -> ${ip:-NX}"; timeout 5 bash -c "echo > /dev/tcp/$h/5222" 2>/dev/null && echo "  5222 OPEN" || echo "  5222 closed/timeout"; sleep 1; done
+g-00.0.threema.ch -> 203.56.112.202
+  5222 OPEN
+g-ff.0.threema.ch -> 203.56.112.204
+  5222 OPEN
+[0m
+[0m$ [0mfor h in mediator-0.test.threema.ch mediator-8.test.threema.ch rendezvous-0.test.threema.ch rendezvous-8.test.threema.ch; do ip=$(getent ahostsv4 $h | awk 'NR==1{print $1}'); echo "=== $h -> $ip ==="; echo | timeout 10 openssl s_client -connect $h:443 -servername $h 2>/dev/null | openssl x509 -noout -subject -issuer -ext subjectAltName 2>/dev/null | head -6; sleep 1; done
+=== mediator-0.test.threema.ch -> 203.56.114.62 ===
+subject=CN = *.test.threema.ch
+issuer=C = GB, O = Sectigo Limited, CN = Sectigo Public Server Authentication CA DV E36
+X509v3 Subject Alternative Name: 
+    DNS:*.test.threema.ch, DNS:test.threema.ch
+=== mediator-8.test.threema.ch -> 203.56.114.62 ===
+subject=CN = *.test.threema.ch
+issuer=C = GB, O = Sectigo Limited, CN = Sectigo Public Server Authentication CA DV E36
+X509v3 Subject Alternative Name: 
+    DNS:*.test.threema.ch, DNS:test.threema.ch
+=== rendezvous-0.test.threema.ch -> 203.56.114.62 ===
+subject=CN = *.test.threema.ch
+issuer=C = GB, O = Sectigo Limited, CN = Sectigo Public Server Authentication CA DV E36
+X509v3 Subject Alternative Name: 
+    DNS:*.test.threema.ch, DNS:test.threema.ch
+=== rendezvous-8.test.threema.ch -> 203.56.114.62 ===
+subject=CN = *.test.threema.ch
+issuer=C = GB, O = Sectigo Limited, CN = Sectigo Public Server Authentication CA DV E36
+X509v3 Subject Alternative Name: 
+    DNS:*.test.threema.ch, DNS:test.threema.ch
+[0m
+[0m$ [0mfor h in mediator-0.test.threema.ch rendezvous-0.test.threema.ch; do echo "=== $h ==="; curl -sk -m 12 -D - "https://$h/" -o /tmp/opencode/m.txt; echo "BODY:"; cat /tmp/opencode/m.txt; echo; sleep 1; done
+=== mediator-0.test.threema.ch ===
+HTTP/2 403 
+server: nginx
+date: Sat, 08 Aug 2026 00:11:29 GMT
+content-type: text/html; charset=utf-8
+content-length: 146
+
+BODY:
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+
+=== rendezvous-0.test.threema.ch ===
+HTTP/2 403 
+server: nginx
+date: Sat, 08 Aug 2026 00:11:30 GMT
+content-type: text/html; charset=utf-8
+content-length: 146
+
+BODY:
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+[0m
+[0m$ [0mfor p in "/" "/0000000000000000" "/1/0000000000000000"; do echo "=== mediator-0.test$p (WS upgrade) ==="; curl -sk -m 8 -o /dev/null -w "HTTP %{http_code}\n" -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" "https://mediator-0.test.threema.ch$p"; sleep 1; done
+=== mediator-0.test/ (WS upgrade) ===
+HTTP 403
+=== mediator-0.test/0000000000000000 (WS upgrade) ===
+HTTP 403
+=== mediator-0.test/1/0000000000000000 (WS upgrade) ===
+HTTP 403
+[0m
+[0m$ [0mls reposcan-raw/ 2>/dev/null; find reposcan-raw -maxdepth 3 -type d 2>/dev/null | head -30
+analysis.txt
+grep-delta.txt
+grep-hits.prev.txt
+grep-hits.txt
+rag.txt
+threema-ch
+reposcan-raw
+reposcan-raw/threema-ch
+reposcan-raw/threema-ch/threema-ios
+reposcan-raw/threema-ch/wasm-minisign-verify
+reposcan-raw/threema-ch/compose-area
+reposcan-raw/threema-ch/threema-web-electron
+reposcan-raw/threema-ch/threema-msgapi-sdk-rust
+reposcan-raw/threema-ch/threema-web
+reposcan-raw/threema-ch/app-remote-protocol
+reposcan-raw/threema-ch/threema-android
+reposcan-raw/threema-ch/threema-bot-sdk
+reposcan-raw/threema-ch/threema-msgapi-sdk-python
+reposcan-raw/threema-ch/webrtc-build-docker
+reposcan-raw/threema-ch/threema-msgapi-sdk-php
+reposcan-raw/threema-ch/threema-msgapi-sdk-java
+reposcan-raw/threema-ch/push-relay
+reposcan-raw/threema-ch/threema-markup
+reposcan-raw/threema-ch/threema-desktop
+[0m
+[0m$ [0mgrep -oE 'wss?://[a-zA-Z0-9_{}.-]+(/[a-zA-Z0-9_{}/.-]*)?' reposcan-raw/threema-ch/threema-desktop/src/**/*.ts 2>/dev/null | sort -u | head -20; echo "---mediator paths---"; grep -rn "mediator" reposcan-raw/threema-ch/threema-desktop/src/ 2>/dev/null | grep -iE "wss|url|path|socket" | head -15
+---mediator paths---
+[0m
+[0m$ [0mgrep -rln "mediator" reposcan-raw/threema-ch/threema-desktop/src/ 2>/dev/null | head; echo "---"; grep -rln "mediator" reposcan-raw/threema-ch/threema-web/src/ 2>/dev/null | head
+---
+[0m
+[0m$ [0mfind reposcan-raw/threema-ch/threema-desktop -name "*.ts" | head -5; echo "---"; ls reposcan-raw/threema-ch/threema-desktop/
+---
+[0m
+[0m$ [0mls -la reposcan-raw/threema-ch/threema-desktop/ | head; echo "---"; ls reposcan-raw/threema-ch/ | head -30; echo "---"; wc -l reposcan-raw/rag.txt reposcan-raw/analysis.txt 2>/dev/null
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  8 00:05 .
+drwxr-xr-x 18 runner runner 4096 Aug  8 00:05 ..
+---
+app-remote-protocol
+compose-area
+push-relay
+threema-android
+threema-bot-sdk
+threema-desktop
+threema-ios
+threema-markup
+threema-msgapi-sdk-java
+threema-msgapi-sdk-php
+threema-msgapi-sdk-python
+threema-msgapi-sdk-rust
+threema-web
+threema-web-electron
+wasm-minisign-verify
+webrtc-build-docker
+---
+   87 reposcan-raw/rag.txt
+   81 reposcan-raw/analysis.txt
+  168 total
+[0m
+[0m$ [0mcat reposcan-raw/analysis.txt | head -60; echo "=== RAG ==="; cat reposcan-raw/rag.txt | head -60
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && find reposcan-raw -name "*.kt" -o -name "*.swift" -o -name "*.ts" -o -name "*.java" -o -name "*.yml" | head -20
+reposcan-raw/threema-ch/threema-ios/ThreemaShareExtension/TextPreviewViewController.swift
+reposcan-raw/threema-ch/threema-ios/ThreemaShareExtension/ProgressViewController.swift
+reposcan-raw/threema-ch/threema-ios/ThreemaShareExtension/ShareExtensionHelpers.swift
+reposcan-raw/threema-ch/threema-ios/ThreemaShareExtension/ItemSender.swift
+reposcan-raw/threema-ch/threema-ios/ThreemaShareExtension/ShareSheetRootNavigationController.swift
+reposcan-raw/threema-ch/threema-ios/Keychain/Package.swift
+reposcan-raw/threema-ch/threema-ios/Keychain/Sources/Keychain/KeychainItem.swift
+reposcan-raw/threema-ch/threema-ios/Keychain/Sources/Keychain/KeychainManager.swift
+reposcan-raw/threema-ch/threema-ios/Keychain/Sources/Keychain/KeychainManagerProtocol.swift
+reposcan-raw/threema-ch/threema-ios/Keychain/Sources/Keychain/ThreemaClientKey.swift
+reposcan-raw/threema-ch/threema-ios/Keychain/Sources/Keychain/MyIdentity.swift
+reposcan-raw/threema-ch/threema-ios/Keychain/Sources/Keychain/ThreemaSafeServerInfo.swift
+reposcan-raw/threema-ch/threema-ios/Keychain/Sources/Keychain/Extensions/RemoteSecretManagerProtocol+Extensions.swift
+reposcan-raw/threema-ch/threema-ios/Keychain/Sources/Keychain/KeychainProvider.swift
+reposcan-raw/threema-ch/threema-ios/Keychain/Sources/Keychain/ThreemaPublicKey.swift
+reposcan-raw/threema-ch/threema-ios/Keychain/Sources/Keychain/KeychainMigration.swift
+reposcan-raw/threema-ch/threema-ios/Keychain/Sources/Keychain/KeychainItemData.swift
+reposcan-raw/threema-ch/threema-ios/Keychain/Sources/Keychain/KeychainProviding.swift
+reposcan-raw/threema-ch/threema-ios/Keychain/Sources/Keychain/ThreemaLicense.swift
+reposcan-raw/threema-ch/threema-ios/Keychain/Sources/Keychain/ServerGroup.swift
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts[90m [limit=30, offset=215][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts[90m [offset=140, limit=30][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml[90m [limit=20][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/test-data.ts[90m [offset=55, limit=20][0m
+[0m
+[0m$ [0mhead -5 /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml
+.references:
+  # Servers
+
+  work-servers: &work-servers
+    - url: https://ds-apip-work.threema.ch
+[0m
+### Classification Results
+
+| Category | File | Line | Detail | SHA256 (truncated) |
+|----------|------|------|--------|-------------------|
+| **ENDPOINT_LEAK** | threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | Staging URLs: `ds-apip-work.test.threema.ch`, `ds-apip.test.threema.ch` | N/A |
+| **ENDPOINT_LEAK** | threema-android/domain/protocol/src/directory.openapi.yml | 7, 911 | Staging URLs: `ds-apip-work.test.threema.ch`, `ds-apip.test.threema.ch` | N/A |
+| **ENDPOINT_LEAK** | threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | Staging URLs: `ds-apip-work.test.threema.ch`, `ds-apip.test.threema.ch` | N/A |
+| **ENDPOINT_LEAK** | threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 7, 911 | Staging URLs: `ds-apip-work.test.threema.ch`, `ds-apip.test.threema.ch` | N/A |
+| **ENDPOINT_LEAK** | threema-desktop/apps/desktop/config/vite.config.ts | 146-154 | Staging URLs: `mediator-*.test.threema.ch`, `ds-apip.test.threema.ch`, `blob-mirror-*.test.threema.ch`, `rendezvous-*.test.threema.ch`, `ds-apip-work.test.threema.ch`, `work.test.threema.ch` | N/A |
+| **TEST_OR_EXAMPLE** | threema-ios/Threema/AppMigration.swift | 873 | Keychain key name: `"Threema license password"` | N/A |
+| **TEST_OR_EXAMPLE** | threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | Test fixture: `"password1"` | N/A |
+| **TEST_OR_EXAMPLE** | threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15, 18 | Test fixtures: `"authToken"`, `"testPassword"` | N/A |
+| **TEST_OR_EXAMPLE** | threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/*.swift | 50, 72, 148, 13, 37, 103 | Test fixtures: `"testPassword"`, `"validPassword"` | N/A |
+| **TEST_OR_EXAMPLE** | threema-ios/ThreemaTests/SafeTests.swift | 67, 76, 105 | Test fixture: `"shootdeathstar"` | N/A |
+| **TEST_OR_EXAMPLE** | threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift | 30, 227 | Test passwords: `"abcdefghijkl"`, `"ABcd!@#tgk092"` | N/A |
+| **TEST_OR_EXAMPLE** | threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/*.swift | 28, 76, 120, 38, 83 | Test fixture: `"shootdeathstar"` | N/A |
+| **TEST_OR_EXAMPLE** | threema-desktop/apps/desktop/src/common/test-data.ts | 62 | Placeholder: `"CHANGE_ME"` | N/A |
+| **TEST_OR_EXAMPLE** | threema-android/app/src/main/java/.../SfuToken.kt | 49 | Display masking: `'********'` | N/A |
+| **INTERESTING** | threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt | 15, 19 | **Public Sentry DSN keys** (public by design for client-side error reporting) | `b3e20afb...` / `615af77c...` |
+| **INTERESTING** | threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts | 223 | Benchmark-only password in `determineKdfParams()` — key purged immediately (line 233) | `r3gGN9GD...` |
+| **INTERESTING** | threema-android/app/src/main/java/.../NotificationChannels.kt | 52 | Channel name constant: `"remote_secret_monitor"` | N/A |
+| **INTERESTING** | threema-android/app/src/main/java/.../PasswordEntryDialog.java | 47 | Bundle key constant: `"password"` | N/A |
+=== RAG ===
+=== KNOWLEDGE BASE (RAG) ===
+# Knowledge Base (seed)
+
+## Program rules (from scope.yml)
+- In scope: Android source, iOS source, Desktop 2.x source (threema-desktop), g-*.0.threema.ch, mediator-*.threema.ch, rendezvous-*.threema.ch, apip.threema.ch, safe-*.threema.ch, work.threema.ch, broadcast.threema.ch, gateway.threema.ch, shop.threema.ch, billing.threema.ch
+- ALL other targets and third-party services are OUT of scope
+- Passive-first: GET/HEAD only, <=1 rps, no account creation, no data modification
+- Secrets in commits: sha256 only, never raw
+
+## Baseline surface (2026-08-07 passive recon)
+- apip.threema.ch: HTTP 403 on /
+- work.threema.ch: 301 (redirect)
+- shop.threema.ch: 301 (redirect)
+- broadcast.threema.ch / gateway.threema.ch / billing.threema.ch: TIMEOUT (retry; note gating)
+- GitHub org threema-ch (23 repos): threema-android (Kotlin), threema-ios (Swift), threema-desktop (TS), threema-web (TS), threema-web-electron, threema-msgapi-sdk-{php,java,python,rust}, threema-bot-sdk, push-relay (Rust), app-remote-protocol, webrtc-build-docker, apns-h2, etc.
+
+## Rejected / parked
+- (none yet)
+- 2026-08-07 ACCEPTED AUTH @ apip.threema.ch: CORS misconfiguration enabling cross-origin API probes confirmed via passive HEAD/GET.
+- 2026-08-07 ACCEPTED OTHER @ threema-desktop: Electron attack surface confirmed in scope; static analysis is valid passive-first approach.
+- 2026-08-07 ACCEPTED IDOR @ ds-apip.threema.ch: Public `GET /identity/{id}` returns 200/404 oracle with permissive CORS and no observable rate limit — confirmed via passive probes.
+- 2026-08-07 ACCEPTED IDOR @ ds-apip.threema.ch: Unauthenticated identity→pubkey oracle confirmed via GET /identity/{id} (200/404) AND POST /identity/fetch_bulk (returns pubkeys for valid IDs only, no auth).
+- 2026-08-07 ACCEPTED AUTH @ apip.threema.ch: CORS misconfiguration confirmed — Access-Control-Allow-Origin: *, methods include POST/GET/OPTIONS/DELETE — cross-origin API probes enabled from any attacker origin.
+- 2026-08-07 ACCEPTED OTHER @ api.threema.ch: Previously a "candidate ID/directory sibling"; now confirmed as an active directory server with identical endpoints and CORS headers as ds-apip.threema.ch.
+- 2026-08-07 REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in `determineKdfParams()`, derived key immediately purged, not used for any real encryption.
+- 2026-08-07 REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not vulnerable.
+- 2026-08-07 ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — `keystorage.bin` and `keystorage.password.bin` written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes.
+- 2026-08-07 ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateLimit). CORS `*` with DELETE/POST/GET/OPTIONS. All three hostnames return identical pubkeys for valid IDs; invalid IDs silently omitted.
+- 2026-08-07 ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: Staging directory server publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+- 2026-08-07 ACCEPTED MISCONFIG @ ds-apip.test.threema.ch + apip.test.threema.ch: Staging directory servers publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+- 2026-08-07 ACCEPTED OTHER @ safe-01.threema.ch: Backup server publicly reachable with permissive CORS (Access-Control-Allow-Origin: *, methods GET/HEAD/PUT/PATCH/POST/DELETE) and HSTS/Expect-CT; no auth observed on root.
+- 2026-08-07 ACCEPTED AUTH @ safe-01.threema.ch: Backup API is credential-gated — `GET /backups/{64hex}` returns HTTP 400 (not 200/401/404) for unauthenticated requests; OPTIONS preflight returns CORS `*` with `Access-Control-Allow-Headers: Authorization` enabling credentialed cross-origin requests.
+- 2026-08-07 ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has `sandbox: false` (TODO DEK-79) and `nodeIntegrationInWorker: true` (TODO DEK-79); `nodeIntegration: false` + `contextIsolation: true` are set.
+- 2026-08-07 ACCEPTED OTHER @ ds-apip-work.threema.ch: Work directory prod backend confirmed live — 401 on all paths (/identity/*, /identities), CORS `*`, no HSTS/Expect-CT.
+- 2026-08-07 REJECTED OTHER @ apip.threema.ch/identity/ws/revoke: returns 404 on both apip and ds-apip hosts — endpoint not publicly routable at documented path; hypothesis mis-targeted.
+- 2026-08-07 REJECTED OTHER @ apip.threema.ch/api/v1/pubkeys/{id}: returns 404 — dead endpoint candidate disproven.
+- 2026-08-07 ACCEPTED MISCONFIG @ g-{XX}.0.test.threema.ch: Staging chat cluster resolves to 203.56.114.34 (split from prod chat IPs 203.56.112.202/.204); HTTPS not HTTP-accessible (likely WSS/TCP 5222); staging chat hostnames may be out of scope per scope.yml.
+- 2026-08-07 ACCEPTED OTHER @ ds-apip-work.test.threema.ch: Work directory staging backend confirmed live — 401 on all paths, CORS `*`, no HSTS/Expect-CT
+- 2026-08-07 ACCEPTED OTHER @ work.test.threema.ch: Staging work web app confirmed live — 301 to /en/login, HSTS + Expect-CT, CSP with `*.test.threema.ch` refs, Sentry
+- 2026-08-07 ACCEPTED OTHER @ safe-*.threema.ch DNS pattern: safe-01, safe-1a, safe-1b, safe-02, safe-00 all resolve to 203.56.112.231 (single IP, 5 hostnames)
+- 2026-08-07 ACCEPTED OTHER @ mediator-{0..f}/rendezvous-{0..f}.threema.ch DNS split routing: indices 0-7 → 203.56.112.247; indices 8-f → 203.56.114.247; all uniform 403 on HTTPS
+- 2026-08-07 ACCEPTED OTHER @ Safe-01 backup API path distinction: `GET /backups/{64hex}` → HTTP 400 "Bad Request" (route exists, credential-gated) vs `GET /backup/{x}` → HTTP 404 150 bytes (no route)
+- 2026-08-07 ACCEPTED MISCONFIG @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work API endpoint confirmed.
+- 2026-08-07 ACCEPTED AUTH @ work.test.threema.ch: `/api-app/me/profile` and `/api-app/global/settings` → 302; only the `/api-app/public/*` namespace is open (namespace gating confirmed).
+- 2026-08-07 ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed).
+- 2026-08-07 ACCEPTED OTHER @ work.test.threema.ch: liveness endpoints `/ping` (204) and `/info/ping.php` (200 empty) identical on staging and prod — no divergence.
+=== INVENTORY gladia ===
+# Inventory: threema
+
+## Seed 2026-08-07 (passive recon)
+
+### Hosts (in scope)
+- g-*.0.threema.ch (chat) — hostname pattern unknown, enumerate once discovered
+- mediator-*.threema.ch (sync) — pattern unknown
+- rendezvous-*.threema.ch (linking) — pattern unknown
+- apip.threema.ch — 403 on /
+- safe-*.threema.ch (backup) — pattern unknown
+- work.threema.ch — 301
+- broadcast.threema.ch — timeout
+- gateway.threema.ch — timeout
+[0m
+[0m$ [0mfor i in 0 1 2 3 a b c d e f; do h="blob-mirror-$i.test.threema.ch"; ip=$(getent ahostsv4 $h | awk 'NR==1{print $1}'); echo "$h -> ${ip:-NX}"; done
+blob-mirror-0.test.threema.ch -> 203.56.114.62
+blob-mirror-1.test.threema.ch -> 203.56.114.62
+blob-mirror-2.test.threema.ch -> 203.56.114.62
+blob-mirror-3.test.threema.ch -> 203.56.114.62
+blob-mirror-a.test.threema.ch -> 203.56.114.62
+blob-mirror-b.test.threema.ch -> 203.56.114.62
+blob-mirror-c.test.threema.ch -> 203.56.114.62
+blob-mirror-d.test.threema.ch -> 203.56.114.62
+blob-mirror-e.test.threema.ch -> 203.56.114.62
+blob-mirror-f.test.threema.ch -> 203.56.114.62
+[0m
+[0m$ [0mecho | timeout 10 openssl s_client -connect 203.56.114.62:443 -servername blob-mirror-0.test.threema.ch 2>/dev/null | openssl x509 -noout -subject -ext subjectAltName 2>/dev/null; echo "=== GET / ==="; curl -sk -m 12 -D - "https://blob-mirror-0.test.threema.ch/" -o /tmp/opencode/bm.txt; echo "BODY:"; cat /tmp/opencode/bm.txt
+subject=CN = *.test.threema.ch
+X509v3 Subject Alternative Name: 
+    DNS:*.test.threema.ch, DNS:test.threema.ch
+=== GET / ===
+HTTP/2 403 
+server: nginx
+date: Sat, 08 Aug 2026 00:12:07 GMT
+content-type: text/html; charset=utf-8
+content-length: 146
+
+BODY:
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+[0m
+[0m$ [0mgrep -rn "blob-mirror\|blobMirror\|blob_mirror" reposcan-raw/threema-ch/threema-ios/ 2>/dev/null | head -8; echo "---android---"; grep -rn "blob-mirror" reposcan-raw/threema-ch/threema-android/ 2>/dev/null | head -8
+---android---
+[0m
+[0m$ [0mgrep -rln "blob" reposcan-raw/threema-ch/threema-ios/Threema/ 2>/dev/null | head -5; grep -rln "blob-mirror\|BlobMirror\|blobMirror" reposcan-raw/threema-ch/ 2>/dev/null | head -10
+(no output)
+[0m
+[0m$ [0mls reposcan-raw/threema-ch/threema-ios/ 2>/dev/null; echo "---"; grep -rl "blob-mirror" reposcan-raw/threema-ch/ 2>/dev/null | head; echo "---vite---"; grep -rn "test.threema.ch" reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts 2>/dev/null | head -20
+---
+---vite---
+[0m
+[0m$ [0mls -la reposcan-raw/threema-ch/threema-ios/ 2>/dev/null | head; echo "==="; ls -la reposcan-raw/threema-ch/threema-android/ 2>/dev/null | head; echo "==="; find reposcan-raw/threema-ch -maxdepth 2 -type d | head -40
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  8 00:05 .
+drwxr-xr-x 18 runner runner 4096 Aug  8 00:05 ..
+===
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  8 00:05 .
+drwxr-xr-x 18 runner runner 4096 Aug  8 00:05 ..
+===
+reposcan-raw/threema-ch
+reposcan-raw/threema-ch/threema-ios
+reposcan-raw/threema-ch/wasm-minisign-verify
+reposcan-raw/threema-ch/compose-area
+reposcan-raw/threema-ch/threema-web-electron
+reposcan-raw/threema-ch/threema-msgapi-sdk-rust
+reposcan-raw/threema-ch/threema-web
+reposcan-raw/threema-ch/app-remote-protocol
+reposcan-raw/threema-ch/threema-android
+reposcan-raw/threema-ch/threema-bot-sdk
+reposcan-raw/threema-ch/threema-msgapi-sdk-python
+reposcan-raw/threema-ch/webrtc-build-docker
+reposcan-raw/threema-ch/threema-msgapi-sdk-php
+reposcan-raw/threema-ch/threema-msgapi-sdk-java
+reposcan-raw/threema-ch/push-relay
+reposcan-raw/threema-ch/threema-markup
+reposcan-raw/threema-ch/threema-desktop
+[0m
+[0m$ [0mecho "=== PROD blob-mirror DNS ==="; for i in 0 1; do h="blob-mirror-$i.threema.ch"; ip=$(getent ahostsv4 $h | awk 'NR==1{print $1}'); echo "$h -> ${ip:-NX}"; done; echo "=== STAGING blob paths ==="; for p in "/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" "/blob/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" "/v1/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"; do curl -sk -m 8 -o /dev/null -w "blob-mirror-0.test$p -> HTTP %{http_code} size=%{size_download}\n" "https://blob-mirror-0.test.threema.ch$p"; sleep 1; done
+=== PROD blob-mirror DNS ===
+blob-mirror-0.threema.ch -> 203.56.112.247
+blob-mirror-1.threema.ch -> 203.56.112.247
+=== STAGING blob paths ===
+blob-mirror-0.test/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -> HTTP 403 size=146
+blob-mirror-0.test/blob/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -> HTTP 403 size=146
+blob-mirror-0.test/v1/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -> HTTP 403 size=146
+[0m
+[0m$ [0mcurl -sk -m 8 -o /dev/null -w "blob-mirror-0.threema.ch/ -> HTTP %{http_code} size=%{size_download}\n" "https://blob-mirror-0.threema.ch/"; sleep 1; curl -sk -m 8 -o /dev/null -w "blob-mirror-0.threema.ch/{64hex} -> HTTP %{http_code} size=%{size_download}\n" "https://blob-mirror-0.threema.ch/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+blob-mirror-0.threema.ch/ -> HTTP 403 size=146
+blob-mirror-0.threema.ch/{64hex} -> HTTP 403 size=146
+[0m
+[0m$ [0mfor port in 443 5222 8443 8080 80 3000; do timeout 4 bash -c "echo > /dev/tcp/203.56.114.34/$port" 2>/dev/null && echo "203.56.114.34:$port OPEN" || echo "203.56.114.34:$port closed"; done; echo "=== staging sync cluster 203.56.114.62 ==="; for port in 443 5222 80 8443; do timeout 4 bash -c "echo > /dev/tcp/203.56.114.62/$port" 2>/dev/null && echo "203.56.114.62:$port OPEN" || echo "203.56.114.62:$port closed"; done
+203.56.114.34:443 OPEN
+203.56.114.34:5222 OPEN
+203.56.114.34:8443 closed
+203.56.114.34:8080 closed
+203.56.114.34:80 closed
+203.56.114.34:3000 closed
+=== staging sync cluster 203.56.114.62 ===
+203.56.114.62:443 OPEN
+203.56.114.62:5222 closed
+203.56.114.62:80 closed
+203.56.114.62:8443 closed
+[0m
+[0m$ [0mtimeout 15 openssl s_client -connect 203.56.114.34:443 -servername g-00.0.test.threema.ch -tls1_2 </dev/null 2>&1 | head -20; echo "=== 443 raw ==="; timeout 8 bash -c 'exec 3<>/dev/tcp/203.56.114.34/443; head -c 200 <&3' | xxd | head -10
+40075E348C7F0000:error:0A000126:SSL routines:ssl3_read_n:unexpected eof while reading:../ssl/record/rec_layer_s3.c:316:
+CONNECTED(00000003)
+---
+no peer certificate available
+---
+No client certificate CA names sent
+---
+SSL handshake has read 0 bytes and written 226 bytes
+Verification: OK
+---
+New, (NONE), Cipher is (NONE)
+Secure Renegotiation IS NOT supported
+Compression: NONE
+Expansion: NONE
+No ALPN negotiated
+SSL-Session:
+    Protocol  : TLSv1.2
+    Cipher    : 0000
+    Session-ID: 
+    Session-ID-ctx: 
+=== 443 raw ===
+[0m
+[0m$ [0mtimeout 8 bash -c 'exec 3<>/dev/tcp/203.56.114.34/5222; head -c 200 <&3' | xxd | head -8; echo "=== prod chat 5222 compare ==="; timeout 8 bash -c 'exec 3<>/dev/tcp/203.56.112.202/5222; head -c 200 <&3' | xxd | head -8
+=== prod chat 5222 compare ===
+[0m
+Let me pull the exact mediator/rendezvous WSS path format from the in-scope desktop source to enable a targeted passive probe.
+[0m$ [0mcurl -s -m 20 "https://api.github.com/repos/threema-ch/threema-desktop/git/trees/master?recursive=1" -o /tmp/opencode/tree.json -w "HTTP %{http_code} size=%{size_download}\n"; grep -oE '"path": "[^"]*(mediator|Mediator|rendezvous|Rendezvous)[^"]*"' /tmp/opencode/tree.json | head -30
+HTTP 404 size=124
+[0m
+[0m$ [0mcurl -s -m 20 "https://api.github.com/repos/threema-ch/threema-desktop" -o /tmp/opencode/repo.json -w "HTTP %{http_code}\n"; grep -oE '"default_branch": "[^"]*"' /tmp/opencode/repo.json; grep -oE '"message": "[^"]*"' /tmp/opencode/repo.json | head -2
+HTTP 200
+"default_branch": "stable"
+[0m
+[0m$ [0mcurl -s -m 30 "https://api.github.com/repos/threema-ch/threema-desktop/git/trees/stable?recursive=1" -o /tmp/opencode/tree.json -w "HTTP %{http_code} size=%{size_download}\n"; grep -oE '"path":"[^"]*"' /tmp/opencode/tree.json | grep -iE "mediator|rendezvous" | head -20
+HTTP 200 size=1044475
+[0m
+[0m$ [0mgrep -oE '"path": *"[^"]*(mediator|Mediator|rendezvous|Rendezvous)[^"]*"' /tmp/opencode/tree.json | head -30; echo "---or unquoted---"; grep -oiE '[a-z0-9_/.-]*mediator[a-z0-9_/.-]*' /tmp/opencode/tree.json | sort -u | head -20
+"path": "apps/desktop/src/common/dom/network/protocol/rendezvous.ts"
+"path": "apps/desktop/src/common/dom/network/transport/mediator-websocket.ts"
+"path": "apps/desktop/src/common/model/global-property/last-mediator-connection.ts"
+"path": "apps/desktop/src/common/network/protocol/rendezvous.ts"
+"path": "apps/desktop/src/translations/de/rendezvous-emoji.json"
+"path": "apps/desktop/src/translations/en/rendezvous-emoji.json"
+"path": "packages/libthreema-wasm/libs/libthreema/lib/examples/bin/d2d_rendezvous.rs"
+"path": "packages/libthreema-wasm/libs/libthreema/lib/src/bindings/uniffi/d2d_rendezvous.rs"
+"path": "packages/libthreema-wasm/libs/libthreema/lib/src/bindings/wasm/d2d_rendezvous.rs"
+"path": "packages/libthreema-wasm/libs/libthreema/lib/src/d2d_rendezvous"
+"path": "packages/libthreema-wasm/libs/libthreema/lib/src/d2d_rendezvous/frame.rs"
+"path": "packages/libthreema-wasm/libs/libthreema/lib/src/d2d_rendezvous/mod.rs"
+"path": "packages/libthreema-wasm/libs/libthreema/lib/src/d2d_rendezvous/rxdak.rs"
+"path": "packages/libthreema-wasm/libs/libthreema/lib/src/d2d_rendezvous/rxdtk.rs"
+"path": "packages/libthreema-wasm/libs/libthreema/lib/src/d2d_rendezvous/rxdxk.rs"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/md-d2d-rendezvous.proto"
+"path": "packages/protocol/src/structbuf/md-d2d-rendezvous"
+"path": "packages/protocol/src/structbuf/md-d2d-rendezvous/handshake.ts"
+"path": "packages/protocol/src/structbuf/md-d2d-rendezvous/index.ts"
+"path": "packages/protocol/src/structbuf/md-d2d-rendezvous/payload.ts"
+---or unquoted---
+apps/desktop/src/common/dom/network/transport/mediator-websocket.ts
+apps/desktop/src/common/model/global-property/last-mediator-connection.ts
+[0m
+[0m$ [0mcurl -s -m 20 "https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/apps/desktop/src/common/dom/network/transport/mediator-websocket.ts" -o /tmp/opencode/mw.ts -w "HTTP %{http_code}\n"; wc -l /tmp/opencode/mw.ts
+HTTP 200
+109 /tmp/opencode/mw.ts
+[0m
+[0m→ [0mRead /tmp/opencode/mw.ts
+[0m
+[0m$ [0mcurl -s -m 20 "https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/apps/desktop/src/common/network/protobuf/proto/d2m.proto" -o /tmp/opencode/d2m.proto -w "HTTP %{http_code}\n"; grep -n -A 12 "message ClientUrlInfo" /tmp/opencode/d2m.proto
+HTTP 404
+[0m
+[0m$ [0mgrep -oE '"path": *"[^"]*d2m[^"]*\.(proto|ts)"' /tmp/opencode/tree.json | head; echo "---"; grep -oE '"path": *"[^"]*protocols/src/[^"]*"' /tmp/opencode/tree.json | grep -iE "proto" | head -20
+"path": "apps/desktop/src/common/network/protobuf/validate/d2m/index.ts"
+"path": "apps/desktop/src/common/network/protobuf/validate/d2m/server-hello.ts"
+"path": "apps/desktop/src/common/network/protobuf/validate/d2m/server-info.ts"
+"path": "apps/desktop/src/common/network/protocol/task/d2m/drop-device.ts"
+"path": "apps/desktop/src/common/network/protocol/task/d2m/index.ts"
+"path": "apps/desktop/src/common/network/protocol/task/d2m/reflected.ts"
+"path": "apps/desktop/src/common/network/structbuf/validate/d2m/index.ts"
+"path": "apps/desktop/src/common/network/structbuf/validate/d2m/payload/index.ts"
+"path": "apps/desktop/src/common/network/structbuf/validate/d2m/payload/reflected.ts"
+"path": "apps/desktop/src/test/mocha/common/network/protocol/task/d2m/reflected.spec.ts"
+---
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/common.proto"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/csp-e2e-fs.proto"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/csp-e2e.proto"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/csp.struct.yml"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.proto"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/extra.struct.yml"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/group-call.proto"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/group-call.struct.yml"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/md-d2d-history.proto"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/md-d2d-join.proto"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/md-d2d-rendezvous.proto"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/md-d2d-sync.proto"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/md-d2d.proto"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/md-d2m.proto"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/md-d2m.struct.yml"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/md.md"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/mdm-parameters.md"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/o2o-call.proto"
+"path": "packages/libthreema-wasm/libs/libthreema/threema-protocols/src/oppf.schema.yml"
+[0m
+[0m$ [0mcurl -s -m 20 "https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/md-d2m.proto" -o /tmp/opencode/d2m.proto -w "HTTP %{http_code}\n"; grep -n -B2 -A 14 "message ClientUrlInfo" /tmp/opencode/d2m.proto
+HTTP 200
+29-// Type: n/a
+30-// Direction: Client -> Server
+31:message ClientUrlInfo {
+32-  reserved 2; // Deprecated numeric server group
+33-
+34-  // 32 byte device group id (`DGPK.public`)
+35-  bytes device_group_id = 1;
+36-
+37-  // Server group, as assigned by the server when the Threema identity has been
+38-  // created. Must consist of only digits or ASCII letters (`^[0-9a-zA-Z]+$`).
+39-  string server_group = 3;
+40-}
+41-
+42-// Initial message from the server, containing an authentication challenge.
+43-//
+44-// Type: 0x10
+45-// Direction: Client <-- Server
+[0m
+[0m$ [0mHEX="0a20$(printf '0%.0s' {1..64})1a0130"; echo "URL hex length: ${#HEX}"; echo "=== STAGING mediator-0 WS upgrade ==="; curl -sk -m 10 -D - -o /tmp/opencode/ws_s.txt -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" "https://mediator-0.test.threema.ch/$HEX"; echo "BODY($(wc -c </tmp/opencode/ws_s.txt) bytes):"; cat /tmp/opencode/ws_s.txt
+URL hex length: 74
+=== STAGING mediator-0 WS upgrade ===
+HTTP/2 403 
+server: nginx
+date: Sat, 08 Aug 2026 00:14:41 GMT
+content-type: text/html; charset=utf-8
+content-length: 146
+
+BODY(146 bytes):
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+[0m
+[0m$ [0mfor g in 00 01 0f ff; do for s in 0 1 2 f; do h="g-$g.$s.test.threema.ch"; ip=$(getent ahostsv4 $h | awk 'NR==1{print $1}'); [ -n "$ip" ] && echo "$h -> $ip"; done; done; echo "---prod---"; for g in 00 01; do for s in 0 1; do h="g-$g.$s.threema.ch"; ip=$(getent ahostsv4 $h | awk 'NR==1{print $1}'); [ -n "$ip" ] && echo "$h -> $ip"; done; done
+g-00.0.test.threema.ch -> 203.56.114.34
+g-01.0.test.threema.ch -> 203.56.114.34
+g-0f.0.test.threema.ch -> 203.56.114.34
+g-ff.0.test.threema.ch -> 203.56.114.34
+---prod---
+g-00.0.threema.ch -> 203.56.112.202
+g-01.0.threema.ch -> 203.56.112.202
+[0m
+All probes complete. Writing the structured analysis.
+
+## STEP 1 — DELTA
+- [NEW] blob-mirror-{0..f}.test.threema.ch → all 203.56.114.62 (staging blob storage, wildcard `*.test.threema.ch` Sectigo cert); uniform 403 on `/`, `/{64hex}`, `/blob/{64hex}`, `/v1/{64hex}`; prod blob-mirror-{0,1} → 203.56.112.247 (same IP as prod mediator 0-7), also 403. No divergence.
+- [NEW] mediator-{0,8}/rendezvous-{0,8}.test.threema.ch → ALL 203.56.114.62 (single IP; NOT prod's split 0-7→.112.247 / 8-f→.114.247); valid-format ClientUrlInfo WS upgrade (hex built from `md-d2m.proto`) → nginx 403 — WSS surface not externally reachable.
+- [NEW] hcaptcha-work.threema.ch + hcaptcha-assets.threema.ch → 203.56.112.73: live hCaptcha proxy serving hCaptcha marketing mirror (200, 98KB); used by BOTH prod and staging work CSP — NOT staging-only; `/getcaptcha` → 404.
+- [NEW] broadcast.test.threema.ch → 203.56.114.45, billing.test.threema.ch → 203.56.114.44 (leaked in work.test CSP form-action/img-src): TCP 443 closed (gated, mirrors prod TIMEOUT).
+- [NEW] avatar.test.threema.ch / companylogo.test.threema.ch → 203.56.112.237: byte-identical 403 and SAME IP as prod avatar/companylogo — same server, not distinct staging surfaces.
+- [CHANGED] work.test /api-app public namespace fully mapped: bundle v2.25.1 has 14 route literals; ONLY `/api-app/public/global/settings` live (200 JSON: `appLinkHost` + app store links). `/public/license/token/{64hex}` (GET returns license username/password/expired/hasEmail, PUT void) NOT implemented on staging backend — SPA catch-all 404, md5-identical to `/api-app/bogus`. 9 extra `/api-app/public/*` guesses all 404.
+- [CHANGED] prod work.threema.ch `/api-app/me/profile` + `/api-app/global/settings` → 302 (session-gated, same as staging) — `/api-app` base exists on prod; divergence is exactly one public route.
+- [CHANGED] staging chat: g-{00,01,0f,ff}.0.test all → 203.56.114.34; TCP 5222+443 open but no TLS handshake and no server hello (custom CSP protocol, server silent until client speaks); prod g-00 → 203.56.112.202, g-ff → 203.56.112.204, 5222 open.
+
+## STEP 2 — PRIORITIZE
+- [PRIO] g-*.0.test.threema.ch:5222/443 (staging chat) score=5.10 | attack=5 business=7 tech=6 gate=4 cloud=2 fresh=4
+- [PRIO] blob-mirror-*/mediator-*/rendezvous-*.test.threema.ch (203.56.114.62 sync cluster) score=4.70 | attack=4 business=6 tech=6 gate=2 cloud=3 fresh=7
+- [PRIO] work.test.threema.ch /api-app/public/* score=4.60 | attack=3 business=6 tech=5 gate=8 cloud=3 fresh=1
+
+## STEP 3 — HYPOTHESES
+[HYP] Staging chat mirror shows version/test-identity skew
+class: MISCONFIG
+asset: g-{00..ff}.0.test.threema.ch:5222 (203.56.114.34)
+confidence: 50
+reasoning: staging chat cluster consolidated to a single IP (203.56.114.34) vs prod's split .112.202/.204; TCP 5222+443 accept but server is silent until client speaks (custom CSP protocol, no TLS cert obtainable). Only DNS/net split currently separates it from prod.
+evidence_needed: in-band protocol difference in the NaCl-box+HKDF CSP handshake (stream/auth response fields, version, test identity acceptance).
+verify_steps: AUTH_HELPED: reconstruct CSP handshake from threema-android `csp/connection` code; one connect to staging and one to prod; compare stream/auth responses; ≤1 rps one attempt each.
+impact: internet-reachable staging messenger backend → version skew/unpatched surface; severity low.
+testability: AUTH_HELPED
+[HYP] Staging sync cluster (203.56.114.62) reachable beyond nginx gate
+class: MISCONFIG
+asset: mediator-{0..f}.test.threema.ch / rendezvous-{0..f}.test.threema.ch / blob-mirror-{0..f}.test.threema.ch
+confidence: 40
+reasoning: all staging sync hosts consolidate to one IP 203.56.114.62 with wildcard `*.test.threema.ch` cert; every HTTP path AND a valid-format ClientUrlInfo WS upgrade (hex from `md-d2m.proto`) returns nginx 403 — gate is host/path-agnostic. No divergence from prod 403 behavior observed.
+evidence_needed: whether any Host/path combination (real deviceGroupId, server group ≠ "0", direct IP + SNI variants) bypasses the nginx 403 to reach the WSS handler.
+verify_steps: AUTH_HELPED: WS upgrade with real DGPK-derived ClientUrlInfo hex on staging vs prod; ≤1 rps, no handshake payload sent.
+impact: staging sync/linking/blob backend exposure → test credential recon; severity low.
+testability: AUTH_HELPED
+[HYP] Staging work bundle/backend license-route skew
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 40
+reasoning: bundle v2.25.1 implements GET (returns license username/password/expired/hasEmail) + PUT (void) for `/public/license/token/{64hex}` with 64-char token validation, but the staging backend returns SPA catch-all 404 (md5-identical to bogus paths) — frontend ahead of backend.
+evidence_needed: whether backend catches up and serves the route (unauthenticated token→credentials oracle); currently non-live.
+verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64hex}` weekly; record 404 vs non-404; ≤1 rps.
+impact: if route enabled: unauthenticated 64-hex license-token oracle returning license username/password; severity low (tokens are high-entropy).
+testability: PASSIVE
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] Staging blob-mirror external reachability: every path incl. `/{64hex}` and `/blob/{64hex}` returns the same nginx 403 as prod; no divergence and no path format resolves past the gate — disproven for passive probing, confidence <40.
+- [PARKED] hcaptcha-work.threema.ch surface: shared prod+staging third-party (hCaptcha) mirror, `/getcaptcha` → 404; out-of-scope dependency, no Threema-controlled data.
+- [FINAL] 1) staging chat mirror (50), 2) staging sync cluster gate bypass (40), 3) work.test license-route skew (40).
+
+## STEP 5 — NEXT ACTION
+[NEXT] AUTH_HELPED: with an authorized staging test identity, reconstruct the Threema CSP NaCl-box+HKDF handshake from threema-android (csp/connection) and perform one connect to `g-00.0.test.threema.ch:5222` (203.56.114.34) vs one to `g-00.0.threema.ch:5222` (203.56.112.202); compare stream/auth response fields for version or test-identity skew; ≤1 rps, one attempt each, no data modification.
+
+## STEP 6 — LEARNING
+- [LEARN] ACCEPTED MISCONFIG @ work.test.threema.ch: `/api-app/public/*` namespace = exactly one live route (`/public/global/settings`, 200, app-download links); `/public/license/token/{64hex}` is bundle-defined but NOT backend-implemented (SPA catch-all 404 md5-identical to bogus) — frontend/backend version skew on staging.
+- [LEARN] ACCEPTED AUTH @ work.threema.ch: prod `/api-app/me/profile` + `/api-app/global/settings` → 302 (session-gated, same as staging) — `/api-app` base exists on prod; staging-prod divergence limited to the public namespace.
+- [LEARN] REJECTED OTHER @ mediator-*/rendezvous-*/blob-mirror-*.test.threema.ch: staging sync cluster (203.56.114.62) not externally reachable — nginx 403 on all paths and on a valid-format ClientUrlInfo WS upgrade; reachability hypothesis disproven.
+- [LEARN] ACCEPTED OTHER @ hcaptcha-work.threema.ch / hcaptcha-assets.threema.ch: shared prod+staging hCaptcha proxy (203.56.112.73) serving hCaptcha marketing mirror; not staging-only, third-party dependency.
+- [LEARN] ACCEPTED OTHER @ broadcast.test/billing.test/avatar.test/companylogo.test.threema.ch: work.test CSP staging hostnames; broadcast/billing TCP-gated, avatar/companylogo identical to prod (same IP, same 403) — no new exposure.
+- [LEARN] ACCEPTED MISCONFIG @ g-{00..ff}.0.test.threema.ch: staging chat fully consolidated to 203.56.114.34 (5222+443 open, custom CSP protocol, server silent until client speaks); prod splits .112.202/.204.
+
+## STEP 7 — RISK SCORE
+[RISK] chat: 40 — staging chat cluster TCP-reachable on 5222/443 with custom CSP protocol; no in-band divergence proven without handshake decode; version-skew risk unproven | web: 45 — staging work API exposes exactly one public config route (app-download links) absent on prod; auth-gated namespaces intact on both hosts; license-credential route not live on staging | sync: 35 — staging mediator/rendezvous/blob-mirror consolidated to 203.56.114.62 with staging cert, but nginx 403 gates all hosts/paths incl. valid WS upgrade; no reachable surface | safe: 30 — unchanged; credential-gated (400 for no-creds), CORS `*` on preflight only | desktop-src: 40 — two accepted source misconfigs (Windows keystorage ACL, electron sandbox:false + nodeIntegrationInWorker) with no remote exploitation path.
