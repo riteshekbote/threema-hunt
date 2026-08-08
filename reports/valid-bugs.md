@@ -38,3 +38,10 @@
   - | 1 | Directory cluster identity enumeration (IDOR) | ✅ **VALID** | 5.3 | Medium |
   - | 2 | Staging directory server public exposure | ✅ **VALID** | 3.1 | Low |
   - | 3 | Desktop Windows key storage ACL bypass | ✅ **VALID** | 4.6 | Medium |
+
+- 5 lead(s) marked VALID at 2026-08-08 07:15:49 UTC
+  - | **Q4 Proof (GET/HEAD)** | ✅ YES — `GET /identity/ECHOECHO` → 200 with pubkey; `GET /identity/ZZZZZZZZ` → 404; `POST /identity/fetch_bulk` → pubkeys for valid IDs; CORS * confirmed |
+  - | **Q6 Not always-rejected** | ❌ **REJECTED** — CORS * on a credential-gated endpoint is best practice / defense-in-depth. No unauthenticated data access. The 400-vs-404 distinction is an oracle but r
+  - | **Q2 Reachability** | ⚠️ AUTH_HELPED — requires valid Work test license (401 on unauth) |
+  - **Verdict: HOLD** — Interesting hypothesis (OpenAPI flags it "currently buggy" TWRK-1633) but requires AUTH_HELPED testing with a valid Work license. Cannot be proven with passive GET/HEAD only. Retai
+  - **VALID leads for reporting: 0**
