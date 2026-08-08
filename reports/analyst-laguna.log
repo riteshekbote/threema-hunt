@@ -27363,3 +27363,548 @@ Desktop POC phase complete. Summary of deliverables:
 6. **Analyst output** — `reports/hypotheses-laguna.txt` with all 7 steps (DELTA/PRIORITIZE/HYPOTHESES/SELF-CRITIQUE/FINAL/NEXT/LEARNING/RISK).
 
 The remaining empirical step (Windows DACL audit via `Get-Acl` → 0 ACEs + DPAPI `CryptUnprotectData` round-trip) is AUTH_HELPED-LOCAL and requires a live Windows profile to fully close — all source-level evidence is RAG-verified.
+===== ANALYST laguna 2026-08-08 20:37:15 UTC =====
+[0m
+> build · laguna-s-2.1-free
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt
+total 188
+drwxr-xr-x 11 runner runner  4096 Aug  8 20:27 .
+drwxr-xr-x  3 runner runner  4096 Aug  8 20:27 ..
+drwxr-xr-x  7 runner runner  4096 Aug  8 20:27 .git
+drwxr-xr-x  3 runner runner  4096 Aug  8 20:27 .github
+-rw-r--r--  1 runner runner  1049 Aug  8 20:27 README.md
+-rw-r--r--  1 runner runner    39 Aug  8 20:27 analyst-out.txt
+-rw-r--r--  1 runner runner 55022 Aug  8 20:27 analyst-prompt.txt
+-rw-r--r--  1 runner runner 51958 Aug  8 20:27 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  8 20:27 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  8 20:27 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  8 20:27 leads
+-rw-r--r--  1 runner runner  2866 Aug  8 20:27 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  8 20:27 reports
+drwxr-xr-x  3 runner runner  4096 Aug  8 20:27 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  8 20:27 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  8 20:27 scripts
+-rw-r--r--  1 runner runner    34 Aug  8 20:27 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  8 20:27 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  8 20:27 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  8 20:27 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  8 20:27 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  8 20:27 triage
+[0m
+[0m$ [0mls -la /tmp/opencode/threema-desktop/ 2>/dev/null || echo "dir not found"
+dir not found
+[0m
+[0m→ [0mRead state_laguna.json
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reports/ /home/runner/work/threema-hunt/threema-hunt/knowledge/ /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/ /home/runner/work/threema-hunt/threema-hunt/scripts/ /home/runner/work/threema-hunt/threema-hunt/inventory/
+/home/runner/work/threema-hunt/threema-hunt/inventory/:
+total 48
+drwxr-xr-x  2 runner runner  4096 Aug  8 20:27 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 20:27 ..
+-rw-r--r--  1 runner runner 38441 Aug  8 20:27 threema.md
+
+/home/runner/work/threema-hunt/threema-hunt/knowledge/:
+total 36
+drwxr-xr-x  2 runner runner  4096 Aug  8 20:27 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 20:27 ..
+-rw-r--r--  1 runner runner 26658 Aug  8 20:27 index.md
+
+/home/runner/work/threema-hunt/threema-hunt/reports/:
+total 4324
+drwxr-xr-x  2 runner runner    4096 Aug  8 20:27 .
+drwxr-xr-x 11 runner runner    4096 Aug  8 20:27 ..
+-rw-r--r--  1 runner runner 1564439 Aug  8 20:27 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 2369231 Aug  8 20:27 analyst-laguna.log
+-rw-r--r--  1 runner runner   19855 Aug  8 20:27 analyst-ling3.log
+-rw-r--r--  1 runner runner    3510 Aug  8 20:27 analyst-longcat.log
+-rw-r--r--  1 runner runner  408563 Aug  8 20:27 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    4504 Aug  8 20:27 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      52 Aug  8 20:27 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  8 20:27 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  8 20:27 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner      51 Aug  8 20:27 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  139497 Aug  8 20:27 hypotheses.md
+-rw-r--r--  1 runner runner   11764 Aug  8 20:27 valid-bugs.md
+
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/:
+total 68
+drwxr-xr-x  3 runner runner  4096 Aug  8 20:27 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 20:27 ..
+-rw-r--r--  1 runner runner  2739 Aug  8 20:27 analysis.txt
+-rw-r--r--  1 runner runner    40 Aug  8 20:27 grep-delta.txt
+-rw-r--r--  1 runner runner  7433 Aug  8 20:27 grep-hits.prev.txt
+-rw-r--r--  1 runner runner  7433 Aug  8 20:27 grep-hits.txt
+-rw-r--r--  1 runner runner 28693 Aug  8 20:27 rag.txt
+drwxr-xr-x 18 runner runner  4096 Aug  8 20:27 threema-ch
+
+/home/runner/work/threema-hunt/threema-hunt/scripts/:
+total 16
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 .
+drwxr-xr-x 11 runner runner 4096 Aug  8 20:27 ..
+-rw-r--r--  1 runner runner 7771 Aug  8 20:27 sync-issues.py
+[0m
+[0m→ [0mRead reposcan-raw/grep-hits.txt
+[0m→ [0mRead reposcan-raw/analysis.txt
+[0m→ [0mRead reposcan-raw/rag.txt
+[0m→ [0mRead knowledge/index.md
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/
+total 72
+drwxr-xr-x 18 runner runner 4096 Aug  8 20:27 .
+drwxr-xr-x  3 runner runner 4096 Aug  8 20:27 ..
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 app-remote-protocol
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 compose-area
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 push-relay
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 threema-android
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 threema-bot-sdk
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 threema-desktop
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 threema-ios
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 threema-markup
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 threema-msgapi-sdk-java
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 threema-msgapi-sdk-php
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 threema-msgapi-sdk-python
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 threema-msgapi-sdk-rust
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 threema-web
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 threema-web-electron
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 wasm-minisign-verify
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 webrtc-build-docker
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  8 20:27 .
+drwxr-xr-x 18 runner runner 4096 Aug  8 20:27 ..
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -type f 2>/dev/null | head -20
+(no output)
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt -path "*/key-storage/*" -type f 2>/dev/null | head -20
+(no output)
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt -name "*.git" -type d 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/.git
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt -name "crypto.ts" 2>/dev/null; find /home/runner/work/threema-hunt/threema-hunt -name "fs.ts" 2>/dev/null; find /home/runner/work/threema-hunt/threema-hunt -name "electron-main.ts" 2>/dev/null
+(no output)
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt -name "inner" -type d 2>/dev/null
+(no output)
+[0m
+[0m# [0mTodos
+[•] Clone threema-desktop repo into reposcan-raw/threema-ch/threema-desktop
+[ ] Verify the 6-step source code chain: fs.ts:41, key-storage/index.ts:559-560, electron-main.ts:944-945, crypto.ts:53-88, inner/v3.ts:65,70, sqlite.ts:239-240
+[ ] Write POC script at /tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py
+[ ] Write report to /reports/ with clone-verified evidence
+[ ] Update knowledge/index.md with clone-verified evidence
+[0m
+The state shows `POC` phase for the `desktop` target. The top-ranked hypothesis (confidence 95) is the Windows key-storage ACL bypass. I need to clone the repo and verify the 6 source-path chain. Let me start.
+[0m$ [0mgit clone https://github.com/threema-ch/threema-desktop /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop 2>&1
+Cloning into '/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop'...
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/ | head -20; echo "---"; git -C /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop log --oneline -3 2>/dev/null
+AGENTS.md
+CONTRIBUTING.md
+LICENSE-3RD-PARTY.txt
+LICENSE.txt
+README.md
+SECURITY.md
+apps
+containers
+contributors.csv
+docs
+logo_dark.svg
+logo_light.svg
+package.json
+packages
+pnpm-lock.yaml
+pnpm-workspace.yaml
+scripts
+turbo.jsonc
+---
+9ae421c6 Update version to v2.0-beta63
+e9bcc935 Update PNPM_STORE_DIR to pnpm_config_store_dir
+a1351767 Add urlSafe option to base64ToU8a function
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -name "fs.ts" -path "*/node/*" 2>/dev/null; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -name "fs.ts" 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/fs.ts
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/fs.ts
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -name "index.ts" -path "*key-storage*" 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/index.ts
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -name "electron-main.ts" 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/electron/electron-main.ts
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -name "crypto.ts" -path "*key-storage*" 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts
+[0m
+Repo cloned. Now verifying the 6-step source code chain.
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/fs.ts[90m [limit=60][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts[90m [offset=530, limit=100][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts[90m [limit=120][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [offset=920, limit=60][0m
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -name "v3.ts" -path "*inner*" 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts
+[0m
+Verified `fs.ts:41` and `index.ts:559-560`. Now checking the remaining 4 paths.
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -name "sqlite.ts" 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/db/sqlite.ts
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts[90m [limit=120][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/db/sqlite.ts[90m [offset=220, limit=50][0m
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -name "key-storage-file*" 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.proto
+[0m
+All 6 source paths verified. Let me also check the protobuf structure and the benchmark password context for completeness.
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -name "*.proto" -o -name "structbuf" 2>/dev/null | head -20; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -path "*key-storage-file*" 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/internal-protobuf/global-property.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/internal-protobuf/status-message.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/internal-protobuf/persistent-protocol-state.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/internal-protobuf/settings.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/network/structbuf
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/test/mocha/common/network/structbuf
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/md-d2d-rendezvous.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/md-d2d-sync.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/group-call.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/csp-e2e.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/csp-e2e-fs.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/md-d2d.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/o2o-call.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/common.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/url-payloads.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/md-d2d-join.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/md-d2d-history.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/md-d2m.proto
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.proto
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.proto
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts[90m [offset=215, limit=30][0m
+[0m
+[0m# [0mTodos
+[✓] Clone threema-desktop repo into reposcan-raw/threema-ch/threema-desktop
+[✓] Verify the 6-step source code chain: fs.ts:41, key-storage/index.ts:559-560, electron-main.ts:944-945, crypto.ts:53-88, inner/v3.ts:65,70, sqlite.ts:239-240
+[•] Write POC script at /tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py
+[ ] Write report to /reports/ with clone-verified evidence
+[ ] Update knowledge/index.md with clone-verified evidence
+[0m
+[0m$ [0mgrep -n "wrapRawClientKey\|wrapRawDeviceGroupKey\|wrapRawDatabaseKey\|NACL_CONSTANTS\|NONCE_UNGUARDED_SCOPE\|CREATE_BUFFER_TOKEN\|EncryptedDataWithNonceAhead\|SecretBox" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/index.ts 2>/dev/null | head -40; echo "---"; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -name "index.ts" -path "*/crypto/*" 2>/dev/null
+17:export const NACL_CONSTANTS = {
+213:    return raw instanceof Uint8Array && raw.byteLength === NACL_CONSTANTS.KEY_LENGTH;
+224:            `Expected public key to be ${NACL_CONSTANTS.KEY_LENGTH} bytes but has ${key.byteLength} bytes`,
+236:    return value instanceof Uint8Array && value.byteLength === NACL_CONSTANTS.NONCE_LENGTH;
+274:    return raw instanceof Uint8Array && raw.byteLength === NACL_CONSTANTS.KEY_LENGTH;
+285:            `Expected Ed25519 public key to be ${NACL_CONSTANTS.KEY_LENGTH} bytes but has ${key.byteLength} bytes`,
+303:    return raw instanceof Uint8Array && raw.byteLength === NACL_CONSTANTS.SIGNATURE_LENGTH;
+314:            `Expected Ed25519 signature to be ${NACL_CONSTANTS.SIGNATURE_LENGTH} bytes but has ${signature.byteLength} bytes`,
+365:export type EncryptedDataWithNonceAhead = WeakOpaque<
+367:    {readonly EncryptedDataWithNonceAhead: unique symbol}
+375:export function ensureEncryptedDataWithNonceAhead(bytes: Uint8Array): EncryptedDataWithNonceAhead {
+376:    const ciphertextLength = NACL_CONSTANTS.NONCE_LENGTH + NACL_CONSTANTS.MAC_LENGTH;
+382:    return bytes as EncryptedDataWithNonceAhead;
+430:export const NONCE_UNGUARDED_SCOPE: unique symbol = Symbol('nonce-unguarded-scope');
+433: * The type of {@link NONCE_UNGUARDED_SCOPE}.
+435:export type NonceUnguardedScope = typeof NONCE_UNGUARDED_SCOPE;
+491:    readonly getSecretBox: <
+---
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/blake2b/index.ts
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/index.ts
+[0m
+[0m$ [0mgrep -rn "wrapRawClientKey\|wrapRawDatabaseKey\|class.*SecretBox\|decryptorWithNonceAhead" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/ 2>/dev/null | head -20
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/box.ts:409:    public decryptorWithNonceAhead(
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/box.ts:584:                box.decryptorWithNonceAhead(decryptBuffer, encryptedKey).decrypt(undefined)
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/index.ts[90m [limit=50][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/box.ts[90m [offset=390, limit=70][0m
+[0m
+[0m$ [0mgrep -rn "keyStoragePath\|keystorage\|key_storage\|getSafeStoragePasswordPath\|appPath\|userData" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/index.ts 2>/dev/null | head -30
+(no output)
+[0m
+[0m$ [0mgrep -rn "getSafeStoragePasswordPath\|keystorage.path\|keyStoragePath\|keystorageFile" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null | head -20
+39:import {getSafeStoragePasswordPath} from '~/common/node/safe-storage/helpers';
+915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -name "helpers.ts" -path "*safe-storage*" 2>/dev/null; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -name "*.ts" -path "*safe-storage*" 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/safe-storage/helpers.ts
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/safe-storage/helpers.ts
+[0m
+[0m$ [0mgrep -rn "_keyStoragePath\|keyStoragePath\|KEY_STORAGE\|keystorage" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/index.ts 2>/dev/null | head -20
+14:    INNER_KEY_STORAGE_V3_ENCODING_HELPERS,
+21:    INTERMEDIATE_KEY_STORAGE_V1_1_ENCODING_HELPERS,
+28:    OUTER_KEY_STORAGE_V2_ENCODING_HELPERS,
+63:export const LATEST_KEY_STORAGE_ENCODING_HELPERS = {
+64:    outer: OUTER_KEY_STORAGE_V2_ENCODING_HELPERS,
+65:    intermediate: INTERMEDIATE_KEY_STORAGE_V1_1_ENCODING_HELPERS,
+66:    inner: INNER_KEY_STORAGE_V3_ENCODING_HELPERS,
+69:export const LATEST_KEY_STORAGE_VERSION = {
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/safe-storage/helpers.ts
+[0m
+[0m$ [0mgrep -rn "keyStorage\|_keyStoragePath\|KEY_STORAGE_PATH\|key_storage_path\|keystorage" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null | head -20
+(no output)
+[0m
+[0m$ [0mgrep -rn "SAFE_STORAGE_PASSWORD_PATH\|KEY_STORAGE_PATH\|keyStorage.*Path\|_keyStoragePath" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/config.ts 2>/dev/null | head -10; grep -rn "SAFE_STORAGE_PASSWORD_PATH" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/ 2>/dev/null | head -10
+104:    readonly DEPRECATED_KEY_STORAGE_PATH: readonly string[];
+109:    readonly KEY_STORAGE_PATH: readonly string[];
+136:    readonly SAFE_STORAGE_PASSWORD_PATH: readonly string[];
+170:    | 'KEY_STORAGE_PATH'
+171:    | 'DEPRECATED_KEY_STORAGE_PATH'
+176:    | 'SAFE_STORAGE_PASSWORD_PATH'
+183:    DEPRECATED_KEY_STORAGE_PATH: import.meta.env.DEPRECATED_KEY_STORAGE_PATH,
+184:    KEY_STORAGE_PATH: import.meta.env.KEY_STORAGE_PATH,
+193:    SAFE_STORAGE_PASSWORD_PATH: import.meta.env.SAFE_STORAGE_PASSWORD_PATH,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/vite-client.d.ts:348:    readonly SAFE_STORAGE_PASSWORD_PATH: readonly string[];
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/config.ts:136:    readonly SAFE_STORAGE_PASSWORD_PATH: readonly string[];
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/config.ts:176:    | 'SAFE_STORAGE_PASSWORD_PATH'
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/config.ts:193:    SAFE_STORAGE_PASSWORD_PATH: import.meta.env.SAFE_STORAGE_PASSWORD_PATH,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/safe-storage/helpers.ts:14:    return path.join(profileDirectoryPath, ...STATIC_CONFIG.SAFE_STORAGE_PASSWORD_PATH);
+[0m
+[0m$ [0mgrep -rn "keyStorage\|KEY_STORAGE\|_keyStoragePath" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null | head -20
+(no output)
+[0m
+[0m$ [0mgrep -rn "KEY_STORAGE_PATH\|DEPRECATED_KEY_STORAGE" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts 2>/dev/null | head -10
+338:        DEPRECATED_KEY_STORAGE_PATH: ['data', 'keystorage.pb3'],
+339:        KEY_STORAGE_PATH: ['data', 'keystorage.bin'],
+[0m
+[0m$ [0mgrep -rn "keyStoragePath\|keyStorage\|_keyStoragePath\|KEY_STORAGE_PATH\|keystorage" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/index.ts 2>/dev/null | head -20
+(no output)
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts[90m [limit=30, offset=330][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/index.ts[90m [limit=120][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/index.ts[90m [limit=80, offset=250][0m
+[0m
+[0m$ [0mgrep -n "_keyStoragePath\|keyStoragePath\|this\._keyStoragePath" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/index.ts 2>/dev/null
+(no output)
+[0m
+[0m$ [0mgrep -rn "keyStoragePath\|key_storage_path\|KEY_STORAGE_PATH\|_keyStoragePath" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/ 2>/dev/null | head -20
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/vite-client.d.ts:343:    readonly DEPRECATED_KEY_STORAGE_PATH: readonly string[];
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/vite-client.d.ts:344:    readonly KEY_STORAGE_PATH: readonly string[];
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/config.ts:104:    readonly DEPRECATED_KEY_STORAGE_PATH: readonly string[];
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/config.ts:109:    readonly KEY_STORAGE_PATH: readonly string[];
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/config.ts:170:    | 'KEY_STORAGE_PATH'
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/config.ts:171:    | 'DEPRECATED_KEY_STORAGE_PATH'
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/config.ts:183:    DEPRECATED_KEY_STORAGE_PATH: import.meta.env.DEPRECATED_KEY_STORAGE_PATH,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/config.ts:184:    KEY_STORAGE_PATH: import.meta.env.KEY_STORAGE_PATH,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:59:    private readonly _keyStoragePath: string;
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:87:        this._keyStoragePath = getKeyStoragePath(this._profileDirectoryPath);
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:92:        const keyStorageParentDirectory = path.dirname(this._keyStoragePath);
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:99:        this._log.debug(`Key storage path: ${this._keyStoragePath}`);
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:198:            const fileBytes = await this._readFileBytes(this._keyStoragePath);
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:251:                `Key storage file already exists at: ${this._keyStoragePath}`,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:306:            this._keyStoragePath,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:334:            this._keyStoragePath,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:358:            this._keyStoragePath,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:397:            this._keyStoragePath,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:430:            this._keyStoragePath,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:485:            this._keyStoragePath,
+[0m
+[0m$ [0mgrep -rn "getKeyStoragePath" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/ 2>/dev/null | head -10
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:47:    getKeyStoragePath,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:87:        this._keyStoragePath = getKeyStoragePath(this._profileDirectoryPath);
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts:42:export function getKeyStoragePath(profileDirectoryPath: string): string {
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts:51: * {@link getKeyStoragePath}.
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts:68:    return fs.existsSync(getKeyStoragePath(profileDirectoryPath));
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/test/mocha/common/backend-mocks.ts:177:import {getDeprecatedKeyStoragePath, getKeyStoragePath} from '~/common/node/key-storage/helpers';
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/test/mocha/common/backend-mocks.ts:699:    const keyStoragePath = getKeyStoragePath(profileDirectoryPath);
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts:26:import {getIsAnyKeyStorageFilePresent, getKeyStoragePath} from '~/common/node/key-storage/helpers';
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts:118:            const keyStoragePath = getKeyStoragePath(profileDirectoryPath);
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -name "key-storage-file.ts" -path "*structbuf*" 2>/dev/null; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -name "*.ts" -path "*structbuf*key-storage*" 2>/dev/null
+(no output)
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/network/structbuf/ 2>/dev/null | head -30
+bridge.ts
+index.ts
+validate
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=80][0m
+[0m
+[0m$ [0mgrep -n "validatedToDecoded\|decodedToEncoded\|encodedToDecoded\|validatedToConsumable\|decodedToValidated" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts 2>/dev/null
+110:    encodedToDecoded: (encoded) => {
+133:    decodedToValidated: (decoded) => {
+146:    validatedToConsumable: (validated) => ({
+164:    validatedToDecoded: (validated) => ({
+178:    decodedToEncoded: (decoded) =>
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts[90m [offset=120, limit=70][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/box.ts[90m [limit=60, offset=1][0m
+[0m
+[0m$ [0mgrep -n "CREATE_BUFFER_TOKEN\|export.*secretBox\|getSecretBox\|SecretBox" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/index.ts 2>/dev/null | head -20
+491:    readonly getSecretBox: <
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/index.ts[90m [limit=30, offset=488][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts[90m [limit=100, offset=120][0m
+[0m
+[0m$ [0mgrep -n "encryptedWithNonceAhead\|getSecretBox\|xsalsa\|salsa\|nacl\|noble\|crypto_box\|secretbox" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/implementation.ts 2>/dev/null | head -20; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop -name "implementation.ts" -path "*/crypto/*" 2>/dev/null
+(no output)
+[0m
+[0m$ [0mgrep -rn "getSecretBox\|XSalsa20\|Poly1305\|nacl\|noble" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/ 2>/dev/null | head -30
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/csp-keys.ts:63:        crypto.getSecretBox(
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:5:import * as tweetnacl from 'tweetnacl';
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:84:interface TweetNaCl extends tweetnacl {
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:89:const nacl = (tweetnacl as TweetNaCl).lowlevel;
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:92:const PLAIN_HEADROOM = nacl.crypto_secretbox_ZEROBYTES;
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:93:const ENCRYPTED_HEADROOM = nacl.crypto_secretbox_BOXZEROBYTES;
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:96:assert(nacl.crypto_box_BEFORENMBYTES === NACL_CONSTANTS.KEY_LENGTH);
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:124:        const code = nacl.crypto_secretbox(
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:133:                `box.encrypt tweetnacl.lowlevel.crypto_secretbox returned ${code}`,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:154:        const code = nacl.crypto_secretbox_open(
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:163:                `box.decrypt tweetnacl.lowlevel.crypto_secretbox_open returned ${code}`,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:190:        nacl.crypto_scalarmult_base(publicKey, secretKey.unwrap());
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:210:            !tweetnacl.sign.detached.verify(
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:221:    public getSecretBox<
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts:250:        nacl.crypto_box_beforenm(
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/box.ts:561:        const box = crypto.getSecretBox(
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/group-call.ts:113:            services.crypto.getSecretBox(
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/group-call.ts:123:            services.crypto.getSecretBox(
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/group-call.ts:147:        services.crypto.getSecretBox(
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/device-group-keys.ts:135:        dgrk: crypto.getSecretBox(deriveKeyWithSalt('dgrk', 'r'), NonceScope.D2D, nonceService),
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/device-group-keys.ts:136:        dgdik: crypto.getSecretBox(deriveKeyWithSalt('dgdik', 'di'), NonceScope.D2D, nonceService),
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/device-group-keys.ts:137:        dgsddk: crypto.getSecretBox(
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/device-group-keys.ts:142:        dgtsk: crypto.getSecretBox(deriveKeyWithSalt('dgtsk', 'ts'), NonceScope.D2D, nonceService),
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/index.ts:491:    readonly getSecretBox: <
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts[90m [limit=60, offset=84][0m
+[0m
+[0m$ [0mgrep -rn "ARGON2_MIN_PARAMS\|KDF_TARGET_RUNTIME_MS\|ARGON2_MIN" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/common.ts 2>/dev/null | head -20
+14:export const KDF_TARGET_RUNTIME_MS = {
+62:export const ARGON2_MIN_PARAMS = {
+142:            (salt) => salt.byteLength >= ARGON2_MIN_PARAMS.accept.saltLengthBytes,
+143:            `Argon2id salt must be ≥ ${ARGON2_MIN_PARAMS.accept.saltLengthBytes} bytes`,
+149:                (memoryBytes) => memoryBytes >= import.meta.env.ARGON2_MIN_MEMORY_BYTES,
+151:                    import.meta.env.ARGON2_MIN_MEMORY_BYTES / KiB,
+158:                (iterations) => iterations >= ARGON2_MIN_PARAMS.accept.iterations,
+159:                `Argon2id iterations must be ≥ ${ARGON2_MIN_PARAMS.accept.iterations}`,
+165:                (parallelism) => parallelism >= ARGON2_MIN_PARAMS.accept.parallelism,
+166:                `Argon2id parallelism must be ≥ ${ARGON2_MIN_PARAMS.accept.parallelism}`,
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/common.ts
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/layers/outer -name "*.ts" 2>/dev/null; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/layers/intermediate -name "*.ts" 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/v1.ts
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/v2.ts
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/common.ts
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/layers/intermediate/v1.ts
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/layers/intermediate/v1_1.ts
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/v2.ts
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/layers/intermediate/v1_1.ts
+[0m
+[0m$ [0mgrep -n "profileDirectoryPath\|appPath\|userDataPath\|APPDATA\|app.getPath\|userData\|sessionPath\|profileDir\|PROFILE_DIRECTORY" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null | head -25
+92:const ELECTRON_PATH_USER_DATA = 'userData';
+344:function getMainAppLogPath(appPath: string): string {
+345:    return path.join(appPath, ...import.meta.env.LOG_PATH.MAIN_AND_APP);
+348:function getBackendWorkerLogPath(appPath: string): string {
+349:    return path.join(appPath, ...import.meta.env.LOG_PATH.BACKEND_WORKER);
+352:function getWebrtcStatsLogPath(appPath: string): string {
+353:    return path.join(appPath, ...import.meta.env.LOG_PATH.WEBRTC_STATS);
+356:function clearLogs(appPath: string): void {
+357:    const mainAppLogPath = getMainAppLogPath(appPath);
+365:    const logBackendPath = getBackendWorkerLogPath(appPath);
+373:    const webrtcStatsLogPath = getWebrtcStatsLogPath(appPath);
+385:function generateLogFileInfo(type: 'app' | 'bw' | 'webrtc', appPath: string): LogFileInfo {
+390:            logPath = getMainAppLogPath(appPath);
+393:            logPath = getBackendWorkerLogPath(appPath);
+396:            logPath = getWebrtcStatsLogPath(appPath);
+415:    readonly appPath: string;
+468:    const appPath = path.join(
+472:    if (!fs.existsSync(appPath)) {
+473:        log.info(`Creating app data directory at ${appPath}`);
+474:        fs.mkdirSync(appPath, {recursive: true, ...directoryModeInternalObjectIfPosix()});
+477:    electron.app.setPath(ELECTRON_PATH_USER_DATA, appPath);
+480:    const electronSettings = loadElectronSettings(appPath, {
+490:    const logFilePath = getMainAppLogPath(appPath);
+491:    const webrtcStatsLogFilePath = getWebrtcStatsLogPath(appPath);
+540:    log.info(`File system storage path: ${appPath}`);
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [limit=50, offset=895][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [limit=40, offset=450][0m
+[0m
+[0m$ [0mgrep -n "getPersistentAppDataBaseDir\|APPDATA\|appDataDir\|APPDATA_PATH\|threema.*dir\|electron.app.getPath" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null | head -20
+58:    getPersistentAppDataBaseDir,
+469:        ...getPersistentAppDataBaseDir(),
+780:                event.returnValue = electron.app.getPath(ELECTRON_PATH_USER_DATA);
+1697:            log.warn(`Crash reports can be found in ${electron.app.getPath('crashDumps')}`);
+[0m
+[0m$ [0mgrep -rn "getPersistentAppDataBaseDir" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/ 2>/dev/null | head -10
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/test/playwright/common/utils/electron-utils.ts:8:import {getPersistentAppDataBaseDir} from '~/electron/electron-utils';
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/test/playwright/common/utils/electron-utils.ts:80:    const profileDirectory = path.join(...getPersistentAppDataBaseDir(), `${flavor}-${profile}`);
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/rust/launcher/src/util/paths.rs:28:/// by the function `getPersistentAppDataBaseDir`!
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/electron/electron-utils.ts:47:export function getPersistentAppDataBaseDir(): string[] {
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/electron/electron-main.ts:58:    getPersistentAppDataBaseDir,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/electron/electron-main.ts:469:        ...getPersistentAppDataBaseDir(),
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/electron/electron-utils.ts[90m [limit=60][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/electron/electron-utils.ts[90m [limit=30, offset=60][0m
+[0m
+[0m$ [0mgrep -n "BUILD_FLAVOR" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts 2>/dev/null | head -10; grep -n "BUILD_FLAVOR" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null | head -5
+314:        BUILD_FLAVOR: buildFlavor,
+137:    applicationVersion: `${import.meta.env.BUILD_VERSION} (${import.meta.env.BUILD_FLAVOR})`,
+154:              import.meta.env.BUILD_FLAVOR,
+470:        `${import.meta.env.BUILD_FLAVOR}-${parameters.profile}`,
+[0m
+[0m$ [0mgrep -n "buildFlavor\|flavor" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts 2>/dev/null | head -15
+98:    const flavor = `${variant}-${environment}`;
+99:    if (isBuildFlavor(flavor)) {
+100:        return flavor;
+102:    throw new Error(`Unsupported build flavor: ${flavor}`);
+185:    buildFlavor: BuildFlavor,
+192:    switch (buildFlavor) {
+229:            unreachable(buildFlavor);
+247:    const buildFlavor = determineBuildFlavor(env.variant, env.environment);
+252:    if (buildFlavor === 'custom-onprem') {
+268:        appName = determineAppName(buildFlavor, 'Threema');
+314:        BUILD_FLAVOR: buildFlavor,
+317:        MOBILE_APP_NAME: determineMobileAppName(buildFlavor, shortAppName),
+318:        URLS: determineUrls(buildFlavor, presetOppfUrl),
+[0m
+[0m$ [0mgrep -n "keyStoragePassword\|test-data" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/test-data.ts 2>/dev/null | head -10
+22:            keyStoragePassword: v.string(),
+62:            keyStoragePassword: 'CHANGE_ME',
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/test-data.ts[90m [limit=30, offset=55][0m
+[0m
+[0m$ [0mgrep -rn "decryptAndDecodeLatestIntermediateKeyStorage\|decryptAndDecodeLatestInnerKeyStorage\|decryptPasswordBased\|deriveKeyFromPassword\|keystorage\|keyStorage.*password\|LOAD_USER_PASSWORD\|STORE_USER_PASSWORD" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/test/mocha/ 2>/dev/null | head -20
+(no output)
+[0m
+[0m$ [0mgrep -rn "decryptAndDecode\|decryptPasswordBased\|LOAD_USER_PASSWORD\|STORE_USER_PASSWORD\|keyStoragePassword" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/ 2>/dev/null | grep -v ".test." | grep -v "node_modules" | head -20
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:900:     * @param keyStoragePassword The password used to unlock the key storage.
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:908:        keyStoragePassword: string,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:1016:                keyStoragePassword,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:1029:                    keyStoragePassword,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:1055:            keyStorageContents = (await phase1Services.keyStorage.readContents(keyStoragePassword))
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:1313:            profile.keyStoragePassword,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:2013:        keyStoragePassword: string,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/dom/backend/index.ts:2052:                await phase1Services.keyStorage.setOnPremConfig(keyStoragePassword, {
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts:95:export async function decryptPasswordBased(
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:60:import {decryptPasswordBased, decryptRemoteSecretBased} from './crypto';
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:105:    const decryptedInner = (await decryptPasswordBased(
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts:250:    const decryptedIntermediate = await decryptPasswordBased(
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts:24:    decryptPasswordBased,
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts:226:    const decryptedIntermediate = await decryptPasswordBased(
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/enum/index.ts:3126:    export const LOAD_USER_PASSWORD = 'loadUserPassword';
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/enum/index.ts:3127:    export type LOAD_USER_PASSWORD = typeof LOAD_USER_PASSWORD;
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/enum/index.ts:3162:    export const STORE_USER_PASSWORD = 'storeUserPassword';
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/enum/index.ts:3163:    export type STORE_USER_PASSWORD = typeof STORE_USER_PASSWORD;
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/cli/bin.ts:134:    const keyStoragePassword = await rl.question(
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/cli/bin.ts:140:    const contents = await keyStorage.init(keyStoragePassword);
+[0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/key-storage/index.ts[90m [limit=120, offset=200][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts[90m [limit=120, offset=100][0m
+[0m
+[0m$ [0mmkdir -p /tmp/opencode/threema-desktop && mkdir -p /home/runner/work/threema-hunt/threema-hunt/reports
+(no output)
+[0m
+All 6 source paths verified against the freshly cloned repo. Now writing the POC script and report.
+[93m[1m! [0mpermission requested: external_directory (/tmp/opencodes/threema-desktop/*); auto-rejecting
+[0m✗ [0mWrite /tmp/opencodes/threema-desktop/key-storage-acl-bypass-poc.py failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

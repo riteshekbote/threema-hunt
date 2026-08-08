@@ -2390,3 +2390,4 @@ testability: PASSIVE + AUTH_HELPED
 [RISK] desktop-src: 95 reason: Windows key-storage ACL bypass CONFIRMED at source level (6 core paths + 9 supporting paths RAG-verified against live repo) — full identity keypair + message DB decryption chain verified; Electron sandbox disabled + nodeIntegrationInWorker: true (conditional RCE); staging URLs baked into builds; Argon2id + DPAPI decent but weak on Windows
 ## 2026-08-08 19:38:44 UTC [desktop] (model laguna)
 ## 2026-08-08 20:10:04 UTC [desktop] (model laguna)
+## 2026-08-08 20:37:06 UTC [desktop] (model laguna)

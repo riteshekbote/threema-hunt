@@ -889,3 +889,11 @@
 - NEXT(hypotheses-bigpickle.txt): HUMAN: Request program-issued test backupId:backupKey from the operator for the safe-backup hypothesis (highest-value AUTH_HELPED blocker; safe: 30 risk). Upon 
 - LEARN: REJECTED IDOR @ ds-apip/api/apip.threema.ch check_revocation_key GET form: validation-order oracle disproven — ECHOECHO vs ZZZZZZZZ produce byte-identical "Iden
 - LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch: credential-gated 400 baseline stable (re-confirmed this cycle) — route-existence oracle + Basic-auth gating hold; HSTS/
+
+## RANKED HYPOTHESES 2026-08-08 20:37:15 UTC
+- [95] https://ds-apip.threema.ch/identity/fetch_bulk: Directory bulk identity enumeration at scale via fetch_bulk (from reports/hypotheses-nemotron3.txt)
+- [60] https://ds-apip.threema.ch/identity/fetch_bulk: fetch_bulk batch-size ceiling absent → single-request mass identity enumeration (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ","AAAAAAAA","BBBB
+- NEXT(hypotheses-bigpickle.txt): HUMAN: Request program-issued test backupId:backupKey from the operator for the safe-backup hypothesis — the directory class is now at evidence saturation (iden
+- LEARN: REJECTED IDOR @ ds-apip/api/apip.threema.ch check_revocation_key GET form: validation-order oracle disproven — ECHOECHO vs ZZZZZZZZ produce byte-identical "Iden
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 safe-* hosts): credential-gated 400 baseline stable — route-existence oracle + Basic-auth gating hold; HSTS/Expec
