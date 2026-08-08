@@ -10481,3 +10481,72 @@ STEP 7 — RISK SCORE
 - [RISK] sync: 40 reason: mediator/rendezvous uniform 403; WSS paths high-entropy; auth model in source.
 - [RISK] safe: 65 reason: credential-gated but CORS `*` + Authorization header + write-capable methods + 5 hostnames/1 IP; no 429 observed; no data access demonstrated.
 - [RISK] desktop-src: 70 reason: sole surviving finding verified at line level but severity downgraded (inheritance ACLs, same-user inherent); nodeIntegrationInWorker is by-design with CSP compensation; OnPrem trust chain secure; no new secrets in scans.
+===== ANALYST bigpickle 2026-08-08 10:23:27 UTC =====
+[0m
+> build · big-pickle
+[0m
+STEP 1 — DELTA
+- [NEW] safe-*.threema.ch: backup API credential format identified as HTTP Basic `backupId:backupKey` (refines prior "credential-gated"); same OPTIONS/GET posture across all 5 hostnames behind 203.56.112.231.
+- [CHANGED] threema-desktop electron-main.ts: `sandbox` is UNSET (Electron default = false; TODO(DESK-79) L1255); prior "sandbox: false" claim refined — L1240 comment that "sandboxing is enabled by default" contradicts Electron docs.
+- [NEW] threema-desktop worker/ tree: grep = 0 dynamic sinks (require/import/eval/child_process/new Function) — sandbox:false + nodeIntegrationInWorker chain lacks a confirmed injection sink; exploitability now conditional.
+- [NEW] threema-desktop key-storage finding now RAG line-verified end-to-end (fs.ts:40-42, key-storage/index.ts:555-561, electron-main.ts:944-945, crypto.ts:53-88, restore-db.ts) — no longer a hypothesis, source-confirmed.
+- [NEW] ds-apip/api/apip.threema.ch: fetch_bulk silent-omit oracle re-confirmed on all 3 production hosts (valid-only returns, invalid omitted, CORS `*`, no 429 over 30 POSTs).
+- [CHANGED] Directory identity→pubkey oracle now byte-identical across all 3 production hosts (was 2); invalid-only batch shape still unmeasured.
+
+STEP 2 — PRIORITIZE
+- [PRIO] https://ds-apip.threema.ch/identity/fetch_bulk — priority 5.60 (attack 7, business 4, tech 3, gate 10, cloud 2, fresh 7)
+- [PRIO] https://safe-01.threema.ch/backups/{64hex} — priority 5.55 (attack 6, business 7, tech 4, gate 4, cloud 3, fresh 8)
+- [PRIO] threema-desktop key-storage (apps/desktop/src/common/node/fs.ts + key-storage/) — priority 5.30 (attack 5, business 8, tech 4, gate 3, cloud 2, fresh 8)
+- [PRIO] https://work.test.threema.ch/api-app/public/license/token/{64hex} — priority 4.75 (attack 3, business 5, tech 3, gate 8, cloud 2, fresh 9) [runner-up, not in top-3]
+
+STEP 3 — HYPOTHESES
+[HYP] fetch_bulk batch-size cap and invalid-only response shape unmeasured
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (mirrors api/apip)
+confidence: 50
+reasoning: KB: silent-omit confirmed on all 3 prod hosts with CORS `*` and no 429 across 30 sequential POSTs. Batch-size cap and invalid-only batch shape (empty-200 vs 400/413) never measured — determines scale of enumeration from a hostile page.
+evidence_needed: >N-ID batch response shape; invalid-only batch → empty array 200 vs error.
+verify_steps: PASSIVE, gated on operator GO: single POST fetch_bulk ~20 synthetic valid-format+invalid IDs at 1 rps, record status/body; no real user IDs; no POSTs until GO.
+impact: valid-ID enumeration at scale from any origin; low-medium (pubkeys public by design).
+testability: PASSIVE
+
+[HYP] safe-01 backup existence oracle pre-auth via 400 response-shape
+class: AUTH
+asset: https://safe-01.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: KB: /backups/{64hex} → 400 (route exists, Basic-auth gated) vs /backup/{x} → 404 (no route) — backend distinguishes routes pre-auth. Open: is 400 byte-invariant across IDs (no oracle) or variant (existence oracle)?
+evidence_needed: status/body variation across random 64-hex IDs vs known 400 baseline.
+verify_steps: PASSIVE, gated on operator GO: 2-3 single GETs of random 64-hex IDs at 1 rps, compare to baseline 400; no real-user IDs.
+impact: if variant, backup-existence oracle; low-medium, no data access.
+testability: PASSIVE
+
+[HYP] Desktop key-storage Windows ACL gap unproven at runtime
+class: MISCONFIG
+asset: threema-desktop apps/desktop/src/common/node/fs.ts + key-storage/ (Windows install)
+confidence: 65
+reasoning: Source-confirmed: fileModeInternalObjectIfPosix() returns {} on Windows, so keystorage.bin/.password.bin written without ACL; DPAPI/safeStorage still binds password to user account. No dynamic sinks in worker tree → sandbox:false chain de-emphasized, but local-file ACL gap is separate and unproven in a live Windows session.
+evidence_needed: same-user non-elevated process reading/decrypting keystorage while app is running or after logout.
+verify_steps: AUTH_HELPED: controlled Windows VM with own test install (no target traffic) — enumerate %APPDATA% files, assert zero ACL, DPAPI-decrypt password under same user; document result.
+impact: if proven, identity + message-DB compromise by any same-user process; high locally, low remotely.
+testability: HUMAN_ONLY
+
+STEP 4 — SELF-CRITIQUE
+- fetch_bulk HYP: survived — no rejected class, concrete passive steps, confidence 50 ≥ 40.
+- safe-01 HYP: survived — concrete 400-invariance test, confidence 45 ≥ 40.
+- desktop key-storage HYP: survived — confidence 65, but note it re-states an ACCEPTED finding; kept only because runtime proof (Windows) remains the open step.
+- [PARKED] work.test license-token backend ships → oracle: dropped as non-top-3 and backend currently 404 method-agnostic (no evidence of imminent change); keep as weekly recheck, not an active hypothesis.
+- [FINAL] 1) desktop key-storage runtime (65) 2) fetch_bulk batch-cap (50) 3) safe-01 400-invariance (45)
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: GO/NO-GO gate still open — no operator confirmation. Request (a) confirmation of active authorized program + reporting channel, (b) GO/NO-GO. If GO, first live step = 3× single GET `https://safe-01.threema.ch/backups/{random64hex}` at 1 rps comparing status/body to the known 400 baseline, then the fetch_bulk batch-shape test; no POSTs and no real-user IDs until GO.
+
+STEP 6 — LEARNING
+- REJECTED OTHER @ threema-desktop worker/: no require/import/eval/child_process/new Function sinks found (grep 0) — sandbox:false + nodeIntegrationInWorker injection chain unproven/conditional.
+- ACCEPTED MISCONFIG @ threema-desktop key-storage Windows ACL: RAG line-verification complete (fs.ts:40-42, key-storage/index.ts:555-561) — finding stands source-confirmed, runtime proof outstanding.
+
+STEP 7 — RISK SCORE
+- [RISK] chat: 40 reason: g-*.0.threema.ch prod silent without login frame; staging .test out of scope; no HTTP surface
+- [RISK] web: 75 reason: directory cluster + cockpits live with public endpoints, but most leads triaged INVALID (by-design); staging-prod bundle divergence remains the only live lead
+- [RISK] sync: 40 reason: mediator/rendezvous uniform 403; WSS paths high-entropy; auth model in source
+- [RISK] safe: 65 reason: Basic-auth gated but CORS `*` + Authorization + write-capable methods + 5 hostnames/1 IP; cred format now known; no 429 observed; no data access demonstrated
+- [RISK] desktop-src: 75 reason: one source-confirmed real finding (key-storage ACL, Windows); sandbox:false de-emphasized (no sinks); OnPrem trust chain secure
