@@ -330,3 +330,5 @@
 - CHANGED lead class 7 (Desktop BrowserWindow sandbox+worker) formally REJECTED as standalone lead — conditional RCE requires separate renderer chain; not new surface.
 - CHANGED lead class 16 (g-*.0.test.threema.ch staging chat) formally REJECTED as out-of-scope per scope.yml; not new surface.
 - CHANGED crypto.ts:223 benchmark-password finding re-confirmed REJECTED under sha256 form `52a0af98…` (≠ sha256 of prior literal `400c7846…`, so a new hashed reference to the same benchmark-only dummy; key pur
+
+## 2026-08-08 18:31:19 UTC
