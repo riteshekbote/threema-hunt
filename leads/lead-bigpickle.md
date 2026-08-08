@@ -387,3 +387,62 @@ impact: if route enabled: unauthenticated 64-hex license-token→credential orac
 testability: PASSIVE
 [FINAL] ranked: 1) work /identities cross-subscription (52), 2) staging chat skew (50), 3) work.test license-token catch-up (45).
 [NEXT] PROBE: weekly staging catch-up check — single `GET https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000` and single `GET https://work.test.threema.ch/api-app/public/global/settings`; if license-token returns ≠404, escalate to valid-format token probes (never real tokens). ≤1 rps, GET only. (Chat CSP divergence test is defined but blocked on an authorized staging test identity — AUTH_HELPED.)
+## 2026-08-08 03:46:04 UTC [chat] (model bigpickle)
+[LEARN] ACCEPTED OTHER @ avatar.test.threema.ch / companylogo.test.threema.ch: 403, byte-identical posture to prod avatar/companylogo 403 — no divergence; broadcast.test / billing.test → 000 (unreachable, matches prod TIMEOUT).
+[HYP] Work directory /identities cross-subscription metadata disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities (backend of work.threema.ch)
+confidence: 52
+reasoning: directory.openapi.yml:1172 flags `/identities` "currently buggy" (TWRK-1633); returns same-subscription contacts + work properties (first/last name, jobTitle, department, availability); host 401s on all paths (route exists behind credential gate) with CORS `*`. Same-version bundle divergence (STEP 1) shows the work build is actively iterating on prod-facing endpoints.
+evidence_needed: whether the subscription-membership filter can be induced (batch/wildcard/pagination bounds) to return out-of-subscription contacts or their work properties.
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities mixing own- and foreign-subscription IDs; compare membership + property leak; probe page/size bounds; ≤1 rps.
+impact: cross-subscription disclosure of work-directory metadata → targeted phishing; severity medium.
+testability: AUTH_HELPED
+[HYP] Staging chat mirror shows version/test-identity skew
+class: MISCONFIG
+asset: g-{00..ff}.0.test.threema.ch:5222 (203.56.114.34)
+confidence: 50
+reasoning: source-derived framing now concrete (CspSocket reads SERVER_HELLO_LEN=80 then SERVER_LOGIN_ACK_LEN=32; plain Socket, no TLS on 5222; host = prefix + identityStore server-group + suffix). Both staging and prod return 0 bytes to read-only connect — server waits for the client login frame, so only an authenticated frame elicits an in-band response. Only DNS/net split distinguishes staging from prod.
+evidence_needed: in-band difference in the CSP server-hello/login-ack stream fields once a valid login frame is sent (version, test identity acceptance).
+verify_steps: AUTH_HELPED: with authorized staging test identity, send one framed login (16B cookie + 64B box + 32B ext-indicator + 24B reserved + 32B vouch) to staging vs prod 5222; compare server-hello/login-ack; ≤1 rps one attempt each, no data modification.
+impact: internet-reachable staging messenger backend → version skew/unpatched surface; severity low.
+testability: AUTH_HELPED
+[HYP] Staging work frontend is ahead of backend — license-token oracle on catch-up
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 45
+reasoning: staging bundle (v2.25.1) implements GET (returns license username/password/expired/hasEmail) + PUT for the route with 64-char zod validation, but backend returns method-agnostic 404 catch-all — frontend shipped ahead of backend on staging. Prod bundle lacks the route entirely.
+evidence_needed: backend deploys the route (returns ≠404 for a valid-format token).
+verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64zeros}` weekly; record 404 vs non-404; ≤1 rps.
+impact: if route enabled: unauthenticated 64-hex license-token→credential oracle; severity low (tokens high-entropy).
+testability: PASSIVE
+[FINAL] ranked: 1) work /identities cross-subscription (52), 2) staging chat skew (50), 3) work.test license-token catch-up (45).
+[NEXT] PROBE: weekly staging catch-up check — single `GET https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000` and single `GET https://work.test.threema.ch/api-app/public/global/settings`; if license-token returns ≠404, escalate to valid-format token probes (never real tokens). ≤1 rps, GET only. (Chat CSP divergence test is defined but blocked on an authorized staging test identity — AUTH_HELPED.)
+[HYP] Work directory /identities cross-subscription metadata disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities (backend of work.threema.ch)
+confidence: 52
+reasoning: directory.openapi.yml:1172 flags `/identities` "currently buggy" (TWRK-1633); returns same-subscription contacts + work properties; host 401s on all paths (credential-gated) with CORS `*`; both prod+staging bundles frozen at v2.25.1 this cycle, work build still actively iterating.
+evidence_needed: whether subscription-membership filter can be induced (batch/wildcard/page bounds) to return out-of-subscription contacts or work properties.
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities mixing own-/foreign-subscription IDs; compare membership + property leak; probe page/size bounds; ≤1 rps.
+impact: cross-subscription disclosure of work-directory PII → targeted phishing; severity medium.
+testability: AUTH_HELPED
+[HYP] Staging chat mirror shows version/test-identity skew
+class: MISCONFIG
+asset: g-{00..ff}.0.test.threema.ch:5222 (203.56.114.34)
+confidence: 50
+reasoning: source-derived framing concrete (CspSocket reads SERVER_HELLO_LEN=80, SERVER_LOGIN_ACK_LEN=32, plain Socket on 5222); read-only connect returns 0 bytes on prod .202/.204 and staging .114.34 alike — server waits for client login frame; DNS topology newly mapped: staging is single-IP consolidation of a two-shard prod cluster (boundary 0x80), only group "0" resolves on either.
+evidence_needed: in-band difference in CSP server-hello/login-ack fields once a valid login frame is sent (version, test identity acceptance).
+verify_steps: AUTH_HELPED: with authorized staging test identity, send one framed login (16B cookie + 64B box + 32B ext-indicator + 24B reserved + 32B vouch) to staging vs prod 5222; compare server-hello/login-ack; ≤1 rps one attempt each, no data modification.
+impact: internet-reachable staging messenger backend → version skew/unpatched surface; severity low.
+testability: AUTH_HELPED
+[HYP] Staging work frontend/backend skew persists — license-token oracle if backend ships
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 45
+reasoning: staging bundle v2.25.1 implements GET (returns license username/password/expired/hasEmail) + PUT for the route; backend still returns method-agnostic 404 catch-all (900B) — re-confirmed this cycle; prod bundle has zero /public/* handlers; both builds frozen (hashes unchanged) so no catch-up in either direction.
+evidence_needed: backend deploys the route (returns ≠404 for a valid-format token).
+verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64zeros}` weekly; record 404 vs non-404; ≤1 rps.
+impact: if route enabled: unauthenticated 64-hex license-token→credential oracle; severity low (tokens high-entropy).
+testability: PASSIVE
+[NEXT] PROBE: weekly staging catch-up re-check — `GET https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000`, `GET https://work.test.threema.ch/api-app/public/global/settings`, and re-hash `GET https://work.test.threema.ch/cache/work_public.js`; escalate if license-token ≠404 (never real tokens). Executed this cycle: all three unchanged (404/200/hash-match), next run ~2026-08-15. ≤1 rps, GET only. Chat CSP handshake and /identities tests remain AUTH_HELPED (blocked on an authorized staging test identity).
