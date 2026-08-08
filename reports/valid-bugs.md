@@ -67,3 +67,19 @@
   - **Verdict: HOLD** — valid RAG target to unlock chat surface; no vuln to report yet. Action: grep client source for `ServerConfig`/`g-*.0.threema.ch`/`wss://` chat URL.
   - | 1 | Directory cluster identity→pubkey enumeration (fetch_bulk + GET /identity/{id}, CORS*, no rate-limit) | **VALID** (Medium) | Mass enumeration of valid IDs+pubkeys at scale; CVSS 4.3 |
   - | 4 | Desktop Windows key storage: no ACL on keystorage.bin + keystorage.password.bin | **VALID** (Medium) | Same-user process reads DPAPI password + encrypted keystore; CVSS 5.5 |
+
+- 14 lead(s) marked VALID at 2026-08-08 15:47:00 UTC
+  - | Q5 Novel? | ❌ **NO** — already ACCEPTED in KB (lines 20-21, 27, 59, 67, 80, 82, 85-86, 94, 99, 104); triaged as VALID in valid-bugs.md multiple times |
+  - | Q5 Novel? | ❌ **NO** — already ACCEPTED in KB (lines 26, 74, 77-78, 92, 108); triaged as VALID in valid-bugs.md |
+  - | Q5 Novel? | ❌ **NO** — already ACCEPTED in KB (lines 28-29, 61, 68, 93); triaged as VALID in valid-bugs.md |
+  - | Q3 Real impact? | ❌ NO — `GET /backups/{64hex}` returns 400 (not 200/401/404); requires valid backupId+backupKey; CORS* on credential-gated endpoint only matters if attacker already has credentials 
+  - | Q4 Passive proof? | ⚠️ Can confirm CORS headers + 400 response; cannot confirm data access without valid credentials |
+  - | Q6 Not always-rejected? | ❌ **NO** — CORS* on a credential-gated endpoint is best-practice/defense-in-depth, not a vulnerability (per valid-bugs.md precedent) |
+  - | Q7 Triager accept? | ❌ NO — no data access demonstrated; requires valid credentials |
+  - | Q2 Reachable? | ⚠️ AUTH_HELPED — requires valid credentials to test login flow |
+  - | Q5 Novel? | ⚠️ Not previously triaged in valid-bugs.md, but low confidence |
+  - | Q2 Reachable? | ⚠️ AUTH_HELPED — 401 on unauth; requires valid Work license |
+  - | Q5 Novel? | ⚠️ Not previously triaged in valid-bugs.md |
+  - **Verdict: HOLD.** OpenAPI flags it "currently buggy" but requires AUTH_HELPED with valid Work license. Retain for program-provided test credentials.
+  - | Q3 Real impact? | ⚠️ LOW — route presence + parameter-validation oracle; challenge-response still requires valid identity+secret |
+  - | **VALID (new)** | **0** | No novel, reportable findings |
