@@ -1,16 +1,8 @@
-## 2026-08-08 06:05:43 UTC [web] (model nemotron3)
-[NEW] `g-*.0.test.threema.ch` staging chat cluster confirmed reachable on single IP 203.56.114.34 (distinct from prod .112.202/.204), but no in-band HTTP divergence — only TCP 5222 accept with 0 bytes returned without client frame
-[NEW] `work.test.threema.ch` bundle divergence confirmed: work_public.js v2.25.1 DIFFERENT builds staging vs prod (staging sha256 e48e18f79df0125e8942f8fd9566f0c7924d15d7229377b553cf666b1bca7b87, prod 96501e2139ad9647e578ad1e03befca380d4f82c49434f3f3b13a14f354b67a7); staging implements `/api-app/public/global/settings` (GET) + `/api-app/public/license/token/{licenseToken}` (GET/PUT); prod bundle has ZERO `/public/*` handlers
-[NEW] `/api-app/public/license/token/{64hex}` on staging returns 404 HTML catch-all (900B) for GET, PUT, AND OPTIONS — method-agnostic; backend route not deployed; 64-char validation is client-side-only zod; not an oracle today
-[NEW] `/api-app/public/*` namespace map closed on both hosts — sole live public route = `/api-app/public/global/settings` (200, 299B, only appLinkHost + 3 app-download URLs, no license/user data)
-[NEW] `work.threema.ch` prod DOES route `/api-app` — GET `/api-app/me/profile` → 302 to `/en/login?r=%2Fapi-app%2Fme%2Fprofile`; only `/public/*` namespace absent on prod (404 catch-all) — divergence is public-namespace-specific
-[NEW] `g-*.0.{test.,}threema.ch` chat: read-only TCP connect to 5222 returns 0 bytes on BOTH staging (203.56.114.34) and prod (203.56.112.202) — no server-hello pushed without client frame; 443 also closes without TLS handshake both hosts. No passive in-band divergence obtainable; handshake requires authenticated login frame
-[NEW] `hcaptcha-work.threema.ch`: 200 serving hCaptcha's own Webflow marketing page (Last Published 2026-07-30) — third-party captcha host, out-of-scope service
-[NEW] `avatar.test.threema.ch` / `companylogo.test.threema.ch`: 403, byte-identical posture to prod avatar/companylogo 403 — no divergence; `broadcast.test` / `billing.test` → 000 (unreachable, matches prod TIMEOUT)
+## 2026-08-08 07:08:50 UTC [web] (model nemotron3)
 [PRIO] https://ds-apip.threema.ch/identity/{id} + /identity/fetch_bulk + https://api.threema.ch/identity/{id} + https://apip.threema.ch/identity/{id}, 8.35, attack=9 business=9 tech=8 gate=10 cloud=7 fresh=8
 [PRIO] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{id}, 8.15, attack=8 business=9 tech=8 gate=8 cloud=8 fresh=8
-[PRIO] https://work.test.threema.ch/api-app/public/*, 7.55, attack=7 business=7 tech=7 gate=10 cloud=6 fresh=10
 [PRIO] threema-desktop `apps/desktop/src/electron/electron-main.ts` BrowserWindow webPreferences, 7.40, attack=8 business=8 tech=7 gate=10 cloud=2 fresh=8
+[PRIO] https://work.test.threema.ch/api-app/public/*, 7.55, attack=7 business=7 tech=7 gate=10 cloud=6 fresh=10
 [PRIO] https://ds-apip-work.threema.ch/identities, 6.85, attack=7 business=8 tech=6 gate=8 cloud=6 fresh=6
 [HYP] Directory identity→pubkey oracle across 3 production hosts with CORS * + no rate limit
 class: IDOR

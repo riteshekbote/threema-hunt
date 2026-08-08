@@ -7371,3 +7371,165 @@ const INNER_KEY_STORAGE_V3_SCHEMA = v
 [93m[1m! [0mpermission requested: external_directory (/tmp/opencoe/threema-desktop/apps/desktop/src/common/internal-protobuf/*, /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/*); auto-rejecting
 [0m✗ [0mgrep -rn "identityPrivateKey\|identityKey\|privateKey\|PrivateKey\|keyPair\|KeyPair" /tmp/opencode/threema-desktop/apps/desktop/src/common/ 2>/dev/null | grep -v node_modules | grep -v ".spec." | grep -v "backupPhrase\|publicKey" | head -30; echo "=== PROTOBUF FULL ==="; cat /tmp/opencoe/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts 2>/dev/null | head -60 || cat /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts 2>/dev/null | head -60 failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST laguna 2026-08-08 07:09:30 UTC =====
+[0m
+> build · laguna-s-2.1-free
+[0m
+[0m$ [0mls /tmp/opencode/threema-desktop/ 2>/dev/null || ls /tmp/opencode/threema-desktop/apps/desktop/src 2>/dev/null || echo "NOT_CLONED"
+NOT_CLONED
+[0m
+[0m$ [0mls /tmp/opencode/ 2>/dev/null || echo "EMPTY"
+(no output)
+[0m
+[0m$ [0mls /tmp/opencode/threema-desktop/ 2>/dev/null; ls /tmp/opencode/ 2>/dev/null; ls /tmp/ 2>/dev/null | grep -i threema; ls reports/ 2>/dev/null | head -20; git log --oneline -5 2>/dev/null
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+cb32e8d triage 2026-08-08-07-07
+[0m
+[0m$ [0mls /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null; ls /tmp/opencal/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts 2>/dev/null; echo "---"; find /tmp -maxdepth 4 -name "electron-main.ts" 2>/dev/null; find /tmp -maxdepth 4 -name "key-storage" -type d 2>/dev/null
+---
+[0m
+The repo isn't cloned yet. The POC phase targets desktop source. Let me clone threema-desktop and examine the key files in parallel.
+[0m$ [0mgit clone --depth 1 https://github.com/threema-ch/threema-desktop /tmp/opencode/threema-desktop 2>&1 | tail -3
+Cloning into '/tmp/opencode/threema-desktop'...
+[0m
+[0m$ [0mfind /tmp/opencen/threema-desktop -maxdepth 1 -type f 2>/dev/null; find /tmp/opencen/threema-desktop -maxdepth 2 -type d 2>/dev/null | head; echo "---grep sandbox/webPreferences in electron-main---"; grep -n "sandbox\|webPreferences\|nodeIntegrationInWorker\|nodeIntegration\|contextIsolation\|safeStorage\|keystorage" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null | head -60
+---grep sandbox/webPreferences in electron-main---
+915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+916:            if (!fs.existsSync(safeStoragePasswordPath)) {
+921:            if (electron.safeStorage.isEncryptionAvailable()) {
+923:                    const encryptedPassword = fs.readFileSync(safeStoragePasswordPath);
+924:                    return electron.safeStorage.decryptString(encryptedPassword);
+930:                    'Electron safeStorage is not available (no password manager?), loading password skipped.',
+940:                if (electron.safeStorage.isEncryptionAvailable()) {
+941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+943:                        const encryptedPassword = electron.safeStorage.encryptString(password);
+945:                        fs.writeFileSync(safeStoragePasswordPath, encryptedPassword, options);
+952:                        'Electron safeStorage is not available (no password manager?), storing password skipped.',
+983:                    isSafeStorageAvailable: electron.safeStorage.isEncryptionAvailable(),
+1234:            webPreferences: {
+1240:                // `contextIsolation`, and sandboxing is enabled by default.
+1242:                // Unfortunately we cannot get rid of `nodeIntegrationInWorker` because preload
+1251:                nodeIntegration: false,
+1252:                nodeIntegrationInWorker: true, // TODO(DESK-79): Change to false once worker preload scripts are supported in Electron
+1253:                nodeIntegrationInSubFrames: false,
+1255:                // TODO(DESK-79): Enable `sandbox: true` once worker preload scripts are supported in Electron
+1262:                contextIsolation: true,
+1484:            case 'sandbox':
+1552:                        'sandbox allow-downloads allow-same-origin allow-scripts allow-forms allow-popups',
+1673:    // In internal test builds on sandbox, we enable crash reporting.
+[0m
+[0m$ [0mgrep -rn "new Worker(" /tmp/opencode/threema-desktop/apps/desktop/src/ 2>/dev/null | head -20; echo "---"; grep -rn "fileModeInternalObjectIfPosix" /tmp/opencode/threema-desktop/apps/desktop/src/ 2>/dev/null | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/webrtc/group-call.ts:281:            const mediaCryptoWorker = new Worker(
+/tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts:407:    const worker = new Worker(
+---
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/fs.ts:40:export function fileModeInternalObjectIfPosix(): ModeOrEmpty {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/electron-settings.ts:13:import {fileModeInternalObjectIfPosix} from '~/common/node/fs';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/electron-settings.ts:163:        const options = {...fileModeInternalObjectIfPosix()};
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:28:import {fileModeInternalObjectIfPosix} from '~/common/node/fs';
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:560:                ...fileModeInternalObjectIfPosix(),
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:36:import {directoryModeInternalObjectIfPosix, fileModeInternalObjectIfPosix} from '~/common/node/fs';
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts:944:                        const options = {...fileModeInternalObjectIfPosix()};
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/fs.ts[90m [offset=30, limit=40][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [offset=1228, limit=45][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [offset=905, limit=55][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts[90m [offset=545, limit=30][0m
+[0m
+[0m$ [0mgrep -n "Argon2\|argon2\|masterPassword\|deriveKey\|databaseKey\|identity\|KDF\|kdf\|outer\|inner" /tmp/opencen/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts 2>/dev/null | head -40; echo "=== crypto.ts KDF ==="; grep -n "Argon2\|argon2\|masterPassword\|determineKdf\|deriveKey\|KDF\|kdf\|storeIdentity\|restoreDb\|databaseKey\|identity" /tmp/opencen/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts 2>/dev/null | head -40; echo "=== crypto.ts ==="; grep -n "Argon2\|argon2\|masterPassword\|determineKdf\|deriveKey\|KDF\|kdf\|Salty\|salt\|password" /tmp/opencen/threema-desktop/apps/desktop/src/common/crypto.ts 2>/dev/null | head -40
+=== crypto.ts KDF ===
+=== crypto.ts ===
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts[90m [limit=25, offset=395][0m
+[0m
+[0m$ [0mgrep -n "Argon2\|argon2\|masterPassword\|deriveKey\|databaseKey\|storage.*identity\|outer\|inner\|LatestKeyStorage" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts 2>/dev/null | head -40
+2: * The key storage stores essential information about the identity of the user in a protobuf-encoded
+23:    LatestKeyStorageLayers,
+151:            readonly intermediate: LatestKeyStorageLayers['intermediate']['consumable'];
+155:        readonly intermediate: LatestKeyStorageLayers['intermediate']['consumable'];
+156:        readonly inner: LatestKeyStorageLayers['inner']['consumable'];
+172:                readonly outer: LatestKeyStorageLayers['outer']['consumable'];
+173:                readonly intermediate: LatestKeyStorageLayers['intermediate']['consumable'];
+174:                readonly inner: LatestKeyStorageLayers['inner']['consumable'];
+176:            readonly encoded: LatestKeyStorageLayers['outer']['encoded'];
+243:            readonly intermediate: LatestKeyStorageLayers['intermediate']['consumable'];
+244:            readonly inner: LatestKeyStorageLayers['inner']['consumable'];
+258:            contents.inner,
+271:        const outer = encodeLatestOuterKeyStorage(intermediate, {
+273:                $case: 'argon2id',
+274:                argon2id: kdfParams,
+279:        await this._writeOrOverrideFile(outer);
+300:        readonly intermediate: LatestKeyStorageLayers['intermediate']['consumable'];
+301:        readonly inner: LatestKeyStorageLayers['inner']['consumable'];
+307:        )) as unknown as LatestKeyStorageLayers['outer']['encoded'];
+313:        const {contents: inner, initialRemoteSecretStoreData} =
+314:            await decryptAndDecodeLatestInnerKeyStorage(intermediate.inner, this._services);
+323:            inner,
+330:    ): Promise<LatestKeyStorageLayers['intermediate']['consumable']> {
+335:        )) as unknown as LatestKeyStorageLayers['outer']['encoded'];
+359:        )) as unknown as LatestKeyStorageLayers['outer']['encoded'];
+360:        const {outer, intermediate} = await decryptAndDecodeLatestIntermediateKeyStorage(
+367:        const updatedIntermediate: LatestKeyStorageLayers['intermediate']['validated'] = {
+372:        // Encrypt updated intermediate and encode in outer.
+374:            intermediate.inner,
+378:                params: outer.kdfParameters.argon2id,
+382:        const encodedOuter = encodeLatestOuterKeyStorage(encryptedIntermediate, outer);
+398:        )) as unknown as LatestKeyStorageLayers['outer']['encoded'];
+399:        const {outer, intermediate} = await decryptAndDecodeLatestIntermediateKeyStorage(
+405:        // Re-encrypt intermediate with the new password and encode in outer.
+407:            intermediate.inner,
+411:                params: outer.kdfParameters.argon2id,
+415:        const encodedOuter = encodeLatestOuterKeyStorage(encryptedIntermediate, outer);
+431:        )) as unknown as LatestKeyStorageLayers['outer']['encoded'];
+432:        const {outer, intermediate} = await decryptAndDecodeLatestIntermediateKeyStorage(
+437:        const {contents: inner} = await decryptAndDecodeLatestInnerKeyStorage(
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop -name "*.ts" | xargs grep -ln "argon2\|Argon2id\|determineKdf" 2>/dev/null | head; echo "=== crypto files ==="; find /tmp/opencode/threema-desktop -name "crypto*" -o -name "*crypt*" 2>/dev/null | grep "\.ts$" | head
+/tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/v1.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/v2.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/common.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/test/mocha/common/node/key-storage/file-system-key-storage.spec.ts
+=== crypto files ===
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/crypto.d.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/file-storage/file-crypto.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/test/mocha/common/crypto/crypto-box.spec.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/test/mocha/common/node/file-storage/file-crypto.spec.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/test/mocha/common/data/crypto-box-test-cases.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/media-crypto-worker.ts
+/tmp/opencode/threema-desktop/packages/protocol/src/structbuf/extra/crypto.ts
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts[90m [limit=100, offset=1][0m
+[0m
+[0m$ [0mgrep -rn "databaseKey\|identityData\|identity.*private\|\.identity\b" /tmp/opencen/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts /tmp/opencen/threema-desktop/apps/desktop/src/common/key-storage/ 2>/dev/null | head -30; echo "=== restore-db ==="; find /tmp/opencode/threema-desktop -name "restore-db*" | head; echo "=== grep databaseKey in key-storage ==="; grep -rn "databaseKey\|databaseKey" /tmp/opencen/threema-desktop/apps/desktop/src/common/ 2>/dev/null | head -20
+=== restore-db ===
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/restore-db.ts
+=== grep databaseKey in key-storage ===
+[0m
+[0m$ [0mgrep -rn "databaseKey" /tmp/opencen/threema-desktop/apps/desktop/src/common/ 2>/dev/null | head -20
+(no output)
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/restore-db.ts[90m [limit=60, offset=1][0m
+[0m
+[0m$ [0mgrep -rn "require(\|eval(\|process\.mainModule\|child_process\|fs\.\|import(" /tmp/opencen/threema-desktop/apps/desktop/src/worker/ 2>/dev/null | grep -v node_modules | grep -v "\.spec\." | head -30; echo "=== worker files ==="; find /tmp/opencen/threema-desktop/apps/desktop/src/worker -name "*.ts" | head -30
+=== worker files ===
+find: ‘/tmp/opencen/threema-desktop/apps/desktop/src/worker’: No such file or directory
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/opencen/threema-desktop/apps/desktop/src/common/dom/webrtc/*); auto-rejecting
+[0m✗ [0mRead /tmp/opencen/threema-desktop/apps/desktop/src/common/dom/webrtc/group-call.ts failed[90m [limit=20, offset=270][0m
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

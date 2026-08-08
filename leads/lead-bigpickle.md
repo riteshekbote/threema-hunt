@@ -1020,3 +1020,4 @@ verify_steps: PASSIVE (limited): single GET / captures fresh csrf+SESSIONID to c
 impact: self-session challenge issuance at most self-DoS; severity low.
 testability: PASSIVE
 [NEXT] PROBE: weekly catch-up checks — single GET `https://work.test.threema.ch/api-app/public/global/settings` and single GET `https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000`; if license-token returns ≠404, escalate to valid-format token probes (never real tokens); ≤1 rps, GET only.
+## 2026-08-08 07:08:54 UTC [chat] (model bigpickle)

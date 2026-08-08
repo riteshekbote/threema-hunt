@@ -8117,3 +8117,182 @@ testability: PASSIVE
 - [RISK] sync: 60 reason: mediator/rendezvous resolve with split routing, uniform 403; WSS paths high-entropy; auth model source-only
 - [RISK] safe: 85 reason: safe-01 live, CORS* + write methods + Authorization header + HSTS/Expect-CT; credential-gated (400) but cross-origin credentialed requests possible; 5 hostnames → single IP; no 429 observed
 - [RISK] desktop-src: 85 reason: Electron sandbox:false + nodeIntegrationInWorker:true (TODO DEK-79); Windows key-storage ACL bypass ACCEPTED; OnPrem config trust REJECTED (verified); staging URLs baked into builds
+===== ANALYST bigpickle 2026-08-08 07:09:30 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -m 15 -o /tmp/broadcast_public.js -w "%{http_code} %{size_download}\n" "https://broadcast.threema.ch/cache/broadcast_public.js"
+200 1125461
+[0m
+[0m$ [0mgrep -o 'assertion_response\|challenge\|publicKeyOptions\|/start\|passkey' /tmp/broadcast_public.js | sort | uniq -c | sort -rn | head -30
+8 challenge
+      2 passkey
+      1 assertion_response
+      1 /start
+[0m
+[0m$ [0mgrep -oE '`[^`]*\$\{[a-z]\}[^`]*`' /tmp/broadcast_public.js | head -40
+`[Vue warn]: ${t}`
+`... (${e} recursive calls)`
+`${t}=${e}`
+`${t}=${e}`
+`${t}=Ref<`
+`${t}=fn${e.name?`
+`${t}=`
+`https://vuejs.org/error-reference/#runtime-${n}`
+`_${e}`
+`${e}Modifiers`
+`<svg>${t}</svg>`
+`<math>${t}</math>`
+`${n}-enter-from`
+`${n}-enter-active`
+`${n}-enter-to`
+`${n}-leave-from`
+`${n}-leave-active`
+`${n}-leave-to`
+`${n}Key`
+`<span class="${u}">`
+`Resource failed to load: <${l.toLowerCase()}> ${a}`
+`${iT}[${t}]:`
+`Error while instrumenting ${t}`
+`[object ${e}]`
+`Failed to replace method "${e}" in object`
+`**non-serializable** (${s})`
+`[${e}]`
+`**non-serializable** (${n})`
+`${a}://${l}${e&&i?`
+`:""}@${n}${r?`
+`${s}/`
+`Invalid Sentry Dsn: ${t}`
+`Invalid Sentry Dsn: ${o} missing`
+`Invalid Sentry Dsn: Invalid port ${e}`
+`Invalid Sentry Dsn: Invalid protocol ${s}`
+`Invalid Sentry Dsn: Invalid projectId ${n}`
+`${o}`
+`op: ${n}`
+`name: ${e}`
+`ID: ${i}`
+[0m
+[0m$ [0mgrep -oE '.{200}assertion_response.{200}' /tmp/broadcast_public.js | head -3
+lient: completing assertion ceremony at "${r}"`);const D=await fetch(r,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({csrf_public_login_access:i,assertion_response:JSON.stringify(u)})});v(`Server: "${D.statusText} ${D.status}"`),D.ok?(g||(window.location.href=l),n(6,b=!1)):(D.status===401&&n(7,w=f),D.status===500&&n(7,w=d),v("Authentication complete failed"),n(
+[0m
+[0m$ [0mgrep -oE '.{120}/start.{120}' /tmp/broadcast_public.js | head -5
+,t))}function A(e){return e.replace(/left|right|bottom|top/g,(function(e){return G[e]}))}function H(e){return e.replace(/start|end/g,(function(e){return J[e]}))}function R(e,t,n){return void 0===n&&(n={x:0,y:0}),{top:e.top-t.height-n.y,right:e.ri
+[0m
+[0m$ [0mgrep -oE '.{150}challenge.{150}' /tmp/broadcast_public.js | head -6
+!(It.indexOf(t)<0))return t}async function Dt(t){var m;if(!$e())throw new Error("WebAuthn is not supported in this browser");const n={publicKey:{...t,challenge:ve(t.challenge),user:{...t.user,id:Nt(t.user.id)},excludeCredentials:(m=t.excludeCredentials)==null?void 0:m.map(Xe)}};n.signal=Te.createNewAbortSign
+supported in this browser");let n;((f=t.allowCredentials)==null?void 0:f.length)!==0&&(n=(m=t.allowCredentials)==null?void 0:m.map(Xe));const s={...t,challenge:ve(t.challenge),allowCredentials:n},r={};if(e){if(!await Fe())throw Error("Browser does not support WebAuthn autofill");if(document.querySelectorAll(
+ew URLSearchParams({csrf_user_passkey_register:a,options:JSON.stringify(u)})}),ot=await D.json();$(`Server: ${D.status} ${D.statusText} - here's your challenge: "${ot.challenge}"`),$('Client: Creating attestation response at "navigator.credentials.create()"');const ln=await Dt(ot);$(`Client: Completing attes
+:"application/x-www-form-urlencoded"},body:new URLSearchParams({csrf_public_login_access:i})})).json()):Te.cancelCeremony(),v(`Server: sign this your challenge "${$.challenge}"`),v('Client: Creating assertion response at "navigator.credentials.get()"'),await qt($,u)}catch(D){n(5,_=!1),D instanceof Error&&D.n
+[0m
+[0m$ [0mgrep -oE '.{400}Server: sign this your challenge.{100}' /tmp/broadcast_public.js | head -2
+e pending conditional ui ceremony"),Te.cancelCeremony(),$=void 0);const u=await O(!1);u&&await z(u)},O=async u=>{n(5,_=!u),n(6,b=!1);try{return M(),$===void 0?(v(`Client: initiating assertion ceremony at "${s}"`),$=await(await fetch(s,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({csrf_public_login_access:i})})).json()):Te.cancelCeremony(),v(`Server: sign this your challenge "${$.challenge}"`),v('Client: Creating assertion response at "navigator.credentials.get()"'),await
+[0m
+[0m$ [0mgrep -oE '.{600}Client: initiating assertion ceremony' /tmp/broadcast_public.js | head -1
+,{redirectUrl:l}=e,{actionText:o}=e,{actionClassNames:a=""}=e,{retryText:c}=e,{errorText:d}=e,{unsupportedText:f}=e,{autofill:m=!1}=e,{verbose:g=!1}=e,h=!1,p=!1,_=!1,b=!1,w,y=[],$;const{log:v,clearLogs:M,logsStore:k}=et();g&&k.subscribe(u=>{n(8,y=u)}),je(async()=>{if(n(4,h=$e()),p=await Fe(),h&&p&&m){const u=await O(!0);u&&await z(u)}});const I=async()=>{$!==void 0&&(v("options have already been fetched from the server, cancelling the pending conditional ui ceremony"),Te.cancelCeremony(),$=void 0);const u=await O(!1);u&&await z(u)},O=async u=>{n(5,_=!u),n(6,b=!1);try{return M(),$===void 0?(v(`Client: initiating assertion ceremony
+[0m
+[0m$ [0mgrep -oE '.{800}redirectUrl:l,{actionText' /tmp/broadcast_public.js | head -1
+(no output)
+[0m
+[0m$ [0mgrep -oE 'redirectUrl:l' /tmp/broadcast_public.js | wc -l; grep -oE '.{0,80}redirectUrl:l.{0,200}' /tmp/broadcast_public.js | head -6
+1
+nction rn(t,e,n){let{startEndpoint:s}=e,{completeEndpoint:r}=e,{csrfToken:i}=e,{redirectUrl:l}=e,{actionText:o}=e,{actionClassNames:a=""}=e,{retryText:c}=e,{errorText:d}=e,{unsupportedText:f}=e,{autofill:m=!1}=e,{verbose:g=!1}=e,h=!1,p=!1,_=!1,b=!1,w,y=[],$;const{log:v,clearLogs:M,logsStore:k
+[0m
+[0m$ [0mgrep -oE '.{250}startEndpoint.{250}' /tmp/broadcast_public.js | head -8
+c,1)):(c=nt(d),c.c(),A(c,1),c.m(r.parentNode,r)):c&&(X(),x(c,1,1,()=>{c=null}),G())},i(d){i||(A(n),A(c),i=!0)},o(d){x(n),x(c),i=!1},d(d){d&&(R(s),R(r)),o[e].d(d),c&&c.d(d)}}}function Qt(t,e,n){let{linkText:s}=e,{errorText:r}=e,{unsupportedText:i}=e,{startEndpoint:l}=e,{completeEndpoint:o}=e,{csrfToken:a}=e,{unsupportedBrowserText:c}=e,{inputPlaceholder:d=""}=e,{inputClassNames:f=""}=e,{linkClassNames:m=""}=e,{verbose:g=!1}=e,h=!1,p="",_=!1,b=!1,w,y=[];const{log:$,clearLogs:v,logsStore:M}=et();g&&M.subscribe(
+u.name==="AbortError"?($("Ignoring aborted ceremonies"),!0):(n(6,b=!0),!1)}};function z(){p=this.value,n(8,p)}return t.$$set=u=>{"linkText"in u&&n(0,s=u.linkText),"errorText"in u&&n(13,r=u.errorText),"unsupportedText"in u&&n(14,i=u.unsupportedText),"startEndpoint"in u&&n(15,l=u.startEndpoint),"completeEndpoint"in u&&n(16,o=u.completeEndpoint),"csrfToken"in u&&n(17,a=u.csrfToken),"unsupportedBrowserText"in u&&n(1,c=u.unsupportedBrowserText),"inputPlaceholder"in u&&n(2,d=u.inputPlaceholder),"inputClassNames"in
+"in u&&n(4,m=u.linkClassNames),"verbose"in u&&n(5,g=u.verbose)},t.$$.update=()=>{t.$$.dirty&64&&b&&k()},[s,c,d,f,m,g,b,h,p,_,w,y,I,r,i,l,o,a,z]}class Zt extends Ee{constructor(e){super(),be(this,e,Qt,Jt,se,{linkText:0,errorText:13,unsupportedText:14,startEndpoint:15,completeEndpoint:16,csrfToken:17,unsupportedBrowserText:1,inputPlaceholder:2,inputClassNames:3,linkClassNames:4,verbose:5},Vt)}get linkText(){return this.$$.ctx[0]}set linkText(e){this.$$set({linkText:e}),E()}get errorText(){return this.$$.ctx[13
+),E()}}customElements.define("webauthn-registration",ye(Zt,{linkText:{reflect:!1,type:"String",attribute:"link-text"},errorText:{reflect:!1,type:"String",attribute:"error-text"},unsupportedText:{reflect:!1,type:"String",attribute:"unsupported-text"},startEndpoint:{reflect:!1,type:"String",attribute:"start-endpoint"},completeEndpoint:{reflect:!1,type:"String",attribute:"complete-endpoint"},csrfToken:{reflect:!1,type:"String",attribute:"csrf-token"},unsupportedBrowserText:{reflect:!1,type:"String",attribute:"u
+),x(r,1,1,()=>{r=null}),G()),l[3]?i?(i.p(l,o),o&8&&A(i,1)):(i=it(l),i.c(),A(i,1),i.m(n.parentNode,n)):i&&(X(),x(i,1,1,()=>{i=null}),G())},i(l){s||(A(r),A(i),s=!0)},o(l){x(r),x(i),s=!1},d(l){l&&(R(e),R(n)),r&&r.d(l),i&&i.d(l)}}}function rn(t,e,n){let{startEndpoint:s}=e,{completeEndpoint:r}=e,{csrfToken:i}=e,{redirectUrl:l}=e,{actionText:o}=e,{actionClassNames:a=""}=e,{retryText:c}=e,{errorText:d}=e,{unsupportedText:f}=e,{autofill:m=!1}=e,{verbose:g=!1}=e,h=!1,p=!1,_=!1,b=!1,w,y=[],$;const{log:v,clearLogs:M,lo
+)})});v(`Server: "${D.statusText} ${D.status}"`),D.ok?(g||(window.location.href=l),n(6,b=!1)):(D.status===401&&n(7,w=f),D.status===500&&n(7,w=d),v("Authentication complete failed"),n(6,b=!0),n(5,_=!1))}catch{n(5,_=!1),n(6,b=!0)}};return t.$$set=u=>{"startEndpoint"in u&&n(10,s=u.startEndpoint),"completeEndpoint"in u&&n(11,r=u.completeEndpoint),"csrfToken"in u&&n(12,i=u.csrfToken),"redirectUrl"in u&&n(13,l=u.redirectUrl),"actionText"in u&&n(0,o=u.actionText),"actionClassNames"in u&&n(1,a=u.actionClassNames),"r
+rorText"in u&&n(14,d=u.errorText),"unsupportedText"in u&&n(15,f=u.unsupportedText),"autofill"in u&&n(16,m=u.autofill),"verbose"in u&&n(3,g=u.verbose)},[o,a,c,g,h,_,b,w,y,I,s,r,i,l,d,f,m]}class on extends Ee{constructor(e){super(),be(this,e,rn,sn,se,{startEndpoint:10,completeEndpoint:11,csrfToken:12,redirectUrl:13,actionText:0,actionClassNames:1,retryText:2,errorText:14,unsupportedText:15,autofill:16,verbose:3},en)}get startEndpoint(){return this.$$.ctx[10]}set startEndpoint(e){this.$$set({startEndpoint:e}),E
+.$$set({unsupportedText:e}),E()}get autofill(){return this.$$.ctx[16]}set autofill(e){this.$$set({autofill:e}),E()}get verbose(){return this.$$.ctx[3]}set verbose(e){this.$$set({verbose:e}),E()}}customElements.define("webauthn-authentication",ye(on,{startEndpoint:{reflect:!1,type:"String",attribute:"start-endpoint"},completeEndpoint:{reflect:!1,type:"String",attribute:"complete-endpoint"},csrfToken:{reflect:!1,type:"String",attribute:"csrf-token"},redirectUrl:{reflect:!1,type:"String",attribute:"redirect-url
+[0m
+[0m$ [0mgrep -oE '.{100}passkey.{150}' /tmp/broadcast_public.js | head -8
+T",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({csrf_user_passkey_register:a,options:JSON.stringify(u)})}),ot=await D.json();$(`Server: ${D.status} ${D.statusText} - here's your challenge: "${ot.challenge}"`),$('Cli
+T",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({csrf_user_passkey_register:a,authenticator_name:p,attestation_response:JSON.stringify(ln)}),redirect:"follow"});return $(`Server: ${ne.status} ${ne.statusText}`),ne.ok
+[0m
+[0m$ [0mgrep -oE '"/en[^"]*"' /tmp/broadcast_public.js | sort -u | head -20
+"/en/faq#api\"
+[0m
+[0m$ [0mcurl -s -m 15 -o /tmp/bcast_login.html -w "%{http_code} %{size_download}\n" "https://broadcast.threema.ch/en/login"; grep -oE 'webauthn-[a-z]+[^>]*' /tmp/bcast_login.html | head -5
+200 5101
+webauthn-authentication start-endpoint='/en/login/passkey/start' complete-endpoint='/en/login/passkey/complete' csrf-token='5c91d2bb0c1e6dce5f2d4350fb4465e56f622ab8' redirect-url='/en/login?r=https%3A%2F%2Fbroadcast.threema.ch%2F' action-text='Login with a Passkey' retry-text='Retry Passkey Login' error-text='Passkey Login failed' unsupported-text='Unable to sign in with your passkey.' action-classnames='button submit secondary' autofill 
+webauthn-authentication
+[0m
+[0m$ [0mcurl -s -m 15 -D - -o /dev/null "https://broadcast.threema.ch/en/login" | grep -iE '^(HTTP|csp|strict-transport|set-cookie|x-|content-security|rate)' | head -20
+HTTP/2 200 
+set-cookie: SESSIONID=e9hghgsmap5g9v83bd4smuo319; path=/; secure; HttpOnly; SameSite=Strict
+strict-transport-security: max-age=31104000; includeSubdomains
+content-security-policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-broadcast.threema.ch; frame-src https://hcaptcha-assets.threema.ch; img-src 'self' https://static.threema.ch https://avatar.threema.ch data:; media-src 'self' data: blob:; connect-src 'self' https://bugs.threema.ch https://hcaptcha-assets.threema.ch; object-src 'none'; worker-src 'self' blob:; child-src blob: https://hcaptcha-assets.threema.ch; frame-ancestors 'none'; form-action 'self' https://billing.threema.ch; upgrade-insecure-requests; base-uri https://broadcast.threema.ch; report-uri https://bugs.threema.ch/api/5/security/?sentry_key=b0684a0dbe2f422fa9d6708c5466ca20; report-to default
+x-frame-options: DENY
+strict-transport-security: max-age=31536000; includeSubdomains
+[0m
+[0m$ [0msleep 1; curl -s -m 15 -D - -o /dev/null "https://broadcast.threema.ch/" | grep -iE '^(HTTP|content-security|strict-transport|set-cookie)' | head -6
+HTTP/2 301 
+set-cookie: SESSIONID=87si4s0tgj0v9njkg5co4pts6s; path=/; secure; HttpOnly; SameSite=Strict
+strict-transport-security: max-age=31104000; includeSubdomains
+content-security-policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-broadcast.threema.ch; frame-src https://hcaptcha-assets.threema.ch; img-src 'self' https://static.threema.ch https://avatar.threema.ch data:; media-src 'self' data: blob:; connect-src 'self' https://bugs.threema.ch https://hcaptcha-assets.threema.ch; object-src 'none'; worker-src 'self' blob:; child-src blob: https://hcaptcha-assets.threema.ch; frame-ancestors 'none'; form-action 'self' https://billing.threema.ch; upgrade-insecure-requests; base-uri https://broadcast.threema.ch; report-uri https://bugs.threema.ch/api/5/security/?sentry_key=b0684a0dbe2f422fa9d6708c5466ca20; report-to default
+strict-transport-security: max-age=31536000; includeSubdomains
+[0m
+Probes run (4 requests total, ≤1 rps, GET/HEAD only): fetched `broadcast_public.js` (v2.28.1, 200, 1,125,461B), `/en/login` (200) and `/` (301), both with headers.
+
+=== STEP 1 — DELTA ===
+- [CHANGED] broadcast.threema.ch now serves HSTS (max-age=31104000/31536000) + full CSP + `SESSIONID` (Secure/HttpOnly/SameSite=Strict) on BOTH `/` (301) and `/en/login` (200) — prior cycle recorded "no CSP/HSTS on served pages"; posture is hardened, not naked.
+- [NEW] WebAuthn ceremony paths resolved from LIVE login HTML (not bundle-derived): `start-endpoint=/en/login/passkey/start`, `complete-endpoint=/en/login/passkey/complete`, csrf field `csrf_public_login_access` on `webauthn-authentication`; registration twin uses `csrf_user_passkey_register` + `attestation_response`.
+- [NEW] CSP leaks new hostnames: `hcaptcha-broadcast.threema.ch` (script-src), `hcaptcha-assets.threema.ch` (frame/connect-src), `bugs.threema.ch` (Sentry connect), plus `form-action 'self' https://billing.threema.ch` (broadcast login may POST to billing).
+- [NEW] Bundle confirms challenge POST is session+csrf-bound: assertion start posts `csrf_public_login_access` and expects `{challenge}` JSON; prior cycle's orphaned-csrf→401 observation is consistent with the source.
+
+=== STEP 2 — PRIORITIZE ===
+- [PRIO] ds-apip.threema.ch/api.threema.ch/apip.threema.ch directory oracle: score 6.95 (attack 8, business 8, tech 5, gate 10, cloud 3, fresh 4)
+- [PRIO] broadcast.threema.ch passkey ceremony + cockpit: score 6.25 (attack 6, business 6, tech 7, gate 8, cloud 2, fresh 8)
+- [PRIO] gateway.threema.ch control-plane: score 5.50 (attack 6, business 6, tech 5, gate 7, cloud 2, fresh 5)
+
+=== STEP 3 — HYPOTHESES ===
+- [HYP] Directory fetch_bulk unauthenticated batch amplification
+  class: BUSLOGIC
+  asset: https://ds-apip.threema.ch/identity/fetch_bulk
+  confidence: 50
+  reasoning: Accepted IDOR record shows POST fetch_bulk returns pubkeys for valid IDs, no auth, no rate limit (30 POSTs @1rps all 200); batch size is unconstrained in the confirmed surface. A large JSON array of IDs would be a cheap unauthenticated query against the backend.
+  evidence_needed: response for batch of 1000+ IDs — 200 (no cap) vs 413/429 (cap/limit exists).
+  verify_steps: PASSIVE: at ≤1 rps, three single POSTs with arrays of 1 / 100 / 1000 fabricated-format 8-char IDs; record status + body size + any RateLimit/Retry-After headers; no data modification, no real IDs.
+  impact: request amplification / backend load from the public unauthenticated endpoint; severity low (no data beyond per-ID pubkey oracle already accepted).
+  testability: PASSIVE
+- [HYP] Broadcast challenge issuance carries no rate-limit once session+csrf valid
+  class: AUTH
+  asset: https://broadcast.threema.ch/en/login/passkey/start
+  confidence: 48
+  reasoning: Ceremony paths now fully resolved in live HTML; server issues SESSIONID+csrf on any unauth GET (observed); start POST is session+csrf-bound (orphaned csrf → 401) so cross-user leverage is absent. Only open question is whether a valid-session POST to start is throttled.
+  evidence_needed: one valid-session POST to /en/login/passkey/start returning challenge + presence/absence of 429/RateLimit headers.
+  verify_steps: PASSIVE (limited): single GET / to capture fresh csrf+SESSIONID, then ONE POST challenge (side-effect, deferred to next cycle); record status+headers; do not complete ceremony.
+  impact: at most self-session challenge issuance / self-DoS; severity low.
+  testability: PASSIVE
+- [HYP] Gateway /api nginx-deny escape via method or extension
+  class: AUTH
+  asset: https://gateway.threema.ch/api/*
+  confidence: 45
+  reasoning: All 9 probed /api paths return uniform nginx 403 (146B) — a deny rule, not absence; nginx location blocks are commonly bypassable via method (TRACE/PROPFIND) or path tricks (/api//, /api/. , %2e, /API).
+  evidence_needed: a /api subpath returning ≠nginx-403 (404/200/405 from the app layer) proving rule escape.
+  verify_steps: PASSIVE: GET with path variants `/api//`, `/api/.`, `/api/%2e`, `/API/`, and HEAD/OPTIONS on `/api/v1/`; record status; ≤1 rps.
+  impact: reach the gated control-plane route map; severity low until a real endpoint is exposed.
+  testability: PASSIVE
+
+=== STEP 4 — SELF-CRITIQUE ===
+- [PARKED] Broadcast passkey self-provisioned ceremony (42→48): retained (endpoints now resolved in live HTML, adds concrete evidence); kept in revised form above.
+- [PARKED] Gateway forgot-password email enumeration: dropped this cycle — requires authorized account mapping (AUTH_HELPED), no new evidence, revisit only with authorized creds.
+- [PARKED] hcaptcha-broadcast/hcaptcha-assets confirmation: third-party captcha hosts, out-of-scope per program rules; delta note suffices, not a hypothesis.
+- [FINAL] 1) ds-apip fetch_bulk batch amplification (BUSLOGIC, 50) 2) broadcast challenge rate-limit (AUTH, 48) 3) gateway /api deny-escape (AUTH, 45)
+
+=== STEP 5 — NEXT ACTION ===
+- [NEXT] PROBE: three escalating single POSTs to `https://ds-apip.threema.ch/identity/fetch_bulk` (bodies: `["AAAAAAAA","BBBBBBBB"]`, then ~100, then ~1000 8-char dummy IDs) at ≤1 rps, recording http_code + response size + RateLimit/Retry-After headers; 2s sleep between requests; no real IDs, no data modification.
+
+=== STEP 6 — LEARNING ===
+- [LEARN] ACCEPTED AUTH @ broadcast.threema.ch: WebAuthn ceremony endpoints resolved from live HTML (`/en/login/passkey/start`, `/en/login/passkey/complete`); challenge POST is session+csrf-bound (orphaned csrf → 401) — self-session ceremony only, no cross-user leverage.
+- [LEARN] REJECTED MISCONFIG @ broadcast.threema.ch: prior "no CSP/HSTS" claim — `/` and `/en/login` now serve HSTS + full CSP (script-src incl. hcaptcha-broadcast.threema.ch, frame/connect hcaptcha-assets, Sentry bugs.threema.ch; form-action self + billing.threema.ch) + SameSite=Strict SESSIONID.
+- [LEARN] ACCEPTED OTHER @ broadcast.threema.ch CSP: leaks hcaptcha-broadcast.threema.ch + hcaptcha-assets.threema.ch (third-party captcha hosts, out-of-scope — matches hcaptcha-work.threema.ch pattern) and `form-action https://billing.threema.ch`.
+
+=== STEP 7 — RISK SCORE ===
+- [RISK] chat: 60 reason: g-*.0.threema.ch prod pattern still unenumerated; staging single-IP cluster reachable but 0-byte 5222 accept only; no HTTP divergence obtainable passively
+- [RISK] web: 90 reason: ds-apip/api/apip cluster keeps 3 prod hosts with public 200/404 identity oracle + fetch_bulk 200 + CORS * + no rate-limit; safe-01 backup CORS * + Authorization header; broadcast ceremony surface now resolved but session-gated
+- [RISK] sync: 60 reason: mediator/rendezvous split-routing resolved but uniform 403; WSS high-entropy paths, auth model in source only
+- [RISK] safe: 85 reason: safe-01 live CORS * with write methods + Allow-Headers Authorization; credential-gated (400) but cross-origin credentialed requests possible; 5 hostnames single IP
+- [RISK] desktop-src: 85 reason: Electron sandbox disabled + nodeIntegrationInWorker (TODO DEK-79); Windows key-storage ACL bypass accepted; OnPrem config trust rejected (Ed25519 verified)
