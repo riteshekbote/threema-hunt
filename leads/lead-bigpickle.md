@@ -1118,3 +1118,31 @@ testability: PASSIVE
 [RISK] sync: 40 reason: mediator/rendezvous uniform 403; WSS paths high-entropy; auth model in source
 [RISK] safe: 65 reason: credential-gated but CORS `*` + Authorization header + write-capable methods + 5 hostnames/1 IP; no 429 observed; no data access demonstrated
 [RISK] desktop-src: 75 reason: one real (unproven-on-Windows) finding — key-storage ACL gap; sandbox:false HOLD; OnPrem trust chain secure; no new secrets in scans
+## 2026-08-08 09:08:11 UTC [chat] (model bigpickle)
+[HYP] fetch_bulk batch-size cap and enumeration throughput unmeasured
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (mirrors api/apip)
+confidence: 45
+reasoning: KB confirms unauth fetch_bulk returns pubkeys for valid IDs only (silent omit) with CORS * + no 429 across 30 sequential POSTs; batch-size cap and large-batch response shape never measured. CORS `*` with POST allowed means a hostile page can enumerate from a visitor's browser cross-origin.
+evidence_needed: whether a >N-ID batch yields partial/silent-omit vs 400/413; whether invalid-only batch returns empty array (200) — response-shape oracle at scale.
+verify_steps: PASSIVE, gated on operator confirmation: single POST fetch_bulk with ~20 synthetic IDs (valid-format + invalid mix), 1 rps, record status/body; no real user IDs; no POSTs until GO confirmed.
+impact: valid-ID enumeration at scale from any origin; low-medium (pubkeys are public by design; enumeration is the incremental harm).
+testability: PASSIVE
+[HYP] work.test license-token backend ships → unauthenticated 64-hex credential oracle
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 40
+reasoning: staging bundle v2.25.1 implements GET {username?,password?,expired,hasEmail} + PUT for 64-char tokens; backend currently 404 catch-all (method-agnostic). If the route deploys, fake-64hex → ≠404 becomes a valid-format oracle and any valid token leaks license creds unauth.
+evidence_needed: response ≠404 HTML catch-all (900B) for a 64-char token on staging.
+verify_steps: PASSIVE, gated: weekly single GET /api-app/public/global/settings + single GET /api-app/public/license/token/{64zeros}; escalate only on non-404; ≤1 rps; never real tokens.
+impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
+testability: PASSIVE
+[HYP] safe-01 backup existence oracle pre-auth via response-shape
+class: AUTH
+asset: https://safe-01.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: KB shows /backups/{64hex} → 400 (credential-gated route) vs /backup/{x} → 404 (no route) — backend distinguishes routes pre-auth. Open: within /backups/*, is 400 invariant across IDs or does shape vary (401/404) by ID validity?
+evidence_needed: whether 400 is byte-invariant for random 64-hex IDs (no oracle) vs variant (existence oracle).
+verify_steps: PASSIVE, gated: 2-3 single GETs of random 64-hex IDs, 1 rps, compare status/body against known 400 baseline; no real-user IDs.
+impact: if variant, backup-existence oracle; low-medium, no data access.
+testability: PASSIVE

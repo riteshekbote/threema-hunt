@@ -532,3 +532,29 @@ verify_steps: PASSIVE (DONE): OPTIONS → CORS `*` + Authorization + write metho
 impact: Cross-origin backup-ID existence enumeration (400-vs-404 oracle) + credentialed cross-origin reads of the backup store. Valid credentials → full identity keypair + message-history backup. **Severity: High.**
 testability: PASSIVE + AUTH_HELPED
 [FINAL] ranked: 1) Desktop Windows key-storage ACL bypass (conf 95, RAG/AUTH_HELPED-LOCAL), 2) Desktop BrowserWindow no-sandbox + nodeIntegrationInWorker gap (conf 65, RAG, conditional on secondary bug), 3) Safe backup cross-origin credentialed read + existence oracle (conf 75, PASSIVE/AUTH_HELPED).
+## 2026-08-08 09:15:38 UTC [desktop] (model laguna)
+class: MISCONFIG
+asset: apps/desktop/src/common/node/{fs.ts:40-41, key-storage/index.ts:555-561, electron-main.ts:924,940-945} + inner/v3.ts:65,70 + sqlite.ts:236-240 + vite.config.ts:339,344
+confidence: 95
+reasoning: RAG-VERIFIED TODAY: fileModeInternalObjectIfPosix() returns {} on win32 (fs.ts:41). _writeOrOverrideFile (index.ts:559-561) spreads {} → no ACL on keystorage.bin. STORE_USER_PASSWORD (electron-main.ts:944-945) writes keystorage.password.bin via safeStorage.encryptString (DPAPI) with same {} options → no ACL. deriveKeyFromPassword (crypto.ts:53-88) uses Argon2id + XSalsa20-Poly1305. Inner layer v3 (v3.ts:65,70) decodes protobuf to identityData.ck (32-byte Ed25519 private key, keys.ts:14-20) + databaseKey (32-byte RawDatabaseKey, db/index.ts:69,77). SqliteDatabaseBackend (sqlite.ts:236-242) uses dbKey directly as SQLCipher PRAGMA key. File paths confirmed: KEY_STORAGE_PATH=['data','keystorage.bin'], SAFE_STORAGE_PASSWORD_PATH=['data','keystorage.password.bin'] (vite.config.ts:339,344). Windows base dir: %APPDATA%\ThreemaDesktop (electron-utils.ts:65-69). restore-db.ts:44-47 confirms dbKey + identity extraction.
+evidence_needed: (1) Windows DACL audit of both files showing blank/no explicit ACE; (2) CryptUnprotectData on keystorage.password.bin → recovers master password; (3) Argon2id(masterPassword, salt) → decrypt outer → decode inner v3 protobuf → extract ck + databaseKey; (4) databaseKey as SQLCipher pragma key → decrypt SQLite message DB.
+verify_steps: RAG (DONE — all line numbers confirmed in cloned source). AUTH_HELPED-LOCAL: powershell Get-Acl "$env:APPDATA\ThreemaDesktop\*\data\keystorage.password.bin" → no explicit ACE; powershell [Security.Cryptography.ProtectedData]::Unprotect(...) → password bytes; node: argon2.hash(pw,{type:argon2id,salt,raw:true}) → XSalsa20-Poly1305 decrypt → decode InnerKeyStorageV3 protobuf → ck + databaseKey → sqlite3 with PRAGMA key.
+impact: Any co-located same-user malware/process exfiltrates the victim's full Threema identity (Ed25519/ClientKey private key) + SQLite message-db encryption key → offline decrypt of entire local message store WITHOUT the Threema master password. No network auth required. Severity: High.
+testability: RAG (source fully verified) + AUTH_HELPED-LOCAL (Windows DACL + DPAPI round-trip, ≤1 rps, no remote call)
+class: MISCONFIG
+asset: apps/desktop/src/electron/electron-main.ts:1234-1268 (webPreferences) + apps/desktop/src/worker/backend/electron/index.ts:1-2 + apps/desktop/src/app/app.ts:407-417
+confidence: 65
+reasoning: RAG-VERIFIED: webPreferences has nodeIntegration:false (L1251), nodeIntegrationInWorker:true (L1252 TODO DEK-79), contextIsolation:true (L1262), but NO sandbox property (L1255 TODO DEK-79 says "Enable sandbox: true" → defaults to false per Electron docs; L1240 comment "sandboxing is enabled by default" is INCORRECT). Backend-worker (app.ts:407) imports node:fs + node:path (index.ts:1-2), instantiates SqliteDatabaseBackend + FileSystemKeyStorage + ZlibCompressor — Node is live in worker. Worker processes Threema protobuf messages + attachments via @threema/libthreema-wasm.
+evidence_needed: A secondary deserialization/code-exec bug in worker's processing of attacker-controlled message/attachment content reaching a Node API at runtime; confirmation that sandbox remains unset (default false) per Electron docs.
+verify_steps: RAG (DONE — source confirms sandbox unset L1255 + nodeIntegrationInWorker:true L1252 + node:fs/node:path in worker L1-2 + backend-worker spawn app.ts:407). TRACE: grep for dynamic sinks (require/import/eval/child_process/new Function) in worker/ → NONE found (0 matches), confirming exploitability conditional on secondary bug.
+impact: A secondary deserialization/code-exec bug in backend-worker processing attacker-supplied Threema message or attachment → worker-context code exec → Node require (nodeIntegrationInWorker:true) → OS command execution on desktop host. Severity: High (RCE, conditional on secondary bug).
+testability: RAG (source verified, no direct sink — conditional on secondary bug discovery in worker protobuf/attachment processing)
+class: MISCONFIG
+asset: apps/desktop/src/common/node/key-storage/crypto.ts:222-233
+confidence: 95
+reasoning: RAG-VERIFIED: hardcoded password 'r3gGN9GDQ5NF6tM6' (sha256 52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c) appears ONLY in determineKdfParams() (L222-231) as a benchmark parameter to calibrate Argon2id runtime. The derived key is immediately purged via benchmarkKey.purge() (L233). Never persisted, never used for encryption.
+evidence_needed: Source confirms benchmarkKey.purge() at L233; password never leaves function scope.
+verify_steps: RAG (DONE): grep -n "r3gGN9GD" crypto.ts → only at L223 in determineKdfParams; grep "benchmarkKey.purge" → L233 confirms purge. No other references.
+impact: None — benchmark-only dummy, key immediately purged.
+testability: RAG (PASSIVE, source verified)
+[FINAL] ranked:
