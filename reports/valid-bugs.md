@@ -56,3 +56,7 @@
 - 2 lead(s) marked VALID at 2026-08-08 10:53:22 UTC
   - Verdict: HOLD — speculative. Backend route not deployed on staging (returns method-agnostic 404). If backend catches up, the route could return license credentials (username/password/expires/hasEmail)
   - | VALID   | 0     | — |
+
+- 2 lead(s) marked VALID at 2026-08-08 14:00:44 UTC
+  - | Q3 | NO — impact is "valid-ID enumeration at scale; low-medium (pubkeys public by design)" |
+  - | **VALID** | 0 | No new, novel, reportable findings |
