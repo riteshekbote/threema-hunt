@@ -112,3 +112,16 @@
   - **Verdict: VALID** (with note: requires local/same-user access on Windows)
   - | 1 | Directory cluster identity→pubkey enumeration (fetch_bulk + CORS *, no rate limit) | **VALID** | 3.7 | Medium |
   - | 2 | Desktop Windows key-storage ACL bypass → identity + DB compromise | **VALID** | 7.1 | Medium-High |
+
+- 11 lead(s) marked VALID at 2026-08-08 19:08:40 UTC
+  - | Q6 Not always-rejected? | ❌ NO — CORS* on credential-gated endpoint is best-practice/defense-in-depth (per valid-bugs.md precedent) |
+  - | Q7 Triager accept? | ❌ NO — no data access without valid credentials |
+  - | Q3 Real impact? | ⚠️ LOW — route-presence + parameter-validation oracle; challenge-response still requires valid identity+secret |
+  - | Q3 Real impact? | ✅ YES — mass enumeration of valid IDs + pubkeys |
+  - | Q7 Triager accept? | ✅ YES — already accepted as finding #3 in valid-bugs.md |
+  - | Q2 Reachable? | ⚠️ AUTH_HELPED — 401 on all paths; requires valid Work license |
+  - | Q4 Passive proof? | ❌ NO — requires AUTH_HELPED with valid Work test license |
+  - | Q5 Novel? | ⚠️ Not previously triaged as a valid vuln (only hypothesized) |
+  - **Verdict: HOLD** — Interesting hypothesis (OpenAPI flags it "currently buggy" TWRK-1633) but requires AUTH_HELPED with valid Work license. Cannot be proven with passive GET/HEAD only. Retain for prog
+  - | Q7 Triager accept? | ⚠️ HOLD territory — valid hardening concern but constitutes a vulnerability ONLY when chained with a demonstrated RCE primitive |
+  - | **VALID** | **0** | No new, novel, reportable findings this cycle |
