@@ -60,3 +60,10 @@
 - 2 lead(s) marked VALID at 2026-08-08 14:00:44 UTC
   - | Q3 | NO — impact is "valid-ID enumeration at scale; low-medium (pubkeys public by design)" |
   - | **VALID** | 0 | No new, novel, reportable findings |
+
+- 5 lead(s) marked VALID at 2026-08-08 14:52:12 UTC
+  - **Verdict: VALID — Medium**
+  - **Verdict: VALID — Medium**
+  - **Verdict: HOLD** — valid RAG target to unlock chat surface; no vuln to report yet. Action: grep client source for `ServerConfig`/`g-*.0.threema.ch`/`wss://` chat URL.
+  - | 1 | Directory cluster identity→pubkey enumeration (fetch_bulk + GET /identity/{id}, CORS*, no rate-limit) | **VALID** (Medium) | Mass enumeration of valid IDs+pubkeys at scale; CVSS 4.3 |
+  - | 4 | Desktop Windows key storage: no ACL on keystorage.bin + keystorage.password.bin | **VALID** (Medium) | Same-user process reads DPAPI password + encrypted keystore; CVSS 5.5 |
