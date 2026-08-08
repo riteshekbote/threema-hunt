@@ -1,4 +1,12 @@
-## 2026-08-08 05:25:48 UTC [web] (model nemotron3)
+## 2026-08-08 06:05:43 UTC [web] (model nemotron3)
+[NEW] `g-*.0.test.threema.ch` staging chat cluster confirmed reachable on single IP 203.56.114.34 (distinct from prod .112.202/.204), but no in-band HTTP divergence — only TCP 5222 accept with 0 bytes returned without client frame
+[NEW] `work.test.threema.ch` bundle divergence confirmed: work_public.js v2.25.1 DIFFERENT builds staging vs prod (staging sha256 e48e18f79df0125e8942f8fd9566f0c7924d15d7229377b553cf666b1bca7b87, prod 96501e2139ad9647e578ad1e03befca380d4f82c49434f3f3b13a14f354b67a7); staging implements `/api-app/public/global/settings` (GET) + `/api-app/public/license/token/{licenseToken}` (GET/PUT); prod bundle has ZERO `/public/*` handlers
+[NEW] `/api-app/public/license/token/{64hex}` on staging returns 404 HTML catch-all (900B) for GET, PUT, AND OPTIONS — method-agnostic; backend route not deployed; 64-char validation is client-side-only zod; not an oracle today
+[NEW] `/api-app/public/*` namespace map closed on both hosts — sole live public route = `/api-app/public/global/settings` (200, 299B, only appLinkHost + 3 app-download URLs, no license/user data)
+[NEW] `work.threema.ch` prod DOES route `/api-app` — GET `/api-app/me/profile` → 302 to `/en/login?r=%2Fapi-app%2Fme%2Fprofile`; only `/public/*` namespace absent on prod (404 catch-all) — divergence is public-namespace-specific
+[NEW] `g-*.0.{test.,}threema.ch` chat: read-only TCP connect to 5222 returns 0 bytes on BOTH staging (203.56.114.34) and prod (203.56.112.202) — no server-hello pushed without client frame; 443 also closes without TLS handshake both hosts. No passive in-band divergence obtainable; handshake requires authenticated login frame
+[NEW] `hcaptcha-work.threema.ch`: 200 serving hCaptcha's own Webflow marketing page (Last Published 2026-07-30) — third-party captcha host, out-of-scope service
+[NEW] `avatar.test.threema.ch` / `companylogo.test.threema.ch`: 403, byte-identical posture to prod avatar/companylogo 403 — no divergence; `broadcast.test` / `billing.test` → 000 (unreachable, matches prod TIMEOUT)
 [PRIO] https://ds-apip.threema.ch/identity/{id} + /identity/fetch_bulk + https://api.threema.ch/identity/{id} + https://apip.threema.ch/identity/{id}, 8.35, attack=9 business=9 tech=8 gate=10 cloud=7 fresh=8
 [PRIO] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{id}, 8.15, attack=8 business=9 tech=8 gate=8 cloud=8 fresh=8
 [PRIO] https://work.test.threema.ch/api-app/public/*, 7.55, attack=7 business=7 tech=7 gate=10 cloud=6 fresh=10
@@ -31,9 +39,16 @@ evidence_needed: Source line numbers showing `sandbox: false` + `nodeIntegration
 verify_steps: RAG: re-clone threema-desktop and grep for `sandbox` and `nodeIntegrationInWorker` in `apps/desktop/src/electron/electron-main.ts`; read webPreferences block; search for `preload` scripts loaded in worker context; identify message/link handling that spawns workers
 impact: Renderer/worker-context XSS → nodeIntegration → RCE on user machine via malicious message or link. Severity: High (RCE via message handling, no auth required)
 testability: RAG
+[PARKED] None dropped — all three hypotheses have confidence ≥ 70, classes not on REJECTED list, and all have concrete verify_steps (PASSIVE or RAG).
 [FINAL] 1) Directory identity→pubkey oracle across 3 production hosts with CORS * + no rate limit (90) 2) Safe backup cross-origin credentialed access via CORS * + Authorization header (80) 3) Electron renderer/worker RCE via sandbox disabled + nodeIntegrationInWorker (75)
 [NEXT] PROBE: curl -s -L -m 12 -H "Accept: application/json" "https://ds-apip.threema.ch/identity/fetch_bulk" -X POST -d '["ECHOECHO"]' -w "\n%{http_code}"
-[LEARN] (no new learnings this cycle)
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: Unauthenticated identity→pubkey oracle via GET /identity/{id} (200/404) AND POST /identity/fetch_bulk (returns pubkeys for valid IDs only, no auth) — confirmed via passive probes
+[LEARN] ACCEPTED AUTH @ apip.threema.ch/ds-apip.threema.ch/api.threema.ch: CORS misconfiguration — Access-Control-Allow-Origin: *, methods include POST/GET/OPTIONS/DELETE — cross-origin API probes enabled from any attacker origin
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch/apip.test.threema.ch: Staging directory servers publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production
+[LEARN] ACCEPTED AUTH @ safe-01.threema.ch: Backup API credential-gated — GET /backups/{64hex} returns HTTP 400 for unauth; OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization enabling credentialed cross-origin requests
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has `sandbox: false` (TODO DEK-79) and `nodeIntegrationInWorker: true` (TODO DEK-79)
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in `determineKdfParams()`, derived key immediately purged, not used for real encryption
+[LEARN] REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not vulnerable
 [RISK] chat: 60 reason: g-*.0.threema.ch prod pattern still unenumerated; staging g-*.0.test reachable but likely out of scope; core messaging infra but no visible HTTP endpoints
 [RISK] web: 90 reason: ds-apip/api/apip directory cluster — 3 prod hosts with public 200/404 identity oracle + fetch_bulk 200 + CORS * + no rate-limit (30 POSTs all 200); safe-01 backup API with permissive CORS + Authorization header + 5 hostnames; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed
 [RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve (split routing 203.56.112.247 | 203.56.114.247), uniform 403 on HTTPS; WSS paths high-entropy; auth model in source, not passively enumerable

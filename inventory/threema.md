@@ -163,3 +163,13 @@
 - NEW Staging work app sets `__HOST-HTTP-SESSIONID` cookie on unauthenticated GET /en/login (Secure/HttpOnly/SameSite=Strict).
 - NEW `/api-app/me/profile` + `/api-app/global/settings` → 302 on staging (session-gated); only the explicit `/api-app/public/*` namespace is open.
 - NEW `/info/ping.php` → 200 empty and `/ping` → 204 on BOTH staging and prod (no divergence).
+
+## 2026-08-08 06:05:58 UTC
+- NEW `g-*.0.test.threema.ch` staging chat cluster confirmed reachable on single IP 203.56.114.34 (distinct from prod .112.202/.204), but no in-band HTTP divergence — only TCP 5222 accept with 0 bytes retur
+- NEW `work.test.threema.ch` bundle divergence confirmed: work_public.js v2.25.1 DIFFERENT builds staging vs prod (staging sha256 e48e18f79df0125e8942f8fd9566f0c7924d15d7229377b553cf666b1bca7b87, prod 96501
+- NEW `/api-app/public/license/token/{64hex}` on staging returns 404 HTML catch-all (900B) for GET, PUT, AND OPTIONS — method-agnostic; backend route not deployed; 64-char validation is client-side-only zod
+- NEW `/api-app/public/*` namespace map closed on both hosts — sole live public route = `/api-app/public/global/settings` (200, 299B, only appLinkHost + 3 app-download URLs, no license/user data)
+- NEW `work.threema.ch` prod DOES route `/api-app` — GET `/api-app/me/profile` → 302 to `/en/login?r=%2Fapi-app%2Fme%2Fprofile`; only `/public/*` namespace absent on prod (404 catch-all) — divergence is pub
+- NEW `g-*.0.{test.,}threema.ch` chat: read-only TCP connect to 5222 returns 0 bytes on BOTH staging (203.56.114.34) and prod (203.56.112.202) — no server-hello pushed without client frame; 443 also closes 
+- NEW `hcaptcha-work.threema.ch`: 200 serving hCaptcha's own Webflow marketing page (Last Published 2026-07-30) — third-party captcha host, out-of-scope service
+- NEW `avatar.test.threema.ch` / `companylogo.test.threema.ch`: 403, byte-identical posture to prod avatar/companylogo 403 — no divergence; `broadcast.test` / `billing.test` → 000 (unreachable, matches prod

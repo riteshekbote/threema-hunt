@@ -6628,3 +6628,746 @@ export function main(factories: FactoriesForBackend): void {
 === identity structure ===
 [0m
 Let me read the inner key storage layer to confirm the identity keypair and database key structure.
+===== ANALYST laguna 2026-08-08 06:05:58 UTC =====
+[0m
+> build · laguna-s-2.1-free
+[0m
+[0m$ [0mls /tmp/opencode/ 2>/dev/null && echo "---" && ls /home/runner/work/threema-hunt/threema-hunt/ 2>/dev/null | head -30
+---
+README.md
+analyst-out.txt
+analyst-prompt.txt
+ctx.txt
+inventory
+knowledge
+leads
+reports
+reposcan-raw
+scope.yml
+scripts
+state_bigpickle.json
+state_laguna.json
+state_ling3.json
+state_longcat.json
+state_nemotron3.json
+triage
+[0m
+[0m$ [0mfind /tmp/opencode -maxdepth 3 -name "*.ts" -path "*electron-main*" 2>/dev/null; find /tmp/opencode -maxdepth 4 -name "keystorage*" 2>/dev/null; find /tmp/opencode -maxdepth 4 -name "fileMode*" 2>/dev/null
+(no output)
+[0m
+I'll work through this analysis based on the knowledge base provided. Let me first check what's available locally.
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/inventory/ 2>/dev/null && echo "===KNOWLEDGE===" && ls /home/runner/work/threema-hunt/threema-hunt/knowledge/ 2>/dev/null && echo "===LEADS===" && ls /home/runner/work/threema-hunt/threema-hunt/leads/ 2>/dev/null && echo "===REPORTS===" && ls /home/runner/work/threema-hunt/threema-hunt/reports/ 2>/dev/null
+threema.md
+===KNOWLEDGE===
+index.md
+===LEADS===
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-nemotron3.md
+reposcan-2026-08-07-18-43.md
+reposcan-2026-08-07-18-59.md
+reposcan-2026-08-07-19-20.md
+reposcan-2026-08-07-19-33.md
+reposcan-2026-08-07-20-11.md
+reposcan-2026-08-07-20-59.md
+reposcan-2026-08-07-21-13.md
+reposcan-2026-08-07-21-27.md
+reposcan-2026-08-07-22-10.md
+reposcan-2026-08-07-22-46.md
+reposcan-2026-08-07-23-10.md
+reposcan-2026-08-07-23-19.md
+reposcan-2026-08-07-23-50.md
+reposcan-2026-08-08-00-01.md
+reposcan-2026-08-08-00-19.md
+reposcan-2026-08-08-02-10.md
+reposcan-2026-08-08-02-23.md
+reposcan-2026-08-08-03-52.md
+reposcan-2026-08-08-04-47.md
+reposcan-2026-08-08-05-01.md
+reposcan-2026-08-08-05-29.md
+reposcan-2026-08-08-05-48.md
+reposcan-latest.md
+===REPORTS===
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+[0m
+[0m$ [0mhead -100 /home/runner/work/threema-hunt/threema-hunt/scope.yml 2>/dev/null
+programs:
+  threema:
+    name: Threema
+    disclosure_policy: TBD - operator-provided program scope (update once public channel confirmed)
+    assets:
+      - name: "Android Source Code"
+        priority: In
+      - name: "iOS App Source Code"
+        priority: In
+      - name: "Desktop 2.x App Source Code (github.com/threema-ch/threema-desktop)"
+        priority: In
+      - name: "g-*.0.threema.ch (chat services)"
+        priority: In
+      - name: "mediator-*.threema.ch (multi-device synchronization server)"
+        priority: In
+      - name: "rendezvous-*.threema.ch (multi-device linking server)"
+        priority: In
+      - name: "apip.threema.ch (directory server / ID service)"
+        priority: In
+      - name: "safe-*.threema.ch (backup service)"
+        priority: In
+      - name: "work.threema.ch (work cockpit & backend)"
+        priority: In
+      - name: "broadcast.threema.ch (broadcast cockpit & backend)"
+        priority: In
+      - name: "gateway.threema.ch (gateway cockpit & backend)"
+        priority: In
+      - name: "shop.threema.ch (threema shop)"
+        priority: In
+      - name: "billing.threema.ch (billing system)"
+        priority: In
+    out_of_scope:
+      - "All other targets and third-party services not listed above"
+    github_orgs:
+      - threema-ch
+
+rules:
+  passive_first: true          # GET/HEAD reads first; no invasive testing without program approval
+  max_requests_per_second: 1   # never hammer
+  no_doom: true                # no DoS/DDoS, no resource-exhaustion tests
+  no_account_creation: true    # no mass signups without program approval
+  no_data_modification: true   # no writes, deletes, state changes on live infra
+  no_pre_disclosure: true      # never disclose before program response
+  redact_secrets_in_commits: true   # commit sha256 of secrets, never raw values
+
+# Multi-model ensemble: every hunt run picks a rotation of the 5 models.
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
+[0m
+[0m→ [0mRead state_laguna.json
+[0m→ [0mRead knowledge/index.md
+[0m→ [0mRead leads/lead-laguna.md
+[0m→ [0mRead inventory/threema.md
+[0m→ [0mRead reports/hypotheses-nemotron3.txt
+[0m→ [0mRead reports/hypotheses.md
+[0m
+[0m$ [0mls -d /tmp/opencode/threema-desktop 2>/dev/null && echo "EXISTS" || echo "NOT_CLONED"; git -C /home/runner/work/threema-hunt/threema-hunt rev-parse --short HEAD 2>/dev/null; date -u
+NOT_CLONED
+c201c27
+Sat Aug  8 06:03:12 UTC 2026
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/reports/valid-bugs.md 2>/dev/null
+# Validated Bugs
+
+- 2026-08-07 ~18:00 UTC - SEED STATE: 0 valid bugs. Pipeline not yet run; hypotheses are recon-based and UNVALIDATED.
+
+- 3 lead(s) marked VALID at 2026-08-07 21:03:52 UTC
+  - | Q5 Novel? | **NO** — already ACCEPTED (knowledge/index.md line 21: "POST /identity/fetch_bulk returns pubkeys for valid IDs only, no auth") |
+  - | Q4 Passive proof? | **PARTIAL** — can confirm CORS headers + 404 on random IDs; cannot confirm oracle without valid id+key pair |
+  - | **VALID** | 0 | — |
+
+- 3 lead(s) marked VALID at 2026-08-07 21:56:25 UTC
+  - **Verdict: HOLD** — Speculative; requires AUTH_HELPED with valid credentials to confirm. Needs program to provide test credentials.
+  - | Q4 | PARTIAL — can confirm CORS headers; cannot confirm oracle without valid id+key |
+  - | **VALID** | 0 | — |
+
+- 2 lead(s) marked VALID at 2026-08-07 23:55:35 UTC
+  - | Q3 | **NO** | All data-access routes return 400 (credential-gated). No unauthenticated data access demonstrated. CORS `*` + Authorization header on an auth-gated API only matters if the attacker alr
+  - | Q7 | **NO** | Requires valid credentials to have any impact. No unauthenticated data access demonstrated. |
+
+- 3 lead(s) marked VALID at 2026-08-08 04:24:31 UTC
+  - **Verdict: VALID**
+  - **Verdict: HOLD** — Defense-in-depth/hardening gap. `sandbox:false` + `nodeIntegrationInWorker:true` are real hardening concerns but constitute a vulnerability ONLY when chained with a demonstrated re
+  - | **VALID** | 1 | #3 Desktop Windows key-storage ACL bypass |
+[0m
+Let me check for the desktop repo clone and existing RAG findings.
+The desktop repo needs cloning for RAG verification. Let me clone it and begin the analysis.
+[0m$ [0mcd /tmp/opencode && git clone --depth 1 https://github.com/threema-ch/threema-desktop.git 2>&1 | tail -5
+Cloning into 'threema-desktop'...
+[0m
+[0m$ [0mgrep -n "sandbox\|nodeIntegrationInWorker\|nodeIntegration\|contextIsolation\|webPreferences\|safeStorage\|keystorage.password\|STORE_USER_PASSWORD" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null
+915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+916:            if (!fs.existsSync(safeStoragePasswordPath)) {
+921:            if (electron.safeStorage.isEncryptionAvailable()) {
+923:                    const encryptedPassword = fs.readFileSync(safeStoragePasswordPath);
+924:                    return electron.safeStorage.decryptString(encryptedPassword);
+930:                    'Electron safeStorage is not available (no password manager?), loading password skipped.',
+936:            ElectronIpcCommand.STORE_USER_PASSWORD,
+940:                if (electron.safeStorage.isEncryptionAvailable()) {
+941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+943:                        const encryptedPassword = electron.safeStorage.encryptString(password);
+945:                        fs.writeFileSync(safeStoragePasswordPath, encryptedPassword, options);
+952:                        'Electron safeStorage is not available (no password manager?), storing password skipped.',
+983:                    isSafeStorageAvailable: electron.safeStorage.isEncryptionAvailable(),
+1234:            webPreferences: {
+1240:                // `contextIsolation`, and sandboxing is enabled by default.
+1242:                // Unfortunately we cannot get rid of `nodeIntegrationInWorker` because preload
+1251:                nodeIntegration: false,
+1252:                nodeIntegrationInWorker: true, // TODO(DESK-79): Change to false once worker preload scripts are supported in Electron
+1253:                nodeIntegrationInSubFrames: false,
+1255:                // TODO(DESK-79): Enable `sandbox: true` once worker preload scripts are supported in Electron
+1262:                contextIsolation: true,
+1484:            case 'sandbox':
+1552:                        'sandbox allow-downloads allow-same-origin allow-scripts allow-forms allow-popups',
+1673:    // In internal test builds on sandbox, we enable crash reporting.
+[0m
+[0m$ [0mgrep -n "fileModeInternalObjectIfPosix\|0600\|0o600\|mode.*0600\|writeFile\|keystorage" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/fs.ts 2>/dev/null; echo "=== KEY STORAGE INDEX ==="; grep -n "fileModeInternalObjectIfPosifPosix\|fileModeInternalObjectIfPosix\|_writeOrOverrideFile\|keystorage\|password\|safeStorage\|Argon\|argon" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts 2>/dev/null
+28: * Permission for potentially sensitive files: 0600.
+40:export function fileModeInternalObjectIfPosix(): ModeOrEmpty {
+=== KEY STORAGE INDEX ===
+28:import {fileModeInternalObjectIfPosix} from '~/common/node/fs';
+149:        password: string,
+190:                password,
+202:                password,
+210:            await this._writeOrOverrideFile(result.encoded);
+241:        password: string,
+266:                password,
+273:                $case: 'argon2id',
+274:                argon2id: kdfParams,
+279:        await this._writeOrOverrideFile(outer);
+299:    public async readContents(password: string): Promise<{
+310:            password,
+329:        password: string,
+338:            password,
+351:        password: string,
+362:            password,
+377:                password,
+378:                params: outer.kdfParameters.argon2id,
+385:        await this._writeOrOverrideFile(encodedOuter);
+405:        // Re-encrypt intermediate with the new password and encode in outer.
+410:                password: newPassword,
+411:                params: outer.kdfParameters.argon2id,
+418:        await this._writeOrOverrideFile(encodedOuter);
+423:        password: string,
+434:            password,
+454:                password,
+455:                params: outer.kdfParameters.argon2id,
+462:        await this._writeOrOverrideFile(encodedOuter);
+478:        password: string,
+489:            password,
+504:                password,
+505:                params: outer.kdfParameters.argon2id,
+512:        await this._writeOrOverrideFile(encodedOuter);
+555:    private async _writeOrOverrideFile(
+560:                ...fileModeInternalObjectIfPosix(),
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop/apps/desktop/src -name "*.ts" -o -name "*.js" 2>/dev/null | xargs grep -ln "new Worker\|nodeIntegrationInWorker\|Web Worker\|\.worker" 2>/dev/null | head -20; echo "=== WORKER FILES ==="; find /tmp/opencode/threema-desktop/apps/desktop/src -path "*worker*" -type f 2>/dev/null
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/webrtc/group-call.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/media-crypto-worker.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-utils.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts
+=== WORKER FILES ===
+/tmp/opencode/threema-desktop/apps/desktop/src/test/karma/worker/backend/tsconfig.json
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/backend-worker.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/media-crypto-worker.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/config.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/tsconfig.json
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/backend-worker.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/tsconfig.json
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/types.ts
+[0m
+Repo cloned. Now let me read the key source files for RAG verification.
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [offset=1230, limit=45][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [offset=910, limit=55][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/fs.ts[90m [offset=25, limit=25][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts[90m [offset=550, limit=20][0m
+[0m
+[0m$ [0mgrep -n "new Worker\|Worker(" /tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts 2>/dev/null; echo "=== GROUP CALL ==="; grep -n "new Worker\|Worker(" /tmp/opencode/threema-desktop/apps/desktop/src/common/dom/webrtc/group-call.ts 2>/dev/null; echo "=== BACKEND WORKER ==="; grep -n "require(\|import(\|eval(\|process\.\|child_process\|fs\.\|nodeIntegration" /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/backend-worker.ts 2>/dev/null | head -30; echo "=== MEDIA CRYPTO WORKER ==="; grep -n "require(\|import(\|eval(\|process\.\|child_process\|fs\.\|nodeIntegration" /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/media-crypto-worker.ts 2>/dev/null | head -20
+407:    const worker = new Worker(
+=== GROUP CALL ===
+281:            const mediaCryptoWorker = new Worker(
+=== BACKEND WORKER ===
+=== MEDIA CRYPTO WORKER ===
+[0m
+[0m$ [0mgrep -n "Argon\|argon\|derive\|KDF\|kdf\|password\|masterPassword\|salt\|encrypt\|decrypt" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts 2>/dev/null | head -40; echo "=== READ_CONTENTS / ENCODE ==="; grep -n "readContents\|encodeOuter\|encryptOuter\|Argon2id\|argon2id\|kdfParameters\|salt\|identity\|databaseKey\|backupPhrase\|privateKey" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts 2>/dev/null | head -30
+3:import * as argon2 from 'argon2';
+13:import {deriveKey} from '~/common/crypto/blake2b';
+18:    type Argon2idParameters,
+20:    Argon2Version,
+21:    KDF_TARGET_RUNTIME_MS,
+28: * Key material for password-based encryption/decryption (Argon2id KDF + XSalsa20-Poly1305).
+34:    readonly password: string;
+35:    readonly params: Argon2idParameters;
+39: * Key material for Remote Secret-based encryption/decryption (BLAKE2b key derivation +
+49: * Derive a 32-byte key from a low-entropy password using `Argon2id`.
+51: * Logs a warning if the KDF runtime falls outside of {@link KDF_TARGET_RUNTIME_MS}.
+53:export async function deriveKeyFromPassword(
+55:    {password, params}: PasswordBasedKeyMaterial,
+60:    const rawHash = await argon2.hash(password, {
+61:        // Use Argon2id variant.
+62:        type: argon2.argon2id,
+64:        version: params.version.toArgon2VersionByte(),
+68:        salt: Buffer.from(params.salt),
+80:    const msg = `KDF ran in ${duration.toFixed(2)} ms`;
+81:    if (duration < KDF_TARGET_RUNTIME_MS.min || duration > KDF_TARGET_RUNTIME_MS.max) {
+91: * Decrypt bytes that were encrypted with a password-derived key (Argon2id + XSalsa20-Poly1305).
+93: * @throws {KeyStorageError} If decryption fails.
+95:export async function decryptPasswordBased(
+96:    encrypted: EncryptedDataWithNonceAhead,
+102:    // Derive the key from the password using Argon2id.
+103:    const key = await deriveKeyFromPassword(services, keyMaterial);
+107:    const decryptor = secretBox.decryptorWithNonceAhead(CREATE_BUFFER_TOKEN, encrypted);
+109:        return decryptor.decrypt(undefined).plainData;
+111:        throw new KeyStorageError('undecryptable', 'Cannot decrypt', {from: error});
+118: * Encrypt bytes using a password-derived key (Argon2id + XSalsa20-Poly1305).
+120: * @throws {KeyStorageError} If encryption fails.
+122:export async function encryptPasswordBased(
+123:    decrypted: Uint8Array,
+129:    // Derive the key from the password using Argon2id.
+130:    const key = await deriveKeyFromPassword(services, keyMaterial);
+136:            .encryptor(CREATE_BUFFER_TOKEN, decrypted as PlainData)
+137:            .encryptWithRandomNonceAhead(undefined);
+139:        throw new KeyStorageError('internal-error', 'Cannot encrypt', {from: error});
+146: * Decrypt bytes that were encrypted with a Remote Secret-derived key (BLAKE2b + XSalsa20-Poly1305).
+148: * @throws {KeyStorageError} If decryption fails.
+=== READ_CONTENTS / ENCODE ===
+2: * The key storage stores essential information about the identity of the user in a protobuf-encoded
+5: * - The user's identity and private key
+272:            kdfParameters: {
+273:                $case: 'argon2id',
+274:                argon2id: kdfParams,
+299:    public async readContents(password: string): Promise<{
+378:                params: outer.kdfParameters.argon2id,
+411:                params: outer.kdfParameters.argon2id,
+455:                params: outer.kdfParameters.argon2id,
+505:                params: outer.kdfParameters.argon2id,
+[0m
+[0m$ [0mgrep -n "getSafeStoragePasswordPath\|keystorage\|key-storage\|keyStorage" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null; echo "=== PATH DEF ==="; grep -n "getSafeStoragePasswordPath\|keystorage.password\|key_storage\|keystorage" /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts 2>/dev/null | head -20
+39:import {getSafeStoragePasswordPath} from '~/common/node/safe-storage/helpers';
+915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+=== PATH DEF ===
+39:import {getSafeStoragePasswordPath} from '~/common/node/safe-storage/helpers';
+915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+[0m
+[0m$ [0msed -n '400,430p' /tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts 2>/dev/null; echo "=== MEDIA CRYPTO WORKER CONTEXT ==="; sed -n '275,295p' /tmp/opencode/threema-desktop/apps/desktop/src/common/dom/webrtc/group-call.ts 2>/dev/null; echo "=== BACKEND WORKER ENTRY ==="; head -60 /tmp/opendcode/threema-desktop/apps/desktop/src/worker/backend/backend-worker.ts 2>/dev/null || head -60 /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/backend-worker.ts 2>/dev/null
+window.addEventListener('focus', handleAppVisibilityChange);
+    window.addEventListener('blur', handleAppVisibilityChange);
+
+    // Load the backend worker.
+    //
+    // IMPORTANT: This MUST be a template literal and reference `BUILD_TARGET` as we otherwise
+    //            bundle incorrect variants.
+    const worker = new Worker(
+        new URL(
+            // eslint-disable-next-line prefer-template
+            '../worker/backend/' + import.meta.env.BUILD_TARGET + '/backend-worker.ts',
+            import.meta.url,
+        ),
+        {
+            name: 'Backend Worker',
+            type: 'module',
+        },
+    );
+
+    // Forward unhandled errors in the worker to the main application
+    worker.onerror = (event: ErrorEvent): void => {
+        handleErrorEvent(event, 'Unhandled exception in worker: ');
+    };
+    log.info(`Worker created`);
+
+    // Initialize the backend worker with the app path.
+    //
+    // Send app path and the path of the latest old profile (if it exists) to backend worker and
+    // wait for it to be ready.
+    // Note: Comlink is not yet active at this point!
+    const appPath = electron.getAppPath();
+=== MEDIA CRYPTO WORKER CONTEXT ===
+            // Note: For efficiency reasons, we need to start the `Worker` from the main thread. The
+            // `RTCRtpScriptTransform` (we don't use it right now but we will eventually) requires to
+            // supply a worker for construction. This is because the transform stream is most efficient
+            // at the place it was created. In other words, while we could send the stream into another
+            // `Worker` context, it can be vastly inefficient to do so.
+            this._log.debug('Creating media crypto worker');
+            const mediaCryptoWorker = new Worker(
+                new URL('../../../worker/backend/media-crypto-worker.ts', import.meta.url),
+                {
+                    name: 'Media Crypto Worker',
+                    type: 'module',
+                },
+            );
+            mediaCryptoWorker.addEventListener(
+                'error',
+                (event) => {
+                    this._log.error("Closed (by media crypto worker 'error')", event.error);
+                    this._abort.raise({origin: 'main-thread', cause: 'unexpected-error'});
+                },
+                {once: true},
+            );
+=== BACKEND WORKER ENTRY ===
+import type {ClientInfo} from '@threema/libthreema-wasm';
+
+import {
+    Backend,
+    type BackendCreator,
+    type BackendInit,
+    type CertificatePinRecoveryHandle,
+    type DeviceLinkingSetup,
+    type FactoriesForBackend,
+    type LoadingStateSetup,
+} from '~/common/dom/backend';
+import {createEndpointService, ensureEndpoint} from '~/common/dom/utils/endpoint';
+import {extractErrorTraceback} from '~/common/error';
+import {TRANSFER_HANDLER} from '~/common/index';
+import type {TestDataJson} from '~/common/test-data';
+import {setAssertFailLogger} from '~/common/utils/assert';
+import {PROXY_HANDLER, type ProxyEndpoint} from '~/common/utils/endpoint';
+import {BACKEND_WORKER_CONFIG} from '~/worker/backend/config';
+
+declare const self: DedicatedWorkerGlobalScope;
+
+/**
+ * This is the common entrypoint for the backend worker, invoked by the app
+ * via the specific 'electron' loader entrypoint.
+ */
+export function main(factories: FactoriesForBackend): void {
+    const logging = factories.logging('bw', BACKEND_WORKER_CONFIG.LOG_DEFAULT_STYLE);
+    {
+        const assertFailLogger = logging.logger('assert');
+        setAssertFailLogger((error) => assertFailLogger.error(extractErrorTraceback(error)));
+    }
+    const log = logging.logger('main');
+
+    // Greet with version!
+    log.info(`Loaded worker: ${import.meta.env.BUILD_VERSION} (${import.meta.env.BUILD_HASH})`);
+
+    // The worker exposes backend creation functions that run in the context of the worker, but
+    // which can be called from the main thread (through the backend controller).
+    const endpoint = createEndpointService({logging});
+    const services = {
+        logging,
+        endpoint,
+    };
+
+    const creator: BackendCreator = {
+        [TRANSFER_HANDLER]: PROXY_HANDLER,
+        hasIdentity: () => Backend.hasIdentity(factories, services),
+        fromKeyStorage: async (
+            init: BackendInit,
+            keyStoragePassword: string,
+            loadingStateSetup: ProxyEndpoint<LoadingStateSetup>,
+            certificatePinRecoveryHandle: ProxyEndpoint<CertificatePinRecoveryHandle>,
+        ) => {
+            log.info('Creating backend from key storage');
+            return await Backend.createFromKeyStorage(
+                init,
+                factories,
+                services,
+                keyStoragePassword,
+                loadingStateSetup,
+[0m
+[0m$ [0mgrep -n "import\|require\|eval\|fetch\|process\.\|child_process\|fs\.\|__dirname\|__filename" /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/backend-worker.ts 2>/dev/null | head -40; echo "=== MEDIA CRYPTO WORKER ==="; grep -n "import\|require\|eval\|fetch\|process\.\|child_process\|fs\.\|__dirname" /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/media-crypto-worker.ts 2>/dev/null | head -20
+1:import type {ClientInfo} from '@threema/libthreema-wasm';
+3:import {
+12:import {createEndpointService, ensureEndpoint} from '~/common/dom/utils/endpoint';
+13:import {extractErrorTraceback} from '~/common/error';
+14:import {TRANSFER_HANDLER} from '~/common/index';
+15:import type {TestDataJson} from '~/common/test-data';
+16:import {setAssertFailLogger} from '~/common/utils/assert';
+17:import {PROXY_HANDLER, type ProxyEndpoint} from '~/common/utils/endpoint';
+18:import {BACKEND_WORKER_CONFIG} from '~/worker/backend/config';
+35:    log.info(`Loaded worker: ${import.meta.env.BUILD_VERSION} (${import.meta.env.BUILD_HASH})`);
+=== MEDIA CRYPTO WORKER ===
+1:import type * as v from '@badrap/valita';
+2:import {bytesToHex} from '@threema/ts-utils/byte/bytes-to-hex';
+3:import type {u8} from '@threema/ts-utils/integer/u8';
+4:import {AsyncLock} from '@threema/ts-utils/lock/async-lock';
+5:import {ensureError} from '@threema/ts-utils/meta/ensure-error';
+6:import {tag} from '@threema/ts-utils/meta/newtype';
+7:import {ResolvablePromise} from '@threema/ts-utils/promise/resolvable-promise';
+8:import {SequenceNumberU32} from '@threema/ts-utils/sequence-number/sequence-number-u32';
+10:import {wrapRawKey} from '~/common/crypto';
+11:import {
+21:import {
+32:import {createEndpointService, ensureEndpoint} from '~/common/dom/utils/endpoint';
+33:import {extractErrorTraceback} from '~/common/error';
+34:import {TRANSFER_HANDLER} from '~/common/index';
+35:import {
+42:import type {ParticipantId} from '~/common/network/protocol/call/group-call';
+43:import type {u32} from '~/common/types';
+44:import {assert, assertUnreachable, setAssertFailLogger, unreachable} from '~/common/utils/assert';
+45:import {PROXY_HANDLER, type EndpointService} from '~/common/utils/endpoint';
+46:import {type AbortListener, AbortRaiser} from '~/common/utils/signal';
+[0m
+[0m$ [0mcat /tmp/opencode/threema-desktop/apps/desktop/src/common/node/safe-storage/helpers.ts 2>/dev/null | head -40; echo "=== KEY STORAGE PATH ==="; grep -n "keyStoragePath\|keystorage\|_keyStoragePath\|dataPath\|THREEMA" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts 2>/dev/null | head -20; echo "=== READ CONTENTS BODY ==="; sed -n '295,370p' /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts 2>/dev/null
+import * as fs from 'node:fs';
+import path from 'node:path';
+
+import {STATIC_CONFIG} from '~/common/config';
+import type {Logger} from '~/common/logging';
+
+/**
+ * Returns the path to the `electron.safeStorage` password file in the given `profileDirectoryPath`.
+ * Important: The path is not validated, so it might not exist.
+ *
+ * @param profileDirectoryPath Path to the Threema profile directory to use as the base path.
+ */
+export function getSafeStoragePasswordPath(profileDirectoryPath: string): string {
+    return path.join(profileDirectoryPath, ...STATIC_CONFIG.SAFE_STORAGE_PASSWORD_PATH);
+}
+
+/**
+ * Deletes the password file for `electron.safeStorage` in the given `profileDirectoryPath`, if it
+ * exists. Otherwise, this is a no-op, and will not throw.
+ */
+export function deleteSafeStoragePasswordFile(profileDirectoryPath: string, log?: Logger): void {
+    const safeStoragePasswordPath = getSafeStoragePasswordPath(profileDirectoryPath);
+
+    try {
+        fs.unlinkSync(safeStoragePasswordPath);
+        log?.info(`Password file '${safeStoragePasswordPath}' deleted`);
+    } catch {
+        log?.info(`Password file '${safeStoragePasswordPath}' does NOT exist`);
+    }
+}
+=== KEY STORAGE PATH ===
+59:    private readonly _keyStoragePath: string;
+87:        this._keyStoragePath = getKeyStoragePath(this._profileDirectoryPath);
+92:        const keyStorageParentDirectory = path.dirname(this._keyStoragePath);
+99:        this._log.debug(`Key storage path: ${this._keyStoragePath}`);
+198:            const fileBytes = await this._readFileBytes(this._keyStoragePath);
+251:                `Key storage file already exists at: ${this._keyStoragePath}`,
+306:            this._keyStoragePath,
+334:            this._keyStoragePath,
+358:            this._keyStoragePath,
+397:            this._keyStoragePath,
+430:            this._keyStoragePath,
+485:            this._keyStoragePath,
+559:            await fsPromises.writeFile(this._keyStoragePath, bytes, {
+565:                `Cannot write key storage file at ${this._keyStoragePath}`,
+=== READ CONTENTS BODY ===
+        this._isInitialized = true;
+    }
+
+    /** @inheritdoc */
+    public async readContents(password: string): Promise<{
+        readonly intermediate: LatestKeyStorageLayers['intermediate']['consumable'];
+        readonly inner: LatestKeyStorageLayers['inner']['consumable'];
+    }> {
+        this._ensureInitialized();
+
+        const fileBytes = (await this._readFileBytes(
+            this._keyStoragePath,
+        )) as unknown as LatestKeyStorageLayers['outer']['encoded'];
+        const {intermediate} = await decryptAndDecodeLatestIntermediateKeyStorage(
+            fileBytes,
+            password,
+            this._services,
+        );
+        const {contents: inner, initialRemoteSecretStoreData} =
+            await decryptAndDecodeLatestInnerKeyStorage(intermediate.inner, this._services);
+
+        // Update stores.
+        this._setRemoteSecretDataStoreData(initialRemoteSecretStoreData);
+        this._setOnPremConfigStoreData(intermediate.onPremConfig);
+        this._setWorkCredentialsStoreData(intermediate.workCredentials);
+
+        return {
+            intermediate,
+            inner,
+        };
+    }
+
+    /** @inheritdoc */
+    public async readIntermediateContents(
+        password: string,
+    ): Promise<LatestKeyStorageLayers['intermediate']['consumable']> {
+        this._ensureInitialized();
+
+        const fileBytes = (await this._readFileBytes(
+            this._keyStoragePath,
+        )) as unknown as LatestKeyStorageLayers['outer']['encoded'];
+        const {intermediate} = await decryptAndDecodeLatestIntermediateKeyStorage(
+            fileBytes,
+            password,
+            this._services,
+        );
+
+        // Update stores.
+        this._setOnPremConfigStoreData(intermediate.onPremConfig);
+        this._setWorkCredentialsStoreData(intermediate.workCredentials);
+
+        return intermediate;
+    }
+
+    /** @inheritdoc */
+    public async setOnPremConfig(
+        password: string,
+        onPremConfig: KeyStorageOnPremConfigStoreData,
+    ): Promise<void> {
+        this._ensureInitialized();
+
+        // Read current.
+        const fileBytes = (await this._readFileBytes(
+            this._keyStoragePath,
+        )) as unknown as LatestKeyStorageLayers['outer']['encoded'];
+        const {outer, intermediate} = await decryptAndDecodeLatestIntermediateKeyStorage(
+            fileBytes,
+            password,
+            this._services,
+        );
+
+        // Update values.
+        const updatedIntermediate: LatestKeyStorageLayers['intermediate']['validated'] = {
+            ...intermediate,
+            onPremConfig,
+        };
+[0m
+[0m$ [0mgrep -rn "new Worker" /tmp/opencode/threema-desktop/apps/desktop/src/ --include="*.ts" 2>/dev/null | grep -v node_modules | grep -v ".test." | grep -v ".spec."
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/webrtc/group-call.ts:281:            const mediaCryptoWorker = new Worker(
+/tmp/opencode/threema-desktop/apps/desktop/src/app/app.ts:407:    const worker = new Worker(
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/media-crypto-worker.ts:332:        this.#_keys.push(new WorkerParticipantCallMediaKey(this._gckh, successor));
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/media-crypto-worker.ts:653:        const key = new WorkerParticipantCallMediaKey(gckh, source);
+[0m
+[0m$ [0mgrep -n "SAFE_STORAGE_PASSWORD_PATH\|KEY_STORAGE\|keyStoragePath\|getDataPath\|profileDir\|THREEMA_DESKTOP\|dataDirectory" /tmp/opencode/threema-desktop/apps/desktop/src/common/config.ts 2>/dev/null | head -20; echo "=== RESTORE DB ==="; grep -n "databaseKey\|identityData\|identity\|privateKey\|restore" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/restore-db.ts 2>/dev/null | head -20; echo "=== INNER STORAGE ==="; grep -n "identity\|databaseKey\|privateKey\|identityData\|InnerKeyStorage\|backupPhrase" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/encode.ts 2>/dev/null | head -20
+104:    readonly DEPRECATED_KEY_STORAGE_PATH: readonly string[];
+109:    readonly KEY_STORAGE_PATH: readonly string[];
+136:    readonly SAFE_STORAGE_PASSWORD_PATH: readonly string[];
+170:    | 'KEY_STORAGE_PATH'
+171:    | 'DEPRECATED_KEY_STORAGE_PATH'
+176:    | 'SAFE_STORAGE_PASSWORD_PATH'
+183:    DEPRECATED_KEY_STORAGE_PATH: import.meta.env.DEPRECATED_KEY_STORAGE_PATH,
+184:    KEY_STORAGE_PATH: import.meta.env.KEY_STORAGE_PATH,
+193:    SAFE_STORAGE_PASSWORD_PATH: import.meta.env.SAFE_STORAGE_PASSWORD_PATH,
+=== RESTORE DB ===
+=== INNER STORAGE ===
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop/apps/desktop/src -name "restore*" -o -name "restore-db*" 2>/dev/null | grep -v node_modules; echo "=== INNER KEY STORAGE ==="; find /tmp/opencode/threema-desktop/apps/desktop/src -name "*.ts" -path "*key-storage*" 2>/dev/null | grep -v node_modules
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/restore-db.ts
+=== INNER KEY STORAGE ===
+/tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/common.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/v1.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/v2.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/common.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/intermediate/v1.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/intermediate/v1_1.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/common.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v2.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/migration.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/app/ui/components/partials/modals/key-storage-migration-failed-modal/props.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/test/mocha/common/node/key-storage/file-system-key-storage.spec.ts
+[0m
+[0m$ [0mgrep -n "databaseKey\|identity\|privateKey\|identityData\|backupPhrase\|InnerKeyStorage\|publicKey\|private" /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts 2>/dev/null | head -20; echo "=== RESTORE DB ==="; grep -n "databaseKey\|identityData\|identity\|privateKey\|backupPhrase\|restoreDb\|decrypt" /tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/restore-db.ts 2>/dev/null | head -20
+12:    InnerKeyStorage_Version,
+13:    InnerKeyStorageV3,
+30: * Branded type that represents encrypted encoded bytes of an {@link InnerKeyStorageV3}.
+32:export type RemoteSecretEncryptedEncodedInnerKeyStorageV3Bytes = WeakOpaque<
+34:    {readonly EncryptedEncodedInnerKeyStorageV3Bytes: unique symbol}
+39: * {@link InnerKeyStorageV3}.
+43:export type DecryptedEncodedInnerKeyStorageV3Bytes = WeakOpaque<
+45:    {readonly DecryptedEncodedInnerKeyStorageV3Bytes: unique symbol}
+52: * Validation schema for the {@link InnerKeyStorageV3} contents.
+62:        identityData: v
+64:                identity: v.string().map(ensureIdentityString),
+70:        databaseKey: instanceOf(Uint8Array).map(wrapRawDatabaseKey),
+82: * Validated {@link InnerKeyStorageV3} contents.
+86:export type ValidatedInnerKeyStorageV3 = Readonly<v.Infer<typeof INNER_KEY_STORAGE_V3_SCHEMA>>;
+91: * {@link InnerKeyStorageV3} data intended for external consumption.
+93:export type InnerKeyStorageV3Data = Pick<
+94:    ValidatedInnerKeyStorageV3,
+95:    'identityData' | 'dgk' | 'databaseKey' | 'deviceIds' | 'deviceCookie'
+103:    DecryptedEncodedInnerKeyStorageV3Bytes,
+104:    InnerKeyStorageV3,
+=== RESTORE DB ===
+45:        dbKey: keyStorageContents.inner.databaseKey,
+46:        oldUserIdentity: keyStorageContents.inner.identityData.identity,
+83:        {userIdentity: services.model.user.identity},
+100:        newDbIdentityToUidMap.set(contact.identity, contact.uid);
+107:        oldDbUidToIdentityMap.set(contact.uid, contact.identity);
+136:                // Get the uid of the contact with this identity in the new db.
+440:            const identity = oldDbUidToIdentityMap.get(receiverLookup.uid);
+441:            if (identity === undefined) {
+445:            return db.getContactConversationUidByIdentity(identity);
+460:                creatorIdentity = oldDb.getContactByUid(group.creatorUid)?.identity;
+[0m
+[0m$ [0mgrep -n "privateKey\|private\|identity" /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts 2>/dev/null | head -20; echo "=== IDENTITY DATA TYPE ==="; grep -n "interface.*Identity\|identityData\|class.*Identity\|publicKey\|privateKey" /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts 2>/dev/null | head -20; echo "=== INNER V3 FULL ==="; sed -n '55,75p' /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts 2>/dev/null
+62:        identityData: v
+64:                identity: v.string().map(ensureIdentityString),
+95:    'identityData' | 'dgk' | 'databaseKey' | 'deviceIds' | 'deviceCookie'
+147:        identityData: validated.identityData,
+158:        identityData: consumable.identityData ?? current.identityData,
+165:        identityData: {
+166:            identity: validated.identityData.identity,
+167:            ck: validated.identityData.ck.unwrap(),
+168:            serverGroup: validated.identityData.serverGroup,
+=== IDENTITY DATA TYPE ===
+61:        identityData: v
+109:    | 'identityData'
+163:        identityData: validated.identityData,
+=== INNER V3 FULL ===
+ * compatibility!
+ *
+ * @throws {ValitaError} In case validation fails.
+ */
+const INNER_KEY_STORAGE_V3_SCHEMA = v
+    .object({
+        // Identity related information.
+        identityData: v
+            .object({
+                identity: v.string().map(ensureIdentityString),
+                ck: instanceOf(Uint8Array).map(wrapRawClientKey),
+                serverGroup: v.string().map(ensureServerGroup),
+            })
+            .rest(v.unknown()),
+        dgk: instanceOf(Uint8Array).map(wrapRawDeviceGroupKey),
+        databaseKey: instanceOf(Uint8Array).map(wrapRawDatabaseKey),
+        deviceIds: v
+            .object({
+                d2mDeviceId: unsignedLongAsU64().map(ensureD2mDeviceId),
+                cspDeviceId: unsignedLongAsU64().map(ensureCspDeviceId),
+            })
+[0m
+[0m$ [0mgrep -n "private\|privateKey\|identityPrivateKey\|identity.*key\|KeyPair\|keyPair\|private_key" /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/*.ts 2>/dev/null | head -20; echo "=== DUAL LAYER ==="; grep -n "private\|PrivateKey\|identityKey\|decryptIdentity\|identityKeyPair" /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/common.ts 2>/dev/null | head -20
+=== DUAL LAYER ===
+[0m
+[0m$ [0mgrep -rn "privateKey\|private_key\|identityPrivateKey\|PrivateKey\|Ed25519\|KeyPair\|keyPair\|identityKey" /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/ 2>/dev/null | grep -v node_modules | grep -v ".spec." | grep -v ".test." | head -30
+(no output)
+[0m
+[0m$ [0mgrep -rn "private\|PrivateKey\|identityKey\|Ed25519\|keyPair" /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts 2>/dev/null | head -20; echo "=== PROTOBUF TYPE ==="; grep -n "PrivateKey\|privateKey\|identityPrivateKey\|Ed25519\|KeyPair\|keyPair\|inner\|InnerKey" /tmp/opencocde/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts 2>/dev/null | head -20
+=== PROTOBUF TYPE ===
+[0m
+[0m$ [0mgrep -rn "private\|PrivateKey\|identityPrivateKey\|identityKeyPair\|identityKey" /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts 2>/dev/null | head -20; echo "=== INNER ENCODE ==="; grep -rn "private\|PrivateKey\|identityKey\|identityKeyPair\|encodeInner\|decodeInner" /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/ 2>/dev/null | grep -v ".spec." | grep -v ".test." | head -30
+=== INNER ENCODE ===
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:5: * - The user's identity and private key
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:59:    private readonly _keyStoragePath: string;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:65:    private readonly _deprecatedKeyStoragePath: string;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:67:    private readonly _onPremConfig: WritableStore<KeyStorageOnPremConfigStoreData> =
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:69:    private readonly _remoteSecretData: WritableStore<KeyStorageRemoteSecretDataStoreData> =
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:71:    private readonly _workCredentials: WritableStore<KeyStorageWorkCredentialsStoreData> =
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:74:    private _isInitialized: boolean = false;
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:83:        private readonly _services: ServicesForKeyStorage,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:84:        private readonly _log: Logger,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:85:        private readonly _profileDirectoryPath: string,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:521:    private _ensureInitialized(): void {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:532:    private async _readFileBytes(filePath: string): Promise<Buffer> {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:555:    private async _writeOrOverrideFile(
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:571:    private _setOnPremConfigStoreData(value: KeyStorageOnPremConfigStoreData): void {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:580:    private _setRemoteSecretDataStoreData(value: KeyStorageRemoteSecretDataStoreData): void {
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts:589:    private _setWorkCredentialsStoreData(value: KeyStorageWorkCredentialsStoreData): void {
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/opencoe/threema-desktop/apps/desktop/src/common/internal-protobuf/*, /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/*); auto-rejecting
+[0m✗ [0mgrep -rn "identityPrivateKey\|identityKey\|privateKey\|PrivateKey\|keyPair\|KeyPair" /tmp/opencode/threema-desktop/apps/desktop/src/common/ 2>/dev/null | grep -v node_modules | grep -v ".spec." | grep -v "backupPhrase\|publicKey" | head -30; echo "=== PROTOBUF FULL ==="; cat /tmp/opencoe/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts 2>/dev/null | head -60 || cat /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts 2>/dev/null | head -60 failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

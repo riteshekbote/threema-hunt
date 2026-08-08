@@ -7630,3 +7630,490 @@ STEP 7 — RISK SCORE
 - [RISK] sync: 35 — mediator/rendezvous/blob-mirror consolidated on staging .114.62 with nginx 403 gating all hosts/paths; no reachable surface.
 - [RISK] safe: 70 — 5 hostnames/single IP, credential-gated (400) but CORS `*` with Authorization header and write methods on preflight; no 429 observed.
 - [RISK] desktop-src: 75 — accepted Windows key-storage ACL bypass (DPAPI same-user) + Electron sandbox:false/nodeIntegrationInWorker:true; OnPrem config trust and crypto.ts dummy REJECTED.
+===== ANALYST bigpickle 2026-08-08 06:05:58 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/ 2>/dev/null | head -50; echo "---"; ls -la /home/runner/work/threema-hunt/threema-hunt/reports/ 2>/dev/null | head -30
+total 148
+drwxr-xr-x 11 runner runner  4096 Aug  8 06:02 .
+drwxr-xr-x  3 runner runner  4096 Aug  8 06:02 ..
+drwxr-xr-x  7 runner runner  4096 Aug  8 06:02 .git
+drwxr-xr-x  3 runner runner  4096 Aug  8 06:02 .github
+-rw-r--r--  1 runner runner  1049 Aug  8 06:02 README.md
+-rw-r--r--  1 runner runner    32 Aug  8 06:02 analyst-out.txt
+-rw-r--r--  1 runner runner 35994 Aug  8 06:02 analyst-prompt.txt
+-rw-r--r--  1 runner runner 32930 Aug  8 06:02 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  8 06:02 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  8 06:02 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  8 06:02 leads
+drwxr-xr-x  2 runner runner  4096 Aug  8 06:02 reports
+drwxr-xr-x  3 runner runner  4096 Aug  8 06:02 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  8 06:02 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  8 06:02 scripts
+-rw-r--r--  1 runner runner    34 Aug  8 06:02 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  8 06:02 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  8 06:02 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  8 06:02 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  8 06:02 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  8 06:02 triage
+---
+total 1344
+drwxr-xr-x  2 runner runner   4096 Aug  8 06:02 .
+drwxr-xr-x 11 runner runner   4096 Aug  8 06:02 ..
+-rw-r--r--  1 runner runner 556416 Aug  8 06:02 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 651094 Aug  8 06:02 analyst-laguna.log
+-rw-r--r--  1 runner runner   3240 Aug  8 06:02 analyst-ling3.log
+-rw-r--r--  1 runner runner   1350 Aug  8 06:02 analyst-longcat.log
+-rw-r--r--  1 runner runner 154124 Aug  8 06:02 analyst-nemotron3.log
+-rw-r--r--  1 runner runner  61687 Aug  8 06:02 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner     52 Aug  8 06:02 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner     48 Aug  8 06:02 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner     50 Aug  8 06:02 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   6744 Aug  8 06:02 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  35417 Aug  8 06:02 hypotheses.md
+-rw-r--r--  1 runner runner   1539 Aug  8 06:02 valid-bugs.md
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/state_bigpickle.json; echo "---"; cat /home/runner/work/threema-hunt/threema-hunt/leads/* 2>/dev/null | head -5; echo "---INV---"; ls /home/runner/work/threema-hunt/threema-hunt/inventory/ /home/runner/work/threema-hunt/threema-hunt/knowledge/ /home/runner/work/threema-hunt/threema-hunt/leads/ 2>/dev/null
+{"phase": "POC", "target": "chat"}---
+# LEADS bigpickle (seed)
+- SEED: no model output yet; pipeline starts on first run.
+## 2026-08-07 18:34:07 UTC [chat] (model bigpickle)
+class: BUSLOGIC
+asset: apip.threema.ch/identity/ws/revoke
+---INV---
+/home/runner/work/threema-hunt/threema-hunt/inventory/:
+threema.md
+
+/home/runner/work/threema-hunt/threema-hunt/knowledge/:
+index.md
+
+/home/runner/work/threema-hunt/threema-hunt/leads/:
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-nemotron3.md
+reposcan-2026-08-07-18-43.md
+reposcan-2026-08-07-18-59.md
+reposcan-2026-08-07-19-20.md
+reposcan-2026-08-07-19-33.md
+reposcan-2026-08-07-20-11.md
+reposcan-2026-08-07-20-59.md
+reposcan-2026-08-07-21-13.md
+reposcan-2026-08-07-21-27.md
+reposcan-2026-08-07-22-10.md
+reposcan-2026-08-07-22-46.md
+reposcan-2026-08-07-23-10.md
+reposcan-2026-08-07-23-19.md
+reposcan-2026-08-07-23-50.md
+reposcan-2026-08-08-00-01.md
+reposcan-2026-08-08-00-19.md
+reposcan-2026-08-08-02-10.md
+reposcan-2026-08-08-02-23.md
+reposcan-2026-08-08-03-52.md
+reposcan-2026-08-08-04-47.md
+reposcan-2026-08-08-05-01.md
+reposcan-2026-08-08-05-29.md
+reposcan-2026-08-08-05-48.md
+reposcan-latest.md
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/leads/lead-bigpickle.md 2>/dev/null | tail -40; echo "===LATEST REPOSCAN==="; cat /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-latest.md 2>/dev/null | head -60
+reasoning: source-derived framing concrete (CspSocket reads SERVER_HELLO_LEN=80, SERVER_LOGIN_ACK_LEN=32, plain Socket on 5222); read-only connect returns 0 bytes on prod .202/.204 and staging .114.34 alike — server waits for client login frame; DNS topology newly mapped: staging is single-IP consolidation of a two-shard prod cluster (boundary 0x80), only group "0" resolves on either.
+evidence_needed: in-band difference in CSP server-hello/login-ack fields once a valid login frame is sent (version, test identity acceptance).
+verify_steps: AUTH_HELPED: with authorized staging test identity, send one framed login (16B cookie + 64B box + 32B ext-indicator + 24B reserved + 32B vouch) to staging vs prod 5222; compare server-hello/login-ack; ≤1 rps one attempt each, no data modification.
+impact: internet-reachable staging messenger backend → version skew/unpatched surface; severity low.
+testability: AUTH_HELPED
+[HYP] Staging work frontend/backend skew persists — license-token oracle if backend ships
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 45
+reasoning: staging bundle v2.25.1 implements GET (returns license username/password/expired/hasEmail) + PUT for the route; backend still returns method-agnostic 404 catch-all (900B) — re-confirmed this cycle; prod bundle has zero /public/* handlers; both builds frozen (hashes unchanged) so no catch-up in either direction.
+evidence_needed: backend deploys the route (returns ≠404 for a valid-format token).
+verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64zeros}` weekly; record 404 vs non-404; ≤1 rps.
+[HYP] Broadcast passkey ceremony endpoints reachable unauthenticated
+class: AUTH
+asset: https://broadcast.threema.ch (bundle v2.28.1, csrf_public_login_access)
+confidence: 50
+reasoning: Fresh prod surface (was TIMEOUT). Live login form embeds `csrf_public_login_access`; bundle implements full attestation+assertion ceremonies (challenge POST → `assertion_response` POST); no CSP/HSTS on served pages. Ceremony URL paths are minified/derived (template `${l}`/`${o}`/`${s}`/`${r}`), not yet resolved.
+evidence_needed: Resolved ceremony endpoint paths; whether challenge endpoint answers unauthenticated; any rate-limit/429 headers on challenge issuance.
+verify_steps: PASSIVE: resolve the minified URL-builder map feeding the `${l}`/`${o}`/`${s}`/`${r}` ceremony URLs in broadcast_public.js, then one GET each on https://broadcast.threema.ch, record status + rate-limit headers; full assertion needs a passkey (AUTH_HELPED). ≤1 rps.
+impact: unauth passkey-ceremony abuse/DoS; an assertion-validation flaw would be account-level — unproven; severity low→high contingent on endpoint reachability.
+testability: PASSIVE
+[HYP] Gateway control-plane unauth surface and /api nginx-deny escape
+class: AUTH
+asset: https://gateway.threema.ch (/en/login, /en/signup, /en/forgot-password, /api/*)
+confidence: 50
+reasoning: Fresh messaging-gateway control plane; login served with NO HSTS/Expect-CT/CSP (weaker than shop); `/api/`+`/api/v1/` return nginx-403 (routes gated, not absent); `trusted_redirect_origins` field present on login. No staging mirror (gateway.test 403) → no divergence oracle.
+evidence_needed: POST targets + CSRF field names + captcha presence on signup/forgot-password; whether any /api subpath escapes the nginx deny.
+verify_steps: PASSIVE: GET /en/signup and /en/forgot-password, capture CSRF/captcha/POST targets; GET a small set of plausible /api paths; do NOT submit POSTs (side effects). ≤1 rps.
+impact: unauthenticated customer-facing gateway surface; credential-page transport hardening gap; severity low (no vuln proven).
+testability: PASSIVE
+[HYP] Staging chat mirror shows version/test-identity skew
+class: MISCONFIG
+asset: g-{00..ff}.0.test.threema.ch:5222 (203.56.114.34)
+confidence: 50
+reasoning: Source-derived framing concrete (CspSocket reads SERVER_HELLO_LEN=80, SERVER_LOGIN_ACK_LEN=32, plain Socket on 5222); read-only connect returns 0 bytes on prod .202/.204 and staging .114.34 alike — server waits for the client login frame. Staging is a single-IP consolidation of the two-shard prod cluster (boundary 0x80); only group "0" resolves on either.
+evidence_needed: in-band difference in CSP server-hello/login-ack fields once a valid login frame is sent (version, test identity acceptance).
+verify_steps: AUTH_HELPED: with authorized staging test identity, send one framed login (16B cookie + 64B box + 32B ext-indicator + 24B reserved + 32B vouch) to staging vs prod 5222; compare server-hello/login-ack; ≤1 rps one attempt each, no data modification.
+impact: internet-reachable staging messenger backend → version skew/unpatched surface; severity low.
+testability: AUTH_HELPED
+[NEXT] PROBE: fetch `https://broadcast.threema.ch/cache/broadcast_public.js` (≤1 rps, single GET), resolve the minified template-literal URL builders feeding the WebAuthn ceremony calls (grep for the `/${l}`/`${o}`/`${s}`/`${r}` path segments and the `fetch(`/`axios` targets adjacent to `assertion_response`/`challenge`), then single GET each resolved ceremony path on https://broadcast.threema.ch recording status + 429/RateLimit headers. No POSTs, no passkey interaction this round.
+===LATEST REPOSCAN===
+
+===== REPOSCAN 2026-08-08 05:48:05 UTC =====
+## Grep hits:
+SCAN SUMMARY: 6656 code/config files scanned, 56 hits
+reposcan-raw/threema-ch/threema-ios/Threema/AppMigration.swift:873: let persistenceKeyLicensePassword = "Threema license password"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/SafeDataTests.swift:11: serverPassword: "password1",
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift:15: let expectedAuthToken = "authToken"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift:18: let expectedPassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:50: licenseStoreMock.licensePassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:72: (username: nil as String?, password: "testPassword" as String?, description: "nil username"),
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:148: licenseStoreMock.licensePassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:13: let expectedPassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:37: (username: nil as String?, password: "validPassword" as String?, description: "nil username"),
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:103: password: "testPassword",
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:67: let result = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:76: let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:105: let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift:30: let password = "abcdefghijkl"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift:227: let validPassword = "ABcd!@#tgk092"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:28: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:76: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:120: safePassword: "shootdeathstar"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift:38: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift:83: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt:49: """sfuToken='********', expirationDate=$expirationDate)"""
+reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:911: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/storage/models/WebClientSessionModel.java:28: public static final String COLUMN_PUSH_TOKEN = "push_token";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/storage/databaseupdate/DatabaseUpdateToVersion37.java:48: static final String COLUMN_PUSH_TOKEN = "push_token";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/utils/IceCandidateParser.java:43: public final static String TOKEN = "[a-zA-Z]+";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/webclient/converter/ClientInfo.java:37: private final static String PUSH_TOKEN = "pushToken";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt:70: "iceUsernameFragment='$iceUsernameFragment', icePassword='$icePassword', " +
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/notifications/NotificationChannels.kt:52: const val NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/dialogs/PasswordEntryDialog.java:47: public static final @NonNull String KEY_PASSWORD = "password";
+reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:15: publicApiKey = "b3e20afbf356a8748bb62ac165aa780c",
+reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:19: publicApiKey = "615af77cb3d980c41b3b04b07417cc7d",
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:147: DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:153: WORK_SERVER_LEGACY_URL: 'https://ds-apip-work.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:154: WORK_SERVER_URL: 'https://work.test.threema.ch/',
+
+## Model analysis:
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mecho "b3e20afbf356a8748bb62ac165aa780c" | sha256sum | cut -d' ' -f1
+3a826628a3584aedbc126b5510a786b8c8ff39a77f505a711ab3d40aa13bbfd3
+[0m
+[0m$ [0mecho "615af77cb3d980c41b3b04b07417cc7d" | sha256sum | cut -d' ' -f1
+3686395fe9274de4d839715ffadf1b3cfae473a204e8a11e27f9cbdf8aca2dee
+[0m
+### REAL_SECRET
+| File | Line | SHA256(secret) | Notes |
+|------|------|----------------|-------|
+| *(none)* |  |  | No hardcoded live credentials found |
+
+---
+[0m
+[0m$ [0mgrep -c "" /home/runner/work/threema-hunt/threema-hunt/reports/hypotheses-bigpickle.txt; echo "---TAIL---"; tail -30 /home/runner/work/threema-hunt/threema-hunt/reports/hypotheses-bigpickle.txt; echo "---BROADCAST refs---"; grep -in "broadcast" /home/runner/work/threema-hunt/threema-hunt/leads/lead-bigpickle.md | tail -15
+442
+---TAIL---
+evidence_needed: backend deploys the route (returns ≠404 for a valid-format token).
+verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64zeros}` weekly; record 404 vs non-404; ≤1 rps.
+[HYP] Broadcast passkey ceremony endpoints reachable unauthenticated
+class: AUTH
+asset: https://broadcast.threema.ch (bundle v2.28.1, csrf_public_login_access)
+confidence: 50
+reasoning: Fresh prod surface (was TIMEOUT). Live login form embeds `csrf_public_login_access`; bundle implements full attestation+assertion ceremonies (challenge POST → `assertion_response` POST); no CSP/HSTS on served pages. Ceremony URL paths are minified/derived (template `${l}`/`${o}`/`${s}`/`${r}`), not yet resolved.
+evidence_needed: Resolved ceremony endpoint paths; whether challenge endpoint answers unauthenticated; any rate-limit/429 headers on challenge issuance.
+verify_steps: PASSIVE: resolve the minified URL-builder map feeding the `${l}`/`${o}`/`${s}`/`${r}` ceremony URLs in broadcast_public.js, then one GET each on https://broadcast.threema.ch, record status + rate-limit headers; full assertion needs a passkey (AUTH_HELPED). ≤1 rps.
+impact: unauth passkey-ceremony abuse/DoS; an assertion-validation flaw would be account-level — unproven; severity low→high contingent on endpoint reachability.
+testability: PASSIVE
+[HYP] Gateway control-plane unauth surface and /api nginx-deny escape
+class: AUTH
+asset: https://gateway.threema.ch (/en/login, /en/signup, /en/forgot-password, /api/*)
+confidence: 50
+reasoning: Fresh messaging-gateway control plane; login served with NO HSTS/Expect-CT/CSP (weaker than shop); `/api/`+`/api/v1/` return nginx-403 (routes gated, not absent); `trusted_redirect_origins` field present on login. No staging mirror (gateway.test 403) → no divergence oracle.
+evidence_needed: POST targets + CSRF field names + captcha presence on signup/forgot-password; whether any /api subpath escapes the nginx deny.
+verify_steps: PASSIVE: GET /en/signup and /en/forgot-password, capture CSRF/captcha/POST targets; GET a small set of plausible /api paths; do NOT submit POSTs (side effects). ≤1 rps.
+impact: unauthenticated customer-facing gateway surface; credential-page transport hardening gap; severity low (no vuln proven).
+testability: PASSIVE
+[HYP] Staging chat mirror shows version/test-identity skew
+class: MISCONFIG
+asset: g-{00..ff}.0.test.threema.ch:5222 (203.56.114.34)
+confidence: 50
+reasoning: Source-derived framing concrete (CspSocket reads SERVER_HELLO_LEN=80, SERVER_LOGIN_ACK_LEN=32, plain Socket on 5222); read-only connect returns 0 bytes on prod .202/.204 and staging .114.34 alike — server waits for the client login frame. Staging is a single-IP consolidation of the two-shard prod cluster (boundary 0x80); only group "0" resolves on either.
+evidence_needed: in-band difference in CSP server-hello/login-ack fields once a valid login frame is sent (version, test identity acceptance).
+verify_steps: AUTH_HELPED: with authorized staging test identity, send one framed login (16B cookie + 64B box + 32B ext-indicator + 24B reserved + 32B vouch) to staging vs prod 5222; compare server-hello/login-ack; ≤1 rps one attempt each, no data modification.
+impact: internet-reachable staging messenger backend → version skew/unpatched surface; severity low.
+testability: AUTH_HELPED
+[NEXT] PROBE: fetch `https://broadcast.threema.ch/cache/broadcast_public.js` (≤1 rps, single GET), resolve the minified template-literal URL builders feeding the WebAuthn ceremony calls (grep for the `/${l}`/`${o}`/`${s}`/`${r}` path segments and the `fetch(`/`axios` targets adjacent to `assertion_response`/`challenge`), then single GET each resolved ceremony path on https://broadcast.threema.ch recording status + 429/RateLimit headers. No POSTs, no passkey interaction this round.
+---BROADCAST refs---
+360:[LEARN] ACCEPTED OTHER @ avatar.test.threema.ch / companylogo.test.threema.ch: 403, byte-identical posture to prod avatar/companylogo 403 — no divergence; broadcast.test / billing.test → 000 (unreachable, matches prod TIMEOUT).
+391:[LEARN] ACCEPTED OTHER @ avatar.test.threema.ch / companylogo.test.threema.ch: 403, byte-identical posture to prod avatar/companylogo 403 — no divergence; broadcast.test / billing.test → 000 (unreachable, matches prod TIMEOUT).
+451:asset: https://broadcast.threema.ch (v2.28.1, csrf_public_login_access)
+455:verify_steps: PASSIVE: resolve minified endpoint map feeding the `${l}`/`${o}`/`${s}`/`${r}` ceremony URLs in broadcast_public.js; then single GET of each endpoint on https://broadcast.threema.ch, record status + rate-limit headers; full assertion requires a passkey (AUTH_HELPED). ≤1 rps.
+486:[RISK] web: 85 reason: ds-apip/api/apip directory cluster confirmed with public identity oracle + bulk fetch + CORS* + no rate limit across 3 production hosts; safe-01 backup service live with permissive CORS; work/broadcast/gateway/shop accessible with PHP sessions, CSP, Sentry
+560:[NEW] work.test.threema.ch login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.ch, hcaptcha-work.threema.ch, billing.test.threema.ch (form-action), test.threema.com (img-src).
+637:[LEARN] ACCEPTED OTHER @ avatar.test.threema.ch / companylogo.test.threema.ch: 403, byte-identical posture to prod avatar/companylogo 403 — no divergence; broadcast.test / billing.test → 000 (unreachable, matches prod TIMEOUT).
+667:[LEARN] ACCEPTED OTHER @ avatar.test.threema.ch / companylogo.test.threema.ch: 403, byte-identical posture to prod avatar/companylogo 403 — no divergence; broadcast.test / billing.test → 000 (unreachable, matches prod TIMEOUT).
+726:asset: https://broadcast.threema.ch (v2.28.1, csrf_public_login_access)
+730:verify_steps: PASSIVE: resolve minified endpoint map feeding the `${l}`/`${o}`/`${s}`/`${r}` ceremony URLs in broadcast_public.js; then single GET of each endpoint on https://broadcast.threema.ch, record status + rate-limit headers; full assertion requires a passkey (AUTH_HELPED). ≤1 rps.
+852:[RISK] web: 85 reason: ds-apip/api/apip directory cluster — 3 prod hosts with public 200/404 identity oracle + fetch_bulk 200 + CORS * + no rate-limit (30 POSTs all 200); safe-01 backup API with permissive CORS + Authorization header + 5 hostnames; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed
+888:[HYP] Broadcast passkey ceremony endpoints reachable unauthenticated
+890:asset: https://broadcast.threema.ch (bundle v2.28.1, csrf_public_login_access)
+894:verify_steps: PASSIVE: resolve the minified URL-builder map feeding the `${l}`/`${o}`/`${s}`/`${r}` ceremony URLs in broadcast_public.js, then one GET each on https://broadcast.threema.ch, record status + rate-limit headers; full assertion needs a passkey (AUTH_HELPED). ≤1 rps.
+915:[NEXT] PROBE: fetch `https://broadcast.threema.ch/cache/broadcast_public.js` (≤1 rps, single GET), resolve the minified template-literal URL builders feeding the WebAuthn ceremony calls (grep for the `/${l}`/`${o}`/`${s}`/`${r}` path segments and the `fetch(`/`axios` targets adjacent to `assertion_response`/`challenge`), then single GET each resolved ceremony path on https://broadcast.threema.ch recording status + 429/RateLimit headers. No POSTs, no passkey interaction this round.
+[0m
+[0m$ [0mcd /tmp/opencode && curl -s -m 15 -o broadcast_public.js -w "HTTP %{http_code} size=%{size_download}\n" "https://broadcast.threema.ch/cache/broadcast_public.js" ; ls -la broadcast_public.js
+HTTP 200 size=1125461
+-rw-r--r-- 1 runner runner 1125461 Aug  8 06:02 broadcast_public.js
+[0m
+[0m$ [0mcd /tmp/opencode && grep -o 'assertion_response\|attestation_response\|challenge' broadcast_public.js | sort | uniq -c; echo "---template vars---"; grep -o '\${[lors]}' broadcast_public.js | sort | uniq -c; echo "---fetch/axios/baseURL---"; grep -oE 'baseURL:"[^"]*"|baseURL:"[^"]*|fetch\("\.?/[^"]*"|"/api[^"]*"|"/[a-zA-Z_/]*token[a-zA-Z_/]*"' broadcast_public.js | sort | uniq -c | head -40
+1 assertion_response
+      1 attestation_response
+      8 challenge
+---template vars---
+      6 ${l}
+     11 ${o}
+     24 ${r}
+     34 ${s}
+---fetch/axios/baseURL---
+[0m
+[0m$ [0mcd /tmp/opencode && grep -o '.\{180\}assertion_response.\{120\}' broadcast_public.js | head -5
+sertion ceremony at "${r}"`);const D=await fetch(r,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({csrf_public_login_access:i,assertion_response:JSON.stringify(u)})});v(`Server: "${D.statusText} ${D.status}"`),D.ok?(g||(window.location.href=l),n(6,b=!1)):(D.status
+[0m
+[0m$ [0mcd /tmp/opencode && grep -o '.\{600\}assertion_response.\{40\}' broadcast_public.js | head -1
+pplication/x-www-form-urlencoded"},body:new URLSearchParams({csrf_public_login_access:i})})).json()):Te.cancelCeremony(),v(`Server: sign this your challenge "${$.challenge}"`),v('Client: Creating assertion response at "navigator.credentials.get()"'),await qt($,u)}catch(D){n(5,_=!1),D instanceof Error&&D.name==="AbortError"?v("Ignoring aborted ceremonies"):n(6,b=!0)}},z=async u=>{try{n(5,_=!0),v(`Client: completing assertion ceremony at "${r}"`);const D=await fetch(r,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({csrf_public_login_access:i,assertion_response:JSON.stringify(u)})});v(`Server: "${D.s
+[0m
+[0m$ [0mcd /tmp/opencode && grep -o '.\{400\}"\.\.\./assertion_response".\{60\}' broadcast_public.js | head -3; echo "==="; grep -oE '[a-zA-Z_]+,?r=`[^`]*`|r="[^"]*"|`[^`]*assertion[^`]*`|`[^`]*challenge[^`]*`' broadcast_public.js | sort -u | head -20
+===
+`,code:"ERROR_INVALID_DOMAIN",cause:t})}else if(t.name==="TypeError"){if(n.user.id.byteLength<1||n.user.id.byteLength>64)return new P({message:"User ID was not between 1 and 64 characters",code:"ERROR_INVALID_USER_ID_LENGTH",cause:t})}else if(t.name==="UnknownError")return new P({message:"The authenticator was unable to process the specified options, or could not create a new credential",code:"ERROR_AUTHENTICATOR_GENERAL_ERROR",cause:t})}return t}class Ot{createNewAbortSignal(){if(this.controller){const n=new Error("Cancelling existing WebAuthn API call for new one");n.name="AbortError",this.controller.abort(n)}const e=new AbortController;return this.controller=e,e.signal}cancelCeremony(){if(this.controller){const e=new Error("Manually cancelling existing WebAuthn API call");e.name="AbortError",this.controller.abort(e),this.controller=void 0}}}const Te=new Ot,It=["cross-platform","platform"];function Ye(t){if(t&&!(It.indexOf(t)<0))return t}async function Dt(t){var m;if(!$e())throw new Error("WebAuthn is not supported in this browser");const n={publicKey:{...t,challenge:ve(t.challenge),user:{...t.user,id:Nt(t.user.id)},excludeCredentials:(m=t.excludeCredentials)==null?void 0:m.map(Xe)}};n.signal=Te.createNewAbortSignal();let s;try{s=await navigator.credentials.create(n)}catch(g){throw Pt({error:g,options:n})}if(!s)throw new Error("Registration was not completed");const{id:r,rawId:i,response:l,type:o}=s;let a;typeof l.getTransports=="function"&&(a=l.getTransports());let c;if(typeof l.getPublicKeyAlgorithm=="function")try{c=l.getPublicKeyAlgorithm()}catch(g){Ne("getPublicKeyAlgorithm()",g)}let d;if(typeof l.getPublicKey=="function")try{const g=l.getPublicKey();g!==null&&(d=j(g))}catch(g){Ne("getPublicKey()",g)}let f;if(typeof l.getAuthenticatorData=="function")try{f=j(l.getAuthenticatorData())}catch(g){Ne("getAuthenticatorData()",g)}return{id:r,rawId:j(i),response:{attestationObject:j(l.attestationObject),clientDataJSON:j(l.clientDataJSON),transports:a,publicKeyAlgorithm:c,publicKey:d,authenticatorData:f},type:o,clientExtensionResults:s.getClientExtensionResults(),authenticatorAttachment:Ye(s.authenticatorAttachment)}}function Ne(t,e){console.warn(`
+`,code:"ERROR_INVALID_DOMAIN",cause:t})}else if(t.name==="UnknownError")return new P({message:"The authenticator was unable to process the specified options, or could not create a new assertion signature",code:"ERROR_AUTHENTICATOR_GENERAL_ERROR",cause:t})}return t}async function qt(t,e=!1){var f,m;if(!$e())throw new Error("WebAuthn is not supported in this browser");let n;((f=t.allowCredentials)==null?void 0:f.length)!==0&&(n=(m=t.allowCredentials)==null?void 0:m.map(Xe));const s={...t,challenge:ve(t.challenge),allowCredentials:n},r={};if(e){if(!await Fe())throw Error("Browser does not support WebAuthn autofill");if(document.querySelectorAll("input[autocomplete$='webauthn']").length<1)throw Error('No <input> with "webauthn" as the only or last value in its `
+`Client: completing assertion ceremony at "${r}"`
+`Client: initiating assertion ceremony at "${s}"`
+`Server: ${D.status} ${D.statusText} - here's your challenge: "${ot.challenge}"`
+`Server: sign this your challenge "${$.challenge}"`
+r=""
+r="#666"
+r="#d2dee2"
+r="'+h+'"
+r="'+y+'"
+r="(?:\\\\[\\da-fA-F]{1,6}"
+r=","
+r=":not("
+r=">"
+r="\\s*([+-]?\\d+)\\s*"
+r="boolean"
+r="dompurify"
+r="end"
+r="numeric"
+[0m
+[0m$ [0mcd /tmp/opencode && grep -o '.\{500\}initiating assertion ceremony.\{20\}' broadcast_public.js | head -2; echo "===INIT ATT==="; grep -o '.\{120\}initiating attestation.\{20\}' broadcast_public.js | head -2; echo "===l= definitions==="; grep -oE '[a-zA-Z_$]{1,4}=`/[^`]*`' broadcast_public.js | sort -u | head -30
+xt:f}=e,{autofill:m=!1}=e,{verbose:g=!1}=e,h=!1,p=!1,_=!1,b=!1,w,y=[],$;const{log:v,clearLogs:M,logsStore:k}=et();g&&k.subscribe(u=>{n(8,y=u)}),je(async()=>{if(n(4,h=$e()),p=await Fe(),h&&p&&m){const u=await O(!0);u&&await z(u)}});const I=async()=>{$!==void 0&&(v("options have already been fetched from the server, cancelling the pending conditional ui ceremony"),Te.cancelCeremony(),$=void 0);const u=await O(!1);u&&await z(u)},O=async u=>{n(5,_=!u),n(6,b=!1);try{return M(),$===void 0?(v(`Client: initiating assertion ceremony at "${s}"`),$=await
+===INIT ATT===
+===l= definitions===
+[0m
+[0m$ [0mcd /tmp/opencode && grep -o '.\{260\}assertion ceremony at "\.\{40\}' broadcast_public.js | head -3; echo "===SEARCH PATTERN==="; grep -o '.\{120\}"${s}"' broadcast_public.js | head -3
+===SEARCH PATTERN===
+);u&&await z(u)},O=async u=>{n(5,_=!u),n(6,b=!1);try{return M(),$===void 0?(v(`Client: initiating assertion ceremony at "${s}"
+[0m
+[0m$ [0mcd /tmp/opencode && grep -o '.\{400\}Client: initiating assertion ceremony at "${s}".\{250\}' broadcast_public.js | head -1
+s:M,logsStore:k}=et();g&&k.subscribe(u=>{n(8,y=u)}),je(async()=>{if(n(4,h=$e()),p=await Fe(),h&&p&&m){const u=await O(!0);u&&await z(u)}});const I=async()=>{$!==void 0&&(v("options have already been fetched from the server, cancelling the pending conditional ui ceremony"),Te.cancelCeremony(),$=void 0);const u=await O(!1);u&&await z(u)},O=async u=>{n(5,_=!u),n(6,b=!1);try{return M(),$===void 0?(v(`Client: initiating assertion ceremony at "${s}"`),$=await(await fetch(s,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({csrf_public_login_access:i})})).json()):Te.cancelCeremony(),v(`Server: sign this your challenge "${$.challenge}"`),v('Clien
+[0m
+[0m$ [0mcd /tmp/opencode && grep -o '.\{2200\}Client: initiating assertion ceremony at "${s}"' broadcast_public.js | head -1
+.m(n,null)),(!a||_&2&&i!==(i=Y(p[1])+" svelte-y2ewq3"))&&C(n,"class",i),(!a||_&66)&&K(n,"remove",p[6]),(!a||_&66)&&K(n,"invalid",p[6]),p[7]?h?h.p(p,_):(h=rt(p),h.c(),h.m(o.parentNode,o)):h&&(h.d(1),h=null)},i(p){a||(A(r),a=!0)},o(p){x(r),a=!1},d(p){p&&(R(e),R(l),R(o)),m[s].d(),h&&h.d(p),c=!1,d()}}}function tn(t){let e=(t[6]?t[2]:t[0])+"",n;return{c(){n=V(e)},m(s,r){S(s,n,r)},p(s,r){r&69&&e!==(e=(s[6]?s[2]:s[0])+"")&&J(n,e)},i:T,o:T,d(s){s&&R(n)}}}function nn(t){let e,n;return e=new Pe({props:{size:"small"}}),{c(){_e(e.$$.fragment)},m(s,r){ce(e,s,r),n=!0},p:T,i(s){n||(A(e.$$.fragment,s),n=!0)},o(s){x(e.$$.fragment,s),n=!1},d(s){ue(e,s)}}}function rt(t){let e,n;return{c(){e=N("p"),n=V(t[7]),C(e,"class","svelte-y2ewq3"),K(e,"invalid-text",!0)},m(s,r){S(s,e,r),q(e,n)},p(s,r){r&128&&J(n,s[7])},d(s){s&&R(e)}}}function it(t){let e,n;return e=new Oe({props:{logs:t[8]}}),{c(){_e(e.$$.fragment)},m(s,r){ce(e,s,r),n=!0},p(s,r){const i={};r&256&&(i.logs=s[8]),e.$set(i)},i(s){n||(A(e.$$.fragment,s),n=!0)},o(s){x(e.$$.fragment,s),n=!1},d(s){ue(e,s)}}}function sn(t){let e,n,s,r=t[4]&&st(t),i=t[3]&&it(t);return{c(){r&&r.c(),e=re(),i&&i.c(),n=de()},m(l,o){r&&r.m(l,o),S(l,e,o),i&&i.m(l,o),S(l,n,o),s=!0},p(l,[o]){l[4]?r?(r.p(l,o),o&16&&A(r,1)):(r=st(l),r.c(),A(r,1),r.m(e.parentNode,e)):r&&(X(),x(r,1,1,()=>{r=null}),G()),l[3]?i?(i.p(l,o),o&8&&A(i,1)):(i=it(l),i.c(),A(i,1),i.m(n.parentNode,n)):i&&(X(),x(i,1,1,()=>{i=null}),G())},i(l){s||(A(r),A(i),s=!0)},o(l){x(r),x(i),s=!1},d(l){l&&(R(e),R(n)),r&&r.d(l),i&&i.d(l)}}}function rn(t,e,n){let{startEndpoint:s}=e,{completeEndpoint:r}=e,{csrfToken:i}=e,{redirectUrl:l}=e,{actionText:o}=e,{actionClassNames:a=""}=e,{retryText:c}=e,{errorText:d}=e,{unsupportedText:f}=e,{autofill:m=!1}=e,{verbose:g=!1}=e,h=!1,p=!1,_=!1,b=!1,w,y=[],$;const{log:v,clearLogs:M,logsStore:k}=et();g&&k.subscribe(u=>{n(8,y=u)}),je(async()=>{if(n(4,h=$e()),p=await Fe(),h&&p&&m){const u=await O(!0);u&&await z(u)}});const I=async()=>{$!==void 0&&(v("options have already been fetched from the server, cancelling the pending conditional ui ceremony"),Te.cancelCeremony(),$=void 0);const u=await O(!1);u&&await z(u)},O=async u=>{n(5,_=!u),n(6,b=!1);try{return M(),$===void 0?(v(`Client: initiating assertion ceremony at "${s}"
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oE '.{80}startEndpoint.{80}' broadcast_public.js | head -10
+)}}}function Qt(t,e,n){let{linkText:s}=e,{errorText:r}=e,{unsupportedText:i}=e,{startEndpoint:l}=e,{completeEndpoint:o}=e,{csrfToken:a}=e,{unsupportedBrowserText:c}=e,{input
+ext"in u&&n(13,r=u.errorText),"unsupportedText"in u&&n(14,i=u.unsupportedText),"startEndpoint"in u&&n(15,l=u.startEndpoint),"completeEndpoint"in u&&n(16,o=u.completeEndpoint
+uctor(e){super(),be(this,e,Qt,Jt,se,{linkText:0,errorText:13,unsupportedText:14,startEndpoint:15,completeEndpoint:16,csrfToken:17,unsupportedBrowserText:1,inputPlaceholder:2
+ this.$$.ctx[14]}set unsupportedText(e){this.$$set({unsupportedText:e}),E()}get startEndpoint(){return this.$$.ctx[15]}set startEndpoint(e){this.$$set({startEndpoint:e}),E()
+-text"},unsupportedText:{reflect:!1,type:"String",attribute:"unsupported-text"},startEndpoint:{reflect:!1,type:"String",attribute:"start-endpoint"},completeEndpoint:{reflect
+(r),x(i),s=!1},d(l){l&&(R(e),R(n)),r&&r.d(l),i&&i.d(l)}}}function rn(t,e,n){let{startEndpoint:s}=e,{completeEndpoint:r}=e,{csrfToken:i}=e,{redirectUrl:l}=e,{actionText:o}=e,
+e failed"),n(6,b=!0),n(5,_=!1))}catch{n(5,_=!1),n(6,b=!0)}};return t.$$set=u=>{"startEndpoint"in u&&n(10,s=u.startEndpoint),"completeEndpoint"in u&&n(11,r=u.completeEndpoint
+I,s,r,i,l,d,f,m]}class on extends Ee{constructor(e){super(),be(this,e,rn,sn,se,{startEndpoint:10,completeEndpoint:11,csrfToken:12,redirectUrl:13,actionText:0,actionClassName
+xt:15,autofill:16,verbose:3},en)}get startEndpoint(){return this.$$.ctx[10]}set startEndpoint(e){this.$$set({startEndpoint:e}),E()}get completeEndpoint(){return this.$$.ctx[
+.$$set({verbose:e}),E()}}customElements.define("webauthn-authentication",ye(on,{startEndpoint:{reflect:!1,type:"String",attribute:"start-endpoint"},completeEndpoint:{reflect
+[0m
+[0m$ [0mcd /tmp/opencode && curl -s -m 15 -L -o broadcast_login.html -w "HTTP %{http_code} size=%{size_download}\n" "https://broadcast.threema.ch/" ; grep -oE 'start-endpoint="[^"]*"|complete-endpoint="[^"]*"|webauthn[a-z-]*' broadcast_login.html | sort -u | head
+HTTP 200 size=5101
+webauthn
+webauthn-authentication
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oE '.{100}webauthn-authentication.{200}' broadcast_login.html; echo "==="; grep -oE 'startEndpoint|completeEndpoint|endpoint|csrf_public_login_access' broadcast_login.html | sort | uniq -c
+ut type="submit" style="position: absolute; left: -99999px"/></div><div style="text-align: center"><webauthn-authentication start-endpoint='/en/login/passkey/start' complete-endpoint='/en/login/passkey/complete' csrf-token='f3b50891f45d2c90ae5d055ed3b08852ad729c3b' redirect-url='/en/login?r=https%3A%2F%2Fbroadcast.threema
+text='Unable to sign in with your passkey.' action-classnames='button submit secondary' autofill ></webauthn-authentication></div></form></div></div></div></div><footer id="footer"><div><div id="ffooter"><div id="made">Made in Switzerland. © 2026 Threema AG</div><ul id="footer-bottom-menu"><li><a href="/en/terms-of-servic
+===
+      2 csrf_public_login_access
+      2 endpoint
+[0m
+Resolved the ceremony endpoints. Now let me probe them passively.
+[0m$ [0mcd /tmp/opencode && sleep 1 && curl -s -m 15 -o /dev/null -w "start GET: %{http_code}\n" "https://broadcast.threema.ch/en/login/passkey/start" && sleep 1 && curl -s -m 15 -i "https://broadcast.threema.ch/en/login/passkey/start" -X POST -H "Content-Type: application/x-www-form-urlencoded" -H "Cookie: __Host-csrf_public_login_access=f3b50891f45d2c90ae5d055ed3b08852ad729c3b" -d "csrf_public_login_access=f3b50891f45d2c90ae5d055ed3b08852ad729c3b" 2>&1 | head -30
+start GET: 404
+HTTP/2 401 
+server: nginx
+date: Sat, 08 Aug 2026 06:03:19 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: SESSIONID=6j22qilrbtplvffaijuo0lsv32; path=/; secure; HttpOnly; SameSite=Strict
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+[0m
+[0m$ [0msleep 1 && curl -s -m 15 -o /dev/null -w "signup GET: %{http_code} sz=%{size_download}\n" "https://gateway.threema.ch/en/signup" ; sleep 1; curl -s -m 15 -o /dev/null -w "forgot GET: %{http_code} sz=%{size_download}\n" "https://gateway.threema.ch/en/forgot-password" ; sleep 1; curl -s -m 15 -o /dev/null -w "gateway api GET: %{http_code}\n" "https://gateway.threema.ch/api/"
+signup GET: 200 sz=14333
+forgot GET: 200 sz=4165
+gateway api GET: 403
+[0m
+[0m$ [0mcd /tmp/opencode && curl -s -m 15 -L "https://gateway.threema.ch/en/signup" -o gw_signup.html && curl -s -m 15 -L "https://gateway.threema.ch/en/forgot-password" -o gw_forgot.html && grep -oE 'action="[^"]*"|name="csrf[^"]*"|name="[a-z_]*token[a-z_]*"|hcaptcha|recaptcha|turnstile|g-recaptcha' gw_signup.html gw_forgot.html | sort -u | head -20
+gw_forgot.html:hcaptcha
+gw_forgot.html:name="csrf_gw-forgot-password"
+gw_signup.html:hcaptcha
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oE '<form[^>]*>' gw_signup.html | head -5; echo "---hidden inputs---"; grep -oE '<input[^>]*type="hidden"[^>]*>' gw_signup.html | head -10; echo "---forgot form---"; grep -oE '<form[^>]*>' gw_forgot.html | head -5; grep -oE '<input[^>]*type="hidden"[^>]*>' gw_forgot.html | head -10
+<form method="POST">
+---hidden inputs---
+<input class="" type="hidden" name="client[csrf_client]" id="client__csrf_client" value="5bb1a64413aee811446d52826a463f9bcadcd20b"/>
+---forgot form---
+<form method="POST">
+<input class="" type="hidden" name="csrf_gw-forgot-password" id="csrf_gw-forgot-password" value="6fc677c84ccd70f8132d167f7a9d97f5fb1fcdf5"/>
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && for f in reports/analyst-laguna.log reports/analyst-nemotron3.log reports/analyst-ling3.log reports/analyst-longcat.log; do echo "=== $f ==="; tail -12 "$f"; done
+=== reports/analyst-laguna.log ===
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts:177:                    // an incomplete join process.
+/tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts:178:                    fs.rmSync(databasePath, {force: true});
+[0m
+[0m$ [0mgrep -rn "identityData" /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/ 2>/dev/null | head -5 && echo "=== identity structure ===" && grep -rn "interface.*IdentityData\|IdentityData\b" /tmp/opencode/threema-desktop/apps/desktop/src/common/identity/ 2>/dev/null | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts:61:        identityData: v
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts:109:    | 'identityData'
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v1.ts:163:        identityData: validated.identityData,
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts:62:        identityData: v
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts:95:    'identityData' | 'dgk' | 'databaseKey' | 'deviceIds' | 'deviceCookie'
+=== identity structure ===
+[0m
+Let me read the inner key storage layer to confirm the identity keypair and database key structure.
+=== reports/analyst-nemotron3.log ===
+
+[LEARN] (no new learnings this cycle)
+
+---
+
+### STEP 7 — RISK SCORE
+
+[RISK] chat: 60 reason: g-*.0.threema.ch prod pattern still unenumerated; staging g-*.0.test reachable but likely out of scope; core messaging infra but no visible HTTP endpoints
+[RISK] web: 90 reason: ds-apip/api/apip directory cluster — 3 prod hosts with public 200/404 identity oracle + fetch_bulk 200 + CORS * + no rate-limit (30 POSTs all 200); safe-01 backup API with permissive CORS + Authorization header + 5 hostnames; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed
+[RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve (split routing 203.56.112.247 | 203.56.114.247), uniform 403 on HTTPS; WSS paths high-entropy; auth model in source, not passively enumerable
+[RISK] safe: 85 reason: safe-01.live with CORS *, write-capable methods (GET,HEAD,PUT,PATCH,POST,DELETE), Access-Control-Allow-Headers: Authorization, HSTS+Expect-CT; backup API credential-gated (400) but cross-origin auth requests possible; 5 hostnames same IP; no 429 observed
+[RISK] desktop-src: 85 reason: Electron BrowserWindow sandbox disabled (TODO DEK-79) + nodeIntegrationInWorker: true (TODO DEK-79); Windows key-storage ACL bypass ACCEPTED; OnPrem config trust REJECTED (Ed25519 sig verified); staging URLs baked into builds; key storage Argon2id + DPAPI (decent but weak on Windows)
+=== reports/analyst-ling3.log ===
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_33cd6e59"
+  }
+}
+===== ANALYST ling3 2026-08-08 05:26:39 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_a7d584c0"
+  }
+}
+=== reports/analyst-longcat.log ===
+===== ANALYST longcat 2026-08-08 03:47:32 UTC =====
+[0m
+> build · longcat-2.0-free
+[0m
+===== ANALYST longcat 2026-08-08 04:43:47 UTC =====
+[0m
+> build · longcat-2.0-free
+[0m
+===== ANALYST longcat 2026-08-08 05:26:39 UTC =====
+[0m
+> build · longcat-2.0-free
+[0m
+[0m
+Resolved the broadcast ceremony surface. Let me complete the passive gateway /api enumeration for this cycle's NEXT action.
+[0m$ [0mcd /tmp/opencode && for p in /api/register /api/login /api/signup /api/v1/echo /api/v1/identities /api/config /api/status /api/user /api/password/reset; do sleep 1; curl -s -m 12 -o /dev/null -w "$p -> %{http_code} (%{size_download}B)\n" "https://gateway.threema.ch$p"; done
+/api/register -> 403 (146B)
+/api/login -> 403 (146B)
+/api/signup -> 403 (146B)
+/api/v1/echo -> 403 (146B)
+/api/v1/identities -> 403 (146B)
+/api/config -> 403 (146B)
+/api/status -> 403 (146B)
+/api/user -> 403 (146B)
+/api/password/reset -> 403 (146B)
+[0m
+Probes complete. Here is the cycle analysis.
+
+---
+
+**STEP 1 — DELTA**
+- [NEW] broadcast.threema.ch WebAuthn ceremony endpoints resolved from bundle: `POST /en/login/passkey/start` + `POST /en/login/passkey/complete` (Svelte props `start-endpoint`/`complete-endpoint` on `<webauthn-authentication>`); `GET` on start → 404 (POST-only route)
+- [NEW] broadcast.threema.ch: POST start with orphaned `csrf_public_login_access` (no matching SESSIONID) → 401 — challenge issuance is session+CSRF-bound, not freely unauthenticated
+- [NEW] gateway.threema.ch `/en/signup` → 200 (14,333B): POST-to-self form, hidden `client[csrf_client]`, hCaptcha
+- [NEW] gateway.threema.ch `/en/forgot-password` → 200 (4,165B): POST-to-self form, `csrf_gw-forgot-password`, hCaptcha
+- [NEW] gateway.threema.ch `/api/*` (9 paths incl. register/login/signup/v1/echo/identities/config/status/user/password/reset) → uniform nginx 403 (146B) — blanket nginx deny, no per-route escape via enumeration
+- [CHANGED] broadcast passkey-ceremony hypothesis downgraded (endpoints exist but session-gated; see PARKED below)
+
+**STEP 2 — PRIORITIZE**
+- [PRIO] work.test.threema.ch `/api-app/public/*` — priority 6.5 — attack 6, business 7, tech 5, gate 10, cloud 3, fresh 7
+- [PRIO] directory cluster ds-apip/api/apip identity oracle — priority 6.2 — attack 7, business 5, tech 6, gate 10, cloud 4, fresh 4
+- [PRIO] gateway.threema.ch control plane (signup/forgot/`/api/*`) — priority 5.55 — attack 5, business 6, tech 4, gate 8, cloud 2, fresh 8
+- [PRIO] broadcast.threema.ch ceremony endpoints — priority 5.2 — attack 5, business 6, tech 5, gate 4, cloud 2, fresh 9
+- [PRIO] g-*.0.test.threema.ch:5222 staging chat mirror — priority 4.25 — attack 4, business 7, tech 4, gate 2, cloud 2, fresh 4
+
+**STEP 3 — HYPOTHESES**
+[HYP] Staging work license-token backend catch-up → credential oracle
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 45
+reasoning: staging bundle v2.25.1 implements GET (license username/password/expired/hasEmail) + PUT for this route; backend re-confirmed method-agnostic 404 catch-all (900B); prod bundle has zero /public/* handlers; both builds frozen (hashes unchanged).
+evidence_needed: backend deploys the route (returns ≠404 for a valid-format 64-char token).
+verify_steps: PASSIVE: weekly single GET `/api-app/public/license/token/{64zeros}` + `/api-app/public/global/settings`; record 404 vs non-404; ≤1 rps.
+impact: if shipped, unauthenticated 64-hex license-token → credential oracle; low (tokens high-entropy).
+testability: PASSIVE
+
+[HYP] Gateway control-plane transport/CAPTCHA surface and /api hard-block
+class: BUSLOGIC
+asset: https://gateway.threema.ch (/en/signup, /en/forgot-password, /api/*)
+confidence: 45
+reasoning: signup+forgot both 200 with POST-to-self forms, per-form CSRF (`client[csrf_client]`, `csrf_gw-forgot-password`) and hCaptcha; login served with NO HSTS/Expect-CT/CSP (weaker than shop); all 9 probed /api paths → uniform nginx 403 (146B) so route map not reachable.
+evidence_needed: forgot-password response behavior for known vs unknown email (enumeration) — requires authorized account mapping (AUTH_HELPED); captcha-skippable forms unproven without side-effect POSTs.
+verify_steps: AUTH_HELPED: with authorized gateway test credentials, compare forgot-password responses for own-valid vs invalid email; GET-only /api enumeration exhausted (blanket 403).
+impact: transport-hardening gap + potential email-enumeration; severity low (no vuln proven).
+testability: AUTH_HELPED
+
+[HYP] Broadcast passkey ceremony answerable with server-issued session+CSRF — self-provisioned
+class: AUTH
+asset: https://broadcast.threema.ch/en/login/passkey/start
+confidence: 42
+reasoning: endpoints resolved to POST-only routes; GET → 404; POST with orphaned csrf → 401; server freely issues session+csrf on unauthenticated GET /, so any visitor can complete a self-challenge ceremony; no cross-user leverage observed.
+evidence_needed: whether a valid-session POST issues a challenge with 429/RateLimit headers (one valid POST — side-effect, deferred).
+verify_steps: PASSIVE (limited): single GET / captures fresh csrf+SESSIONID to confirm issuance; do NOT repeat challenge POST this cycle.
+impact: self-session challenge issuance at most self-DoS; severity low.
+testability: PASSIVE
+
+**STEP 4 — SELF-CRITIQUE**
+- [PARKED] Broadcast passkey ceremony endpoints reachable unauthenticated (conf 50): resolved endpoints are session+CSRF-gated — POST with orphaned csrf → 401, GET → 404; the high-impact "unauth ceremony abuse" branch is disproven, residual is self-session-only.
+- [FINAL] 1) work.test license-token catch-up (45), 2) gateway control-plane (45), 3) broadcast gated ceremony (42).
+
+**STEP 5 — NEXT ACTION**
+[NEXT] PROBE: weekly catch-up checks — single GET `https://work.test.threema.ch/api-app/public/global/settings` and single GET `https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000`; if license-token returns ≠404, escalate to valid-format token probes (never real tokens); ≤1 rps, GET only.
+
+**STEP 6 — LEARNING**
+- [LEARN] ACCEPTED AUTH @ broadcast.threema.ch: WebAuthn ceremony endpoints `POST /en/login/passkey/start` + `/en/login/passkey/complete` exist (GET → 404) but are session+CSRF-bound — POST with orphaned `csrf_public_login_access` → 401; not freely unauthenticated.
+- [LEARN] ACCEPTED OTHER @ gateway.threema.ch: `/api/*` blanket nginx 403 (146B) across register/login/signup/v1/echo/identities/config/status/user/password/reset — no per-route escape via HTTP enumeration; signup/forgot-password forms POST-to-self with per-form CSRF + hCaptcha, no HSTS/CSP on login.
+
+**STEP 7 — RISK SCORE**
+- [RISK] chat: 58 reason: staging g-*.0.test.chat 5222 reachable but read-only probe returns 0 bytes (no in-band divergence); prod 5222 closed without login frame; core infra not passively enumerable
+- [RISK] web: 88 reason: directory cluster 3 prod hosts public 200/404 identity oracle + fetch_bulk + CORS* + no rate-limit; safe-01 credential-gated backup API with permissive CORS+Authorization; work/broadcast/gateway/shop cockpits live; staging work public-API divergence; broadcast ceremony routes now mapped (gated)
+- [RISK] sync: 60 reason: mediator/rendezvous resolve with split routing, uniform 403; WSS paths high-entropy; auth model source-only
+- [RISK] safe: 85 reason: safe-01 live, CORS* + write methods + Authorization header + HSTS/Expect-CT; credential-gated (400) but cross-origin credentialed requests possible; 5 hostnames → single IP; no 429 observed
+- [RISK] desktop-src: 85 reason: Electron sandbox:false + nodeIntegrationInWorker:true (TODO DEK-79); Windows key-storage ACL bypass ACCEPTED; OnPrem config trust REJECTED (verified); staging URLs baked into builds
