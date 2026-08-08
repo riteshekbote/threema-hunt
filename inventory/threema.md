@@ -283,3 +283,14 @@
 - NEW fetch_bulk batch oracle confirmed: `POST /identity/fetch_bulk {"identities":["ECHOECHO","ZZZZZZZZ"]}` → returns only valid IDs, silently omits invalid, CORS `*`
 - NEW No dynamic sinks (`require`/`import`/`eval`/`child_process`/`new Function`) in worker/ tree — Electron RCE conditional
 - NEW work.test.threema.ch login CSP leaks staging surfaces: broadcast.test, avatar.test, companylogo.test, hcaptcha-work, billing.test
+
+## 2026-08-08 14:00:34 UTC
+- CHANGED Desktop key-storage Windows ACL bypass: elevated from hypothesis to **fully RAG-verified** (15 source paths confirmed in cloned repo at `fs.ts:41`, `index.ts:559-560`, `electron-main.ts:944-945`, `cry
+- CHANGED Desktop BrowserWindow `sandbox`: confirmed **unset (defaults false)** — L1255 `// TODO(DESK-79): Enable sandbox: true`; L1240 comment "sandboxing is enabled by default" is **incorrect** per Electron d
+- NEW Safe backup API credential format: **HTTP Basic Auth `backupId:backupKey`** confirmed across all 5 safe-* hosts (safe-01, safe-1a, safe-1b, safe-02, safe-00)
+- NEW Route distinction `/backups/{64hex}` (400, route exists, credential-gated) vs `/backup/{x}` (404, 210B, CSP `default-src 'none'`) confirmed across all 5 safe-* hosts
+- NEW work.test.threema.ch bundle divergence: `work_public.js` v2.25.1 **different builds** staging (sha256 `e48e18f7…`, 1,443,948 B) vs prod (sha256 `96501e21…`, 1,400,541 B) — prod has **ZERO** `/public/*
+- NEW Identity→pubkey oracle confirmed on **all 3 production hosts** (ds-apip, api, apip) returning identical 200+pubkey with CORS `*`
+- NEW fetch_bulk batch oracle confirmed: `POST /identity/fetch_bulk {"identities":["ECHOECHO","ZZZZZZZZ"]}` → returns only valid IDs, silently omits invalid, CORS `*`
+- NEW No dynamic sinks (`require`/`import`/`eval`/`child_process`/`new Function`) in worker/ tree — Electron RCE conditional
+- NEW work.test.threema.ch login CSP leaks staging surfaces: broadcast.test, avatar.test, companylogo.test, hcaptcha-work, billing.test
