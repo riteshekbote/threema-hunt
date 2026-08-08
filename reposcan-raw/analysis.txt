@@ -1,3 +1,70 @@
 [0m
 > build · nemotron-3-ultra-free
 [0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts[90m [limit=30, offset=215][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt
+Now I have all the context needed. Let me classify all hits:
+
+---
+
+### **REAL_SECRET**
+| File | Line | SHA256(secret) | Verdict |
+|------|------|----------------|---------|
+| *(none)* | — | — | No live credentials found |
+
+---
+
+### **TEST_OR_EXAMPLE**
+| File | Line | Pattern | Context |
+|------|------|---------|---------|
+| threema-ios/Threema/AppMigration.swift | 873 | `"Threema license password"` | Test constant |
+| threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | `"password1"` | Test fixture |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15 | `"authToken"` | Test mock |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 18 | `"testPassword"` | Test fixture |
+| threema-ios/.../WorkDataThreemaMDMFetcherTests.swift | 50,72,148 | `"testPassword"` | Test fixtures |
+| threema-ios/.../WorkDataAPICallerTests.swift | 13,37,103 | `"testPassword"`, `"validPassword"` | Test fixtures |
+| threema-ios/ThreemaTests/SafeTests.swift | 67,76,105 | `"shootdeathstar"` | Test password |
+| threema-ios/.../ThreemaSafePasswordValidatorTests.swift | 30,227 | `"abcdefghijkl"`, `"ABcd!@#tgk092"` | Validator test cases |
+| threema-ios/.../HttpClientDownloadSafeTests.swift | 28,76,120 | `"shootdeathstar"` | Manual test |
+| threema-ios/.../HttpClientUploadSafeTests.swift | 38,83 | `"shootdeathstar"` | Manual test |
+| threema-android/.../PasswordEntryDialog.java | 47 | `"password"` | Constant key name |
+| threema-desktop/.../test-data.ts | 62 | `'CHANGE_ME'` | Placeholder |
+
+---
+
+### **ENDPOINT_LEAK** (staging/internal URLs in source)
+| File | Line | Endpoint |
+|------|------|----------|
+| threema-ios/.../directory.openapi.yml | 7, 917 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
+| threema-android/.../directory.openapi.yml | 7, 911 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
+| threema-desktop/.../vite.config.ts | 147, 153-154 | `https://ds-apip.test.threema.ch/`, `https://ds-apip-work.test.threema.ch/`, `https://work.test.threema.ch/` |
+| threema-desktop/.../directory.openapi.yml | 7, 911 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
+
+---
+
+### **INTERESTING**
+| File | Line | Finding |
+|------|------|---------|
+| threema-android/.../SentryConfig.kt | 15, 19 | Sentry **public** DSN keys (`b3e20afb...`, `615af77c...`) — public by design for error reporting |
+| threema-android/.../IceCandidateParser.java | 43 | ICE token regex constant |
+| threema-android/.../ClientInfo.java | 37 | Push token constant name |
+| threema-android/.../JoinResponse.kt | 70 | ICE username/password field names (protocol) |
+| threema-android/.../NotificationChannels.kt | 52 | Notification channel constant |
+| threema-desktop/.../crypto.ts | 223 | Benchmark password `'r3gGN9GDQ5NF6tM6'` — **confirmed benchmark-only**, key purged at L233 (RAG-verified) |
+| threema-desktop/.../ice-password.ts | 12 | ICE password validation logic |
+| threema-desktop/.../enum/index.ts | 3126, 3162 | Enum constants `LOAD_USER_PASSWORD`, `STORE_USER_PASSWORD` |
+| threema-desktop/.../schema.ts | 983, 1000 | Same enum constants (source of generation) |
+
+---
+
+### **VERDICT LIST**
+
+| Candidate | Category | REPORT_CANDIDATE |
+|-----------|----------|------------------|
+| Hardcoded password in `crypto.ts:223` | REJECTED (benchmark-only, purged) | **no** |
+| Sentry publicApiKeys in `SentryConfig.kt` | INTERESTING (public DSN, not secret) | **no** |
+| Staging URLs in `directory.openapi.yml` / `vite.config.ts` | ENDPOINT_LEAK (known staging, in scope) | **no** — already tracked in RAG |
+| All test passwords/fixtures | TEST_OR_EXAMPLE | **no** |
+| ICE/push token constants | INTERESTING (protocol constants) | **no** |
+
+**No new reportable secrets or vulnerabilities found in this scan delta.** All findings are either test data, known staging endpoints (already documented in RAG), public DSN keys, or the previously-rejected benchmark password.
