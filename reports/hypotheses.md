@@ -168,3 +168,24 @@
 - LEARN: ACCEPTED OTHER @ work.test.threema.ch: `__HOST-HTTP-SESSIONID` cookie set on unauthenticated GET /en/login (Secure/HttpOnly/SameSite=Strict)
 - LEARN: ACCEPTED AUTH @ work.test.threema.ch: `/api-app/me/profile` and `/api-app/global/settings` → 302; only `/api-app/public/*` namespace is open (namespace gating c
 - LEARN: ACCEPTED OTHER @ work.test.threema.ch: `/info/ping.php` → 200 empty and `/ping` → 204 identical on staging and prod — no divergence
+
+## RANKED HYPOTHESES 2026-08-08 02:19:22 UTC
+- [95] apps/desktop/src/common/node/{fs,key-storage/index.ts,crypto.ts}: Desktop Windows key-storage ACL bypass → master-password recovery → identity keypair + DB decryption (from reports/hypotheses-laguna.txt)
+- [75] https://work.test.threema.ch/api-app/public/*: Staging work public API namespace exposes endpoints absent on production (from reports/hypotheses-nemotron3.txt)
+- [52] ds-apip-work.threema.ch/identities: Work directory /identities cross-subscription metadata disclosure (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -L -m 12 https://work.test.threema.ch/en/login -o /tmp/opencode/worktest_login.html -w "%{http_code} %{url_effective}", then extract referenced J
+- NEXT(hypotheses-bigpickle.txt): PROBE: weekly staging catch-up check — single `GET https://work.test.threema.ch/api-app/public/license/token/000000000000000000000000000000000000000000000000000
+- NEXT(hypotheses-laguna.txt): RAG: Run `grep -rn "require(\|import(\|eval(\|process\.mainModule\|child_process\|fs\." /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/backend-wo
+- LEARN: ACCEPTED IDOR @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work API en
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed)
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: `__HOST-HTTP-SESSIONID` cookie set on unauthenticated GET /en/login (Secure/HttpOnly/SameSite=Strict)
+- LEARN: ACCEPTED AUTH @ work.test.threema.ch: `/api-app/me/profile` and `/api-app/global/settings` → 302; only `/api-app/public/*` namespace is open (namespace gating c
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: `/info/ping.php` → 200 empty and `/ping` → 204 identical on staging and prod — no divergence
+- LEARN: ACCEPTED MISCONFIG @ work.test.threema.ch bundle divergence: work_public.js v2.25.1 DIFFERENT builds staging vs prod (staging sha256 e48e18f79df0125e8942f8fd956
+- LEARN: ACCEPTED OTHER @ work.threema.ch: prod DOES route /api-app — GET /api-app/me/profile → 302 to /en/login?r=%2Fapi-app%2Fme%2Fprofile; only /public/* namespace ab
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: /api-app/public/license/token/{64hex} → 404 HTML catch-all (900B) for GET, PUT, AND OPTIONS — method-agnostic; backend ro
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: /api-app/public/* namespace map closed on both hosts — /, /global/, /config, /registration, /license/, /global/app-downlo
+- LEARN: ACCEPTED OTHER @ g-*.0.{test.,}threema.ch chat: read-only TCP connect to 5222 returns 0 bytes on BOTH staging (203.56.114.34) and prod (203.56.112.202) — no ser
+- LEARN: ACCEPTED OTHER @ hcaptcha-work.threema.ch: 200 serving hCaptcha's own Webflow marketing page (Last Published 2026-07-30) — third-party captcha host, out-of-scop
+- LEARN: ACCEPTED OTHER @ avatar.test.threema.ch / companylogo.test.threema.ch: 403, byte-identical posture to prod avatar/companylogo 403 — no divergence; broadcast.tes

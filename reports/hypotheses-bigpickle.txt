@@ -1,30 +1,37 @@
-## 2026-08-08 00:15:31 UTC [chat] (model bigpickle)
+## 2026-08-08 02:19:13 UTC [chat] (model bigpickle)
+[LEARN] ACCEPTED MISCONFIG @ work.test.threema.ch bundle divergence: work_public.js v2.25.1 DIFFERENT builds staging vs prod (staging sha256 e48e18f79df0125e8942f8fd9566f0c7924d15d7229377b553cf666b1bca7b87, 1,443,948 B; prod 96501e2139ad9647e578ad1e03befca380d4f82c49434f3f3b13a14f354b67a7, 1,400,541 B); staging implements /api-app/public/global/settings (GET) + /api-app/public/license/token/{licenseToken} (GET returns {username?,password?,expired,hasEmail}; PUT void; zod 64-char token); prod bundle has ZERO /public/* handlers.
+[LEARN] ACCEPTED OTHER @ work.threema.ch: prod DOES route /api-app — GET /api-app/me/profile → 302 to /en/login?r=%2Fapi-app%2Fme%2Fprofile; only /public/* namespace absent on prod (404 catch-all) — divergence is public-namespace-specific.
+[LEARN] ACCEPTED OTHER @ work.test.threema.ch: /api-app/public/license/token/{64hex} → 404 HTML catch-all (900B) for GET, PUT, AND OPTIONS — method-agnostic; backend route not deployed; 64-char validation is client-side-only zod; not an oracle today.
+[LEARN] ACCEPTED OTHER @ work.test.threema.ch: /api-app/public/* namespace map closed on both hosts — /, /global/, /config, /registration, /license/, /global/app-downloads all 404 staging+prod; sole live public route = /api-app/public/global/settings (200, 299B, only appLinkHost + 3 app-download URLs, no license/user data).
+[LEARN] ACCEPTED OTHER @ g-*.0.{test.,}threema.ch chat: read-only TCP connect to 5222 returns 0 bytes on BOTH staging (203.56.114.34) and prod (203.56.112.202) — no server-hello pushed without client frame (source: CspSocket reads SERVER_HELLO_LEN=80 then SERVER_LOGIN_ACK_LEN=32); 443 also closes without TLS handshake both hosts. No passive in-band divergence obtainable; handshake requires authenticated login frame.
+[LEARN] ACCEPTED OTHER @ hcaptcha-work.threema.ch: 200 serving hCaptcha's own Webflow marketing page (Last Published 2026-07-30) — third-party captcha host, out-of-scope service.
+[LEARN] ACCEPTED OTHER @ avatar.test.threema.ch / companylogo.test.threema.ch: 403, byte-identical posture to prod avatar/companylogo 403 — no divergence; broadcast.test / billing.test → 000 (unreachable, matches prod TIMEOUT).
+[HYP] Work directory /identities cross-subscription metadata disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities (backend of work.threema.ch)
+confidence: 52
+reasoning: directory.openapi.yml:1172 flags `/identities` "currently buggy" (TWRK-1633); returns same-subscription contacts + work properties (first/last name, jobTitle, department, availability); host 401s on all paths (route exists behind credential gate) with CORS `*`. Same-version bundle divergence (STEP 1) shows the work build is actively iterating on prod-facing endpoints.
+evidence_needed: whether the subscription-membership filter can be induced (batch/wildcard/pagination bounds) to return out-of-subscription contacts or their work properties.
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities mixing own- and foreign-subscription IDs; compare membership + property leak; probe page/size bounds; ≤1 rps.
+impact: cross-subscription disclosure of work-directory metadata → targeted phishing; severity medium.
+testability: AUTH_HELPED
 [HYP] Staging chat mirror shows version/test-identity skew
 class: MISCONFIG
 asset: g-{00..ff}.0.test.threema.ch:5222 (203.56.114.34)
 confidence: 50
-reasoning: staging chat cluster consolidated to a single IP (203.56.114.34) vs prod's split .112.202/.204; TCP 5222+443 accept but server is silent until client speaks (custom CSP protocol, no TLS cert obtainable). Only DNS/net split currently separates it from prod.
-evidence_needed: in-band protocol difference in the NaCl-box+HKDF CSP handshake (stream/auth response fields, version, test identity acceptance).
-verify_steps: AUTH_HELPED: reconstruct CSP handshake from threema-android `csp/connection` code; one connect to staging and one to prod; compare stream/auth responses; ≤1 rps one attempt each.
+reasoning: source-derived framing now concrete (CspSocket reads SERVER_HELLO_LEN=80 then SERVER_LOGIN_ACK_LEN=32; plain Socket, no TLS on 5222; host = prefix + identityStore server-group + suffix). Both staging and prod return 0 bytes to read-only connect — server waits for the client login frame, so only an authenticated frame elicits an in-band response. Only DNS/net split distinguishes staging from prod.
+evidence_needed: in-band difference in the CSP server-hello/login-ack stream fields once a valid login frame is sent (version, test identity acceptance).
+verify_steps: AUTH_HELPED: with authorized staging test identity, send one framed login (16B cookie + 64B box + 32B ext-indicator + 24B reserved + 32B vouch) to staging vs prod 5222; compare server-hello/login-ack; ≤1 rps one attempt each, no data modification.
 impact: internet-reachable staging messenger backend → version skew/unpatched surface; severity low.
 testability: AUTH_HELPED
-[HYP] Staging sync cluster (203.56.114.62) reachable beyond nginx gate
-class: MISCONFIG
-asset: mediator-{0..f}.test.threema.ch / rendezvous-{0..f}.test.threema.ch / blob-mirror-{0..f}.test.threema.ch
-confidence: 40
-reasoning: all staging sync hosts consolidate to one IP 203.56.114.62 with wildcard `*.test.threema.ch` cert; every HTTP path AND a valid-format ClientUrlInfo WS upgrade (hex from `md-d2m.proto`) returns nginx 403 — gate is host/path-agnostic. No divergence from prod 403 behavior observed.
-evidence_needed: whether any Host/path combination (real deviceGroupId, server group ≠ "0", direct IP + SNI variants) bypasses the nginx 403 to reach the WSS handler.
-verify_steps: AUTH_HELPED: WS upgrade with real DGPK-derived ClientUrlInfo hex on staging vs prod; ≤1 rps, no handshake payload sent.
-impact: staging sync/linking/blob backend exposure → test credential recon; severity low.
-testability: AUTH_HELPED
-[HYP] Staging work bundle/backend license-route skew
+[HYP] Staging work frontend is ahead of backend — license-token oracle on catch-up
 class: MISCONFIG
 asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
-confidence: 40
-reasoning: bundle v2.25.1 implements GET (returns license username/password/expired/hasEmail) + PUT (void) for `/public/license/token/{64hex}` with 64-char token validation, but the staging backend returns SPA catch-all 404 (md5-identical to bogus paths) — frontend ahead of backend.
-evidence_needed: whether backend catches up and serves the route (unauthenticated token→credentials oracle); currently non-live.
-verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64hex}` weekly; record 404 vs non-404; ≤1 rps.
-impact: if route enabled: unauthenticated 64-hex license-token oracle returning license username/password; severity low (tokens are high-entropy).
+confidence: 45
+reasoning: staging bundle (v2.25.1) implements GET (returns license username/password/expired/hasEmail) + PUT for the route with 64-char zod validation, but backend returns method-agnostic 404 catch-all — frontend shipped ahead of backend on staging. Prod bundle lacks the route entirely.
+evidence_needed: backend deploys the route (returns ≠404 for a valid-format token).
+verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64zeros}` weekly; record 404 vs non-404; ≤1 rps.
+impact: if route enabled: unauthenticated 64-hex license-token→credential oracle; severity low (tokens high-entropy).
 testability: PASSIVE
-[NEXT] AUTH_HELPED: with an authorized staging test identity, reconstruct the Threema CSP NaCl-box+HKDF handshake from threema-android (csp/connection) and perform one connect to `g-00.0.test.threema.ch:5222` (203.56.114.34) vs one to `g-00.0.threema.ch:5222` (203.56.112.202); compare stream/auth response fields for version or test-identity skew; ≤1 rps, one attempt each, no data modification.
-[RISK] chat: 40 — staging chat cluster TCP-reachable on 5222/443 with custom CSP protocol; no in-band divergence proven without handshake decode; version-skew risk unproven | web: 45 — staging work API exposes exactly one public config route (app-download links) absent on prod; auth-gated namespaces intact on both hosts; license-credential route not live on staging | sync: 35 — staging mediator/rendezvous/blob-mirror consolidated to 203.56.114.62 with staging cert, but nginx 403 gates all hosts/paths incl. valid WS upgrade; no reachable surface | safe: 30 — unchanged; credential-gated (400 for no-creds), CORS `*` on preflight only | desktop-src: 40 — two accepted source misconfigs (Windows keystorage ACL, electron sandbox:false + nodeIntegrationInWorker) with no remote exploitation path.
+[FINAL] ranked: 1) work /identities cross-subscription (52), 2) staging chat skew (50), 3) work.test license-token catch-up (45).
+[NEXT] PROBE: weekly staging catch-up check — single `GET https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000` and single `GET https://work.test.threema.ch/api-app/public/global/settings`; if license-token returns ≠404, escalate to valid-format token probes (never real tokens). ≤1 rps, GET only. (Chat CSP divergence test is defined but blocked on an authorized staging test identity — AUTH_HELPED.)

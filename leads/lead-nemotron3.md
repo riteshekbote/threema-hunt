@@ -554,3 +554,54 @@ testability: RAG
 [RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve (split routing 203.56.112.247 | 203.56.114.247), uniform 403 on HTTPS; WSS paths high-entropy; auth model in source, not passively enumerable
 [RISK] safe: 80 reason: safe-01.live with CORS *, write-capable methods (GET,HEAD,PUT,PATCH,POST,DELETE), Access-Control-Allow-Headers: Authorization, HSTS+Expect-CT; backup API credential-gated (400) but cross-origin auth requests possible; 5 hostnames same IP; no 429 observed
 [RISK] desktop-src: 80 reason: Electron BrowserWindow sandbox disabled (TODO DEK-79) + nodeIntegrationInWorker: true (TODO DEK-79); Windows key-storage ACL bypass ACCEPTED; OnPrem config trust REJECTED (Ed25519 sig verified); staging URLs baked into builds; key storage Argon2id + DPAPI (decent but weak on Windows)
+## 2026-08-08 02:14:21 UTC [web] (model nemotron3)
+[NEW] work.test.threema.ch `/api-app/public/global/settings` → 200 JSON (299B) unauthenticated on staging; identical path → 404 on production work.threema.ch — first confirmed staging-prod public-API divergence
+[NEW] work.test.threema.ch `/api-app/public/license/token/{64hex}` route present in JS bundle; token validated as exactly 64 chars; fake 64-zero token → 404 (route exists, token lookup fails)
+[NEW] work.test.threema.ch login page CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.ch, hcaptcha-work.threema.ch, billing.test.threema.ch
+[NEW] Staging work app sets `__HOST-HTTP-SESSIONID` cookie on unauthenticated GET /en/login (Secure/HttpOnly/SameSite=Strict)
+[NEW] `/api-app/me/profile` and `/api-app/global/settings` → 302 on staging (session-gated); only explicit `/api-app/public/*` namespace is open
+[NEW] `/info/ping.php` → 200 empty and `/ping` → 204 on BOTH staging and prod — no divergence
+[PRIO] https://work.test.threema.ch/api-app/public/*, 7.8, attack=8 business=8 tech=7 gate=10 cloud=6 fresh=10
+[PRIO] https://safe-01.threema.ch/backups/{id} (and safe-1a,1b,02,00), 7.9, attack=8 business=9 tech=8 gate=8 cloud=8 fresh=8
+[PRIO] threema-desktop `apps/desktop/src/electron/electron-main.ts` BrowserWindow config, 7.6, attack=8 business=8 tech=7 gate=10 cloud=2 fresh=8
+[HYP] Staging work public API namespace exposes endpoints absent on production
+class: IDOR
+asset: https://work.test.threema.ch/api-app/public/*
+confidence: 75
+reasoning: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod; `/api-app/public/license/token/{64hex}` route exists with 64-char validation; CSP leaks 5 additional staging subdomains; `__HOST-HTTP-SESSIONID` cookie set unauthenticated; namespace gating confirmed (`/api-app/me/*` → 302, only `/api-app/public/*` open)
+evidence_needed: Enumerate all `/api-app/public/` route literals from staging JS bundle; verify each returns 200/404 on staging vs 404 on prod; check for PII/config leakage in responses
+verify_steps: PASSIVE: GET https://work.test.threema.ch/en/login → extract JS bundle URL; download bundle; grep for `/api-app/public/` route literals; for each route, GET staging and prod endpoints at 1 rps; compare response codes/bodies
+impact: Staging-only public API surface may leak internal config, feature flags, or PII not exposed on production; potential info disclosure + attack surface expansion. Severity: Medium (staging-only but publicly reachable, no auth)
+testability: PASSIVE
+[HYP] Safe backup cross-origin credentialed access via CORS * + Authorization header
+class: AUTH
+asset: https://safe-01.threema.ch/backups/{id} (also safe-1a, safe-1b, safe-02, safe-00)
+confidence: 70
+reasoning: OPTIONS on /backups/{id} returns 204 with Access-Control-Allow-Origin: *, Allow-Methods: GET/HEAD/PUT/PATCH/POST/DELETE, and Access-Control-Allow-Headers: Authorization — explicitly enabling cross-origin requests with Basic auth from any attacker origin; GET /backups/{64hex} returns 400 for unauth (route exists behind credential check); 5× GET at 1s intervals all 400, zero 429/RateLimit/Retry-After; 5 hostnames resolve to same IP
+evidence_needed: Confirm valid backupId+backupKey returns 200; verify Basic auth format accepted; test whether 400 body differs for existing vs non-existing backup IDs (oracle)
+verify_steps: PASSIVE: GET https://safe-01.threema.ch/backups/{random64hex} ×5 at 1s intervals — confirm 400/400 oracle and absence of 429; OPTIONS https://safe-01.threema.ch/backups/aaaa — record Allow-Headers; repeat for safe-1a/safe-1b/safe-02/safe-00; AUTH_HELPED: with program-provided test backup ID+key, GET with Basic auth to confirm 200 success
+impact: Cross-origin backup existence enumeration (400-vs-404 oracle) + CSRF-class authenticated read/write attempts from attacker page via CORS * + Authorization header. Severity: Medium-High (high-value asset, permissive CORS, credential-gated but cross-origin auth enabled, no rate limit)
+testability: PASSIVE
+[HYP] Electron renderer/worker RCE via sandbox disabled + nodeIntegrationInWorker
+class: MISCONFIG
+asset: threema-desktop `apps/desktop/src/electron/electron-main.ts` (BrowserWindow webPreferences)
+confidence: 65
+reasoning: Source confirms `sandbox: false` (explicit TODO DEK-79) and `nodeIntegrationInWorker: true` (TODO DEK-79); `nodeIntegration: false` and `contextIsolation: true` are set. With sandbox disabled, renderer subprocesses may retain elevated privileges; `nodeIntegrationInWorker: true` exposes Node APIs to worker contexts — if a worker loads attacker-controlled content (via message link/preview), RCE path exists
+evidence_needed: Source line numbers showing `sandbox: false` + `nodeIntegrationInWorker: true` in BrowserWindow/webPreferences; confirmation of worker context content sources (link previews, message rendering)
+verify_steps: RAG: re-clone threema-desktop and grep for `sandbox` and `nodeIntegrationInWorker` in `apps/desktop/src/electron/electron-main.ts`; read webPreferences block; search for `preload` scripts loaded in worker context; identify message/link handling that spawns workers
+impact: Renderer/worker-context XSS → nodeIntegration → RCE on user machine via malicious message or link. Severity: High (RCE via message handling, no auth required)
+testability: RAG
+[PARKED] Staging mediator/rendezvous WSS surface reachable with staging cert: confidence 55 but verify_steps require WSS handshake capture (active connection attempt) which exceeds passive-first GET/HEAD constraint; no concrete passive HTTP probe yields protocol details; dropping per rules
+[FINAL] 1) Staging work public API namespace exposes endpoints absent on production (75) 2) Safe backup cross-origin credentialed access via CORS * + Authorization header (70) 3) Electron renderer/worker RCE via sandbox disabled + nodeIntegrationInWorker (65)
+[NEXT] PROBE: curl -s -L -m 12 https://work.test.threema.ch/en/login -o /tmp/opencode/worktest_login.html -w "%{http_code} %{url_effective}", then extract referenced JS bundle URL and download it to enumerate `/api-app/public/` route literals
+[LEARN] ACCEPTED IDOR @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work API endpoint confirmed
+[LEARN] ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed)
+[LEARN] ACCEPTED OTHER @ work.test.threema.ch: login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.ch, hcaptcha-work.threema.ch, billing.test.threema.ch
+[LEARN] ACCEPTED OTHER @ work.test.threema.ch: `__HOST-HTTP-SESSIONID` cookie set on unauthenticated GET /en/login (Secure/HttpOnly/SameSite=Strict)
+[LEARN] ACCEPTED AUTH @ work.test.threema.ch: `/api-app/me/profile` and `/api-app/global/settings` → 302; only `/api-app/public/*` namespace is open (namespace gating confirmed)
+[LEARN] ACCEPTED OTHER @ work.test.threema.ch: `/info/ping.php` → 200 empty and `/ping` → 204 identical on staging and prod — no divergence
+[RISK] chat: 60 reason: g-*.0.threema.ch prod pattern still unenumerated; staging g-*.0.test reachable but likely out of scope; core messaging infra but no visible HTTP endpoints
+[RISK] web: 85 reason: ds-apip/api/apip directory cluster — 3 prod hosts with public 200/404 identity oracle + fetch_bulk 200 + CORS * + no rate-limit (30 POSTs all 200); safe-01 backup API with permissive CORS + Authorization header + 5 hostnames; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed
+[RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve (split routing 203.56.112.247 | 203.56.114.247), uniform 403 on HTTPS; WSS paths high-entropy; auth model in source, not passively enumerable
+[RISK] safe: 80 reason: safe-01.live with CORS *, write-capable methods (GET,HEAD,PUT,PATCH,POST,DELETE), Access-Control-Allow-Headers: Authorization, HSTS+Expect-CT; backup API credential-gated (400) but cross-origin auth requests possible; 5 hostnames same IP; no 429 observed
+[RISK] desktop-src: 80 reason: Electron BrowserWindow sandbox disabled (TODO DEK-79) + nodeIntegrationInWorker: true (TODO DEK-79); Windows key-storage ACL bypass ACCEPTED; OnPrem config trust REJECTED (Ed25519 sig verified); staging URLs baked into builds; key storage Argon2id + DPAPI (decent but weak on Windows)

@@ -1,4 +1,4 @@
-## 2026-08-08 00:07:37 UTC [web] (model nemotron3)
+## 2026-08-08 02:14:21 UTC [web] (model nemotron3)
 [NEW] work.test.threema.ch `/api-app/public/global/settings` → 200 JSON (299B) unauthenticated on staging; identical path → 404 on production work.threema.ch — first confirmed staging-prod public-API divergence
 [NEW] work.test.threema.ch `/api-app/public/license/token/{64hex}` route present in JS bundle; token validated as exactly 64 chars; fake 64-zero token → 404 (route exists, token lookup fails)
 [NEW] work.test.threema.ch login page CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.ch, hcaptcha-work.threema.ch, billing.test.threema.ch
@@ -13,7 +13,7 @@ class: IDOR
 asset: https://work.test.threema.ch/api-app/public/*
 confidence: 75
 reasoning: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod; `/api-app/public/license/token/{64hex}` route exists with 64-char validation; CSP leaks 5 additional staging subdomains; `__HOST-HTTP-SESSIONID` cookie set unauthenticated; namespace gating confirmed (`/api-app/me/*` → 302, only `/api-app/public/*` open)
-evidence_needed: Enumerate all `/api-app/public/*` route literals from staging JS bundle; verify each returns 200/404 on staging vs 404 on prod; check for PII/config leakage in responses
+evidence_needed: Enumerate all `/api-app/public/` route literals from staging JS bundle; verify each returns 200/404 on staging vs 404 on prod; check for PII/config leakage in responses
 verify_steps: PASSIVE: GET https://work.test.threema.ch/en/login → extract JS bundle URL; download bundle; grep for `/api-app/public/` route literals; for each route, GET staging and prod endpoints at 1 rps; compare response codes/bodies
 impact: Staging-only public API surface may leak internal config, feature flags, or PII not exposed on production; potential info disclosure + attack surface expansion. Severity: Medium (staging-only but publicly reachable, no auth)
 testability: PASSIVE
