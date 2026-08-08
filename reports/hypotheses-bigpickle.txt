@@ -1,28 +1,28 @@
-## 2026-08-08 21:26:38 UTC [chat] (model bigpickle)
-[HYP] saltyrtc-*.threema.ch is live SaltyRTC chat-signaling; WSS endpoint reachable vs g-* closed-443
+## 2026-08-08 21:53:30 UTC [chat] (model bigpickle)
+[HYP] saltyrtc-*.threema.ch is a live SaltyRTC WSS chat-signaling terminator (HTTP 426 on plain GET)
 class: OTHER
-asset: https://saltyrtc-{00..ff}.threema.ch:443 (256 hostnames, 4 nodes)
-confidence: 60
-reasoning: AAAA re-confirms quadrant split 00-3f/40-7f→114.198/199, 80-bf/c0-ff→112.198/199 (4-node signaling pool); prior cycle showed bare 443 open+silent on all 4 (vs g-* SYSCALL-close on ClientHello) — consistent with TLS/WSS SaltyRTC terminator; threema-web SALTYRTC_HOST pattern cited at webclient.ts:545.
-evidence_needed: operator scope ruling that `saltyrtc-*` falls under "chat services"; then single TLS/WSS GET on one prefix.
-verify_steps: HUMAN_ONLY — after ruling: `curl -sk -o /dev/null -w '%{http_code}' https://saltyrtc-00.threema.ch/` (≤1 rps) vs g-* close behavior.
-impact: if in scope + TLS-terminated, chat signaling handshake probeable passively (server-key fingerprint / protocol framing); currently blocked only by scope, not reachability. Low-Medium.
-testability: HUMAN_ONLY
+asset: https://saltyrtc-{00..ff}.threema.ch:443 (quadrant-split: 00-3f/40-7f→114.198/199, 80-bf/c0-ff→112.198/199)
+confidence: 70
+reasoning: GET / → HTTP 426 Upgrade Required (recorded this cycle), proving TLS-terminated HTTP→WS upgrade gate; AAAA split confirms 4-node pool; threema-web SALTYRTC_HOST pattern (`saltyrtc-{prefix}.threema.ch`/443, webclient.ts:545). This is the only chat-surface host that answers in-band (g-* 5222/443 stay silent/close).
+evidence_needed: single WS-upgrade handshake → 101 Switching Protocols (SaltyRTC WSS gate) vs 426/close; then whether a bare connect yields server-hello framing or waits for client-init.
+verify_steps: PROBE (passive upgrade, no payload): `curl -sk -i --max-time 5 -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: MTIzNDU2Nzg5MDEyMzQ1Ng==" https://saltyrtc-00.threema.ch/` (≤1 rps); record 101 vs 426 vs close. If 101, single WSS open with 5s idle read to capture any server-pushed frame.
+impact: confirms the chat-signaling control plane is passively reachable where g-* is closed — enables SaltyRTC server-key/framing fingerprint and future handshake-level recon; scope ruling still required for anything beyond an upgrade attempt. Low-Medium.
+testability: PASSIVE
 [HYP] Safe backup store credentialed cross-origin read
 class: AUTH
-asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
-confidence: 45
-reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route exists, credential-gated; HSTS/Expect-CT absent on the GET 400.
-evidence_needed: valid program-issued test backupId:backupKey → response ≠ 400 (200+payload or 401/403); any Access-Control-Expose-Headers.
-verify_steps: AUTH_HELPED: single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs 400 baseline.
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (single IP 203.56.112.231)
+confidence: 50
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route vs 404 distinction (`/backup/{x}` → 404) = existence oracle; HSTS/Expect-CT absent on the GET 400. Valid creds are the only missing input.
+evidence_needed: program-issued test backupId:backupKey → response ≠ 400 (200+payload or 401/403) + any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED: single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs the known 400 baseline.
 impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
 testability: AUTH_HELPED
 [HYP] work.test license-token backend ships → unauth 64-hex credential oracle
 class: MISCONFIG
 asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
 confidence: 40
-reasoning: staging bundle v2.25.1 ships GET {username?,password?,expired,hasEmail}+PUT; re-probe still 404/900B catch-all; prod bundle zero /public/* handlers; 64-char check client-side zod only.
-evidence_needed: any non-404 (200/400/401) to well-formed 64-hex token on staging.
-verify_steps: PASSIVE, weekly gated: GET /api-app/public/global/settings + GET /api-app/public/license/token/{64 zeros}; escalate only on non-404; ≤1 rps.
-impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
+reasoning: staging bundle v2.25.1 ships GET {username?,password?,expired,hasEmail}+PUT; re-probed this cycle → 404/900B catch-all (still not deployed); prod bundle has ZERO /public/* handlers; 64-char check is client-side zod only.
+evidence_needed: any non-404 (200/400/401) to a well-formed 64-hex token on staging.
+verify_steps: PASSIVE, weekly gated: single GET /api-app/public/global/settings + single GET /api-app/public/license/token/{64 zeros}; escalate only on non-404; ≤1 rps.
+impact: if shipped, unauth license-token→credential oracle; low (high-entropy tokens).
 testability: PASSIVE
