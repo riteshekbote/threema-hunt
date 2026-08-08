@@ -25441,3 +25441,180 @@ testability: PASSIVE + AUTH_HELPED
 
 **Key-store POC attack chain (verified from source):**
 `fs.ts:41` returns `{}` on win32 → `index.ts:559` writes `keystorage.bin` with no ACL → `electron-main.ts:944` writes `keystorage.password.bin` (DPAPI) with no ACL → `crypto.ts:53` Argon2id + XSalsa20-Poly1305 decryption → `inner/v3.ts:65,70` extracts `ck` (Ed25519 privkey) + `databaseKey` → `sqlite.ts:240` uses as SQLCipher `PRAGMA key` → decrypt messages.DB
+===== ANALYST laguna 2026-08-08 19:42:29 UTC =====
+[0m
+> build · laguna-s-2.1-free
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/
+total 188
+drwxr-xr-x 11 runner runner  4096 Aug  8 19:37 .
+drwxr-xr-x  3 runner runner  4096 Aug  8 19:37 ..
+drwxr-xr-x  7 runner runner  4096 Aug  8 19:37 .git
+drwxr-xr-x  3 runner runner  4096 Aug  8 19:37 .github
+-rw-r--r--  1 runner runner  1049 Aug  8 19:37 README.md
+-rw-r--r--  1 runner runner    39 Aug  8 19:37 analyst-out.txt
+-rw-r--r--  1 runner runner 55710 Aug  8 19:37 analyst-prompt.txt
+-rw-r--r--  1 runner runner 52646 Aug  8 19:37 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  8 19:37 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  8 19:37 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  8 19:37 leads
+-rw-r--r--  1 runner runner  2392 Aug  8 19:37 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  8 19:37 reports
+drwxr-xr-x  3 runner runner  4096 Aug  8 19:37 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  8 19:37 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  8 19:37 scripts
+-rw-r--r--  1 runner runner    34 Aug  8 19:37 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  8 19:37 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  8 19:37 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  8 19:37 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  8 19:37 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  8 19:37 triage
+[0m
+[0m$ [0mls -la /tmp/opencode/ 2>/dev/null; ls -la /tmp/opencode/threema-desktop/ 2>/dev/null; ls -la /tmp/opencode/threema-hunt/ 2>/dev/null
+total 16
+drwxr-xr-x  2 runner runner  4096 Aug  8 19:37 .
+drwxrwxrwt 15 root   root   12288 Aug  8 19:37 ..
+[0m
+[0m$ [0mls -la /reports/ 2>/dev/null; ls -la /home/runner/work/threema-hunt/threema-hunt/reports/ 2>/dev/null; find /home/runner/work/threema-hunt/threema-hunt -name "*.py" -path "*poc*" 2>/dev/null | head -20
+total 4240
+drwxr-xr-x  2 runner runner    4096 Aug  8 19:37 .
+drwxr-xr-x 11 runner runner    4096 Aug  8 19:37 ..
+-rw-r--r--  1 runner runner 1552537 Aug  8 19:37 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 2260973 Aug  8 19:37 analyst-laguna.log
+-rw-r--r--  1 runner runner   19423 Aug  8 19:37 analyst-ling3.log
+-rw-r--r--  1 runner runner    3330 Aug  8 19:37 analyst-longcat.log
+-rw-r--r--  1 runner runner  397876 Aug  8 19:37 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   15528 Aug  8 19:37 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner   32150 Aug  8 19:37 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  8 19:37 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  8 19:37 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   10342 Aug  8 19:37 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  136877 Aug  8 19:37 hypotheses.md
+-rw-r--r--  1 runner runner   10773 Aug  8 19:37 valid-bugs.md
+[0m
+I'll pick up from the POC phase for desktop. The next action is to verify the Windows key-storage ACL bypass finding against the cloned repo source and write the report. Let me start by exploring the workspace.
+[0m→ [0mRead state_laguna.json
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reports/
+total 4240
+drwxr-xr-x  2 runner runner    4096 Aug  8 19:37 .
+drwxr-xr-x 11 runner runner    4096 Aug  8 19:37 ..
+-rw-r--r--  1 runner runner 1552537 Aug  8 19:37 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 2260973 Aug  8 19:37 analyst-laguna.log
+-rw-r--r--  1 runner runner   19423 Aug  8 19:37 analyst-ling3.log
+-rw-r--r--  1 runner runner    3330 Aug  8 19:37 analyst-longcat.log
+-rw-r--r--  1 runner runner  397876 Aug  8 19:37 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   15528 Aug  8 19:37 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner   32150 Aug  8 19:37 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  8 19:37 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  8 19:37 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   10342 Aug  8 19:37 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  136877 Aug  8 19:37 hypotheses.md
+-rw-r--r--  1 runner runner   10773 Aug  8 19:37 valid-bugs.md
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/scripts/
+total 16
+drwxr-xr-x  2 runner runner 4096 Aug  8 19:37 .
+drwxr-xr-x 11 runner runner 4096 Aug  8 19:37 ..
+-rw-r--r--  1 runner runner 7771 Aug  8 19:37 sync-issues.py
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/knowledge/ /home/runner/work/threima-hunt/threema-hunt/triage/ /home/runner/work/threema-hunt/threema-hunt/inventory/ /home/runner/work/threema-hunt/threema-hunt/leads/ 2>&1
+ls: cannot access '/home/runner/work/threima-hunt/threema-hunt/triage/': No such file or directory
+/home/runner/work/threema-hunt/threema-hunt/inventory/:
+total 48
+drwxr-xr-x  2 runner runner  4096 Aug  8 19:37 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 19:37 ..
+-rw-r--r--  1 runner runner 38370 Aug  8 19:37 threema.md
+
+/home/runner/work/threema-hunt/threema-hunt/knowledge/:
+total 36
+drwxr-xr-x  2 runner runner  4096 Aug  8 19:37 .
+drwxr-xr-x 11 runner runner  4096 Aug  8 19:37 ..
+-rw-r--r--  1 runner runner 25950 Aug  8 19:37 index.md
+
+/home/runner/work/threema-hunt/threema-hunt/leads/:
+total 1936
+drwxr-xr-x  2 runner runner   4096 Aug  8 19:37 .
+drwxr-xr-x 11 runner runner   4096 Aug  8 19:37 ..
+-rw-r--r--  1 runner runner 383210 Aug  8 19:37 lead-bigpickle.md
+-rw-r--r--  1 runner runner 448545 Aug  8 19:37 lead-laguna.md
+-rw-r--r--  1 runner runner   7014 Aug  8 19:37 lead-ling3.md
+-rw-r--r--  1 runner runner   1932 Aug  8 19:37 lead-longcat.md
+-rw-r--r--  1 runner runner 307386 Aug  8 19:37 lead-nemotron3.md
+-rw-r--r--  1 runner runner  11048 Aug  8 19:37 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner  13399 Aug  8 19:37 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner  13429 Aug  8 19:37 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner  11241 Aug  8 19:37 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner   6565 Aug  8 19:37 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner   9511 Aug  8 19:37 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner  13472 Aug  8 19:37 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner  10507 Aug  8 19:37 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner  13665 Aug  8 19:37 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner  10938 Aug  8 19:37 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner  17321 Aug  8 19:37 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner  15373 Aug  8 19:37 reposcan-2026-08-07-23-19.md
+-rw-r--r--  1 runner runner  11670 Aug  8 19:37 reposcan-2026-08-07-23-50.md
+-rw-r--r--  1 runner runner  14267 Aug  8 19:37 reposcan-2026-08-08-00-01.md
+-rw-r--r--  1 runner runner  12628 Aug  8 19:37 reposcan-2026-08-08-00-19.md
+-rw-r--r--  1 runner runner  13392 Aug  8 19:37 reposcan-2026-08-08-02-10.md
+-rw-r--r--  1 runner runner  13822 Aug  8 19:37 reposcan-2026-08-08-02-23.md
+-rw-r--r--  1 runner runner  13194 Aug  8 19:37 reposcan-2026-08-08-03-52.md
+-rw-r--r--  1 runner runner  14260 Aug  8 19:37 reposcan-2026-08-08-04-47.md
+-rw-r--r--  1 runner runner  15327 Aug  8 19:37 reposcan-2026-08-08-05-01.md
+-rw-r--r--  1 runner runner  13092 Aug  8 19:37 reposcan-2026-08-08-05-29.md
+-rw-r--r--  1 runner runner  11228 Aug  8 19:37 reposcan-2026-08-08-05-48.md
+-rw-r--r--  1 runner runner  10378 Aug  8 19:37 reposcan-2026-08-08-06-08.md
+-rw-r--r--  1 runner runner  11257 Aug  8 19:37 reposcan-2026-08-08-06-56.md
+-rw-r--r--  1 runner runner  11788 Aug  8 19:37 reposcan-2026-08-08-07-12.md
+-rw-r--r--  1 runner runner   9790 Aug  8 19:37 reposcan-2026-08-08-07-53.md
+-rw-r--r--  1 runner runner  10972 Aug  8 19:37 reposcan-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner  13672 Aug  8 19:37 reposcan-2026-08-08-08-37.md
+-rw-r--r--  1 runner runner   6321 Aug  8 19:37 reposcan-2026-08-08-08-42.md
+-rw-r--r--  1 runner runner  16455 Aug  8 19:37 reposcan-2026-08-08-09-21.md
+-rw-r--r--  1 runner runner  14107 Aug  8 19:37 reposcan-2026-08-08-09-40.md
+-rw-r--r--  1 runner runner  14710 Aug  8 19:37 reposcan-2026-08-08-10-09.md
+-rw-r--r--  1 runner runner  13912 Aug  8 19:37 reposcan-2026-08-08-10-27.md
+-rw-r--r--  1 runner runner  15295 Aug  8 19:37 reposcan-2026-08-08-10-37.md
+-rw-r--r--  1 runner runner  11119 Aug  8 19:37 reposcan-2026-08-08-11-08.md
+-rw-r--r--  1 runner runner  16740 Aug  8 19:37 reposcan-2026-08-08-11-28.md
+-rw-r--r--  1 runner runner  11393 Aug  8 19:37 reposcan-2026-08-08-11-30.md
+-rw-r--r--  1 runner runner  10793 Aug  8 19:37 reposcan-2026-08-08-11-55.md
+-rw-r--r--  1 runner runner  13925 Aug  8 19:37 reposcan-2026-08-08-12-00.md
+-rw-r--r--  1 runner runner  12984 Aug  8 19:37 reposcan-2026-08-08-12-09.md
+-rw-r--r--  1 runner runner  11553 Aug  8 19:37 reposcan-2026-08-08-13-01.md
+-rw-r--r--  1 runner runner  16362 Aug  8 19:37 reposcan-2026-08-08-13-15.md
+-rw-r--r--  1 runner runner  11685 Aug  8 19:37 reposcan-2026-08-08-13-56.md
+-rw-r--r--  1 runner runner  11740 Aug  8 19:37 reposcan-2026-08-08-14-04.md
+-rw-r--r--  1 runner runner  14858 Aug  8 19:37 reposcan-2026-08-08-14-28.md
+-rw-r--r--  1 runner runner  10356 Aug  8 19:37 reposcan-2026-08-08-14-35.md
+-rw-r--r--  1 runner runner  10513 Aug  8 19:37 reposcan-2026-08-08-15-08.md
+-rw-r--r--  1 runner runner   6321 Aug  8 19:37 reposcan-2026-08-08-15-31.md
+-rw-r--r--  1 runner runner  11739 Aug  8 19:37 reposcan-2026-08-08-16-00.md
+-rw-r--r--  1 runner runner  15164 Aug  8 19:37 reposcan-2026-08-08-16-07.md
+-rw-r--r--  1 runner runner  12405 Aug  8 19:37 reposcan-2026-08-08-16-15.md
+-rw-r--r--  1 runner runner   6321 Aug  8 19:37 reposcan-2026-08-08-17-04.md
+-rw-r--r--  1 runner runner  12923 Aug  8 19:37 reposcan-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  15904 Aug  8 19:37 reposcan-2026-08-08-18-04.md
+-rw-r--r--  1 runner runner  11771 Aug  8 19:37 reposcan-2026-08-08-18-36.md
+-rw-r--r--  1 runner runner  12165 Aug  8 19:37 reposcan-2026-08-08-19-19.md
+-rw-r--r--  1 runner runner  12165 Aug  8 19:37 reposcan-latest.md
+[0m
+[0m→ [0mRead scope.yml
+Let me check the current state and existing artifacts more closely.
+[0m→ [0mRead knowledge/index.md
+The state is POC targeting desktop. Let me look at the existing knowledge index and check if the threema-desktop repo is cloned locally.
+[0m
+[0m$ [0mfind / -maxdepth 4 -type d -name "threema-desktop" 2>/dev/null; find / -maxdepth 3 -type d -name "threema*" 2>/dev/null | head -20
+(no output)
+[0m
+[93m[1m! [0mpermission requested: external_directory (/home/runner/work/threema-hunt/threima-hunt/reports/*); auto-rejecting
+[0m✗ [0mRead /home/runner/work/threema-hunt/threima-hunt/reports/valid-bugs.md failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[93m[1m! [0mpermission requested: external_directory (/home/runner/work/threema-hunt/threima-hunt/reports/*); auto-rejecting
+[0m✗ [0mRead /home/runner/work/threema-hunt/threima-hunt/reports/hypotheses-laguna.txt failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+The repo isn't cloned locally. I need to clone threema-desktop to verify the POC against source. Let me check existing report format and clone the repo.
+[0m
+[0m$ [0mcd /tmp/opencode && git clone --depth 1 https://github.com/threema-ch/threema-desktop.git 2>&1 | tail -5
+Cloning into 'threema-desktop'...
+[0m

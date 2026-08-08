@@ -38,3 +38,9 @@ https://github.com/threema-ch/threema-desktop -> 200 len=? type=text/html; chars
 https://safe-01.threema.ch/backups/{testId -> HTTP 400
 https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
 https://ds-apip.threema.ch/identity/check_revocation_key?identity=ECHOECHO&revocation_key={128 -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-08 19:42:32 UTC
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400

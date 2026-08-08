@@ -870,3 +870,16 @@
 - LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts:1252: `nodeIntegrationInWorker: true` with `// TODO(DESK-79)` confirmed; `sandbox` NOT set (line 1255 `// 
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: Re-verified this cycle — all 3 prod hosts return `GET /identity/ECHOECHO` → 200 with identica
 - LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 safe-* hosts): HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for `/backups/{64hex}` — hea
+
+## RANKED HYPOTHESES 2026-08-08 19:42:29 UTC
+- [95] threema-desktop: Windows key-storage ACL bypass → master password recovery → identity keypair + message DB decryption (from reports/hypotheses-nemotron3.txt)
+- [45] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}: Safe backup store credentialed cross-origin read (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ","AAAAAAAA","BBBB
+- NEXT(hypotheses-bigpickle.txt): HUMAN: Request program-issued test backupId:backupKey from the operator for the safe-backup hypothesis (highest-value AUTH_HELPED blocker; safe: 30 risk). Upon 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin w
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: POST /identity/fetch_bulk accepts 100+ ID batch in single request, returns pubkeys for valid 
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: 5 challenge-response endpoints (/identity/{sfu_cred|blob_cred|set_revocation_key|check_revoc
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 safe-* hosts): HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for `/backups/{64hex}` — hea
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy in `determineKdfParams()`, derived
+- LEARN: REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE (requires separate renderer exploit chain), not a standalone class
+- LEARN: REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
