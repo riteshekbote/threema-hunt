@@ -913,3 +913,110 @@ verify_steps: AUTH_HELPED: with authorized staging test identity, send one frame
 impact: internet-reachable staging messenger backend → version skew/unpatched surface; severity low.
 testability: AUTH_HELPED
 [NEXT] PROBE: fetch `https://broadcast.threema.ch/cache/broadcast_public.js` (≤1 rps, single GET), resolve the minified template-literal URL builders feeding the WebAuthn ceremony calls (grep for the `/${l}`/`${o}`/`${s}`/`${r}` path segments and the `fetch(`/`axios` targets adjacent to `assertion_response`/`challenge`), then single GET each resolved ceremony path on https://broadcast.threema.ch recording status + 429/RateLimit headers. No POSTs, no passkey interaction this round.
+## 2026-08-08 06:04:46 UTC [chat] (model bigpickle)
+class: BUSLOGIC
+asset: apip.threema.ch/identity/ws/revoke
+reasoning: source-derived framing concrete (CspSocket reads SERVER_HELLO_LEN=80, SERVER_LOGIN_ACK_LEN=32, plain Socket on 5222); read-only connect returns 0 bytes on prod .202/.204 and staging .114.34 alike — server waits for client login frame; DNS topology newly mapped: staging is single-IP consolidation of a two-shard prod cluster (boundary 0x80), only group "0" resolves on either.
+evidence_needed: in-band difference in CSP server-hello/login-ack fields once a valid login frame is sent (version, test identity acceptance).
+verify_steps: AUTH_HELPED: with authorized staging test identity, send one framed login (16B cookie + 64B box + 32B ext-indicator + 24B reserved + 32B vouch) to staging vs prod 5222; compare server-hello/login-ack; ≤1 rps one attempt each, no data modification.
+impact: internet-reachable staging messenger backend → version skew/unpatched surface; severity low.
+testability: AUTH_HELPED
+[HYP] Staging work frontend/backend skew persists — license-token oracle if backend ships
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 45
+reasoning: staging bundle v2.25.1 implements GET (returns license username/password/expired/hasEmail) + PUT for the route; backend still returns method-agnostic 404 catch-all (900B) — re-confirmed this cycle; prod bundle has zero /public/* handlers; both builds frozen (hashes unchanged) so no catch-up in either direction.
+evidence_needed: backend deploys the route (returns ≠404 for a valid-format token).
+verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64zeros}` weekly; record 404 vs non-404; ≤1 rps.
+[HYP] Broadcast passkey ceremony endpoints reachable unauthenticated
+class: AUTH
+asset: https://broadcast.threema.ch (bundle v2.28.1, csrf_public_login_access)
+confidence: 50
+reasoning: Fresh prod surface (was TIMEOUT). Live login form embeds `csrf_public_login_access`; bundle implements full attestation+assertion ceremonies (challenge POST → `assertion_response` POST); no CSP/HSTS on served pages. Ceremony URL paths are minified/derived (template `${l}`/`${o}`/`${s}`/`${r}`), not yet resolved.
+evidence_needed: Resolved ceremony endpoint paths; whether challenge endpoint answers unauthenticated; any rate-limit/429 headers on challenge issuance.
+verify_steps: PASSIVE: resolve the minified URL-builder map feeding the `${l}`/`${o}`/`${s}`/`${r}` ceremony URLs in broadcast_public.js, then one GET each on https://broadcast.threema.ch, record status + rate-limit headers; full assertion needs a passkey (AUTH_HELPED). ≤1 rps.
+impact: unauth passkey-ceremony abuse/DoS; an assertion-validation flaw would be account-level — unproven; severity low→high contingent on endpoint reachability.
+testability: PASSIVE
+[HYP] Gateway control-plane unauth surface and /api nginx-deny escape
+class: AUTH
+asset: https://gateway.threema.ch (/en/login, /en/signup, /en/forgot-password, /api/*)
+confidence: 50
+reasoning: Fresh messaging-gateway control plane; login served with NO HSTS/Expect-CT/CSP (weaker than shop); `/api/`+`/api/v1/` return nginx-403 (routes gated, not absent); `trusted_redirect_origins` field present on login. No staging mirror (gateway.test 403) → no divergence oracle.
+evidence_needed: POST targets + CSRF field names + captcha presence on signup/forgot-password; whether any /api subpath escapes the nginx deny.
+verify_steps: PASSIVE: GET /en/signup and /en/forgot-password, capture CSRF/captcha/POST targets; GET a small set of plausible /api paths; do NOT submit POSTs (side effects). ≤1 rps.
+impact: unauthenticated customer-facing gateway surface; credential-page transport hardening gap; severity low (no vuln proven).
+testability: PASSIVE
+[HYP] Staging chat mirror shows version/test-identity skew
+class: MISCONFIG
+asset: g-{00..ff}.0.test.threema.ch:5222 (203.56.114.34)
+confidence: 50
+reasoning: Source-derived framing concrete (CspSocket reads SERVER_HELLO_LEN=80, SERVER_LOGIN_ACK_LEN=32, plain Socket on 5222); read-only connect returns 0 bytes on prod .202/.204 and staging .114.34 alike — server waits for the client login frame. Staging is a single-IP consolidation of the two-shard prod cluster (boundary 0x80); only group "0" resolves on either.
+evidence_needed: in-band difference in CSP server-hello/login-ack fields once a valid login frame is sent (version, test identity acceptance).
+verify_steps: AUTH_HELPED: with authorized staging test identity, send one framed login (16B cookie + 64B box + 32B ext-indicator + 24B reserved + 32B vouch) to staging vs prod 5222; compare server-hello/login-ack; ≤1 rps one attempt each, no data modification.
+impact: internet-reachable staging messenger backend → version skew/unpatched surface; severity low.
+testability: AUTH_HELPED
+[NEXT] PROBE: fetch `https://broadcast.threema.ch/cache/broadcast_public.js` (≤1 rps, single GET), resolve the minified template-literal URL builders feeding the WebAuthn ceremony calls (grep for the `/${l}`/`${o}`/`${s}`/`${r}` path segments and the `fetch(`/`axios` targets adjacent to `assertion_response`/`challenge`), then single GET each resolved ceremony path on https://broadcast.threema.ch recording status + 429/RateLimit headers. No POSTs, no passkey interaction this round.
+evidence_needed: backend deploys the route (returns ≠404 for a valid-format token).
+verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64zeros}` weekly; record 404 vs non-404; ≤1 rps.
+[HYP] Broadcast passkey ceremony endpoints reachable unauthenticated
+class: AUTH
+asset: https://broadcast.threema.ch (bundle v2.28.1, csrf_public_login_access)
+confidence: 50
+reasoning: Fresh prod surface (was TIMEOUT). Live login form embeds `csrf_public_login_access`; bundle implements full attestation+assertion ceremonies (challenge POST → `assertion_response` POST); no CSP/HSTS on served pages. Ceremony URL paths are minified/derived (template `${l}`/`${o}`/`${s}`/`${r}`), not yet resolved.
+evidence_needed: Resolved ceremony endpoint paths; whether challenge endpoint answers unauthenticated; any rate-limit/429 headers on challenge issuance.
+verify_steps: PASSIVE: resolve the minified URL-builder map feeding the `${l}`/`${o}`/`${s}`/`${r}` ceremony URLs in broadcast_public.js, then one GET each on https://broadcast.threema.ch, record status + rate-limit headers; full assertion needs a passkey (AUTH_HELPED). ≤1 rps.
+impact: unauth passkey-ceremony abuse/DoS; an assertion-validation flaw would be account-level — unproven; severity low→high contingent on endpoint reachability.
+testability: PASSIVE
+[HYP] Gateway control-plane unauth surface and /api nginx-deny escape
+class: AUTH
+asset: https://gateway.threema.ch (/en/login, /en/signup, /en/forgot-password, /api/*)
+confidence: 50
+reasoning: Fresh messaging-gateway control plane; login served with NO HSTS/Expect-CT/CSP (weaker than shop); `/api/`+`/api/v1/` return nginx-403 (routes gated, not absent); `trusted_redirect_origins` field present on login. No staging mirror (gateway.test 403) → no divergence oracle.
+evidence_needed: POST targets + CSRF field names + captcha presence on signup/forgot-password; whether any /api subpath escapes the nginx deny.
+verify_steps: PASSIVE: GET /en/signup and /en/forgot-password, capture CSRF/captcha/POST targets; GET a small set of plausible /api paths; do NOT submit POSTs (side effects). ≤1 rps.
+impact: unauthenticated customer-facing gateway surface; credential-page transport hardening gap; severity low (no vuln proven).
+testability: PASSIVE
+[HYP] Staging chat mirror shows version/test-identity skew
+class: MISCONFIG
+asset: g-{00..ff}.0.test.threema.ch:5222 (203.56.114.34)
+confidence: 50
+reasoning: Source-derived framing concrete (CspSocket reads SERVER_HELLO_LEN=80, SERVER_LOGIN_ACK_LEN=32, plain Socket on 5222); read-only connect returns 0 bytes on prod .202/.204 and staging .114.34 alike — server waits for the client login frame. Staging is a single-IP consolidation of the two-shard prod cluster (boundary 0x80); only group "0" resolves on either.
+evidence_needed: in-band difference in CSP server-hello/login-ack fields once a valid login frame is sent (version, test identity acceptance).
+verify_steps: AUTH_HELPED: with authorized staging test identity, send one framed login (16B cookie + 64B box + 32B ext-indicator + 24B reserved + 32B vouch) to staging vs prod 5222; compare server-hello/login-ack; ≤1 rps one attempt each, no data modification.
+impact: internet-reachable staging messenger backend → version skew/unpatched surface; severity low.
+testability: AUTH_HELPED
+[NEXT] PROBE: fetch `https://broadcast.threema.ch/cache/broadcast_public.js` (≤1 rps, single GET), resolve the minified template-literal URL builders feeding the WebAuthn ceremony calls (grep for the `/${l}`/`${o}`/`${s}`/`${r}` path segments and the `fetch(`/`axios` targets adjacent to `assertion_response`/`challenge`), then single GET each resolved ceremony path on https://broadcast.threema.ch recording status + 429/RateLimit headers. No POSTs, no passkey interaction this round.
+[LEARN] (no new learnings this cycle)
+[RISK] chat: 60 reason: g-*.0.threema.ch prod pattern still unenumerated; staging g-*.0.test reachable but likely out of scope; core messaging infra but no visible HTTP endpoints
+[RISK] web: 90 reason: ds-apip/api/apip directory cluster — 3 prod hosts with public 200/404 identity oracle + fetch_bulk 200 + CORS * + no rate-limit (30 POSTs all 200); safe-01 backup API with permissive CORS + Authorization header + 5 hostnames; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed
+[RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve (split routing 203.56.112.247 | 203.56.114.247), uniform 403 on HTTPS; WSS paths high-entropy; auth model in source, not passively enumerable
+[RISK] safe: 85 reason: safe-01.live with CORS *, write-capable methods (GET,HEAD,PUT,PATCH,POST,DELETE), Access-Control-Allow-Headers: Authorization, HSTS+Expect-CT; backup API credential-gated (400) but cross-origin auth requests possible; 5 hostnames same IP; no 429 observed
+[RISK] desktop-src: 85 reason: Electron BrowserWindow sandbox disabled (TODO DEK-79) + nodeIntegrationInWorker: true (TODO DEK-79); Windows key-storage ACL bypass ACCEPTED; OnPrem config trust REJECTED (Ed25519 sig verified); staging URLs baked into builds; key storage Argon2id + DPAPI (decent but weak on Windows)
+[HYP] Staging work license-token backend catch-up → credential oracle
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 45
+reasoning: staging bundle v2.25.1 implements GET (license username/password/expired/hasEmail) + PUT for this route; backend re-confirmed method-agnostic 404 catch-all (900B); prod bundle has zero /public/* handlers; both builds frozen (hashes unchanged).
+evidence_needed: backend deploys the route (returns ≠404 for a valid-format 64-char token).
+verify_steps: PASSIVE: weekly single GET `/api-app/public/license/token/{64zeros}` + `/api-app/public/global/settings`; record 404 vs non-404; ≤1 rps.
+impact: if shipped, unauthenticated 64-hex license-token → credential oracle; low (tokens high-entropy).
+testability: PASSIVE
+[HYP] Gateway control-plane transport/CAPTCHA surface and /api hard-block
+class: BUSLOGIC
+asset: https://gateway.threema.ch (/en/signup, /en/forgot-password, /api/*)
+confidence: 45
+reasoning: signup+forgot both 200 with POST-to-self forms, per-form CSRF (`client[csrf_client]`, `csrf_gw-forgot-password`) and hCaptcha; login served with NO HSTS/Expect-CT/CSP (weaker than shop); all 9 probed /api paths → uniform nginx 403 (146B) so route map not reachable.
+evidence_needed: forgot-password response behavior for known vs unknown email (enumeration) — requires authorized account mapping (AUTH_HELPED); captcha-skippable forms unproven without side-effect POSTs.
+verify_steps: AUTH_HELPED: with authorized gateway test credentials, compare forgot-password responses for own-valid vs invalid email; GET-only /api enumeration exhausted (blanket 403).
+impact: transport-hardening gap + potential email-enumeration; severity low (no vuln proven).
+testability: AUTH_HELPED
+[HYP] Broadcast passkey ceremony answerable with server-issued session+CSRF — self-provisioned
+class: AUTH
+asset: https://broadcast.threema.ch/en/login/passkey/start
+confidence: 42
+reasoning: endpoints resolved to POST-only routes; GET → 404; POST with orphaned csrf → 401; server freely issues session+csrf on unauthenticated GET /, so any visitor can complete a self-challenge ceremony; no cross-user leverage observed.
+evidence_needed: whether a valid-session POST issues a challenge with 429/RateLimit headers (one valid POST — side-effect, deferred).
+verify_steps: PASSIVE (limited): single GET / captures fresh csrf+SESSIONID to confirm issuance; do NOT repeat challenge POST this cycle.
+impact: self-session challenge issuance at most self-DoS; severity low.
+testability: PASSIVE
+[NEXT] PROBE: weekly catch-up checks — single GET `https://work.test.threema.ch/api-app/public/global/settings` and single GET `https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000`; if license-token returns ≠404, escalate to valid-format token probes (never real tokens); ≤1 rps, GET only.
