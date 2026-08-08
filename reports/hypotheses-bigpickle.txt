@@ -1,4 +1,11 @@
-## 2026-08-08 18:22:26 UTC [chat] (model bigpickle)
+## 2026-08-08 19:06:28 UTC [chat] (model bigpickle)
+[PARKED] Staging chat cluster (g-*.0.test.threema.ch): out of scope per scope.yml.
+[FINAL] 1) desktop key-storage ACL (95) 2) Work /identities cross-subscription (52) 3) fetch_bulk batch-cap (50) 4) safe backup credentialed read (45) 5) license-token oracle (40)
+[NEXT] HUMAN: Request program-issued test backupId:backupKey from the operator for the safe backup hypothesis; upon receipt run exactly one `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps) and compare status/body/Expose-Headers against the known byte-identical 400 baseline.
+[LEARN] REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE (requires separate renderer exploit chain), not a standalone class.
+[LEARN] REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml.
+[LEARN] CONFIRMED MISCONFIG @ threema-desktop key-storage (Windows): ACL-bypass finding stable, no contradicting evidence this cycle.
+[RISK] chat: 25 | 5222 handshake-gated (0-byte server hello without auth frame), 443 closes pre-TLS, no in-band divergence; staging excluded | web: 35 | staging/prod /public/* bundle divergence + license-token route (404 today) + namespace-gated auth (302) | sync: 15 | mediator/rendezvous uniform 403, split-DNS routing only, no auth bypass observed | safe: 30 | credential-gated (400 unauth), CORS `*` + ACAH:Authorization, HSTS absent on GET 400 | desktop-src: 40 | sandbox false + nodeIntegrationInWorker (conditional RCE) + RAG-verified Windows ACL key-storage gap.
 [LEARN] REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml.
 [LEARN] CONFIRMED MISCONFIG @ threema-desktop key-storage (Windows): ACL-bypass finding stable, no contradicting evidence this cycle.
 [RISK] chat: 25 | 5222 handshake-gated (0-byte server hello without auth frame), 443 closes pre-TLS, no in-band divergence; staging excluded | web: 35 | staging/prod /public/* bundle divergence + license-token route (404 today) + namespace-gated auth (302) | sync: 15 | mediator/rendezvous uniform 403, split-DNS routing only, no auth bypass observed | safe: 30 | credential-gated (400 unauth), CORS `*` + ACAH:Authorization, HSTS absent on GET 400 | desktop-src: 40 | sandbox false + nodeIntegrationInWorker (conditional RCE) + RAG-verified Windows ACL key-storage gap.
@@ -31,3 +38,71 @@ impact: local same-user compromise → full message history + identity keypair; 
 testability: PASSIVE
 [NEXT] HUMAN: Request program-issued test backupId:backupKey from the operator for the safe-backup hypothesis (highest-priority AUTH_HELPED blocker); upon receipt run exactly one `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps) and compare status/body/Expose-Headers against the known byte-identical 400 baseline.
 [RISK] chat: 25 | 5222 handshake-gated (0-byte server hello without auth frame), 443 closes pre-TLS, 2-node pool now fully mapped (00-7f/80-ff) but no in-band divergence; staging excluded | web: 35 | staging/prod /public/* bundle divergence + license-token route (404 this cycle) + namespace-gated auth (302) | sync: 15 | mediator/rendezvous uniform 403, split-DNS routing only, no auth bypass observed | safe: 30 | credential-gated (400 unauth), CORS `*` + ACAH:Authorization, HSTS absent on GET 400 | desktop-src: 40 | sandbox false + nodeIntegrationInWorker (conditional RCE, rejected standalone) + RAG-verified Windows ACL key-storage gap.
+[PARKED] Staging chat cluster (g-*.0.test.threema.ch): out of scope per scope.yml.
+[FINAL] 1) desktop key-storage ACL (95) 2) Work /identities cross-subscription (52) 3) fetch_bulk batch-cap (50) 4) safe backup credentialed read (45) 5) license-token oracle (40)
+[NEXT] HUMAN: Request program-issued test backupId:backupKey from the operator for the safe backup hypothesis; upon receipt run exactly one `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps) and compare status/body/Expose-Headers against the known byte-identical 400 baseline.
+[LEARN] REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE (requires separate renderer exploit chain), not a standalone class.
+[LEARN] REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml.
+[LEARN] CONFIRMED MISCONFIG @ threema-desktop key-storage (Windows): ACL-bypass finding stable, no contradicting evidence this cycle.
+[RISK] chat: 25 | 5222 handshake-gated (0-byte server hello without auth frame), 443 closes pre-TLS, no in-band divergence; staging excluded | web: 35 | staging/prod /public/* bundle divergence + license-token route (404 today) + namespace-gated auth (302) | sync: 15 | mediator/rendezvous uniform 403, split-DNS routing only, no auth bypass observed | safe: 30 | credential-gated (400 unauth), CORS `*` + ACAH:Authorization, HSTS absent on GET 400 | desktop-src: 40 | sandbox false + nodeIntegrationInWorker (conditional RCE) + RAG-verified Windows ACL key-storage gap.
+[LEARN] REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml.
+[LEARN] CONFIRMED MISCONFIG @ threema-desktop key-storage (Windows): ACL-bypass finding stable, no contradicting evidence this cycle.
+[RISK] chat: 25 | 5222 handshake-gated (0-byte server hello without auth frame), 443 closes pre-TLS, no in-band divergence; staging excluded | web: 35 | staging/prod /public/* bundle divergence + license-token route (404 today) + namespace-gated auth (302) | sync: 15 | mediator/rendezvous uniform 403, split-DNS routing only, no auth bypass observed | safe: 30 | credential-gated (400 unauth), CORS `*` + ACAH:Authorization, HSTS absent on GET 400 | desktop-src: 40 | sandbox false + nodeIntegrationInWorker (conditional RCE) + RAG-verified Windows ACL key-storage gap.
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: OPTIONS → 204 with CORS `*` + Access-Control-Allow-Headers: Authorization on all 5 hosts; GET /backups/{64hex} → byte-identical 400 (11B) with and without bogus Basic — route exists, credential-gated. Re-confirmed unchanged this cycle.
+evidence_needed: valid program test backupId:backupKey → response ≠ 400 (200+payload or 401/403); Expose-Headers for cross-origin body read.
+verify_steps: AUTH_HELPED: single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), compare status/body/Expose-Headers vs 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[HYP] work.test license-token backend ships → unauth 64-hex credential oracle
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 40
+reasoning: staging bundle v2.25.1 (e48e18f7…) implements GET {username?,password?,expired,hasEmail} + PUT; backend still method-agnostic 404 (900B) this cycle; prod bundle has zero /public/* handlers; 64-char validation client-side zod only.
+evidence_needed: any non-404 response to a 64-char token on staging.
+verify_steps: PASSIVE, gated: weekly single GET /api-app/public/global/settings + single GET /api-app/public/license/token/{64zeros}; escalate only on non-404; ≤1 rps; never real tokens.
+impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
+testability: PASSIVE
+[HYP] Windows key-storage ACL bypass → master password + keypair recovery
+class: MISCONFIG
+asset: threema-desktop keystorage.bin / keystorage.password.bin (Windows)
+confidence: 95
+reasoning: fileModeInternalObjectIfPosix() returns {} on Windows → both files written without ACL restrictions (RAG-verified, 15 paths); safeStorage (DPAPI) password recoverable by same-user processes; chain password→KDF→identity keypair→local DB.
+evidence_needed: same-user Windows process PoC reading keystorage files before app write-finalizes; chain documentation complete.
+verify_steps: HUMAN/RAG: confirm write path applies 0600-equivalent only on POSIX; produce PoC flow only on operator-provided Windows sandbox.
+impact: local same-user compromise → full message history + identity keypair; Medium-High (requires local access).
+testability: PASSIVE
+[NEXT] HUMAN: Request program-issued test backupId:backupKey from the operator for the safe-backup hypothesis (highest-priority AUTH_HELPED blocker); upon receipt run exactly one `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps) and compare status/body/Expose-Headers against the known byte-identical 400 baseline.
+[RISK] chat: 25 | 5222 handshake-gated (0-byte server hello without auth frame), 443 closes pre-TLS, 2-node pool now fully mapped (00-7f/80-ff) but no in-band divergence; staging excluded | web: 35 | staging/prod /public/* bundle divergence + license-token route (404 this cycle) + namespace-gated auth (302) | sync: 15 | mediator/rendezvous uniform 403, split-DNS routing only, no auth bypass observed | safe: 30 | credential-gated (400 unauth), CORS `*` + ACAH:Authorization, HSTS absent on GET 400 | desktop-src: 40 | sandbox false + nodeIntegrationInWorker (conditional RCE, rejected standalone) + RAG-verified Windows ACL key-storage gap.
+[HYP] Staging license-token backend ships → unauth 64-hex credential oracle
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 40
+reasoning: staging bundle v2.25.1 (e48e18f7…) ships GET {username?,password?,expired,hasEmail} + PUT handlers; backend still method-agnostic 404 (900B); prod bundle has zero /public/* handlers; 64-char check is client-side zod only.
+evidence_needed: any non-404 (200/400/401) response to a well-formed 64-hex token on staging.
+verify_steps: PASSIVE, gated: single GET /api-app/public/global/settings + single GET /api-app/public/license/token/{64 zeros}; escalate only on non-404; ≤1 rps; never real tokens.
+impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
+testability: PASSIVE
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: OPTIONS → 204 with CORS `*` + Access-Control-Allow-Headers: Authorization on all 5 hosts; GET /backups/{64hex} → byte-identical 400 with and without bogus Basic — route exists, credential-gated; HSTS/Expect-CT absent on the GET 400.
+evidence_needed: valid program-issued test backupId:backupKey → response ≠ 400 (200+payload or 401/403); any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED: single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), compare status/body/headers vs 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[HYP] Challenge-endpoint param-validation-before-lookup oracle extends to well-formed params → identity-state fingerprint
+class: IDOR
+asset: GET apip/ds-apip/api.threema.ch /identity/check_revocation_key
+confidence: 45
+reasoning: bare GET on all 5 challenge endpoints → 200 JSON error (route present); set_revocation_key → "Bad revocation key length" and update_work_info → "Missing parameters" prove param-validation runs before identity lookup. If well-formed query params shift the error between real (ECHOECHO) and fake (ZZZZZZZZ) IDs, the endpoint leaks identity-state keyed on credential-bearing params.
+evidence_needed: query-string params (GET, no body) producing a different error string for ECHOECHO vs ZZZZZZZZ.
+verify_steps: PASSIVE, gated: single GET /identity/check_revocation_key?identity=ECHOECHO&revocation_key={128 hex}, then identical with ZZZZZZZZ; compare error strings; skip set_revocation_key/update_work_info POST (mutation risk); ≤1 rps.
+impact: existence-oracle overlap with already-accepted IDOR; low incremental.
+testability: PASSIVE
+[NEXT] PROBE: single gated GET pair on `https://ds-apip.threema.ch/identity/check_revocation_key?identity=ECHOECHO&revocation_key={128 zeros}` then identical with `identity=ZZZZZZZZ` (≤1 rps, no body, GET only), diff the error strings to confirm/disconfirm the validation-order oracle; pending items unchanged — HUMAN request for program-issued test backupId:backupKey remains open for the safe-backup hypothesis.
+[RISK] chat: 25 | 5222 handshake-gated (0-byte hello without auth frame), 443 closes pre-TLS, pool mapped, no in-band divergence, staging excluded | web: 35 | staging/prod /public/* bundle divergence + license-token route (404 this cycle) + namespace-gated auth (302) | sync: 15 | mediator/rendezvous uniform 403, split-DNS routing only, no auth bypass observed | safe: 30 | credential-gated (400 unauth), CORS `*` + ACAH:Authorization, HSTS absent on GET 400 | desktop-src: 40 | sandbox false + nodeIntegrationInWorker (conditional, rejected standalone) + RAG-verified Windows ACL key-storage gap (top-confidence finding)
