@@ -1,1 +1,34 @@
-## 2026-08-08 07:08:54 UTC [chat] (model bigpickle)
+## 2026-08-08 07:57:54 UTC [chat] (model bigpickle)
+[HYP] Broadcast passkey ceremony — self-session challenge, at most self-DoS
+class: AUTH
+asset: https://broadcast.threema.ch (passkey challenge/assertion endpoints)
+confidence: 45
+reasoning: live login form embeds `csrf_public_login_access`; unauth GET / freely issues session+CSRF; GET /en/login/passkey/start → 404 (POST-only), orphaned-csrf POST → 401; ceremony URL templates (`${l}/${o}/${s}/${r}`) unresolved in bundle.
+evidence_needed: resolved ceremony paths; whether a valid-session challenge POST returns 429/RateLimit headers.
+verify_steps: PASSIVE-limited: single GET / re-confirm session+CSRF issuance; single GET each resolved ceremony path; do NOT submit challenge POST (side effect). ≤1 rps.
+impact: self-session challenge issuance → self-DoS only; no cross-user leverage observed; low.
+testability: PASSIVE
+[HYP] Gateway control-plane /api hard-block escape
+class: AUTH
+asset: https://gateway.threema.ch (/api/*)
+confidence: 42
+reasoning: /api and /api/v1 → uniform nginx 403 (146B) across 9 probed paths (routes gated, not absent); login served with no HSTS/Expect-CT/CSP (weaker than shop); signup/forgot forms carry per-form CSRF + hCaptcha.
+evidence_needed: any /api subpath escaping the blanket deny.
+verify_steps: PASSIVE: single GET on small plausible set (/api/health, /api/v1/status, /api/gateways, /api/version); compare body/status vs 146B baseline; headers recorded; no POSTs (side effects). ≤1 rps.
+impact: if a path escapes the deny, unauth control-plane surface; severity low unless auth bypass found.
+testability: PASSIVE
+[HYP] Desktop Windows key-storage ACL gap — sole triage-surviving finding
+class: MISCONFIG
+asset: threema-desktop apps/desktop/src/common/node/key-storage (keystorage.bin, keystorage.password.bin)
+confidence: 65
+reasoning: `fileModeInternalObjectIfPosix()` returns `{}` on Windows → files written with no ACL restrictions; DPAPI (safeStorage) password recoverable by same-user processes; the only KB item that survived independent 7-question triage (HOLD, HUMAN_ONLY).
+evidence_needed: live Windows proof that the two files lack ACL restrictions and a same-user process can read/recover the keystore password.
+verify_steps: AUTH_HELPED/HUMAN_ONLY: on an authorized Windows test host, create keystore, run `icacls` on both files, decrypt DPAPI blob from a second same-user process.
+impact: same-user local context reads Threema Desktop keystore → private-key/session recovery; medium, requires local access.
+testability: HUMAN_ONLY
+[NEXT] HUMAN: GO/NO-GO gate before any further live probing — confirm this engagement is an active, authorized Threema program (verified scope + reporting channel); triage run 07:15 already flags channel as unconfirmed and HOLDs all findings. If authorized: proceed to Windows-host proof of the key-storage ACL gap (the only triage-surviving finding). If not confirmed: halt automated live probing. No live HTTP probes executed or scheduled this cycle.
+[RISK] chat: 40 reason: g-*.0.threema.ch prod reachable but silent without login frame; staging .test out of scope; no HTTP surface
+[RISK] web: 80 reason: ds-apip/api/apip cluster, work/broadcast/gateway/shop/billing cockpits all live; public endpoints + weak transport headers on gateway/broadcast; but most prior leads triaged invalid (by-design/defense-in-depth)
+[RISK] sync: 40 reason: mediator/rendezvous uniform 403, WSS paths high-entropy, auth model in source
+[RISK] safe: 70 reason: credential-gated but CORS `*` + Authorization header + write-capable methods + 5 hostnames on one IP + no 429 observed
+[RISK] desktop-src: 75 reason: one real (unproven-on-Windows) finding — key-storage ACL gap; Electron sandbox TODO DEK-79; OnPrem trust chain secure

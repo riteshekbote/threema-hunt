@@ -38,3 +38,4 @@ reasoning: Staging chat cluster resolves to 203.56.114.34; TCP connect to port 5
 evidence_needed: TCP connect to 5222 on staging host; verify no server-hello is sent
 impact: Attacker can read chat messages on staging cluster without authentication
 testability: PASSIVE
+## 2026-08-08 07:55:19 UTC [safe] (model ling3)

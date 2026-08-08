@@ -175,3 +175,5 @@
 - NEW `avatar.test.threema.ch` / `companylogo.test.threema.ch`: 403, byte-identical posture to prod avatar/companylogo 403 — no divergence; `broadcast.test` / `billing.test` → 000 (unreachable, matches prod
 
 ## 2026-08-08 07:09:30 UTC
+
+## 2026-08-08 08:04:49 UTC
