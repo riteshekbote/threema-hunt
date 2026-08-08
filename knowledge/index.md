@@ -112,3 +112,5 @@
 - 2026-08-08 ACCEPTED OTHER @ all 3 directory hosts: 5 challenge endpoints confirmed live via GET returning 200 with JSON error bodies + CORS `*`; `update_work_info` returns `{"success":false,"error":"Missing parameters"}` — confirms param-validation-before-identity-lookup oracle on this endpoint too (same pattern as set_revocation_key)
 - 2026-08-08 CONFIRMED @ all 3 directory hosts: No `Access-Control-Expose-Headers` on any response — ACAO:* enables cross-origin body read (unauthenticated), but response headers limited to simple-set only
 - 2026-08-08 REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` is benchmark-only dummy in determineKdfParams(), derived key immediately purged — not used for real encryption (re-confirmed, RAG-verified)
+- 2026-08-08 REJECTED class @ lead: 7. Desktop BrowserWindow sandbox+worker gap — conditional RCE
+- 2026-08-08 REJECTED class @ lead: 16. Staging chat cluster — out of scope
