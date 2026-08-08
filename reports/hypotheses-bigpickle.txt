@@ -1,4 +1,9 @@
-## 2026-08-08 07:57:54 UTC [chat] (model bigpickle)
+## 2026-08-08 08:26:01 UTC [chat] (model bigpickle)
+evidence_needed: whether a valid-session POST issues a challenge with 429/RateLimit headers (one valid POST — side-effect, deferred).
+verify_steps: PASSIVE (limited): single GET / captures fresh csrf+SESSIONID to confirm issuance; do NOT repeat challenge POST this cycle.
+impact: self-session challenge issuance at most self-DoS; severity low.
+testability: PASSIVE
+[NEXT] PROBE: weekly catch-up checks — single GET `https://work.test.threema.ch/api-app/public/global/settings` and single GET `https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000`; if license-token returns ≠404, escalate to valid-format token probes (never real tokens); ≤1 rps, GET only.
 [HYP] Broadcast passkey ceremony — self-session challenge, at most self-DoS
 class: AUTH
 asset: https://broadcast.threema.ch (passkey challenge/assertion endpoints)
@@ -32,3 +37,27 @@ testability: HUMAN_ONLY
 [RISK] sync: 40 reason: mediator/rendezvous uniform 403, WSS paths high-entropy, auth model in source
 [RISK] safe: 70 reason: credential-gated but CORS `*` + Authorization header + write-capable methods + 5 hostnames on one IP + no 429 observed
 [RISK] desktop-src: 75 reason: one real (unproven-on-Windows) finding — key-storage ACL gap; Electron sandbox TODO DEK-79; OnPrem trust chain secure
+[HYP] Desktop key-storage ACL gap affects all credential files written via same path
+class: MISCONFIG
+asset: threema-desktop apps/desktop/src/common/node/key-storage (keystorage.bin, keystorage.password.bin)
+confidence: 65
+reasoning: `fileModeInternalObjectIfPosix()` returns `{}` on Windows → files written without ACL restrictions; DPAPI (safeStorage) password recoverable by same-user processes; sole finding surviving independent 7-question triage 08:07 (HOLD, HUMAN_ONLY).
+evidence_needed: live Windows proof of missing ACLs + same-user DPAPI recovery.
+verify_steps: AUTH_HELPED/HUMAN_ONLY: on authorized Windows host create keystore, `icacls` both files, decrypt DPAPI blob from a second same-user process.
+impact: same-user local context reads keystore → private-key/session recovery; medium, requires local access.
+testability: HUMAN_ONLY
+[HYP] Staging work bundle carries the only public-API divergence; prod unaffected
+class: MISCONFIG
+asset: work.threema.ch vs work.test.threema.ch (/api-app/public/*)
+confidence: 45
+reasoning: staging bundle v2.25.1 implements GET/PUT license-token route; prod bundle has zero /public/* handlers; backend route currently 404 catch-all on staging, so no oracle today.
+evidence_needed: backend shipping the route (≠404 for a 64-char token).
+verify_steps: PASSIVE: weekly single GET of `/api-app/public/global/settings` + `/api-app/public/license/token/{64zeros}`; escalate only on non-404; ≤1 rps.
+impact: if shipped, unauth 64-hex license-token credential oracle; low (high-entropy tokens).
+testability: PASSIVE
+[NEXT] HUMAN: GO/NO-GO gate still open — no operator confirmation arrived. Do NOT execute live probes. While awaiting confirmation, run static source analysis only (grep/scans over reposcan-raw and in-scope repos, no network): specifically re-verify `fileModeInternalObjectIfPosix()` call sites and DPAPI `safeStorage` usage across threema-desktop to harden the sole surviving finding's proof packet. If operator confirms authorization + reporting channel, proceed to Windows-host proof (AUTH_HELPED/HUMAN_ONLY).
+[RISK] chat: 40 reason: g-*.0.threema.ch prod silent without login frame; staging .test out of scope; no HTTP surface
+[RISK] web: 75 reason: directory cluster + cockpits live with public endpoints, but most leads triaged INVALID (by-design/defense-in-depth); staging-prod bundle divergence remains the only live lead
+[RISK] sync: 40 reason: mediator/rendezvous uniform 403; WSS paths high-entropy; auth model in source
+[RISK] safe: 65 reason: credential-gated but CORS `*` + Authorization header + write-capable methods + 5 hostnames/1 IP; no 429 observed; no data access demonstrated
+[RISK] desktop-src: 75 reason: one real (unproven-on-Windows) finding — key-storage ACL gap; sandbox:false HOLD; OnPrem trust chain secure; no new secrets in scans

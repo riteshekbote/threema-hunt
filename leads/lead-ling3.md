@@ -39,3 +39,4 @@ evidence_needed: TCP connect to 5222 on staging host; verify no server-hello is 
 impact: Attacker can read chat messages on staging cluster without authentication
 testability: PASSIVE
 ## 2026-08-08 07:55:19 UTC [safe] (model ling3)
+## 2026-08-08 08:24:15 UTC [safe] (model ling3)
