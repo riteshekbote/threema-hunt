@@ -5945,3 +5945,262 @@ testability: PASSIVE
 - [RISK] sync: 35 — staging mediator/rendezvous/blob-mirror consolidated behind nginx 403 on all hosts/paths incl. valid WS upgrade; no reachable surface
 - [RISK] safe: 30 — credential-gated (400 for no-creds); CORS `*` on preflight only; defense-in-depth gap
 - [RISK] desktop-src: 40 — two accepted source misconfigs (Windows keystorage ACL, electron sandbox:false + nodeIntegrationInWorker) with no remote exploitation path
+===== ANALYST bigpickle 2026-08-08 03:47:32 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls /tmp/opencode/ 2>/dev/null | head -50; echo "---"; ls /home/runner/work/threema-hunt/threema-hunt 2>/dev/null | head -50
+---
+README.md
+analyst-out.txt
+analyst-prompt.txt
+ctx.txt
+inventory
+knowledge
+leads
+reports
+reposcan-raw
+scope.yml
+scripts
+state_bigpickle.json
+state_laguna.json
+state_ling3.json
+state_longcat.json
+state_nemotron3.json
+triage
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/state_bigpickle.json 2>/dev/null; echo "---SCRIPTS---"; ls /home/runner/work/threema-hunt/threema-hunt/scripts 2>/dev/null
+{"phase": "POC", "target": "chat"}---SCRIPTS---
+sync-issues.py
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/leads /home/runner/work/threema-hunt/threema-hunt/reports 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/leads:
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-nemotron3.md
+reposcan-2026-08-07-18-43.md
+reposcan-2026-08-07-18-59.md
+reposcan-2026-08-07-19-20.md
+reposcan-2026-08-07-19-33.md
+reposcan-2026-08-07-20-11.md
+reposcan-2026-08-07-20-59.md
+reposcan-2026-08-07-21-13.md
+reposcan-2026-08-07-21-27.md
+reposcan-2026-08-07-22-10.md
+reposcan-2026-08-07-22-46.md
+reposcan-2026-08-07-23-10.md
+reposcan-2026-08-07-23-19.md
+reposcan-2026-08-07-23-50.md
+reposcan-2026-08-08-00-01.md
+reposcan-2026-08-08-00-19.md
+reposcan-2026-08-08-02-10.md
+reposcan-2026-08-08-02-23.md
+reposcan-latest.md
+
+/home/runner/work/threema-hunt/threema-hunt/reports:
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/reports/hypotheses-bigpickle.txt 2>/dev/null | tail -30
+[LEARN] ACCEPTED OTHER @ avatar.test.threema.ch / companylogo.test.threema.ch: 403, byte-identical posture to prod avatar/companylogo 403 — no divergence; broadcast.test / billing.test → 000 (unreachable, matches prod TIMEOUT).
+[HYP] Work directory /identities cross-subscription metadata disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities (backend of work.threema.ch)
+confidence: 52
+reasoning: directory.openapi.yml:1172 flags `/identities` "currently buggy" (TWRK-1633); returns same-subscription contacts + work properties (first/last name, jobTitle, department, availability); host 401s on all paths (route exists behind credential gate) with CORS `*`. Same-version bundle divergence (STEP 1) shows the work build is actively iterating on prod-facing endpoints.
+evidence_needed: whether the subscription-membership filter can be induced (batch/wildcard/pagination bounds) to return out-of-subscription contacts or their work properties.
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities mixing own- and foreign-subscription IDs; compare membership + property leak; probe page/size bounds; ≤1 rps.
+impact: cross-subscription disclosure of work-directory metadata → targeted phishing; severity medium.
+testability: AUTH_HELPED
+[HYP] Staging chat mirror shows version/test-identity skew
+class: MISCONFIG
+asset: g-{00..ff}.0.test.threema.ch:5222 (203.56.114.34)
+confidence: 50
+reasoning: source-derived framing now concrete (CspSocket reads SERVER_HELLO_LEN=80 then SERVER_LOGIN_ACK_LEN=32; plain Socket, no TLS on 5222; host = prefix + identityStore server-group + suffix). Both staging and prod return 0 bytes to read-only connect — server waits for the client login frame, so only an authenticated frame elicits an in-band response. Only DNS/net split distinguishes staging from prod.
+evidence_needed: in-band difference in the CSP server-hello/login-ack stream fields once a valid login frame is sent (version, test identity acceptance).
+verify_steps: AUTH_HELPED: with authorized staging test identity, send one framed login (16B cookie + 64B box + 32B ext-indicator + 24B reserved + 32B vouch) to staging vs prod 5222; compare server-hello/login-ack; ≤1 rps one attempt each, no data modification.
+impact: internet-reachable staging messenger backend → version skew/unpatched surface; severity low.
+testability: AUTH_HELPED
+[HYP] Staging work frontend is ahead of backend — license-token oracle on catch-up
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 45
+reasoning: staging bundle (v2.25.1) implements GET (returns license username/password/expired/hasEmail) + PUT for the route with 64-char zod validation, but backend returns method-agnostic 404 catch-all — frontend shipped ahead of backend on staging. Prod bundle lacks the route entirely.
+evidence_needed: backend deploys the route (returns ≠404 for a valid-format token).
+verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64zeros}` weekly; record 404 vs non-404; ≤1 rps.
+impact: if route enabled: unauthenticated 64-hex license-token→credential oracle; severity low (tokens high-entropy).
+testability: PASSIVE
+[FINAL] ranked: 1) work /identities cross-subscription (52), 2) staging chat skew (50), 3) work.test license-token catch-up (45).
+[NEXT] PROBE: weekly staging catch-up check — single `GET https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000` and single `GET https://work.test.threema.ch/api-app/public/global/settings`; if license-token returns ≠404, escalate to valid-format token probes (never real tokens). ≤1 rps, GET only. (Chat CSP divergence test is defined but blocked on an authorized staging test identity — AUTH_HELPED.)
+[0m
+My last NEXT action was the weekly staging catch-up probe. Executing it now, sequentially (≤1 rps), GET-only.
+[0m$ [0mcurl -s -o /tmp/opencode/license_token_resp.txt -w "HTTP %{http_code} | size %{size_download} | %{time_total}s\n" -m 15 https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000
+HTTP 404 | size 900 | 0.565863s
+[0m
+[0m$ [0msleep 2; curl -s -o /tmp/opencode/settings_resp.txt -w "HTTP %{http_code} | size %{size_download} | %{time_total}s\n" -m 15 https://work.test.threema.ch/api-app/public/global/settings
+HTTP 200 | size 299 | 0.347653s
+[0m
+[0m$ [0msha256sum /tmp/opencode/license_token_resp.txt /tmp/opencode/settings_resp.txt; echo "---settings body---"; cat /tmp/opencode/settings_resp.txt
+4c750350c8c952a79119fe0b7da77a92d2e553316d1fe3500f7c1349a1554ec4  /tmp/opencode/license_token_resp.txt
+52621822c0af3669944e99d701a8ab6a79a1cbe4357642605d2167128dc9ebdc  /tmp/opencode/settings_resp.txt
+---settings body---
+{"appLinkHost":"threemablue://","appDownloadAndroidGooglePlay":"https://play.google.com/store/apps/details?id=ch.threema.app.work","appDownloadIos":"https://itunes.apple.com/app/threema-work/id1105927783?mt=8\u0026uo=4\u0026at=10lJMu","appDownloadDesktop":"https://threema.ch/work/download#desktop"}
+[0m
+Catch-up probe results: license-token still 404 (900B SPA catch-all, route not deployed), global/settings still 200 (299B, unchanged body). No catch-up. Quick passive DNS freshness check on chat hosts since that's my target:
+[0m$ [0mgetent hosts g-00.0.threema.ch g-00.0.test.threema.ch g-00.0.chat.threema.ch 2>/dev/null; echo "---"; dig +short g-00.0.threema.ch A 2>/dev/null; dig +short g-00.0.test.threema.ch A 2>/dev/null
+203.56.112.202  g-00.0.threema.ch
+203.56.114.34   g-00.0.test.threema.ch
+---
+203.56.112.202
+203.56.114.34
+[0m
+DNS unchanged (prod 203.56.112.202 / staging 203.56.114.34). As a freshness probe for frontend catch-up (leading indicator before backend route deploys), I'll re-hash the staging bundle against the known baseline sha256:
+[0m$ [0mcurl -s -m 15 https://work.test.threema.ch/en/login -o /tmp/opencode/worktest_login.html -w "HTTP %{http_code} | %{size_download}B\n"; grep -oE 'src="[^"]*\.js[^"]*"' /tmp/opencode/worktest_login.html | head -20
+HTTP 200 | 5897B
+src="/cache/work_public.js?v=2.25.1"
+[0m
+[0m$ [0msleep 1; curl -s -m 20 https://work.test.threema.ch/cache/work_public.js -o /tmp/opencode/work_public.js -w "HTTP %{http_code} | %{size_download}B\n"; sha256sum /tmp/opencode/work_public.js
+HTTP 200 | 1443948B
+e48e18f79df0125e8942f8fd9566f0c7924d15d7229377b553cf666b1bca7b87  /tmp/opencode/work_public.js
+[0m
+Staging bundle unchanged (sha256 matches baseline exactly, still v2.25.1). Now closing the divergence loop — check whether the **prod** bundle moved:
+[0m$ [0msleep 1; curl -s -m 15 https://work.threema.ch/en/login -o /tmp/opencode/prod_login.html -w "HTTP %{http_code} | %{size_download}B\n"; grep -oE 'src="[^"]*\.js[^"]*"' /tmp/opencode/prod_login.html | head -10
+HTTP 200 | 4969B
+src="/cache/work_public.js?v=2.25.1"
+[0m
+[0m$ [0msleep 1; curl -s -m 20 https://work.threema.ch/cache/work_public.js -o /tmp/opencode/prod_work_public.js -w "HTTP %{http_code} | %{size_download}B\n"; sha256sum /tmp/opencode/prod_work_public.js; rg -c "public/license/token|public/global/settings" /tmp/opencode/prod_work_public.js || echo "ZERO /public/* handler refs in prod bundle"
+HTTP 200 | 1400541B
+96501e2139ad9647e578ad1e03befca380d4f82c49434f3f3b13a14f354b67a7  /tmp/opencode/prod_work_public.js
+ZERO /public/* handler refs in prod bundle
+/bin/bash: line 1: rg: command not found
+[0m
+Both bundles frozen — staging and prod identical to baseline hashes; prod still has zero `/public/*` refs. One fresh passive check for my chat target: sweep chat hostname indices to see if other server-groups split to different IPs (like mediator/rendezvous 0-7 vs 8-f did):
+[0m$ [0mfor g in 00 07 08 0f 10 40 ff; do for s in 0 1 8 f; do ip=$(getent hosts g-$g.$s.threema.ch 2>/dev/null | awk '{print $1}' | head -1); ip2=$(getent hosts g-$g.$s.test.threema.ch 2>/dev/null | awk '{print $1}' | head -1); echo "g-$g.$s prod=$ip staging=$ip2"; done; done 2>/dev/null | sort -u
+g-00.0 prod=203.56.112.202 staging=203.56.114.34
+g-00.1 prod= staging=
+g-00.8 prod= staging=
+g-00.f prod= staging=
+g-07.0 prod=203.56.112.202 staging=203.56.114.34
+g-07.1 prod= staging=
+g-07.8 prod= staging=
+g-07.f prod= staging=
+g-08.0 prod=203.56.112.202 staging=203.56.114.34
+g-08.1 prod= staging=
+g-08.8 prod= staging=
+g-08.f prod= staging=
+g-0f.0 prod=203.56.112.202 staging=203.56.114.34
+g-0f.1 prod= staging=
+g-0f.8 prod= staging=
+g-0f.f prod= staging=
+g-10.0 prod=203.56.112.202 staging=203.56.114.34
+g-10.1 prod= staging=
+g-10.8 prod= staging=
+g-10.f prod= staging=
+g-40.0 prod=203.56.112.202 staging=203.56.114.34
+g-40.1 prod= staging=
+g-40.8 prod= staging=
+g-40.f prod= staging=
+g-ff.0 prod=203.56.112.204 staging=203.56.114.34
+g-ff.1 prod= staging=
+g-ff.8 prod= staging=
+g-ff.f prod= staging=
+[0m
+Notable: prod chat splits into two IPs — g-ff.0 → 203.56.112.204 while g-00..40 → .202; staging is single-IP (.114.34). Only server-group "0" resolves. Locating the .202→.204 boundary (DNS-only):
+[0m$ [0mfor h in 80 90 a0 b0 c0 d0 e0 f0 55 7f; do ip=$(getent hosts g-$h.0.threema.ch 2>/dev/null | awk '{print $1}' | head -1); echo "g-$h.0.prod=$ip"; done
+g-80.0.prod=203.56.112.204
+g-90.0.prod=203.56.112.204
+g-a0.0.prod=203.56.112.204
+g-b0.0.prod=203.56.112.204
+g-c0.0.prod=203.56.112.204
+g-d0.0.prod=203.56.112.204
+g-e0.0.prod=203.56.112.204
+g-f0.0.prod=203.56.112.204
+g-55.0.prod=203.56.112.202
+g-7f.0.prod=203.56.112.202
+[0m
+Prod chat DNS split boundary = prefix index 0x80: `g-{00..7f}.0` → .202, `g-{80..ff}.0` → .204 (two shards); staging collapses all to .114.34. Quick passive TCP reachability of the second prod shard:
+[0m$ [0mfor hp in "203.56.112.204 5222" "203.56.112.202 5222" "203.56.114.34 5222"; do set -- $hp; timeout 6 bash -c "exec 3<>/dev/tcp/$1/$2" 2>/dev/null && echo "$1:$2 OPEN" || echo "$1:$2 closed/timeout"; done
+203.56.112.204:5222 OPEN
+203.56.112.202:5222 OPEN
+203.56.114.34:5222 OPEN
+[0m
+Both prod shards and staging all accept TCP 5222. One more passive check on the new shard — TLS posture of `g-ff.0.threema.ch:443` (.204) vs .202:
+[0m$ [0mtimeout 8 openssl s_client -connect 203.56.112.204:443 -servername g-ff.0.threema.ch </dev/null 2>&1 | grep -E "CONNECTED|subject=|issuer=|SSL handshake|alert|errno" | head -5; echo "=== .202 ==="; timeout 8 openssl s_client -connect 203.56.112.202:443 -servername g-00.0.threema.ch </dev/null 2>&1 | grep -E "CONNECTED|subject=|issuer=|SSL handshake|alert|errno" | head -5
+CONNECTED(00000003)
+SSL handshake has read 0 bytes and written 326 bytes
+=== .202 ===
+CONNECTED(00000003)
+SSL handshake has read 0 bytes and written 326 bytes
+[0m
+All passive probes complete. Both prod chat IPs read 0 bytes on TLS ClientHello (no cert exposure), consistent with prior posture. Composing the analysis.
+
+---
+
+## STEP 1 — DELTA
+- [NEW] Prod chat cluster DNS two-shard split located: `g-{00..7f}.0.threema.ch` → 203.56.112.202, `g-{80..ff}.0.threema.ch` → 203.56.112.204 (boundary at prefix 0x80)
+- [NEW] Staging chat is single-IP consolidated: ALL `g-{00..ff}.0.test.threema.ch` → 203.56.114.34 (no staging shard split)
+- [NEW] Only server-group `0` exists in DNS for chat hosts — groups 1/8/f NXDOMAIN on both prod and staging
+- Re-confirmed unchanged this cycle: license-token→404/900B, global/settings→200/299B, staging bundle e48e18f7… (v2.25.1), prod bundle 96501e21… (v2.25.1, zero `/public/*` refs), TCP 5222 OPEN on all three chat IPs, TLS 443 silent on both prod shards
+
+## STEP 2 — PRIORITIZE
+- [PRIO] work.test.threema.ch/api-app/public/* — 5.15 | attack 3, business 6, tech 4, gate 10, cloud 1, fresh 7
+- [PRIO] ds-apip-work.threema.ch/identities — 4.60 | attack 5, business 7, tech 4, gate 2, cloud 1, fresh 6
+- [PRIO] g-{00..ff}.0.test.threema.ch:5222 (chat staging, .114.34) — 3.85 | attack 4, business 5, tech 5, gate 1, cloud 1, fresh 6
+
+## STEP 3 — HYPOTHESES
+[HYP] Work directory /identities cross-subscription metadata disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities (backend of work.threema.ch)
+confidence: 52
+reasoning: directory.openapi.yml:1172 flags `/identities` "currently buggy" (TWRK-1633); returns same-subscription contacts + work properties; host 401s on all paths (credential-gated) with CORS `*`; both prod+staging bundles frozen at v2.25.1 this cycle, work build still actively iterating.
+evidence_needed: whether subscription-membership filter can be induced (batch/wildcard/page bounds) to return out-of-subscription contacts or work properties.
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities mixing own-/foreign-subscription IDs; compare membership + property leak; probe page/size bounds; ≤1 rps.
+impact: cross-subscription disclosure of work-directory PII → targeted phishing; severity medium.
+testability: AUTH_HELPED
+
+[HYP] Staging chat mirror shows version/test-identity skew
+class: MISCONFIG
+asset: g-{00..ff}.0.test.threema.ch:5222 (203.56.114.34)
+confidence: 50
+reasoning: source-derived framing concrete (CspSocket reads SERVER_HELLO_LEN=80, SERVER_LOGIN_ACK_LEN=32, plain Socket on 5222); read-only connect returns 0 bytes on prod .202/.204 and staging .114.34 alike — server waits for client login frame; DNS topology newly mapped: staging is single-IP consolidation of a two-shard prod cluster (boundary 0x80), only group "0" resolves on either.
+evidence_needed: in-band difference in CSP server-hello/login-ack fields once a valid login frame is sent (version, test identity acceptance).
+verify_steps: AUTH_HELPED: with authorized staging test identity, send one framed login (16B cookie + 64B box + 32B ext-indicator + 24B reserved + 32B vouch) to staging vs prod 5222; compare server-hello/login-ack; ≤1 rps one attempt each, no data modification.
+impact: internet-reachable staging messenger backend → version skew/unpatched surface; severity low.
+testability: AUTH_HELPED
+
+[HYP] Staging work frontend/backend skew persists — license-token oracle if backend ships
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 45
+reasoning: staging bundle v2.25.1 implements GET (returns license username/password/expired/hasEmail) + PUT for the route; backend still returns method-agnostic 404 catch-all (900B) — re-confirmed this cycle; prod bundle has zero /public/* handlers; both builds frozen (hashes unchanged) so no catch-up in either direction.
+evidence_needed: backend deploys the route (returns ≠404 for a valid-format token).
+verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64zeros}` weekly; record 404 vs non-404; ≤1 rps.
+impact: if route enabled: unauthenticated 64-hex license-token→credential oracle; severity low (tokens high-entropy).
+testability: PASSIVE
+
+## STEP 4 — SELF-CRITIQUE
+All three survive (confidence ≥40, no class on REJECTED list, concrete verify_steps). Dropped none.
+- [PARKED] none
+- [FINAL] ranked: 1) /identities cross-subscription (52, AUTH_HELPED), 2) staging chat skew (50, AUTH_HELPED), 3) license-token catch-up (45, PASSIVE).
+
+## STEP 5 — NEXT ACTION
+[NEXT] PROBE: weekly staging catch-up re-check — `GET https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000`, `GET https://work.test.threema.ch/api-app/public/global/settings`, and re-hash `GET https://work.test.threema.ch/cache/work_public.js`; escalate if license-token ≠404 (never real tokens). Executed this cycle: all three unchanged (404/200/hash-match), next run ~2026-08-15. ≤1 rps, GET only. Chat CSP handshake and /identities tests remain AUTH_HELPED (blocked on an authorized staging test identity).
+
+## STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ g-{00..ff}.0.{test.,}threema.ch: Prod chat cluster is two-shard — g-{00..7f}.0 → 203.56.112.202, g-{80..ff}.0 → 203.56.112.204 (boundary prefix 0x80); staging collapses all prefixes to single IP 203.56.114.34; only server-group "0" exists in DNS; all three IPs accept TCP 5222 and all return 0 bytes to read-only connect; TLS 443 on both prod shards reads 0 bytes (no cert).
+- [LEARN] ACCEPTED OTHER @ work.test.threema.ch + work.threema.ch: Bundle freeze re-confirmed — staging work_public.js v2.25.1 sha256 e48e18f79df0125e8942f8fd9566f0c7924d15d7229377b553cf666b1bca7b87 (1,443,948 B) and prod 96501e2139ad9647e578ad1e03befca380d4f82c49434f3f3b13a14f354b67a7 (1,400,541 B) byte-identical to baseline; no frontend catch-up on either side; license-token backend route still not deployed (404/900B).
+
+## STEP 7 — RISK SCORE
+- [RISK] chat: 40 — staging chat mirror fully mapped passively (single-IP consolidation of two-shard prod, 5222 open, 0-byte reads, silent TLS 443); no in-band divergence provable without an authenticated login frame; version-skew unproven | web: 45 — work public-namespace divergence stable but frozen (one public config route on staging absent on prod; license-credential route not live; auth-gated namespaces intact on both) | sync: 35 — mediator/rendezvous/blob-mirror consolidated to 203.56.114.62, nginx 403 gates all hosts/paths incl. valid WS upgrade; no reachable surface | safe: 30 — unchanged; credential-gated (400 for no-creds), CORS `*` on preflight only | desktop-src: 40 — two accepted source misconfigs (Windows keystorage ACL, electron sandbox:false + nodeIntegrationInWorker) with no remote exploitation path.

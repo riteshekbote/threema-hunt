@@ -151,3 +151,5 @@
 - NEW Staging work app sets `__HOST-HTTP-SESSIONID` cookie on unauthenticated GET /en/login (Secure/HttpOnly/SameSite=Strict)
 - NEW `/api-app/me/profile` and `/api-app/global/settings` → 302 on staging (session-gated); only explicit `/api-app/public/*` namespace is open
 - NEW `/info/ping.php` → 200 empty and `/ping` → 204 on BOTH staging and prod — no divergence
+
+## 2026-08-08 03:47:32 UTC

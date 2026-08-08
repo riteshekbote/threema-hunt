@@ -189,3 +189,10 @@
 - LEARN: ACCEPTED OTHER @ g-*.0.{test.,}threema.ch chat: read-only TCP connect to 5222 returns 0 bytes on BOTH staging (203.56.114.34) and prod (203.56.112.202) — no ser
 - LEARN: ACCEPTED OTHER @ hcaptcha-work.threema.ch: 200 serving hCaptcha's own Webflow marketing page (Last Published 2026-07-30) — third-party captcha host, out-of-scop
 - LEARN: ACCEPTED OTHER @ avatar.test.threema.ch / companylogo.test.threema.ch: 403, byte-identical posture to prod avatar/companylogo 403 — no divergence; broadcast.tes
+
+## RANKED HYPOTHESES 2026-08-08 03:47:32 UTC
+- [75] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{id}: Desktop Windows key-storage ACL bypass → same-user DPAPI recovery → full key-store decryption (from reports/hypotheses-laguna.txt)
+- [52] ds-apip-work.threema.ch/identities: Work directory /identities cross-subscription metadata disclosure (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: weekly staging catch-up check — single `GET https://work.test.threema.ch/api-app/public/license/token/000000000000000000000000000000000000000000000000000
+- NEXT(hypotheses-laguna.txt): RAG: clone github.com/threema-ch/threema-desktop, then read `apps/desktop/src/electron/electron-main.ts` BrowserWindow webPreferences to capture exact line numb
+- LEARN: ACCEPTED OTHER @ avatar.test.threema.ch / companylogo.test.threema.ch: 403, byte-identical posture to prod avatar/companylogo 403 — no divergence; broadcast.tes
