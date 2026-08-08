@@ -8296,3 +8296,116 @@ Probes run (4 requests total, ≤1 rps, GET/HEAD only): fetched `broadcast_publi
 - [RISK] sync: 60 reason: mediator/rendezvous split-routing resolved but uniform 403; WSS high-entropy paths, auth model in source only
 - [RISK] safe: 85 reason: safe-01 live CORS * with write methods + Allow-Headers Authorization; credential-gated (400) but cross-origin credentialed requests possible; 5 hostnames single IP
 - [RISK] desktop-src: 85 reason: Electron sandbox disabled + nodeIntegrationInWorker (TODO DEK-79); Windows key-storage ACL bypass accepted; OnPrem config trust rejected (Ed25519 verified)
+===== ANALYST bigpickle 2026-08-08 08:04:49 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -R reports 2>/dev/null | head -50
+total 148
+drwxr-xr-x 11 runner runner  4096 Aug  8 07:55 .
+drwxr-xr-x  3 runner runner  4096 Aug  8 07:55 ..
+drwxr-xr-x  7 runner runner  4096 Aug  8 07:55 .git
+drwxr-xr-x  3 runner runner  4096 Aug  8 07:55 .github
+-rw-r--r--  1 runner runner  1049 Aug  8 07:55 README.md
+-rw-r--r--  1 runner runner    32 Aug  8 07:55 analyst-out.txt
+-rw-r--r--  1 runner runner 36483 Aug  8 07:55 analyst-prompt.txt
+-rw-r--r--  1 runner runner 33419 Aug  8 07:55 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  8 07:55 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  8 07:55 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  8 07:55 leads
+drwxr-xr-x  2 runner runner  4096 Aug  8 07:55 reports
+drwxr-xr-x  3 runner runner  4096 Aug  8 07:55 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  8 07:55 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  8 07:55 scripts
+-rw-r--r--  1 runner runner    34 Aug  8 07:55 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  8 07:55 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  8 07:55 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  8 07:55 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  8 07:55 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  8 07:55 triage
+reports:
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+[0m
+[0m✱ [0mGlob "**/*.{txt,md,yml,yaml}"[90m 61 matches[0m
+[0m✱ [0mGlob "**/*.js"[90m 0 matches[0m
+[0m→ [0mRead leads/reposcan-2026-08-08-07-53.md
+[0m→ [0mRead triage/run-2026-08-08-07-15.md
+[0m→ [0mRead knowledge/index.md
+== STEP 1 — DELTA ==
+- [CHANGED] Independent triage layer (run-2026-08-08-07-15, longcat) invalidated most KB "ACCEPTED" items: directory identity→pubkey oracle (Q6 REJECTED — directory is by-design public; info disclosure of public data), CORS `*` on public APIs (defense-in-depth), all `.test.threema.ch` surfaces (out of scope — scope.yml lists only `*.threema.ch`), safe-01 CORS (credential-gated, no unauth impact), desktop `sandbox:false` (config weakness, no renderer-XSS chain), work.test license-token oracle (out of scope + route not live). Holds: desktop Windows key-storage ACL, work `/identities` (TWRK-1633), `/identity/ws/revoke`.
+- [NEW] Reposcan 07:53 (6656 files scanned, 56 hits): ZERO REAL_SECRET candidates. All hits = TEST_OR_EXAMPLE fixtures or ENDPOINT_LEAK of already-known staging hosts (directory.openapi.yml, vite.config.ts) or INTERESTING by-design (Sentry public DSN keys).
+- [NEW] Disclosure channel STILL unconfirmed — triage: "reporting channel TBD, operator-provided program scope; HOLD all findings until program confirms channel." This is now the go/no-go condition for further probing.
+
+== STEP 2 — PRIORITIZE ==
+- [PRIO] https://broadcast.threema.ch — score 6.2 — attack 6, business 5, tech 6 (WebAuthn attestation/assertion, minified bundles, no CSP/HSTS on served pages), gate 9 (session+CSRF freely issued unauth), cloud 2, fresh 10 (was TIMEOUT in baseline).
+- [PRIO] https://gateway.threema.ch — score 5.9 — attack 6, business 6 (customer-facing signup/forgot/login), tech 5 (PHP sessions, per-form CSRF, hCaptcha), gate 7 (public forms, /api blanket nginx-403), cloud 2, fresh 9.
+- [PRIO] threema-desktop key-storage — score 4.9 — attack 5, business 8 (keystore = private keys/session), tech 5 (DPAPI+safeStorage, Argon2id), gate 2 (local-only), cloud 1, fresh 5.
+- NOTE: ds-apip cluster raw score 5.85 but triage-gated (public-by-design); excluded from hypothesis set.
+
+== STEP 3 — HYPOTHESES ==
+[HYP] Broadcast passkey ceremony — self-session challenge, at most self-DoS
+class: AUTH
+asset: https://broadcast.threema.ch (passkey challenge/assertion endpoints)
+confidence: 45
+reasoning: live login form embeds `csrf_public_login_access`; unauth GET / freely issues session+CSRF; GET /en/login/passkey/start → 404 (POST-only), orphaned-csrf POST → 401; ceremony URL templates (`${l}/${o}/${s}/${r}`) unresolved in bundle.
+evidence_needed: resolved ceremony paths; whether a valid-session challenge POST returns 429/RateLimit headers.
+verify_steps: PASSIVE-limited: single GET / re-confirm session+CSRF issuance; single GET each resolved ceremony path; do NOT submit challenge POST (side effect). ≤1 rps.
+impact: self-session challenge issuance → self-DoS only; no cross-user leverage observed; low.
+testability: PASSIVE
+
+[HYP] Gateway control-plane /api hard-block escape
+class: AUTH
+asset: https://gateway.threema.ch (/api/*)
+confidence: 42
+reasoning: /api and /api/v1 → uniform nginx 403 (146B) across 9 probed paths (routes gated, not absent); login served with no HSTS/Expect-CT/CSP (weaker than shop); signup/forgot forms carry per-form CSRF + hCaptcha.
+evidence_needed: any /api subpath escaping the blanket deny.
+verify_steps: PASSIVE: single GET on small plausible set (/api/health, /api/v1/status, /api/gateways, /api/version); compare body/status vs 146B baseline; headers recorded; no POSTs (side effects). ≤1 rps.
+impact: if a path escapes the deny, unauth control-plane surface; severity low unless auth bypass found.
+testability: PASSIVE
+
+[HYP] Desktop Windows key-storage ACL gap — sole triage-surviving finding
+class: MISCONFIG
+asset: threema-desktop apps/desktop/src/common/node/key-storage (keystorage.bin, keystorage.password.bin)
+confidence: 65
+reasoning: `fileModeInternalObjectIfPosix()` returns `{}` on Windows → files written with no ACL restrictions; DPAPI (safeStorage) password recoverable by same-user processes; the only KB item that survived independent 7-question triage (HOLD, HUMAN_ONLY).
+evidence_needed: live Windows proof that the two files lack ACL restrictions and a same-user process can read/recover the keystore password.
+verify_steps: AUTH_HELPED/HUMAN_ONLY: on an authorized Windows test host, create keystore, run `icacls` on both files, decrypt DPAPI blob from a second same-user process.
+impact: same-user local context reads Threema Desktop keystore → private-key/session recovery; medium, requires local access.
+testability: HUMAN_ONLY
+
+== STEP 4 — SELF-CRITIQUE ==
+- [PARKED] Staging chat version-skew (g-*.0.test.threema.ch:5222): out of scope per scope.yml + 0-byte server-hello blocks in-band divergence; AUTH_HELPED deferred.
+- [PARKED] work.test license-token oracle: out of scope (.test) + backend route confirmed not deployed (method-agnostic 404 catch-all) — no oracle today.
+- [PARKED] ds-apip fetch_bulk refinement: triaged INVALID — directory is by-design public ID→pubkey mapping.
+- [FINAL] 1. Desktop Windows key-storage ACL (65) 2. Broadcast passkey ceremony (45) 3. Gateway /api deny escape (42).
+
+== STEP 5 — NEXT ACTION ==
+[NEXT] HUMAN: GO/NO-GO gate before any further live probing — confirm this engagement is an active, authorized Threema program (verified scope + reporting channel); triage run 07:15 already flags channel as unconfirmed and HOLDs all findings. If authorized: proceed to Windows-host proof of the key-storage ACL gap (the only triage-surviving finding). If not confirmed: halt automated live probing. No live HTTP probes executed or scheduled this cycle.
+
+== STEP 6 — LEARNING ==
+- REJECTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch identity→pubkey oracle: independent triage (07:15) — directory is by-design public; info disclosure of public data; not reportable.
+- REJECTED AUTH @ apip/ds-apip/api CORS `*`: CORS on public-read API is defense-in-depth, not a standalone vuln.
+- REJECTED MISCONFIG @ *.test.threema.ch (work, ds-apip, chat, sync): out of scope — scope.yml lists only `*.threema.ch`.
+- REJECTED OTHER @ safe-01.threema.ch CORS `*`: credential-gated (400 unauth), CORS best-practice, no unauth impact.
+- REJECTED MISCONFIG @ desktop electron `sandbox:false`/`nodeIntegrationInWorker`: config weakness with no renderer-XSS chain.
+- (no new learnings this cycle from live probes — none run)
+
+== STEP 7 — RISK SCORE ==
+[RISK] chat: 40 reason: g-*.0.threema.ch prod reachable but silent without login frame; staging .test out of scope; no HTTP surface
+[RISK] web: 80 reason: ds-apip/api/apip cluster, work/broadcast/gateway/shop/billing cockpits all live; public endpoints + weak transport headers on gateway/broadcast; but most prior leads triaged invalid (by-design/defense-in-depth)
+[RISK] sync: 40 reason: mediator/rendezvous uniform 403, WSS paths high-entropy, auth model in source
+[RISK] safe: 70 reason: credential-gated but CORS `*` + Authorization header + write-capable methods + 5 hostnames on one IP + no 429 observed
+[RISK] desktop-src: 75 reason: one real (unproven-on-Windows) finding — key-storage ACL gap; Electron sandbox TODO DEK-79; OnPrem trust chain secure
+
+Note: per the pipeline's own triage, no lead currently clears the reporting gate; the recommended path is the HUMAN go/no-go before further scanning.
