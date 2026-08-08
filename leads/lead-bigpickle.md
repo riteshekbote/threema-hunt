@@ -3067,3 +3067,32 @@ testability: PASSIVE
 [LEARN] REJECTED IDOR @ ds-apip/api/apip.threema.ch check_revocation_key GET form: validation-order oracle disproven — ECHOECHO vs ZZZZZZZZ produce byte-identical "Identity not found"; no identity-state differential via GET query params on this endpoint.
 [LEARN] ACCEPTED MISCONFIG @ safe-01.threema.ch: credential-gated 400 baseline stable (re-confirmed this cycle) — route-existence oracle + Basic-auth gating hold; HSTS/Expect-CT still absent on the GET 400.
 [RISK] chat: 25 | 5222 handshake-gated (0-byte hello without auth frame), 443 closes pre-TLS, pool fully mapped, no in-band divergence, staging excluded | web: 35 | staging/prod /public/* bundle divergence + license-token route (404) + namespace-gated auth (302) | sync: 15 | mediator/rendezvous uniform 403, split-DNS routing only, no auth bypass observed | safe: 30 | credential-gated (400 unauth), CORS `*` + ACAH:Authorization, HSTS absent on GET 400 | desktop-src: 40 | RAG-verified Windows ACL key-storage gap (top finding) + conditional sandbox/worker gap, no new contradiction.
+## 2026-08-08 20:28:59 UTC [chat] (model bigpickle)
+[HYP] fetch_bulk batch-size ceiling absent → single-request mass identity enumeration
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk
+confidence: 60
+reasoning: 10,000-ID batch (1 valid + 9,999 unique invalid) → HTTP 200, 152B, 1.03s, returns only ECHOECHO pubkey, silently omits invalid; CORS `*`, no 429; prior 30x sequential POSTs also no rate limit.
+evidence_needed: already obtained (≥10,000 IDs/request, 10x prior 100-ID test); only remaining variable is host parity (api/apip) and ceiling beyond 10k.
+verify_steps: PASSIVE, done — single POST, ≤1 rps; replicate on api/apip if needed.
+impact: unauth identity existence + pubkey enumeration at ~10k candidates/request; enables bulk profiling/contact discovery; Medium-High.
+testability: PASSIVE
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route exists, credential-gated; HSTS/Expect-CT absent on GET 400.
+evidence_needed: valid program-issued test backupId:backupKey → response ≠ 400 (200+payload or 401/403); any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED: single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[HYP] work.test license-token backend ships → unauth 64-hex credential oracle
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 40
+reasoning: staging bundle v2.25.1 ships GET {username?,password?,expired,hasEmail}+PUT; this cycle's re-probe still 404/900B HTML catch-all; prod bundle zero /public/* handlers; 64-char check client-side zod only.
+evidence_needed: any non-404 (200/400/401) to well-formed 64-hex token on staging.
+verify_steps: PASSIVE, weekly gated: GET /api-app/public/global/settings + GET /api-app/public/license/token/{64 zeros}; escalate only on non-404; ≤1 rps.
+impact: if shipped, unauth license-token credential oracle; low (high-entropy tokens).
+testability: PASSIVE
+[NEXT] HUMAN: Request program-issued test backupId:backupKey from the operator for the safe-backup hypothesis — the directory class is now at evidence saturation (identity oracle + fetch_bulk 10k/request + no rate limit all confirmed), and license-token was re-probed this cycle (still 404). On receipt: exactly one `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff vs the known byte-identical 400 baseline; escalate only on ≠400 or new Access-Control-Expose-Headers.
