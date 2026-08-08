@@ -143,3 +143,14 @@
   - **Verdict: VALID**
   - | H1 | Directory identity→pubkey oracle (bulk) | **HOLD → VALID** | Needs duplicate check; bulk silent-omit + CORS `*` + no rate limit is the finding |
   - | H3 | Desktop Windows key-storage ACL bypass | **VALID** | Source-verified; same-user malware extracts Ed25519 private key + DB key via DPAPI |
+
+- 9 lead(s) marked VALID at 2026-08-08 22:53:52 UTC
+  - | Q5 Novel | **NO** — already ACCEPTED in KB (knowledge/index.md lines 20-21, 27, 59, 67, 80, 82, 85-86, 94, 99, 104); triaged as VALID in valid-bugs.md multiple times |
+  - | Q7 Triager accept | **PASS** — already accepted as finding #1 in valid-bugs.md |
+  - | Q3 Impact | **CONTINGENT** — backup-ID existence enumeration (400-vs-404 oracle); full backup read requires valid backupId+backupKey |
+  - | Q5 Novel | **NO** — already ACCEPTED in KB (lines 30-31, 62, 79, 101, 106, 125, 128-129, 132, 135, 138); triaged as VALID in valid-bugs.md |
+  - | Q7 Triager accept | **CONDITIONAL** — already accepted as finding in valid-bugs.md; the 400-vs-404 oracle alone is weak but the CORS+Authorization pattern was accepted |
+  - | Q5 Novel | **NO** — already ACCEPTED in KB (lines 26, 74, 77-78, 92, 108, 121, 130, 133, 137); triaged as VALID in valid-bugs.md multiple times |
+  - | Q7 Triager accept | **PASS** — already accepted as finding #3 in valid-bugs.md |
+  - | Q5 Novel | **NO** — already ACCEPTED in KB (lines 32, 63, 75, 81, 95, 115, 118, 123); triaged as HOLD in valid-bugs.md |
+  - | Q7 Triager accept | **HOLD** — already triaged as HOLD/contingent in valid-bugs.md; exploitability depends on undiscovered secondary bug |
