@@ -1,4 +1,4 @@
-## 2026-08-08 17:29:25 UTC [web] (model nemotron3)
+## 2026-08-08 17:59:08 UTC [web] (model nemotron3)
 [PRIO] github.com/threema-ch/threema-desktop (Windows key-storage + Electron), 8.10, attack_surface:7 business:10 tech:8 gate:8 cloud:2 fresh:10
 [PRIO] https://ds-apip.threema.ch/identity/fetch_bulk (and api.threema.ch, apip.threema.ch), 7.15, attack_surface:8 business:7 tech:6 gate:10 cloud:5 fresh:10
 [PRIO] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}, 6.85, attack_surface:8 business:9 tech:6 gate:5 cloud:4 fresh:8
@@ -25,7 +25,7 @@ class: AUTH
 asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (single IP 203.56.112.231)
 confidence: 80
 reasoning: PASSIVE-VERIFIED on all 5 hosts: OPTIONS /backups/{64hex} → 204 with HSTS+Expect-CT + ACAO:* + ACAH:Authorization; GET /backups/{64hex} (no auth) → 400 "Bad Request" (11B) WITHOUT HSTS/Expect-CT — header inconsistency weakens transport security. HTTP Basic Auth (backupId:backupKey). Route vs 404 distinction (`/backup/{x}` → 404 210B CSP) = existence oracle.
-evidence_needed: (1) 400 body/length differs for existing vs non-existing backupId without auth; (2) valid backupId:backupKey → HTTP 200 + cross-origin-readable payload + Access-Control-Expose-Headers; (3) HSTS absent on all error responses for credential-gated routes.
+evidence_needed: (1) 400 body/length differs for existing vs non-existing backupId without auth; (2) valid backupId:backupKey → HTTP 2000 + cross-origin-readable payload + Access-Control-Expose-Headers; (3) HSTS absent on all error responses for credential-gated routes.
 verify_steps: PASSIVE (DONE): curl OPTIONS + GET 400 vs 404 on all 5 hosts. AUTH_HELPED: curl -u "backupId:backupKey" https://safe-01.threema.ch/backups/{backupId} (≤1 rps) → confirm 200 + cross-origin-readable payload + Expose-Headers; verify HSTS present on 200 response.
 impact: Cross-origin backup-ID existence enumeration + credentialed cross-origin reads of full identity keypair + message-history backup from any attacker origin. Severity: High.
 testability: PASSIVE + AUTH_HELPED
