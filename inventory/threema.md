@@ -360,3 +360,6 @@
 - CHANGED lead class 7 (Desktop BrowserWindow sandbox+worker) formally REJECTED as standalone — conditional RCE requires separate renderer chain
 - CHANGED lead class 16 (g-*.0.test.threema.ch staging chat) formally REJECTED as out-of-scope per scope.yml
 - CHANGED crypto.ts:223 benchmark-password finding re-confirmed REJECTED under sha256 form `52a0af98…`
+
+## 2026-08-08 22:51:06 UTC
+- NEW NO_DELTA — inventory at 2026-08-08 22:16:28 UTC matches last leads at 2026-08-08 22:15:43 UTC; no new surface items since last cycle
