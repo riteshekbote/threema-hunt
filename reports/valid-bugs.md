@@ -272,3 +272,25 @@
   - | Q3 | **Low** — without valid backupId:backupKey (64-hex + high-entropy key, unguessable), no data access. The 400-vs-404 distinction reveals route existence only (already known from source). |
   - | Q7 | **Hold** — potentially valid but requires program-issued test credentials. |
   - | 1 | Directory cluster identity→pubkey oracle + CORS * + no rate limit | **VALID** | Medium (5.3) | Threema security (confirm channel) |
+
+- 23 lead(s) marked VALID at 2026-08-09 17:59:49 UTC
+  - | Q3 Real impact? | ✅ YES | Mass valid-ID + pubkey harvesting at ~10k IDs/request, no rate limit, cross-origin readable → targeted phishing/recon at scale |
+  - | Q4 Passive proof? | ✅ YES | `GET /identity/ECHOECHO`→200, `/identity/ZZZZZZZZ`→404; `POST /identity/fetch_bulk {"identities":["ECHOECHO","ZZZZZZZZ"]}`→200 with only valid pubkey; 30× sequential POST
+  - | Q5 Novel? | ❌ NO | Already ACCEPTED in knowledge/index.md (lines 20-21, 27, 59, 67, 80, 82, 85-86, 94, 99, 104, 111, 124, 131, 134, 136, etc.); triaged as VALID in valid-bugs.md since 2026-08-07 |
+  - | Q7 Triager accept? | ✅ YES | Already accepted as finding #1 in valid-bugs.md |
+  - **Verdict: VALID (duplicate)** — Confidence 95. Already reported. CVSS 3.1: **5.3 (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)**
+  - | Q5 Novel? | ❌ NO | Already ACCEPTED in knowledge/index.md (lines 26, 74, 77-78, 92, 108, 121, 130, 133, 137, etc.); triaged as VALID in valid-bugs.md |
+  - | Q7 Triager accept? | ✅ YES | Already accepted as finding #3 in valid-bugs.md |
+  - **Verdict: VALID (duplicate)** — Confidence 95. Already reported. CVSS 3.1: **5.5 (AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N)** — needs Windows host validation for full PoC
+  - | Q3 Real impact? | ❌ NO | Credential-gated (400, not 200). No unauthenticated data access demonstrated. `CORS *` + `Allow-Headers: Authorization` only matters if attacker already has valid `backupId:
+  - | Q4 Passive proof? | ⚠️ PARTIAL | Can confirm CORS headers + 400 response; cannot confirm data access without valid credentials |
+  - | Q5 Novel? | ❌ NO | Already ACCEPTED in KB; triaged in valid-bugs.md |
+  - | Q6 Not always-rejected? | ❌ NO | CORS `*` on credential-gated endpoint is defense-in-depth only (per valid-bugs.md precedent) |
+  - | Q7 Triager accept? | ❌ NO | No data access without valid credentials |
+  - | Q7 Triager accept? | ⚠️ CONDITIONAL | Valid hardening concern but not a vuln without demonstrated RCE chain |
+  - **Verdict: VALID (duplicate, low severity)** — Already accepted in knowledge base. CVSS 3.1: **3.1 (AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:N/A:N)** — low severity defense-in-depth gap
+  - | Q3 Real impact? | ⚠️ LOW | Route-presence + parameter-validation oracle only; challenge-response still requires valid identity+secret |
+  - **Verdict: VALID (duplicate, low severity)** — Already accepted. CVSS 3.1: **3.7 (AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N)** — low severity info disclosure
+  - | Q2 Reachable? | ⚠️ AUTH_HELPED | Returns 401 on all paths; requires valid Work test license |
+  - | Q4 Passive proof? | ❌ NO | Requires AUTH_HELPED with valid Work credentials + cross-subscription contact probes |
+  - | Q5 Novel? | ⚠️ YES | Not previously triaged as valid vuln; only hypothesized (OpenAPI flags it "currently buggy" TWRK-1633) |
