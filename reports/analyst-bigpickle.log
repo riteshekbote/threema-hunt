@@ -41306,3 +41306,979 @@ STEP 7 — RISK SCORE:
 [RISK] sync: 55 — mediator/rendezvous {0..f} resolve, uniform 403 on HTTPS; WSS high-entropy paths; no passive in-band divergence.
 [RISK] safe: 88 — safe-{01,1a,1b,02,00} single IP, CORS `*` + credentialed headers + Basic-Auth gating (400 baseline stable) + HSTS gap on GET 400; unlocked only with creds.
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified (15 source paths); PoC artifact now genuinely present + syntax-verified + graceful no-op; needs Windows runtime; Electron sandbox unset + nodeIntegrationInWorker (conditional RCE rejected standalone); crypto.ts:223 benchmark password rejected.
+===== ANALYST bigpickle 2026-08-09 20:23:02 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/ && ls -la /home/runner/work/threema-hunt/threema-hunt/reports/ 2>/dev/null | tail -20
+total 264
+drwxr-xr-x 11 runner runner  4096 Aug  9 20:15 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 20:14 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 20:15 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 20:14 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 20:14 README.md
+-rw-r--r--  1 runner runner    32 Aug  9 20:15 analyst-out.txt
+-rw-r--r--  1 runner runner 79681 Aug  9 20:15 analyst-prompt.txt
+-rw-r--r--  1 runner runner 76617 Aug  9 20:15 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:14 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:14 knowledge
+drwxr-xr-x  2 runner runner 12288 Aug  9 20:14 leads
+-rw-r--r--  1 runner runner 21563 Aug  9 20:14 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:14 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 20:14 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 20:14 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:14 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 20:14 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 20:14 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 20:14 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 20:14 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 20:14 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:14 triage
+total 9108
+drwxr-xr-x  2 runner runner    4096 Aug  9 20:14 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 20:15 ..
+-rw-r--r--  1 runner runner 3317981 Aug  9 20:14 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 4941447 Aug  9 20:14 analyst-laguna.log
+-rw-r--r--  1 runner runner   27631 Aug  9 20:14 analyst-ling3.log
+-rw-r--r--  1 runner runner   12357 Aug  9 20:14 analyst-longcat.log
+-rw-r--r--  1 runner runner  873397 Aug  9 20:14 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   21681 Aug  9 20:14 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      52 Aug  9 20:14 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 20:14 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 20:14 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   14567 Aug  9 20:14 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  258842 Aug  9 20:14 hypotheses.md
+-rw-r--r--  1 runner runner   28209 Aug  9 20:14 valid-bugs.md
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/poc/ 2>/dev/null; git -C /home/runner/work/threema-hunt/threema-hunt log --oneline -5 2>/dev/null
+91151b6 reposcan 2026-08-09-19-59
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/inventory/ /home/runner/work/threema-hunt/threema-hunt/leads/ /home/runner/work/threema-hunt/threema-hunt/knowledge/ 2>/dev/null; cat /home/runner/work/threema-hunt/threema-hunt/state_bigpickle.json; echo; cat /home/runner/work/threema-hunt/threema-hunt/analyst-out.txt
+/home/runner/work/threema-hunt/threema-hunt/inventory/:
+total 104
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:14 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 20:15 ..
+-rw-r--r--  1 runner runner 96908 Aug  9 20:14 threema.md
+
+/home/runner/work/threema-hunt/threema-hunt/knowledge/:
+total 60
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:14 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 20:15 ..
+-rw-r--r--  1 runner runner 52673 Aug  9 20:14 index.md
+
+/home/runner/work/threema-hunt/threema-hunt/leads/:
+total 3848
+drwxr-xr-x  2 runner runner  12288 Aug  9 20:14 .
+drwxr-xr-x 11 runner runner   4096 Aug  9 20:15 ..
+-rw-r--r--  1 runner runner 762177 Aug  9 20:14 lead-bigpickle.md
+-rw-r--r--  1 runner runner 784644 Aug  9 20:14 lead-laguna.md
+-rw-r--r--  1 runner runner   8838 Aug  9 20:14 lead-ling3.md
+-rw-r--r--  1 runner runner   7874 Aug  9 20:14 lead-longcat.md
+-rw-r--r--  1 runner runner 683644 Aug  9 20:14 lead-nemotron3.md
+-rw-r--r--  1 runner runner  11048 Aug  9 20:14 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner  13399 Aug  9 20:14 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner  13429 Aug  9 20:14 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner  11241 Aug  9 20:14 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner   6565 Aug  9 20:14 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner   9511 Aug  9 20:14 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner  13472 Aug  9 20:14 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner  10507 Aug  9 20:14 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner  13665 Aug  9 20:14 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner  10938 Aug  9 20:14 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner  17321 Aug  9 20:14 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner  15373 Aug  9 20:14 reposcan-2026-08-07-23-19.md
+-rw-r--r--  1 runner runner  11670 Aug  9 20:14 reposcan-2026-08-07-23-50.md
+-rw-r--r--  1 runner runner  14267 Aug  9 20:14 reposcan-2026-08-08-00-01.md
+-rw-r--r--  1 runner runner  12628 Aug  9 20:14 reposcan-2026-08-08-00-19.md
+-rw-r--r--  1 runner runner  13392 Aug  9 20:14 reposcan-2026-08-08-02-10.md
+-rw-r--r--  1 runner runner  13822 Aug  9 20:14 reposcan-2026-08-08-02-23.md
+-rw-r--r--  1 runner runner  13194 Aug  9 20:14 reposcan-2026-08-08-03-52.md
+-rw-r--r--  1 runner runner  14260 Aug  9 20:14 reposcan-2026-08-08-04-47.md
+-rw-r--r--  1 runner runner  15327 Aug  9 20:14 reposcan-2026-08-08-05-01.md
+-rw-r--r--  1 runner runner  13092 Aug  9 20:14 reposcan-2026-08-08-05-29.md
+-rw-r--r--  1 runner runner  11228 Aug  9 20:14 reposcan-2026-08-08-05-48.md
+-rw-r--r--  1 runner runner  10378 Aug  9 20:14 reposcan-2026-08-08-06-08.md
+-rw-r--r--  1 runner runner  11257 Aug  9 20:14 reposcan-2026-08-08-06-56.md
+-rw-r--r--  1 runner runner  11788 Aug  9 20:14 reposcan-2026-08-08-07-12.md
+-rw-r--r--  1 runner runner   9790 Aug  9 20:14 reposcan-2026-08-08-07-53.md
+-rw-r--r--  1 runner runner  10972 Aug  9 20:14 reposcan-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner  13672 Aug  9 20:14 reposcan-2026-08-08-08-37.md
+-rw-r--r--  1 runner runner   6321 Aug  9 20:14 reposcan-2026-08-08-08-42.md
+-rw-r--r--  1 runner runner  16455 Aug  9 20:14 reposcan-2026-08-08-09-21.md
+-rw-r--r--  1 runner runner  14107 Aug  9 20:14 reposcan-2026-08-08-09-40.md
+-rw-r--r--  1 runner runner  14710 Aug  9 20:14 reposcan-2026-08-08-10-09.md
+-rw-r--r--  1 runner runner  13912 Aug  9 20:14 reposcan-2026-08-08-10-27.md
+-rw-r--r--  1 runner runner  15295 Aug  9 20:14 reposcan-2026-08-08-10-37.md
+-rw-r--r--  1 runner runner  11119 Aug  9 20:14 reposcan-2026-08-08-11-08.md
+-rw-r--r--  1 runner runner  16740 Aug  9 20:14 reposcan-2026-08-08-11-28.md
+-rw-r--r--  1 runner runner  11393 Aug  9 20:14 reposcan-2026-08-08-11-30.md
+-rw-r--r--  1 runner runner  10793 Aug  9 20:14 reposcan-2026-08-08-11-55.md
+-rw-r--r--  1 runner runner  13925 Aug  9 20:14 reposcan-2026-08-08-12-00.md
+-rw-r--r--  1 runner runner  12984 Aug  9 20:14 reposcan-2026-08-08-12-09.md
+-rw-r--r--  1 runner runner  11553 Aug  9 20:14 reposcan-2026-08-08-13-01.md
+-rw-r--r--  1 runner runner  16362 Aug  9 20:14 reposcan-2026-08-08-13-15.md
+-rw-r--r--  1 runner runner  11685 Aug  9 20:14 reposcan-2026-08-08-13-56.md
+-rw-r--r--  1 runner runner  11740 Aug  9 20:14 reposcan-2026-08-08-14-04.md
+-rw-r--r--  1 runner runner  14858 Aug  9 20:14 reposcan-2026-08-08-14-28.md
+-rw-r--r--  1 runner runner  10356 Aug  9 20:14 reposcan-2026-08-08-14-35.md
+-rw-r--r--  1 runner runner  10513 Aug  9 20:14 reposcan-2026-08-08-15-08.md
+-rw-r--r--  1 runner runner   6321 Aug  9 20:14 reposcan-2026-08-08-15-31.md
+-rw-r--r--  1 runner runner  11739 Aug  9 20:14 reposcan-2026-08-08-16-00.md
+-rw-r--r--  1 runner runner  15164 Aug  9 20:14 reposcan-2026-08-08-16-07.md
+-rw-r--r--  1 runner runner  12405 Aug  9 20:14 reposcan-2026-08-08-16-15.md
+-rw-r--r--  1 runner runner   6321 Aug  9 20:14 reposcan-2026-08-08-17-04.md
+-rw-r--r--  1 runner runner  12923 Aug  9 20:14 reposcan-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  15904 Aug  9 20:14 reposcan-2026-08-08-18-04.md
+-rw-r--r--  1 runner runner  11771 Aug  9 20:14 reposcan-2026-08-08-18-36.md
+-rw-r--r--  1 runner runner  12165 Aug  9 20:14 reposcan-2026-08-08-19-19.md
+-rw-r--r--  1 runner runner  14685 Aug  9 20:14 reposcan-2026-08-08-19-46.md
+-rw-r--r--  1 runner runner  13911 Aug  9 20:14 reposcan-2026-08-08-19-58.md
+-rw-r--r--  1 runner runner   9017 Aug  9 20:14 reposcan-2026-08-08-20-14.md
+-rw-r--r--  1 runner runner  17271 Aug  9 20:14 reposcan-2026-08-08-20-33.md
+-rw-r--r--  1 runner runner  14693 Aug  9 20:14 reposcan-2026-08-08-20-41.md
+-rw-r--r--  1 runner runner  13770 Aug  9 20:14 reposcan-2026-08-08-21-03.md
+-rw-r--r--  1 runner runner  16811 Aug  9 20:14 reposcan-2026-08-08-21-11.md
+-rw-r--r--  1 runner runner  14116 Aug  9 20:14 reposcan-2026-08-08-21-32.md
+-rw-r--r--  1 runner runner  12845 Aug  9 20:14 reposcan-2026-08-08-21-41.md
+-rw-r--r--  1 runner runner  12743 Aug  9 20:14 reposcan-2026-08-08-22-05.md
+-rw-r--r--  1 runner runner  11547 Aug  9 20:14 reposcan-2026-08-08-22-19.md
+-rw-r--r--  1 runner runner  12410 Aug  9 20:14 reposcan-2026-08-08-22-54.md
+-rw-r--r--  1 runner runner   6471 Aug  9 20:14 reposcan-2026-08-08-23-19.md
+-rw-r--r--  1 runner runner   6321 Aug  9 20:14 reposcan-2026-08-08-23-28.md
+-rw-r--r--  1 runner runner  10531 Aug  9 20:14 reposcan-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner  13968 Aug  9 20:14 reposcan-2026-08-08-23-59.md
+-rw-r--r--  1 runner runner  13598 Aug  9 20:14 reposcan-2026-08-09-00-07.md
+-rw-r--r--  1 runner runner  12837 Aug  9 20:14 reposcan-2026-08-09-01-41.md
+-rw-r--r--  1 runner runner  11706 Aug  9 20:14 reposcan-2026-08-09-02-39.md
+-rw-r--r--  1 runner runner  12540 Aug  9 20:14 reposcan-2026-08-09-03-22.md
+-rw-r--r--  1 runner runner  12484 Aug  9 20:14 reposcan-2026-08-09-04-04.md
+-rw-r--r--  1 runner runner  13901 Aug  9 20:14 reposcan-2026-08-09-04-50.md
+-rw-r--r--  1 runner runner  11067 Aug  9 20:14 reposcan-2026-08-09-05-12.md
+-rw-r--r--  1 runner runner  11859 Aug  9 20:14 reposcan-2026-08-09-05-48.md
+-rw-r--r--  1 runner runner  13461 Aug  9 20:14 reposcan-2026-08-09-06-47.md
+-rw-r--r--  1 runner runner  12488 Aug  9 20:14 reposcan-2026-08-09-06-55.md
+-rw-r--r--  1 runner runner  16116 Aug  9 20:14 reposcan-2026-08-09-07-37.md
+-rw-r--r--  1 runner runner   7436 Aug  9 20:14 reposcan-2026-08-09-07-53.md
+-rw-r--r--  1 runner runner  11170 Aug  9 20:14 reposcan-2026-08-09-08-15.md
+-rw-r--r--  1 runner runner  12517 Aug  9 20:14 reposcan-2026-08-09-08-43.md
+-rw-r--r--  1 runner runner  10944 Aug  9 20:14 reposcan-2026-08-09-09-10.md
+-rw-r--r--  1 runner runner  12832 Aug  9 20:14 reposcan-2026-08-09-09-26.md
+-rw-r--r--  1 runner runner   9567 Aug  9 20:14 reposcan-2026-08-09-09-57.md
+-rw-r--r--  1 runner runner  12475 Aug  9 20:14 reposcan-2026-08-09-10-07.md
+-rw-r--r--  1 runner runner  12838 Aug  9 20:14 reposcan-2026-08-09-10-16.md
+-rw-r--r--  1 runner runner  13621 Aug  9 20:14 reposcan-2026-08-09-10-56.md
+-rw-r--r--  1 runner runner  15973 Aug  9 20:14 reposcan-2026-08-09-11-31.md
+-rw-r--r--  1 runner runner  11091 Aug  9 20:14 reposcan-2026-08-09-12-01.md
+-rw-r--r--  1 runner runner  11474 Aug  9 20:14 reposcan-2026-08-09-12-21.md
+-rw-r--r--  1 runner runner  11500 Aug  9 20:14 reposcan-2026-08-09-12-54.md
+-rw-r--r--  1 runner runner   8370 Aug  9 20:14 reposcan-2026-08-09-13-19.md
+-rw-r--r--  1 runner runner  14419 Aug  9 20:14 reposcan-2026-08-09-13-55.md
+-rw-r--r--  1 runner runner  14702 Aug  9 20:14 reposcan-2026-08-09-14-13.md
+-rw-r--r--  1 runner runner  14725 Aug  9 20:14 reposcan-2026-08-09-14-38.md
+-rw-r--r--  1 runner runner   6957 Aug  9 20:14 reposcan-2026-08-09-15-07.md
+-rw-r--r--  1 runner runner  10590 Aug  9 20:14 reposcan-2026-08-09-15-12.md
+-rw-r--r--  1 runner runner  15748 Aug  9 20:14 reposcan-2026-08-09-15-43.md
+-rw-r--r--  1 runner runner  16167 Aug  9 20:14 reposcan-2026-08-09-15-51.md
+-rw-r--r--  1 runner runner  11425 Aug  9 20:14 reposcan-2026-08-09-16-06.md
+-rw-r--r--  1 runner runner   6321 Aug  9 20:14 reposcan-2026-08-09-16-34.md
+-rw-r--r--  1 runner runner  18280 Aug  9 20:14 reposcan-2026-08-09-16-49.md
+-rw-r--r--  1 runner runner  11584 Aug  9 20:14 reposcan-2026-08-09-17-16.md
+-rw-r--r--  1 runner runner  15564 Aug  9 20:14 reposcan-2026-08-09-17-54.md
+-rw-r--r--  1 runner runner  13238 Aug  9 20:14 reposcan-2026-08-09-18-15.md
+-rw-r--r--  1 runner runner  14208 Aug  9 20:14 reposcan-2026-08-09-18-41.md
+-rw-r--r--  1 runner runner   6321 Aug  9 20:14 reposcan-2026-08-09-19-06.md
+-rw-r--r--  1 runner runner  11206 Aug  9 20:14 reposcan-2026-08-09-19-23.md
+-rw-r--r--  1 runner runner  11793 Aug  9 20:14 reposcan-2026-08-09-19-35.md
+-rw-r--r--  1 runner runner  10808 Aug  9 20:14 reposcan-2026-08-09-19-59.md
+-rw-r--r--  1 runner runner  10808 Aug  9 20:14 reposcan-latest.md
+{"phase": "POC", "target": "chat"}
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/ && ls -la /home/runner/work/threema-hunt/threema-hunt/reports/ 2>/dev/null | tail -20
+total 264
+drwxr-xr-x 11 runner runner  4096 Aug  9 20:15 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 20:14 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 20:15 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 20:14 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 20:14 README.md
+-rw-r--r--  1 runner runner    32 Aug  9 20:15 analyst-out.txt
+-rw-r--r--  1 runner runner 79681 Aug  9 20:15 analyst-prompt.txt
+-rw-r--r--  1 runner runner 76617 Aug  9 20:15 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:14 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:14 knowledge
+drwxr-xr-x  2 runner runner 12288 Aug  9 20:14 leads
+-rw-r--r--  1 runner runner 21563 Aug  9 20:14 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:14 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 20:14 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 20:14 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:14 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 20:14 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 20:14 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 20:14 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 20:14 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 20:14 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:14 triage
+total 9108
+drwxr-xr-x  2 runner runner    4096 Aug  9 20:14 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 20:15 ..
+-rw-r--r--  1 runner runner 3317981 Aug  9 20:14 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 4941447 Aug  9 20:14 analyst-laguna.log
+-rw-r--r--  1 runner runner   27631 Aug  9 20:14 analyst-ling3.log
+-rw-r--r--  1 runner runner   12357 Aug  9 20:14 analyst-longcat.log
+-rw-r--r--  1 runner runner  873397 Aug  9 20:14 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   21681 Aug  9 20:14 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      52 Aug  9 20:14 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 20:14 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 20:14 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   14567 Aug  9 20:14 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  258842 Aug  9 20:14 hypotheses.md
+-rw-r--r--  1 runner runner   28209 Aug  9 20:14 valid-bugs.md
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/poc/ 2>/dev/null; git -C /home/runner/work/threema-hunt/threema-hunt log --oneline -5 2>/dev/null
+91151b6 reposcan 2026-08-09-19-59
+[0m
+[0m
+[0m→ [0mRead leads/reposcan-2026-08-09-19-59.md
+[0m→ [0mRead reports/valid-bugs.md
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/scripts/ /home/runner/work/threema-hunt/threema-hunt/triage/ 2>/dev/null; grep -c "^##" /home/runner/work/threema-hunt/threema-hunt/probe-results.md; tail -30 /home/runner/work/threema-hunt/threema-hunt/probe-results.md
+/home/runner/work/threema-hunt/threema-hunt/scripts/:
+total 16
+drwxr-xr-x  2 runner runner 4096 Aug  9 20:14 .
+drwxr-xr-x 11 runner runner 4096 Aug  9 20:15 ..
+-rw-r--r--  1 runner runner 7771 Aug  9 20:14 sync-issues.py
+
+/home/runner/work/threema-hunt/threema-hunt/triage/:
+total 1140
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:14 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 20:15 ..
+-rw-r--r--  1 runner runner 81432 Aug  9 20:14 run-2026-08-07-20-10.md
+-rw-r--r--  1 runner runner 18280 Aug  9 20:14 run-2026-08-07-21-03.md
+-rw-r--r--  1 runner runner 18224 Aug  9 20:14 run-2026-08-07-21-56.md
+-rw-r--r--  1 runner runner 12766 Aug  9 20:14 run-2026-08-07-22-56.md
+-rw-r--r--  1 runner runner 27810 Aug  9 20:14 run-2026-08-07-23-55.md
+-rw-r--r--  1 runner runner  1637 Aug  9 20:14 run-2026-08-08-02-24.md
+-rw-r--r--  1 runner runner 18651 Aug  9 20:14 run-2026-08-08-04-24.md
+-rw-r--r--  1 runner runner 20107 Aug  9 20:14 run-2026-08-08-06-01.md
+-rw-r--r--  1 runner runner 23637 Aug  9 20:14 run-2026-08-08-07-07.md
+-rw-r--r--  1 runner runner 18269 Aug  9 20:14 run-2026-08-08-07-15.md
+-rw-r--r--  1 runner runner 12515 Aug  9 20:14 run-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner   236 Aug  9 20:14 run-2026-08-08-08-59.md
+-rw-r--r--  1 runner runner 11791 Aug  9 20:14 run-2026-08-08-09-54.md
+-rw-r--r--  1 runner runner 10557 Aug  9 20:14 run-2026-08-08-10-53.md
+-rw-r--r--  1 runner runner   896 Aug  9 20:14 run-2026-08-08-11-44.md
+-rw-r--r--  1 runner runner   428 Aug  9 20:14 run-2026-08-08-13-11.md
+-rw-r--r--  1 runner runner  7773 Aug  9 20:14 run-2026-08-08-14-00.md
+-rw-r--r--  1 runner runner 19408 Aug  9 20:14 run-2026-08-08-14-52.md
+-rw-r--r--  1 runner runner 25063 Aug  9 20:14 run-2026-08-08-15-47.md
+-rw-r--r--  1 runner runner 27020 Aug  9 20:14 run-2026-08-08-17-19.md
+-rw-r--r--  1 runner runner  7619 Aug  9 20:14 run-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  6252 Aug  9 20:14 run-2026-08-08-17-57.md
+-rw-r--r--  1 runner runner 22001 Aug  9 20:14 run-2026-08-08-18-19.md
+-rw-r--r--  1 runner runner 13783 Aug  9 20:14 run-2026-08-08-19-08.md
+-rw-r--r--  1 runner runner   855 Aug  9 20:14 run-2026-08-08-19-48.md
+-rw-r--r--  1 runner runner  3697 Aug  9 20:14 run-2026-08-08-20-15.md
+-rw-r--r--  1 runner runner 48286 Aug  9 20:14 run-2026-08-08-20-16.md
+-rw-r--r--  1 runner runner   288 Aug  9 20:14 run-2026-08-08-20-52.md
+-rw-r--r--  1 runner runner   306 Aug  9 20:14 run-2026-08-08-21-18.md
+-rw-r--r--  1 runner runner 20264 Aug  9 20:14 run-2026-08-08-21-53.md
+-rw-r--r--  1 runner runner   319 Aug  9 20:14 run-2026-08-08-22-13.md
+-rw-r--r--  1 runner runner 25573 Aug  9 20:14 run-2026-08-08-22-53.md
+-rw-r--r--  1 runner runner 57527 Aug  9 20:14 run-2026-08-08-23-18.md
+-rw-r--r--  1 runner runner   228 Aug  9 20:14 run-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner 36585 Aug  9 20:14 run-2026-08-09-00-41.md
+-rw-r--r--  1 runner runner 25496 Aug  9 20:14 run-2026-08-09-03-00.md
+-rw-r--r--  1 runner runner   324 Aug  9 20:14 run-2026-08-09-04-10.md
+-rw-r--r--  1 runner runner   292 Aug  9 20:14 run-2026-08-09-05-26.md
+-rw-r--r--  1 runner runner 13044 Aug  9 20:14 run-2026-08-09-05-48.md
+-rw-r--r--  1 runner runner 23442 Aug  9 20:14 run-2026-08-09-06-39.md
+-rw-r--r--  1 runner runner 15689 Aug  9 20:14 run-2026-08-09-07-44.md
+-rw-r--r--  1 runner runner 24960 Aug  9 20:14 run-2026-08-09-08-32.md
+-rw-r--r--  1 runner runner   621 Aug  9 20:14 run-2026-08-09-09-27.md
+-rw-r--r--  1 runner runner 62572 Aug  9 20:14 run-2026-08-09-10-21.md
+-rw-r--r--  1 runner runner   338 Aug  9 20:14 run-2026-08-09-10-56.md
+-rw-r--r--  1 runner runner 21593 Aug  9 20:14 run-2026-08-09-11-53.md
+-rw-r--r--  1 runner runner 22109 Aug  9 20:14 run-2026-08-09-12-22.md
+-rw-r--r--  1 runner runner 31687 Aug  9 20:14 run-2026-08-09-13-28.md
+-rw-r--r--  1 runner runner  5183 Aug  9 20:14 run-2026-08-09-14-24.md
+-rw-r--r--  1 runner runner 19394 Aug  9 20:14 run-2026-08-09-15-00.md
+-rw-r--r--  1 runner runner 17138 Aug  9 20:14 run-2026-08-09-15-55.md
+-rw-r--r--  1 runner runner 42663 Aug  9 20:14 run-2026-08-09-16-22.md
+-rw-r--r--  1 runner runner  7354 Aug  9 20:14 run-2026-08-09-16-59.md
+-rw-r--r--  1 runner runner  7274 Aug  9 20:14 run-2026-08-09-17-02.md
+-rw-r--r--  1 runner runner 25132 Aug  9 20:14 run-2026-08-09-17-59.md
+-rw-r--r--  1 runner runner 20646 Aug  9 20:14 run-2026-08-09-18-22.md
+-rw-r--r--  1 runner runner 13222 Aug  9 20:14 run-2026-08-09-19-10.md
+-rw-r--r--  1 runner runner   996 Aug  9 20:14 run-2026-08-09-19-53.md
+-rw-r--r--  1 runner runner  2617 Aug  9 20:14 triage-2026-08-09-1011.md
+-rw-r--r--  1 runner runner 12435 Aug  9 20:14 triage-2026-08-09-1812.md
+43
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+
+## 2026-08-09 19:04:13 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://ds-apip.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-09 19:31:32 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-09 19:56:52 UTC
+https://ds-apip.threema.ch/identity/lookup -> HTTP 404
+https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
+https://ds-apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/ -> HTTP 403
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip-work.threema.ch -> HTTP 401
+[0m
+[0m→ [0mRead triage/run-2026-08-09-19-53.md
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/reports/hypotheses-bigpickle.txt | head -60
+## 2026-08-09 19:54:43 UTC [chat] (model bigpickle)
+class: BUSLOGIC
+asset: apip.threema.ch/identity/ws/revoke
+confidence: 45
+reasoning: OpenAPI (directory.openapi.yml) shows /identity/ws/revoke is the ONLY identity endpoint with a single-step request (identity + revocationKey = SHA256(revocation-password)[:4], 32 bits) and NO challenge-response step, and unlike blob_cred/sfu_cred/work endpoints it documents NO 429 rate-limit response.
+evidence_needed: server enforces/omits rate limiting on ws/revoke; error/timing differences per guessed key; whether a correct 4-byte key revokes any ID.
+verify_steps: AUTH_HELPED: on a program-provided test ID, POST /identity/ws/revoke with a deliberately wrong revocationKey (observe error shape and timing), repeat small count to test for 429; never target third-party IDs and do not create accounts.
+impact: if unrate-limited, brute-force of 2^32 space → force-revoke/delete any Threema ID (permanent identity destruction / DoS). Severity: medium-high.
+testability: AUTH_HELPED
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities (backend of in-scope work.threema.ch)
+confidence: 50
+reasoning: directory.openapi.yml line 1172 states "/identities ... currently buggy. See TWRK-1633"; endpoint returns "a subset of the provided contacts that are part of the same Work subscription" + work properties (first/last name, jobTitle, department, availability); GET / returns 401 confirming a live credential-gated backend.
+evidence_needed: whether contact matching can be induced to return contacts outside the caller's subscription.
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities (contacts:[...]) mixing own- and other-subscription IDs and compare membership + properties; also probe /directory pagination bounds (page/size, wildcard queries).
+impact: cross-subscription disclosure of work-directory metadata (names, titles, departments, availability) → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+class: OTHER
+asset: mediator-*.threema.ch / rendezvous-*.threema.ch / blob-mirror-*.threema.ch
+confidence: 40
+reasoning: all sampled shards (0..f) resolve; GET / → uniform 403; shard prefix is derived from the first byte of a public-key (routing, not auth per config.rs) — no passive distinguishing signal observed.
+evidence_needed: any shard or path (wss /{prefix}/) responding differently than 403.
+verify_steps: PASSIVE: GET https://{rendezvous,mediator,blob-mirror}-{0,7,f}.threema.ch/ and a few /XX/ paths at ≤1rps, compare status/body fingerprints.
+impact: none observed; would only indicate a routing/edge misconfiguration. Severity: n/a
+testability: PASSIVE
+[HYP] ds-apip.threema.ch directory lookup / unauth enumeration
+class: AUTH
+asset: ds-apip.threema.ch
+confidence: 55
+reasoning: directory.openapi.yml lists `ds-apip.*` as the directory API base; production `ds-apip.threema.ch` returns root 403 with `Access-Control-Allow-Origin: *` and allows POST/GET/OPTIONS/DELETE cross-origin. apip.threema.ch returns 404 on all openapi subpaths (host mismatch), so any live directory routes live on the ds-apip host. If any lookup route is unauthenticated, CORS-* enables cross-origin probing from an attacker page.
+evidence_needed: an endpoint under ds-apip.threema.ch returning ≠403/404 to GET; response-body fingerprints differing from apip.
+verify_steps: PASSIVE: GET https://ds-apip.threema.ch/identity/lookup and /directory (compare vs apip 404), GET https://ds-apip-work.threema.ch/identity/lookup (401=route-exists-behind-auth vs 404=no-route), ≤1 rps.
+impact: Threema ID/pubkey enumeration → spam, phishing, targeted abuse. Severity: medium.
+testability: PASSIVE
+[HYP] threema-desktop key-storage KDF parameter weakness
+class: OTHER
+asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/key-storage/crypto.ts)
+confidence: 45
+reasoning: reposcan found crypto.ts:223 uses fixed benchmark password `r3gGN9GDQ5NF6tM6` to calibrate Argon2id params at runtime, and test-data.ts defines `keyStoragePassword: 'CHANGE_ME'`; no committed credentials exist, so only the KDF/key-handling logic can be weak. Electron 2.x stores user password/keys through this module.
+evidence_needed: how Argon2id memory/time params are derived (floors/caps) and whether the derived key protects an offline-readable store.
+verify_steps: PASSIVE: static read of crypto.ts `determineKdfParams()` and the storage backend (safeStorage vs plaintext file). No live requests.
+impact: if params are attacker-favorable, offline recovery of stored user credentials/keys from disk. Severity: low-medium.
+testability: PASSIVE
+[HYP] ds-apip-work.threema.ch /identities cross-subscription disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 52
+reasoning: directory.openapi.yml:1172 flags "/identities ... currently buggy. See TWRK-1633"; endpoint returns a subset of provided contacts in the same Work subscription plus work properties (first/last name, jobTitle, department, availability). Host now confirmed live returning 401 with permissive CORS.
+evidence_needed: whether the membership filter can be induced to return out-of-subscription contacts.
+verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities mixing own- and other-subscription IDs and compare membership + property leak; probe pagination bounds (page/size, wildcard).
+impact: cross-subscription disclosure of work-directory metadata → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[NEXT] PROBE: GET https://ds-apip-work.threema.ch/identity/lookup and /directory (401 vs 404 distinguishes route-existence behind the auth gate), then GET https://ds-apip.threema.ch/identity/lookup + /directory at ≤1 rps to fingerprint the directory host independently of apip.
+[HYP] ds-apip.test.threema.ch staging directory server publicly exposed
+class: MISCONFIG
+asset: ds-apip.test.threema.ch
+confidence: 60
+reasoning: verified 200 on GET /identity/ECHOECHO and /identity/fetch_bulk with same JSON shape and CORS `*` as production ds-apip.threema.ch; hostname is a staging/test env (ds-apip.test.*), yet answers the live identity API with no auth and no documented client reference.
+evidence_needed: whether the test host mirrors live production data or an isolated dataset (byte-diff a real ID's publicKey across hosts) and whether it exposes extra routes or an older/newer build (error-shape/header skew).
+verify_steps: PASSIVE: GET https://ds-apip.test.threema.ch/identity/ECHOECHO and /identity/fetch_bulk with full headers, diff Server/Date/body fingerprints vs ds-apip.threema.ch; HEAD a few extra paths (/, /identity/lookup, /swagger) at ≤1rps; no third-party IDs.
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && grep -rn "g-" reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/config.ts 2>/dev/null | head; grep -rln "g-\.0\|g-\${" reposcan-raw/threema-ch/threema-desktop/apps/desktop/src 2>/dev/null | head
+(no output)
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && grep -rn "\.0\.threema\.ch\|threema\.ch" reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/config.ts 2>/dev/null | head -30
+(no output)
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && ls reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/ 2>/dev/null; grep -rln "g-" reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/ 2>/dev/null | head -20
+(no output)
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && ls reposcan-raw/ 2>/dev/null && ls reposcan-raw/threema-ch/ 2>/dev/null | head
+analysis.txt
+grep-delta.txt
+grep-hits.prev.txt
+grep-hits.txt
+rag.txt
+threema-ch
+app-remote-protocol
+compose-area
+push-relay
+threema-android
+threema-bot-sdk
+threema-desktop
+threema-ios
+threema-markup
+threema-msgapi-sdk-java
+threema-msgapi-sdk-php
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && grep -rn "\.0\.threema\.ch\|g-" reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/ 2>/dev/null | grep -i "threema.ch\|g-" | grep -v node_modules | head -30
+(no output)
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && grep -rn "0\.threema\.ch" reposcan-raw/threema-ch/ 2>/dev/null | grep -vi "test\|\.test\." | head -20
+(no output)
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && grep -rln "threema.ch" reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/ 2>/dev/null | head -20
+(no output)
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && ls reposcan-raw/threema-ch/threema-desktop/ 2>/dev/null; ls reposcan-raw/threema-ch/threema-desktop/apps/ 2>/dev/null; find reposcan-raw/threema-ch/threema-desktop -maxdepth 3 -type d 2>/dev/null | head -20
+reposcan-raw/threema-ch/threema-desktop
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && wc -l reposcan-raw/analysis.txt reposcan-raw/rag.txt reposcan-raw/grep-hits.txt 2>/dev/null; grep -c . reposcan-raw/threema-ch/threema-desktop 2>/dev/null; find reposcan-raw -maxdepth 2 -type f | head -30
+64 reposcan-raw/analysis.txt
+  269 reposcan-raw/rag.txt
+   49 reposcan-raw/grep-hits.txt
+  382 total
+0
+reposcan-raw/grep-delta.txt
+reposcan-raw/grep-hits.prev.txt
+reposcan-raw/rag.txt
+reposcan-raw/grep-hits.txt
+reposcan-raw/analysis.txt
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && grep -rn "threema.ch" reposcan-raw/analysis.txt reposcan-raw/rag.txt 2>/dev/null | head -40
+reposcan-raw/analysis.txt:29:| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | `ds-apip-work.test.threema.ch`, `ds-apip.test.threema.ch` |
+reposcan-raw/analysis.txt:32:| threema-desktop/apps/desktop/config/vite.config.ts | 147, 153, 154 | `ds-apip.test.threema.ch`, `ds-apip-work.test.threema.ch`, `work.test.threema.ch` |
+reposcan-raw/analysis.txt:58:| Staging endpoints in OpenAPI/vite config | **no** | Known staging hosts (`ds-apip.test.threema.ch`, `work.test.threema.ch`); already in scope & probed; no new attack surface |
+reposcan-raw/rag.txt:5:- In scope: Android source, iOS source, Desktop 2.x source (threema-desktop), g-*.0.threema.ch, mediator-*.threema.ch, rendezvous-*.threema.ch, apip.threema.ch, safe-*.threema.ch, work.threema.ch, broadcast.threema.ch, gateway.threema.ch, shop.threema.ch, billing.threema.ch
+reposcan-raw/rag.txt:11:- apip.threema.ch: HTTP 403 on /
+reposcan-raw/rag.txt:12:- work.threema.ch: 301 (redirect)
+reposcan-raw/rag.txt:13:- shop.threema.ch: 301 (redirect)
+reposcan-raw/rag.txt:14:- broadcast.threema.ch / gateway.threema.ch / billing.threema.ch: TIMEOUT (retry; note gating)
+reposcan-raw/rag.txt:15:- GitHub org threema-ch (23 repos): threema-android (Kotlin), threema-ios (Swift), threema-desktop (TS), threema-web (TS), threema-web-electron, threema-msgapi-sdk-{php,java,python,rust}, threema-bot-sdk, push-relay (Rust), app-remote-protocol, webrtc-build-docker, apns-h2, etc.
+reposcan-raw/rag.txt:19:- 2026-08-07 ACCEPTED AUTH @ apip.threema.ch: CORS misconfiguration enabling cross-origin API probes confirmed via passive HEAD/GET.
+reposcan-raw/rag.txt:21:- 2026-08-07 ACCEPTED IDOR @ ds-apip.threema.ch: Public `GET /identity/{id}` returns 200/404 oracle with permissive CORS and no observable rate limit — confirmed via passive probes.
+reposcan-raw/rag.txt:22:- 2026-08-07 ACCEPTED IDOR @ ds-apip.threema.ch: Unauthenticated identity→pubkey oracle confirmed via GET /identity/{id} (200/404) AND POST /identity/fetch_bulk (returns pubkeys for valid IDs only, no auth).
+reposcan-raw/rag.txt:23:- 2026-08-07 ACCEPTED AUTH @ apip.threema.ch: CORS misconfiguration confirmed — Access-Control-Allow-Origin: *, methods include POST/GET/OPTIONS/DELETE — cross-origin API probes enabled from any attacker origin.
+reposcan-raw/rag.txt:24:- 2026-08-07 ACCEPTED OTHER @ api.threema.ch: Previously a "candidate ID/directory sibling"; now confirmed as an active directory server with identical endpoints and CORS headers as ds-apip.threema.ch.
+reposcan-raw/rag.txt:28:- 2026-08-07 ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateLimit). CORS `*` with DELETE/POST/GET/OPTIONS. All three hostnames return identical pubkeys for valid IDs; invalid IDs silently omitted.
+reposcan-raw/rag.txt:29:- 2026-08-07 ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: Staging directory server publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+reposcan-raw/rag.txt:30:- 2026-08-07 ACCEPTED MISCONFIG @ ds-apip.test.threema.ch + apip.test.threema.ch: Staging directory servers publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+reposcan-raw/rag.txt:31:- 2026-08-07 ACCEPTED OTHER @ safe-01.threema.ch: Backup server publicly reachable with permissive CORS (Access-Control-Allow-Origin: *, methods GET/HEAD/PUT/PATCH/POST/DELETE) and HSTS/Expect-CT; no auth observed on root.
+reposcan-raw/rag.txt:32:- 2026-08-07 ACCEPTED AUTH @ safe-01.threema.ch: Backup API is credential-gated — `GET /backups/{64hex}` returns HTTP 400 (not 200/401/404) for unauthenticated requests; OPTIONS preflight returns CORS `*` with `Access-Control-Allow-Headers: Authorization` enabling credentialed cross-origin requests.
+reposcan-raw/rag.txt:34:- 2026-08-07 ACCEPTED OTHER @ ds-apip-work.threema.ch: Work directory prod backend confirmed live — 401 on all paths (/identity/*, /identities), CORS `*`, no HSTS/Expect-CT.
+reposcan-raw/rag.txt:35:- 2026-08-07 REJECTED OTHER @ apip.threema.ch/identity/ws/revoke: returns 404 on both apip and ds-apip hosts — endpoint not publicly routable at documented path; hypothesis mis-targeted.
+reposcan-raw/rag.txt:36:- 2026-08-07 REJECTED OTHER @ apip.threema.ch/api/v1/pubkeys/{id}: returns 404 — dead endpoint candidate disproven.
+reposcan-raw/rag.txt:37:- 2026-08-07 ACCEPTED MISCONFIG @ g-{XX}.0.test.threema.ch: Staging chat cluster resolves to 203.56.114.34 (split from prod chat IPs 203.56.112.202/.204); HTTPS not HTTP-accessible (likely WSS/TCP 5222); staging chat hostnames may be out of scope per scope.yml.
+reposcan-raw/rag.txt:38:- 2026-08-07 ACCEPTED OTHER @ ds-apip-work.test.threema.ch: Work directory staging backend confirmed live — 401 on all paths, CORS `*`, no HSTS/Expect-CT
+reposcan-raw/rag.txt:39:- 2026-08-07 ACCEPTED OTHER @ work.test.threema.ch: Staging work web app confirmed live — 301 to /en/login, HSTS + Expect-CT, CSP with `*.test.threema.ch` refs, Sentry
+reposcan-raw/rag.txt:40:- 2026-08-07 ACCEPTED OTHER @ safe-*.threema.ch DNS pattern: safe-01, safe-1a, safe-1b, safe-02, safe-00 all resolve to 203.56.112.231 (single IP, 5 hostnames)
+reposcan-raw/rag.txt:41:- 2026-08-07 ACCEPTED OTHER @ mediator-{0..f}/rendezvous-{0..f}.threema.ch DNS split routing: indices 0-7 → 203.56.112.247; indices 8-f → 203.56.114.247; all uniform 403 on HTTPS
+reposcan-raw/rag.txt:43:- 2026-08-07 ACCEPTED MISCONFIG @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work API endpoint confirmed.
+reposcan-raw/rag.txt:44:- 2026-08-07 ACCEPTED AUTH @ work.test.threema.ch: `/api-app/me/profile` and `/api-app/global/settings` → 302; only the `/api-app/public/*` namespace is open (namespace gating confirmed).
+reposcan-raw/rag.txt:45:- 2026-08-07 ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed).
+reposcan-raw/rag.txt:46:- 2026-08-07 ACCEPTED OTHER @ work.test.threema.ch: liveness endpoints `/ping` (204) and `/info/ping.php` (200 empty) identical on staging and prod — no divergence.
+reposcan-raw/rag.txt:47:- 2026-08-08 ACCEPTED IDOR @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work API endpoint confirmed
+reposcan-raw/rag.txt:48:- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed)
+reposcan-raw/rag.txt:49:- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.ch, hcaptcha-work.threema.ch, billing.test.threema.ch
+reposcan-raw/rag.txt:50:- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: `__HOST-HTTP-SESSIONID` cookie set on unauthenticated GET /en/login (Secure/HttpOnly/SameSite=Strict)
+reposcan-raw/rag.txt:51:- 2026-08-08 ACCEPTED AUTH @ work.test.threema.ch: `/api-app/me/profile` and `/api-app/global/settings` → 302; only `/api-app/public/*` namespace is open (namespace gating confirmed)
+reposcan-raw/rag.txt:52:- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: `/info/ping.php` → 200 empty and `/ping` → 204 identical on staging and prod — no divergence
+reposcan-raw/rag.txt:53:- 2026-08-08 ACCEPTED MISCONFIG @ work.test.threema.ch bundle divergence: work_public.js v2.25.1 DIFFERENT builds staging vs prod (staging sha256 e48e18f79df0125e8942f8fd9566f0c7924d15d7229377b553cf666b1bca7b87, 1,443,948 B; prod 96501e2139ad9647e578ad1e03befca380d4f82c49434f3f3b13a14f354b67a7, 1,400,541 B); staging implements /api-app/public/global/settings (GET) + /api-app/public/license/token/{licenseToken} (GET returns {username?,password?,expired,hasEmail}; PUT void; zod 64-char token); prod bundle has ZERO /public/* handlers.
+reposcan-raw/rag.txt:54:- 2026-08-08 ACCEPTED OTHER @ work.threema.ch: prod DOES route /api-app — GET /api-app/me/profile → 302 to /en/login?r=%2Fapi-app%2Fme%2Fprofile; only /public/* namespace absent on prod (404 catch-all) — divergence is public-namespace-specific.
+reposcan-raw/rag.txt:55:- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: /api-app/public/license/token/{64hex} → 404 HTML catch-all (900B) for GET, PUT, AND OPTIONS — method-agnostic; backend route not deployed; 64-char validation is client-side-only zod; not an oracle today.
+[0m
+The cloned repo trees are empty (analysis snapshots only), so I'll close the one remaining passive gap for my `chat` phase: the prod chat shard pattern `g-*.0.threema.ch` is documented as "unenumerated". DNS enumeration is passive and completes that map.
+[0m$ [0mfor i in 0 1 2 3 4 5 6 7 8 9 a b c d e f; do h="g-$i.0.threema.ch"; ip=$(getent hosts "$h" | awk '{print $1}' | head -1); echo "$h -> ${ip:-NXDOMAIN}"; done
+g-0.0.threema.ch -> NXDOMAIN
+g-1.0.threema.ch -> NXDOMAIN
+g-2.0.threema.ch -> NXDOMAIN
+g-3.0.threema.ch -> NXDOMAIN
+g-4.0.threema.ch -> NXDOMAIN
+g-5.0.threema.ch -> NXDOMAIN
+g-6.0.threema.ch -> NXDOMAIN
+g-7.0.threema.ch -> NXDOMAIN
+g-8.0.threema.ch -> NXDOMAIN
+g-9.0.threema.ch -> NXDOMAIN
+g-a.0.threema.ch -> NXDOMAIN
+g-b.0.threema.ch -> NXDOMAIN
+g-c.0.threema.ch -> NXDOMAIN
+g-d.0.threema.ch -> NXDOMAIN
+g-e.0.threema.ch -> NXDOMAIN
+g-f.0.threema.ch -> NXDOMAIN
+[0m
+[0m$ [0mgrep -rn "threema.ch" /home/runner/work/threema-hunt/threema-hunt/scope.yml; echo ---; cat /home/runner/work/threema-hunt/threema-hunt/scope.yml
+10:      - name: "Desktop 2.x App Source Code (github.com/threema-ch/threema-desktop)"
+12:      - name: "g-*.0.threema.ch (chat services)"
+14:      - name: "mediator-*.threema.ch (multi-device synchronization server)"
+16:      - name: "rendezvous-*.threema.ch (multi-device linking server)"
+18:      - name: "apip.threema.ch (directory server / ID service)"
+20:      - name: "safe-*.threema.ch (backup service)"
+22:      - name: "work.threema.ch (work cockpit & backend)"
+24:      - name: "broadcast.threema.ch (broadcast cockpit & backend)"
+26:      - name: "gateway.threema.ch (gateway cockpit & backend)"
+28:      - name: "shop.threema.ch (threema shop)"
+30:      - name: "billing.threema.ch (billing system)"
+35:      - threema-ch
+---
+programs:
+  threema:
+    name: Threema
+    disclosure_policy: TBD - operator-provided program scope (update once public channel confirmed)
+    assets:
+      - name: "Android Source Code"
+        priority: In
+      - name: "iOS App Source Code"
+        priority: In
+      - name: "Desktop 2.x App Source Code (github.com/threema-ch/threema-desktop)"
+        priority: In
+      - name: "g-*.0.threema.ch (chat services)"
+        priority: In
+      - name: "mediator-*.threema.ch (multi-device synchronization server)"
+        priority: In
+      - name: "rendezvous-*.threema.ch (multi-device linking server)"
+        priority: In
+      - name: "apip.threema.ch (directory server / ID service)"
+        priority: In
+      - name: "safe-*.threema.ch (backup service)"
+        priority: In
+      - name: "work.threema.ch (work cockpit & backend)"
+        priority: In
+      - name: "broadcast.threema.ch (broadcast cockpit & backend)"
+        priority: In
+      - name: "gateway.threema.ch (gateway cockpit & backend)"
+        priority: In
+      - name: "shop.threema.ch (threema shop)"
+        priority: In
+      - name: "billing.threema.ch (billing system)"
+        priority: In
+    out_of_scope:
+      - "All other targets and third-party services not listed above"
+    github_orgs:
+      - threema-ch
+
+rules:
+  passive_first: true          # GET/HEAD reads first; no invasive testing without program approval
+  max_requests_per_second: 1   # never hammer
+  no_doom: true                # no DoS/DDoS, no resource-exhaustion tests
+  no_account_creation: true    # no mass signups without program approval
+  no_data_modification: true   # no writes, deletes, state changes on live infra
+  no_pre_disclosure: true      # never disclose before program response
+  redact_secrets_in_commits: true   # commit sha256 of secrets, never raw values
+
+# Multi-model ensemble: every hunt run picks a rotation of the 5 models.
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
+[0m
+[0m$ [0mfor ip in 203.56.112.202 203.56.112.204 203.56.114.34; do echo "== $ip"; getent hosts "$ip"; host "$ip" 2>/dev/null | head -3; done
+== 203.56.112.202
+203.56.112.202  morobbia.threema.ch
+202.112.56.203.in-addr.arpa domain name pointer morobbia.threema.ch.
+== 203.56.112.204
+203.56.112.204  boiron.threema.ch
+204.112.56.203.in-addr.arpa domain name pointer boiron.threema.ch.
+== 203.56.114.34
+203.56.114.34   chliwindgaellen.threema.ch
+34.114.56.203.in-addr.arpa domain name pointer chliwindgaellen.threema.ch.
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && grep -rh "g-.\{0,4\}0\.threema\.ch\|g-.\{0,4\}0\.test" leads/*.md knowledge/index.md inventory/threema.md 2>/dev/null | sort -u | head -20
+- 2026-08-08 REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml.
+- 2026-08-09 REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
+- 2026-08-09 REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml; explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes, no peer cert) on both 443 and 5222.
+- CHANGED lead class 16 (g-*.0.test.threema.ch staging chat) formally REJECTED as out-of-scope per scope.yml
+- CHANGED lead class 16 (g-*.0.test.threema.ch staging chat) formally REJECTED as out-of-scope per scope.yml; not new surface.
+- In scope: Android source, iOS source, Desktop 2.x source (threema-desktop), g-*.0.threema.ch, mediator-*.threema.ch, rendezvous-*.threema.ch, apip.threema.ch, safe-*.threema.ch, work.threema.ch, broadcast.threema.ch, gateway.threema.ch, shop.threema.ch, billing.threema.ch
+- NEW `g-*.0.test.threema.ch` staging chat cluster confirmed reachable on single IP 203.56.114.34 (distinct from prod .112.202/.204), but no in-band HTTP divergence — only TCP 5222 accept with 0 bytes retur
+- NEW `g-{XX}.0.test.threema.ch` staging chat cluster — resolves to 203.56.114.34 (IPv4); HTTPS → HTTP 000 (not HTTP-accessible; likely WSS/TCP 5222); out of scope per scope.yml (only `g-*.0.threema.ch` lis
+- g-*.0.threema.ch (chat) — hostname pattern unknown, enumerate once discovered
+[CHANGED] lead class 16 (g-*.0.test.threema.ch staging chat) formally REJECTED as out-of-scope per scope.yml
+[CHANGED] lead class 16 (g-*.0.test.threema.ch staging chat) formally REJECTED as out-of-scope per scope.yml; not new surface.
+[HYP] Staging chat cluster g-*.0.test.threema.ch publicly reachable single-node mirror of prod chat
+[HYP] g-*.0.threema.ch:443/5222 yields cert/SAN or protocol fingerprint under explicit SNI
+[LEARN] REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
+[LEARN] REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml  
+[LEARN] REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml.
+[LEARN] REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml; explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes, no peer cert) on both 443 and 5222
+[LEARN] REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml; explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes, no peer cert) on both 443 and 5222  
+[LEARN] REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml; explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes, no peer cert) on both 443 and 5222.
+[NEW] NO_DELTA — inventory at 2026-08-09 05:08:32 UTC shows only re-confirmations (CHANGED) of existing in-scope surface; saltyrtc-{00..ff}.threema.ch:443 discovered but explicitly NOT in scope.yml (only g-*.0.threema.ch pattern listed for chat).
+[0m
+[0m$ [0mfor p in "g-00.0.threema.ch" "g-10.0.threema.ch" "g-1a.0.threema.ch" "g-ff.0.threema.ch" "g-01.0.threema.ch" "g-1.0.threema.ch"; do ip=$(getent hosts "$p" | awk '{print $1}' | head -1); echo "$p -> ${ip:-NXDOMAIN}"; done
+g-00.0.threema.ch -> 203.56.112.202
+g-10.0.threema.ch -> 203.56.112.202
+g-1a.0.threema.ch -> 203.56.112.202
+g-ff.0.threema.ch -> 203.56.112.204
+g-01.0.threema.ch -> 203.56.112.202
+g-1.0.threema.ch -> NXDOMAIN
+[0m
+The chat shard pattern is `g-{XX}.0.threema.ch` (2 hex chars). Enumerating the 256-shard DNS map passively to complete the prod chat topology:
+[0m$ [0mfor i in $(seq 0 255); do h=$(printf "g-%02x.0.threema.ch" $i); ip=$(getent hosts "$h" | awk '{print $1}' | head -1); [ -n "$ip" ] && echo "$h -> $ip"; done | sort -t'>' -k2 | awk '{split($1,a,"-"); print $3, $1}' | sort | uniq -c
+1 203.56.112.202 g-00.0.threema.ch
+      1 203.56.112.202 g-01.0.threema.ch
+      1 203.56.112.202 g-02.0.threema.ch
+      1 203.56.112.202 g-03.0.threema.ch
+      1 203.56.112.202 g-04.0.threema.ch
+      1 203.56.112.202 g-05.0.threema.ch
+      1 203.56.112.202 g-06.0.threema.ch
+      1 203.56.112.202 g-07.0.threema.ch
+      1 203.56.112.202 g-08.0.threema.ch
+      1 203.56.112.202 g-09.0.threema.ch
+      1 203.56.112.202 g-0a.0.threema.ch
+      1 203.56.112.202 g-0b.0.threema.ch
+      1 203.56.112.202 g-0c.0.threema.ch
+      1 203.56.112.202 g-0d.0.threema.ch
+      1 203.56.112.202 g-0e.0.threema.ch
+      1 203.56.112.202 g-0f.0.threema.ch
+      1 203.56.112.202 g-10.0.threema.ch
+      1 203.56.112.202 g-11.0.threema.ch
+      1 203.56.112.202 g-12.0.threema.ch
+      1 203.56.112.202 g-13.0.threema.ch
+      1 203.56.112.202 g-14.0.threema.ch
+      1 203.56.112.202 g-15.0.threema.ch
+      1 203.56.112.202 g-16.0.threema.ch
+      1 203.56.112.202 g-17.0.threema.ch
+      1 203.56.112.202 g-18.0.threema.ch
+      1 203.56.112.202 g-19.0.threema.ch
+      1 203.56.112.202 g-1a.0.threema.ch
+      1 203.56.112.202 g-1b.0.threema.ch
+      1 203.56.112.202 g-1c.0.threema.ch
+      1 203.56.112.202 g-1d.0.threema.ch
+      1 203.56.112.202 g-1e.0.threema.ch
+      1 203.56.112.202 g-1f.0.threema.ch
+      1 203.56.112.202 g-20.0.threema.ch
+      1 203.56.112.202 g-21.0.threema.ch
+      1 203.56.112.202 g-22.0.threema.ch
+      1 203.56.112.202 g-23.0.threema.ch
+      1 203.56.112.202 g-24.0.threema.ch
+      1 203.56.112.202 g-25.0.threema.ch
+      1 203.56.112.202 g-26.0.threema.ch
+      1 203.56.112.202 g-27.0.threema.ch
+      1 203.56.112.202 g-28.0.threema.ch
+      1 203.56.112.202 g-29.0.threema.ch
+      1 203.56.112.202 g-2a.0.threema.ch
+      1 203.56.112.202 g-2b.0.threema.ch
+      1 203.56.112.202 g-2c.0.threema.ch
+      1 203.56.112.202 g-2d.0.threema.ch
+      1 203.56.112.202 g-2e.0.threema.ch
+      1 203.56.112.202 g-2f.0.threema.ch
+      1 203.56.112.202 g-30.0.threema.ch
+      1 203.56.112.202 g-31.0.threema.ch
+      1 203.56.112.202 g-32.0.threema.ch
+      1 203.56.112.202 g-33.0.threema.ch
+      1 203.56.112.202 g-34.0.threema.ch
+      1 203.56.112.202 g-35.0.threema.ch
+      1 203.56.112.202 g-36.0.threema.ch
+      1 203.56.112.202 g-37.0.threema.ch
+      1 203.56.112.202 g-38.0.threema.ch
+      1 203.56.112.202 g-39.0.threema.ch
+      1 203.56.112.202 g-3a.0.threema.ch
+      1 203.56.112.202 g-3b.0.threema.ch
+      1 203.56.112.202 g-3c.0.threema.ch
+      1 203.56.112.202 g-3d.0.threema.ch
+      1 203.56.112.202 g-3e.0.threema.ch
+      1 203.56.112.202 g-3f.0.threema.ch
+      1 203.56.112.202 g-40.0.threema.ch
+      1 203.56.112.202 g-41.0.threema.ch
+      1 203.56.112.202 g-42.0.threema.ch
+      1 203.56.112.202 g-43.0.threema.ch
+      1 203.56.112.202 g-44.0.threema.ch
+      1 203.56.112.202 g-45.0.threema.ch
+      1 203.56.112.202 g-46.0.threema.ch
+      1 203.56.112.202 g-47.0.threema.ch
+      1 203.56.112.202 g-48.0.threema.ch
+      1 203.56.112.202 g-49.0.threema.ch
+      1 203.56.112.202 g-4a.0.threema.ch
+      1 203.56.112.202 g-4b.0.threema.ch
+      1 203.56.112.202 g-4c.0.threema.ch
+      1 203.56.112.202 g-4d.0.threema.ch
+      1 203.56.112.202 g-4e.0.threema.ch
+      1 203.56.112.202 g-4f.0.threema.ch
+      1 203.56.112.202 g-50.0.threema.ch
+      1 203.56.112.202 g-51.0.threema.ch
+      1 203.56.112.202 g-52.0.threema.ch
+      1 203.56.112.202 g-53.0.threema.ch
+      1 203.56.112.202 g-54.0.threema.ch
+      1 203.56.112.202 g-55.0.threema.ch
+      1 203.56.112.202 g-56.0.threema.ch
+      1 203.56.112.202 g-57.0.threema.ch
+      1 203.56.112.202 g-58.0.threema.ch
+      1 203.56.112.202 g-59.0.threema.ch
+      1 203.56.112.202 g-5a.0.threema.ch
+      1 203.56.112.202 g-5b.0.threema.ch
+      1 203.56.112.202 g-5c.0.threema.ch
+      1 203.56.112.202 g-5d.0.threema.ch
+      1 203.56.112.202 g-5e.0.threema.ch
+      1 203.56.112.202 g-5f.0.threema.ch
+      1 203.56.112.202 g-60.0.threema.ch
+      1 203.56.112.202 g-61.0.threema.ch
+      1 203.56.112.202 g-62.0.threema.ch
+      1 203.56.112.202 g-63.0.threema.ch
+      1 203.56.112.202 g-64.0.threema.ch
+      1 203.56.112.202 g-65.0.threema.ch
+      1 203.56.112.202 g-66.0.threema.ch
+      1 203.56.112.202 g-67.0.threema.ch
+      1 203.56.112.202 g-68.0.threema.ch
+      1 203.56.112.202 g-69.0.threema.ch
+      1 203.56.112.202 g-6a.0.threema.ch
+      1 203.56.112.202 g-6b.0.threema.ch
+      1 203.56.112.202 g-6c.0.threema.ch
+      1 203.56.112.202 g-6d.0.threema.ch
+      1 203.56.112.202 g-6e.0.threema.ch
+      1 203.56.112.202 g-6f.0.threema.ch
+      1 203.56.112.202 g-70.0.threema.ch
+      1 203.56.112.202 g-71.0.threema.ch
+      1 203.56.112.202 g-72.0.threema.ch
+      1 203.56.112.202 g-73.0.threema.ch
+      1 203.56.112.202 g-74.0.threema.ch
+      1 203.56.112.202 g-75.0.threema.ch
+      1 203.56.112.202 g-76.0.threema.ch
+      1 203.56.112.202 g-77.0.threema.ch
+      1 203.56.112.202 g-78.0.threema.ch
+      1 203.56.112.202 g-79.0.threema.ch
+      1 203.56.112.202 g-7a.0.threema.ch
+      1 203.56.112.202 g-7b.0.threema.ch
+      1 203.56.112.202 g-7c.0.threema.ch
+      1 203.56.112.202 g-7d.0.threema.ch
+      1 203.56.112.202 g-7e.0.threema.ch
+      1 203.56.112.202 g-7f.0.threema.ch
+      1 203.56.112.204 g-80.0.threema.ch
+      1 203.56.112.204 g-81.0.threema.ch
+      1 203.56.112.204 g-82.0.threema.ch
+      1 203.56.112.204 g-83.0.threema.ch
+      1 203.56.112.204 g-84.0.threema.ch
+      1 203.56.112.204 g-85.0.threema.ch
+      1 203.56.112.204 g-86.0.threema.ch
+      1 203.56.112.204 g-87.0.threema.ch
+      1 203.56.112.204 g-88.0.threema.ch
+      1 203.56.112.204 g-89.0.threema.ch
+      1 203.56.112.204 g-8a.0.threema.ch
+      1 203.56.112.204 g-8b.0.threema.ch
+      1 203.56.112.204 g-8c.0.threema.ch
+      1 203.56.112.204 g-8d.0.threema.ch
+      1 203.56.112.204 g-8e.0.threema.ch
+      1 203.56.112.204 g-8f.0.threema.ch
+      1 203.56.112.204 g-90.0.threema.ch
+      1 203.56.112.204 g-91.0.threema.ch
+      1 203.56.112.204 g-92.0.threema.ch
+      1 203.56.112.204 g-93.0.threema.ch
+      1 203.56.112.204 g-94.0.threema.ch
+      1 203.56.112.204 g-95.0.threema.ch
+      1 203.56.112.204 g-96.0.threema.ch
+      1 203.56.112.204 g-97.0.threema.ch
+      1 203.56.112.204 g-98.0.threema.ch
+      1 203.56.112.204 g-99.0.threema.ch
+      1 203.56.112.204 g-9a.0.threema.ch
+      1 203.56.112.204 g-9b.0.threema.ch
+      1 203.56.112.204 g-9c.0.threema.ch
+      1 203.56.112.204 g-9d.0.threema.ch
+      1 203.56.112.204 g-9e.0.threema.ch
+      1 203.56.112.204 g-9f.0.threema.ch
+      1 203.56.112.204 g-a0.0.threema.ch
+      1 203.56.112.204 g-a1.0.threema.ch
+      1 203.56.112.204 g-a2.0.threema.ch
+      1 203.56.112.204 g-a3.0.threema.ch
+      1 203.56.112.204 g-a4.0.threema.ch
+      1 203.56.112.204 g-a5.0.threema.ch
+      1 203.56.112.204 g-a6.0.threema.ch
+      1 203.56.112.204 g-a7.0.threema.ch
+      1 203.56.112.204 g-a8.0.threema.ch
+      1 203.56.112.204 g-a9.0.threema.ch
+      1 203.56.112.204 g-aa.0.threema.ch
+      1 203.56.112.204 g-ab.0.threema.ch
+      1 203.56.112.204 g-ac.0.threema.ch
+      1 203.56.112.204 g-ad.0.threema.ch
+      1 203.56.112.204 g-ae.0.threema.ch
+      1 203.56.112.204 g-af.0.threema.ch
+      1 203.56.112.204 g-b0.0.threema.ch
+      1 203.56.112.204 g-b1.0.threema.ch
+      1 203.56.112.204 g-b2.0.threema.ch
+      1 203.56.112.204 g-b3.0.threema.ch
+      1 203.56.112.204 g-b4.0.threema.ch
+      1 203.56.112.204 g-b5.0.threema.ch
+      1 203.56.112.204 g-b6.0.threema.ch
+      1 203.56.112.204 g-b7.0.threema.ch
+      1 203.56.112.204 g-b8.0.threema.ch
+      1 203.56.112.204 g-b9.0.threema.ch
+      1 203.56.112.204 g-ba.0.threema.ch
+      1 203.56.112.204 g-bb.0.threema.ch
+      1 203.56.112.204 g-bc.0.threema.ch
+      1 203.56.112.204 g-bd.0.threema.ch
+      1 203.56.112.204 g-be.0.threema.ch
+      1 203.56.112.204 g-bf.0.threema.ch
+      1 203.56.112.204 g-c0.0.threema.ch
+      1 203.56.112.204 g-c1.0.threema.ch
+      1 203.56.112.204 g-c2.0.threema.ch
+      1 203.56.112.204 g-c3.0.threema.ch
+      1 203.56.112.204 g-c4.0.threema.ch
+      1 203.56.112.204 g-c5.0.threema.ch
+      1 203.56.112.204 g-c6.0.threema.ch
+      1 203.56.112.204 g-c7.0.threema.ch
+      1 203.56.112.204 g-c8.0.threema.ch
+      1 203.56.112.204 g-c9.0.threema.ch
+      1 203.56.112.204 g-ca.0.threema.ch
+      1 203.56.112.204 g-cb.0.threema.ch
+      1 203.56.112.204 g-cc.0.threema.ch
+      1 203.56.112.204 g-cd.0.threema.ch
+      1 203.56.112.204 g-ce.0.threema.ch
+      1 203.56.112.204 g-cf.0.threema.ch
+      1 203.56.112.204 g-d0.0.threema.ch
+      1 203.56.112.204 g-d1.0.threema.ch
+      1 203.56.112.204 g-d2.0.threema.ch
+      1 203.56.112.204 g-d3.0.threema.ch
+      1 203.56.112.204 g-d4.0.threema.ch
+      1 203.56.112.204 g-d5.0.threema.ch
+      1 203.56.112.204 g-d6.0.threema.ch
+      1 203.56.112.204 g-d7.0.threema.ch
+      1 203.56.112.204 g-d8.0.threema.ch
+      1 203.56.112.204 g-d9.0.threema.ch
+      1 203.56.112.204 g-da.0.threema.ch
+      1 203.56.112.204 g-db.0.threema.ch
+      1 203.56.112.204 g-dc.0.threema.ch
+      1 203.56.112.204 g-dd.0.threema.ch
+      1 203.56.112.204 g-de.0.threema.ch
+      1 203.56.112.204 g-df.0.threema.ch
+      1 203.56.112.204 g-e0.0.threema.ch
+      1 203.56.112.204 g-e1.0.threema.ch
+      1 203.56.112.204 g-e2.0.threema.ch
+      1 203.56.112.204 g-e3.0.threema.ch
+      1 203.56.112.204 g-e4.0.threema.ch
+      1 203.56.112.204 g-e5.0.threema.ch
+      1 203.56.112.204 g-e6.0.threema.ch
+      1 203.56.112.204 g-e7.0.threema.ch
+      1 203.56.112.204 g-e8.0.threema.ch
+      1 203.56.112.204 g-e9.0.threema.ch
+      1 203.56.112.204 g-ea.0.threema.ch
+      1 203.56.112.204 g-eb.0.threema.ch
+      1 203.56.112.204 g-ec.0.threema.ch
+      1 203.56.112.204 g-ed.0.threema.ch
+      1 203.56.112.204 g-ee.0.threema.ch
+      1 203.56.112.204 g-ef.0.threema.ch
+      1 203.56.112.204 g-f0.0.threema.ch
+      1 203.56.112.204 g-f1.0.threema.ch
+      1 203.56.112.204 g-f2.0.threema.ch
+      1 203.56.112.204 g-f3.0.threema.ch
+      1 203.56.112.204 g-f4.0.threema.ch
+      1 203.56.112.204 g-f5.0.threema.ch
+      1 203.56.112.204 g-f6.0.threema.ch
+      1 203.56.112.204 g-f7.0.threema.ch
+      1 203.56.112.204 g-f8.0.threema.ch
+      1 203.56.112.204 g-f9.0.threema.ch
+      1 203.56.112.204 g-fa.0.threema.ch
+      1 203.56.112.204 g-fb.0.threema.ch
+      1 203.56.112.204 g-fc.0.threema.ch
+      1 203.56.112.204 g-fd.0.threema.ch
+      1 203.56.112.204 g-fe.0.threema.ch
+      1 203.56.112.204 g-ff.0.threema.ch
+[0m
+Full prod chat map enumerated: 256 shards, exact 128/128 split. Spot-checking staging shard topology (DNS only):
+[0m$ [0mfor h in "g-00.0.test.threema.ch" "g-7f.0.test.threema.ch" "g-80.0.test.threema.ch" "g-ff.0.test.threema.ch" "g-2a.0.test.threema.ch"; do ip=$(getent hosts "$h" | awk '{print $1}' | head -1); echo "$h -> ${ip:-NXDOMAIN}"; done
+g-00.0.test.threema.ch -> 203.56.114.34
+g-7f.0.test.threema.ch -> 203.56.114.34
+g-80.0.test.threema.ch -> 203.56.114.34
+g-ff.0.test.threema.ch -> 203.56.114.34
+g-2a.0.test.threema.ch -> 203.56.114.34
+[0m
+New PTR hostnames discovered (morobbia/boiron/chliwindgaellen). Testing whether the canonical hostnames differ from the `g-*` shard SNI (the g-* gate closes without handshake; canonical names might behave differently):
+[0m$ [0mfor h in morobbia.threema.ch boiron.threema.ch; do echo "== $h (5222, 3s)"; timeout 3 bash -c 'exec 3<>/dev/tcp/'$h'/5222; head -c 16 <&3 | xxd | head -1' 2>&1 | head -2; done
+== morobbia.threema.ch (5222, 3s)
+bash: line 1: morobbia.threema.ch: Name or service not known
+bash: line 1: /dev/tcp/morobbia.threema.ch/5222: Invalid argument
+== boiron.threema.ch (5222, 3s)
+bash: line 1: boiron.threema.ch: Name or service not known
+bash: line 1: /dev/tcp/boiron.threema.ch/5222: Invalid argument
+[0m
+[0m$ [0mfor h in morobbia.threema.ch boiron.threema.ch chliwindgaellen.threema.ch; do echo "== $h (443 TLS)"; timeout 8 openssl s_client -connect "$h:443" -servername "$h" -brief </dev/null 2>&1 | head -3; echo "-- HTTP 80:"; timeout 8 curl -s -o /dev/null -w "%{http_code} %{remote_ip}\n" "http://$h/" 2>&1 | head -1; done
+== morobbia.threema.ch (443 TLS)
+40473FA92E7F0000:error:10080002:BIO routines:BIO_lookup_ex:system lib:../crypto/bio/bio_addr.c:738:Name or service not known
+connect:errno=2
+-- HTTP 80:
+000 
+== boiron.threema.ch (443 TLS)
+4057E88D8C7F0000:error:10080002:BIO routines:BIO_lookup_ex:system lib:../crypto/bio/bio_addr.c:738:Name or service not known
+connect:errno=2
+-- HTTP 80:
+000 
+== chliwindgaellen.threema.ch (443 TLS)
+40A7D860777F0000:error:10080002:BIO routines:BIO_lookup_ex:system lib:../crypto/bio/bio_addr.c:738:Name or service not known
+connect:errno=2
+-- HTTP 80:
+000
+[0m
+All reverse-PTR hostnames (morobbia/boiron/chliwindgaellen) have no forward A records — dead-end for SNI bypass. The DNS map is the complete story. Analysis below.
+
+## STEP 1 — DELTA
+- [NEW] `g-*.0.threema.ch` prod chat shard topology fully enumerated (passive DNS): 256 shards `g-00..g-ff`, exact 128/128 split — `g-00..g-7f` → 203.56.112.202 (PTR `morobbia.threema.ch`), `g-80..g-ff` → 203.56.112.204 (PTR `boiron.threema.ch`); staging all 256 shards → single node 203.56.114.34 (PTR `chliwindgaellen.threema.ch`). Closes the "prod chat pattern unenumerated" risk gap; split mirrors mediator/rendezvous 0-7/8-f routing model.
+- [CHANGED] `reposcan-2026-08-09-19-59` — zero new secrets; all 56 hits are test fixtures (`testPassword`, `ECHOECHO`/`shootdeathstar`); `crypto.ts:223` benchmark password re-rejected (RAG-verified); OpenAPI/vite staging endpoints already known. No new surface.
+
+## STEP 2 — PRIORITIZE
+- [PRIO] directory cluster ds-apip/api/apip.threema.ch — 7.20 — surface 9/ business 8/ tech 5/ gate 10/ cloud 4/ fresh 3
+- [PRIO] g-*.0.threema.ch chat cluster (256 shards, 2 prod nodes) — 5.45 — surface 6/ business 9/ tech 5/ gate 1/ cloud 3/ fresh 5
+- [PRIO] safe-{01,1a,1b,02,00}.threema.ch backup store — 5.15 — surface 6/ business 8/ tech 4/ gate 1/ cloud 6/ fresh 3
+- [PRIO] threema-desktop key-storage (Windows ACL) — 5.10 — surface 4/ business 9/ tech 7/ gate 2/ cloud 2/ fresh 3
+
+## STEP 3 — HYPOTHESES
+[HYP] Directory fetch_bulk account-status oracle via state/type/featureMask field differential
+class: IDOR
+asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch `/identity/fetch_bulk`
+confidence: 55
+reasoning: All reachable valid IDs return byte-identical `state:0/type:0/featureLevel:3/featureMask:9` (sha256 `c7cdb73b…`, 135B); invalid IDs silently omitted; ceiling exactly 10000 IDs/req with zero 429s on ~35 sequential probes. A deactivated/revoked ID that drops out of a batch or returns `state≠0` is observable at 10k IDs/req.
+evidence_needed: one program-issued deactivated/revoked identity returning `state≠0` or being omitted from a fetch_bulk batch.
+verify_steps: AUTH_HELPED — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Content-Type: application/json' -d '{"identities":["{deactivatedTestId}","ECHOECHO"]}'` on all 3 hosts; diff state/type/featureMask vs ECHOECHO.
+impact: mass account-status enumeration layered on the accepted existence oracle → targeted operational-intel. Severity: Medium (escalation).
+testability: AUTH_HELPED
+[HYP] Chat shard→physical-node attribution from identity first byte
+class: OTHER
+asset: g-*.0.threema.ch (256 shards, morobbia .202 / boiron .204)
+confidence: 45
+reasoning: DNS split is exactly first-byte-of-identity based (g-80 boundary), same routing model as mediator/rendezvous; identities+pubkeys are harvestable via fetch_bulk; PTR names morobbia/boiron/chliwindgaellen are forward-NXDOMAIN (no SNI bypass). Both nodes close 443/5222 without TLS handshake.
+evidence_needed: correlation of a known identity's first byte with its node IP; any shard/PTR divergence breaking the uniform 403/close posture.
+verify_steps: PASSIVE — `getent hosts g-{00,7f,80,ff}.0.threema.ch` vs fetch_bulk-returned identity first bytes; `timeout 5 openssl s_client -connect <node>:443 -servername morobbia.threema.ch -brief` to re-confirm no-cert close; ≤1 rps.
+impact: node-level userbase attribution (which physical node serves which identity range). Reconnaissance only; no data access. Severity: informational.
+testability: PASSIVE
+[HYP] Safe backup store credentialed cross-origin read + HSTS header inconsistency
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch `/backups/{64hex}` (5 hosts, 203.56.112.231)
+confidence: 50
+reasoning: OPTIONS 204 → CORS `*` + Allow-Methods incl. GET + `Access-Control-Allow-Headers: Authorization` (credentialed cross-origin); unauth GET → 400/11B route-oracle; HTTP Basic `backupId:backupKey`; HSTS/Expect-CT absent on GET 400 but present on OPTIONS 204.
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 + payload + `Access-Control-Expose-Headers` on credentialed response.
+verify_steps: AUTH_HELPED — `curl -s -u "<backupId:backupKey>" https://safe-01.threema.ch/backups/<backupId> -D -` vs 400 unauth baseline, diff across all 5 hostnames; `curl -sI -X OPTIONS https://safe-01.threema.ch/backups/{64hex} -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: GET"`.
+impact: valid creds → identity keypair + full message-history backup readable from any attacker origin. Severity: High (with creds), unreachable without.
+testability: AUTH_HELPED
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] Chat node attribution: survives the confidence threshold (45) but impact is informational-only (node-level recon, no data access); retains only as open-bookkeeping, not a report candidate. Kept at FINAL #3 for completeness.
+- [FINAL] 1. Directory fetch_bulk account-status oracle (55, IDOR, AUTH_HELPED)
+- [FINAL] 2. Safe backup credentialed cross-origin read (50, AUTH, AUTH_HELPED)
+- [FINAL] 3. Chat shard→node attribution (45, OTHER, PASSIVE — informational, low value)
+
+## STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: execute `node poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with a real Threema Desktop 2.x profile to close the runtime gate on the 95-confidence MISCONFIG (read keystorage.bin + keystorage.password.bin → DPAPI SameUser unlock → Argon2id→XSalsa20-Poly1305 → `ck` + `databaseKey` → PRAGMA opens threema.sqlite). Secondary (chat target): request a program-issued test identity to open the 5222/WSS login-frame channel, the only remaining chat path.
+
+## STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ g-*.0.threema.ch: prod chat shard map fully enumerated this cycle — 256 shards, exact 128/128 split (g-00..7f → 203.56.112.202 `morobbia`, g-80..ff → 203.56.112.204 `boiron`), staging single-node (203.56.114.34 `chliwindgaellen`); PTR names forward-NXDOMAIN; TLS/5222 close-without-handshake posture uniform on both prod nodes → node-attribution is the only passive observation, and it is not exploitable.
+- [LEARN] REJECTED class @ chat node attribution: identity-first-byte → node mapping yields reconnaissance only (no data access, no in-band divergence, no cert leak); not a standalone vulnerability class.
+
+## STEP 7 — RISK SCORE
+- [RISK] chat: 45 — surface now fully enumerated (256 shards/2 prod nodes + 1 staging node); passive channel formally closed (0-byte close on 443/5222, no cert/SAN, authenticated login frame required); attribution-only passive signal; staging out of scope.
+- [RISK] web: 94 — directory cluster (3 prod hosts + staging mirror): 10k-ID fetch_bulk, 200/404 oracle, 5 challenge parameter-oracles, CORS `*`, zero 429s, all byte-stable; safe-01 5-host CORS `*` + ACAH:Authorization + route oracle + HSTS gap on GET 400; work.test staging-only settings divergence.
+- [RISK] sync: 55 — mediator/rendezvous {0..f} resolve, uniform 403 on HTTPS, WSS high-entropy paths, split DNS routing; no passive in-band divergence.
+- [RISK] safe: 88 — safe-{01,1a,1b,02,00} single IP, credentialed CORS headers, Basic-Auth gating (400 baseline stable), HSTS gap on GET 400; unlocked only with creds.
+- [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified (15 source paths, 95 conf), PoC artifact present + syntax-verified + graceful no-op; Windows runtime is the only open gate; Electron sandbox unset + nodeIntegrationInWorker (conditional RCE, rejected standalone); crypto.ts:223 benchmark password rejected.
