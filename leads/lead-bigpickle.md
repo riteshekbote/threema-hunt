@@ -3970,3 +3970,32 @@ evidence_needed: whether `Access-Control-Allow-Headers` echoes X-Api-Key on pref
 verify_steps: PASSIVE — `OPTIONS /api/v1` with `Origin: https://attacker.example` + `Access-Control-Request-Method: GET` + `Access-Control-Request-Headers: X-Api-Key` (record ACAH); GET /api/v1 with 1-char vs 32-char key vs absent (≤1 rps); record status only.
 impact: if API key leaked → full broadcast message API cross-origin; today recon + header enumeration; Low-Medium, key-gated.
 testability: PASSIVE
+## 2026-08-09 07:31:44 UTC [chat] (model bigpickle)
+[HYP] Staging directory server mirrors live production identity data unauthenticated
+class: MISCONFIG
+asset: ds-apip.test.threema.ch (identity API)
+confidence: 72
+reasoning: GET /identity/ECHOECHO returns byte-identical record to prod ds-apip (same publicKey/featureLevel/featureMask/state/type); GET /identity/fetch_bulk works with same JSON shape + CORS `*`; threema-desktop vite.config.ts points DIRECTORY_SERVER_URL at this test host; staging has HSTS/Expect-CT where prod lacks them.
+evidence_needed: whether byte-identical responses extend to real (non-ECHOECHO) IDs, and whether staging exposes extra/older routes (fetch_bulk ceiling, additional endpoints).
+verify_steps: PASSIVE — GET /identity/fetch_bulk with official ECHOECHO + 99 random-invalid on staging, diff body/headers vs prod; HEAD /swagger, /docs, /identity/lookup, / on staging at ≤1 rps (no third-party IDs).
+impact: internet-reachable staging env serving live directory data with no auth; version skew/test-only routes; unauthenticated mirror of the identity directory. Severity: low-medium.
+testability: PASSIVE
+[HYP] Work directory backend cross-subscription metadata disclosure via buggy /identities
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 55
+reasoning: /identities, /directory, /identity/lookup all → 401 (route exists behind gate) while ds-apip.threema.ch returns 404 for /directory + /identity/lookup (no route); directory.openapi.yml flags /identities "currently buggy" (TWRK-1633) and names ds-apip-work.test.threema.ch as base URL; endpoint returns same-subscription contacts + work metadata (first/last name, jobTitle, department, availability).
+evidence_needed: whether membership filter can be induced to return out-of-subscription contacts (mixed own/other-subscription ID batch), and pagination/param surface (page/size, wildcard).
+verify_steps: AUTH_HELPED — with authorized Work test license, POST /identities mixing own- and other-subscription IDs, compare membership + property leak; probe pagination bounds. PASSIVE only: GET /identities + /directory + /identity/lookup to lock the 401 route map (done this cycle).
+impact: cross-subscription disclosure of Work directory PII → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[HYP] Broadcast API key-presence differential is a key-format/presence oracle on a live cockpit backend
+class: AUTH
+asset: broadcast.threema.ch/api/v1/
+confidence: 58
+reasoning: no-key GET → 401, any X-Api-Key → 403 (1-char key enough to flip status); /api/v1 301→/api/v1/ (nginx); OPTIONS → 404 (no CORS preflight, so browser blocks cross-origin keyed calls); route root lives behind key check on a cockpit backend with HSTS+Expect-CT+CSP.
+evidence_needed: whether 403-vs-401 persists across key lengths/formats (valid-format oracle) and whether the 401/403 JSON body differs (error-shape differential).
+verify_steps: PASSIVE — GET /api/v1/ with X-Api-Key lengths 1/32/64 vs absent at ≤1 rps, record status + body; GET a subpath /api/v1/{x} to confirm 404-route floor.
+impact: key-presence/format oracle + recon of auth model; cross-origin usage blocked (no preflight); real impact requires key leak. Severity: low.
+testability: PASSIVE
+[NEXT] PROBE: byte-diff fetch_bulk on staging vs prod — `curl -sk -X POST https://ds-apip.test.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` (≤1 rps) and diff JSON/headers vs the same POST to `https://ds-apip.threema.ch/identity/fetch_bulk`; then single HEAD `https://ds-apip.test.threema.ch/swagger` + `/docs` (≤1 rps) to probe for extra staging-only routes.

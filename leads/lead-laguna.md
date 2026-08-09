@@ -2868,3 +2868,4 @@ testability: PASSIVE + AUTH_HELPED + HUMAN
 [RISK] safe: 88 reason: 5 hosts CORS `*` + write-capable methods + Access-Control-Allow-Headers: Authorization + HSTS/Expect-CT on OPTIONS 204 but NOT on GET 400 + Basic-Auth gating + route-existence oracle, all behind single IP 203.56.112.231 (probe verified)
 [RISK] desktop-src: 95 reason: Windows key-storage ACL bypass SOURCE-VERIFIED end-to-end on real main (fs.ts:41→`{}` win32; index.ts:559-560 + electron-main.ts:943-945 write with no DACL; v3.ts:65,70 expose ck+databaseKey; crypto.ts:60 Argon2id; sqlite.ts:240 PRAGMA key); runtime PoC NOT yet executed (PoC file absent, Windows host needed) — source-confidence 95, runtime-confidence 0 until HUMAN grants host+creds
 ## 2026-08-09 06:43:41 UTC [desktop] (model laguna)
+## 2026-08-09 07:32:48 UTC [desktop] (model laguna)
