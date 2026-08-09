@@ -369,3 +369,6 @@
   - | Q4 Passive proof? | NO | Requires AUTH_HELPED with valid Work credentials + cross-subscription contact probes |
   - | Q5 Novel? | YES | Not previously triaged as valid vuln; only hypothesized (OpenAPI flags it "currently buggy" TWRK-1633) |
   - **Verdict: HOLD** — OpenAPI flags endpoint "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Cannot be proven via passive GET/HEAD only. Retain for program-provided 
+
+- 1 lead(s) marked VALID at 2026-08-09 22:59:21 UTC
+  - | **VALID** | 4 | All duplicates — already in `valid-bugs.md` |
