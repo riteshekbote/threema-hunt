@@ -1,17 +1,6 @@
-## 2026-08-09 15:34:09 UTC [web] (model nemotron3)
-[NEW] mediator-{prefix4}.threema.ch/{prefix8}/ — mediator WSS hostname pattern (in scope: mediator-*.threema.ch)
-[NEW] rendezvous-{prefix4}.threema.ch/{prefix8}/ — rendezvous WSS hostname pattern (in scope: rendezvous-*.threema.ch)
-[NEW] safe-{backupIdPrefix8}.threema.ch/ — backup safe hostname pattern (in scope: safe-*.threema.ch)
-[NEW] ds-apip-work.threema.ch — work-style directory server (401 on all paths, CORS *, Basic auth required)
-[NEW] ds-apip.threema.ch — canonical directory server hostname (wired into desktop client build config); GET /identity/{id} → 200/404 oracle confirmed
-[NEW] blob-mirror-{prefix4}.threema.ch/{prefix8}/ — blob server hostname pattern (discovered in desktop source config.ts; NOT in scope)
-[CHANGED] ds-apip.threema.ch/api.threema.ch/apip.threema.ch — fetch_bulk ceiling tightened to exactly 10000 IDs/request (sharp count-cap, 10001→400 empty body, no partial leak, CORS * on 400, zero 429s)
-[CHANGED] ds-apip.test.threema.ch — staging fetch_bulk byte-identical to prod including 10000-cap enforcement; no extra routes (/swagger /docs /identity/lookup /openapi.json 404)
-[CHANGED] broadcast.threema.ch/api/v1 — auth-gated 401 baseline stable; key-format/validity oracle fully disproven (1/32/64-char keys → byte-identical 403, no CORS preflight)
-[CHANGED] g-*.0.{test.,}threema.ch:443/5222 — chat passive channel formally closed (explicit SNI + TLS1.2/1.3 probes close immediately, 0 bytes, no cert/SAN)
-[CHANGED] apip.threema.ch — was 403 on `/`; now confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
-[CHANGED] saltyrtc-*.threema.ch — 256 hostnames resolve to 4 IPs, HTTP 426 on GET, explicitly NOT in scope.yml
+## 2026-08-09 16:03:42 UTC [web] (model nemotron3)
 [PRIO] https://ds-apip.threema.ch/identity/fetch_bulk (prod cluster: ds-apip, api, apip) — 94 — attack:10, business:9, tech:9, gate:10, cloud:8, fresh:10
+[PRIO] github.com/threema-ch/threema-desktop (Windows key-storage ACL bypass) — 95 — attack:10, business:10, tech:10, gate:10, cloud:5, fresh:10
 [PRIO] https://ds-apip.test.threema.ch/identity/fetch_bulk — 86 — attack:9, business:8, tech:8, gate:10, cloud:7, fresh:9
 [PRIO] safe-01.threema.ch/backups/{64hex} (all 5 safe-* hosts) — 77 — attack:8, business:8, tech:7, gate:6, cloud:9, fresh:8
 [PRIO] mediator-{prefix4}.threema.ch/{prefix8}/ — 60 — attack:6, business:7, tech:5, gate:4, cloud:6, fresh:8
@@ -22,10 +11,19 @@ class: IDOR
 asset: https://ds-apip.threema.ch/identity/fetch_bulk (identical on api.threema.ch, apip.threema.ch)
 confidence: 97
 reasoning: POST fetch_bulk (10000 IDs, 1 valid + 9999 invalid) → 200, returns only valid pubkey, silently omits invalid; ACAO:* on POST/GET/OPTIONS/DELETE; no 429 after ~30 sequential POSTs; 5 challenge endpoints return 200 JSON errors + ACAO:* with parameter-validation-before-lookup oracle (update_work_info: "Missing parameters", set_revocation_key: "Bad revocation key length"); hard cap at 10001 → 400 empty body, no partial leak
-evidence_needed: confirm no WAF/rate-limit at higher volume (multi-threaded 1 rps per thread); verify challenge endpoints differ only by identity validity not parameter format
+evidence_needed: Confirm no WAF/rate-limit at higher volume (multi-threaded 1 rps per thread); verify challenge endpoints differ only by identity validity not parameter format
 verify_steps: PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<19999 unique invalid 8-char base32 IDs>]}' (≤1 rps) → verify 400 at 10001; GET /identity/sfu_cred/ECHOECHO vs /identity/sfu_cred/ZZZZZZZZ → compare bodies; repeat for api.threema.ch and apip.threema.ch
 impact: Cross-origin, unauthenticated enumeration of all valid Threema IDs + pubkeys at scale (1 rps → 86,400 IDs/day/browser-thread; 10000 IDs/req → 864M IDs/day theoretical); challenge endpoints expose parameter validation oracles. Severity: Medium-High (CVSS 3.1: 5.3 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
 testability: PASSIVE+PROBE
+[HYP] Desktop Windows key-storage ACL bypass → full identity + message-store compromise via DPAPI
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop (fs.ts:41, key-storage/index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, db/sqlite.ts:240)
+confidence: 95
+reasoning: fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin + keystorage.password.bin written without DACL; safeStorage (DPAPI) password recoverable by same-user processes → Argon2id→XSalsa20-Poly1305 decrypt yields ck (Ed25519 identity private key) + databaseKey (SQLCipher PRAGMA key); 15 source-path chain RAG-verified; PoC artifact poc/key-storage-acl-bypass-poc.js generated (node --check OK, graceful no-op on Linux)
+evidence_needed: Runtime validation on authorized Windows host with Threema Desktop 2.x installed and real profile
+verify_steps: RUNTIME_AUTH_HELPED-LOCAL: Execute `node poc/key-storage-acl-bypass-poc.js` on authorized Windows host with Threema Desktop 2.x + real profile (env: THREEMA_PROFILE_PATH) → verify keystorage files readable, DPAPI password decryptable, Argon2id key derivable, Ed25519 ck + SQLCipher databaseKey recovered
+impact: Local same-user process (or malware) extracts full identity private key + decrypts message database → complete account takeover, message history exfiltration, impersonation. Severity: High (CVSS 3.1: 7.1 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N)
+testability: AUTH_HELPED
 [HYP] Staging directory server mirrors live production identity data unauthenticated
 class: IDOR
 asset: https://ds-apip.test.threema.ch/identity/fetch_bulk
@@ -35,18 +33,10 @@ evidence_needed: Confirm staging returns pubkeys for production-valid IDs not ju
 verify_steps: PROBE: curl -X POST https://ds-apip.test.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<9999 unique invalid 8-char base32 IDs>]}' (≤1 rps) → verify byte-identical 200 response; GET /identity/ECHOECHO on staging vs prod → compare bodies
 impact: Staging environment exposes identical identity oracle as production — doubles enumeration surface; no additional auth/gating on staging. Severity: Medium (CVSS 3.1: 4.3 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
 testability: PASSIVE+PROBE
-[HYP] Mediator/Rendezvous WSS hostname patterns expose device-linking metadata via high-entropy paths
-class: OTHER
-asset: mediator-{prefix4}.threema.ch/{prefix8}/ and rendezvous-{prefix4}.threema.ch/{prefix8}/
-confidence: 55
-reasoning: Hostname patterns discovered in desktop config.ts (in scope: mediator-*.threema.ch, rendezvous-*.threema.ch); mediator/rendezvous indices 0-7 → 203.56.112.247, 8-f → 203.56.114.247; all return uniform 403 on HTTPS; WSS endpoints require auth in source, no passive in-band divergence observed
-evidence_needed: Confirm WSS endpoints exist at high-entropy paths; verify if unauthenticated WSS handshake leaks metadata (server hello, supported protocols)
-verify_steps: PROBE: wscat -c wss://mediator-0000.threema.ch/<entropy> (passive connect, no auth frame) → observe server hello/close; repeat for rendezvous; enumerate prefix4 space via DNS (0000-ffff) → map live hosts
-impact: Multi-device linking metadata exposure (device IDs, linking timestamps, peer metadata); potential device enumeration. Severity: Low-Medium (CVSS 3.1: 3.7 AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N)
-testability: PASSIVE+PROBE
 [PARKED] Staging directory server mirrors live production identity data unauthenticated: confidence 88 but evidence_needed requires proving staging returns production-valid IDs (not just test IDs) — currently no testId available; verify_steps depend on AUTH_HELPED for test credential. Without live-dataset proof, this remains a mirror-surface finding only.
 [FINAL] 1. Directory bulk identity enumeration at scale via fetch_bulk 10000 IDs/request + 5 challenge parameter oracles (97, IDOR, PASSIVE+PROBE)
-[FINAL] 2. Mediator/Rendezvous WSS hostname patterns expose device-linking metadata via high-entropy paths (55, OTHER, PASSIVE+PROBE)
+[FINAL] 2. Desktop Windows key-storage ACL bypass → full identity + message-store compromise via DPAPI (95, MISCONFIG, AUTH_HELPED)
+[FINAL] 3. Mediator/Rendezvous WSS hostname patterns expose device-linking metadata via high-entropy paths (55, OTHER, PASSIVE+PROBE)
 [NEXT] PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<19999 unique invalid 8-char base32 IDs>]}' (≤1 rps) — confirm 400 at 10001, verify challenge endpoint parameter oracles
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk hard ceiling exactly 10000 IDs/request (10000→200/152B, 10001→400/0B); sharp count-cap, overflow→400 empty body with NO partial/overshoot pubkey leak; CORS `*` + Allow-Methods POST,GET,OPTIONS,DELETE on both 200 and 400; zero 429s across ~30 sequential probes
 [LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk enforces identical 10000-cap (10001 → 400 byte-for-byte identical to prod) → validation-logic parity confirmed; mirror evidence strengthened
