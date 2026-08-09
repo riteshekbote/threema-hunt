@@ -5225,3 +5225,32 @@ evidence_needed: Windows runtime proof — same-user process reads both .bin fil
 verify_steps: RUNTIME_AUTH_HELPED — execute `poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with a real Threema Desktop 2.x profile.
 impact: same-user malware extracts full identity keypair + decrypts message DB → complete account compromise. Medium-High (CVSS 3.1 ~5.5, AV:L).
 testability: RAG + RUNTIME_AUTH_HELPED
+## 2026-08-09 16:44:30 UTC [chat] (model bigpickle)
+[HYP] billing.threema.ch 404-differential route-presence oracle
+class: OTHER
+asset: billing.threema.ch
+confidence: 45
+reasoning: Host flipped TIMEOUT→LIVE this cycle. App-served 404 (1024B German page) vs nginx 404 (146B) discriminates recognized vs unknown paths; `/cache/*` + favicon 200 prove a real PHP billing app behind nginx; HSTS+Expect-CT present; no non-404 route found across ~40 probed paths.
+evidence_needed: any path returning ≠404/403 (login, order, api, sso, oauth), or a content/status differential in 404 body vs the known 1024B baseline.
+verify_steps: PASSIVE — `curl -sS -m 8 -o /dev/null -w '%{http_code} %{size_download}' https://billing.threema.ch/<word>` and `curl -sS -m 8 https://billing.threema.ch/login | sha256sum` vs baseline 1024B body; wordlist of billing-app routes (login, order, invoice, sso, oauth, session, payment, api/v1, index.php/*).
+impact: maps a previously-unreachable billing backend; any live unauth route = direct billing/payment data exposure. Medium (only if route found).
+testability: PASSIVE
+[HYP] shop.threema.ch `/en/retrieve-keys` invoice_ref enumeration oracle
+class: BUSLOGIC
+asset: shop.threema.ch/en/retrieve-keys
+confidence: 45
+reasoning: POST form (type, email, invoice_ref) retrieves license keys; no hCaptcha on this page (buy page has it) and no visible rate-limit header; CSP `form-action 'self' https://billing.threema.ch` shows shop form submissions terminate at the billing backend.
+evidence_needed: response differential for valid-format vs invalid invoice_ref (e.g., "key sent" vs "not found" vs 200/4xx), or any 429/ratelimit.
+verify_steps: AUTH_HELPED — `curl -sS -m 8 -X POST https://shop.threema.ch/en/retrieve-keys -d 'type=private&email=test@example.com&invoice_ref=INV-000000'` (and format variants), diff body/status; needs an authorized invoice_ref to confirm true-positive. POST only — violates passive GET/HEAD rule, so only under authorized test.
+impact: invoice-ref existence oracle + potential license-key recovery for guessed refs. Medium-High (escalation).
+testability: AUTH_HELPED
+[HYP] fetch_bulk account-status oracle (existing)
+class: IDOR
+asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch identity/fetch_bulk
+confidence: 55
+reasoning: All reachable valid IDs return state:0/type:0/featureLevel:3; fetch_bulk 10k IDs/req, no rate limit, CORS `*` — mass-status primitive if any deactivated ID returns state≠0 or is dropped.
+evidence_needed: one program-issued deactivated identity returning state≠0 (or omitted).
+verify_steps: AUTH_HELPED — `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Content-Type: application/json' -d '{"identities":["{deactivatedTestId}","ECHOECHO","*THREEMA"]}'` on all 4 hosts; diff state/featureMask vs ECHOECHO.
+impact: mass account-status enumeration layered on accepted existence oracle. Medium.
+testability: AUTH_HELPED
+[NEXT] PROBE: `curl -sS -m 8 -w '%{http_code} %{size_download}' https://billing.threema.ch/{login,order/invoice,sso,oauth2,api/v1,index.php/login,index.php/order,session,payment}` — diff each body sha256 vs the known 1024B app-404 baseline to find any live non-404 route on the newly-live billing host.

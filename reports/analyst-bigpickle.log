@@ -36993,3 +36993,542 @@ STEP 7 — RISK SCORE
 - [RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403; WSS high-entropy + auth in source; no passive in-band divergence; saltyrtc-* 426 out of scope.
 - [RISK] safe: 80 — safe-{01,1a,1b,02,00} behind 203.56.112.231: CORS `*` + write-capable methods + Allow-Headers authorization + route-existence oracle + HSTS/Expect-CT absent on GET 400 present on OPTIONS; Basic-Auth gating only; no ACAC — impact contingent on valid creds.
 - [RISK] desktop-src: 90 — Windows key-storage ACL bypass RAG-confirmed (95) chained to Ed25519 identity privkey + SQLCipher DB key; PoC artifact ready, runtime validation pending; Electron sandbox unset + nodeIntegrationInWorker (conditional RCE, REJECTED standalone); crypto.ts benchmark password REJECTED.
+===== ANALYST bigpickle 2026-08-09 16:44:48 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mfor u in "https://shop.threema.ch/" "https://shop.threema.ch/en/" "https://work.threema.ch/en/login" "https://billing.threema.ch/" "https://gateway.threema.ch/msgapi/health" "https://gateway.threema.ch/v1/health"; do echo "=== $u"; curl -sS -o /dev/null -m 8 -w "code=%{http_code} redirect=%{redirect_url} size=%{size_download} ip=%{remote_ip}\n" "$u"; sleep 1; done
+=== https://shop.threema.ch/
+code=301 redirect=https://shop.threema.ch/en size=0 ip=203.56.112.216
+=== https://shop.threema.ch/en/
+code=404 redirect= size=4883 ip=203.56.112.216
+=== https://work.threema.ch/en/login
+code=200 redirect= size=4969 ip=203.56.112.209
+=== https://billing.threema.ch/
+code=301 redirect=https://threema.ch/ size=0 ip=203.56.112.216
+=== https://gateway.threema.ch/msgapi/health
+code=404 redirect= size=2628 ip=203.56.112.234
+=== https://gateway.threema.ch/v1/health
+code=404 redirect= size=2628 ip=203.56.112.234
+[0m
+[0m$ [0mfor u in "https://shop.threema.ch/en" "https://shop.threema.ch/de" "https://shop.threema.ch/app" "https://shop.threema.ch/en/"; do echo "=== $u"; curl -sS -o /dev/null -m 8 -w "code=%{http_code} ct=%{content_type} redirect=%{redirect_url} size=%{size_download}\n" "$u"; sleep 1; done; echo "=== billing redirect chain"; curl -sS -o /dev/null -m 8 -w "final=%{url_effective} code=%{http_code} ip=%{remote_ip}\n" -L "https://billing.threema.ch/"; sleep 1; echo "=== shop /en body head"; curl -sS -m 8 "https://shop.threema.ch/en" | head -c 400
+=== https://shop.threema.ch/en
+code=200 ct=text/html; charset=UTF-8 redirect= size=13129
+=== https://shop.threema.ch/de
+code=200 ct=text/html; charset=UTF-8 redirect= size=13446
+=== https://shop.threema.ch/app
+code=404 ct=text/html; charset=UTF-8 redirect= size=4883
+=== https://shop.threema.ch/en/
+code=404 ct=text/html; charset=UTF-8 redirect= size=4883
+=== billing redirect chain
+final=https://threema.com/en code=200 ip=203.56.112.78
+=== shop /en body head
+<!DOCTYPE html>
+<html lang="en"><head><title>Buy Threema for Android – Threema Shop</title><meta name="description" content="Purchase Threema for Android here without using the Google Play store."/>
+<link rel="stylesheet" href="/cache/shop.css?3kGbY0fzcd6I1Pi" type="text/css"/>
+<script src="/cache/shop.js?3kGbY0fzcd6I1Pi"></script><meta name="viewport" content="width=device-width, initial-scale=curl: (23) Failure writing output to destination
+[0m
+[0m$ [0mcurl -sS -m 8 "https://shop.threema.ch/cache/shop.js" | head -c 3000; echo; echo "=== billing check"; curl -sS -o /dev/null -m 8 -w "code=%{http_code} ip=%{remote_ip} time=%{time_total}\n" "https://billing.threema.ch/health"; sleep 1; curl -sS -o /dev/null -m 8 -w "code=%{http_code} redirect=%{redirect_url}\n" "https://billing.threema.ch/en/login"
+/*! jQuery v3.6.0 | (c) OpenJS Foundation and other contributors | jquery.org/license */
+!function(e,t){"use strict";"object"==typeof module&&"object"==typeof module.exports?module.exports=e.document?t(e,!0):function(e){if(!e.document)throw new Error("jQuery requires a window with a document");return t(e)}:t(e)}("undefined"!=typeof window?window:this,function(C,e){"use strict";var t=[],r=Object.getPrototypeOf,s=t.slice,g=t.flat?function(e){return t.flat.call(e)}:function(e){return t.concat.apply([],e)},u=t.push,i=t.indexOf,n={},o=n.toString,v=n.hasOwnProperty,a=v.toString,l=a.call(Object),y={},m=function(e){return"function"==typeof e&&"number"!=typeof e.nodeType&&"function"!=typeof e.item},x=function(e){return null!=e&&e===e.window},E=C.document,c={type:!0,src:!0,nonce:!0,noModule:!0};function b(e,t,n){var r,i,o=(n=n||E).createElement("script");if(o.text=e,t)for(r in c)(i=t[r]||t.getAttribute&&t.getAttribute(r))&&o.setAttribute(r,i);n.head.appendChild(o).parentNode.removeChild(o)}function w(e){return null==e?e+"":"object"==typeof e||"function"==typeof e?n[o.call(e)]||"object":typeof e}var f="3.6.0",S=function(e,t){return new S.fn.init(e,t)};function p(e){var t=!!e&&"length"in e&&e.length,n=w(e);return!m(e)&&!x(e)&&("array"===n||0===t||"number"==typeof t&&0<t&&t-1 in e)}S.fn=S.prototype={jquery:f,constructor:S,length:0,toArray:function(){return s.call(this)},get:function(e){return null==e?s.call(this):e<0?this[e+this.length]:this[e]},pushStack:function(e){var t=S.merge(this.constructor(),e);return t.prevObject=this,t},each:function(e){return S.each(this,e)},map:function(n){return this.pushStack(S.map(this,function(e,t){return n.call(e,t,e)}))},slice:function(){return this.pushStack(s.apply(this,arguments))},first:function(){return this.eq(0)},last:function(){return this.eq(-1)},even:function(){return this.pushStack(S.grep(this,function(e,t){return(t+1)%2}))},odd:function(){return this.pushStack(S.grep(this,function(e,t){return t%2}))},eq:function(e){var t=this.length,n=+e+(e<0?t:0);return this.pushStack(0<=n&&n<t?[this[n]]:[])},end:function(){return this.prevObject||this.constructor()},push:u,sort:t.sort,splice:t.splice},S.extend=S.fn.extend=function(){var e,t,n,r,i,o,a=arguments[0]||{},s=1,u=arguments.length,l=!1;for("boolean"==typeof a&&(l=a,a=arguments[s]||{},s++),"object"==typeof a||m(a)||(a={}),s===u&&(a=this,s--);s<u;s++)if(null!=(e=arguments[s]))for(t in e)r=e[t],"__proto__"!==t&&a!==r&&(l&&r&&(S.isPlainObject(r)||(i=Array.isArray(r)))?(n=a[t],o=i&&!Array.isArray(n)?[]:i||S.isPlainObject(n)?n:{},i=!1,a[t]=S.extend(l,o,r)):void 0!==r&&(a[t]=r));return a},S.extend({expando:"jQuery"+(f+Math.random()).replace(/\D/g,""),isReady:!0,error:function(e){throw new Error(e)},noop:function(){},isPlainObject:function(e){var t,n;return!(!e||"[object Object]"!==o.call(e))&&(!(t=r(e))||"function"==typeof(n=v.call(t,"constructor")&&t.constructor)&&a.call(n)===l)},isEmptyObject:function(e){var t;for(t in e)return!1;return!0},globalEval:function(e,t,n){b(e,{nocurl: (23) Failure writing output to destination
+
+=== billing check
+code=404 ip=203.56.112.216 time=0.330238
+code=404 redirect=
+[0m
+Billing responded (was TIMEOUT baseline) and shop has a trailing-slash anomaly. Let me probe both a bit more.
+[0m$ [0mfor u in "https://shop.threema.ch/api" "https://shop.threema.ch/checkout" "https://shop.threema.ch/en/checkout" "https://billing.threema.ch/api" "https://billing.threema.ch/shop" "https://billing.threema.ch/login"; do echo "=== $u"; curl -sS -o /dev/null -m 8 -w "code=%{http_code} redirect=%{redirect_url} ct=%{content_type} size=%{size_download}\n" "$u"; sleep 1; done
+=== https://shop.threema.ch/api
+code=403 redirect= ct=text/html; charset=utf-8 size=146
+=== https://shop.threema.ch/checkout
+code=404 redirect= ct=text/html; charset=UTF-8 size=4883
+=== https://shop.threema.ch/en/checkout
+code=404 redirect= ct=text/html; charset=UTF-8 size=4883
+=== https://billing.threema.ch/api
+code=404 redirect= ct=text/html; charset=UTF-8 size=1024
+=== https://billing.threema.ch/shop
+code=404 redirect= ct=text/html; charset=UTF-8 size=1024
+=== https://billing.threema.ch/login
+code=404 redirect= ct=text/html; charset=UTF-8 size=1024
+[0m
+[0m$ [0mcurl -sS -m 8 "https://shop.threema.ch/api" | head -c 300; echo; echo "=== billing 404 body"; curl -sS -m 8 "https://billing.threema.ch/login" | head -c 600; echo; echo "=== shop html refs"; curl -sS -m 8 "https://shop.threema.ch/en" | grep -oE '(src|href)="[^"]+"' | sort -u | head -40
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+
+=== billing 404 body
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<link rel="shortcut icon" href="/favicon.ico?v=1" type="image/x-icon"/>
+		<link rel="icon" href="/favicon.ico?v=1" type="image/x-icon"/>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1"/>
+		<link rel="stylesheet" href="/cache/billing_gui_theme_threema.css" type="text/css"/>
+		<script src="/cache/billing_gui_theme_threema.js"></script>
+		<meta http-equiv="Content-Type" content="text/html; c
+=== shop html refs
+href="/cache/shop.css?3kGbY0fzcd6I1Pi"
+href="/de"
+href="/en"
+href="/en/buy"
+href="/en/download"
+href="/en/privacy"
+href="/en/redeem"
+href="/en/retrieve-keys"
+href="/en/terms"
+href="/es"
+href="/favicon.ico?v=2"
+href="/fr"
+href="https://gateway.threema.ch/en"
+href="https://github.com/threema-ch"
+href="https://mastodon.social/@threemaapp"
+href="https://shop.threema.ch/de"
+href="https://shop.threema.ch/en"
+href="https://shop.threema.ch/es"
+href="https://shop.threema.ch/fr"
+href="https://threema.com/"
+href="https://threema.com/en/about"
+href="https://threema.com/en/blog"
+href="https://threema.com/en/broadcast"
+href="https://threema.com/en/contact"
+href="https://threema.com/en/download/threema-private"
+href="https://threema.com/en/faq/Threema_Channel"
+href="https://threema.com/en/home"
+href="https://threema.com/en/jobs"
+href="https://threema.com/en/onprem"
+href="https://threema.com/en/press"
+href="https://threema.com/en/work"
+href="https://threema.myspreadshop.ch/"
+href="https://twitter.com/ThreemaApp"
+href="https://www.reddit.com/r/threema/"
+src="/cache/shop.js?3kGbY0fzcd6I1Pi"
+src="/images/icons/buy.svg"
+src="/images/icons/download.svg"
+src="/images/icons/redeem.svg"
+src="/images/icons/retrieve.svg"
+src="/images/threema-logo.svg?v=1"
+[0m
+[0m$ [0mfor u in "/en/buy" "/en/redeem" "/en/retrieve-keys" "/en/download"; do echo "=== $u"; curl -sS -o /dev/null -m 8 -w "code=%{http_code} redirect=%{redirect_url} size=%{size_download}\n" "https://shop.threema.ch$u"; sleep 1; done; echo "=== billing js routes"; curl -sS -m 8 "https://billing.threema.ch/cache/billing_gui_theme_threema.js" | head -c 800; echo; echo "=== billing api probe"; curl -sS -o /dev/null -m 8 -w "code=%{http_code} ct=%{content_type}\n" -X OPTIONS "https://billing.threema.ch/api/health"
+=== /en/buy
+code=200 redirect= size=27474
+=== /en/redeem
+code=200 redirect= size=11500
+=== /en/retrieve-keys
+code=200 redirect= size=13161
+=== /en/download
+code=200 redirect= size=12053
+=== billing js routes
+/*!
+ * jQuery JavaScript Library v3.7.1
+ * https://jquery.com/
+ *
+ * Copyright OpenJS Foundation and other contributors
+ * Released under the MIT license
+ * https://jquery.org/license
+ *
+ * Date: 2023-08-28T13:37Z
+ */
+(function(global,factory){"use strict";if(typeof module==="object"&&typeof module.exports==="object"){module.exports=global.document?factory(global,!0):function(w){if(!w.document){throw new Error("jQuery requires a window with a document")}
+return factory(w)}}else{factory(global)}})(typeof window!=="undefined"?window:this,function(window,noGlobal){"use strict";var arr=[];var getProto=Object.getPrototypeOf;var slice=arr.slice;var flat=arr.flat?function(array){return arr.flat.call(array)}:function(array){return arr.concat.apply([],array)};var push=arr.push;var indexOf=arr.indexcurl: (23) Failure writing output to destination
+
+=== billing api probe
+code=404 ct=text/html; charset=UTF-8
+[0m
+[0m$ [0mcurl -sS -m 8 "https://shop.threema.ch/en/buy" | grep -oE '(action|src|href|data-[a-z-]+)="[^"]*"' | grep -vE '^(href="(https://(threema|www|github|mastodon|twitter|reddit)|#)' | sort -u | head -40; echo "=== shop.js api refs"; curl -sS -m 8 "https://shop.threema.ch/cache/shop.js" -o /tmp/opencode/shop.js && grep -oE '"/[a-z][a-z0-9/_-]{1,60}"' /tmp/opencode/shop.js | sort -u | head -30
+grep: Unmatched ( or \(
+=== shop.js api refs
+[0m
+[0m$ [0mcurl -sS -m 8 "https://shop.threema.ch/en/buy" -o /tmp/opencode/buy.html && grep -oE 'href="[^"]*"|action="[^"]*"|src="/[^"]*"' /tmp/opencode/buy.html | grep -vE 'threema\.(com|myspreadshop)' | sort -u | head -40
+href="#"
+href="/cache/shop.css?3kGbY0fzcd6I1Pi"
+href="/de/buy"
+href="/en"
+href="/en/buy"
+href="/en/buy-anonymously"
+href="/en/download"
+href="/en/privacy"
+href="/en/redeem"
+href="/en/retrieve-keys"
+href="/en/terms"
+href="/es/buy"
+href="/favicon.ico?v=2"
+href="/fr/buy"
+href="https://gateway.threema.ch/en"
+href="https://github.com/threema-ch"
+href="https://mastodon.social/@threemaapp"
+href="https://shop.threema.ch/de/buy"
+href="https://shop.threema.ch/en/buy"
+href="https://shop.threema.ch/es/buy"
+href="https://shop.threema.ch/fr/buy"
+href="https://twitter.com/ThreemaApp"
+href="https://www.reddit.com/r/threema/"
+src="/cache/shop.js?3kGbY0fzcd6I1Pi"
+src="/images/threema-logo.svg?v=1"
+[0m
+[0m$ [0mgrep -oE '(url|href|action)\s*[:=]\s*["'"'"'][^"'"'"']{2,80}' /tmp/opencode/shop.js | sort -u | head -30; echo "=== buy-anonymously"; curl -sS -o /dev/null -m 8 -w "code=%{http_code} size=%{size_download}\n" "https://shop.threema.ch/en/buy-anonymously"
+=== buy-anonymously
+code=200 size=15902
+[0m
+[0m$ [0mgrep -oE '"/[a-zA-Z0-9/_.-]{2,60}"' /tmp/opencode/shop.js | sort -u | head -40; echo "=== buy-anon body"; curl -sS -m 8 "https://shop.threema.ch/en/buy-anonymously" -o /tmp/opencode/buyanon.html && grep -oE 'href="[^"]*"|action="[^"]*"' /tmp/opencode/buyanon.html | sort -u | head -30
+=== buy-anon body
+href="#"
+href="/cache/shop.css?3kGbY0fzcd6I1Pi"
+href="/de/buy-anonymously"
+href="/en"
+href="/en/buy"
+href="/en/buy-anonymously"
+href="/en/download"
+href="/en/privacy"
+href="/en/redeem"
+href="/en/retrieve-keys"
+href="/en/terms"
+href="/es/buy-anonymously"
+href="/favicon.ico?v=2"
+href="/fr/buy-anonymously"
+href="https://gateway.threema.ch/en"
+href="https://github.com/threema-ch"
+href="https://mastodon.social/@threemaapp"
+href="https://shop.threema.ch/de/buy-anonymously"
+href="https://shop.threema.ch/en/buy-anonymously"
+href="https://shop.threema.ch/es/buy-anonymously"
+href="https://shop.threema.ch/fr/buy-anonymously"
+href="https://threema.com/"
+href="https://threema.com/en/about"
+href="https://threema.com/en/blog"
+href="https://threema.com/en/broadcast"
+href="https://threema.com/en/contact"
+href="https://threema.com/en/faq/Threema_Channel"
+href="https://threema.com/en/faq/libre_info"
+href="https://threema.com/en/home"
+href="https://threema.com/en/jobs"
+[0m
+[0m$ [0mcurl -sS -m 8 "https://billing.threema.ch/cache/billing_gui_theme_threema.js" -o /tmp/opencode/billing.js && wc -c /tmp/opencode/billing.js && grep -oE '"/[a-zA-Z0-9/_.-]{2,50}"' /tmp/opencode/billing.js | sort -u | head -40; echo "=== billing css refs"; curl -sS -o /dev/null -m 8 -w "code=%{http_code} size=%{size_download}\n" "https://billing.threema.ch/cache/billing_gui_theme_threema.css"
+336793 /tmp/opencode/billing.js
+"/./"
+"/a/b"
+"/a/i"
+=== billing css refs
+code=200 size=41235
+[0m
+[0m$ [0mgrep -oE '(ajax|get|post|fetch)\([^)]{0,80}' /tmp/opencode/billing.js | grep -oE '"/[a-zA-Z0-9/_.?=&-]{2,60}"' | sort -u | head -40; echo "=== data-url refs"; grep -oE 'data-url="[^"]*"' /tmp/opencode/billing.js | sort -u | head -20
+=== data-url refs
+[0m
+[0m$ [0mgrep -oE '["'"'"']/(app|api|login|auth|billing|payment|index|rest)[a-zA-Z0-9/_.?-]{1,40}' /tmp/opencode/billing.js | sort -u | head -40; echo "=== dollar ajax"; grep -oE '\$\.(ajax|get|post)\([^,]{0,60}' /tmp/opencode/billing.js | sort -u | head -20
+=== dollar ajax
+$.ajax({method:$f.attr('method')
+$.ajax({url:options.paths.address
+$.ajax({url:options.paths.alternate
+$.ajax({url:options.paths.currency
+[0m
+[0m$ [0mgrep -oE 'paths\.[a-zA-Z]+' /tmp/opencode/billing.js | sort -u; echo "=== find options.paths def"; grep -oE 'paths[:=]\{[^}]{0,300}' /tmp/opencode/billing.js | head -3
+paths.address
+paths.alternate
+paths.currency
+=== find options.paths def
+paths:{alternate:null
+[0m
+[0m$ [0mgrep -oE 'paths:\{[^}]{0,260}' /tmp/opencode/billing.js | head -5
+paths:{alternate:null
+[0m
+[0m$ [0mgrep -oE 'paths:\{[^}]{0,200}' /tmp/opencode/billing.js | wc -l; grep -c "paths:" /tmp/opencode/billing.js; grep -oE '(url|path)[^,;]{0,40}' /tmp/opencode/billing.js | grep -iE '(payment|order|invoice|session|checkout)' | sort -u | head -20
+1
+1
+[0m
+[0m$ [0mgrep -oE 'url:"[^"]+"|url:"[^"]+"|"[^"]*\.php"|"[^"]*action[^"]*"' /tmp/opencode/billing.js | sort -u | head -30
+" dropped event`),A(s)?s.then(t=>We(t,e,n,o+1)):We(s,e,n,o+1)}function Be(t,e){const{extra:n,tags:r,user:o,contexts:i,level:s,sdkProcessingMetadata:a,breadcrumbs:c,fingerprint:u,eventProcessors:f,attachments:l,propagationContext:p,transactionName:h,span:d}=e;Ge(t,"
+"!==p&&h&&(l.transaction=h),function(){if("
+"!==t.type&&(t.transaction=a)}(t,e),r&&function(t,e){t.contexts={trace:Se(e),...t.contexts},t.sdkProcessingMetadata={dynamicSamplingContext:Ae(e),...t.sdkProcessingMetadata};const n=Oe(Me(e)).description;n&&!t.transaction&&"
+")),this._notifyScopeListeners(),this}getLastBreadcrumb(){return this._breadcrumbs[this._breadcrumbs.length-1]}clearBreadcrumbs(){return this._breadcrumbs=[],this._notifyScopeListeners(),this}addAttachment(t){return this._attachments.push(t),this}clearAttachments(){return this._attachments=[],this}getScopeData(){return{breadcrumbs:this._breadcrumbs,attachments:this._attachments,contexts:this._contexts,tags:this._tags,attributes:this._attributes,extra:this._extra,user:this._user,level:this._level,fingerprint:this._fingerprint||[],eventProcessors:this._eventProcessors,propagationContext:this._propagationContext,sdkProcessingMetadata:this._sdkProcessingMetadata,transactionName:this._transactionName,span:Mt(this)}}setSDKProcessingMetadata(t){return this._sdkProcessingMetadata=wt(this._sdkProcessingMetadata,t,2),this}setPropagationContext(t){return this._propagationContext=t,this}getPropagationContext(){return this._propagationContext}captureException(t,e){const n=e?.event_id||Y();if(!this._client)return r&&v.warn("
+");if(e.data&&!0===e.data.__sentry__)return t;const n=function(t,e,n,r){const{beforeSend:o,beforeSendTransaction:i,beforeSendSpan:s,ignoreSpans:a}=e;let c=n;if(pn(c)&&o)return o(c,r);if(hn(c)){if(s||a){const e=function(t){const{trace_id:e,parent_span_id:n,span_id:r,status:o,origin:i,data:s,op:a}=t.contexts?.trace??{};return{data:s??{},description:t.transaction,op:a,parent_span_id:n,span_id:r??"
+",()=>new It).getScopeData();s&&Be(d,s.getScopeData()),p&&Be(d,p.getScopeData());const v=[...n.attachments||[],...d.attachments];return v.length&&(n.attachments=v),function(t,e){const{fingerprint:n,span:r,breadcrumbs:o,sdkProcessingMetadata:i}=e;!function(t,e){const{extra:n,tags:r,user:o,contexts:i,level:s,transactionName:a}=e;Object.keys(n).length&&(t.extra={...n,...t.extra}),Object.keys(r).length&&(t.tags={...r,...t.tags}),Object.keys(o).length&&(t.user={...o,...t.user}),Object.keys(i).length&&(t.contexts={...i,...t.contexts}),s&&(t.level=s),a&&"
+",i),t.sdkProcessingMetadata=wt(t.sdkProcessingMetadata,a,2),s&&(t.level=s),h&&(t.transactionName=h),d&&(t.span=d),c.length&&(t.breadcrumbs=[...t.breadcrumbs,...c]),u.length&&(t.fingerprint=[...t.fingerprint,...u]),f.length&&(t.eventProcessors=[...t.eventProcessors,...f]),l.length&&(t.attachments=[...t.attachments,...l]),t.propagationContext={...t.propagationContext,...p}}function Ge(t,e,n){t[e]=wt(t[e],n,1)}let Ve,qe,ze,He;function Ye(t,e,n,r,o,s){const{normalizeDepth:a=3,normalizeMaxBreadth:u=1e3}=t,f={...e,event_id:e.event_id||n.event_id||Y(),timestamp:e.timestamp||_t()},l=n.integrations||t.integrations.map(t=>t.name);!function(t,e){const{environment:n,release:r,dist:o,maxValueLength:i}=e;t.environment=t.environment||n||Ht,!t.release&&r&&(t.release=r),!t.dist&&o&&(t.dist=o);const s=t.request;s?.url&&i&&(s.url=ft(s.url,i)),i&&t.exception?.values?.forEach(t=>{t.value&&(t.value=ft(t.value,i))})}(f,t),function(t,e){e.length>0&&(t.sdk=t.sdk||{},t.sdk.integrations=[...t.sdk.integrations||[],...e])}(f,l),o&&o.emit("
+",t)}const u=o.transaction_info;if(s&&u&&o.transaction!==t.transaction){const t="
+",transaction:"
+";function Pt(t,e){e?W(t,Ot,e):delete t[Ot]}function Mt(t){return t[Ot]}class It{constructor(){this._notifyingListeners=!1,this._scopeListeners=[],this._eventProcessors=[],this._breadcrumbs=[],this._attachments=[],this._user={},this._tags={},this._attributes={},this._extra={},this._contexts={},this._sdkProcessingMetadata={},this._propagationContext={traceId:Et(),sampleRand:Math.random()}}clone(){const t=new It;return t._breadcrumbs=[...this._breadcrumbs],t._tags={...this._tags},t._attributes={...this._attributes},t._extra={...this._extra},t._contexts={...this._contexts},this._contexts.flags&&(t._contexts.flags={values:[...this._contexts.flags.values]}),t._user=this._user,t._level=this._level,t._session=this._session,t._transactionName=this._transactionName,t._fingerprint=this._fingerprint,t._eventProcessors=[...this._eventProcessors],t._attachments=[...this._attachments],t._sdkProcessingMetadata={...this._sdkProcessingMetadata},t._propagationContext={...this._propagationContext},t._client=this._client,t._lastEventId=this._lastEventId,Pt(t,Mt(this)),t}setClient(t){this._client=t}setLastEventId(t){this._lastEventId=t}getClient(){return this._client}lastEventId(){return this._lastEventId}addScopeListener(t){this._scopeListeners.push(t)}addEventProcessor(t){return this._eventProcessors.push(t),this}setUser(t){return this._user=t||{email:void 0,id:void 0,ip_address:void 0,username:void 0},this._session&&St(this._session,{user:t}),this._notifyScopeListeners(),this}getUser(){return this._user}setTags(t){return this._tags={...this._tags,...t},this._notifyScopeListeners(),this}setTag(t,e){return this.setTags({[t]:e})}setAttributes(t){return this._attributes={...this._attributes,...t},this._notifyScopeListeners(),this}setAttribute(t,e){return this.setAttributes({[t]:e})}removeAttribute(t){return t in this._attributes&&(delete this._attributes[t],this._notifyScopeListeners()),this}setExtras(t){return this._extra={...this._extra,...t},this._notifyScopeListeners(),this}setExtra(t,e){return this._extra={...this._extra,[t]:e},this._notifyScopeListeners(),this}setFingerprint(t){return this._fingerprint=t,this._notifyScopeListeners(),this}setLevel(t){return this._level=t,this._notifyScopeListeners(),this}setTransactionName(t){return this._transactionName=t,this._notifyScopeListeners(),this}setContext(t,e){return null===e?delete this._contexts[t]:this._contexts[t]=e,this._notifyScopeListeners(),this}setSession(t){return t?this._session=t:delete this._session,this._notifyScopeListeners(),this}getSession(){return this._session}update(t){if(!t)return this;const e="
+";o.transaction_info={...u,source:t}}return this.sendEvent(o,e),o}).then(null,t=>{if(cn(t)||an(t))throw t;throw this.captureException(t,{mechanism:{handled:!1,type:"
+"===t.type&&(t.transaction=n)}(t,r),function(t,e){t.fingerprint=t.fingerprint?Array.isArray(t.fingerprint)?t.fingerprint:[t.fingerprint]:[],e&&(t.fingerprint=t.fingerprint.concat(e)),t.fingerprint.length||delete t.fingerprint}(t,n),function(t,e){const n=[...t.breadcrumbs||[],...e];t.breadcrumbs=n.length?n:void 0}(t,o),function(t,e){t.sdkProcessingMetadata={...t.sdkProcessingMetadata,...e}}(t,i)}(f,d),Ue([...h,...d.eventProcessors],f,n).then(t=>(t&&function(t){const e={};if(t.exception?.values?.forEach(t=>{t.stacktrace?.frames?.forEach(t=>{t.debug_id&&(t.abs_path?e[t.abs_path]=t.debug_id:t.filename&&(e[t.filename]=t.debug_id),delete t.debug_id)})}),0===Object.keys(e).length)return;t.debug_meta=t.debug_meta||{},t.debug_meta.images=t.debug_meta.images||[];const n=t.debug_meta.images;Object.entries(e).forEach(([t,e])=>{n.push({type:"
+"==typeof t?t(this):t,n=e instanceof It?e.getScopeData():I(e)?t:void 0,{tags:r,attributes:o,extra:i,user:s,contexts:a,level:c,fingerprint:u=[],propagationContext:f}=n||{};return this._tags={...this._tags,...r},this._attributes={...this._attributes,...o},this._extra={...this._extra,...i},this._contexts={...this._contexts,...a},s&&Object.keys(s).length&&(this._user=s),c&&(this._level=c),u.length&&(this._fingerprint=u),f&&(this._propagationContext=f),this}clear(){return this._breadcrumbs=[],this._tags={},this._attributes={},this._extra={},this._user={},this._contexts={},this._level=void 0,this._transactionName=void 0,this._fingerprint=void 0,this._session=void 0,Pt(this,void 0),this._attachments=[],this.setPropagationContext({traceId:Et(),sampleRand:Math.random()}),this._notifyScopeListeners(),this}addBreadcrumb(t,e){const n="
+"IDBTransaction"
+"transaction"
+"});function yt(t={},e={}){return{allowUrls:[...t.allowUrls||[],...e.allowUrls||[]],denyUrls:[...t.denyUrls||[],...e.denyUrls||[]],ignoreErrors:[...t.ignoreErrors||[],...e.ignoreErrors||[],...t.disableErrorDefaults?[]:dt],ignoreTransactions:[...t.ignoreTransactions||[],...e.ignoreTransactions||[]]}}function mt(t){try{const e=[...t.exception?.values??[]].reverse().find(t=>void 0===t.mechanism?.parent_id&&t.stacktrace?.frames?.length),n=e?.stacktrace?.frames;return n?function(t=[]){for(let e=t.length-1;e>=0;e--){const n=t[e];if(n&&"
+[0m
+[0m$ [0mcurl -sS -m 8 "https://billing.threema.ch/login" -o /tmp/opencode/billlogin.html && grep -oE 'href="[^"]*"|src="[^"]*"|action="[^"]*"' /tmp/opencode/billlogin.html | sort -u | head -30; echo "=== sentry ref"; grep -oiE 'sentry[^"]*' /tmp/opencode/billlogin.html | head -3
+href="/cache/billing_gui_theme_threema.css"
+href="/favicon.ico?v=1"
+src="/cache/billing_gui_theme_threema.js"
+src="https://static.threema.ch/images/logos/threema-black.svg"
+=== sentry ref
+[0m
+[0m$ [0mgrep -oE 'options\.paths\.[a-zA-Z]+[^;]{0,80}' /tmp/opencode/billing.js | sort -u | head; echo "=== sentry dsn"; grep -oE 'dsn[:=]"?[a-z0-9:/_.@-]+' /tmp/opencode/billing.js | head -3; echo "=== static refs"; grep -oE 'static\.threema[^"'"'"']*' /tmp/opencode/billing.js | sort -u | head -5
+options.paths.address){Threema.Form.Overlay().show(function($c){$c.append($('<div/>').addClass('loadi
+options.paths.address,method:'GET'}).done(function(content){updateAjaxForm($c,content)}).fail(functio
+options.paths.alternate){Threema.Form.Overlay().show(function($c){let close=function(){Threema.Form.Ove
+options.paths.alternate,method:'GET'}).done(function(content){$c.html('').append(content)
+options.paths.currency){Threema.Form.Overlay().show(function($c){$c.append($('<div/>').addClass('loadi
+options.paths.currency,method:'GET'}).done(function(content){updateAjaxForm($c,content)}).fail(functio
+=== sentry dsn
+dsn:e.content
+dsn=function
+dsn:o
+=== static refs
+[0m
+[0m$ [0mfor u in "/" "/index.php" "/gui" "/threema" "/en/login" "/login.php"; do echo "=== billing$u"; curl -sS -o /dev/null -m 8 -w "code=%{http_code} redirect=%{redirect_url} size=%{size_download}\n" "https://billing.threema.ch$u"; sleep 1; done
+=== billing/
+code=301 redirect=https://threema.ch/ size=0
+=== billing/index.php
+code=404 redirect= size=1024
+=== billing/gui
+code=404 redirect= size=1024
+=== billing/threema
+code=404 redirect= size=1024
+=== billing/en/login
+code=404 redirect= size=1024
+=== billing/login.php
+code=404 redirect= size=146
+[0m
+[0m$ [0mcurl -sS -m 8 "https://billing.threema.ch/login.php" | head -c 300; echo; echo "=== 1024 404 body"; curl -sS -m 8 "https://billing.threema.ch/api" | head -c 400
+<html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+
+=== 1024 404 body
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<link rel="shortcut icon" href="/favicon.ico?v=1" type="image/x-icon"/>
+		<link rel="icon" href="/favicon.ico?v=1" type="image/x-icon"/>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1"/>
+		<l
+[0m
+[0m$ [0mgrep -oE '\$\.ajax\([^)]{0,120}' /tmp/opencode/shop.js | grep -oE '(url|method)["'"'"']?\s*[:=]\s*["'"'"'][^"'"'"']+' | sort -u | head -20; echo "=== shop order/orderid pattern"; grep -oE 'order[a-zA-Z_-]{0,20}' /tmp/opencode/shop.js | sort -u | head; wc -c /tmp/opencode/shop.js
+=== shop order/orderid pattern
+order
+order-box
+order-collapse
+orderBadge
+orderBottomWidth
+orderId
+orderLeftWidth
+orderList
+orderList--active
+orderList__item
+99116 /tmp/opencode/shop.js
+[0m
+[0m$ [0mgrep -oE '"/[a-zA-Z0-9/?=&.-]{2,50}"' /tmp/opencode/shop.js | sort -u | head -30
+(no output)
+[0m
+[0m$ [0mgrep -oE '<form[^>]*>' /tmp/opencode/buy.html | head; grep -oE 'input[^>]*name="[^"]*"' /tmp/opencode/buy.html | head; grep -oE 'on(click|submit)[^>]*|add-to-cart|order|checkout|/basket|/cart' /tmp/opencode/buy.html | sort -u | head
+<form class="form mt--6" method="POST">
+input data-group="currency" name="currency"
+input data-group="currency" name="currency"
+input data-group="currency" name="currency"
+input type="number" name="number_licenses"
+input type="hidden" name="type"
+input type="email" name="email"
+input type="email" name="email_confirm"
+input type="checkbox" name="no_email_confirm"
+input type="checkbox" name="accept_gtc"
+input type="checkbox" name="purchase_confirm"
+onclick="$(this).closest('form').find(':submit').click(); return false;"
+onclick="if (typeof hcaptcha !== 'undefined' &#38;&#38; !hcaptcha.getResponse()) { event.preventDefault(); if ($(this).closest('form').get(0).reportValidity()) { hcaptcha.execute({async: true}).then(() =&#62; $(this).closest('form').submit()).catch(() =&#62; {}); }}"/
+order
+[0m
+[0m$ [0mgrep -oE '<form[^>]*>' /tmp/opencode/buy.html | head -1; echo "=== hcaptcha ref"; grep -oE 'hcaptcha[a-zA-Z._-]*' /tmp/opencode/buy.html | sort -u | head; echo "=== form target"; grep -oE 'action="[^"]*"' /tmp/opencode/buy.html | head -3; echo "=== shop css ref to any api"; grep -oE 'url\([^)]*\)' /tmp/opencode/buy.html | head -5
+<form class="form mt--6" method="POST">
+=== hcaptcha ref
+hcaptcha
+hcaptcha-assets.threema.ch
+hcaptcha-imgs.threema.ch
+hcaptcha-report.threema.ch
+hcaptcha-ws.threema.ch
+hcaptcha.execute
+hcaptcha.getResponse
+=== form target
+=== shop css ref to any api
+[0m
+[0m$ [0mfor u in "/cache/billing_gui_theme_threema.css" "/favicon.ico" "/info/ping.php" "/ping"; do echo "=== billing$u"; curl -sS -o /dev/null -m 8 -w "code=%{http_code} size=%{size_download}\n" "https://billing.threema.ch$u"; sleep 1; done; echo "=== shop /ping /info"; for u in "https://shop.threema.ch/ping" "https://shop.threema.ch/info/ping.php"; do curl -sS -o /dev/null -m 8 -w "$u code=%{http_code} size=%{size_download}\n" "$u"; sleep 1; done
+=== billing/cache/billing_gui_theme_threema.css
+code=200 size=41235
+=== billing/favicon.ico
+code=200 size=15086
+=== billing/info/ping.php
+code=404 size=146
+=== billing/ping
+code=404 size=1024
+=== shop /ping /info
+https://shop.threema.ch/ping code=404 size=4883
+https://shop.threema.ch/info/ping.php code=404 size=146
+[0m
+[0m$ [0mfor u in "/billing" "/app" "/orders" "/invoice" "/c/" "/controller" "/index.php/login" "/user" "/users" "/api/v1" "/admin" "/login" "/log" "/dashboard" "/order/list" "/license"; do code=$(curl -sS -o /tmp/opencode/bresp -m 8 -w "%{http_code}" "https://billing.threema.ch$u"); sz=$(wc -c < /tmp/opencode/bresp); echo "$code $sz $u"; sleep 1; done
+404 1024 /billing
+404 1024 /app
+404 1024 /orders
+404 1024 /invoice
+404 1024 /c/
+404 1024 /controller
+404 1024 /index.php/login
+404 1024 /user
+404 1024 /users
+404 1024 /api/v1
+404 1024 /admin
+404 1024 /login
+404 1024 /log
+404 1024 /dashboard
+404 1024 /order/list
+404 1024 /license
+[0m
+[0m$ [0mcurl -sS -m 8 "https://shop.threema.ch/en/retrieve-keys" -o /tmp/opencode/retr.html && grep -oE '<form[^>]*>|input[^>]*name="[^"]*"|action="[^"]*"' /tmp/opencode/retr.html | head -20; echo "=== redirect check shop root chain"; curl -sS -o /dev/null -m 8 -w "%{http_code} %{url_effective}\n" -L "https://shop.threema.ch/"
+<form class="form mt--6" method="POST">
+input type="hidden" name="type"
+input type="text" name="email"
+input type="text" name="invoice_ref"
+=== redirect check shop root chain
+200 https://shop.threema.ch/en
+[0m
+Let me run one more passive dictionary pass against billing to confirm the 404-differential oracle (app 404 vs nginx 404).
+[0m$ [0mfor u in "/index.php" "/index.php/dashboard" "/order" "/order/index" "/shop/order" "/download.php" "/retrieve.php" "/register" "/register.php" "/signup" "/signup.php" "/rest" "/rest/login" "/saml" "/ws"; do code=$(curl -sS -o /tmp/opencode/bresp -m 8 -w "%{http_code}" "https://billing.threema.ch$u"); sz=$(wc -c < /tmp/opencode/bresp); echo "$code $sz $u"; sleep 1; done
+404 1024 /index.php
+404 1024 /index.php/dashboard
+404 1024 /order
+404 1024 /order/index
+404 1024 /shop/order
+404 146 /download.php
+404 146 /retrieve.php
+404 1024 /register
+404 146 /register.php
+404 1024 /signup
+404 146 /signup.php
+404 1024 /rest
+404 1024 /rest/login
+404 1024 /saml
+404 1024 /ws
+[0m
+[0m$ [0mfor u in "/en/login" "/en/home" "/app/order" "/gui/login" "/main" "/main/index" "/main/login" "/threema/login" "/purchase" "/licenses" "/dashboard/index" "/billing/order" "/order/detail" "/contract" "/checkout" "/payment" "/price" "/prices" "/product" "/products"; do code=$(curl -sS -o /tmp/opencode/bresp -m 8 -w "%{http_code}" "https://billing.threema.ch$u"); sz=$(wc -c < /tmp/opencode/bresp); if [ "$code" != "404" ]; then echo "HIT $code $sz $u"; fi; sleep 1; done; echo "=== done scan (non-404 only shown)"; echo "=== HSTS check"; curl -sSI -m 8 "https://billing.threema.ch/health" -o /dev/null -w "%{http_code}\n" ; curl -sS -I -m 8 "https://billing.threema.ch/login" | grep -iE 'strict-transport|expect-ct|server|x-powered'
+=== done scan (non-404 only shown)
+=== HSTS check
+404
+server: nginx
+[0m
+[0m$ [0mcurl -sS -I -m 8 "https://shop.threema.ch/en" | grep -iE 'strict-transport|expect-ct|server|x-powered|content-security'; echo "=== billing root 301 headers"; curl -sS -I -m 8 "https://billing.threema.ch/" | grep -iE 'strict-transport|expect-ct|server|x-powered|location'
+server: nginx
+strict-transport-security: max-age=31104000; includeSubdomains
+expect-ct: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+content-security-policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-ws.threema.ch; frame-src https://hcaptcha-assets.threema.ch; img-src 'self' https://static.threema.ch data:; media-src 'self' data:; connect-src 'self' https://bugs.threema.ch https://hcaptcha-assets.threema.ch; object-src 'none'; worker-src 'self' blob:; child-src blob: https://hcaptcha-assets.threema.ch; frame-ancestors 'none'; form-action 'self' https://billing.threema.ch; upgrade-insecure-requests; base-uri https://shop.threema.ch; report-uri https://bugs.threema.ch/api/19/security/?sentry_key=2c1cb542515c482aa5b0765e0a9a570f; report-to default
+=== billing root 301 headers
+server: nginx
+location: https://threema.ch
+strict-transport-security: max-age=31104000; includeSubdomains
+expect-ct: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+[0m
+[0m$ [0mtail -c 30000 /tmp/opencode/billing.js | grep -oE '"[^"]{2,50}"|/[a-z][a-z0-9/_.-]{1,40}' | grep -vE '^(jQuery|function|return|var|typeof|window|document|this|length|true|false|null|undefined|String|Number|Object|Array|Promise|catch|throw|error|new|delete|void|in|of|for|while|if|else|break|continue|case|default|switch|class|extends|super|const|let|static|get|set|async|await|export|import|from|default|sdk|Sentry|event|log|data|type|method|url|path|name|id|key|value|text|html|css|class|href|src|target|action|form|input|button|label|title|status|code|msg|message|error|result|success|callback|options|config|settings|global|local|self|top|parent|frames|location|history|navigator|screen|document|body|head|html|meta|link|script|style|header|footer|main|nav|section|article|div|span|p|a|ul|li|ol|table|tr|td|th|form|input|select|option|textarea|button|label|fieldset|legend|details|summary|figure|figcaption|blockquote|pre|code|em|strong|small|mark|del|ins|sub|sup|abbr|time|address|cite|q|dfn|samp|kbd|var|bdi|bdo|ruby|rt|rp|wbr|iframe|embed|object|param|source|track|map|area|canvas|svg|math|picture|audio|video|source|track|datalist|output|progress|meter|menu|menuitem|dialog|slot|template|shadow|link|meta|base|style)' | sort -u | head -40
+" 0o1"
+" Iterator"
+" doesn't accept regex!"
+" is not iterable!"
+"!="
+"!==r(t))throw new TypeError("
+"&&n(931)(Object.prototype,"
+"):Object(t)}},8137:(t,e,n)=>{"
+");return i}if("
+"+0x1"
+"+r(this)+"
+",M=c[w],I="
+",flags:"
+",function(){return"
+",i=r(t);if(i<0||i==1/0)throw RangeError("
+",o+"
+",{get:function(){return 7}}).a})},9148:(t,e,n)=>{"
+".concat(t.source,"
+".split("
+"/./"
+"/a/b"
+"08"
+"0b1"
+"0x16"
+"2.6.12"
+"6.6"
+": incorrect invocation!"
+"Accessors not supported!"
+"Arguments"
+"Array"
+"ArrayBuffer"
+"Bad Promise constructor"
+"Chrome/66"
+"DataView"
+"Date"
+"Float32"
+"Function"
+"IE_PROTO"
+"Int16"
+"Int32"
+[0m
+**STEP 1 — DELTA**
+- [CHANGED] billing.threema.ch — was TIMEOUT in 2026-08-07 baseline; now LIVE: `/` → 301 to `https://threema.ch`, all app paths → 404, `/cache/billing_gui_theme_threema.{css,js}` (200, 41KB/336KB jQuery 3.7.1+Sentry) + `/favicon.ico` (200). HSTS+Expect-CT present. Dual-404 signature: app 404 (1024B German page) vs nginx 404 (146B) — `.php` paths → nginx 404, everything else → app 404.
+- [CHANGED] shop.threema.ch — was "301 (redirect)" only; now mapped: `/`→301→`/en` (200, 13KB); `/en/buy` (200, 27KB hCaptcha POST purchase form: currency/number_licenses/type/email); `/en/redeem`, `/en/retrieve-keys` (200, POST email+invoice_ref), `/en/download`, `/en/buy-anonymously` (200); `/api` → 403 nginx; trailing-slash anomaly `/en/`→404 vs `/en`→200; CSP `form-action 'self' https://billing.threema.ch` (shop forms submit to billing).
+
+**STEP 2 — PRIORITIZE**
+- [PRIO] billing.threema.ch, score 5.85, attack=5 business=9 tech=5 gate=2 cloud=3 fresh=10 (live-state change, billing backend, zero exposed routes)
+- [PRIO] shop.threema.ch, score 5.70, attack=6 business=8 tech=4 gate=4 cloud=2 fresh=8 (e-commerce + license retrieval, GET pages open)
+- [PRIO] ds-apip/api/apip fetch_bulk status oracle, score 6.70, attack=8 business=7 tech=5 gate=10 cloud=3 fresh=4 (existing top, AUTH_HELPED)
+
+**STEP 3 — HYPOTHESES**
+[HYP] billing.threema.ch 404-differential route-presence oracle
+class: OTHER
+asset: billing.threema.ch
+confidence: 45
+reasoning: Host flipped TIMEOUT→LIVE this cycle. App-served 404 (1024B German page) vs nginx 404 (146B) discriminates recognized vs unknown paths; `/cache/*` + favicon 200 prove a real PHP billing app behind nginx; HSTS+Expect-CT present; no non-404 route found across ~40 probed paths.
+evidence_needed: any path returning ≠404/403 (login, order, api, sso, oauth), or a content/status differential in 404 body vs the known 1024B baseline.
+verify_steps: PASSIVE — `curl -sS -m 8 -o /dev/null -w '%{http_code} %{size_download}' https://billing.threema.ch/<word>` and `curl -sS -m 8 https://billing.threema.ch/login | sha256sum` vs baseline 1024B body; wordlist of billing-app routes (login, order, invoice, sso, oauth, session, payment, api/v1, index.php/*).
+impact: maps a previously-unreachable billing backend; any live unauth route = direct billing/payment data exposure. Medium (only if route found).
+testability: PASSIVE
+
+[HYP] shop.threema.ch `/en/retrieve-keys` invoice_ref enumeration oracle
+class: BUSLOGIC
+asset: shop.threema.ch/en/retrieve-keys
+confidence: 45
+reasoning: POST form (type, email, invoice_ref) retrieves license keys; no hCaptcha on this page (buy page has it) and no visible rate-limit header; CSP `form-action 'self' https://billing.threema.ch` shows shop form submissions terminate at the billing backend.
+evidence_needed: response differential for valid-format vs invalid invoice_ref (e.g., "key sent" vs "not found" vs 200/4xx), or any 429/ratelimit.
+verify_steps: AUTH_HELPED — `curl -sS -m 8 -X POST https://shop.threema.ch/en/retrieve-keys -d 'type=private&email=test@example.com&invoice_ref=INV-000000'` (and format variants), diff body/status; needs an authorized invoice_ref to confirm true-positive. POST only — violates passive GET/HEAD rule, so only under authorized test.
+impact: invoice-ref existence oracle + potential license-key recovery for guessed refs. Medium-High (escalation).
+testability: AUTH_HELPED
+
+[HYP] fetch_bulk account-status oracle (existing)
+class: IDOR
+asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch identity/fetch_bulk
+confidence: 55
+reasoning: All reachable valid IDs return state:0/type:0/featureLevel:3; fetch_bulk 10k IDs/req, no rate limit, CORS `*` — mass-status primitive if any deactivated ID returns state≠0 or is dropped.
+evidence_needed: one program-issued deactivated identity returning state≠0 (or omitted).
+verify_steps: AUTH_HELPED — `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Content-Type: application/json' -d '{"identities":["{deactivatedTestId}","ECHOECHO","*THREEMA"]}'` on all 4 hosts; diff state/featureMask vs ECHOECHO.
+impact: mass account-status enumeration layered on accepted existence oracle. Medium.
+testability: AUTH_HELPED
+
+**STEP 4 — SELF-CRITIQUE**
+- [PARKED] none of the three dropped: all have confidence ≥45, classes not on REJECTED list, concrete verify steps.
+- [FINAL] 1) fetch_bulk status oracle (IDOR, 55, highest standing) 2) billing 404-differential route oracle (OTHER, 45, freshest delta) 3) shop retrieve-keys invoice_ref oracle (BUSLOGIC, 45, AUTH_HELPED).
+
+**STEP 5 — NEXT ACTION**
+[NEXT] PROBE: `curl -sS -m 8 -w '%{http_code} %{size_download}' https://billing.threema.ch/{login,order/invoice,sso,oauth2,api/v1,index.php/login,index.php/order,session,payment}` — diff each body sha256 vs the known 1024B app-404 baseline to find any live non-404 route on the newly-live billing host.
+
+**STEP 6 — LEARNING**
+- [LEARN] ACCEPTED OTHER @ billing.threema.ch: host flipped TIMEOUT→LIVE this cycle — PHP billing GUI app (jQuery 3.7.1 + Sentry, /cache/* 200, favicon 200), `/`→301 threema.ch, all probed app paths 404; dual-404 signature (app 1024B vs nginx 146B; `.php`→nginx, else→app) = route-presence oracle; HSTS+Expect-CT present.
+- [LEARN] ACCEPTED OTHER @ shop.threema.ch: full surface mapped — /en (200) + buy/redeem/retrieve-keys/download/buy-anonymously all 200; /api→403 nginx; trailing-slash anomaly /en/→404 vs /en→200; CSP form-action 'self' https://billing.threema.ch links shop→billing submission path; hCaptcha only on buy page.
+- [LEARN] REJECTED OTHER @ billing.threema.ch "no app behind 404": disproven — static /cache/*.js (336KB jQuery+Sentry) and favicon serve 200, proving a real app origin.
+
+**STEP 7 — RISK SCORE**
+- [RISK] chat: 55 — identity→pubkey + status oracle (10k IDs/req, no rate limit, CORS `*`) exposes chat identity space; transport closed (g-*.0 close-on-SNI, no cert/SAN); staging chat out of scope.
+- [RISK] web: 92 — directory cluster + newly-live billing.threema.ch (payment backend, zero routes yet) + shop (buy/license-retrieval flows, CSP→billing linkage) expand the web surface; all APIs auth-gated so far.
+- [RISK] sync: 55 — mediator/rendezvous uniform 403; WSS high-entropy + auth in source; no passive divergence.
+- [RISK] safe: 80 — safe-{01,1a,1b,02,00}: CORS `*` + write methods + Allow-Headers authorization + route oracle + HSTS gap on GET 400; Basic-auth gated, no ACAC.
+- [RISK] desktop-src: 90 — Windows key-storage ACL bypass RAG-confirmed (95) → Ed25519 privkey + SQLCipher DB key; PoC ready, runtime pending; sandbox/worker gap rejected standalone.
