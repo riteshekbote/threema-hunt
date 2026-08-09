@@ -283,3 +283,11 @@ https://safe-01.threema.ch/backups/{testId -> HTTP 400
 https://safe-01.threema.ch/backups/{64hex -> HTTP 400
 https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
 https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+
+## 2026-08-09 15:41:02 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
