@@ -1,1 +1,68 @@
-## 2026-08-09 10:08:44 UTC [desktop] (model laguna)
+## 2026-08-09 10:52:49 UTC [desktop] (model laguna)
+class: BUSLOGIC
+asset: apip.threema.ch/identity/ws/revoke
+confidence: 45
+reasoning: OpenAPI (directory.openapi.yml) shows /identity/ws/revoke is the ONLY identity endpoint with a single-step request (identity + revocationKey = SHA256(revocation-password)[:4], 32 bits) and NO challenge-response step, and unlike blob_cred/sfu_cred/work endpoints it documents NO 429 rate-limit response.
+evidence_needed: server enforces/omits rate limiting on ws/revoke; error/timing differences per guessed key; whether a correct 4-byte key revokes any ID.
+verify_steps: AUTH_HELPED: on a program-provided test ID, POST /identity/ws/revoke with a deliberately wrong revocationKey (observe error shape and timing), repeat small count to test for 429; never target third-party IDs and do not create accounts.
+impact: if unrate-limited, brute-force of 2^32 space → force-revoke/delete any Threema ID (permanent identity destruction / DoS). Severity: medium-high.
+testability: AUTH_HELPED
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities (backend of in-scope work.threema.ch)
+confidence: 50
+reasoning: directory.openapi.yml line 1172 states "/identities ... currently buggy. See TWRK-1633"; endpoint returns "a subset of the provided contacts that are part of the same Work subscription" + work properties (first/last name, jobTitle, department, availability); GET / returns 401 confirming a live credential-gated backend.
+evidence_needed: whether contact matching can be induced to return contacts outside the caller's subscription.
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities (contacts:[...]) mixing own- and other-subscription IDs and compare membership + properties; also probe /directory pagination bounds (page/size, wildcard queries).
+impact: cross-subscription disclosure of work-directory metadata (names, titles, departments, availability) → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+class: OTHER
+asset: mediator-*.threema.ch / rendezvous-*.threema.ch / blob-mirror-*.threema.ch
+confidence: 40
+reasoning: all sampled shards (0..f) resolve; GET / → uniform 403; shard prefix is derived from the first byte of a public-key (routing, not auth per config.rs) — no passive distinguishing signal observed.
+evidence_needed: any shard or path (wss /{prefix}/) responding differently than 403.
+verify_steps: PASSIVE: GET https://{rendezvous,mediator,blob-mirror}-{0,7,f}.threema.ch/ and a few /XX/ paths at ≤1rps, compare status/body fingerprints.
+impact: none observed; would only indicate a routing/edge misconfiguration. Severity: n/a
+testability: PASSIVE
+[HYP] ds-apip.threema.ch directory lookup / unauth enumeration
+class: AUTH
+[HYP] fetch_bulk returns lifecycle `state`/`type` echo for deactivated/revoked identities → account-status oracle beyond existence
+class: IDOR
+asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/fetch_bulk
+confidence: 45
+reasoning: ECHOECHO record returns explicit `state:0,type:0`; record shape carries lifecycle fields; silent-omit differential already proven for invalid IDs — deactivated-but-present IDs would either echo with `state!=0` or vanish, both observable.
+evidence_needed: one known-deactivated identity's fetch_bulk response diffed against ECHOECHO (state/type change or absence).
+verify_steps: AUTH_HELPED — POST fetch_bulk `{"identities":["<program-issued revoked testId>","ECHOECHO"]}`; diff `state`/`type` vs baseline; one request at 1 rps.
+impact: extends the accepted [95] enumeration finding into account-lifecycle disclosure (deactivation/ban status) → targeted targeting of stale accounts. Severity: low-medium (incremental to existing finding).
+testability: AUTH_HELPED
+[HYP] Staging directory server serves a LIVE identity dataset, not a snapshot
+class: MISCONFIG
+asset: ds-apip.test.threema.ch (identity API)
+confidence: 85
+reasoning: fetch_bulk staging byte-identical to prod for ECHOECHO; identical route surface (/swagger /docs /openapi.json 404 both); HSTS/Expect-CT on staging only.
+evidence_needed: byte-diff of a NON-ECHOECHO identity staging vs prod → identical publicKey proves live dataset.
+verify_steps: AUTH_HELPED — single `GET /identity/{testId}` on ds-apip.test.threema.ch and ds-apip.threema.ch; `diff` publicKey. No third-party real IDs.
+impact: internet-reachable staging exposing live identity directory unauthenticated (exposure + defense-in-depth gap). Severity: low-medium.
+testability: AUTH_HELPED
+[HYP] Safe backup store credentialed cross-origin read + HSTS gap (persisted)
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 50
+reasoning: OPTIONS 204 CORS `*` + ACAH:Authorization (all 5 hosts); unauth GET byte-identical 400; route-existence oracle stable; HSTS/Expect-CT absent on GET 400.
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 (200+payload or 401/403) + Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}`; diff vs 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin (High with creds, unreachable without).
+testability: AUTH_HELPED
+[NEXT] HUMAN: request one program-issued test identity (plus test backupId:backupKey) from the lead — a single identity enables all three surviving hypotheses: `GET /identity/{testId}` diff staging vs prod ([85]), fetch_bulk `state` echo ([45]), and `curl -u testId:testKey https://safe-01.threema.ch/backups/{testId}` vs 400 baseline ([50]).
+[LEARN] REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes read, no peer certificate); no cert/SAN leak; handshake requires authenticated login frame — chat passive channel formally closed.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling ≥10000 IDs/req confirmed (10000-batch → 200, 0.80s, 152B, ECHOECHO echoed, 9999 invalid silently omitted, no 413/429) — enumeration throughput bound ~10k IDs per request; prior 5000-ID probe also 200.
+[RISK] chat: 58 — identity→pubkey enumeration now ≥10k IDs/request unauth + CORS `*` + no rate limit on all 3 directory hosts (throughput 10x prior bound); chat transport passive channel closed, no new surface. | web: 35 — cockpit assets key/basic-auth gated; broadcast presence-oracle only; work.test single benign public endpoint. | sync: 20 — mediator/rendezvous uniform 403, no in-band divergence; handshake requires auth. | safe: 40 — backup API credential-gated (400 unauth) + route-existence oracle + HSTS inconsistency; impact contingent on valid creds. | desktop-src: 45 — key-storage Windows ACL bypass RAG-verified (95) chained to SQLCipher+Ed25519 disclosure; sandbox/worker gaps conditional.
+[NEW] ds-apip.threema.ch — canonical directory server hostname (matches inventory `apip.threema.ch` but is the actual host wired into desktop client build config)
+[NEW] ds-apip-work.threema.ch — work-style directory server (returns 401 on all paths, requires Basic auth)
+[NEW] blob-mirror-{prefix4}.threema.ch/{prefix8}/ — blob server hostname pattern (discovered in desktop source `config.ts`; NOT in scope — does not match any scope wildcard)
+[NEW] mediator-{prefix4}.threema.ch/{prefix8}/ — mediator WSS hostname pattern (in scope: `mediator-*.threema.ch`)
+[NEW] safe-{backupIdPrefix8}.threema.ch/ — backup safe hostname pattern (in scope: `safe-*.threema.ch`)
+[NEW] rendezvous-{prefix4}.threema.ch/{prefix8}/ — rendezvous WSS hostname pattern (in scope: `rendezvous-*.threema.ch`)
+[CHANGED] apip.threema.ch — was 403 on `/`; now confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
+[PRIO] ds-apip.threema.ch (directory server API), 7.95
+[PRIO] threema-desktop source (github.com/threema-ch/threema-desktop), 6.70
+[PRIO] safe-{XX}.threema.ch (backup service), 5.55

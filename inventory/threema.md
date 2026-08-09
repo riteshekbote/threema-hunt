@@ -447,3 +447,20 @@
 - CHANGED `gateway.threema.ch` — /v1→404, /api/v1→403 (nginx deny), /en/signup→200 (14KB); no msgapi route
 - CHANGED `safe-01.threema.ch/backups/{64hex}` — HSTS/Expect-CT on OPTIONS 204, ABSENT on GET 400 (stable across 5 hosts)
 - CHANGED `work.test.threema.ch/api-app/public/global/settings` → 200 (staging-only) vs `work.threema.ch` → 404 (prod)
+
+## 2026-08-09 10:52:59 UTC
+- NEW `broadcast.threema.ch/api/v1/` → HTTP 401 (auth-gated API endpoint confirmed; 301 without trailing slash)
+- NEW `gateway.threema.ch/en/signup` → HTTP 200 (signup page accessible)
+- CHANGED `ds-apip.threema.ch/identity/fetch_bulk` — ceiling ≥10000 IDs/request confirmed (10000-ID batch → 200, 0.80s, 152B, ECHOECHO echoed, 9999 invalid silently omitted, no 413/429)
+- CHANGED `ds-apip.test.threema.ch/identity/fetch_bulk` — staging byte-identical to prod; no extra routes (/swagger /docs /openapi.json 404)
+- CHANGED `broadcast.threema.ch/api/v1/` — key-format oracle disproven (absent key→401, any key→byte-identical 403)
+- CHANGED `gateway.threema.ch` — /v1→404, /api/v1→403 (nginx deny), /en/signup→200 (14KB); no msgapi route
+- CHANGED `safe-01.threema.ch/backups/{64hex}` — HSTS/Expect-CT on OPTIONS 204, ABSENT on GET 400 (stable across 5 hosts behind 203.56.112.231)
+- CHANGED `work.test.threema.ch/api-app/public/global/settings` → 200 (staging-only, 299B) vs `work.threema.ch` → 404 (prod)
+- NEW ds-apip.threema.ch — canonical directory server hostname (matches inventory `apip.threema.ch` but is the actual host wired into desktop client build config)
+- NEW ds-apip-work.threema.ch — work-style directory server (returns 401 on all paths, requires Basic auth)
+- NEW blob-mirror-{prefix4}.threema.ch/{prefix8}/ — blob server hostname pattern (discovered in desktop source `config.ts`; NOT in scope — does not match any scope wildcard)
+- NEW mediator-{prefix4}.threema.ch/{prefix8}/ — mediator WSS hostname pattern (in scope: `mediator-*.threema.ch`)
+- NEW safe-{backupIdPrefix8}.threema.ch/ — backup safe hostname pattern (in scope: `safe-*.threema.ch`)
+- NEW rendezvous-{prefix4}.threema.ch/{prefix8}/ — rendezvous WSS hostname pattern (in scope: `rendezvous-*.threema.ch`)
+- CHANGED apip.threema.ch — was 403 on `/`; now confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
