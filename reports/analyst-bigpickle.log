@@ -32990,3 +32990,1166 @@ Probing complete. Confirmed per-identity challenge oracle on all 3 prod hosts + 
 
 ## STEP 7 — RISK SCORE
 - [RISK] chat: 60 — unauthenticated per-identity challenge oracle + undocumented `/identity/revoke` live on all directory hosts; fetch_bulk 10k/req enumeration; chat transport passive channel remains closed | web: 35 — cockpits auth-gated; work.test divergence out of scope | sync: 20 — mediator/rendezvous uniform 403, no in-band divergence | safe: 40 — credential-gated backup API, CORS/HSTS gaps, impact contingent on creds | desktop-src: 48 — key-theft→remote-revoke chain now concretely wired to a live remote primitive; sandbox/worker gaps remain conditional.
+===== ANALYST bigpickle 2026-08-09 13:16:52 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/ 2>/dev/null; echo "---"; ls -la /tmp/opencode/ 2>/dev/null | head -50
+total 228
+drwxr-xr-x 11 runner runner  4096 Aug  9 13:09 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 13:08 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 13:09 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 13:08 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 13:08 README.md
+-rw-r--r--  1 runner runner    32 Aug  9 13:09 analyst-out.txt
+-rw-r--r--  1 runner runner 68844 Aug  9 13:09 analyst-prompt.txt
+-rw-r--r--  1 runner runner 65780 Aug  9 13:09 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 leads
+-rw-r--r--  1 runner runner 14310 Aug  9 13:08 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 13:08 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 13:08 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 13:08 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 13:08 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 13:08 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 13:08 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 13:08 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 triage
+---
+total 16
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:09 .
+drwxrwxrwt 15 root   root   12288 Aug  9 13:09 ..
+[0m
+[0m$ [0mgit -C /home/runner/work/threema-hunt/threema-hunt log --oneline -15 2>/dev/null; echo "---"; git -C /home/runner/work/threema-hunt/threema-hunt status --short 2>/dev/null | head -30
+6acad2b reposcan 2026-08-09-12-54
+---
+?? analyst-out.txt
+?? analyst-prompt.txt
+?? ctx.txt
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/inventory/ /home/runner/work/threema-hunt/threema-hunt/knowledge/ /home/runner/work/threema-hunt/threema-hunt/leads/ /home/runner/work/threema-hunt/threema-hunt/reports/ /home/runner/work/threema-hunt/threema-hunt/triage/ 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/inventory/:
+total 68
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 13:09 ..
+-rw-r--r--  1 runner runner 61306 Aug  9 13:08 threema.md
+
+/home/runner/work/threema-hunt/threema-hunt/knowledge/:
+total 52
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 13:09 ..
+-rw-r--r--  1 runner runner 41674 Aug  9 13:08 index.md
+
+/home/runner/work/threema-hunt/threema-hunt/leads/:
+total 3116
+drwxr-xr-x  2 runner runner   4096 Aug  9 13:08 .
+drwxr-xr-x 11 runner runner   4096 Aug  9 13:09 ..
+-rw-r--r--  1 runner runner 608131 Aug  9 13:08 lead-bigpickle.md
+-rw-r--r--  1 runner runner 604830 Aug  9 13:08 lead-laguna.md
+-rw-r--r--  1 runner runner   8214 Aug  9 13:08 lead-ling3.md
+-rw-r--r--  1 runner runner   3182 Aug  9 13:08 lead-longcat.md
+-rw-r--r--  1 runner runner 544050 Aug  9 13:08 lead-nemotron3.md
+-rw-r--r--  1 runner runner  11048 Aug  9 13:08 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner  13399 Aug  9 13:08 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner  13429 Aug  9 13:08 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner  11241 Aug  9 13:08 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner   6565 Aug  9 13:08 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner   9511 Aug  9 13:08 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner  13472 Aug  9 13:08 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner  10507 Aug  9 13:08 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner  13665 Aug  9 13:08 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner  10938 Aug  9 13:08 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner  17321 Aug  9 13:08 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner  15373 Aug  9 13:08 reposcan-2026-08-07-23-19.md
+-rw-r--r--  1 runner runner  11670 Aug  9 13:08 reposcan-2026-08-07-23-50.md
+-rw-r--r--  1 runner runner  14267 Aug  9 13:08 reposcan-2026-08-08-00-01.md
+-rw-r--r--  1 runner runner  12628 Aug  9 13:08 reposcan-2026-08-08-00-19.md
+-rw-r--r--  1 runner runner  13392 Aug  9 13:08 reposcan-2026-08-08-02-10.md
+-rw-r--r--  1 runner runner  13822 Aug  9 13:08 reposcan-2026-08-08-02-23.md
+-rw-r--r--  1 runner runner  13194 Aug  9 13:08 reposcan-2026-08-08-03-52.md
+-rw-r--r--  1 runner runner  14260 Aug  9 13:08 reposcan-2026-08-08-04-47.md
+-rw-r--r--  1 runner runner  15327 Aug  9 13:08 reposcan-2026-08-08-05-01.md
+-rw-r--r--  1 runner runner  13092 Aug  9 13:08 reposcan-2026-08-08-05-29.md
+-rw-r--r--  1 runner runner  11228 Aug  9 13:08 reposcan-2026-08-08-05-48.md
+-rw-r--r--  1 runner runner  10378 Aug  9 13:08 reposcan-2026-08-08-06-08.md
+-rw-r--r--  1 runner runner  11257 Aug  9 13:08 reposcan-2026-08-08-06-56.md
+-rw-r--r--  1 runner runner  11788 Aug  9 13:08 reposcan-2026-08-08-07-12.md
+-rw-r--r--  1 runner runner   9790 Aug  9 13:08 reposcan-2026-08-08-07-53.md
+-rw-r--r--  1 runner runner  10972 Aug  9 13:08 reposcan-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner  13672 Aug  9 13:08 reposcan-2026-08-08-08-37.md
+-rw-r--r--  1 runner runner   6321 Aug  9 13:08 reposcan-2026-08-08-08-42.md
+-rw-r--r--  1 runner runner  16455 Aug  9 13:08 reposcan-2026-08-08-09-21.md
+-rw-r--r--  1 runner runner  14107 Aug  9 13:08 reposcan-2026-08-08-09-40.md
+-rw-r--r--  1 runner runner  14710 Aug  9 13:08 reposcan-2026-08-08-10-09.md
+-rw-r--r--  1 runner runner  13912 Aug  9 13:08 reposcan-2026-08-08-10-27.md
+-rw-r--r--  1 runner runner  15295 Aug  9 13:08 reposcan-2026-08-08-10-37.md
+-rw-r--r--  1 runner runner  11119 Aug  9 13:08 reposcan-2026-08-08-11-08.md
+-rw-r--r--  1 runner runner  16740 Aug  9 13:08 reposcan-2026-08-08-11-28.md
+-rw-r--r--  1 runner runner  11393 Aug  9 13:08 reposcan-2026-08-08-11-30.md
+-rw-r--r--  1 runner runner  10793 Aug  9 13:08 reposcan-2026-08-08-11-55.md
+-rw-r--r--  1 runner runner  13925 Aug  9 13:08 reposcan-2026-08-08-12-00.md
+-rw-r--r--  1 runner runner  12984 Aug  9 13:08 reposcan-2026-08-08-12-09.md
+-rw-r--r--  1 runner runner  11553 Aug  9 13:08 reposcan-2026-08-08-13-01.md
+-rw-r--r--  1 runner runner  16362 Aug  9 13:08 reposcan-2026-08-08-13-15.md
+-rw-r--r--  1 runner runner  11685 Aug  9 13:08 reposcan-2026-08-08-13-56.md
+-rw-r--r--  1 runner runner  11740 Aug  9 13:08 reposcan-2026-08-08-14-04.md
+-rw-r--r--  1 runner runner  14858 Aug  9 13:08 reposcan-2026-08-08-14-28.md
+-rw-r--r--  1 runner runner  10356 Aug  9 13:08 reposcan-2026-08-08-14-35.md
+-rw-r--r--  1 runner runner  10513 Aug  9 13:08 reposcan-2026-08-08-15-08.md
+-rw-r--r--  1 runner runner   6321 Aug  9 13:08 reposcan-2026-08-08-15-31.md
+-rw-r--r--  1 runner runner  11739 Aug  9 13:08 reposcan-2026-08-08-16-00.md
+-rw-r--r--  1 runner runner  15164 Aug  9 13:08 reposcan-2026-08-08-16-07.md
+-rw-r--r--  1 runner runner  12405 Aug  9 13:08 reposcan-2026-08-08-16-15.md
+-rw-r--r--  1 runner runner   6321 Aug  9 13:08 reposcan-2026-08-08-17-04.md
+-rw-r--r--  1 runner runner  12923 Aug  9 13:08 reposcan-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  15904 Aug  9 13:08 reposcan-2026-08-08-18-04.md
+-rw-r--r--  1 runner runner  11771 Aug  9 13:08 reposcan-2026-08-08-18-36.md
+-rw-r--r--  1 runner runner  12165 Aug  9 13:08 reposcan-2026-08-08-19-19.md
+-rw-r--r--  1 runner runner  14685 Aug  9 13:08 reposcan-2026-08-08-19-46.md
+-rw-r--r--  1 runner runner  13911 Aug  9 13:08 reposcan-2026-08-08-19-58.md
+-rw-r--r--  1 runner runner   9017 Aug  9 13:08 reposcan-2026-08-08-20-14.md
+-rw-r--r--  1 runner runner  17271 Aug  9 13:08 reposcan-2026-08-08-20-33.md
+-rw-r--r--  1 runner runner  14693 Aug  9 13:08 reposcan-2026-08-08-20-41.md
+-rw-r--r--  1 runner runner  13770 Aug  9 13:08 reposcan-2026-08-08-21-03.md
+-rw-r--r--  1 runner runner  16811 Aug  9 13:08 reposcan-2026-08-08-21-11.md
+-rw-r--r--  1 runner runner  14116 Aug  9 13:08 reposcan-2026-08-08-21-32.md
+-rw-r--r--  1 runner runner  12845 Aug  9 13:08 reposcan-2026-08-08-21-41.md
+-rw-r--r--  1 runner runner  12743 Aug  9 13:08 reposcan-2026-08-08-22-05.md
+-rw-r--r--  1 runner runner  11547 Aug  9 13:08 reposcan-2026-08-08-22-19.md
+-rw-r--r--  1 runner runner  12410 Aug  9 13:08 reposcan-2026-08-08-22-54.md
+-rw-r--r--  1 runner runner   6471 Aug  9 13:08 reposcan-2026-08-08-23-19.md
+-rw-r--r--  1 runner runner   6321 Aug  9 13:08 reposcan-2026-08-08-23-28.md
+-rw-r--r--  1 runner runner  10531 Aug  9 13:08 reposcan-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner  13968 Aug  9 13:08 reposcan-2026-08-08-23-59.md
+-rw-r--r--  1 runner runner  13598 Aug  9 13:08 reposcan-2026-08-09-00-07.md
+-rw-r--r--  1 runner runner  12837 Aug  9 13:08 reposcan-2026-08-09-01-41.md
+-rw-r--r--  1 runner runner  11706 Aug  9 13:08 reposcan-2026-08-09-02-39.md
+-rw-r--r--  1 runner runner  12540 Aug  9 13:08 reposcan-2026-08-09-03-22.md
+-rw-r--r--  1 runner runner  12484 Aug  9 13:08 reposcan-2026-08-09-04-04.md
+-rw-r--r--  1 runner runner  13901 Aug  9 13:08 reposcan-2026-08-09-04-50.md
+-rw-r--r--  1 runner runner  11067 Aug  9 13:08 reposcan-2026-08-09-05-12.md
+-rw-r--r--  1 runner runner  11859 Aug  9 13:08 reposcan-2026-08-09-05-48.md
+-rw-r--r--  1 runner runner  13461 Aug  9 13:08 reposcan-2026-08-09-06-47.md
+-rw-r--r--  1 runner runner  12488 Aug  9 13:08 reposcan-2026-08-09-06-55.md
+-rw-r--r--  1 runner runner  16116 Aug  9 13:08 reposcan-2026-08-09-07-37.md
+-rw-r--r--  1 runner runner   7436 Aug  9 13:08 reposcan-2026-08-09-07-53.md
+-rw-r--r--  1 runner runner  11170 Aug  9 13:08 reposcan-2026-08-09-08-15.md
+-rw-r--r--  1 runner runner  12517 Aug  9 13:08 reposcan-2026-08-09-08-43.md
+-rw-r--r--  1 runner runner  10944 Aug  9 13:08 reposcan-2026-08-09-09-10.md
+-rw-r--r--  1 runner runner  12832 Aug  9 13:08 reposcan-2026-08-09-09-26.md
+-rw-r--r--  1 runner runner   9567 Aug  9 13:08 reposcan-2026-08-09-09-57.md
+-rw-r--r--  1 runner runner  12475 Aug  9 13:08 reposcan-2026-08-09-10-07.md
+-rw-r--r--  1 runner runner  12838 Aug  9 13:08 reposcan-2026-08-09-10-16.md
+-rw-r--r--  1 runner runner  13621 Aug  9 13:08 reposcan-2026-08-09-10-56.md
+-rw-r--r--  1 runner runner  15973 Aug  9 13:08 reposcan-2026-08-09-11-31.md
+-rw-r--r--  1 runner runner  11091 Aug  9 13:08 reposcan-2026-08-09-12-01.md
+-rw-r--r--  1 runner runner  11474 Aug  9 13:08 reposcan-2026-08-09-12-21.md
+-rw-r--r--  1 runner runner  11500 Aug  9 13:08 reposcan-2026-08-09-12-54.md
+-rw-r--r--  1 runner runner  11500 Aug  9 13:08 reposcan-latest.md
+
+/home/runner/work/threema-hunt/threema-hunt/reports/:
+total 7156
+drwxr-xr-x  2 runner runner    4096 Aug  9 13:08 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 13:09 ..
+-rw-r--r--  1 runner runner 2536770 Aug  9 13:08 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 3852568 Aug  9 13:08 analyst-laguna.log
+-rw-r--r--  1 runner runner   24823 Aug  9 13:08 analyst-ling3.log
+-rw-r--r--  1 runner runner    5580 Aug  9 13:08 analyst-longcat.log
+-rw-r--r--  1 runner runner  693368 Aug  9 13:08 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   17940 Aug  9 13:08 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner   42270 Aug  9 13:08 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 13:08 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 13:08 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   12248 Aug  9 13:08 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  209596 Aug  9 13:08 hypotheses.md
+-rw-r--r--  1 runner runner   22590 Aug  9 13:08 valid-bugs.md
+
+/home/runner/work/threema-hunt/threema-hunt/triage/:
+total 912
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 13:09 ..
+-rw-r--r--  1 runner runner 81432 Aug  9 13:08 run-2026-08-07-20-10.md
+-rw-r--r--  1 runner runner 18280 Aug  9 13:08 run-2026-08-07-21-03.md
+-rw-r--r--  1 runner runner 18224 Aug  9 13:08 run-2026-08-07-21-56.md
+-rw-r--r--  1 runner runner 12766 Aug  9 13:08 run-2026-08-07-22-56.md
+-rw-r--r--  1 runner runner 27810 Aug  9 13:08 run-2026-08-07-23-55.md
+-rw-r--r--  1 runner runner  1637 Aug  9 13:08 run-2026-08-08-02-24.md
+-rw-r--r--  1 runner runner 18651 Aug  9 13:08 run-2026-08-08-04-24.md
+-rw-r--r--  1 runner runner 20107 Aug  9 13:08 run-2026-08-08-06-01.md
+-rw-r--r--  1 runner runner 23637 Aug  9 13:08 run-2026-08-08-07-07.md
+-rw-r--r--  1 runner runner 18269 Aug  9 13:08 run-2026-08-08-07-15.md
+-rw-r--r--  1 runner runner 12515 Aug  9 13:08 run-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner   236 Aug  9 13:08 run-2026-08-08-08-59.md
+-rw-r--r--  1 runner runner 11791 Aug  9 13:08 run-2026-08-08-09-54.md
+-rw-r--r--  1 runner runner 10557 Aug  9 13:08 run-2026-08-08-10-53.md
+-rw-r--r--  1 runner runner   896 Aug  9 13:08 run-2026-08-08-11-44.md
+-rw-r--r--  1 runner runner   428 Aug  9 13:08 run-2026-08-08-13-11.md
+-rw-r--r--  1 runner runner  7773 Aug  9 13:08 run-2026-08-08-14-00.md
+-rw-r--r--  1 runner runner 19408 Aug  9 13:08 run-2026-08-08-14-52.md
+-rw-r--r--  1 runner runner 25063 Aug  9 13:08 run-2026-08-08-15-47.md
+-rw-r--r--  1 runner runner 27020 Aug  9 13:08 run-2026-08-08-17-19.md
+-rw-r--r--  1 runner runner  7619 Aug  9 13:08 run-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  6252 Aug  9 13:08 run-2026-08-08-17-57.md
+-rw-r--r--  1 runner runner 22001 Aug  9 13:08 run-2026-08-08-18-19.md
+-rw-r--r--  1 runner runner 13783 Aug  9 13:08 run-2026-08-08-19-08.md
+-rw-r--r--  1 runner runner   855 Aug  9 13:08 run-2026-08-08-19-48.md
+-rw-r--r--  1 runner runner  3697 Aug  9 13:08 run-2026-08-08-20-15.md
+-rw-r--r--  1 runner runner 48286 Aug  9 13:08 run-2026-08-08-20-16.md
+-rw-r--r--  1 runner runner   288 Aug  9 13:08 run-2026-08-08-20-52.md
+-rw-r--r--  1 runner runner   306 Aug  9 13:08 run-2026-08-08-21-18.md
+-rw-r--r--  1 runner runner 20264 Aug  9 13:08 run-2026-08-08-21-53.md
+-rw-r--r--  1 runner runner   319 Aug  9 13:08 run-2026-08-08-22-13.md
+-rw-r--r--  1 runner runner 25573 Aug  9 13:08 run-2026-08-08-22-53.md
+-rw-r--r--  1 runner runner 57527 Aug  9 13:08 run-2026-08-08-23-18.md
+-rw-r--r--  1 runner runner   228 Aug  9 13:08 run-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner 36585 Aug  9 13:08 run-2026-08-09-00-41.md
+-rw-r--r--  1 runner runner 25496 Aug  9 13:08 run-2026-08-09-03-00.md
+-rw-r--r--  1 runner runner   324 Aug  9 13:08 run-2026-08-09-04-10.md
+-rw-r--r--  1 runner runner   292 Aug  9 13:08 run-2026-08-09-05-26.md
+-rw-r--r--  1 runner runner 13044 Aug  9 13:08 run-2026-08-09-05-48.md
+-rw-r--r--  1 runner runner 23442 Aug  9 13:08 run-2026-08-09-06-39.md
+-rw-r--r--  1 runner runner 15689 Aug  9 13:08 run-2026-08-09-07-44.md
+-rw-r--r--  1 runner runner 24960 Aug  9 13:08 run-2026-08-09-08-32.md
+-rw-r--r--  1 runner runner   621 Aug  9 13:08 run-2026-08-09-09-27.md
+-rw-r--r--  1 runner runner 62572 Aug  9 13:08 run-2026-08-09-10-21.md
+-rw-r--r--  1 runner runner   338 Aug  9 13:08 run-2026-08-09-10-56.md
+-rw-r--r--  1 runner runner 21593 Aug  9 13:08 run-2026-08-09-11-53.md
+-rw-r--r--  1 runner runner 22109 Aug  9 13:08 run-2026-08-09-12-22.md
+-rw-r--r--  1 runner runner  2617 Aug  9 13:08 triage-2026-08-09-1011.md
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/state_bigpickle.json; echo; cat /home/runner/work/threema-hunt/threema-hunt/analyst-out.txt; echo; cat /home/runner/work/threema-hunt/threema-hunt/README.md
+{"phase": "POC", "target": "chat"}
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/ 2>/dev/null; echo "---"; ls -la /tmp/opencode/ 2>/dev/null | head -50
+total 228
+drwxr-xr-x 11 runner runner  4096 Aug  9 13:09 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 13:08 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 13:09 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 13:08 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 13:08 README.md
+-rw-r--r--  1 runner runner    32 Aug  9 13:09 analyst-out.txt
+-rw-r--r--  1 runner runner 68844 Aug  9 13:09 analyst-prompt.txt
+-rw-r--r--  1 runner runner 65780 Aug  9 13:09 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 leads
+-rw-r--r--  1 runner runner 14310 Aug  9 13:08 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 13:08 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 13:08 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 13:08 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 13:08 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 13:08 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 13:08 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 13:08 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 triage
+---
+total 16
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:09 .
+drwxrwxrwt 15 root   root   12288 Aug  9 13:09 ..
+[0m
+[0m$ [0mgit -C /home/runner/work/threema-hunt/threema-hunt log --oneline -15 2>/dev/null; echo "---"; git -C /home/runner/work/threema-hunt/threema-hunt status --short 2>/dev/null | head -30
+6acad2b reposcan 2026-08-09-12-54
+---
+?? analyst-out.txt
+?? analyst-prompt.txt
+?? ctx.txt
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/inventory/ /home/runner/work/threema-hunt/threema-hunt/knowledge/ /home/runner/work/threema-hunt/threema-hunt/leads/ /home/runner/work/threema-hunt/threema-hunt/reports/ /home/runner/work/threema-hunt/threema-hunt/triage/ 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/inventory/:
+total 68
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 13:09 ..
+-rw-r--r--  1 runner runner 61306 Aug  9 13:08 threema.md
+
+/home/runner/work/threema-hunt/threema-hunt/knowledge/:
+total 52
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 13:09 ..
+-rw-r--r--  1 runner runner 41674 Aug  9 13:08 index.md
+
+/home/runner/work/threema-hunt/threema-hunt/leads/:
+total 3116
+drwxr-xr-x  2 runner runner   4096 Aug  9 13:08 .
+drwxr-xr-x 11 runner runner   4096 Aug  9 13:09 ..
+-rw-r--r--  1 runner runner 608131 Aug  9 13:08 lead-bigpickle.md
+-rw-r--r--  1 runner runner 604830 Aug  9 13:08 lead-laguna.md
+-rw-r--r--  1 runner runner   8214 Aug  9 13:08 lead-ling3.md
+-rw-r--r--  1 runner runner   3182 Aug  9 13:08 lead-longcat.md
+-rw-r--r--  1 runner runner 544050 Aug  9 13:08 lead-nemotron3.md
+-rw-r--r--  1 runner runner  11048 Aug  9 13:08 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner  13399 Aug  9 13:08 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner  13429 Aug  9 13:08 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner  11241 Aug  9 13:08 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner   6565 Aug  9 13:08 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner   9511 Aug  9 13:08 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner  13472 Aug  9 13:08 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner  10507 Aug  9 13:08 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner  13665 Aug  9 13:08 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner  10938 Aug  9 13:08 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner  17321 Aug  9 13:08 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner  15373 Aug  9 13:08 reposcan-2026-08-07-23-19.md
+-rw-r--r--  1 runner runner  11670 Aug  9 13:08 reposcan-2026-08-07-23-50.md
+-rw-r--r--  1 runner runner  14267 Aug  9 13:08 reposcan-2026-08-08-00-01.md
+-rw-r--r--  1 runner runner  12628 Aug  9 13:08 reposcan-2026-08-08-00-19.md
+-rw-r--r--  1 runner runner  13392 Aug  9 13:08 reposcan-2026-08-08-02-10.md
+-rw-r--r--  1 runner runner  13822 Aug  9 13:08 reposcan-2026-08-08-02-23.md
+-rw-r--r--  1 runner runner  13194 Aug  9 13:08 reposcan-2026-08-08-03-52.md
+-rw-r--r--  1 runner runner  14260 Aug  9 13:08 reposcan-2026-08-08-04-47.md
+-rw-r--r--  1 runner runner  15327 Aug  9 13:08 reposcan-2026-08-08-05-01.md
+-rw-r--r--  1 runner runner  13092 Aug  9 13:08 reposcan-2026-08-08-05-29.md
+-rw-r--r--  1 runner runner  11228 Aug  9 13:08 reposcan-2026-08-08-05-48.md
+-rw-r--r--  1 runner runner  10378 Aug  9 13:08 reposcan-2026-08-08-06-08.md
+-rw-r--r--  1 runner runner  11257 Aug  9 13:08 reposcan-2026-08-08-06-56.md
+-rw-r--r--  1 runner runner  11788 Aug  9 13:08 reposcan-2026-08-08-07-12.md
+-rw-r--r--  1 runner runner   9790 Aug  9 13:08 reposcan-2026-08-08-07-53.md
+-rw-r--r--  1 runner runner  10972 Aug  9 13:08 reposcan-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner  13672 Aug  9 13:08 reposcan-2026-08-08-08-37.md
+-rw-r--r--  1 runner runner   6321 Aug  9 13:08 reposcan-2026-08-08-08-42.md
+-rw-r--r--  1 runner runner  16455 Aug  9 13:08 reposcan-2026-08-08-09-21.md
+-rw-r--r--  1 runner runner  14107 Aug  9 13:08 reposcan-2026-08-08-09-40.md
+-rw-r--r--  1 runner runner  14710 Aug  9 13:08 reposcan-2026-08-08-10-09.md
+-rw-r--r--  1 runner runner  13912 Aug  9 13:08 reposcan-2026-08-08-10-27.md
+-rw-r--r--  1 runner runner  15295 Aug  9 13:08 reposcan-2026-08-08-10-37.md
+-rw-r--r--  1 runner runner  11119 Aug  9 13:08 reposcan-2026-08-08-11-08.md
+-rw-r--r--  1 runner runner  16740 Aug  9 13:08 reposcan-2026-08-08-11-28.md
+-rw-r--r--  1 runner runner  11393 Aug  9 13:08 reposcan-2026-08-08-11-30.md
+-rw-r--r--  1 runner runner  10793 Aug  9 13:08 reposcan-2026-08-08-11-55.md
+-rw-r--r--  1 runner runner  13925 Aug  9 13:08 reposcan-2026-08-08-12-00.md
+-rw-r--r--  1 runner runner  12984 Aug  9 13:08 reposcan-2026-08-08-12-09.md
+-rw-r--r--  1 runner runner  11553 Aug  9 13:08 reposcan-2026-08-08-13-01.md
+-rw-r--r--  1 runner runner  16362 Aug  9 13:08 reposcan-2026-08-08-13-15.md
+-rw-r--r--  1 runner runner  11685 Aug  9 13:08 reposcan-2026-08-08-13-56.md
+-rw-r--r--  1 runner runner  11740 Aug  9 13:08 reposcan-2026-08-08-14-04.md
+-rw-r--r--  1 runner runner  14858 Aug  9 13:08 reposcan-2026-08-08-14-28.md
+-rw-r--r--  1 runner runner  10356 Aug  9 13:08 reposcan-2026-08-08-14-35.md
+-rw-r--r--  1 runner runner  10513 Aug  9 13:08 reposcan-2026-08-08-15-08.md
+-rw-r--r--  1 runner runner   6321 Aug  9 13:08 reposcan-2026-08-08-15-31.md
+-rw-r--r--  1 runner runner  11739 Aug  9 13:08 reposcan-2026-08-08-16-00.md
+-rw-r--r--  1 runner runner  15164 Aug  9 13:08 reposcan-2026-08-08-16-07.md
+-rw-r--r--  1 runner runner  12405 Aug  9 13:08 reposcan-2026-08-08-16-15.md
+-rw-r--r--  1 runner runner   6321 Aug  9 13:08 reposcan-2026-08-08-17-04.md
+-rw-r--r--  1 runner runner  12923 Aug  9 13:08 reposcan-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  15904 Aug  9 13:08 reposcan-2026-08-08-18-04.md
+-rw-r--r--  1 runner runner  11771 Aug  9 13:08 reposcan-2026-08-08-18-36.md
+-rw-r--r--  1 runner runner  12165 Aug  9 13:08 reposcan-2026-08-08-19-19.md
+-rw-r--r--  1 runner runner  14685 Aug  9 13:08 reposcan-2026-08-08-19-46.md
+-rw-r--r--  1 runner runner  13911 Aug  9 13:08 reposcan-2026-08-08-19-58.md
+-rw-r--r--  1 runner runner   9017 Aug  9 13:08 reposcan-2026-08-08-20-14.md
+-rw-r--r--  1 runner runner  17271 Aug  9 13:08 reposcan-2026-08-08-20-33.md
+-rw-r--r--  1 runner runner  14693 Aug  9 13:08 reposcan-2026-08-08-20-41.md
+-rw-r--r--  1 runner runner  13770 Aug  9 13:08 reposcan-2026-08-08-21-03.md
+-rw-r--r--  1 runner runner  16811 Aug  9 13:08 reposcan-2026-08-08-21-11.md
+-rw-r--r--  1 runner runner  14116 Aug  9 13:08 reposcan-2026-08-08-21-32.md
+-rw-r--r--  1 runner runner  12845 Aug  9 13:08 reposcan-2026-08-08-21-41.md
+-rw-r--r--  1 runner runner  12743 Aug  9 13:08 reposcan-2026-08-08-22-05.md
+-rw-r--r--  1 runner runner  11547 Aug  9 13:08 reposcan-2026-08-08-22-19.md
+-rw-r--r--  1 runner runner  12410 Aug  9 13:08 reposcan-2026-08-08-22-54.md
+-rw-r--r--  1 runner runner   6471 Aug  9 13:08 reposcan-2026-08-08-23-19.md
+-rw-r--r--  1 runner runner   6321 Aug  9 13:08 reposcan-2026-08-08-23-28.md
+-rw-r--r--  1 runner runner  10531 Aug  9 13:08 reposcan-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner  13968 Aug  9 13:08 reposcan-2026-08-08-23-59.md
+-rw-r--r--  1 runner runner  13598 Aug  9 13:08 reposcan-2026-08-09-00-07.md
+-rw-r--r--  1 runner runner  12837 Aug  9 13:08 reposcan-2026-08-09-01-41.md
+-rw-r--r--  1 runner runner  11706 Aug  9 13:08 reposcan-2026-08-09-02-39.md
+-rw-r--r--  1 runner runner  12540 Aug  9 13:08 reposcan-2026-08-09-03-22.md
+-rw-r--r--  1 runner runner  12484 Aug  9 13:08 reposcan-2026-08-09-04-04.md
+-rw-r--r--  1 runner runner  13901 Aug  9 13:08 reposcan-2026-08-09-04-50.md
+-rw-r--r--  1 runner runner  11067 Aug  9 13:08 reposcan-2026-08-09-05-12.md
+-rw-r--r--  1 runner runner  11859 Aug  9 13:08 reposcan-2026-08-09-05-48.md
+-rw-r--r--  1 runner runner  13461 Aug  9 13:08 reposcan-2026-08-09-06-47.md
+-rw-r--r--  1 runner runner  12488 Aug  9 13:08 reposcan-2026-08-09-06-55.md
+-rw-r--r--  1 runner runner  16116 Aug  9 13:08 reposcan-2026-08-09-07-37.md
+-rw-r--r--  1 runner runner   7436 Aug  9 13:08 reposcan-2026-08-09-07-53.md
+-rw-r--r--  1 runner runner  11170 Aug  9 13:08 reposcan-2026-08-09-08-15.md
+-rw-r--r--  1 runner runner  12517 Aug  9 13:08 reposcan-2026-08-09-08-43.md
+-rw-r--r--  1 runner runner  10944 Aug  9 13:08 reposcan-2026-08-09-09-10.md
+-rw-r--r--  1 runner runner  12832 Aug  9 13:08 reposcan-2026-08-09-09-26.md
+-rw-r--r--  1 runner runner   9567 Aug  9 13:08 reposcan-2026-08-09-09-57.md
+-rw-r--r--  1 runner runner  12475 Aug  9 13:08 reposcan-2026-08-09-10-07.md
+-rw-r--r--  1 runner runner  12838 Aug  9 13:08 reposcan-2026-08-09-10-16.md
+-rw-r--r--  1 runner runner  13621 Aug  9 13:08 reposcan-2026-08-09-10-56.md
+-rw-r--r--  1 runner runner  15973 Aug  9 13:08 reposcan-2026-08-09-11-31.md
+-rw-r--r--  1 runner runner  11091 Aug  9 13:08 reposcan-2026-08-09-12-01.md
+-rw-r--r--  1 runner runner  11474 Aug  9 13:08 reposcan-2026-08-09-12-21.md
+-rw-r--r--  1 runner runner  11500 Aug  9 13:08 reposcan-2026-08-09-12-54.md
+-rw-r--r--  1 runner runner  11500 Aug  9 13:08 reposcan-latest.md
+
+/home/runner/work/threema-hunt/threema-hunt/reports/:
+total 7156
+drwxr-xr-x  2 runner runner    4096 Aug  9 13:08 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 13:09 ..
+-rw-r--r--  1 runner runner 2536770 Aug  9 13:08 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 3852568 Aug  9 13:08 analyst-laguna.log
+-rw-r--r--  1 runner runner   24823 Aug  9 13:08 analyst-ling3.log
+-rw-r--r--  1 runner runner    5580 Aug  9 13:08 analyst-longcat.log
+-rw-r--r--  1 runner runner  693368 Aug  9 13:08 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   17940 Aug  9 13:08 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner   42270 Aug  9 13:08 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 13:08 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 13:08 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   12248 Aug  9 13:08 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  209596 Aug  9 13:08 hypotheses.md
+-rw-r--r--  1 runner runner   22590 Aug  9 13:08 valid-bugs.md
+
+/home/runner/work/threema-hunt/threema-hunt/triage/:
+total 912
+drwxr-xr-x  2 runner runner  4096 Aug  9 13:08 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 13:09 ..
+-rw-r--r--  1 runner runner 81432 Aug  9 13:08 run-2026-08-07-20-10.md
+-rw-r--r--  1 runner runner 18280 Aug  9 13:08 run-2026-08-07-21-03.md
+-rw-r--r--  1 runner runner 18224 Aug  9 13:08 run-2026-08-07-21-56.md
+-rw-r--r--  1 runner runner 12766 Aug  9 13:08 run-2026-08-07-22-56.md
+-rw-r--r--  1 runner runner 27810 Aug  9 13:08 run-2026-08-07-23-55.md
+-rw-r--r--  1 runner runner  1637 Aug  9 13:08 run-2026-08-08-02-24.md
+-rw-r--r--  1 runner runner 18651 Aug  9 13:08 run-2026-08-08-04-24.md
+-rw-r--r--  1 runner runner 20107 Aug  9 13:08 run-2026-08-08-06-01.md
+-rw-r--r--  1 runner runner 23637 Aug  9 13:08 run-2026-08-08-07-07.md
+-rw-r--r--  1 runner runner 18269 Aug  9 13:08 run-2026-08-08-07-15.md
+-rw-r--r--  1 runner runner 12515 Aug  9 13:08 run-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner   236 Aug  9 13:08 run-2026-08-08-08-59.md
+-rw-r--r--  1 runner runner 11791 Aug  9 13:08 run-2026-08-08-09-54.md
+-rw-r--r--  1 runner runner 10557 Aug  9 13:08 run-2026-08-08-10-53.md
+-rw-r--r--  1 runner runner   896 Aug  9 13:08 run-2026-08-08-11-44.md
+-rw-r--r--  1 runner runner   428 Aug  9 13:08 run-2026-08-08-13-11.md
+-rw-r--r--  1 runner runner  7773 Aug  9 13:08 run-2026-08-08-14-00.md
+-rw-r--r--  1 runner runner 19408 Aug  9 13:08 run-2026-08-08-14-52.md
+-rw-r--r--  1 runner runner 25063 Aug  9 13:08 run-2026-08-08-15-47.md
+-rw-r--r--  1 runner runner 27020 Aug  9 13:08 run-2026-08-08-17-19.md
+-rw-r--r--  1 runner runner  7619 Aug  9 13:08 run-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  6252 Aug  9 13:08 run-2026-08-08-17-57.md
+-rw-r--r--  1 runner runner 22001 Aug  9 13:08 run-2026-08-08-18-19.md
+-rw-r--r--  1 runner runner 13783 Aug  9 13:08 run-2026-08-08-19-08.md
+-rw-r--r--  1 runner runner   855 Aug  9 13:08 run-2026-08-08-19-48.md
+-rw-r--r--  1 runner runner  3697 Aug  9 13:08 run-2026-08-08-20-15.md
+-rw-r--r--  1 runner runner 48286 Aug  9 13:08 run-2026-08-08-20-16.md
+-rw-r--r--  1 runner runner   288 Aug  9 13:08 run-2026-08-08-20-52.md
+-rw-r--r--  1 runner runner   306 Aug  9 13:08 run-2026-08-08-21-18.md
+-rw-r--r--  1 runner runner 20264 Aug  9 13:08 run-2026-08-08-21-53.md
+-rw-r--r--  1 runner runner   319 Aug  9 13:08 run-2026-08-08-22-13.md
+-rw-r--r--  1 runner runner 25573 Aug  9 13:08 run-2026-08-08-22-53.md
+-rw-r--r--  1 runner runner 57527 Aug  9 13:08 run-2026-08-08-23-18.md
+-rw-r--r--  1 runner runner   228 Aug  9 13:08 run-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner 36585 Aug  9 13:08 run-2026-08-09-00-41.md
+-rw-r--r--  1 runner runner 25496 Aug  9 13:08 run-2026-08-09-03-00.md
+-rw-r--r--  1 runner runner   324 Aug  9 13:08 run-2026-08-09-04-10.md
+-rw-r--r--  1 runner runner   292 Aug  9 13:08 run-2026-08-09-05-26.md
+-rw-r--r--  1 runner runner 13044 Aug  9 13:08 run-2026-08-09-05-48.md
+-rw-r--r--  1 runner runner 23442 Aug  9 13:08 run-2026-08-09-06-39.md
+-rw-r--r--  1 runner runner 15689 Aug  9 13:08 run-2026-08-09-07-44.md
+-rw-r--r--  1 runner runner 24960 Aug  9 13:08 run-2026-08-09-08-32.md
+-rw-r--r--  1 runner runner   621 Aug  9 13:08 run-2026-08-09-09-27.md
+-rw-r--r--  1 runner runner 62572 Aug  9 13:08 run-2026-08-09-10-21.md
+-rw-r--r--  1 runner runner   338 Aug  9 13:08 run-2026-08-09-10-56.md
+-rw-r--r--  1 runner runner 21593 Aug  9 13:08 run-2026-08-09-11-53.md
+-rw-r--r--  1 runner runner 22109 Aug  9 13:08 run-2026-08-09-12-22.md
+-rw-r--r--  1 runner runner  2617 Aug  9 13:08 triage-2026-08-09-1011.md
+[0m
+
+# threema-hunt
+
+24/7 multi-model bug-hunting automation for **Threema**.
+
+Scope: see `scope.yml` (in-scope assets, exclusions, rules).
+
+How it works:
+
+- 5 opencode models (Big Pickle, Nemotron 3 Ultra, Longcat, Ling 3.0, Laguna) hunt in parallel every **10 minutes**, rotating targets
+- Deep public-repo scan of the `threema/` GitHub org(s) referenced in `scope.yml` every **30 minutes**
+- Triager job validates every lead with a second model + live passive probe, keeping a running count in `reports/valid-bugs.md`
+- All testing is **passive and read-only** (GET/HEAD, ≤1 rps, no account creation, no data modification) per program rules
+- Secrets are committed only as hashes; findings must be reported through the program channel referenced in `scope.yml`
+
+| Artifact | Purpose |
+|---|---|
+| `research/` | Per-model research journals |
+| `leads/` | Candidate findings (UNVALIDATED) |
+| `triage/` | Validation verdicts |
+| `reports/valid-bugs.md` | Validated findings + running count |
+| `scope.yml` | Program scope and rules (edit to adjust) |
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/triage/triage-2026-08-09-1011.md; echo "=====RUN 12-22====="; cat /home/runner/work/threema-hunt/threema-hunt/triage/run-2026-08-09-12-22.md 2>/dev/null | head -100
+# Triage Report — 2026-08-09 10:11 UTC
+
+## Outcome: 0 VALID leads
+
+All 23 unique leads from probe-results.md triaged as INVALID.
+
+| # | Lead | HTTP | Verdict | Reason |
+|---|------|------|---------|--------|
+| 1 | ds-apip.threema.ch/identity/fetch_bulk | 200 | INVALID | Duplicate of already-ACCEPTED KB finding (directory IDOR) |
+| 2 | safe-01.threema.ch/backups/{64hex} | 400 | INVALID | Duplicate; credential-gated, no unauth data access |
+| 3 | safe-01.threema.ch/backups/{testId} | 400 | INVALID | Same family as #2 |
+| 4 | safe-01.threema.ch/backups/{backupId} | 400 | INVALID | Same family as #2 |
+| 5 | work.test.threema.ch/api-app/public/license/token/{64hex} | 404 | INVALID | Out of scope (staging) + duplicate |
+| 6 | ds-apip-work.threema.ch/identities | 401 | INVALID | Auth-gated; duplicate |
+| 7 | work.test.threema.ch/api-app/public/global/settings | 200 | INVALID | Out of scope (staging) + duplicate |
+| 8 | ds-apip.threema.ch/identity/check_revocation_key | 200 | INVALID | Validation oracle disproven; duplicate |
+| 9 | work.threema.ch/api-app/public/global/settings | 404 | INVALID | Expected 404 on prod |
+| 10 | saltyrtc-00.threema.ch/ | 426 | INVALID | Out of scope |
+| 11 | github.com/threema-ch/threema-desktop | 200 | INVALID | Public OSS repo |
+| 12 | shop.threema.ch/en | 200 | INVALID | Public shop page |
+| 13 | billing.threema.ch | ERR | INVALID | DNS NXDOMAIN; unreachable |
+| 14 | broadcast.threema.ch/api/v1 | 401 | INVALID | Auth-gated; duplicate |
+| 15 | broadcast.threema.ch/en/login | 200 | INVALID | Public login page |
+| 16 | gateway.threema.ch/en/signup | 200 | INVALID | Public signup page |
+| 17 | ds-apip.test.threema.ch/identity/fetch_bulk | 200 | INVALID | Out of scope (staging) + duplicate |
+| 18 | ds-apip.test.threema.ch/identity/ECHOECHO | 200 | INVALID | Out of scope (staging) + duplicate |
+| 19 | ds-apip-work.threema.ch/identity/lookup | 401 | INVALID | Auth-gated; duplicate |
+| 20 | safe-01.threema.ch/backups/{concrete64hex} | 400 | INVALID | Same family as #2 |
+| 21 | safe-01.threema.ch/backups/ | 404 | INVALID | Expected 404 (no ID) |
+| 22 | ds-apip.threema.ch/identity/lookup | 404 | INVALID | Dead route |
+| 23 | broadcast.threema.ch/api/v1/health | 404 | INVALID | Dead route |
+
+## Conclusion
+
+No novel, reportable findings this cycle. All leads are either:
+- Already ACCEPTED in knowledge base and valid-bugs.md (directory IDOR, desktop key-storage ACL, safe backup CORS)
+- Out of scope (staging `.test` variants, SaltyRTC)
+- Expected behavior (401/404 auth-gated or dead routes, public pages)
+
+**No report to file with Threema security channel.**
+=====RUN 12-22=====
+
+===== TRIAGE 2026-08-09 12:22:28 UTC =====
+[0m
+> build · longcat-2.0-free
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/
+total 96
+drwxr-xr-x 11 runner runner  4096 Aug  9 12:19 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 12:18 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 12:19 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 12:18 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 12:18 README.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 12:18 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 12:18 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  9 12:18 leads
+-rw-r--r--  1 runner runner     0 Aug  9 12:19 new-leads.txt
+-rw-r--r--  1 runner runner 14310 Aug  9 12:18 probe-results.md
+-rw-r--r--  1 runner runner     0 Aug  9 12:19 probe-results.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 12:18 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 12:18 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 12:18 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 12:18 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 12:18 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 12:18 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 12:18 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 12:18 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 12:18 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 12:18 triage
+-rw-r--r--  1 runner runner    38 Aug  9 12:19 triage-output.txt
+-rw-r--r--  1 runner runner   934 Aug  9 12:19 triage-prompt.txt
+[0m
+[0m✱ [0mGlob "**/*scope*"[90m 1 match[0m
+[0m✱ [0mGlob "**/*lead*"[90m 6 matches[0m
+[0m→ [0mRead scope.yml
+[0m→ [0mRead leads/lead-nemotron3.md
+[0m→ [0mRead leads/lead-longcat.md
+[0m→ [0mRead leads/lead-ling3.md
+[0m→ [0mRead leads/lead-laguna.md
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/triage/ && cat /home/runner/work/threema-hunt/threema-hunt/triage-output.txt && cat /home/runner/work/threema-hunt/threema-hunt/triage-prompt.txt
+total 888
+drwxr-xr-x  2 runner runner  4096 Aug  9 12:18 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 12:19 ..
+-rw-r--r--  1 runner runner 81432 Aug  9 12:18 run-2026-08-07-20-10.md
+-rw-r--r--  1 runner runner 18280 Aug  9 12:18 run-2026-08-07-21-03.md
+-rw-r--r--  1 runner runner 18224 Aug  9 12:18 run-2026-08-07-21-56.md
+-rw-r--r--  1 runner runner 12766 Aug  9 12:18 run-2026-08-07-22-56.md
+-rw-r--r--  1 runner runner 27810 Aug  9 12:18 run-2026-08-07-23-55.md
+-rw-r--r--  1 runner runner  1637 Aug  9 12:18 run-2026-08-08-02-24.md
+-rw-r--r--  1 runner runner 18651 Aug  9 12:18 run-2026-08-08-04-24.md
+-rw-r--r--  1 runner runner 20107 Aug  9 12:18 run-2026-08-08-06-01.md
+-rw-r--r--  1 runner runner 23637 Aug  9 12:18 run-2026-08-08-07-07.md
+-rw-r--r--  1 runner runner 18269 Aug  9 12:18 run-2026-08-08-07-15.md
+-rw-r--r--  1 runner runner 12515 Aug  9 12:18 run-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner   236 Aug  9 12:18 run-2026-08-08-08-59.md
+-rw-r--r--  1 runner runner 11791 Aug  9 12:18 run-2026-08-08-09-54.md
+-rw-r--r--  1 runner runner 10557 Aug  9 12:18 run-2026-08-08-10-53.md
+-rw-r--r--  1 runner runner   896 Aug  9 12:18 run-2026-08-08-11-44.md
+-rw-r--r--  1 runner runner   428 Aug  9 12:18 run-2026-08-08-13-11.md
+-rw-r--r--  1 runner runner  7773 Aug  9 12:18 run-2026-08-08-14-00.md
+-rw-r--r--  1 runner runner 19408 Aug  9 12:18 run-2026-08-08-14-52.md
+-rw-r--r--  1 runner runner 25063 Aug  9 12:18 run-2026-08-08-15-47.md
+-rw-r--r--  1 runner runner 27020 Aug  9 12:18 run-2026-08-08-17-19.md
+-rw-r--r--  1 runner runner  7619 Aug  9 12:18 run-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  6252 Aug  9 12:18 run-2026-08-08-17-57.md
+-rw-r--r--  1 runner runner 22001 Aug  9 12:18 run-2026-08-08-18-19.md
+-rw-r--r--  1 runner runner 13783 Aug  9 12:18 run-2026-08-08-19-08.md
+-rw-r--r--  1 runner runner   855 Aug  9 12:18 run-2026-08-08-19-48.md
+-rw-r--r--  1 runner runner  3697 Aug  9 12:18 run-2026-08-08-20-15.md
+-rw-r--r--  1 runner runner 48286 Aug  9 12:18 run-2026-08-08-20-16.md
+-rw-r--r--  1 runner runner   288 Aug  9 12:18 run-2026-08-08-20-52.md
+-rw-r--r--  1 runner runner   306 Aug  9 12:18 run-2026-08-08-21-18.md
+-rw-r--r--  1 runner runner 20264 Aug  9 12:18 run-2026-08-08-21-53.md
+-rw-r--r--  1 runner runner   319 Aug  9 12:18 run-2026-08-08-22-13.md
+-rw-r--r--  1 runner runner 25573 Aug  9 12:18 run-2026-08-08-22-53.md
+-rw-r--r--  1 runner runner 57527 Aug  9 12:18 run-2026-08-08-23-18.md
+-rw-r--r--  1 runner runner   228 Aug  9 12:18 run-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner 36585 Aug  9 12:18 run-2026-08-09-00-41.md
+-rw-r--r--  1 runner runner 25496 Aug  9 12:18 run-2026-08-09-03-00.md
+-rw-r--r--  1 runner runner   324 Aug  9 12:18 run-2026-08-09-04-10.md
+-rw-r--r--  1 runner runner   292 Aug  9 12:18 run-2026-08-09-05-26.md
+-rw-r--r--  1 runner runner 13044 Aug  9 12:18 run-2026-08-09-05-48.md
+-rw-r--r--  1 runner runner 23442 Aug  9 12:18 run-2026-08-09-06-39.md
+-rw-r--r--  1 runner runner 15689 Aug  9 12:18 run-2026-08-09-07-44.md
+-rw-r--r--  1 runner runner 24960 Aug  9 12:18 run-2026-08-09-08-32.md
+-rw-r--r--  1 runner runner   621 Aug  9 12:18 run-2026-08-09-09-27.md
+-rw-r--r--  1 runner runner 62572 Aug  9 12:18 run-2026-08-09-10-21.md
+-rw-r--r--  1 runner runner   338 Aug  9 12:18 run-2026-08-09-10-56.md
+-rw-r--r--  1 runner runner 21593 Aug  9 12:18 run-2026-08-09-11-53.md
+-rw-r--r--  1 runner runner  2617 Aug  9 12:18 triage-2026-08-09-1011.md
+[0m
+> build · longcat-2.0-free
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/
+total 96
+drwxr-xr-x 11 runner runner  4096 Aug  9 12:19 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 12:18 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 12:19 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 12:18 .github
+[0m
+[0m$ [0mhead -80 /home/runner/work/threema-hunt/threema-hunt/reports/valid-bugs.md
+# Validated Bugs
+
+- 2026-08-07 ~18:00 UTC - SEED STATE: 0 valid bugs. Pipeline not yet run; hypotheses are recon-based and UNVALIDATED.
+
+- 3 lead(s) marked VALID at 2026-08-07 21:03:52 UTC
+  - | Q5 Novel? | **NO** — already ACCEPTED (knowledge/index.md line 21: "POST /identity/fetch_bulk returns pubkeys for valid IDs only, no auth") |
+  - | Q4 Passive proof? | **PARTIAL** — can confirm CORS headers + 404 on random IDs; cannot confirm oracle without valid id+key pair |
+  - | **VALID** | 0 | — |
+
+- 3 lead(s) marked VALID at 2026-08-07 21:56:25 UTC
+  - **Verdict: HOLD** — Speculative; requires AUTH_HELPED with valid credentials to confirm. Needs program to provide test credentials.
+  - | Q4 | PARTIAL — can confirm CORS headers; cannot confirm oracle without valid id+key |
+  - | **VALID** | 0 | — |
+
+- 2 lead(s) marked VALID at 2026-08-07 23:55:35 UTC
+  - | Q3 | **NO** | All data-access routes return 400 (credential-gated). No unauthenticated data access demonstrated. CORS `*` + Authorization header on an auth-gated API only matters if the attacker alr
+  - | Q7 | **NO** | Requires valid credentials to have any impact. No unauthenticated data access demonstrated. |
+
+- 3 lead(s) marked VALID at 2026-08-08 04:24:31 UTC
+  - **Verdict: VALID**
+  - **Verdict: HOLD** — Defense-in-depth/hardening gap. `sandbox:false` + `nodeIntegrationInWorker:true` are real hardening concerns but constitute a vulnerability ONLY when chained with a demonstrated re
+  - | **VALID** | 1 | #3 Desktop Windows key-storage ACL bypass |
+
+- 6 lead(s) marked VALID at 2026-08-08 06:01:58 UTC
+  - **Verdict: VALID** (duplicate of already-accepted KB finding — no new action needed)
+  - **Verdict: HOLD** — credential-gated; real impact requires credential compromise; enumeration oracle is weak (route existence only). AUTH_HELPED needed to confirm (1) HTTP 200 for valid backupId+backu
+  - | Q7 | ✅ YES | Reasonable triager accepts as valid local-privilege finding for privacy-focused messenger |
+  - **Verdict: VALID** (duplicate of already-accepted KB finding — confidence strengthened 75→95)
+  - | 1 | Directory identity→pubkey bulk enumeration + CORS * + no rate limit | IDOR | **VALID** | 5.3 Med | Already accepted |
+  - | 3 | Desktop Windows key-storage ACL bypass → identity compromise | MISCONFIG | **VALID** | 5.5 Med | Already accepted (strengthened) |
+
+- 8 lead(s) marked VALID at 2026-08-08 07:07:02 UTC
+  - | Q4 Passive proof? | **YES** — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` returns 200 with pubkey
+  - **Verdict: ✅ VALID**
+  - **Verdict: ✅ VALID (low severity)**
+  - **Verdict: ✅ VALID (medium, local access required)**
+  - | Q7 Triager accept? | **NO** — no data access without valid credentials; CORS `*` on a credential-gated endpoint is not a vulnerability |
+  - | 1 | Directory cluster identity enumeration (IDOR) | ✅ **VALID** | 5.3 | Medium |
+  - | 2 | Staging directory server public exposure | ✅ **VALID** | 3.1 | Low |
+  - | 3 | Desktop Windows key storage ACL bypass | ✅ **VALID** | 4.6 | Medium |
+
+- 5 lead(s) marked VALID at 2026-08-08 07:15:49 UTC
+  - | **Q4 Proof (GET/HEAD)** | ✅ YES — `GET /identity/ECHOECHO` → 200 with pubkey; `GET /identity/ZZZZZZZZ` → 404; `POST /identity/fetch_bulk` → pubkeys for valid IDs; CORS * confirmed |
+  - | **Q6 Not always-rejected** | ❌ **REJECTED** — CORS * on a credential-gated endpoint is best practice / defense-in-depth. No unauthenticated data access. The 400-vs-404 distinction is an oracle but r
+  - | **Q2 Reachability** | ⚠️ AUTH_HELPED — requires valid Work test license (401 on unauth) |
+  - **Verdict: HOLD** — Interesting hypothesis (OpenAPI flags it "currently buggy" TWRK-1633) but requires AUTH_HELPED testing with a valid Work license. Cannot be proven with passive GET/HEAD only. Retai
+  - **VALID leads for reporting: 0**
+
+- 5 lead(s) marked VALID at 2026-08-08 08:07:09 UTC
+  - | Q2 Reachable? | ⚠️ PARTIAL | Endpoint responds but returns 400 without valid credentials; auth-gated |
+  - | Q3 Real impact? | ❌ NO | CORS `*` on a credential-gated endpoint (400, not 200) is defense-in-depth only. No unauthenticated data access demonstrated. Attacker still needs valid backupId+backupKey |
+  - | Q6 Not always-rejected? | ❌ NO | This is on the always-rejected list: CORS `*` on credential-gated endpoint is best practice/defense-in-depth, not a vulnerability (per valid-bugs.md precedent) |
+  - | Q1 In scope? | ❌ NO | scope.yml lists `mediator-*.threema.ch` and `rendezvous-*.threema.ch` — staging `.test` variants are not explicitly listed. Per valid-bugs.md precedent, staging variants are tr
+  - | Q4 Passive proof? | ❌ NO | Requires AUTH_HELPED (valid credentials) to test session fixation |
+
+- 2 lead(s) marked VALID at 2026-08-08 10:53:22 UTC
+  - Verdict: HOLD — speculative. Backend route not deployed on staging (returns method-agnostic 404). If backend catches up, the route could return license credentials (username/password/expires/hasEmail)
+  - | VALID   | 0     | — |
+
+- 2 lead(s) marked VALID at 2026-08-08 14:00:44 UTC
+  - | Q3 | NO — impact is "valid-ID enumeration at scale; low-medium (pubkeys public by design)" |
+  - | **VALID** | 0 | No new, novel, reportable findings |
+
+- 5 lead(s) marked VALID at 2026-08-08 14:52:12 UTC
+  - **Verdict: VALID — Medium**
+  - **Verdict: VALID — Medium**
+  - **Verdict: HOLD** — valid RAG target to unlock chat surface; no vuln to report yet. Action: grep client source for `ServerConfig`/`g-*.0.threema.ch`/`wss://` chat URL.
+  - | 1 | Directory cluster identity→pubkey enumeration (fetch_bulk + GET /identity/{id}, CORS*, no rate-limit) | **VALID** (Medium) | Mass enumeration of valid IDs+pubkeys at scale; CVSS 4.3 |
+  - | 4 | Desktop Windows key storage: no ACL on keystorage.bin + keystorage.password.bin | **VALID** (Medium) | Same-user process reads DPAPI password + encrypted keystore; CVSS 5.5 |
+
+- 14 lead(s) marked VALID at 2026-08-08 15:47:00 UTC
+  - | Q5 Novel? | ❌ **NO** — already ACCEPTED in KB (lines 20-21, 27, 59, 67, 80, 82, 85-86, 94, 99, 104); triaged as VALID in valid-bugs.md multiple times |
+  - | Q5 Novel? | ❌ **NO** — already ACCEPTED in KB (lines 26, 74, 77-78, 92, 108); triaged as VALID in valid-bugs.md |
+  - | Q5 Novel? | ❌ **NO** — already ACCEPTED in KB (lines 28-29, 61, 68, 93); triaged as VALID in valid-bugs.md |
+  - | Q3 Real impact? | ❌ NO — `GET /backups/{64hex}` returns 400 (not 200/401/404); requires valid backupId+backupKey; CORS* on credential-gated endpoint only matters if attacker already has credentials 
+  - | Q4 Passive proof? | ⚠️ Can confirm CORS headers + 400 response; cannot confirm data access without valid credentials |
+  - | Q6 Not always-rejected? | ❌ **NO** — CORS* on a credential-gated endpoint is best-practice/defense-in-depth, not a vulnerability (per valid-bugs.md precedent) |
+  - | Q7 Triager accept? | ❌ NO — no data access demonstrated; requires valid credentials |
+  - | Q2 Reachable? | ⚠️ AUTH_HELPED — requires valid credentials to test login flow |
+  - | Q5 Novel? | ⚠️ Not previously triaged in valid-bugs.md, but low confidence |
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-09-12-54.md
+===== REPOSCAN 2026-08-09 12:54:22 UTC =====
+## Grep hits:
+SCAN SUMMARY: 6656 code/config files scanned, 56 hits
+reposcan-raw/threema-ch/threema-ios/Threema/AppMigration.swift:873: let persistenceKeyLicensePassword = "Threema license password"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/SafeDataTests.swift:11: serverPassword: "password1",
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift:15: let expectedAuthToken = "authToken"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift:18: let expectedPassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:50: licenseStoreMock.licensePassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:72: (username: nil as String?, password: "testPassword" as String?, description: "nil username"),
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:148: licenseStoreMock.licensePassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:13: let expectedPassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:37: (username: nil as String?, password: "validPassword" as String?, description: "nil username"),
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:103: password: "testPassword",
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:67: let result = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:76: let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:105: let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift:30: let password = "abcdefghijkl"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift:227: let validPassword = "ABcd!@#tgk092"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:28: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:76: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:120: safePassword: "shootdeathstar"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift:38: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift:83: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt:49: """sfuToken='********', expirationDate=$expirationDate)"""
+reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:911: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/storage/models/WebClientSessionModel.java:28: public static final String COLUMN_PUSH_TOKEN = "push_token";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/storage/databaseupdate/DatabaseUpdateToVersion37.java:48: static final String COLUMN_PUSH_TOKEN = "push_token";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/utils/IceCandidateParser.java:43: public final static String TOKEN = "[a-zA-Z]+";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/webclient/converter/ClientInfo.java:37: private final static String PUSH_TOKEN = "pushToken";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt:70: "iceUsernameFragment='$iceUsernameFragment', icePassword='$icePassword', " +
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/notifications/NotificationChannels.kt:52: const val NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/dialogs/PasswordEntryDialog.java:47: public static final @NonNull String KEY_PASSWORD = "password";
+reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:15: publicApiKey = "b3e20afbf356a8748bb62ac165aa780c",
+reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:19: publicApiKey = "615af77cb3d980c41b3b04b07417cc7d",
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:147: DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:153: WORK_SERVER_LEGACY_URL: 'https://ds-apip-work.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:154: WORK_SERVER_URL: 'https://work.test.threema.ch/',
+
+## Model analysis:
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && sha256sum <<< "r3gGN9GDQ5NF6tM6"
+52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c  -
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && sha256sum <<< "Threema license password"
+c6ef56ceef46a163980a2be7a79b03c2ff4f502f018d8b6fae94369497c1e866  -
+[0m
+### CLASSIFICATION TABLES
+
+#### REAL_SECRET
+| File | Line | Secret SHA256 | Context |
+|------|------|---------------|---------|
+| *(none)* | — | — | No hardcoded live credentials/API keys found |
+
+#### TEST_OR_EXAMPLE
+| File | Line | Type | Notes |
+|------|------|------|-------|
+| threema-ios/Threema/AppMigration.swift | 873 | Keychain key name | `"Threema license password"` (sha256: c6ef56ce...) — not a secret |
+| threema-ios/ThreemaFrameworkTests/**/*.swift | 11,13,15,18,37,50,72,103,148 | Test fixtures | `"testPassword"`, `"authToken"`, `"password1"`, `"validPassword"` |
+| threema-ios/ThreemaTests/SafeTests.swift | 67,76,105 | Test password | `"shootdeathstar"` (reused test constant) |
+| threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift | 30,227 | Test passwords | `"abcdefghijkl"`, `"ABcd!@#tgk092"` |
+| threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/*.swift | 28,38,76,83,120 | Test password | `"shootdeathstar"` |
+| threema-android/app/src/main/java/.../WebClientSessionModel.java | 28 | Column name | `COLUMN_PUSH_TOKEN = "push_token"` |
+| threema-android/.../DatabaseUpdateToVersion37.java | 48 | Column name | `COLUMN_PUSH_TOKEN = "push_token"` |
+| threema-android/.../IceCandidateParser.java | 43 | Regex pattern | `TOKEN = "[a-zA-Z]+"` |
+| threema-android/.../ClientInfo.java | 37 | Constant name | `PUSH_TOKEN = "pushToken"` |
+| threema-android/.../JoinResponse.kt | 70 | toString field | `icePassword` variable interpolation |
+| threema-android/.../NotificationChannels.kt | 52 | Channel ID const | `NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"` |
+| threema-android/.../PasswordEntryDialog.java | 47 | Bundle key const | `KEY_PASSWORD = "password"` |
+| threema-android/buildSrc/.../SentryConfig.kt | 15,19 | **Public Sentry DSN** | `publicApiKey = "b3e20afbf356a8748bb62ac165aa780c"` + `"615af77cb3d980c41b3b04b07417cc7d"` — public by design |
+| threema-desktop/apps/desktop/src/common/test-data.ts | 62 | Placeholder | `keyStoragePassword: 'CHANGE_ME'` |
+| threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts | 223 | **Benchmark dummy** | `password: 'r3gGN9GDQ5NF6tM6'` (sha256: 52a0af98...) — **RAG-REJECTED**: benchmark-only, key purged at line 233 |
+| threema-desktop/apps/desktop/src/common/enum/index.ts | 3126,3162 | IPC event names | `LOAD_USER_PASSWORD`, `STORE_USER_PASSWORD` |
+| threema-desktop/apps/desktop/src/enum/schema.ts | 983,1000 | IPC event names | `LOAD_USER_PASSWORD`, `STORE_USER_PASSWORD` |
+| threema-desktop/packages/webrtc/src/sdp/ice-password.ts | 12 | Validation error | `Not a valid ICE password` message |
+
+#### ENDPOINT_LEAK
+| File | Line | Endpoint | Environment |
+|------|------|----------|-------------|
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7,917 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` | Staging |
+| threema-android/domain/protocol/src/directory.openapi.yml | 7,911 | Same as above | Staging |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 7,917 | Same as above | Staging |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 7,911 | Same as above | Staging |
+| threema-desktop/apps/desktop/config/vite.config.ts | 147,153,154 | `DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/'`, `WORK_SERVER_LEGACY_URL: 'https://ds-apip-work.test.threema.ch/'`, `WORK_SERVER_URL: 'https://work.test.threema.ch/'` | Staging config |
+
+#### INTERESTING
+| File | Line | Finding |
+|------|------|---------|
+| threema-android/buildSrc/.../SentryConfig.kt | 15,19 | Two public Sentry DSN keys (different per flavor) — confirms build variants |
+| threema-desktop/apps/desktop/config/vite.config.ts | 147-154 | Staging endpoints baked into desktop build config — confirms test env usage in CI/dev |
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7,917 | OpenAPI specs include staging directory servers — design-time docs, not runtime leak |
+
+---
+
+### VERDICT LIST
+| Candidate | REPORT_CANDIDATE | Reason |
+|-----------|------------------|--------|
+| Sentry publicApiKey (threema-android) | **no** | Public DSN keys by design (Sentry `publicApiKey` field) |
+| crypto.ts benchmark password | **no** | RAG-REJECTED: benchmark-only dummy, derived key purged immediately (line 233) |
+| All test fixtures / constants | **no** | Test code, placeholder values, column/key names |
+| Staging endpoints in OpenAPI / vite.config | **no** | Design-time configuration for dev/CI; staging hosts already in scope & known |
+| No live secrets, API keys, or tokens found in scan | **no** | — |
+
+**Summary**: 0 reportable secrets. All 56 hits are test fixtures, constants, public DSN keys, staging config, or a known-rejected benchmark dummy.
+[0m
+[0m$ [0mtail -120 /home/runner/work/threema-hunt/threema-hunt/leads/lead-bigpickle.md
+testability: AUTH_HELPED
+[HYP] Desktop Windows key-storage ACL bypass → full identity compromise via DPAPI
+class: MISCONFIG
+asset: threema-desktop (key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163, fs.ts:41, inner/v3.ts:65,70, crypto.ts:53-113, db/sqlite.ts:220)
+confidence: 95
+reasoning: RAG-verified chain — win32 `fileModeInternalObjectIfPosix()` returns `{}` → keystorage files written without DACL; safeStorage DPAPI password recoverable by same-user; Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + databaseKey → SQLCipher PRAGMA key. Re-confirmed stable this cycle across 15 source paths.
+evidence_needed: runtime PoC — same-user process extracts Ed25519 private key + SQLCipher key from keystorage files on Windows (PoC gap: no poc.py in workspace).
+verify_steps: RAG: re-verify fs.ts:41, index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, sqlite.ts:220.
+impact: complete local account compromise (identity privkey + message DB) under same-user malware. Severity: Medium-High (local access required).
+testability: RAG
+[HYP] Safe backup store credentialed cross-origin read + HSTS gap
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 50
+reasoning: OPTIONS 204 CORS `*` + ACAH:Authorization (all 5 hosts behind 203.56.112.231); unauth GET byte-identical 400; HSTS/Expect-CT present on preflight but ABSENT on GET 400.
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 (200+payload or 401/403).
+verify_steps: AUTH_HELPED — `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}`; diff vs 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin. Severity: High with creds, unreachable without.
+testability: AUTH_HELPED
+[NEXT] HUMAN: request one program-issued test identity AND a backupId:backupKey from the lead — a single credential set unblocks the top three surviving hypotheses: `GET /identity/{testId}` diff staging vs prod (mirror proof), fetch_bulk `state`/`type` echo vs ECHOECHO baseline (account-status oracle), and `curl -u testId:testKey https://safe-01.threema.ch/backups/{testId}` vs 400 baseline (credentialed read).
+## 2026-08-09 12:13:04 UTC [chat] (model bigpickle)
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling ≥10000 IDs/req confirmed (10000-batch → 200, 0.80s, 152B, ECHOECHO echoed, 9999 invalid silently omitted, no 413/429) — enumeration throughput bound ~10k IDs per request
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk byte-identical to prod; ceiling ≥10000; no extra routes (/swagger /docs /openapi.json 404); mirror evidence strengthened
+[LEARN] REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys produce byte-identical 403; only key-PRESENCE observable; no CORS preflight (OPTIONS 404)
+[LEARN] ACCEPTED OTHER @ gateway.threema.ch: /v1 → 404 catch-all, /api/v1 → 403 (nginx deny), /en/signup → 200 (14KB page); no exposed msgapi route on this host
+[LEARN] ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated /backups/{64hex} — header inconsistency stable
+[LEARN] REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes read, no peer certificate); no cert/SAN leak; handshake requires authenticated login frame — chat passive channel formally closed
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: 5 challenge endpoints (sfu_cred, blob_cred, set_revocation_key, check_revocation_key, update_work_info) confirmed live via GET returning 200 with JSON error bodies + CORS *; parameter-validation-before-identity-lookup oracle stable on set_revocation_key and update_work_info
+[RISK] chat: 55 reason: g-*.0.threema.ch prod pattern unenumerated; staging likely out of scope; no passive HTTP endpoints (5222/WSS handshake requires client login frame; 443 closes without TLS handshake on both staging + prod); saltyrtc-* 426 but explicitly NOT in scope.yml
+[RISK] web: 93 reason: ds-apip/api/apip directory cluster — 3 prod hosts, public identity oracle + fetch_bulk ≥10000 batch + 5 challenge endpoints + CORS * + no rate-limit; safe-01 backup API with permissive CORS + Authorization header + HSTS gap on GET 400 + 5 hostnames on single IP; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed; broadcast/api/v1 auth-gated; gateway signup accessible
+[RISK] sync: 55 reason: mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; mediator/rendezvous WSS high-entropy; auth in source (no passive in-band divergence); saltyrtc-*.threema.ch 426 but out of scope
+[RISK] safe: 88 reason: safe-01.live with CORS * + write-capable methods + Access-Control-Allow-Headers: Authorization + HSTS/Expect-CT on preflight but NOT on GET 400; 5 hostnames same IP; route-existence oracle; Basic-Auth gating only
+[RISK] desktop-src: 95 reason: Windows key-storage ACL bypass CONFIRMED at source level (fs.ts:41, key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163 write with {} on win32 → no DACL restriction → DPAPI password recoverable by same-user → Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + SQLCipher databaseKey; PoC runtime-verified); plus Electron nodeIntegrationInWorker: true + sandbox unset (TODO DESK-79) at electron-main.ts:1252,1255
+confidence: 50
+reasoning: OPTIONS 204 CORS `*` + ACAH:Authorization (all 5 hosts); unauth GET byte-identical 400; route-existence oracle stable; HSTS/Expect-CT absent on GET 400.
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 (200+payload or 401/403) + Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}`; diff vs 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin (High with creds, unreachable without).
+testability: AUTH_HELPED
+[NEXT] HUMAN: request one program-issued test identity (plus test backupId:backupKey) from the lead — a single identity enables all three surviving hypotheses: `GET /identity/{testId}` diff staging vs prod ([85]), fetch_bulk `state` echo ([45]), and `curl -u testId:testKey https://safe-01.threema.ch/backups/{testId}` vs 400 baseline ([50]).
+[LEARN] REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes read, no peer certificate); no cert/SAN leak; handshake requires authenticated login frame — chat passive channel formally closed.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling ≥10000 IDs/req confirmed (10000-batch → 200, 0.80s, 152B, ECHOECHO echoed, 9999 invalid silently omitted, no 413/429) — enumeration throughput bound ~10k IDs per request; prior 5000-ID probe also 200.
+[RISK] chat: 58 — identity→pubkey enumeration now ≥10k IDs/request unauth + CORS `*` + no rate limit on all 3 directory hosts (throughput 10x prior bound); chat transport passive channel closed, no new surface. | web: 35 — cockpit assets key/basic-auth gated; broadcast presence-oracle only; work.test single benign public endpoint. | sync: 20 — mediator/rendezvous uniform 403, no in-band divergence; handshake requires auth. | safe: 40 — backup API credential-gated (400 unauth) + route-existence oracle + HSTS inconsistency; impact contingent on valid creds. | desktop-src: 45 — key-storage Windows ACL bypass RAG-verified (95) chained to SQLCipher+Ed25519 disclosure; sandbox/worker gaps conditional.
+[NEW] ds-apip.threema.ch — canonical directory server hostname (matches inventory `apip.threema.ch` but is the actual host wired into desktop client build config)
+[NEW] ds-apip-work.threema.ch — work-style directory server (returns 401 on all paths, requires Basic auth)
+[NEW] blob-mirror-{prefix4}.threema.ch/{prefix8}/ — blob server hostname pattern (discovered in desktop source `config.ts`; NOT in scope — does not match any scope wildcard)
+[NEW] mediator-{prefix4}.threema.ch/{prefix8}/ — mediator WSS hostname pattern (in scope: `mediator-*.threema.ch`)
+[NEW] safe-{backupIdPrefix8}.threema.ch/ — backup safe hostname pattern (in scope: `safe-*.threema.ch`)
+[NEW] rendezvous-{prefix4}.threema.ch/{prefix8}/ — rendezvous WSS hostname pattern (in scope: `rendezvous-*.threema.ch`)
+[CHANGED] apip.threema.ch — was 403 on `/`; now confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
+[PRIO] ds-apip.threema.ch (directory server API), 7.95
+[PRIO] threema-desktop source (github.com/threema-ch/threema-desktop), 6.70
+[PRIO] safe-{XX}.threema.ch (backup service), 5.55
+[HYP] Directory fetch_bulk lifecycle state/type echo → chat account-status oracle
+class: IDOR
+asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch + staging `/identity/fetch_bulk`, `GET /identity/{id}`
+confidence: 55
+reasoning: Response schema confirmed this cycle to carry `state` and `type` per identity (ECHOECHO → state:0, type:0). If deactivated/revoked identities return state≠0 (or are silently dropped like invalid IDs), fetch_bulk becomes an account-status oracle — distinguishing active/deactivated/revoked chat accounts at 10k IDs/request, no rate limit.
+evidence_needed: one deactivated identity returning state≠0 (or omitted) vs active ECHOECHO (state:0) in fetch_bulk response.
+verify_steps: AUTH_HELPED — `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["{deactivatedTestId}","ECHOECHO"]}'`; diff state/type fields vs baseline.
+impact: mass account-status enumeration (deactivated/revoked chat identities) on top of existing existence enumeration. Severity: Medium (escalation of accepted IDOR).
+testability: AUTH_HELPED
+[HYP] Desktop Windows key-storage ACL bypass → full identity compromise via DPAPI
+class: MISCONFIG
+asset: threema-desktop (key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163, fs.ts:41, inner/v3.ts:65,70, crypto.ts:53-113, db/sqlite.ts:220)
+confidence: 95
+reasoning: RAG-verified chain — win32 `fileModeInternalObjectIfPosix()` returns `{}` → keystorage files written without DACL; safeStorage DPAPI password recoverable by same-user; Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + databaseKey → SQLCipher PRAGMA key. Re-confirmed stable this cycle across 15 source paths.
+evidence_needed: runtime PoC — same-user process extracts Ed25519 private key + SQLCipher key from keystorage files on Windows (PoC gap: no poc.py in workspace).
+verify_steps: RAG: re-verify fs.ts:41, index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, sqlite.ts:220.
+impact: complete local account compromise (identity privkey + message DB) under same-user malware. Severity: Medium-High (local access required).
+testability: RAG
+[HYP] Safe backup store credentialed cross-origin read + HSTS gap
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 50
+reasoning: OPTIONS 204 CORS `*` + ACAH:Authorization (all 5 hosts behind 203.56.112.231); unauth GET byte-identical 400; HSTS/Expect-CT present on preflight but ABSENT on GET 400.
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 (200+payload or 401/403).
+verify_steps: AUTH_HELPED — `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}`; diff vs 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin. Severity: High with creds, unreachable without.
+testability: AUTH_HELPED
+[NEXT] HUMAN: request one program-issued test identity AND a backupId:backupKey from the lead — a single credential set unblocks the top three surviving hypotheses: `GET /identity/{testId}` diff staging vs prod (mirror proof), fetch_bulk `state`/`type` echo vs ECHOECHO baseline (account-status oracle), and `curl -u testId:testKey https://safe-01.threema.ch/backups/{testId}` vs 400 baseline (credentialed read).
+impact: Local/same-user malware extracts full Threema identity (Ed25519 private key) + decrypts message database (SQLCipher) → complete account compromise. Severity: Medium-High (local access required).
+testability: RAG
+[PARKED] Gateway signup page user enumeration via registration flow: confidence 45 < 50 threshold; verify_steps require POST which modifies state (account creation attempt) — violates passive-first rule; class AUTH/ENUM not IDOR.
+[PARKED] Broadcast API authentication bypass via credential stuffing: confidence 55 but gate_ease only 3 (auth-gated 401) — requires credential access not currently available; no concrete verify_steps without AUTH_HELPED.
+[FINAL] 1. Directory bulk identity enumeration at scale via fetch_bulk ≥10000 IDs/request + 5 challenge parameter oracles (96, IDOR, PASSIVE+PROBE)
+[FINAL] 2. Desktop Windows key-storage ACL bypass → full identity compromise via DPAPI (95, MISCONFIG, RAG)
+[FINAL] 3. Staging directory server mirrors live production identity data unauthenticated (87, IDOR, PASSIVE+PROBE)
+[NEXT] PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<19999 unique invalid 8-char base32 IDs>]}' (≤1 rps) — finds fetch_bulk ceiling at 20000 IDs
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling ≥10000 IDs/req confirmed (10000-batch → 200, 0.80s, 152B, ECHOECHO echoed, 9999 invalid silently omitted, no 413/429) — enumeration throughput bound ~10k IDs per request
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk byte-identical to prod; ceiling ≥10000; no extra routes (/swagger /docs /openapi.json 404); mirror evidence strengthened
+[LEARN] REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys produce byte-identical 403; only key-PRESENCE observable; no CORS preflight (OPTIONS 404)
+[LEARN] ACCEPTED OTHER @ gateway.threema.ch: /v1 → 404 catch-all, /api/v1 → 403 (nginx deny), /en/signup → 200 (14KB page); no exposed msgapi route on this host
+[LEARN] ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated /backups/{64hex} — header inconsistency stable
+[LEARN] REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes read, no peer certificate); no cert/SAN leak; handshake requires authenticated login frame — chat passive channel formally closed
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: 5 challenge endpoints (sfu_cred, blob_cred, set_revocation_key, check_revocation_key, update_work_info) confirmed live via GET returning 200 with JSON error bodies + CORS *; parameter-validation-before-identity-lookup oracle stable on set_revocation_key and update_work_info
+[RISK] chat: 55 reason: g-*.0.threema.ch prod pattern unenumerated; staging likely out of scope; no passive HTTP endpoints (5222/WSS handshake requires client login frame; 443 closes without TLS handshake on both staging + prod); saltyrtc-* 426 but explicitly NOT in scope.yml
+[RISK] web: 93 reason: ds-apip/api/apip directory cluster — 3 prod hosts, public identity oracle + fetch_bulk ≥10000 batch + 5 challenge endpoints + CORS * + no rate-limit; safe-01 backup API with permissive CORS + Authorization header + HSTS gap on GET 400 + 5 hostnames on single IP; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed; broadcast/api/v1 auth-gated; gateway signup accessible
+[RISK] sync: 55 reason: mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; mediator/rendezvous WSS high-entropy; auth in source (no passive in-band divergence); saltyrtc-*.threema.ch 426 but out of scope
+[RISK] safe: 88 reason: safe-01.live with CORS * + write-capable methods + Access-Control-Allow-Headers: Authorization + HSTS/Expect-CT on preflight but NOT on GET 400; 5 hostnames same IP; route-existence oracle; Basic-Auth gating only
+[RISK] desktop-src: 95 reason: Windows key-storage ACL bypass CONFIRMED at source level (fs.ts:41, key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163 write with {} on win32 → no DACL restriction → DPAPI password recoverable by same-user → Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + SQLCipher databaseKey; PoC runtime-verified); plus Electron nodeIntegrationInWorker: true + sandbox unset (TODO DESK-79) at electron-main.ts:1252,1255
+confidence: 50
+reasoning: OPTIONS 204 CORS `*` + ACAH:Authorization (all 5 hosts); unauth GET byte-identical 400; route-existence oracle stable; HSTS/Expect-CT absent on GET 400.
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 (200+payload or 401/403) + Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}`; diff vs 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin (High with creds, unreachable without).
+testability: AUTH_HELPED
+[NEXT] HUMAN: request one program-issued test identity (plus test backupId:backupKey) from the lead — a single identity enables all three surviving hypotheses: `GET /identity/{testId}` diff staging vs prod ([85]), fetch_bulk `state` echo ([45]), and `curl -u testId:testKey https://safe-01.threema.ch/backups/{testId}` vs 400 baseline ([50]).
+[LEARN] REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes read, no peer certificate); no cert/SAN leak; handshake requires authenticated login frame — chat passive channel formally closed.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling ≥10000 IDs/req confirmed (10000-batch → 200, 0.80s, 152B, ECHOECHO echoed, 9999 invalid silently omitted, no 413/429) — enumeration throughput bound ~10k IDs per request; prior 5000-ID probe also 200.
+[RISK] chat: 58 — identity→pubkey enumeration now ≥10k IDs/request unauth + CORS `*` + no rate limit on all 3 directory hosts (throughput 10x prior bound); chat transport passive channel closed, no new surface. | web: 35 — cockpit assets key/basic-auth gated; broadcast presence-oracle only; work.test single benign public endpoint. | sync: 20 — mediator/rendezvous uniform 403, no in-band divergence; handshake requires auth. | safe: 40 — backup API credential-gated (400 unauth) + route-existence oracle + HSTS inconsistency; impact contingent on valid creds. | desktop-src: 45 — key-storage Windows ACL bypass RAG-verified (95) chained to SQLCipher+Ed25519 disclosure; sandbox/worker gaps conditional.
+[NEW] ds-apip.threema.ch — canonical directory server hostname (matches inventory `apip.threema.ch` but is the actual host wired into desktop client build config)
+[NEW] ds-apip-work.threema.ch — work-style directory server (returns 401 on all paths, requires Basic auth)
+[NEW] blob-mirror-{prefix4}.threema.ch/{prefix8}/ — blob server hostname pattern (discovered in desktop source `config.ts`; NOT in scope — does not match any scope wildcard)
+[NEW] mediator-{prefix4}.threema.ch/{prefix8}/ — mediator WSS hostname pattern (in scope: `mediator-*.threema.ch`)
+[NEW] safe-{backupIdPrefix8}.threema.ch/ — backup safe hostname pattern (in scope: `safe-*.threema.ch`)
+[NEW] rendezvous-{prefix4}.threema.ch/{prefix8}/ — rendezvous WSS hostname pattern (in scope: `rendezvous-*.threema.ch`)
+[CHANGED] apip.threema.ch — was 403 on `/`; now confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
+[PRIO] ds-apip.threema.ch (directory server API), 7.95
+[PRIO] threema-desktop source (github.com/threema-ch/threema-desktop), 6.70
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/ 2>/dev/null; echo "---"; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw -name "directory.openapi.yml" 2>/dev/null
+app-remote-protocol
+compose-area
+push-relay
+threema-android
+threema-bot-sdk
+threema-desktop
+threema-ios
+threema-markup
+threema-msgapi-sdk-java
+threema-msgapi-sdk-php
+threema-msgapi-sdk-python
+threema-msgapi-sdk-rust
+threema-web
+threema-web-electron
+wasm-minisign-verify
+webrtc-build-docker
+---
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw -maxdepth 3 -type d 2>/dev/null | head -30
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-ios
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/wasm-minisign-verify
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/compose-area
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-web-electron
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-msgapi-sdk-rust
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-web
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/app-remote-protocol
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-android
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-bot-sdk
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-msgapi-sdk-python
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/webrtc-build-docker
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-msgapi-sdk-php
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-msgapi-sdk-java
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/push-relay
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-markup
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw -name "*.openapi.yml" -o -name "directory*" 2>/dev/null | head; echo "---"; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw -path "*threema-protocols*" -name "*.yml" 2>/dev/null | head
+---
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-ios/ 2>/dev/null; echo "---libthreema---"; ls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-ios/libthreema/ 2>/dev/null; echo "---find yml any---"; find /home/runner/work/threema-hunt/threema-hunt/reposcan-raw -name "*.yml" -o -name "*.yaml" 2>/dev/null | head -20
+---libthreema---
+---find yml any---
+[0m
+[0m% [0mWebFetch https://raw.githubusercontent.com/threema-ch/threema-ios/main/libthreema/threema-protocols/src/directory.openapi.yml
+The workspace confirms a stable triage baseline (0 novel leads last cycle — all duplicates/out-of-scope). The newest reposcan (12:54) flagged `directory.openapi.yml`. Let me pull the full protocol surface it documents, since it defines the in-scope directory servers' API contract.
+[0m✗ [0mWebFetch https://raw.githubusercontent.com/threema-ch/threema-android/develop/domain/protocol/src/directory.openapi.yml failed
+[91m[1mError: [0mStatusCode: non 2xx status code (404 GET https://raw.githubusercontent.com/threema-ch/threema-android/develop/domain/protocol/src/directory.openapi.yml)
+iOS `directory.openapi.yml` fetched — full documented API contract for the in-scope directory servers. Comparing against the KB's probed surface reveals **2 new paths never probed**: `/identity/revoke` (a 6th challenge endpoint, only `ws/revoke` was tested) and `/api-client/v1/remote-secret` (multi-device sync secret store on the work host). Let me validate route presence with read-only probes.
+[0m
+[0m$ [0mfor h in ds-apip api apip; do
+  for p in "identity/revoke" "api-client/v1/remote-secret"; do
+    code=$(curl -s -o /tmp/opencode/resp.txt -w "%{http_code}" --max-time 20 "https://$h.threema.ch/$p")
+    size=$(wc -c < /tmp/opencode/resp.txt)
+    hash=$(sha256sum /tmp/opencode/resp.txt | cut -c1-16)
+    echo "$h.threema.ch /$p -> $code ${size}B sha256:$hash"
+    sleep 1.2
+  done
+done
+ds-apip.threema.ch /identity/revoke -> 200 46B sha256:6a8ac4891c628caf
+ds-apip.threema.ch /api-client/v1/remote-secret -> 404 146B sha256:55f7d9e99b8e2d4e
+api.threema.ch /identity/revoke -> 200 46B sha256:6a8ac4891c628caf
+api.threema.ch /api-client/v1/remote-secret -> 404 146B sha256:55f7d9e99b8e2d4e
+apip.threema.ch /identity/revoke -> 200 46B sha256:6a8ac4891c628caf
+apip.threema.ch /api-client/v1/remote-secret -> 404 146B sha256:55f7d9e99b8e2d4e
+[0m
+`/identity/revoke` is live (200, byte-identical) on all 3 directory hosts — a 6th challenge endpoint not in the KB. Now let me check its body and probe the work host's new surface.
+[0m$ [0mcurl -s --max-time 20 "https://ds-apip.threema.ch/identity/revoke"; echo; echo "---POST revoke no body---"; curl -s -X POST --max-time 20 "https://ds-apip.threema.ch/identity/revoke" -H "Content-Type: application/json" -d '{}' -w "\n[%{http_code}]\n"; sleep 1.2
+{"success":false,"error":"Identity not found"}
+---POST revoke no body---
+{"success":false,"error":"Identity not found"}
+[200]
+[0m
+[0m$ [0mfor p in "fetch2" "directory" "api-client/v1/user-properties" "api-client/v1/remote-secret"; do
+  code=$(curl -s -o /tmp/opencode/resp2.txt -w "%{http_code}" --max-time 20 "https://ds-apip-work.threema.ch/$p")
+  size=$(wc -c < /tmp/opencode/resp2.txt)
+  hash=$(sha256sum /tmp/opencode/resp2.txt | cut -c1-16)
+  echo "ds-apip-work.threema.ch /$p -> $code ${size}B sha256:$hash"
+  sleep 1.2
+done
+ds-apip-work.threema.ch /fetch2 -> 401 0B sha256:e3b0c44298fc1c14
+ds-apip-work.threema.ch /directory -> 401 0B sha256:e3b0c44298fc1c14
+ds-apip-work.threema.ch /api-client/v1/user-properties -> 401 0B sha256:e3b0c44298fc1c14
+ds-apip-work.threema.ch /api-client/v1/remote-secret -> 401 0B sha256:e3b0c44298fc1c14
+[0m
+Work host is uniformly 401-gated on all 4 new paths (no passive divergence). The main directory host's `/identity/revoke` is live. Let me test whether it initiates the documented challenge flow for a valid identity (existence oracle) vs invalid.
+[0m$ [0mecho "--- ECHOECHO ---"; curl -s -X POST --max-time 20 "https://ds-apip.threema.ch/identity/revoke" -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}' -w "\n[%{http_code}]\n"; sleep 1.3
+echo "--- ZZZZZZZZ ---"; curl -s -X POST --max-time 20 "https://ds-apip.threema.ch/identity/revoke" -H "Content-Type: application/json" -d '{"identity":"ZZZZZZZZ"}' -w "\n[%{http_code}]\n"; sleep 1.3
+echo "--- blob_cred ECHOECHO (control) ---"; curl -s -X POST --max-time 20 "https://ds-apip.threema.ch/identity/blob_cred" -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}' -w "\n[%{http_code}]\n"
+--- ECHOECHO ---
+{"token":"\/2p4fOwrV6fGI2QIbptCUupw+RocvevKVTELtBE1i7qHqZGvgw==","tokenRespKeyPub":"6DsxFgjFcMVU\/oI\/j0YS7H2v680IrLbnf\/BY6gqiV3Y="}
+[200]
+--- ZZZZZZZZ ---
+{"success":false,"error":"Identity not found"}
+[200]
+--- blob_cred ECHOECHO (control) ---
+{"token":"\/2p4fPBIyuacFDWPkY\/5Vql8Rppugd3pFKuvqKJMowH8D\/WU8g==","tokenRespKeyPub":"6DsxFgjFcMVU\/oI\/j0YS7H2v680IrLbnf\/BY6gqiV3Y="}
+[200]
+[0m
+`/identity/revoke` initiates the documented challenge flow only for valid identities (`ECHOECHO` → challenge, `ZZZZZZZZ` → "Identity not found") — same oracle pattern as the accepted cluster, now confirmed on a 6th endpoint. The spec's identity regex (`^[0-9A-Z*]...`) also reveals `*`-prefixed system identities. Let me test whether those are enumerable too.
+[0m$ [0mecho "--- fetch_bulk *3MAW0RK + *SUPPORT + *ZZZZZZZ ---"
+curl -s -X POST --max-time 20 "https://ds-apip.threema.ch/identity/fetch_bulk" -H "Content-Type: application/json" -d '{"identities":["*3MAW0RK","*SUPPORT","*ZZZZZZZ","ECHOECHO"]}' -w "\n[%{http_code}]\n"; sleep 1.3
+echo "--- GET /identity/*3MAW0RK ---"
+curl -s --max-time 20 "https://ds-apip.threema.ch/identity/*3MAW0RK" -o /tmp/opencode/r3.txt -w "%{http_code} %{size_download}B\n"; cat /tmp/opencode/r3.txt; echo
+--- fetch_bulk *3MAW0RK + *SUPPORT + *ZZZZZZZ ---
+{"identities":[{"identity":"*3MAW0RK","publicKey":"wOitD1DFxzFcQC09wm2xaUCMEXYT6bhS09bA6H\/KU2s=","featureLevel":3,"featureMask":15,"state":0,"type":0},{"identity":"*SUPPORT","publicKey":"D5RNGDJLITLGHY5Ar85goOvXAbsR6JvpSXLUIp6Ucio=","featureLevel":3,"featureMask":15,"state":0,"type":0},{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}]}
+[200]
+--- GET /identity/*3MAW0RK ---
+200 136B
+{"identity":"*3MAW0RK","publicKey":"wOitD1DFxzFcQC09wm2xaUCMEXYT6bhS09bA6H\/KU2s=","featureLevel":3,"featureMask":15,"state":0,"type":0}
+[0m
+`*`-prefixed system identities (`*3MAW0RK`, `*SUPPORT`) are live and enumerable — the directory covers bot identities too, and the response carries `featureLevel`/`featureMask`/`state`/`type`. One final probe to close the work-host auth-model question (token-gated vs host-wide 401).
+[0m$ [0mcurl -s -X POST --max-time 20 "https://ds-apip-work.threema.ch/api-client/v1/remote-secret" -H "Content-Type: application/json" -d '{"secretAuthenticationToken":"QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVphYmNkZWZnaGlqa2xtbm9wcQ=="}' -o /tmp/opencode/r4.txt -w "POST remote-secret fetch -> %{http_code} %{size_download}B\n"; cat /tmp/opencode/r4.txt; echo; sleep 1.3
+echo "--- work host GET /identities (control) ---"
+curl -s --max-time 20 "https://ds-apip-work.threema.ch/identities" -o /tmp/opencode/r5.txt -w "-> %{http_code} %{size_download}B\n"; cat /tmp/opencode/r5.txt; echo
+POST remote-secret fetch -> 404 0B
+
+--- work host GET /identities (control) ---
+-> 401 0B
+[0m
+Notable divergence: `POST /api-client/v1/remote-secret` → **404 empty** (matches the spec's documented "secret not defined" response) while every other work-host path is **401**. Let me confirm POST on the other work endpoints is still 401-gated, to prove the remote-secret fetch is token-gated only.
+[0m$ [0mfor p in "identities" "fetch2" "directory" "api-client/v1/user-properties"; do
+  code=$(curl -s -o /tmp/opencode/rx.txt -w "%{http_code}" -X POST --max-time 20 "https://ds-apip-work.threema.ch/$p" -H "Content-Type: application/json" -d '{"username":"x@y.z","password":"w"}' )
+  size=$(wc -c < /tmp/opencode/rx.txt)
+  echo "POST ds-apip-work.threema.ch /$p -> $code ${size}B"
+  sleep 1.3
+done
+echo "--- remote-secret POST with 44-char 'token' + empty 'identities' var ---"
+curl -s -X POST --max-time 20 "https://ds-apip-work.threema.ch/api-client/v1/remote-secret" -H "Content-Type: application/json" -d '{"secretAuthenticationToken":"A"}' -o /tmp/opencode/ry.txt -w "-> %{http_code} %{size_download}B\n"; cat /tmp/opencode/ry.txt; echo
+POST ds-apip-work.threema.ch /identities -> 401 0B
+POST ds-apip-work.threema.ch /fetch2 -> 401 0B
+POST ds-apip-work.threema.ch /directory -> 401 0B
+POST ds-apip-work.threema.ch /api-client/v1/user-properties -> 404 0B
+--- remote-secret POST with 44-char 'token' + empty 'identities' var ---
+-> 404 0B
+[0m
+The `/api-client/v1/*` namespace returns 404 on POST while legacy work paths return 401. Need to distinguish "live token-gated route" from "404 catch-all" — probing a bogus path as control.
+[0m$ [0mfor p in "totally-bogus" "api-client/v1/bogus" "api-client/v1"; do
+  code=$(curl -s -o /tmp/opencode/rz.txt -w "%{http_code}" -X POST --max-time 20 "https://ds-apip-work.threema.ch/$p" -H "Content-Type: application/json" -d '{}')
+  size=$(wc -c < /tmp/opencode/rz.txt)
+  echo "POST ds-apip-work.threema.ch /$p -> $code ${size}B"
+  sleep 1.3
+done
+POST ds-apip-work.threema.ch /totally-bogus -> 404 0B
+POST ds-apip-work.threema.ch /api-client/v1/bogus -> 404 0B
+POST ds-apip-work.threema.ch /api-client/v1 -> 404 0B
+[0m
+Control confirms `POST /totally-bogus` → 404 0B too — the v1 routes' 404 is the catch-all, NOT a live token-gated route. The remote-secret fetch hypothesis is **disproven on prod** (v1 namespace not deployed). One quick staging check to close the v1-question, then writing up.
+[0m$ [0mfor p in "api-client/v1/remote-secret" "identities"; do
+  code=$(curl -s -o /tmp/opencode/rs.txt -w "%{http_code}" -X POST --max-time 20 "https://ds-apip-work.test.threema.ch/$p" -H "Content-Type: application/json" -d '{"secretAuthenticationToken":"QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVphYmNkZWZnaGlqa2xtbm9wcQ=="}')
+  size=$(wc -c < /tmp/opencode/rs.txt)
+  echo "POST ds-apip-work.test.threema.ch /$p -> $code ${size}B"
+  sleep 1.3
+done
+POST ds-apip-work.test.threema.ch /api-client/v1/remote-secret -> 404 0B
+POST ds-apip-work.test.threema.ch /identities -> 401 0B
+[0m
+Analysis complete. All probes done, controls in place. Here is the structured output.
+
+---
+
+## STEP 1 — DELTA
+- **[NEW]** `/identity/revoke` — 6th live challenge endpoint on all 3 prod directory hosts (GET+POST → 200 `{"success":false,"error":"Identity not found"}`; POST `{"identity":"ECHOECHO"}` → auth-challenge-request `{token, tokenRespKeyPub}`, invalid → "Identity not found"). Never probed before (only `/identity/ws/revoke`, which 404s). Source: `directory.openapi.yml` (threema-ios libthreema, in-scope source).
+- **[NEW]** Directory response schema enriched — `fetch_bulk` and `GET /identity/{id}` return `featureLevel`, `featureMask`, `state`, `type` per identity (ECHOECHO: fM=9; bots: fM=15; all state=0, type=0).
+- **[NEW]** `*`-prefixed system/bot identities live + enumerable: `*3MAW0RK`, `*SUPPORT` return pubkeys via `fetch_bulk` and `GET /identity/{id}`; `*ZZZZZZZ` silently omitted. Identity regex from spec: `^[0-9A-Z*]{1}[0-9A-Z]{7}$`.
+- **[NEW]** Work-directory documented surface (`/fetch2`, `/directory`, `/identities` [TWRK-1633 "currently buggy"], `/api-client/v1/user-properties`, `/api-client/v1/remote-secret` PUT/DELETE/POST) — legacy 3 routes LIVE but uniformly 401 work-creds-gated; `/api-client/v1/*` NOT deployed (404 catch-all, prod + staging).
+- **[CHANGED]** ds-apip-work auth model — NOT host-wide 401: GET-anything → 401, POST-unmatched → 404 0B catch-all (control `/totally-bogus` → 404 0B); route-presence = 401 vs 404 on POST.
+
+## STEP 2 — PRIORITIZE
+- **[PRIO]** ds-apip.threema.ch/api/apip directory cluster — 6.70 (attack 8, business 6, tech 6, gate 10, cloud 3, fresh 5) — 6 challenge endpoints + fetch_bulk 10k-batch + bot-identity enumeration + state/type field carrying account lifecycle.
+- **[PRIO]** ds-apip-work.threema.ch work directory API — 5.90 (attack 6, business 8, tech 7, gate 1, cloud 3, fresh 8) — org-wide contact PII (names/jobTitle/department/categories/MDM params) behind creds; `/identities` documented buggy (TWRK-1633); v1 spec-only.
+- **[PRIO]** threema-desktop source — 5.35 (attack 5, business 8, tech 7, gate 4, cloud 2, fresh 2) — key-storage ACL bypass FINAL (95); no new delta this cycle.
+
+## STEP 3 — HYPOTHESES
+```
+[HYP] fetch_bulk account-status oracle via state/type echo
+class: IDOR
+asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch identity/fetch_bulk + GET /identity/{id}
+confidence: 55
+reasoning: Response schema confirmed this cycle carries state+type per identity (ECHOECHO/*3MAW0RK/*SUPPORT all state:0,type:0 — active baseline). All 3 hosts + staging byte-identical. If deactivated/revoked identities return state≠0 (or are dropped like invalid IDs), this is a mass account-status oracle at 10k IDs/req, no rate limit, CORS *.
+evidence_needed: one deactivated/revoked program identity returning state≠0 (or omitted) vs active state:0 in fetch_bulk.
+verify_steps: AUTH_HELPED — POST {"identities":["{deactivatedTestId}","ECHOECHO"]} to all 3 hosts + staging; diff state/type/featureMask vs baseline.
+impact: mass account-status enumeration (deactivated/revoked/active) on top of accepted existence enumeration. Severity: Medium (escalation of accepted IDOR).
+testability: AUTH_HELPED
+```
+```
+[HYP] Work directory /identities TWRK-1633 bugginess → authz/parsing flaw
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities (POST, work-creds-gated)
+confidence: 42
+reasoning: OpenAPI spec explicitly documents "/identities ... currently buggy. See TWRK-1633" — a known-buggy authz+parsing endpoint holding org-wide contact properties (first/last/jobTitle/department/availability/category). Live route confirmed (POST → 401, not catch-all 404). No passive differential obtainable without creds.
+evidence_needed: work-license POST with valid credentials returns 200 with contacts not in requester's subscription (broken authz), or a parsing edge (TWRK-1633) — e.g. contacts array > N, wildcard '*' entry.
+verify_steps: AUTH_HELPED — POST {"username":"{lic}","password":"{pw}","contacts":[...]} to ds-apip-work.threema.ch/identities; check cross-subscription contact leak + oversized contacts.
+impact: with a valid work license: read PII/work properties of contacts outside the subscription. Severity: Medium (requires work creds).
+testability: AUTH_HELPED
+```
+Note for 3rd asset (threema-desktop): top hypothesis is already FINAL (Windows key-storage ACL bypass, 95, RAG) — no new desktop hypothesis warranted this cycle (no new source delta).
+
+## STEP 4 — SELF-CRITIQUE
+- **[PARKED]** remote-secret token-only fetch (v1): **DISPROVEN this cycle** — `POST /api-client/v1/remote-secret` → 404 0B byte-identical to `POST /totally-bogus` catch-all on prod AND staging; v1 namespace not deployed. Spec-only surface. (Would have been the sync-surface unlock; now closed.)
+- **[PARKED]** legacy Gateway signup / Broadcast stuffing: unchanged from prior cycles (state-modifying / credential-gated).
+- **[FINAL]** 1. fetch_bulk account-status oracle (55, IDOR, AUTH_HELPED) — survives; schema+bot-state baseline now concrete. 2. Work `/identities` TWRK-1633 (42, BUSLOGIC, AUTH_HELPED). 3. Carried FINAL: Desktop Windows key-storage ACL bypass (95, MISCONFIG, RAG).
+
+## STEP 5 — NEXT ACTION
+- **[NEXT]** HUMAN: request from the lead a **deactivated/revoked test identity** (the single credential set that breaks the account-status oracle deadlock) — `POST /identity/fetch_bulk {"identities":["{deactivatedTestId}","ECHOECHO"]}` on all 3 prod hosts + staging, diff state/type; plus one `backupId:backupKey` for `curl -u testId:testKey https://safe-01.threema.ch/backups/{testId}` vs 400 baseline; plus (optional) one Work sandbox license to test `/identities` TWRK-1633. All three remaining hypotheses are AUTH_HELPED and no further passive probe can advance them.
+
+## STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ ds-apip/api/apip.threema.ch: `/identity/revoke` is a 6th live challenge endpoint — GET+POST 200 "Identity not found"; valid identity → `{token, tokenRespKeyPub}` challenge (static server CPK across calls); POST-form identity-existence oracle extends the accepted class to a new route (spec-verified).
+- [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch: `*`-prefixed system/bot identities (`*3MAW0RK`, `*SUPPORT`) live + enumerable via fetch_bulk + GET; response schema confirmed to carry featureLevel/featureMask/state/type (active baseline state:0/type:0).
+- [LEARN] REJECTED AUTH @ ds-apip-work.threema.ch `/api-client/v1/remote-secret`: token-only fetch DISPROVEN — POST → 404 0B, byte-identical to control `/totally-bogus`; v1 namespace not deployed on prod OR staging (spec-only). Legacy work routes (`/identities`, `/fetch2`, `/directory`) confirmed live but uniformly 401 work-creds-gated (GET+POST).
+- [LEARN] ACCEPTED OTHER @ ds-apip-work.threema.ch: route-presence oracle on the work host = 401 (deployed, auth-gated) vs 404 0B (catch-all) on POST — validated with `/totally-bogus` control.
+
+## STEP 7 — RISK SCORE
+- **[RISK] chat: 50** — chat transport passive channel formally closed (443/5222 close without handshake); directory cluster enables unauth identity (incl. bot) enumeration 10k/req + 6 challenge oracles; account-status oracle pending a deactivated test identity.
+- **[RISK] web: 40** — directory cluster surface rich but classes accepted/redundant; work-directory legacy routes cred-gated, v1 not deployed (404); cockpit assets key/basic-auth gated; staging divergence benign.
+- **[RISK] sync: 25** — remote-secret store documented but not deployed (404 catch-all prod+staging); mediator/rendezvous uniform 403; remote-secret cannot be reached passively.
+- **[RISK] safe: 35** — backup API credential-gated (400 unauth) + HSTS/Expect-CT inconsistency on GET 400; impact contingent on valid creds (AUTH_HELPED pending).
+- **[RISK] desktop-src: 45** — Windows key-storage ACL bypass FINAL/RAG-verified (95) → full identity+SQLCipher compromise under same-user malware; Electron sandbox/worker gaps conditional; no new desktop delta this cycle.
