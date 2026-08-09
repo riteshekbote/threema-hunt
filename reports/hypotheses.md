@@ -1024,3 +1024,23 @@
 - LEARN: REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE requires separate renderer exploit chain, not standalone
 - LEARN: REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy, derived key immediately purged
+
+## RANKED HYPOTHESES 2026-08-09 04:02:03 UTC
+- [95] https://ds-apip.threema.ch/identity/fetch_bulk: Directory bulk identity enumeration at scale via fetch_bulk + challenge parameter oracles (from reports/hypotheses-nemotron3.txt)
+- [75] https://saltyrtc-{00..ff}.threema.ch:443: SaltyRTC signaling plane permanent-key fingerprint + framing recon (from reports/hypotheses-laguna.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<999 unique invalid 8-char 
+- NEXT(hypotheses-laguna.txt): RAG: done this cycle — submission-ready report authored at reports/fetch_bulk-identity-enumeration-idor.md (ceiling ≥2000 IDs/req, ≈5.5e8 req for 2^40 space, CO
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk 100+ batch + 5 challenge endpoints + CORS * + no rate-limit + parameter-validation
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop (Windows): key-storage ACL bypass RAG-verified at 95 confidence — full Ed25519 identity key + SQLCipher key chain confirmed
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated /backups/{64hex} — heade
+- LEARN: REJECTED IDOR @ ds-apip/api/apip.threema.ch check_revocation_key GET form: validation-order oracle disproven — ECHOECHO vs ZZZZZZZZ produce byte-identical "Iden
+- LEARN: REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE requires separate renderer exploit chain, not standalone
+- LEARN: REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy, derived key immediately purged
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk 100+ batch + 5 challenge endpoints + CORS * + no rate-limit + parameter-validation
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop (Windows): key-storage ACL bypass RAG-verified at 95 confidence — full Ed25519 identity key + SQLCipher key chain confirmed
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated /backups/{64hex} — heade
+- LEARN: REJECTED IDOR @ ds-apip/api/apip.threema.ch check_revocation_key GET form: validation-order oracle disproven — ECHOECHO vs ZZZZZZZZ produce byte-identical "Iden
+- LEARN: REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE requires separate renderer exploit chain, not standalone
+- LEARN: REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy, derived key immediately purged
