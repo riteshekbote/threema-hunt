@@ -42282,3 +42282,452 @@ testability: AUTH_HELPED
 - [RISK] sync: 55 — mediator/rendezvous {0..f} resolve, uniform 403 on HTTPS, WSS high-entropy paths, split DNS routing; no passive in-band divergence.
 - [RISK] safe: 88 — safe-{01,1a,1b,02,00} single IP, credentialed CORS headers, Basic-Auth gating (400 baseline stable), HSTS gap on GET 400; unlocked only with creds.
 - [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified (15 source paths, 95 conf), PoC artifact present + syntax-verified + graceful no-op; Windows runtime is the only open gate; Electron sandbox unset + nodeIntegrationInWorker (conditional RCE, rejected standalone); crypto.ts:223 benchmark password rejected.
+===== ANALYST bigpickle 2026-08-09 20:56:42 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la poc 2>/dev/null; ls -la notes 2>/dev/null; find . -maxdepth 2 -name "scope.yml" -o -maxdepth 2 -name "*.yml" -o -maxdepth 2 -name "*.md" 2>/dev/null | head -20
+total 264
+drwxr-xr-x 11 runner runner  4096 Aug  9 20:52 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 20:51 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 20:52 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 20:51 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 20:51 README.md
+-rw-r--r--  1 runner runner    32 Aug  9 20:52 analyst-out.txt
+-rw-r--r--  1 runner runner 77826 Aug  9 20:52 analyst-prompt.txt
+-rw-r--r--  1 runner runner 74762 Aug  9 20:52 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:51 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:51 knowledge
+drwxr-xr-x  2 runner runner 12288 Aug  9 20:51 leads
+-rw-r--r--  1 runner runner 22373 Aug  9 20:51 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:51 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 20:51 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 20:51 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:51 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 20:51 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 20:51 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 20:51 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 20:51 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 20:51 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:51 triage
+./knowledge/index.md
+./leads/reposcan-2026-08-09-16-06.md
+./leads/reposcan-2026-08-08-13-56.md
+./leads/reposcan-2026-08-08-12-09.md
+./leads/reposcan-2026-08-08-14-28.md
+./leads/reposcan-2026-08-09-15-12.md
+./leads/reposcan-2026-08-08-10-37.md
+./leads/reposcan-2026-08-08-10-27.md
+./leads/reposcan-2026-08-09-12-54.md
+./leads/reposcan-2026-08-07-22-10.md
+./leads/reposcan-2026-08-09-15-43.md
+./leads/reposcan-2026-08-09-19-35.md
+./leads/reposcan-2026-08-09-06-47.md
+./leads/reposcan-2026-08-08-08-07.md
+./leads/reposcan-2026-08-09-15-51.md
+./leads/reposcan-2026-08-09-05-48.md
+./leads/reposcan-2026-08-08-22-05.md
+./leads/reposcan-2026-08-09-01-41.md
+./leads/reposcan-2026-08-07-21-13.md
+./leads/reposcan-2026-08-08-08-37.md
+[0m
+[0m$ [0mgit log --oneline -5 2>/dev/null; date -u
+6983d77 reposcan 2026-08-09-20-42
+Sun Aug  9 20:52:11 UTC 2026
+[0m
+[0m→ [0mRead state_bigpickle.json
+[0m
+[0m$ [0mls -la leads/ | tail -8; ls -la knowledge/ inventory/ triage/ reports/
+-rw-r--r--  1 runner runner  14208 Aug  9 20:51 reposcan-2026-08-09-18-41.md
+-rw-r--r--  1 runner runner   6321 Aug  9 20:51 reposcan-2026-08-09-19-06.md
+-rw-r--r--  1 runner runner  11206 Aug  9 20:51 reposcan-2026-08-09-19-23.md
+-rw-r--r--  1 runner runner  11793 Aug  9 20:51 reposcan-2026-08-09-19-35.md
+-rw-r--r--  1 runner runner  10808 Aug  9 20:51 reposcan-2026-08-09-19-59.md
+-rw-r--r--  1 runner runner   9691 Aug  9 20:51 reposcan-2026-08-09-20-24.md
+-rw-r--r--  1 runner runner  14325 Aug  9 20:51 reposcan-2026-08-09-20-42.md
+-rw-r--r--  1 runner runner  14325 Aug  9 20:51 reposcan-latest.md
+inventory/:
+total 112
+drwxr-xr-x  2 runner runner   4096 Aug  9 20:51 .
+drwxr-xr-x 11 runner runner   4096 Aug  9 20:52 ..
+-rw-r--r--  1 runner runner 103609 Aug  9 20:51 threema.md
+
+knowledge/:
+total 60
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:51 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 20:52 ..
+-rw-r--r--  1 runner runner 52784 Aug  9 20:51 index.md
+
+reports/:
+total 9336
+drwxr-xr-x  2 runner runner    4096 Aug  9 20:51 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 20:52 ..
+-rw-r--r--  1 runner runner 3387498 Aug  9 20:51 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 5060485 Aug  9 20:51 analyst-laguna.log
+-rw-r--r--  1 runner runner   27847 Aug  9 20:51 analyst-ling3.log
+-rw-r--r--  1 runner runner   12447 Aug  9 20:51 analyst-longcat.log
+-rw-r--r--  1 runner runner  887577 Aug  9 20:51 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   11554 Aug  9 20:51 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner   33851 Aug  9 20:51 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 20:51 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 20:51 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   14125 Aug  9 20:51 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  266818 Aug  9 20:51 hypotheses.md
+-rw-r--r--  1 runner runner   30397 Aug  9 20:51 valid-bugs.md
+
+triage/:
+total 1168
+drwxr-xr-x  2 runner runner  4096 Aug  9 20:51 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 20:52 ..
+-rw-r--r--  1 runner runner 81432 Aug  9 20:51 run-2026-08-07-20-10.md
+-rw-r--r--  1 runner runner 18280 Aug  9 20:51 run-2026-08-07-21-03.md
+-rw-r--r--  1 runner runner 18224 Aug  9 20:51 run-2026-08-07-21-56.md
+-rw-r--r--  1 runner runner 12766 Aug  9 20:51 run-2026-08-07-22-56.md
+-rw-r--r--  1 runner runner 27810 Aug  9 20:51 run-2026-08-07-23-55.md
+-rw-r--r--  1 runner runner  1637 Aug  9 20:51 run-2026-08-08-02-24.md
+-rw-r--r--  1 runner runner 18651 Aug  9 20:51 run-2026-08-08-04-24.md
+-rw-r--r--  1 runner runner 20107 Aug  9 20:51 run-2026-08-08-06-01.md
+-rw-r--r--  1 runner runner 23637 Aug  9 20:51 run-2026-08-08-07-07.md
+-rw-r--r--  1 runner runner 18269 Aug  9 20:51 run-2026-08-08-07-15.md
+-rw-r--r--  1 runner runner 12515 Aug  9 20:51 run-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner   236 Aug  9 20:51 run-2026-08-08-08-59.md
+-rw-r--r--  1 runner runner 11791 Aug  9 20:51 run-2026-08-08-09-54.md
+-rw-r--r--  1 runner runner 10557 Aug  9 20:51 run-2026-08-08-10-53.md
+-rw-r--r--  1 runner runner   896 Aug  9 20:51 run-2026-08-08-11-44.md
+-rw-r--r--  1 runner runner   428 Aug  9 20:51 run-2026-08-08-13-11.md
+-rw-r--r--  1 runner runner  7773 Aug  9 20:51 run-2026-08-08-14-00.md
+-rw-r--r--  1 runner runner 19408 Aug  9 20:51 run-2026-08-08-14-52.md
+-rw-r--r--  1 runner runner 25063 Aug  9 20:51 run-2026-08-08-15-47.md
+-rw-r--r--  1 runner runner 27020 Aug  9 20:51 run-2026-08-08-17-19.md
+-rw-r--r--  1 runner runner  7619 Aug  9 20:51 run-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  6252 Aug  9 20:51 run-2026-08-08-17-57.md
+-rw-r--r--  1 runner runner 22001 Aug  9 20:51 run-2026-08-08-18-19.md
+-rw-r--r--  1 runner runner 13783 Aug  9 20:51 run-2026-08-08-19-08.md
+-rw-r--r--  1 runner runner   855 Aug  9 20:51 run-2026-08-08-19-48.md
+-rw-r--r--  1 runner runner  3697 Aug  9 20:51 run-2026-08-08-20-15.md
+-rw-r--r--  1 runner runner 48286 Aug  9 20:51 run-2026-08-08-20-16.md
+-rw-r--r--  1 runner runner   288 Aug  9 20:51 run-2026-08-08-20-52.md
+-rw-r--r--  1 runner runner   306 Aug  9 20:51 run-2026-08-08-21-18.md
+-rw-r--r--  1 runner runner 20264 Aug  9 20:51 run-2026-08-08-21-53.md
+-rw-r--r--  1 runner runner   319 Aug  9 20:51 run-2026-08-08-22-13.md
+-rw-r--r--  1 runner runner 25573 Aug  9 20:51 run-2026-08-08-22-53.md
+-rw-r--r--  1 runner runner 57527 Aug  9 20:51 run-2026-08-08-23-18.md
+-rw-r--r--  1 runner runner   228 Aug  9 20:51 run-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner 36585 Aug  9 20:51 run-2026-08-09-00-41.md
+-rw-r--r--  1 runner runner 25496 Aug  9 20:51 run-2026-08-09-03-00.md
+-rw-r--r--  1 runner runner   324 Aug  9 20:51 run-2026-08-09-04-10.md
+-rw-r--r--  1 runner runner   292 Aug  9 20:51 run-2026-08-09-05-26.md
+-rw-r--r--  1 runner runner 13044 Aug  9 20:51 run-2026-08-09-05-48.md
+-rw-r--r--  1 runner runner 23442 Aug  9 20:51 run-2026-08-09-06-39.md
+-rw-r--r--  1 runner runner 15689 Aug  9 20:51 run-2026-08-09-07-44.md
+-rw-r--r--  1 runner runner 24960 Aug  9 20:51 run-2026-08-09-08-32.md
+-rw-r--r--  1 runner runner   621 Aug  9 20:51 run-2026-08-09-09-27.md
+-rw-r--r--  1 runner runner 62572 Aug  9 20:51 run-2026-08-09-10-21.md
+-rw-r--r--  1 runner runner   338 Aug  9 20:51 run-2026-08-09-10-56.md
+-rw-r--r--  1 runner runner 21593 Aug  9 20:51 run-2026-08-09-11-53.md
+-rw-r--r--  1 runner runner 22109 Aug  9 20:51 run-2026-08-09-12-22.md
+-rw-r--r--  1 runner runner 31687 Aug  9 20:51 run-2026-08-09-13-28.md
+-rw-r--r--  1 runner runner  5183 Aug  9 20:51 run-2026-08-09-14-24.md
+-rw-r--r--  1 runner runner 19394 Aug  9 20:51 run-2026-08-09-15-00.md
+-rw-r--r--  1 runner runner 17138 Aug  9 20:51 run-2026-08-09-15-55.md
+-rw-r--r--  1 runner runner 42663 Aug  9 20:51 run-2026-08-09-16-22.md
+-rw-r--r--  1 runner runner  7354 Aug  9 20:51 run-2026-08-09-16-59.md
+-rw-r--r--  1 runner runner  7274 Aug  9 20:51 run-2026-08-09-17-02.md
+-rw-r--r--  1 runner runner 25132 Aug  9 20:51 run-2026-08-09-17-59.md
+-rw-r--r--  1 runner runner 20646 Aug  9 20:51 run-2026-08-09-18-22.md
+-rw-r--r--  1 runner runner 13222 Aug  9 20:51 run-2026-08-09-19-10.md
+-rw-r--r--  1 runner runner   996 Aug  9 20:51 run-2026-08-09-19-53.md
+-rw-r--r--  1 runner runner 25795 Aug  9 20:51 run-2026-08-09-20-19.md
+-rw-r--r--  1 runner runner  2617 Aug  9 20:51 triage-2026-08-09-1011.md
+-rw-r--r--  1 runner runner 12435 Aug  9 20:51 triage-2026-08-09-1812.md
+[0m
+[0m→ [0mRead scope.yml
+[0m→ [0mRead leads/reposcan-latest.md
+[0m
+[0m$ [0mtail -60 /home/runner/work/threema-hunt/threema-hunt/triage/run-2026-08-09-20-19.md
+---
+
+## REMAINING PROBE ENDPOINTS — EXPECTED BEHAVIOR / OUT OF SCOPE
+
+| # | Endpoint | HTTP | Verdict | Reason |
+|---|----------|------|---------|--------|
+| 9 | work.threema.ch/api-app/public/global/settings | 404 | INVALID | Expected 404 on prod (route is staging-only) |
+| 10 | saltyrtc-00.threema.ch/ | 426 | INVALID | Out of scope (not in scope.yml) |
+| 11 | github.com/threema-ch/threema-desktop | 200 | INVALID | Public OSS repo (expected) |
+| 12 | shop.threema.ch/en | 200 | INVALID | Public shop page (expected) |
+| 13 | shop.threema.ch/en/retrieve-keys | 200 | INVALID | Public page (expected) |
+| 14 | billing.threema.ch | ERR NXDOMAIN | INVALID | DNS NXDOMAIN; unreachable |
+| 15 | broadcast.threema.ch/api/v1 | 401 | INVALID | Auth-gated (expected) |
+| 16 | broadcast.threema.ch/en/login | 200 | INVALID | Public login page (expected) |
+| 17 | broadcast.threema.ch/api/v1/health | 404 | INVALID | Dead route (expected) |
+| 18 | broadcast.threema.ch/en/login/passkey/start | 404 | INVALID | Dead route (expected) |
+| 19 | broadcast.threema.ch/cache/broadcast_public.js | 200 | INVALID | Public JS asset (expected) |
+| 20 | gateway.threema.ch/en/signup | 200 | INVALID | Public signup page (expected) |
+| 21 | ds-apip.threema.ch/identity/lookup | 404 | INVALID | Dead route (expected) |
+| 22 | ds-apip.threema.ch/ | 403 | INVALID | Root 403 (expected) |
+| 23 | ds-apip-work.threema.ch/identity/lookup | 401 | INVALID | Auth-gated (expected; same family as Lead 6) |
+| 24 | ds-apip.threema.ch/identity/fetch_bulk` (backtick) | 404 | INVALID | Probe URL artifact |
+| 25 | ds-apip.threema.ch/identity/ECHOECHO` (backtick) | 404 | INVALID | Probe URL artifact |
+
+---
+
+## Summary
+
+| Verdict | Count | Leads |
+|---------|-------|-------|
+| **INVALID (duplicate)** | 5 | #1 Directory IDOR, #2 Desktop key-storage ACL, #4 HSTS inconsistency, #5 Challenge oracles, #3 Safe CORS |
+| **INVALID (no impact / out of scope)** | 12 | #7 Staging dir, #8 work.test, #9-25 Expected behavior / artifacts |
+| **HOLD** | 1 | #6 Work /identities cross-subscription |
+| **VALID (new)** | **0** | — |
+
+**Net new VALID findings this cycle: 0**
+
+All leads are either duplicates of already-accepted knowledge-base entries (previously triaged in `valid-bugs.md`), credential-gated with no unauthenticated impact, out-of-scope staging variants, or expected behavior.
+
+---
+
+## Reporting Channel
+
+Per `scope.yml`: `disclosure_policy: TBD - operator-provided program scope (update once public channel confirmed)`.
+
+**No report to file with Threema security channel this cycle.** HOLD item (#6) retained for program-provided test credentials. All VALID findings are previously reported duplicates — no new disclosure action needed.
+
+---
+
+## Validated Bugs Running Count
+
+| # | Finding | Severity | Status | CVSS 3.1 |
+|---|---------|----------|--------|----------|
+| 1 | Directory cluster identity→pubkey bulk enumeration (fetch_bulk + GET /identity/{id}, CORS*, no rate-limit) | Medium | Already reported | 5.3 |
+| 2 | Desktop Windows key-storage ACL bypass (keystorage.bin + keystorage.password.bin written without ACL) | Medium | Already reported | 5.5 |
+| 3 | Safe backup HSTS/Expect-CT header inconsistency (present on OPTIONS 204, absent on GET 400) | Low | Already reported | 3.1 |
+| 4 | Challenge-response parameter-validation oracles (set_revocation_key, update_work_info) | Low | Already reported | 3.7 |
+
+**Total validated bugs: 4** (all previously reported; 0 new this cycle)
+[0m
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m
+[0m$ [0mtail -100 /home/runner/work/threema-hunt/threema-hunt/reports/analyst-bigpickle.log
+1 203.56.112.204 g-fb.0.threema.ch
+      1 203.56.112.204 g-fc.0.threema.ch
+      1 203.56.112.204 g-fd.0.threema.ch
+      1 203.56.112.204 g-fe.0.threema.ch
+      1 203.56.112.204 g-ff.0.threema.ch
+[0m
+Full prod chat map enumerated: 256 shards, exact 128/128 split. Spot-checking staging shard topology (DNS only):
+[0m$ [0mfor h in "g-00.0.test.threema.ch" "g-7f.0.test.threema.ch" "g-80.0.test.threema.ch" "g-ff.0.test.threema.ch" "g-2a.0.test.threema.ch"; do ip=$(getent hosts "$h" | awk '{print $1}' | head -1); echo "$h -> ${ip:-NXDOMAIN}"; done
+g-00.0.test.threema.ch -> 203.56.114.34
+g-7f.0.test.threema.ch -> 203.56.114.34
+g-80.0.test.threema.ch -> 203.56.114.34
+g-ff.0.test.threema.ch -> 203.56.114.34
+g-2a.0.test.threema.ch -> 203.56.114.34
+[0m
+New PTR hostnames discovered (morobbia/boiron/chliwindgaellen). Testing whether the canonical hostnames differ from the `g-*` shard SNI (the g-* gate closes without handshake; canonical names might behave differently):
+[0m$ [0mfor h in morobbia.threema.ch boiron.threema.ch; do echo "== $h (5222, 3s)"; timeout 3 bash -c 'exec 3<>/dev/tcp/'$h'/5222; head -c 16 <&3 | xxd | head -1' 2>&1 | head -2; done
+== morobbia.threema.ch (5222, 3s)
+bash: line 1: morobbia.threema.ch: Name or service not known
+bash: line 1: /dev/tcp/morobbia.threema.ch/5222: Invalid argument
+== boiron.threema.ch (5222, 3s)
+bash: line 1: boiron.threema.ch: Name or service not known
+bash: line 1: /dev/tcp/boiron.threema.ch/5222: Invalid argument
+[0m
+[0m$ [0mfor h in morobbia.threema.ch boiron.threema.ch chliwindgaellen.threema.ch; do echo "== $h (443 TLS)"; timeout 8 openssl s_client -connect "$h:443" -servername "$h" -brief </dev/null 2>&1 | head -3; echo "-- HTTP 80:"; timeout 8 curl -s -o /dev/null -w "%{http_code} %{remote_ip}\n" "http://$h/" 2>&1 | head -1; done
+== morobbia.threema.ch (443 TLS)
+40473FA92E7F0000:error:10080002:BIO routines:BIO_lookup_ex:system lib:../crypto/bio/bio_addr.c:738:Name or service not known
+connect:errno=2
+-- HTTP 80:
+000 
+== boiron.threema.ch (443 TLS)
+4057E88D8C7F0000:error:10080002:BIO routines:BIO_lookup_ex:system lib:../crypto/bio/bio_addr.c:738:Name or service not known
+connect:errno=2
+-- HTTP 80:
+000 
+== chliwindgaellen.threema.ch (443 TLS)
+40A7D860777F0000:error:10080002:BIO routines:BIO_lookup_ex:system lib:../crypto/bio/bio_addr.c:738:Name or service not known
+connect:errno=2
+-- HTTP 80:
+000
+[0m
+All reverse-PTR hostnames (morobbia/boiron/chliwindgaellen) have no forward A records — dead-end for SNI bypass. The DNS map is the complete story. Analysis below.
+
+## STEP 1 — DELTA
+- [NEW] `g-*.0.threema.ch` prod chat shard topology fully enumerated (passive DNS): 256 shards `g-00..g-ff`, exact 128/128 split — `g-00..g-7f` → 203.56.112.202 (PTR `morobbia.threema.ch`), `g-80..g-ff` → 203.56.112.204 (PTR `boiron.threema.ch`); staging all 256 shards → single node 203.56.114.34 (PTR `chliwindgaellen.threema.ch`). Closes the "prod chat pattern unenumerated" risk gap; split mirrors mediator/rendezvous 0-7/8-f routing model.
+- [CHANGED] `reposcan-2026-08-09-19-59` — zero new secrets; all 56 hits are test fixtures (`testPassword`, `ECHOECHO`/`shootdeathstar`); `crypto.ts:223` benchmark password re-rejected (RAG-verified); OpenAPI/vite staging endpoints already known. No new surface.
+
+## STEP 2 — PRIORITIZE
+- [PRIO] directory cluster ds-apip/api/apip.threema.ch — 7.20 — surface 9/ business 8/ tech 5/ gate 10/ cloud 4/ fresh 3
+- [PRIO] g-*.0.threema.ch chat cluster (256 shards, 2 prod nodes) — 5.45 — surface 6/ business 9/ tech 5/ gate 1/ cloud 3/ fresh 5
+- [PRIO] safe-{01,1a,1b,02,00}.threema.ch backup store — 5.15 — surface 6/ business 8/ tech 4/ gate 1/ cloud 6/ fresh 3
+- [PRIO] threema-desktop key-storage (Windows ACL) — 5.10 — surface 4/ business 9/ tech 7/ gate 2/ cloud 2/ fresh 3
+
+## STEP 3 — HYPOTHESES
+[HYP] Directory fetch_bulk account-status oracle via state/type/featureMask field differential
+class: IDOR
+asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch `/identity/fetch_bulk`
+confidence: 55
+reasoning: All reachable valid IDs return byte-identical `state:0/type:0/featureLevel:3/featureMask:9` (sha256 `c7cdb73b…`, 135B); invalid IDs silently omitted; ceiling exactly 10000 IDs/req with zero 429s on ~35 sequential probes. A deactivated/revoked ID that drops out of a batch or returns `state≠0` is observable at 10k IDs/req.
+evidence_needed: one program-issued deactivated/revoked identity returning `state≠0` or being omitted from a fetch_bulk batch.
+verify_steps: AUTH_HELPED — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Content-Type: application/json' -d '{"identities":["{deactivatedTestId}","ECHOECHO"]}'` on all 3 hosts; diff state/type/featureMask vs ECHOECHO.
+impact: mass account-status enumeration layered on the accepted existence oracle → targeted operational-intel. Severity: Medium (escalation).
+testability: AUTH_HELPED
+[HYP] Chat shard→physical-node attribution from identity first byte
+class: OTHER
+asset: g-*.0.threema.ch (256 shards, morobbia .202 / boiron .204)
+confidence: 45
+reasoning: DNS split is exactly first-byte-of-identity based (g-80 boundary), same routing model as mediator/rendezvous; identities+pubkeys are harvestable via fetch_bulk; PTR names morobbia/boiron/chliwindgaellen are forward-NXDOMAIN (no SNI bypass). Both nodes close 443/5222 without TLS handshake.
+evidence_needed: correlation of a known identity's first byte with its node IP; any shard/PTR divergence breaking the uniform 403/close posture.
+verify_steps: PASSIVE — `getent hosts g-{00,7f,80,ff}.0.threema.ch` vs fetch_bulk-returned identity first bytes; `timeout 5 openssl s_client -connect <node>:443 -servername morobbia.threema.ch -brief` to re-confirm no-cert close; ≤1 rps.
+impact: node-level userbase attribution (which physical node serves which identity range). Reconnaissance only; no data access. Severity: informational.
+testability: PASSIVE
+[HYP] Safe backup store credentialed cross-origin read + HSTS header inconsistency
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch `/backups/{64hex}` (5 hosts, 203.56.112.231)
+confidence: 50
+reasoning: OPTIONS 204 → CORS `*` + Allow-Methods incl. GET + `Access-Control-Allow-Headers: Authorization` (credentialed cross-origin); unauth GET → 400/11B route-oracle; HTTP Basic `backupId:backupKey`; HSTS/Expect-CT absent on GET 400 but present on OPTIONS 204.
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 + payload + `Access-Control-Expose-Headers` on credentialed response.
+verify_steps: AUTH_HELPED — `curl -s -u "<backupId:backupKey>" https://safe-01.threema.ch/backups/<backupId> -D -` vs 400 unauth baseline, diff across all 5 hostnames; `curl -sI -X OPTIONS https://safe-01.threema.ch/backups/{64hex} -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: GET"`.
+impact: valid creds → identity keypair + full message-history backup readable from any attacker origin. Severity: High (with creds), unreachable without.
+testability: AUTH_HELPED
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] Chat node attribution: survives the confidence threshold (45) but impact is informational-only (node-level recon, no data access); retains only as open-bookkeeping, not a report candidate. Kept at FINAL #3 for completeness.
+- [FINAL] 1. Directory fetch_bulk account-status oracle (55, IDOR, AUTH_HELPED)
+- [FINAL] 2. Safe backup credentialed cross-origin read (50, AUTH, AUTH_HELPED)
+- [FINAL] 3. Chat shard→node attribution (45, OTHER, PASSIVE — informational, low value)
+
+## STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: execute `node poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with a real Threema Desktop 2.x profile to close the runtime gate on the 95-confidence MISCONFIG (read keystorage.bin + keystorage.password.bin → DPAPI SameUser unlock → Argon2id→XSalsa20-Poly1305 → `ck` + `databaseKey` → PRAGMA opens threema.sqlite). Secondary (chat target): request a program-issued test identity to open the 5222/WSS login-frame channel, the only remaining chat path.
+
+## STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ g-*.0.threema.ch: prod chat shard map fully enumerated this cycle — 256 shards, exact 128/128 split (g-00..7f → 203.56.112.202 `morobbia`, g-80..ff → 203.56.112.204 `boiron`), staging single-node (203.56.114.34 `chliwindgaellen`); PTR names forward-NXDOMAIN; TLS/5222 close-without-handshake posture uniform on both prod nodes → node-attribution is the only passive observation, and it is not exploitable.
+- [LEARN] REJECTED class @ chat node attribution: identity-first-byte → node mapping yields reconnaissance only (no data access, no in-band divergence, no cert leak); not a standalone vulnerability class.
+
+## STEP 7 — RISK SCORE
+- [RISK] chat: 45 — surface now fully enumerated (256 shards/2 prod nodes + 1 staging node); passive channel formally closed (0-byte close on 443/5222, no cert/SAN, authenticated login frame required); attribution-only passive signal; staging out of scope.
+- [RISK] web: 94 — directory cluster (3 prod hosts + staging mirror): 10k-ID fetch_bulk, 200/404 oracle, 5 challenge parameter-oracles, CORS `*`, zero 429s, all byte-stable; safe-01 5-host CORS `*` + ACAH:Authorization + route oracle + HSTS gap on GET 400; work.test staging-only settings divergence.
+- [RISK] sync: 55 — mediator/rendezvous {0..f} resolve, uniform 403 on HTTPS, WSS high-entropy paths, split DNS routing; no passive in-band divergence.
+- [RISK] safe: 88 — safe-{01,1a,1b,02,00} single IP, credentialed CORS headers, Basic-Auth gating (400 baseline stable), HSTS gap on GET 400; unlocked only with creds.
+- [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified (15 source paths, 95 conf), PoC artifact present + syntax-verified + graceful no-op; Windows runtime is the only open gate; Electron sandbox unset + nodeIntegrationInWorker (conditional RCE, rejected standalone); crypto.ts:223 benchmark password rejected.
+[0m
+[0m$ [0mtail -5 /home/runner/work/threema-hunt/threema-hunt/inventory/threema.md; echo "---"; grep -c "" /home/runner/work/threema-hunt/threema-hunt/inventory/threema.md
+- NEW `api.threema.ch` — 403 + same permissive CORS as apip (candidate ID/directory sibling).
+- CHANGED `apip.threema.ch` — was 403 on `/`; now verified 200 on `/identity/ECHOECHO`, 404 on invalid, CORS `*`.
+- CHANGED `work.threema.ch` / `shop.threema.ch` / `broadcast.threema.ch` / `gateway.threema.ch` — 301/302 now with session cookie, CSP, Sentry (was TIMEOUT/301).
+- CHANGED `billing.threema.ch` — 301 → `threema.ch`.
+- NEW `ds-apip.test.threema.ch` — leaked test/staging directory server reachable (static + live 200).
+---
+838
+[0m
+[0m$ [0mfor h in g-00.0.threema.ch g-7f.0.threema.ch g-80.0.threema.ch g-ff.0.threema.ch g-2a.0.threema.ch; do ip=$(getent hosts "$h" | awk '{print $1}' | head -1); echo "$h -> ${ip:-NXDOMAIN}"; done; echo "---staging---"; for h in g-00.0.test.threema.ch g-ff.0.test.threema.ch; do ip=$(getent hosts "$h" | awk '{print $1}' | head -1); echo "$h -> ${ip:-NXDOMAIN}"; done
+g-00.0.threema.ch -> 203.56.112.202
+g-7f.0.threema.ch -> 203.56.112.202
+g-80.0.threema.ch -> 203.56.112.204
+g-ff.0.threema.ch -> 203.56.112.204
+g-2a.0.threema.ch -> 203.56.112.202
+---staging---
+g-00.0.test.threema.ch -> 203.56.114.34
+g-ff.0.test.threema.ch -> 203.56.114.34
+[0m
+[0m$ [0mtimeout 4 bash -c 'exec 3<>/dev/tcp/203.56.112.202/5222; head -c 16 <&3 | xxd | head -1'; echo "exit=$?"; timeout 6 openssl s_client -connect 203.56.112.202:443 -servername g-00.0.threema.ch -brief </dev/null 2>&1 | head -3
+exit=124
+4017CBAE257F0000:error:0A000126:SSL routines:ssl3_read_n:unexpected eof while reading:../ssl/record/rec_layer_s3.c:316:
+[0m
+[0m$ [0mfor h in mediator-0.threema.ch mediator-7.threema.ch mediator-8.threema.ch mediator-f.threema.ch rendezvous-0.threema.ch rendezvous-f.threema.ch; do ip=$(getent hosts "$h" | awk '{print $1}' | head -1); echo "$h -> ${ip:-NXDOMAIN}"; done
+mediator-0.threema.ch -> 2a14:3e40:112:312::247
+mediator-7.threema.ch -> 2a14:3e40:112:312::247
+mediator-8.threema.ch -> 2a14:3e44:114:314::247
+mediator-f.threema.ch -> 2a14:3e44:114:314::247
+rendezvous-0.threema.ch -> 2a14:3e40:112:312::247
+rendezvous-f.threema.ch -> 2a14:3e44:114:314::247
+[0m
+[0m$ [0mprintf 'GET / HTTP/1.1\r\nHost: g-00.0.threema.ch\r\nConnection: close\r\n\r\n' | timeout 5 nc 203.56.112.202 5222 | head -c 512 | xxd | head -8; echo "---rc=${PIPESTATUS[1]}---"
+00000000: d96c 92cd 75aa 09e5 dc8b f2c0 5cc7 e71f  .l..u.......\...
+00000010: 051b 1d40 d362 3c28 ceb0 a606 fa85 fab2  ...@.b<(........
+00000020: 0f70 5dee f26c f29b 4b20 4d0c d126 a097  .p]..l..K M..&..
+00000030: 2e78 b7b2 6701 4dd8 5b6a 54d2 8015 90c1  .x..g.M.[jT.....
+00000040: 2e6b fa89 456f 62a8 7d1f 174f 1cad ed92  .k..Eob.}..O....
+---rc=124---
+[0m
+A genuine delta: sending a GET request-line to chat port 5222 elicits an **80-byte binary server-hello** (previously 0 bytes were ever received — prior probes sent no client frame). Let me fingerprint all nodes.
+[0m$ [0mcapture() { name=$1; ip=$2; out=$(printf 'GET / HTTP/1.1\r\nHost: g-00.0.threema.ch\r\nConnection: close\r\n\r\n' | timeout 5 nc "$ip" 5222 | head -c 80 | xxd -p | tr -d '\n'); echo "$name -> ${#out} hex chars (${out:0:8}…)"; echo "$out" | sha256sum | awk '{print "  sha256 "$1}'; }
+capture prod-morobbia 203.56.112.202; sleep 2; capture prod-boiron 203.56.112.204; sleep 2; capture staging-chliwindgaellen 203.56.114.34
+prod-morobbia -> 160 hex chars (72b1b203…)
+  sha256 018a05da6f6fa4e1b17a48270d5cc8f42b390e23cb2de48597d2e48f55f8d781
+prod-boiron -> 160 hex chars (a5090299…)
+  sha256 07254520a91d184a7ffdbe6213079fd8ea07b914e0b6ecf65680b73c561b7f3b
+staging-chliwindgaellen -> 160 hex chars (3e4af05f…)
+  sha256 28a68781fef17aacabca6b38192c295a65f2aeea3d5f80d415ed6c79bca9f69a
+[0m
+[0m$ [0mcapture() { name=$1; ip=$2; out=$(printf 'GET / HTTP/1.1\r\nHost: g-00.0.threema.ch\r\nConnection: close\r\n\r\n' | timeout 5 nc "$ip" 5222 | head -c 80 | xxd -p | tr -d '\n'); echo "$name -> ${out:0:16}… sha256=$(echo "$out" | sha256sum | cut -d' ' -f1)"; }
+capture morobbia-t1 203.56.112.202; sleep 2; capture morobbia-t2 203.56.112.202; sleep 2; capture boiron-t2 203.56.112.204
+morobbia-t1 -> 2c87547d5fdeacf4… sha256=65af1f89540c9d41a7339d3e1e64ee9ed32d5a1bfb87b7cbd5596b11c9d43b0d
+morobbia-t2 -> 9c2ef93bdc2d61c0… sha256=ebeed3d7ec72a16fdbf2488e760d81d377b7af9bac7bbc5cce1ec15b07aced7c
+boiron-t2 -> 28a9ad1b6694f3d5… sha256=799d13b3e43b284537fc1a9d685458bd3ae6cdb2257154d518a8fb09d83c19bc
+[0m
+All probes complete. Here is my analysis cycle.
+
+## STEP 1 — DELTA
+- [CHANGED] `g-*.0.threema.ch:5222` — chat gate pushes an **80-byte per-connection random server-hello on ANY received client frame** (GET request-line elicits it; sha256 differs per connection: morobbia-t1 `65af1f89…` vs t2 `ebeeb3d7…`). Prior "0 bytes, formally closed" was a client-silence artifact (server waits for a frame); SERVER_HELLO_LEN=80 matches CspSocket source exactly. Still no data path without an authenticated login frame.
+- [NEW] `mediator-*`/`rendezvous-*` — split routing also present in AAAA records (`2a14:3e40:112:312::247` for 0-7, `2a14:3e44:114:314::247` for 8-f), mirroring the IPv4 split.
+- [CHANGED] chat shard DNS map byte-stable (256 shards, exact 128/128 split `.202`/`.204`, staging single-node `.34`).
+- [CHANGED] `reposcan-latest` (20:42) — 0 reportable secrets (all test fixtures; Sentry DSNs public); no new surface.
+
+## STEP 2 — PRIORITIZE
+- [PRIO] directory cluster ds-apip/api/apip.threema.ch — 7.20 — 9/8/5/10/4/3
+- [PRIO] chat cluster g-*.0.threema.ch (256 shards, 2 prod nodes) — 5.45 — 6/9/5/1/3/5
+- [PRIO] work cluster work.threema.ch / ds-apip-work.threema.ch — 5.35 — 6/8/5/2/4/4
+- [PRIO] safe-{01,1a,1b,02,00}.threema.ch backup store — 5.15 — 6/8/4/1/6/3
+- [PRIO] threema-desktop key-storage (Windows ACL) — 5.10 — 4/9/7/2/2/3
+
+## STEP 3 — HYPOTHESES
+[HYP] Directory fetch_bulk account-status oracle via state/type/featureMask differential
+class: IDOR
+asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch `/identity/fetch_bulk`
+confidence: 55
+reasoning: All reachable valid IDs return byte-identical `state:0/type:0/featureLevel:3/featureMask:9`; invalid IDs silently omitted; ceiling exactly 10000 IDs/req, zero 429s across ~35 sequential probes. A deactivated/revoked ID dropping from a batch or returning `state≠0` is observable at 10k IDs/req.
+evidence_needed: one program-issued deactivated/revoked identity returning `state≠0` or omitted from a fetch_bulk batch.
+verify_steps: AUTH_HELPED — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Content-Type: application/json' -d '{"identities":["{deactivatedTestId}","ECHOECHO"]}'` on all 3 hosts; diff state/type/featureMask vs ECHOECHO.
+impact: mass account-status enumeration layered on the accepted existence oracle → operational intel. Severity: Medium (escalation).
+testability: AUTH_HELPED
+
+[HYP] Chat shard→physical-node attribution from identity first byte
+class: OTHER
+asset: g-*.0.threema.ch (256 shards, morobbia .202 / boiron .204)
+confidence: 48
+reasoning: DNS split is exactly first-byte-of-identity based (g-80 boundary); identities+pubkeys harvestable via fetch_bulk; new: 5222 pushes a per-connection random 80-byte hello on any frame — no static node fingerprint, so DNS/PTR is the only discriminator; both nodes still data-closed without authenticated login.
+evidence_needed: correlation of a known identity's first byte with its node IP; any shard/PTR divergence breaking the uniform posture.
+verify_steps: PASSIVE — `getent hosts g-{00,7f,80,ff}.0.threema.ch`; compare against fetch_bulk-returned identity first bytes; re-confirm 5222 hello is per-conn random (no fingerprint).
+impact: node-level userbase attribution (which physical node serves which identity range). Reconnaissance only. Severity: informational.
+testability: PASSIVE
+
+[HYP] ds-apip-work.threema.ch /identities cross-subscription disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 52
+reasoning: directory.openapi.yml:1172 flags "/identities ... currently buggy. See TWRK-1633"; endpoint returns a subset of provided contacts in the same Work subscription + work properties (first/last name, jobTitle, department, availability). Host live, 401 on all paths, CORS `*`.
+evidence_needed: whether the membership filter can be induced to return out-of-subscription contacts.
+verify_steps: AUTH_HELPED — with authorized Work test license, POST /identities mixing own- and other-subscription IDs; compare membership + property leak; probe pagination bounds (page/size, wildcard).
+impact: cross-subscription disclosure of work-directory metadata → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] Chat server-hello as protocol/node fingerprint — DISPROVEN by this cycle's data: hello is per-connection random (sha256 differs across same-node connections), so no static node/version fingerprint exists. Removed as a discriminator.
+- [PARKED] Safe backup credentialed read — strong (50) but its asset is #4; not a top-3 asset this cycle; carried as open bookkeeping, not dropped on merit.
+- [FINAL] 1. Directory fetch_bulk account-status oracle (55, IDOR, AUTH_HELPED) — highest value escalation on the accepted oracle.
+- [FINAL] 2. ds-apip-work /identities cross-subscription (52, BUSLOGIC, AUTH_HELPED) — TWRK-1633 buggy-flag basis, concrete test.
+- [FINAL] 3. Chat shard→node attribution (48, OTHER, PASSIVE) — informational only; bookkeeping, not a report candidate.
+
+## STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: request program-issued credentials from the operator (1 active + 1 deactivated test identity, and a Work test license). This is the single gate blocking: (a) the chat POC — completing the 5222 handshake on `g-{firstByte}.0.threema.ch` using the now-confirmed 80-byte server-hello nonce and an authenticated login frame; (b) the fetch_bulk account-status oracle test; (c) the ds-apip-work /identities cross-subscription test; (d) the safe-01 credentialed `/backups/{id}` read. All four are AUTH_HELPED and cannot progress without an authorized token.
+
+## STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ g-*.0.threema.ch:5222 — server pushes an 80-byte per-connection random server-hello (SERVER_HELLO_LEN=80, matches CspSocket) on ANY received client frame; prior 0-byte-close was client-silence artifact; per-conn nonce = no static fingerprint, no data leak; channel remains data-closed without authenticated login frame.
+- [LEARN] ACCEPTED OTHER @ mediator-*/rendezvous-* — split routing (0-7 vs 8-f) also present in AAAA records; IPv6 mirrors IPv4 topology.
+- [LEARN] REJECTED class @ chat server-hello fingerprint: per-connection random nonce — no static node/version fingerprint obtainable; node attribution reduced to DNS/PTR only.
+
+## STEP 7 — RISK SCORE
+- [RISK] chat: 48 — 256-shard topology fully mapped; 5222 channel now characterized (80-byte per-conn nonce on any frame, no fingerprint, no data path without authenticated login frame); attribution-only passive signal; staging out of scope.
+- [RISK] web: 94 — directory cluster (3 prod hosts + staging mirror): 10k-ID fetch_bulk, 200/404 oracle, 5 challenge parameter-oracles, CORS `*`, zero 429s, byte-stable.
+- [RISK] sync: 55 — mediator/rendezvous uniform 403, split DNS (v4+v6), WSS high-entropy paths; no passive in-band divergence.
+- [RISK] safe: 88 — 5 hosts single IP, credentialed CORS headers, Basic-Auth gating, HSTS gap on GET 400; unlocked only with creds.
+- [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified (15 paths, 95 conf), PoC artifact present, Windows runtime is the only open gate; sandbox/worker gap and crypto.ts:223 rejected.
