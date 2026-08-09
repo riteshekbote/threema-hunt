@@ -1,95 +1,33 @@
-## 2026-08-09 21:52:53 UTC [chat] (model bigpickle)
-[HYP] Directory bulk identity enumeration at 10k IDs/req + 5 challenge param-oracles
-class: IDOR
-asset: https://ds-apip.threema.ch/identity/fetch_bulk (byte-identical on api.threema.ch, apip.threema.ch, ds-apip.test.threema.ch, apip.test.threema.ch)
-confidence: 97
-reasoning: Own probe (today): POST ["ECHOECHO","ZZZZZZZZ"] → 200 returns ONLY ECHOECHO pubkey; GET /identity/ECHOECHO → 200 / ZZZZZZZZ → 404; OPTIONS → ACAO `*` + Allow-Methods POST,Get,OPTIONS,DELETE; 10x burst at 1rps → all 200, no 429, ~370ms. Prior cycle: 10k IDs/req → 200/152B, 10001 → 400/0B sharp count-cap; 5 challenge endpoints live with param-validation-before-identity-lookup oracle (set_revocation_key: "Bad revocation key length", update_work_info: "Missing parameters").
-evidence_needed: Cross-origin unauth enumeration at 10k IDs/req; confirm no server-side rate limit at sustained throughput.
-verify_steps: PROBE — `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -H "Origin: https://attacker.example" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` → 200 returns only ECHOECHO; `curl -sI -X OPTIONS https://ds-apip.threema.ch/identity/fetch_bulk` → ACAO `*` + POST,Get,OPTIONS,DELETE.
-impact: Cross-origin unauth enumeration of all valid Threema IDs + Ed25519 pubkeys at 10k IDs/req, no rate limit. CVSS 5.3 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N — Medium.
-testability: PASSIVE+PROBE
-[HYP] Desktop Windows key-storage ACL bypass → full identity + message-store compromise
-class: MISCONFIG
-asset: github.com/threema-ch/threema-desktop — fs.ts:41, key-storage/index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, db/sqlite.ts:240
-confidence: 95
-reasoning: RAG-VERIFIED on GitHub `stable` (6 core + 9 supporting paths, 15 total): fileModeInternalObjectIfPosix() → `{}` on win32; keystorage.bin + keystorage.password.bin written without ACL; safeStorage (DPAPI) password recoverable by same-user process → Argon2id decrypts keystorage.bin → v3 schema yields identityData.ck (Ed25519 privkey) + databaseKey → raw SQLCipher PRAGMA key. PoC artifact `poc/key-storage-acl-bypass-poc.js` generated, node --check PASS, Linux no-op OK. Benchmark dummy password at crypto.ts:223 (sha256 52a0af98…) confirmed purged at line 233.
-evidence_needed: Runtime execution of PoC on authorized Windows host reproducing: (1) keystorage.bin + keystorage.password.bin readable without ACL, (2) DPAPI master-password recovery, (3) Argon2id decrypt → ck + databaseKey, (4) PRAGMA key opens threema.sqlite, (5) Ed25519 identity privkey recovered.
-verify_steps: RUNTIME_AUTH_HELPED-LOCAL — Execute `node poc/key-storage-acl-bypass-poc.js` on authorized Windows host with real Threema Desktop 2.x profile → confirm no-ACL read of `data/keystorage.bin` + `data/keystorage.password.bin` + DPAPI password recovery on win32. PoC now in workspace; node --check PASS; Linux no-op confirmed.
-impact: Co-located same-user process recovers Ed25519 identity private key + decrypts full SQLCipher message DB → complete account compromise, message history theft, impersonation. CVSS 5.5 AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N — Medium.
-testability: RUNTIME_AUTH_HELPED-LOCAL
-[HYP] Safe backup store credentialed cross-origin read (HSTS/Expect-CT header inconsistency + route-existence oracle)
-class: AUTH
-asset: https://safe-01.threema.ch/backups/{64hex} (5 hosts: safe-01, safe-1a, safe-1b, safe-02, safe-00; single IP 203.56.112.231)
-confidence: 55
-reasoning: Own probe (today): GET /backups/{64hex} → 400 (size 11, ACAO `*`); /backup/x → 404 (route-existence oracle); OPTIONS → 204 ACAO `*` + GET,HEAD,PUT,PATCH,POST,DELETE + Expect-CT; HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400; HTTP Basic Auth (backupId:backupKey). Stable across cycles.
-evidence_needed: Program-issued backupId:backupKey → status ≠ 400 + Access-Control-Expose-Headers/Allow-Credentials on credentialed GET, across all 5 hosts.
-verify_steps: AUTH_HELPED — `curl -s -u "<backupId:backupKey>" https://safe-01.threema.ch/backups/<backupId> -D -` diff vs 400 baseline; check Expose-Headers/Allow-Credentials on credentialed GET across all 5 hosts.
-impact: With valid backup credentials → identity keypair + full message-history backup readable cross-origin. CVSS 8.1 AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H — High (creds).
-testability: AUTH_HELPED
-[NEXT] RUNTIME_AUTH_HELPED-LOCAL: Execute `node poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with real Threema Desktop 2.x profile to confirm: (1) no-ACL read of `data/keystorage.bin` + `data/keystorage.password.bin`, (2) DPAPI master-password recovery via CryptUnprotectData, (3) Argon2id decrypt → ck + databaseKey, (4) PRAGMA key opens threema.sqlite. PoC already generated + `node --check` PASS + Linux no-op confirmed. Parallel: (PROBE) `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO"]}' -H "Origin: https://attacker.example"` → confirms ACAO `*` on 200 response body (cross-origin read enabled without credentials).
-[RISK] chat: 55 — g-*.0.threema.ch pattern from source (not proactively enumerated); explicit SNI+TLS1.2/1.3 probes close immediately (0 bytes, no cert/SAN); staging out of scope; no passive divergence obtainable.
-[RISK] web: 97 — directory cluster (ds-apip/api/apip) + 2 staging hosts: public 200/404 identity oracle + fetch_bulk 200 (10k IDs/req, 10001→400/0B sharp cap, no partial leak) + silent invalid-ID omission + CORS `*` (POST,Get,OPTIONS,DELETE) + zero rate-limit (confirmed 35+ probes all 200, 10x burst today all 200) + 5 challenge param-validation-before-identity-lookup oracles. Highest web exposure.
-[RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f}: DNS split routing confirmed, uniform 403 on HTTPS, high-entropy paths; no passive divergence; saltyrtc-* (256→4 IPs, HTTP 426) explicitly NOT in scope.yml.
-[RISK] safe: 89 — safe-{01,1a,1b,02,00}: 5 hosts behind single IP 203.56.112.231; CORS `*` + write-capable methods (GET,HEAD,PUT,PATCH,POST,DELETE) + Allow-Headers: Authorization; route-existence oracle (400 vs 404); HTTP Basic Auth `backupId:backupKey`; HSTS/Expect-CT present on OPTIONS 204 BUT ABSENT on GET 400 (header inconsistency); needs valid backup credentials.
-[RISK] desktop-src: 96 — Windows key-storage ACL bypass RAG-VERIFIED at 95 confidence (15 source paths on GitHub `stable`); PoC artifact now present + syntax-verified; same-user → Ed25519 identity privkey + full SQLCipher message DB; needs Windows runtime validation; crypto.ts:223 REJECTED (benchmark dummy); BrowserWindow sandbox: false + nodeIntegrationInWorker: true (TODO DESK-79, conditional RCE REJECTED standalone); OnPrem config trust REJECTED (Ed25519 sig verified against 3 trusted keys).
-[HYP] Directory bulk identity enumeration at 10k IDs/req with zero rate limit + 5 challenge parameter-oracles
-class: IDOR
-asset: `https://ds-apip.threema.ch/identity/fetch_bulk` (byte-identical on `api.threema.ch`, `apip.threema.ch`, `ds-apip.test.threema.ch`, `apip.test.threema.ch`)
-confidence: 97
-reasoning: Own probe (today): POST ["ECHOECHO","ZZZZZZZZ"] → 200 returns ONLY ECHOECHO pubkey; GET /identity/ECHOECHO → 200 / ZZZZZZZZ → 404; OPTIONS → ACAO `*` + Allow-Methods POST,Get,OPTIONS,DELETE; 10x burst at 1rps → all 200, no 429, ~370ms. Prior cycle: 10k IDs/req → 200/152B, 10001 → 400/0B sharp count-cap; 5 challenge endpoints live with param-validation-before-identity-lookup oracle (set_revocation_key: "Bad revocation key length", update_work_info: "Missing parameters").
-evidence_needed: Cross-origin unauth enumeration at 10k IDs/req; confirm no server-side rate limit at sustained throughput.
-verify_steps: PROBE — `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -H "Origin: https://attacker.example" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` → 200 returns only ECHOECHO; `curl -sI -X OPTIONS https://ds-apip.threema.ch/identity/fetch_bulk` → ACAO `*` + POST,Get,OPTIONS,DELETE.
-impact: Cross-origin unauth enumeration of all valid Threema IDs + Ed25519 pubkeys at 10k IDs/req, no rate limit. CVSS 5.3 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N — Medium.
-testability: PASSIVE+PROBE
-[HYP] Desktop Windows key-storage ACL bypass → full identity + message-store compromise
-class: MISCONFIG
-asset: `github.com/threema-ch/threema-desktop` — `fs.ts:41`, `key-storage/index.ts:559-560`, `electron-main.ts:944-945`, `inner/v3.ts:65,70`, `crypto.ts:53-113`, `db/sqlite.ts:240`
-confidence: 95
-reasoning: RAG-VERIFIED on GitHub `stable` (6 core + 9 supporting paths, 15 total): `fileModeInternalObjectIfPosix()` → `{}` on win32; `keystorage.bin` + `keystorage.password.bin` written without ACL; safeStorage (DPAPI) password recoverable by same-user process → Argon2id decrypts `keystorage.bin` → v3 schema yields `identityData.ck` (Ed25519 privkey) + `databaseKey` → raw SQLCipher PRAGMA key. PoC artifact generated, `node --check` PASS, Linux no-op OK. Benchmark dummy password at `crypto.ts:223` (sha256 `52a0af98…`) confirmed purged at line 233.
-evidence_needed: Runtime execution of PoC on authorized Windows host reproducing: (1) keystorage files readable without ACL, (2) DPAPI master-password recovery, (3) Argon2id decrypt → ck + databaseKey, (4) PRAGMA key opens `threema.sqlite`, (5) Ed25519 identity privkey recovered.
-verify_steps: RUNTIME_AUTH_HELPED-LOCAL — Execute `node poc/key-storage-acl-bypass-poc.js` on authorized Windows host with real Threema Desktop 2.x profile → confirm no-ACL read of `data/keystorage.bin` + `data/keystorage.password.bin` + DPAPI password recovery on win32.
-impact: Co-located same-user process recovers Ed25519 identity private key + decrypts full SQLCipher message DB → complete account compromise, message history theft, impersonation. CVSS 5.5 AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N — Medium.
-testability: RUNTIME_AUTH_HELPED-LOCAL
-[HYP] Safe backup store credentialed cross-origin read (HSTS/Expect-CT header inconsistency + route-existence oracle)
-class: AUTH
-asset: `https://safe-01.threema.ch/backups/{64hex}` (5 hosts: safe-01, safe-1a, safe-1b, safe-02, safe-00; single IP 203.56.112.231)
-confidence: 55
-reasoning: Own probe (today): GET /backups/{64hex} → 400 (size 11, ACAO `*`); /backup/x → 404 (route-existence oracle); OPTIONS → 204 ACAO `*` + GET,HEAD,PUT,PATCH,POST,DELETE + Expect-CT; HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400; HTTP Basic Auth (backupId:backupKey). Stable across cycles.
-evidence_needed: Program-issued backupId:backupKey → status ≠ 400 + Access-Control-Expose-Headers/Allow-Credentials on credentialed GET, across all 5 hosts.
-verify_steps: AUTH_HELPED — `curl -s -u "<backupId:backupKey>" https://safe-01.threema.ch/backups/<backupId> -D -` diff vs 400 baseline; check Expose-Headers/Allow-Credentials on credentialed GET across all 5 hosts.
-impact: With valid backup credentials → identity keypair + full message-history backup readable cross-origin. CVSS 8.1 AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H — High (creds).
-testability: AUTH_HELPED
-[NEXT] RUNTIME_AUTH_HELPED-LOCAL: Execute `node poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with real Threema Desktop 2.x profile to confirm: (1) no-ACL read of `data/keystorage.bin` + `data/keystorage.password.bin`, (2) DPAPI master-password recovery via `CryptUnprotectData`, (3) Argon2id decrypt → ck + databaseKey, (4) PRAGMA key opens `threema.sqlite`. PoC already generated + `node --check` PASS + Linux no-op confirmed. (Parallel PROBE: confirm ACAO `*` on fetch_bulk 200 response body via cross-origin Origin header to verify cross-origin read is enabled without credentials.)
-[RISK] chat: 55 — g-*.0.threema.ch pattern from source (not proactively enumerated); explicit SNI+TLS1.2/1.3 probes close immediately (0 bytes, no cert/SAN); staging out of scope; no passive divergence obtainable.
-[RISK] web: 97 — directory cluster (ds-apip/api/apip) + 2 staging hosts: public 200/404 identity oracle + fetch_bulk 200 (10k IDs/req, 10001→400/0B sharp cap, no partial leak) + silent invalid-ID omission + CORS `*` + zero rate-limit + 5 challenge param-validation-before-identity-lookup oracles. Highest web exposure.
-[RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f}: DNS split routing confirmed, uniform 403 on HTTPS; saltyrtc-* (HTTP 426) explicitly NOT in scope.yml.
-[RISK] safe: 89 — 5 hosts behind single IP; CORS `*` + write-capable methods + Allow-Headers: Authorization; route-existence oracle (400 vs 404); HTTP Basic Auth; HSTS/Expect-CT absent on GET 400; needs valid backup credentials.
-[RISK] desktop-src: 96 — Windows key-storage ACL bypass RAG-VERIFIED at 95 confidence (15 source paths); PoC now present + syntax-verified; needs Windows runtime validation; BrowserWindow sandbox: false + nodeIntegrationInWorker: true (conditional RCE REJECTED standalone).
-[HYP] Chat shard→physical-node attribution remains deterministic and mappable; 5222 fingerprint angle now closed
-class: OTHER
-asset: g-*.0.threema.ch (256 shards, morobbia .202 / boiron .204) + ds-apip.threema.ch/identity/fetch_bulk
-confidence: 58
-reasoning: Own sweep this cycle: 0x00-0x7f→.202, 0x80-0xff→.204, zero outliers (stable across cycles); fetch_bulk returns identities+pubkeys unauthenticated with server-side dedup; ECHOECHO(0x45)→g-45→.202 proves first-byte routing. NEW: plain connect AND single-0x00-frame connect to 5222 return 0 bytes in 5-6s — no server-hello fingerprint obtainable passively; DNS is the only node discriminator.
-evidence_needed: real (non-test) identity harvest → per-node userbase distribution; any shard/PTR divergence breaking the uniform split.
-verify_steps: PASSIVE — map fetch_bulk-returned identities' first byte to .202/.204 (accepted primitive, ≤1 rps); `getent hosts g-{00,7f,80,ff}.0.threema.ch` re-checks; no data sent to chat nodes.
-impact: node-level userbase attribution (which physical node serves which identity range) at 10k IDs/req; recon intel layered on accepted IDOR. Severity: informational.
-testability: PASSIVE
-[HYP] Directory fetch_bulk account-status oracle via state/type/featureMask differential
-class: IDOR
-asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch /identity/fetch_bulk
-confidence: 55
-reasoning: Own probe this cycle: ECHOECHO → byte-identical `state:0/type:0/featureLevel:3/featureMask:9` (135B GET / 152B bulk, sha256 c7cdb73b pattern); invalid IDs silently omitted; ceiling exactly 10000 IDs/req; zero 429s. A deactivated/revoked ID dropping from a batch or returning state≠0 is observable at 10k IDs/req.
-evidence_needed: one program-issued deactivated/revoked identity returning state≠0 or omitted from a fetch_bulk batch.
-verify_steps: AUTH_HELPED — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Content-Type: application/json' -d '{"identities":["{deactivatedTestId}","ECHOECHO"]}'` on all 3 hosts; diff state/type/featureMask vs ECHOECHO.
-impact: mass account-status enumeration layered on accepted existence oracle → operational intel. Severity: Medium (escalation).
-testability: AUTH_HELPED
-[HYP] Safe backup credentialed cross-origin read (distinct from triage-INVALID'd unauth-CORS finding)
-class: AUTH
-asset: safe-{01,1a,1b,02,00}.threema.ch /backups/{64hex} (203.56.112.231)
-confidence: 50
-reasoning: Own probe this cycle: unauth GET → 400/11B, ACAO `*`, NO HSTS/Expect-CT (header inconsistency stable); HTTP Basic backupId:backupKey; OPTIONS 204 → CORS `*` + Allow-Headers: Authorization. Triage marked unauth-CORS INVALID as defense-in-depth; this variant requires valid creds so is not that finding.
+## 2026-08-09 22:19:34 UTC [chat] (model bigpickle)
 evidence_needed: program-issued backupId:backupKey → status ≠ 400 + payload + Access-Control-Expose-Headers/Allow-Credentials on credentialed GET.
 verify_steps: AUTH_HELPED — `curl -s -u "<backupId:backupKey>" https://safe-01.threema.ch/backups/<backupId> -D -` vs 400 baseline, diff across all 5 hosts; OPTIONS preflight with Authorization header.
 impact: with creds, identity keypair + full message-history backup readable from any attacker origin. Severity: High (with creds), unreachable without.
 testability: AUTH_HELPED
 [NEXT] HUMAN: request program-issued authorized test identity + Work test license + backupId:backupKey to execute the three remaining AUTH_HELPED levers in one batch — (a) one framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch) to `g-00.0.threema.ch:5222` to confirm the documented handshake against a test identity (the only remaining chat lever; channel confirmed data-closed without it this cycle); (b) `POST ds-apip-work.threema.ch/identities` mixing own/foreign-subscription IDs for the cross-subscription test (TWRK-1633); (c) credentialed `GET safe-01.threema.ch/backups/<backupId>` to close the safe variant. Without creds, chat POC is at its passive ceiling.
+[HYP] /identity/revoke invalid-ID connection hold → identity-existence oracle + resource-exhaustion surface
+class: IDOR
+asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch `/identity/revoke`
+confidence: 55
+reasoning: Own probe (all 3 hosts): POST {"identity":"ECHOECHO"} → 200 challenge {token,tokenRespKeyPub} in 0.49-0.5s; {"identity":"ZZZZZZZZ"} → connection held >15s (000 timeout), 4/4 reproducible, same TLS path. Empty body → 200 "Identity not found" fast. Endpoint documented in spec (id-revocation-request, challenge-response two-step).
+evidence_needed: sustained valid≈0.5s vs invalid>15s latency split across hosts; distinct body/status for a revoked program-issued identity.
+verify_steps: PROBE — time POST /identity/revoke valid vs invalid on all 3 hosts (≤1 rps, 20s cap); repeat 2x; also check_revocation_key POST-form valid-vs-invalid body diff. AUTH_HELPED — same with a revoked test ID.
+impact: additional existence primitive layered on accepted fetch_bulk IDOR; invalid-ID lookups hold server connections ≥15s each → connection-exhaustion/availability surface. Severity: Low-Medium.
+testability: PASSIVE
+[HYP] check_revocation_key POST-form challenge → revocation-status oracle
+class: IDOR
+asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch `/identity/check_revocation_key`
+confidence: 45
+reasoning: Own probe: POST {"identity":"ECHOECHO"} → 200 challenge (135-136B); {"identity":"ZZZZZZZZ"} → 200 "Identity not found" (46B). Prior REJECTED learning covered only the GET query-param form (byte-identical); POST form shows a body differential.
+evidence_needed: revoked test ID → distinct response vs active ID's challenge issuance.
+verify_steps: PROBE — confirm body differential (135B vs 46B) on all 3 hosts. AUTH_HELPED — revoked vs active test IDs.
+impact: if revoked IDs respond distinctly → revocation-status enumeration at scale; without revoked sample only existence confirmation (already accepted). Severity: Low-Medium.
+testability: AUTH_HELPED (existence part PASSIVE)
+[HYP] Work /fetch2 full-sync data exposure behind credential gate
+class: AUTH
+asset: ds-apip-work.threema.ch `/fetch2`
+confidence: 45
+reasoning: Spec (directory.openapi.yml:1137) documents /fetch2 "Full sync of all data associated to the Work subscription" with work-credentials; route live (401 on empty body). /directory (work contact search) + /identities (TWRK-1633 bug note) also 401-gated. Spec documents 429 on work flavor — rate-limit differential vs public flavor.
+evidence_needed: program-issued work-credentials → /fetch2 returns 200 full-sync payload (contacts/properties); confirm no field readable without full auth.
+verify_steps: AUTH_HELPED — POST ds-apip-work.threema.ch/fetch2 with test work creds → 200 full-sync; diff vs /directory + /identities responses.
+impact: with work credentials, full Work subscription data sync; without creds the 401 gate holds. Severity: Medium (creds).
+testability: AUTH_HELPED

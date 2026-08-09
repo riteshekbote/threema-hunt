@@ -6018,3 +6018,36 @@ verify_steps: AUTH_HELPED — `curl -s -u "<backupId:backupKey>" https://safe-01
 impact: with creds, identity keypair + full message-history backup readable from any attacker origin. Severity: High (with creds), unreachable without.
 testability: AUTH_HELPED
 [NEXT] HUMAN: request program-issued authorized test identity + Work test license + backupId:backupKey to execute the three remaining AUTH_HELPED levers in one batch — (a) one framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch) to `g-00.0.threema.ch:5222` to confirm the documented handshake against a test identity (the only remaining chat lever; channel confirmed data-closed without it this cycle); (b) `POST ds-apip-work.threema.ch/identities` mixing own/foreign-subscription IDs for the cross-subscription test (TWRK-1633); (c) credentialed `GET safe-01.threema.ch/backups/<backupId>` to close the safe variant. Without creds, chat POC is at its passive ceiling.
+## 2026-08-09 22:19:34 UTC [chat] (model bigpickle)
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 + payload + Access-Control-Expose-Headers/Allow-Credentials on credentialed GET.
+verify_steps: AUTH_HELPED — `curl -s -u "<backupId:backupKey>" https://safe-01.threema.ch/backups/<backupId> -D -` vs 400 baseline, diff across all 5 hosts; OPTIONS preflight with Authorization header.
+impact: with creds, identity keypair + full message-history backup readable from any attacker origin. Severity: High (with creds), unreachable without.
+testability: AUTH_HELPED
+[NEXT] HUMAN: request program-issued authorized test identity + Work test license + backupId:backupKey to execute the three remaining AUTH_HELPED levers in one batch — (a) one framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch) to `g-00.0.threema.ch:5222` to confirm the documented handshake against a test identity (the only remaining chat lever; channel confirmed data-closed without it this cycle); (b) `POST ds-apip-work.threema.ch/identities` mixing own/foreign-subscription IDs for the cross-subscription test (TWRK-1633); (c) credentialed `GET safe-01.threema.ch/backups/<backupId>` to close the safe variant. Without creds, chat POC is at its passive ceiling.
+[HYP] /identity/revoke invalid-ID connection hold → identity-existence oracle + resource-exhaustion surface
+class: IDOR
+asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch `/identity/revoke`
+confidence: 55
+reasoning: Own probe (all 3 hosts): POST {"identity":"ECHOECHO"} → 200 challenge {token,tokenRespKeyPub} in 0.49-0.5s; {"identity":"ZZZZZZZZ"} → connection held >15s (000 timeout), 4/4 reproducible, same TLS path. Empty body → 200 "Identity not found" fast. Endpoint documented in spec (id-revocation-request, challenge-response two-step).
+evidence_needed: sustained valid≈0.5s vs invalid>15s latency split across hosts; distinct body/status for a revoked program-issued identity.
+verify_steps: PROBE — time POST /identity/revoke valid vs invalid on all 3 hosts (≤1 rps, 20s cap); repeat 2x; also check_revocation_key POST-form valid-vs-invalid body diff. AUTH_HELPED — same with a revoked test ID.
+impact: additional existence primitive layered on accepted fetch_bulk IDOR; invalid-ID lookups hold server connections ≥15s each → connection-exhaustion/availability surface. Severity: Low-Medium.
+testability: PASSIVE
+[HYP] check_revocation_key POST-form challenge → revocation-status oracle
+class: IDOR
+asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch `/identity/check_revocation_key`
+confidence: 45
+reasoning: Own probe: POST {"identity":"ECHOECHO"} → 200 challenge (135-136B); {"identity":"ZZZZZZZZ"} → 200 "Identity not found" (46B). Prior REJECTED learning covered only the GET query-param form (byte-identical); POST form shows a body differential.
+evidence_needed: revoked test ID → distinct response vs active ID's challenge issuance.
+verify_steps: PROBE — confirm body differential (135B vs 46B) on all 3 hosts. AUTH_HELPED — revoked vs active test IDs.
+impact: if revoked IDs respond distinctly → revocation-status enumeration at scale; without revoked sample only existence confirmation (already accepted). Severity: Low-Medium.
+testability: AUTH_HELPED (existence part PASSIVE)
+[HYP] Work /fetch2 full-sync data exposure behind credential gate
+class: AUTH
+asset: ds-apip-work.threema.ch `/fetch2`
+confidence: 45
+reasoning: Spec (directory.openapi.yml:1137) documents /fetch2 "Full sync of all data associated to the Work subscription" with work-credentials; route live (401 on empty body). /directory (work contact search) + /identities (TWRK-1633 bug note) also 401-gated. Spec documents 429 on work flavor — rate-limit differential vs public flavor.
+evidence_needed: program-issued work-credentials → /fetch2 returns 200 full-sync payload (contacts/properties); confirm no field readable without full auth.
+verify_steps: AUTH_HELPED — POST ds-apip-work.threema.ch/fetch2 with test work creds → 200 full-sync; diff vs /directory + /identities responses.
+impact: with work credentials, full Work subscription data sync; without creds the 401 gate holds. Severity: Medium (creds).
+testability: AUTH_HELPED
