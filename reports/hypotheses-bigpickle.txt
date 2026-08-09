@@ -1,4 +1,24 @@
-## 2026-08-09 12:13:04 UTC [chat] (model bigpickle)
+## 2026-08-09 13:16:40 UTC [chat] (model bigpickle)
+testability: AUTH_HELPED
+[HYP] Desktop Windows key-storage ACL bypass → full identity compromise via DPAPI
+class: MISCONFIG
+asset: threema-desktop (key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163, fs.ts:41, inner/v3.ts:65,70, crypto.ts:53-113, db/sqlite.ts:220)
+confidence: 95
+reasoning: RAG-verified chain — win32 `fileModeInternalObjectIfPosix()` returns `{}` → keystorage files written without DACL; safeStorage DPAPI password recoverable by same-user; Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + databaseKey → SQLCipher PRAGMA key. Re-confirmed stable this cycle across 15 source paths.
+evidence_needed: runtime PoC — same-user process extracts Ed25519 private key + SQLCipher key from keystorage files on Windows (PoC gap: no poc.py in workspace).
+verify_steps: RAG: re-verify fs.ts:41, index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, sqlite.ts:220.
+impact: complete local account compromise (identity privkey + message DB) under same-user malware. Severity: Medium-High (local access required).
+testability: RAG
+[HYP] Safe backup store credentialed cross-origin read + HSTS gap
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 50
+reasoning: OPTIONS 204 CORS `*` + ACAH:Authorization (all 5 hosts behind 203.56.112.231); unauth GET byte-identical 400; HSTS/Expect-CT present on preflight but ABSENT on GET 400.
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 (200+payload or 401/403).
+verify_steps: AUTH_HELPED — `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}`; diff vs 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin. Severity: High with creds, unreachable without.
+testability: AUTH_HELPED
+[NEXT] HUMAN: request one program-issued test identity AND a backupId:backupKey from the lead — a single credential set unblocks the top three surviving hypotheses: `GET /identity/{testId}` diff staging vs prod (mirror proof), fetch_bulk `state`/`type` echo vs ECHOECHO baseline (account-status oracle), and `curl -u testId:testKey https://safe-01.threema.ch/backups/{testId}` vs 400 baseline (credentialed read).
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling ≥10000 IDs/req confirmed (10000-batch → 200, 0.80s, 152B, ECHOECHO echoed, 9999 invalid silently omitted, no 413/429) — enumeration throughput bound ~10k IDs per request
 [LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk byte-identical to prod; ceiling ≥10000; no extra routes (/swagger /docs /openapi.json 404); mirror evidence strengthened
 [LEARN] REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys produce byte-identical 403; only key-PRESENCE observable; no CORS preflight (OPTIONS 404)
@@ -98,3 +118,21 @@ testability: AUTH_HELPED
 [CHANGED] apip.threema.ch — was 403 on `/`; now confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
 [PRIO] ds-apip.threema.ch (directory server API), 7.95
 [PRIO] threema-desktop source (github.com/threema-ch/threema-desktop), 6.70
+[HYP] fetch_bulk account-status oracle via state/type echo
+class: IDOR
+asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch identity/fetch_bulk + GET /identity/{id}
+confidence: 55
+reasoning: Response schema confirmed this cycle carries state+type per identity (ECHOECHO/*3MAW0RK/*SUPPORT all state:0,type:0 — active baseline). All 3 hosts + staging byte-identical. If deactivated/revoked identities return state≠0 (or are dropped like invalid IDs), this is a mass account-status oracle at 10k IDs/req, no rate limit, CORS *.
+evidence_needed: one deactivated/revoked program identity returning state≠0 (or omitted) vs active state:0 in fetch_bulk.
+verify_steps: AUTH_HELPED — POST {"identities":["{deactivatedTestId}","ECHOECHO"]} to all 3 hosts + staging; diff state/type/featureMask vs baseline.
+impact: mass account-status enumeration (deactivated/revoked/active) on top of accepted existence enumeration. Severity: Medium (escalation of accepted IDOR).
+testability: AUTH_HELPED
+[HYP] Work directory /identities TWRK-1633 bugginess → authz/parsing flaw
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities (POST, work-creds-gated)
+confidence: 42
+reasoning: OpenAPI spec explicitly documents "/identities ... currently buggy. See TWRK-1633" — a known-buggy authz+parsing endpoint holding org-wide contact properties (first/last/jobTitle/department/availability/category). Live route confirmed (POST → 401, not catch-all 404). No passive differential obtainable without creds.
+evidence_needed: work-license POST with valid credentials returns 200 with contacts not in requester's subscription (broken authz), or a parsing edge (TWRK-1633) — e.g. contacts array > N, wildcard '*' entry.
+verify_steps: AUTH_HELPED — POST {"username":"{lic}","password":"{pw}","contacts":[...]} to ds-apip-work.threema.ch/identities; check cross-subscription contact leak + oversized contacts.
+impact: with a valid work license: read PII/work properties of contacts outside the subscription. Severity: Medium (requires work creds).
+testability: AUTH_HELPED
