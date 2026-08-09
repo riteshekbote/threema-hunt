@@ -610,3 +610,26 @@
 - CHANGED g-*.0.{test.,}threema.ch:443/5222 — chat passive channel formally closed (explicit SNI + TLS1.2/1.3 probes close immediately, 0 bytes, no cert/SAN)
 - CHANGED apip.threema.ch — was 403 on `/`; now confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
 - CHANGED saltyrtc-*.threema.ch — 256 hostnames resolve to 4 IPs, HTTP 426 on GET, explicitly NOT in scope.yml
+
+## 2026-08-09 15:08:23 UTC
+- NEW ds-apip.threema.ch — canonical directory server hostname (wired into desktop client build config); `GET /identity/{id}` → 200/404 oracle confirmed
+- NEW ds-apip-work.threema.ch — work-style directory server (401 on all paths, CORS `*`, no HSTS/Expect-CT)
+- NEW mediator-{prefix4}.threema.ch/{prefix8}/ — mediator WSS hostname pattern (in scope: mediator-*.threema.ch)
+- NEW rendezvous-{prefix4}.threema.ch/{prefix8}/ — rendezvous WSS hostname pattern (in scope: rendezvous-*.threema.ch)
+- NEW safe-{backupIdPrefix8}.threema.ch/ — backup safe hostname pattern (in scope: safe-*.threema.ch)
+- CHANGED ds-apip.threema.ch/api.threema.ch/apip.threema.ch — fetch_bulk ceiling tightened to exactly 10000 IDs/request (10000→200/152B, 10001→400/0B; sharp count-cap, no partial leak, CORS * on 400, zero 429s)
+- CHANGED ds-apip.test.threema.ch — staging fetch_bulk byte-identical to prod including 10000-cap enforcement; no extra routes (/swagger /docs /identity/lookup /openapi.json 404)
+- CHANGED broadcast.threema.ch/api/v1 — auth-gated 401 baseline stable; key-format/validity oracle fully disproven (1/32/64-char keys → byte-identical 403, no CORS preflight)
+- CHANGED g-*.0.{test.,}threema.ch:443/5222 — chat passive channel formally closed (explicit SNI + TLS1.2/1.3 probes close immediately, 0 bytes, no cert/SAN)
+- CHANGED saltyrtc-*.threema.ch — 256 hostnames resolve to 4 IPs, HTTP 426 on GET, explicitly NOT in scope.yml
+- CHANGED apip.threema.ch — was 403 on `/`; now confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
+- NEW mediator-{prefix4}.threema.ch/{prefix8}/ — mediator WSS hostname pattern (in scope: mediator-*.threema.ch)
+- NEW rendezvous-{prefix4}.threema.ch/{prefix8}/ — rendezvous WSS hostname pattern (in scope: rendezvous-*.threema.ch)
+- NEW safe-{backupIdPrefix8}.threema.ch/ — backup safe hostname pattern (in scope: safe-*.threema.ch)
+- NEW ds-apip-work.threema.ch — work-style directory server (401 on all paths, CORS *, Basic auth required)
+- CHANGED ds-apip.threema.ch/api.threema.ch/apip.threema.ch — fetch_bulk ceiling tightened to exactly 10000 IDs/request (sharp count-cap, 10001→400 empty body, no partial leak, CORS * on 400, zero 429s)
+- CHANGED ds-apip.test.threema.ch — staging fetch_bulk byte-identical to prod including 10000-cap enforcement; no extra routes (/swagger /docs /identity/lookup /openapi.json 404)
+- CHANGED broadcast.threema.ch/api/v1 — auth-gated 401 baseline stable; key-format/validity oracle fully disproven (1/32/64-char keys → byte-identical 403, no CORS preflight)
+- CHANGED g-*.0.{test.,}threema.ch:443/5222 — chat passive channel formally closed (explicit SNI + TLS1.2/1.3 probes close immediately, 0 bytes, no cert/SAN)
+- CHANGED apip.threema.ch — was 403 on `/`; now confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
+- CHANGED saltyrtc-*.threema.ch — 256 hostnames resolve to 4 IPs, HTTP 426 on GET, explicitly NOT in scope.yml
