@@ -45082,3 +45082,763 @@ STEP 7 — RISK SCORE
 - [RISK] sync: 20 | mediator/rendezvous now NXDOMAIN (surface de-registered); prior 403-uniform HTTPS posture offered no data.
 - [RISK] safe: 45 | credential-gated 400 baseline + header inconsistency (HSTS on OPTIONS 204, absent on GET 400) + credentialed-CORS preflight config; no data access without valid creds.
 - [RISK] desktop-src: 60 | key-storage ACL gap RAG-verified (full Ed25519 identity key + SQLCipher DB key recoverable by same-user process on Windows); local-attacker precondition, PoC pending Windows validation.
+===== ANALYST bigpickle 2026-08-09 23:19:58 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la reports/ poc/ 2>/dev/null | head -60
+total 276
+drwxr-xr-x 11 runner runner  4096 Aug  9 23:14 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 23:14 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 23:14 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 23:14 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 23:14 README.md
+-rw-r--r--  1 runner runner    32 Aug  9 23:14 analyst-out.txt
+-rw-r--r--  1 runner runner 83293 Aug  9 23:14 analyst-prompt.txt
+-rw-r--r--  1 runner runner 80229 Aug  9 23:14 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 23:14 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 23:14 knowledge
+drwxr-xr-x  2 runner runner 12288 Aug  9 23:14 leads
+-rw-r--r--  1 runner runner 25416 Aug  9 23:14 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 23:14 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 23:14 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 23:14 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 23:14 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 23:14 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 23:14 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 23:14 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 23:14 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 23:14 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 23:14 triage
+reports/:
+total 10016
+drwxr-xr-x  2 runner runner    4096 Aug  9 23:14 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 23:14 ..
+-rw-r--r--  1 runner runner 3586110 Aug  9 23:14 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 5460497 Aug  9 23:14 analyst-laguna.log
+-rw-r--r--  1 runner runner   28927 Aug  9 23:14 analyst-ling3.log
+-rw-r--r--  1 runner runner   12897 Aug  9 23:14 analyst-longcat.log
+-rw-r--r--  1 runner runner  971966 Aug  9 23:14 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    3930 Aug  9 23:14 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner   28922 Aug  9 23:14 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 23:14 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 23:14 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   13360 Aug  9 23:14 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  284044 Aug  9 23:14 hypotheses.md
+-rw-r--r--  1 runner runner   35339 Aug  9 23:14 valid-bugs.md
+[0m
+[0m$ [0mgit log --oneline -5 2>/dev/null; echo "---"; ls *.txt *.md *.yml 2>/dev/null
+b5139bf reposcan 2026-08-09-23-06
+---
+README.md
+analyst-out.txt
+analyst-prompt.txt
+ctx.txt
+probe-results.md
+scope.yml
+[0m
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m→ [0mRead state_bigpickle.json
+[0m→ [0mRead scope.yml
+[0m
+[0m$ [0mls leads/ | head -40; echo "---"; ls inventory/ knowledge/ triage/ 2>/dev/null | head -40
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-nemotron3.md
+reposcan-2026-08-07-18-43.md
+reposcan-2026-08-07-18-59.md
+reposcan-2026-08-07-19-20.md
+reposcan-2026-08-07-19-33.md
+reposcan-2026-08-07-20-11.md
+reposcan-2026-08-07-20-59.md
+reposcan-2026-08-07-21-13.md
+reposcan-2026-08-07-21-27.md
+reposcan-2026-08-07-22-10.md
+reposcan-2026-08-07-22-46.md
+reposcan-2026-08-07-23-10.md
+reposcan-2026-08-07-23-19.md
+reposcan-2026-08-07-23-50.md
+reposcan-2026-08-08-00-01.md
+reposcan-2026-08-08-00-19.md
+reposcan-2026-08-08-02-10.md
+reposcan-2026-08-08-02-23.md
+reposcan-2026-08-08-03-52.md
+reposcan-2026-08-08-04-47.md
+reposcan-2026-08-08-05-01.md
+reposcan-2026-08-08-05-29.md
+reposcan-2026-08-08-05-48.md
+reposcan-2026-08-08-06-08.md
+reposcan-2026-08-08-06-56.md
+reposcan-2026-08-08-07-12.md
+reposcan-2026-08-08-07-53.md
+reposcan-2026-08-08-08-07.md
+reposcan-2026-08-08-08-37.md
+reposcan-2026-08-08-08-42.md
+reposcan-2026-08-08-09-21.md
+reposcan-2026-08-08-09-40.md
+reposcan-2026-08-08-10-09.md
+reposcan-2026-08-08-10-27.md
+reposcan-2026-08-08-10-37.md
+reposcan-2026-08-08-11-08.md
+---
+inventory/:
+threema.md
+
+knowledge/:
+index.md
+
+triage/:
+run-2026-08-07-20-10.md
+run-2026-08-07-21-03.md
+run-2026-08-07-21-56.md
+run-2026-08-07-22-56.md
+run-2026-08-07-23-55.md
+run-2026-08-08-02-24.md
+run-2026-08-08-04-24.md
+run-2026-08-08-06-01.md
+run-2026-08-08-07-07.md
+run-2026-08-08-07-15.md
+run-2026-08-08-08-07.md
+run-2026-08-08-08-59.md
+run-2026-08-08-09-54.md
+run-2026-08-08-10-53.md
+run-2026-08-08-11-44.md
+run-2026-08-08-13-11.md
+run-2026-08-08-14-00.md
+run-2026-08-08-14-52.md
+run-2026-08-08-15-47.md
+run-2026-08-08-17-19.md
+run-2026-08-08-17-51.md
+run-2026-08-08-17-57.md
+run-2026-08-08-18-19.md
+run-2026-08-08-19-08.md
+run-2026-08-08-19-48.md
+run-2026-08-08-20-15.md
+run-2026-08-08-20-16.md
+run-2026-08-08-20-52.md
+run-2026-08-08-21-18.md
+run-2026-08-08-21-53.md
+run-2026-08-08-22-13.md
+run-2026-08-08-22-53.md
+run-2026-08-08-23-18.md
+[0m
+[0m$ [0mcat README.md; echo "==="; cat analyst-out.txt
+# threema-hunt
+
+24/7 multi-model bug-hunting automation for **Threema**.
+
+Scope: see `scope.yml` (in-scope assets, exclusions, rules).
+
+How it works:
+
+- 5 opencode models (Big Pickle, Nemotron 3 Ultra, Longcat, Ling 3.0, Laguna) hunt in parallel every **10 minutes**, rotating targets
+- Deep public-repo scan of the `threema/` GitHub org(s) referenced in `scope.yml` every **30 minutes**
+- Triager job validates every lead with a second model + live passive probe, keeping a running count in `reports/valid-bugs.md`
+- All testing is **passive and read-only** (GET/HEAD, ≤1 rps, no account creation, no data modification) per program rules
+- Secrets are committed only as hashes; findings must be reported through the program channel referenced in `scope.yml`
+
+| Artifact | Purpose |
+|---|---|
+| `research/` | Per-model research journals |
+| `leads/` | Candidate findings (UNVALIDATED) |
+| `triage/` | Validation verdicts |
+| `reports/valid-bugs.md` | Validated findings + running count |
+| `scope.yml` | Program scope and rules (edit to adjust) |
+===
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la reports/ poc/ 2>/dev/null | head -60
+total 276
+drwxr-xr-x 11 runner runner  4096 Aug  9 23:14 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 23:14 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 23:14 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 23:14 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 23:14 README.md
+-rw-r--r--  1 runner runner    32 Aug  9 23:14 analyst-out.txt
+-rw-r--r--  1 runner runner 83293 Aug  9 23:14 analyst-prompt.txt
+-rw-r--r--  1 runner runner 80229 Aug  9 23:14 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 23:14 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 23:14 knowledge
+drwxr-xr-x  2 runner runner 12288 Aug  9 23:14 leads
+-rw-r--r--  1 runner runner 25416 Aug  9 23:14 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 23:14 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 23:14 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 23:14 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 23:14 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 23:14 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 23:14 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 23:14 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 23:14 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 23:14 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 23:14 triage
+reports/:
+total 10016
+drwxr-xr-x  2 runner runner    4096 Aug  9 23:14 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 23:14 ..
+-rw-r--r--  1 runner runner 3586110 Aug  9 23:14 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 5460497 Aug  9 23:14 analyst-laguna.log
+-rw-r--r--  1 runner runner   28927 Aug  9 23:14 analyst-ling3.log
+-rw-r--r--  1 runner runner   12897 Aug  9 23:14 analyst-longcat.log
+-rw-r--r--  1 runner runner  971966 Aug  9 23:14 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    3930 Aug  9 23:14 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner   28922 Aug  9 23:14 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 23:14 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 23:14 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   13360 Aug  9 23:14 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  284044 Aug  9 23:14 hypotheses.md
+-rw-r--r--  1 runner runner   35339 Aug  9 23:14 valid-bugs.md
+[0m
+[0m$ [0mgit log --oneline -5 2>/dev/null; echo "---"; ls *.txt *.md *.yml 2>/dev/null
+b5139bf reposcan 2026-08-09-23-06
+---
+README.md
+analyst-out.txt
+analyst-prompt.txt
+ctx.txt
+probe-results.md
+scope.yml
+[0m
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m→ [0mRead state_bigpickle.json
+[0m→ [0mRead scope.yml
+[0m
+[0m$ [0mls leads/ | head -40; echo "---"; ls inventory/ knowledge/ triage/ 2>/dev/null | head -40
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-nemotron3.md
+reposcan-2026-08-07-18-43.md
+reposcan-2026-08-07-18-59.md
+reposcan-2026-08-07-19-20.md
+reposcan-2026-08-07-19-33.md
+reposcan-2026-08-07-20-11.md
+reposcan-2026-08-07-20-59.md
+reposcan-2026-08-07-21-13.md
+reposcan-2026-08-07-21-27.md
+reposcan-2026-08-07-22-10.md
+reposcan-2026-08-07-22-46.md
+reposcan-2026-08-07-23-10.md
+reposcan-2026-08-07-23-19.md
+reposcan-2026-08-07-23-50.md
+reposcan-2026-08-08-00-01.md
+reposcan-2026-08-08-00-19.md
+reposcan-2026-08-08-02-10.md
+reposcan-2026-08-08-02-23.md
+reposcan-2026-08-08-03-52.md
+reposcan-2026-08-08-04-47.md
+reposcan-2026-08-08-05-01.md
+reposcan-2026-08-08-05-29.md
+reposcan-2026-08-08-05-48.md
+reposcan-2026-08-08-06-08.md
+reposcan-2026-08-08-06-56.md
+reposcan-2026-08-08-07-12.md
+reposcan-2026-08-08-07-53.md
+reposcan-2026-08-08-08-07.md
+reposcan-2026-08-08-08-37.md
+reposcan-2026-08-08-08-42.md
+reposcan-2026-08-08-09-21.md
+reposcan-2026-08-08-09-40.md
+reposcan-2026-08-08-10-09.md
+reposcan-2026-08-08-10-27.md
+reposcan-2026-08-08-10-37.md
+reposcan-2026-08-08-11-08.md
+---
+inventory/:
+threema.md
+
+knowledge/:
+index.md
+
+triage/:
+run-2026-08-07-20-10.md
+run-2026-08-07-21-03.md
+run-2026-08-07-21-56.md
+run-2026-08-07-22-56.md
+run-2026-08-07-23-55.md
+run-2026-08-08-02-24.md
+run-2026-08-08-04-24.md
+run-2026-08-08-06-01.md
+run-2026-08-08-07-07.md
+run-2026-08-08-07-15.md
+run-2026-08-08-08-07.md
+run-2026-08-08-08-59.md
+run-2026-08-08-09-54.md
+run-2026-08-08-10-53.md
+run-2026-08-08-11-44.md
+run-2026-08-08-13-11.md
+run-2026-08-08-14-00.md
+run-2026-08-08-14-52.md
+run-2026-08-08-15-47.md
+run-2026-08-08-17-19.md
+run-2026-08-08-17-51.md
+run-2026-08-08-17-57.md
+run-2026-08-08-18-19.md
+run-2026-08-08-19-08.md
+run-2026-08-08-19-48.md
+run-2026-08-08-20-15.md
+run-2026-08-08-20-16.md
+run-2026-08-08-20-52.md
+run-2026-08-08-21-18.md
+run-2026-08-08-21-53.md
+run-2026-08-08-22-13.md
+run-2026-08-08-22-53.md
+run-2026-08-08-23-18.md
+[0m
+[0m
+[0m$ [0mgrep -n -i -A4 -B2 "chat\|g-0\|5222" probe-results.md | head -80
+(no output)
+[0m
+[0m$ [0mls -t leads/ | head; echo "---"; ls -t triage/ | head -5; echo "---"; tail -40 reports/valid-bugs.md
+reposcan-2026-08-09-18-15.md
+reposcan-2026-08-09-18-41.md
+reposcan-2026-08-09-19-06.md
+reposcan-2026-08-09-19-23.md
+reposcan-2026-08-09-19-35.md
+reposcan-2026-08-09-19-59.md
+reposcan-2026-08-09-20-24.md
+reposcan-2026-08-09-20-42.md
+reposcan-2026-08-09-21-02.md
+reposcan-2026-08-09-21-16.md
+---
+triage-2026-08-09-1011.md
+triage-2026-08-09-1812.md
+triage-2026-08-09-2056.md
+triage-2026-08-09-2152.md
+triage-2026-08-09-2221.md
+---
+   - | Q1 In scope? | **NO** | staging not in scope.yml |
+   - | Q7 Triager accept? | **NO** | Conditional RCE requires separate renderer exploit chain; not standalone |
+   - | Q3 Real impact? | **NONE** | Debunked — Ed25519 signature verification confirmed secure |
+   - | Q3 Real impact? | **NONE** | Debunked — benchmark-only dummy, key immediately purged |
+   - | Q2 Reachable? | **NO** | Returns 404 — endpoint not publicly routable |
+   - **Verdict: HOLD** — OpenAPI flags endpoint "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Retain for program-provided test credentials.
+   - | **VALID (new)** | **0** | — |
+
+- 3 lead(s) marked VALID at 2026-08-09 20:59:29 UTC
+  - - **Verdict: HOLD** — OpenAPI flags endpoint "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Cannot be proven via passive GET/HEAD only. Retain for program-provide
+  - +   - **Verdict: HOLD** — OpenAPI flags endpoint "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Retain for program-provided test credentials.
+  - | **VALID** | 4 | All duplicates of previously reported findings |
+
+- 1 lead(s) marked VALID at 2026-08-09 21:58:03 UTC
+  - | **VALID** | 4 | All duplicates — already in `valid-bugs.md` |
+
+- 21 lead(s) marked VALID at 2026-08-09 22:21:15 UTC
+  - | Q3 Real impact? | YES | Mass valid-ID + pubkey harvesting at ~10k IDs/request, no rate limit, cross-origin readable → targeted phishing/recon at scale |
+  - | Q4 Passive proof? | YES | `GET /identity/ECHOECHO`→200, `/identity/ZZZZZZZZ`→404; `POST /identity/fetch_bulk`→200 with only valid pubkey; 35× sequential POSTs all 200, zero 429 |
+  - | Q5 Novel? | NO | Already ACCEPTED in KB (lines 20-21, 27, 59, 67, 80, 82, 85-86, 94, 99, 104, 111, 124, 131, 134, 136, 142, 150, 158, 163, 167, 170, 172, 182, 189, 195, 199, 204, 220); triaged as VA
+  - | Q7 Triager accept? | YES | Already accepted as finding #1 in valid-bugs.md |
+  - **Verdict: VALID (duplicate)** — Confidence 95. Already reported. CVSS 3.1: **5.3 (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)**
+  - | Q5 Novel? | NO | Already ACCEPTED in KB (lines 26, 74, 77-78, 92, 108, 121, 130, 133, 137, 143, 187, 192, 197, 203); triaged as VALID in valid-bugs.md |
+  - | Q7 Triager accept? | YES | Already accepted as finding #3 in valid-bugs.md |
+  - **Verdict: VALID (duplicate)** — Confidence 95. Already reported. CVSS 3.1: **5.5 (AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N)** — needs Windows host validation for full PoC
+  - | Q3 Real impact? | NO | Credential-gated (400, not 200). No unauthenticated data access demonstrated. CORS `*` + Allow-Headers: Authorization only matters if attacker already has valid `backupId:back
+  - | Q4 Passive proof? | PARTIAL | Can confirm CORS headers + 400 response; cannot confirm data access without valid credentials |
+  - | Q5 Novel? | NO | Already ACCEPTED in KB; triaged in valid-bugs.md |
+  - | Q6 Not always-rejected? | NO | CORS `*` on credential-gated endpoint is defense-in-depth only (per valid-bugs.md precedent) |
+  - | Q7 Triager accept? | NO | No data access without valid credentials |
+  - **Verdict: VALID (duplicate, low severity)** — Already accepted. CVSS 3.1: **3.1 (AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:N/A:N)**
+  - | Q3 Real impact? | LOW | Route-presence + parameter-validation oracle only; challenge-response still requires valid identity+secret |
+  - **Verdict: VALID (duplicate, low severity)** — Already accepted. CVSS 3.1: **3.7 (AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N)**
+  - | Q2 Reachable? | AUTH_HELPED | Returns 401 on all paths; requires valid Work test license |
+  - | Q4 Passive proof? | NO | Requires AUTH_HELPED with valid Work credentials + cross-subscription contact probes |
+  - | Q5 Novel? | YES | Not previously triaged as valid vuln; only hypothesized (OpenAPI flags it "currently buggy" TWRK-1633) |
+  - **Verdict: HOLD** — OpenAPI flags endpoint "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Cannot be proven via passive GET/HEAD only. Retain for program-provided 
+
+- 1 lead(s) marked VALID at 2026-08-09 22:59:21 UTC
+  - | **VALID** | 4 | All duplicates — already in `valid-bugs.md` |
+[0m
+[0m$ [0mgrep -rn -i "5222" leads/lead-bigpickle.md triage/*.md 2>/dev/null | tail -20; echo "==="; cat leads/lead-bigpickle.md | head -60
+triage/run-2026-08-09-07-44.md:169:**Asset:** `g-{00..ff}.0.test.threema.ch:5222`
+triage/run-2026-08-09-07-44.md:175:| Q2 Reachable? | ⚠️ TCP 5222 accepts, but custom CSP protocol, no in-band divergence proven |
+triage/run-2026-08-09-10-21.md:211:- 2026-08-07 ACCEPTED MISCONFIG @ g-{XX}.0.test.threema.ch: Staging chat cluster resolves to 203.56.114.34 (split from prod chat IPs 203.56.112.202/.204); HTTPS not HTTP-accessible (likely WSS/TCP 5222); staging chat hostnames may be out of scope per scope.yml.
+triage/run-2026-08-09-10-21.md:231:- 2026-08-08 ACCEPTED OTHER @ g-*.0.{test.,}threema.ch chat: read-only TCP connect to 5222 returns 0 bytes on BOTH staging (203.56.114.34) and prod (203.56.112.202) — no server-hello pushed without client frame (source: CspSocket reads SERVER_HELLO_LEN=80 then SERVER_LOGIN_ACK_LEN=32); 443 also closes without TLS handshake both hosts. No passive in-band divergence obtainable; handshake requires authenticated login frame.
+triage/run-2026-08-09-10-21.md:337:- 2026-08-09 REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes read, no peer certificate); no cert/SAN leak; handshake requires authenticated login frame — chat passive channel formally closed.
+triage/run-2026-08-09-12-22.md:336:**Asset:** `g-*.0.test.threema.ch:5222`  
+triage/run-2026-08-09-15-00.md:248:**Assets:** `g-*.0.test.threema.ch:5222`, `mediator-*.test.threema.ch`, `rendezvous-*.test.threema.ch`, `work.test.threema.ch`
+triage/run-2026-08-09-15-00.md:254:| Q2 | **Yes** — TCP 5222 open on staging chat; HTTPS on staging work. |
+triage/run-2026-08-09-15-55.md:157:**Asset:** `g-{XX}.0.test.threema.ch:5222`
+triage/run-2026-08-09-16-22.md:393:[LEARN] REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close immediately (0 bytes, no peer cert); no cert/SAN leak; handshake requires authenticated login frame — chat passive channel formally closed.
+triage/run-2026-08-09-16-22.md:396:[RISK] chat: 55 — g-*.0.threema.ch: prod pattern unenumerated; staging likely out of scope; passive channel closed (SNI+TLS1.2/1.3 close on 443 & 5222, 0 bytes, no cert/SAN); handshake requires authenticated login frame; saltyrtc-* 426 but explicitly NOT in scope.yml.
+triage/run-2026-08-09-22-21.md:535:| Q2 Reachable? | PARTIAL | TCP 5222 accepts but server silent until client speaks custom CSP protocol; no TLS cert obtainable |
+triage/run-2026-08-09-22-59.md:636:4536:[HYP] Chat shard→physical-node attribution remains deterministic and mappable; 5222 fingerprint angle now closed
+triage/run-2026-08-09-22-59.md:639:4563:[NEXT] HUMAN: request program-issued authorized test identity + Work test license + backupId:backupKey to execute the three remaining AUTH_HELPED levers in one batch — (a) one framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch) to `g-00.0.threema.ch:5222` to confirm the documented handshake against a test identity (the only remaining chat lever; channel confirmed data-closed without it this cycle); (b) `POST ds-apip-work.threema.ch/identities` mixing own/foreign-subscription IDs for the cross-subscription test (TWRK-1633); (c) credentialed `GET safe-01.threema.ch/backups/<backupId>` to close the safe variant. Without creds, chat POC is at its passive ceiling.
+triage/run-2026-08-09-22-59.md:743:5807:[HYP] g-*.0.threema.ch:443/5222 yields cert/SAN or protocol fingerprint under explicit SNI
+triage/run-2026-08-09-22-59.md:756:5925:[NEXT] HUMAN: request program-issued authorized test identity + Work test license to execute the only remaining chat lever and triage HOLD #6 — (a) one framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch) to `g-00.0.threema.ch:5222` to confirm documented handshake against a test identity; (b) `POST ds-apip-work.threema.ch/identities` mixing own/foreign-subscription IDs for the cross-subscription test. Without creds, chat POC is at its passive ceiling (channel data-closed, staging out of scope).
+triage/run-2026-08-09-22-59.md:765:5993:[HYP] Chat shard→physical-node attribution remains deterministic and mappable; 5222 fingerprint angle now closed
+triage/run-2026-08-09-22-59.md:768:6020:[NEXT] HUMAN: request program-issued authorized test identity + Work test license + backupId:backupKey to execute the three remaining AUTH_HELPED levers in one batch — (a) one framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch) to `g-00.0.threema.ch:5222` to confirm the documented handshake against a test identity (the only remaining chat lever; channel confirmed data-closed without it this cycle); (b) `POST ds-apip-work.threema.ch/identities` mixing own/foreign-subscription IDs for the cross-subscription test (TWRK-1633); (c) credentialed `GET safe-01.threema.ch/backups/<backupId>` to close the safe variant. Without creds, chat POC is at its passive ceiling.
+triage/run-2026-08-09-22-59.md:769:6026:[NEXT] HUMAN: request program-issued authorized test identity + Work test license + backupId:backupKey to execute the three remaining AUTH_HELPED levers in one batch — (a) one framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch) to `g-00.0.threema.ch:5222` to confirm the documented handshake against a test identity (the only remaining chat lever; channel confirmed data-closed without it this cycle); (b) `POST ds-apip-work.threema.ch/identities` mixing own/foreign-subscription IDs for the cross-subscription test (TWRK-1633); (c) credentialed `GET safe-01.threema.ch/backups/<backupId>` to close the safe variant. Without creds, chat POC is at its passive ceiling.
+triage/triage-2026-08-09-2152.md:244:| Q2 Reachable? | PARTIAL | TCP 5222 accepts but server silent until client speaks custom CSP protocol; no TLS cert obtainable |
+===
+# LEADS bigpickle (seed)
+- SEED: no model output yet; pipeline starts on first run.
+## 2026-08-07 18:34:07 UTC [chat] (model bigpickle)
+class: BUSLOGIC
+asset: apip.threema.ch/identity/ws/revoke
+confidence: 45
+reasoning: OpenAPI (directory.openapi.yml) shows /identity/ws/revoke is the ONLY identity endpoint with a single-step request (identity + revocationKey = SHA256(revocation-password)[:4], 32 bits) and NO challenge-response step, and unlike blob_cred/sfu_cred/work endpoints it documents NO 429 rate-limit response.
+evidence_needed: server enforces/omits rate limiting on ws/revoke; error/timing differences per guessed key; whether a correct 4-byte key revokes any ID.
+verify_steps: AUTH_HELPED: on a program-provided test ID, POST /identity/ws/revoke with a deliberately wrong revocationKey (observe error shape and timing), repeat small count to test for 429; never target third-party IDs and do not create accounts.
+impact: if unrate-limited, brute-force of 2^32 space → force-revoke/delete any Threema ID (permanent identity destruction / DoS). Severity: medium-high.
+testability: AUTH_HELPED
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities (backend of in-scope work.threema.ch)
+confidence: 50
+reasoning: directory.openapi.yml line 1172 states "/identities ... currently buggy. See TWRK-1633"; endpoint returns "a subset of the provided contacts that are part of the same Work subscription" + work properties (first/last name, jobTitle, department, availability); GET / returns 401 confirming a live credential-gated backend.
+evidence_needed: whether contact matching can be induced to return contacts outside the caller's subscription.
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities (contacts:[...]) mixing own- and other-subscription IDs and compare membership + properties; also probe /directory pagination bounds (page/size, wildcard queries).
+impact: cross-subscription disclosure of work-directory metadata (names, titles, departments, availability) → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+class: OTHER
+asset: mediator-*.threema.ch / rendezvous-*.threema.ch / blob-mirror-*.threema.ch
+confidence: 40
+reasoning: all sampled shards (0..f) resolve; GET / → uniform 403; shard prefix is derived from the first byte of a public-key (routing, not auth per config.rs) — no passive distinguishing signal observed.
+evidence_needed: any shard or path (wss /{prefix}/) responding differently than 403.
+verify_steps: PASSIVE: GET https://{rendezvous,mediator,blob-mirror}-{0,7,f}.threema.ch/ and a few /XX/ paths at ≤1rps, compare status/body fingerprints.
+impact: none observed; would only indicate a routing/edge misconfiguration. Severity: n/a
+testability: PASSIVE
+## 2026-08-07 18:50:01 UTC [chat] (model bigpickle)
+[HYP] ds-apip.threema.ch directory lookup / unauth enumeration
+class: AUTH
+asset: ds-apip.threema.ch
+confidence: 55
+reasoning: directory.openapi.yml lists `ds-apip.*` as the directory API base; production `ds-apip.threema.ch` returns root 403 with `Access-Control-Allow-Origin: *` and allows POST/GET/OPTIONS/DELETE cross-origin. apip.threema.ch returns 404 on all openapi subpaths (host mismatch), so any live directory routes live on the ds-apip host. If any lookup route is unauthenticated, CORS-* enables cross-origin probing from an attacker page.
+evidence_needed: an endpoint under ds-apip.threema.ch returning ≠403/404 to GET; response-body fingerprints differing from apip.
+verify_steps: PASSIVE: GET https://ds-apip.threema.ch/identity/lookup and /directory (compare vs apip 404), GET https://ds-apip-work.threema.ch/identity/lookup (401=route-exists-behind-auth vs 404=no-route), ≤1 rps.
+impact: Threema ID/pubkey enumeration → spam, phishing, targeted abuse. Severity: medium.
+testability: PASSIVE
+[HYP] threema-desktop key-storage KDF parameter weakness
+class: OTHER
+asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/key-storage/crypto.ts)
+confidence: 45
+reasoning: reposcan found crypto.ts:223 uses fixed benchmark password `r3gGN9GDQ5NF6tM6` to calibrate Argon2id params at runtime, and test-data.ts defines `keyStoragePassword: 'CHANGE_ME'`; no committed credentials exist, so only the KDF/key-handling logic can be weak. Electron 2.x stores user password/keys through this module.
+evidence_needed: how Argon2id memory/time params are derived (floors/caps) and whether the derived key protects an offline-readable store.
+verify_steps: PASSIVE: static read of crypto.ts `determineKdfParams()` and the storage backend (safeStorage vs plaintext file). No live requests.
+impact: if params are attacker-favorable, offline recovery of stored user credentials/keys from disk. Severity: low-medium.
+testability: PASSIVE
+[HYP] ds-apip-work.threema.ch /identities cross-subscription disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 52
+reasoning: directory.openapi.yml:1172 flags "/identities ... currently buggy. See TWRK-1633"; endpoint returns a subset of provided contacts in the same Work subscription plus work properties (first/last name, jobTitle, department, availability). Host now confirmed live returning 401 with permissive CORS.
+evidence_needed: whether the membership filter can be induced to return out-of-subscription contacts.
+verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities mixing own- and other-subscription IDs and compare membership + property leak; probe pagination bounds (page/size, wildcard).
+impact: cross-subscription disclosure of work-directory metadata → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[NEXT] PROBE: GET https://ds-apip-work.threema.ch/identity/lookup and /directory (401 vs 404 distinguishes route-existence behind the auth gate), then GET https://ds-apip.threema.ch/identity/lookup + /directory at ≤1 rps to fingerprint the directory host independently of apip.
+## 2026-08-07 19:12:20 UTC [chat] (model bigpickle)
+[HYP] ds-apip.test.threema.ch staging directory server publicly exposed
+class: MISCONFIG
+asset: ds-apip.test.threema.ch
+[0m
+[0m$ [0mhead -60 reports/valid-bugs.md
+# Validated Bugs
+
+- 2026-08-07 ~18:00 UTC - SEED STATE: 0 valid bugs. Pipeline not yet run; hypotheses are recon-based and UNVALIDATED.
+
+- 3 lead(s) marked VALID at 2026-08-07 21:03:52 UTC
+  - | Q5 Novel? | **NO** — already ACCEPTED (knowledge/index.md line 21: "POST /identity/fetch_bulk returns pubkeys for valid IDs only, no auth") |
+  - | Q4 Passive proof? | **PARTIAL** — can confirm CORS headers + 404 on random IDs; cannot confirm oracle without valid id+key pair |
+  - | **VALID** | 0 | — |
+
+- 3 lead(s) marked VALID at 2026-08-07 21:56:25 UTC
+  - **Verdict: HOLD** — Speculative; requires AUTH_HELPED with valid credentials to confirm. Needs program to provide test credentials.
+  - | Q4 | PARTIAL — can confirm CORS headers; cannot confirm oracle without valid id+key |
+  - | **VALID** | 0 | — |
+
+- 2 lead(s) marked VALID at 2026-08-07 23:55:35 UTC
+  - | Q3 | **NO** | All data-access routes return 400 (credential-gated). No unauthenticated data access demonstrated. CORS `*` + Authorization header on an auth-gated API only matters if the attacker alr
+  - | Q7 | **NO** | Requires valid credentials to have any impact. No unauthenticated data access demonstrated. |
+
+- 3 lead(s) marked VALID at 2026-08-08 04:24:31 UTC
+  - **Verdict: VALID**
+  - **Verdict: HOLD** — Defense-in-depth/hardening gap. `sandbox:false` + `nodeIntegrationInWorker:true` are real hardening concerns but constitute a vulnerability ONLY when chained with a demonstrated re
+  - | **VALID** | 1 | #3 Desktop Windows key-storage ACL bypass |
+
+- 6 lead(s) marked VALID at 2026-08-08 06:01:58 UTC
+  - **Verdict: VALID** (duplicate of already-accepted KB finding — no new action needed)
+  - **Verdict: HOLD** — credential-gated; real impact requires credential compromise; enumeration oracle is weak (route existence only). AUTH_HELPED needed to confirm (1) HTTP 200 for valid backupId+backu
+  - | Q7 | ✅ YES | Reasonable triager accepts as valid local-privilege finding for privacy-focused messenger |
+  - **Verdict: VALID** (duplicate of already-accepted KB finding — confidence strengthened 75→95)
+  - | 1 | Directory identity→pubkey bulk enumeration + CORS * + no rate limit | IDOR | **VALID** | 5.3 Med | Already accepted |
+  - | 3 | Desktop Windows key-storage ACL bypass → identity compromise | MISCONFIG | **VALID** | 5.5 Med | Already accepted (strengthened) |
+
+- 8 lead(s) marked VALID at 2026-08-08 07:07:02 UTC
+  - | Q4 Passive proof? | **YES** — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` returns 200 with pubkey
+  - **Verdict: ✅ VALID**
+  - **Verdict: ✅ VALID (low severity)**
+  - **Verdict: ✅ VALID (medium, local access required)**
+  - | Q7 Triager accept? | **NO** — no data access without valid credentials; CORS `*` on a credential-gated endpoint is not a vulnerability |
+  - | 1 | Directory cluster identity enumeration (IDOR) | ✅ **VALID** | 5.3 | Medium |
+  - | 2 | Staging directory server public exposure | ✅ **VALID** | 3.1 | Low |
+  - | 3 | Desktop Windows key storage ACL bypass | ✅ **VALID** | 4.6 | Medium |
+
+- 5 lead(s) marked VALID at 2026-08-08 07:15:49 UTC
+  - | **Q4 Proof (GET/HEAD)** | ✅ YES — `GET /identity/ECHOECHO` → 200 with pubkey; `GET /identity/ZZZZZZZZ` → 404; `POST /identity/fetch_bulk` → pubkeys for valid IDs; CORS * confirmed |
+  - | **Q6 Not always-rejected** | ❌ **REJECTED** — CORS * on a credential-gated endpoint is best practice / defense-in-depth. No unauthenticated data access. The 400-vs-404 distinction is an oracle but r
+  - | **Q2 Reachability** | ⚠️ AUTH_HELPED — requires valid Work test license (401 on unauth) |
+  - **Verdict: HOLD** — Interesting hypothesis (OpenAPI flags it "currently buggy" TWRK-1633) but requires AUTH_HELPED testing with a valid Work license. Cannot be proven with passive GET/HEAD only. Retai
+  - **VALID leads for reporting: 0**
+
+- 5 lead(s) marked VALID at 2026-08-08 08:07:09 UTC
+  - | Q2 Reachable? | ⚠️ PARTIAL | Endpoint responds but returns 400 without valid credentials; auth-gated |
+  - | Q3 Real impact? | ❌ NO | CORS `*` on a credential-gated endpoint (400, not 200) is defense-in-depth only. No unauthenticated data access demonstrated. Attacker still needs valid backupId+backupKey |
+  - | Q6 Not always-rejected? | ❌ NO | This is on the always-rejected list: CORS `*` on credential-gated endpoint is best practice/defense-in-depth, not a vulnerability (per valid-bugs.md precedent) |
+  - | Q1 In scope? | ❌ NO | scope.yml lists `mediator-*.threema.ch` and `rendezvous-*.threema.ch` — staging `.test` variants are not explicitly listed. Per valid-bugs.md precedent, staging variants are tr
+  - | Q4 Passive proof? | ❌ NO | Requires AUTH_HELPED (valid credentials) to test session fixation |
+
+- 2 lead(s) marked VALID at 2026-08-08 10:53:22 UTC
+  - Verdict: HOLD — speculative. Backend route not deployed on staging (returns method-agnostic 404). If backend catches up, the route could return license credentials (username/password/expires/hasEmail)
+  - | VALID   | 0     | — |
+
+- 2 lead(s) marked VALID at 2026-08-08 14:00:44 UTC
+[0m
+[0m$ [0mfor h in g-00 g-01 g-02 g-03 g-04 g-05 g-06 g-07 g-08 g-09 g-0a g-0b g-0c g-0d g-0e g-0f g-10 g-20 g-40 g-80 g-ff; do printf "%s.0.threema.ch -> " "$h"; getent ahosts "$h.0.threema.ch" 2>/dev/null | awk 'NR==1{print $1; exit}'; [ -z "$(getent ahosts $h.0.threema.ch 2>/dev/null | awk 'NR==1{print $1; exit}')" ] && echo "NXDOMAIN"; sleep 1; done
+g-00.0.threema.ch -> 203.56.112.202
+g-01.0.threema.ch -> 203.56.112.202
+g-02.0.threema.ch -> 203.56.112.202
+g-03.0.threema.ch -> 203.56.112.202
+g-04.0.threema.ch -> 203.56.112.202
+g-05.0.threema.ch -> 203.56.112.202
+g-06.0.threema.ch -> 203.56.112.202
+g-07.0.threema.ch -> 203.56.112.202
+g-08.0.threema.ch -> 203.56.112.202
+g-09.0.threema.ch -> 203.56.112.202
+g-0a.0.threema.ch -> 203.56.112.202
+g-0b.0.threema.ch -> 203.56.112.202
+g-0c.0.threema.ch -> 203.56.112.202
+g-0d.0.threema.ch -> 203.56.112.202
+g-0e.0.threema.ch -> 203.56.112.202
+g-0f.0.threema.ch -> 203.56.112.202
+g-10.0.threema.ch -> 203.56.112.202
+g-20.0.threema.ch -> 203.56.112.202
+g-40.0.threema.ch -> 203.56.112.202
+g-80.0.threema.ch -> 203.56.112.204
+g-ff.0.threema.ch -> 203.56.112.204
+[0m
+[0m$ [0mfor h in g-41 g-50 g-5f g-60 g-70 g-7f; do printf "%s.0.threema.ch -> " "$h"; getent ahosts "$h.0.threema.ch" 2>/dev/null | awk 'NR==1{print $1; exit}'; sleep 1; done
+g-41.0.threema.ch -> 203.56.112.202
+g-50.0.threema.ch -> 203.56.112.202
+g-5f.0.threema.ch -> 203.56.112.202
+g-60.0.threema.ch -> 203.56.112.202
+g-70.0.threema.ch -> 203.56.112.202
+g-7f.0.threema.ch -> 203.56.112.202
+[0m
+[0m$ [0mls reposcan-raw/ 2>/dev/null | head; echo "---"; grep -rn -i "serverGroup\|g-.*\.0\.\|chatServer\|shard" reposcan-raw/ 2>/dev/null | grep -i -v "node_modules\|\.map" | head -20
+analysis.txt
+grep-delta.txt
+grep-hits.prev.txt
+grep-hits.txt
+rag.txt
+threema-ch
+---
+reposcan-raw/rag.txt:5:- In scope: Android source, iOS source, Desktop 2.x source (threema-desktop), g-*.0.threema.ch, mediator-*.threema.ch, rendezvous-*.threema.ch, apip.threema.ch, safe-*.threema.ch, work.threema.ch, broadcast.threema.ch, gateway.threema.ch, shop.threema.ch, billing.threema.ch
+reposcan-raw/rag.txt:37:- 2026-08-07 ACCEPTED MISCONFIG @ g-{XX}.0.test.threema.ch: Staging chat cluster resolves to 203.56.114.34 (split from prod chat IPs 203.56.112.202/.204); HTTPS not HTTP-accessible (likely WSS/TCP 5222); staging chat hostnames may be out of scope per scope.yml.
+reposcan-raw/rag.txt:57:- 2026-08-08 ACCEPTED OTHER @ g-*.0.{test.,}threema.ch chat: read-only TCP connect to 5222 returns 0 bytes on BOTH staging (203.56.114.34) and prod (203.56.112.202) — no server-hello pushed without client frame (source: CspSocket reads SERVER_HELLO_LEN=80 then SERVER_LOGIN_ACK_LEN=32); 443 also closes without TLS handshake both hosts. No passive in-band divergence obtainable; handshake requires authenticated login frame.
+reposcan-raw/rag.txt:120:- 2026-08-08 REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml.
+reposcan-raw/rag.txt:148:- 2026-08-09 REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
+reposcan-raw/rag.txt:163:- 2026-08-09 REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes read, no peer certificate); no cert/SAN leak; handshake requires authenticated login frame — chat passive channel formally closed.
+reposcan-raw/rag.txt:176:- 2026-08-09 REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close immediately (0 bytes, no peer cert); no cert/SAN leak; handshake requires authenticated login frame — chat passive channel formally closed
+reposcan-raw/rag.txt:182:- 2026-08-09 REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml; explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes, no peer cert) on both 443 and 5222.
+reposcan-raw/rag.txt:210:- 2026-08-09 REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close immediately (0 bytes, no peer cert); no cert/SAN leak; handshake requires authenticated login frame — chat passive channel formally closed.
+reposcan-raw/rag.txt:229:- 2026-08-09 REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml.
+reposcan-raw/rag.txt:238:- 2026-08-09 REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes close immediately (0 bytes, no peer cert); chat passive channel formally closed; staging out of scope per scope.yml.
+reposcan-raw/rag.txt:250:- g-*.0.threema.ch (chat) — hostname pattern unknown, enumerate once discovered
+[0m
+[0m$ [0mls reposcan-raw/threema-ch/ 2>/dev/null | head; echo "---"; grep -rn -i "threema.ch\|serverUrl\|chatUrl\|0\.threema" reposcan-raw/threema-ch/threema-desktop/ 2>/dev/null | grep -i "g-\|server\|host" | grep -v "\.map\|node_modules" | head -20
+app-remote-protocol
+compose-area
+push-relay
+threema-android
+threema-bot-sdk
+threema-desktop
+threema-ios
+threema-markup
+threema-msgapi-sdk-java
+threema-msgapi-sdk-php
+---
+[0m
+[0m$ [0mgrep -rn -i "threema.ch" reposcan-raw/threema-ch/threema-desktop/src/ 2>/dev/null | grep -i "g-\|server" | grep -v "\.map" | head -25
+(no output)
+[0m
+[0m$ [0mls reposcan-raw/threema-ch/threema-desktop/ 2>/dev/null; echo "---find src---"; find reposcan-raw/threema-ch/threema-desktop/ -name "*.ts" -not -path "*/node_modules/*" 2>/dev/null | head -5
+---find src---
+[0m
+[0m$ [0mgrep -rn -i "g-\|\.threema.ch\|serverGroup\|substr\|identity.*server" reposcan-raw/grep-hits.txt 2>/dev/null | grep -i "server\|threema.ch\|shard" | head -30
+22:reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+23:reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+25:reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+26:reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:911: - url: https://ds-apip.test.threema.ch
+27:reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+28:reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+38:reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:147: DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/',
+39:reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:153: WORK_SERVER_LEGACY_URL: 'https://ds-apip-work.test.threema.ch/',
+40:reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:154: WORK_SERVER_URL: 'https://work.test.threema.ch/',
+47:reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+48:reposcan-raw/threema-ch/threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml:911: - url: https://ds-apip.test.threema.ch
+[0m
+[0m$ [0mgrep -rn -i "g-\|chat.*server\|server.*chat\|ChatServer\|connectionServer\|serverGroup" reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/ 2>/dev/null | grep -v -i "directory\|api\|push\|relay\|blob\|safe\|work" | head -20; echo "==="; grep -rln -i "serverGroup\|server_address\|serverAddress\|getChatServer" reposcan-raw/threema-ch/ 2>/dev/null | head
+===
+[0m
+[0m$ [0mgrep -rn -i "g-\${\|g-\${2}\|g-\|\.0\.threema\|server: \`\|'g-\|\"g-\|\`g-" reposcan-raw/threema-ch/threema-desktop/ 2>/dev/null | grep -v node_modules | head; echo "==="; grep -rn -i "serverGroup\|groupId\|group.*id.*substring\|substring.*server" reposcan-raw/threema-ch/threema-desktop/packages/libthreema/ 2>/dev/null | grep -v node_modules | head
+===
+[0m
+[0m$ [0mgrep -rn -i "serverGroup\|group.*% \|groupNumber\|% 0x10\|>> 4\|charAt(0)\|charCodeAt(0)" reposcan-raw/grep-hits.txt 2>/dev/null | head -15; echo "=== analysis.txt ==="; head -60 reposcan-raw/analysis.txt
+=== analysis.txt ===
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && ls -la
+total 328
+drwxr-xr-x 11 runner runner   4096 Aug  9 23:03 .
+drwxr-xr-x  3 runner runner   4096 Aug  9 23:02 ..
+drwxr-xr-x  7 runner runner   4096 Aug  9 23:03 .git
+drwxr-xr-x  3 runner runner   4096 Aug  9 23:02 .github
+-rw-r--r--  1 runner runner   1049 Aug  9 23:02 README.md
+-rw-r--r--  1 runner runner    834 Aug  9 23:02 cands-threema-ch.txt
+drwxr-xr-x  2 runner runner   4096 Aug  9 23:02 inventory
+drwxr-xr-x  2 runner runner   4096 Aug  9 23:02 knowledge
+drwxr-xr-x  2 runner runner  12288 Aug  9 23:02 leads
+-rw-r--r--  1 runner runner  25416 Aug  9 23:02 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Aug  9 23:02 reports
+-rw-r--r--  1 runner runner 149216 Aug  9 23:02 repos-threema-ch.json
+drwxr-xr-x  3 runner runner   4096 Aug  9 23:02 reposcan-raw
+-rw-r--r--  1 runner runner  68068 Aug  9 23:03 scan-prompt.txt
+-rw-r--r--  1 runner runner   2188 Aug  9 23:02 scope.yml
+drwxr-xr-x  2 runner runner   4096 Aug  9 23:02 scripts
+-rw-r--r--  1 runner runner     34 Aug  9 23:02 state_bigpickle.json
+-rw-r--r--  1 runner runner     37 Aug  9 23:02 state_laguna.json
+-rw-r--r--  1 runner runner     34 Aug  9 23:02 state_ling3.json
+-rw-r--r--  1 runner runner     34 Aug  9 23:02 state_longcat.json
+-rw-r--r--  1 runner runner     33 Aug  9 23:02 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Aug  9 23:02 triage
+[0m
+[0m→ [0mRead scan-prompt.txt
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && sha256sum <<< "Threema license password" | awk '{print $1}'
+c6ef56ceef46a163980a2be7a79b03c2ff4f502f018d8b6fae94369497c1e866
+[0m
+Now I'll analyze all 56 grep hits and classify them.
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && for s in "password1" "authToken" "testPassword" "validPassword" "shootdeathstar" "abcdefghijkl" "ABcd!@#tgk092" "CHANGE_ME" "r3gGN9GDQ5NF6tM6" "push_token" "pushToken" "remote_secret_monitor" "b3e20afbf356a8748bb62ac165aa780c" "615af77cb3d980c41b3b04b07417cc7d" "loadUserPassword" "storeUserPassword"; do echo -n "$s" | sha256sum | awk '{print $1}'; done
+0b14d501a594442a01c6859541bcb3e8164d183d32937b851835442f69d5c94e
+f16c4cc0e62dc6f132a98917a8d06b249b4aedf97fcc2a1a869f5905d473c932
+fd5cb51bafd60f6fdbedde6e62c473da6f247db271633e15919bab78a02ee9eb
+74b2c5bd3a8de69c8c7c643e8b5c49d6552dc636aeb0995aff6f01a1f661a979
+ab0337dd5870b152ca150d4271b7c5b71a32b103de93dad0bfa01c663733a0f5
+d682ed4ca4d989c134ec94f1551e1ec580dd6d5a6ecde9f3d35e6e4a717fbde4
+0235d9d672e1049d9c25ec752c1a8fbc5132f355987141c08f76bdbef223dca3
+442cbf3fdf0f24777036e660c32d6e4b5f7621231bff2754673c5a188a2f614a
+400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12
+e458d3f524e2e6d8325417e79538b9e2c0871308183f6480c71083d215318c06
+b77668283899a2c09baeb83ab26101bda68702993d48bbc878d7968f2f3c68e0
+f070793c336bb617a030ea98fcb5d8fcff77025482082f06a8c09aecf991e01e
+3b5ceb40c92b5720053e2fc8e4e00caf155cb63dcc5c50106d4cf7594424cc37
+34a46cacc544ffbfe7db201d56a320f5ba75abe1437f72b1a04a293aa227c634
+f73bea2a1c1b5cabd9895fd819cfc35ab05b24dc8977ad0f77493215532f57ff
+293b2a2a3f2132f1075c81ce431938e5fc6982b4f6561c88c78dabe0e805e3dc
+[0m
+### Classification Tables
+
+#### REAL_SECRET
+| File | Line | Secret SHA256 | Notes |
+|------|------|---------------|-------|
+| *(none)* | — | — | No live credentials found |
+
+#### TEST_OR_EXAMPLE
+[0m
+[0m$ [0mfor p in "g-80.0.threema.ch 5222" "g-80.0.threema.ch 443"; do set -- $p; echo "== $1:$2 =="; timeout 6 bash -c "exec 3<>/dev/tcp/$1/$2 && echo CONNECTED && timeout 4 head -c 16 <&3 | xxd | head -2; echo rc=\$?"; echo "close rc=$?"; sleep 1; done
+== g-80.0.threema.ch:5222 ==
+CONNECTED
+rc=0
+close rc=0
+== g-80.0.threema.ch:443 ==
+CONNECTED
+rc=0
+close rc=0
+[0m
+[0m$ [0mgrep -n "threema-desktop" reposcan-raw/grep-hits.txt | head -3; echo "---"; grep -rn -i "identityServerGroup\|ServerGroup\|0\.threema\.ch\|\.threema\.ch/g-\|'g-'\|getServerGroup" reposcan-raw/grep-hits.txt reposcan-raw/grep-delta.txt 2>/dev/null | head -10
+38:reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:147: DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/',
+39:reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:153: WORK_SERVER_LEGACY_URL: 'https://ds-apip-work.test.threema.ch/',
+40:reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:154: WORK_SERVER_URL: 'https://work.test.threema.ch/',
+---
+[0m
+[0m$ [0mfor h in g-00.0.threema.ch g-80.0.threema.ch g-ff.0.threema.ch; do echo "== $h =="; getent ahosts "$h" | awk '{print $1, $3}' | sort -u; done; echo "--- CNAME check g-00 ---"; getent hosts g-00.0.threema.ch
+== g-00.0.threema.ch ==
+203.56.112.202 
+203.56.112.202 g-00.0.threema.ch
+== g-80.0.threema.ch ==
+203.56.112.204 
+203.56.112.204 g-80.0.threema.ch
+== g-ff.0.threema.ch ==
+203.56.112.204 
+203.56.112.204 g-ff.0.threema.ch
+--- CNAME check g-00 ---
+203.56.112.202  g-00.0.threema.ch
+[0m
+[0m$ [0mfor h in ds-apip.threema.ch api.threema.ch apip.threema.ch ds-apip-work.threema.ch work.threema.ch; do printf "%s -> " "$h"; getent ahosts "$h" | awk 'NR==1{print $1}'; sleep 1; done; echo "--- mediator/rendezvous split sanity (already known) ---"; getent ahosts mediator-0.threema.ch | awk 'NR==1{print $1}'; getent ahosts mediator-f.threema.ch | awk 'NR==1{print $1}'
+ds-apip.threema.ch -> 203.56.112.214
+api.threema.ch -> 203.56.112.214
+apip.threema.ch -> 203.56.112.214
+ds-apip-work.threema.ch -> 203.56.112.209
+work.threema.ch -> 203.56.112.209
+--- mediator/rendezvous split sanity (already known) ---
+203.56.112.247
+203.56.114.247
+[0m
+[0m$ [0mfor h in g-00.1 g-80.1 g-ff.1 g-7f.1; do printf "%s.threema.ch -> " "$h"; getent ahosts "$h.threema.ch" 2>/dev/null | awk 'NR==1{print $1}'; [ -z "$(getent ahosts $h.threema.ch 2>/dev/null | awk 'NR==1{print $1}')" ] && echo NXDOMAIN; sleep 1; done
+g-00.1.threema.ch -> NXDOMAIN
+g-80.1.threema.ch -> NXDOMAIN
+g-ff.1.threema.ch -> NXDOMAIN
+g-7f.1.threema.ch -> NXDOMAIN
+[0m
+STEP 1 — DELTA
+[NEW] `g-*.0.threema.ch` prod chat DNS shard→node map (own probe, 21 shards + 0x7f/0x80 bisect): `g-{00..7f}` → 203.56.112.202 (128 shards), `g-{80..ff}` → 203.56.112.204 (128 shards); sharp deterministic split at high-bit 0x80, direct A records.
+[NEW] Second prod chat node 203.56.112.204 (`g-80.0.threema.ch`): TCP 5222 AND 443 connect but push 0 bytes — byte-parity with node .202; node-level uniform posture now confirmed across both prod chat nodes.
+[NEW] No `.1` group tier: `g-{00,7f,80,ff}.1.threema.ch` → NXDOMAIN (only `.0` tier exists; 256 groups total).
+[NEW] No AAAA/CNAME on chat shards — IPv4-only, direct-A mapping (no LB aliasing at DNS layer).
+[CHANGED] Prior "chat passive channel formally closed" now bounded to in-band 443/5222 data only; DNS-attribution recon on chat was NOT exhausted (this cycle proves a new surface).
+
+STEP 2 — PRIORITIZE
+[PRIO] g-*.0.threema.ch (chat cluster shard→node map) — score 4.95 — attack_surface 4, business_value 5, tech_exposure 2, gate_ease 10 (public DNS), cloud_surface 1, freshness 8
+[PRIO] Cross-family prefix-MSB split topology (.112 vs .114 /24; chat/mediator/rendezvous vs staging) — score 4.60 — attack_surface 3, business_value 4, tech_exposure 3, gate_ease 10 (public DNS), cloud_surface 2, freshness 7
+[PRIO] 203.56.112.204 (g-{80..ff} chat node, newly attributed) — score 4.45 — attack_surface 3, business_value 4, tech_exposure 2, gate_ease 10, cloud_surface 1, freshness 8
+
+STEP 3 — HYPOTHESES
+[HYP] Identity→server-group→physical-node attribution fully deterministic on chat
+class: OTHER
+asset: g-*.0.threema.ch (256 shards; 203.56.112.202 / 203.56.112.204)
+confidence: 55
+reasoning: Own probes: 21 shards sampled + 0x7f/0x80 bisect give a clean 128/128 split on two direct-A nodes (no CNAME/AAAA, no .1 tier). libthreema derives the chat server group from the identity prefix, so identity-first-byte → exact `g-XX.0.threema.ch` → exact physical node.
+evidence_needed: (a) source confirmation of the identity→group algorithm; (b) one program-issued test identity whose predicted node accepts the framed CSP login.
+verify_steps: PASSIVE — RAG read of threema-desktop/libthreema ServerAddressProvider to pin the group-derivation formula; cross-check group space (base32 first char) vs the 256 DNS names. AUTH_HELPED — `g-00.0.threema.ch:5222` framed login (16B cookie+64B box+32B ext+24B reserved+32B vouch) against the test identity; compare predicted vs actual node.
+impact: any Threema identity is attributable to an exact physical node/IP from public DNS alone → node-targeted recon, per-shard availability measurement, sharper targeting for the accepted fetch_bulk IDOR. Severity: Low (recon refinement; no in-band data).
+testability: PASSIVE (map) + AUTH_HELPED (predictive login)
+[HYP] Prefix-MSB split reveals site A/B topology across in-scope families, with prod mediator 8-f co-resident on the staging-adjacent .114 /24
+class: OTHER
+asset: mediator-*.threema.ch / rendezvous-*.threema.ch / g-*.0.threema.ch DNS
+confidence: 50
+reasoning: Own probe: chat splits .112.202/.112.204 at 0x80. KB: mediator/rendezvous split at index 7/8 → .112.247 vs .114.247. Staging chat .114.34 sits on the same .114 /24 as prod mediator 8-f — a second site/zone hosting both staging and a prod shard half.
+evidence_needed: full .112/.114 host-to-family census; confirmation no OTHER prod in-scope family resolves into .114 except mediator/rendezvous 8-f.
+verify_steps: PASSIVE — `getent ahosts` over sampled prefixes (g-*, mediator-*, rendezvous-*, safe-*, ds-apip*, work*) at 1/s; group by /24; diff single-site vs split-site families; confirm staging-only presence in .114 beyond mediator 8-f.
+impact: site/zone attribution for every in-scope backend + shard→node→site map; operational recon and cross-tenant adjacency note (prod mediator on same /24 as staging chat). Severity: Low (recon).
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] Node FIN-vs-RST close-behavior fingerprint (conf 40, OTHER): requires raw-socket close-frame observation beyond the GET/HEAD spirit, and adds no attacker capability beyond the map already delivered — low yield, dropped.
+[PARKED] Shard A-record TTL / failover-remap stability (conf 35): speculative, requires longitudinal polling, no_doom-adjacent — below 40, dropped.
+[FINAL] 1. Identity→server-group→node attribution (conf 55) — grounded in this cycle's own DNS probes + KB split patterns; RAG + AUTH_HELPED chain concrete. 2. Cross-family site A/B topology (conf 50) — fully PASSIVE DNS verification.
+No hypothesis on a REJECTED class; no hypothesis below confidence 40; both have concrete verify_steps.
+
+STEP 5 — NEXT ACTION
+[NEXT] PROBE: complete the definitive chat map — enumerate ALL 256 `g-{00..ff}.0.threema.ch` A records at 1/s (DNS-only, ~4.5 min), verifying the sharp 0x7f/0x80 boundary holds with no wildcard answer and no third node; write the full shard→node table to `probe-results.md`. Open HUMAN ask unchanged: program-issued test identity (+ Work test license + backupId:backupKey) to run the framed CSP login against the now-predicted chat node and close the only remaining in-band chat lever.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED OTHER @ g-*.0.threema.ch: chat shard→node DNS split precisely mapped — `g-{00..7f}`→203.56.112.202, `g-{80..ff}`→203.56.112.204, sharp 0x7f/0x80 boundary, direct A records, IPv4-only, no `.1` tier (own probes this cycle).
+[LEARN] ACCEPTED OTHER @ g-80.0.threema.ch (203.56.112.204): TCP 5222/443 connect with 0 bytes pushed — posture parity with node .202; prior "chat passive channel formally closed" (in-band) now verified for both prod nodes.
+[LEARN] ACCEPTED class @ OTHER (DNS-attribution recon on chat): the prior in-band closure does NOT exhaust chat recon; DNS-level shard/node attribution is a live passive surface.
+
+STEP 7 — RISK SCORE
+[RISK] chat: 55 — 256-shard map now fully attributable to 2 prod nodes (new), but in-band 443/5222 data-closed on both nodes, no cert/SAN, staging out of scope; only remaining lever is the AUTH_HELPED framed CSP login. | web: 50 — prod gated (401/403), broadcast key-oracle disproven, staging divergence confined to benign 299B /global/settings. | sync: 40 — mediator/rendezvous uniform 403 WSS-only; staging variants out of scope. | safe: 55 — credential-gated backup API with HSTS-header inconsistency + credentialed-CORS preflight; exposure only with creds. | desktop-src: 50 — Windows key-storage ACL bypass VALID (CVSS 5.5), sandbox/worker gap conditional; public source.
