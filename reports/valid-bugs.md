@@ -249,3 +249,16 @@
   - | Q2 | **NO** — Returns 401 on all paths. Requires valid Work license. |
   - | Q4 | **NO** — Requires AUTH_HELPED (valid credentials) to compare pre/post-login session IDs. Violates passive-first. |
   - | 1 | Directory cluster identity→pubkey oracle | ✅ **VALID** | Unauth bulk existence oracle + CORS * + no rate limit |
+
+- 11 lead(s) marked VALID at 2026-08-09 13:28:52 UTC
+  - | Q3 Real impact? | **YES** — mass valid-ID + pubkey enumeration at ~10k IDs/req, no rate limit |
+  - | Q4 Passive proof? | **YES** — `POST /identity/fetch_bulk {"identities":["ECHOECHO","ZZZZZZZZ"]}` → 200, only valid pubkey returned |
+  - | Q5 Novel? | **NO** — ACCEPTED in KB lines 20-21, 27, 59, 67, 80, 82, 85-86, 94, 99, 104; VALID in valid-bugs.md since 2026-08-07 |
+  - | Q5 Novel? | **NO** — ACCEPTED in KB lines 30-31, 62, 79, 101, 106; triaged in valid-bugs.md |
+  - | Q7 Triager accept? | **NO** — no data access without valid credentials |
+  - | Q2 Reachable? | **NO** — 401 on all paths; requires valid Work license |
+  - | Q4 Passive proof? | **NO** — requires AUTH_HELPED with valid Work license |
+  - **Verdict: HOLD** — Requires AUTH_HELPED with valid Work test license. Retain for program-provided credentials.
+  - | Q3 Real impact? | **LOW** — route-presence + parameter-validation oracle only; challenge-response still requires valid identity+secret |
+  - | Q5 Novel? | **NO** — triaged in valid-bugs.md |
+  - | **VALID** | **0** | — |
