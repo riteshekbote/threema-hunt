@@ -44967,3 +44967,118 @@ STEP 7 — RISK SCORE
 - [RISK] sync: 55 | mediator/rendezvous split-routing confirmed, uniform 403; saltyrtc out of scope; no in-band divergence obtainable.
 - [RISK] safe: 89 | 5 hosts single IP; credentialed cross-origin CORS + HSTS/Expect-CT absent on GET 400; route-existence oracle stable; blocked on valid backupId:backupKey.
 - [RISK] desktop-src: 96 | key-storage ACL chain RAG-verified (15 paths) + PoC artifact syntax-verified, needs Windows runtime; conditional-RCE class rejected.
+===== ANALYST bigpickle 2026-08-09 23:02:10 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mgetent hosts g-00.0.threema.ch g-7f.0.threema.ch g-80.0.threema.ch g-ff.0.threema.ch safe-01.threema.ch mediator-00.threema.ch rendezvous-00.threema.ch ds-apip.threema.ch api.threema.ch apip.threema.ch 2>&1
+203.56.112.202  g-00.0.threema.ch
+203.56.112.202  g-7f.0.threema.ch
+203.56.112.204  g-80.0.threema.ch
+203.56.112.204  g-ff.0.threema.ch
+2a14:3e40:112:312::231 safe-01.threema.ch
+2a14:3e40:112:312::214 ds-apip.threema.ch
+203.56.112.214  api.threema.ch
+203.56.112.214  apip.threema.ch
+[0m
+[0m$ [0mcurl -s -o /dev/null -w 'settings %{http_code}\n' --max-time 10 -I https://work.test.threema.ch/api-app/public/global/settings; sleep 1; curl -s --max-time 15 https://work.test.threema.ch/en/login | grep -oE 'src="[^"]*"' | head -8; sleep 1; curl -s -o /dev/null -w 'ds-apip ECHOECHO %{http_code}\n' --max-time 10 -I https://ds-apip.threema.ch/identity/ECHOECHO
+settings 404
+src="/cache/work_public.js?v=2.25.1"
+src="/images/logo_icon.svg?v=1"
+ds-apip ECHOECHO 200
+[0m
+[0m$ [0mfor h in mediator-00.threema.ch mediator-8f.threema.ch rendezvous-00.threema.ch safe-01.threema.ch safe-1a.threema.ch; do printf '%s: ' "$h"; getent ahostsv4 "$h" | head -1; done
+mediator-00.threema.ch: mediator-8f.threema.ch: rendezvous-00.threema.ch: safe-01.threema.ch: 203.56.112.231  STREAM safe-01.threema.ch
+safe-1a.threema.ch: 203.56.112.231  STREAM safe-1a.threema.ch
+[0m
+[0m$ [0mcurl -s -o /dev/null -w 'staging GET %{http_code} %{size_download}\n' --max-time 10 https://work.test.threema.ch/api-app/public/global/settings; sleep 1; curl -s -o /dev/null -w 'prod GET %{http_code} %{size_download}\n' --max-time 10 https://work.threema.ch/api-app/public/global/settings; sleep 1; curl -s -o /dev/null -w 'staging HEAD %{http_code}\n' --max-time 10 -I https://work.test.threema.ch/api-app/public/global/settings
+staging GET 200 299
+prod GET 404 900
+staging HEAD 404
+[0m
+[0m$ [0mfor h in mediator-00 mediator-01 mediator-02 mediator-08 mediator-8f mediator-ff rendezvous-00 rendezvous-08 rendezvous-ff; do printf '%s: ' "$h.threema.ch"; getent ahosts "$h.threema.ch" | head -2 | tr '\n' ' '; echo; done
+mediator-00.threema.ch: 
+mediator-01.threema.ch: 
+mediator-02.threema.ch: 
+mediator-08.threema.ch: 
+mediator-8f.threema.ch: 
+mediator-ff.threema.ch: 
+rendezvous-00.threema.ch: 
+rendezvous-08.threema.ch: 
+rendezvous-ff.threema.ch:
+[0m
+[0m$ [0mcommand -v dig >/dev/null && (dig +short mediator-00.threema.ch A; dig +short mediator-00.threema.ch AAAA; dig +short rendezvous-00.threema.ch A; echo '--- status ---'; dig mediator-00.threema.ch | grep -E 'status:|ANSWER:' ) || echo NO_DIG; echo '--- control ---'; getent ahosts g-00.0.threema.ch | head -2; getent ahosts ds-apip-work.threema.ch | head -2
+--- status ---
+;; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 51093
+;; flags: qr rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
+--- control ---
+203.56.112.202  STREAM g-00.0.threema.ch
+203.56.112.202  DGRAM  
+203.56.112.209  STREAM ds-apip-work.threema.ch
+203.56.112.209  DGRAM
+[0m
+STEP 1 — DELTA
+- [CHANGED] `mediator-*.threema.ch` / `rendezvous-*.threema.ch` — ALL sampled indices (mediator-{00,01,02,08,8f,ff}, rendezvous-{00,08,ff}) now **NXDOMAIN** (dig, AUTHORITY-1); previously (2026-08-09) resolved to split IPs 203.56.112.247/203.56.114.247 with uniform 403 HTTPS. Controls resolve fine (g-00→.202, ds-apip-work→.209) — genuine de-registration, not resolver artifact.
+- [CHANGED] `work.test.threema.ch/api-app/public/global/settings` — new method-level detail: GET 200/299B (staging, stable) vs prod 404 (stable), but **HEAD on staging → 404** (route gating is per-method; HEAD not routed). Divergence holds for GET.
+- Re-confirmed stable this cycle (own probes): g-*.0 first-byte split 00/7f→.202, 80/ff→.204; ds-apip/api/apip cluster → .214; safe-{01,1a} → .231 (getent ahostsv4); `HEAD /identity/ECHOECHO` → 200.
+
+STEP 2 — PRIORITIZE
+- [PRIO] ds-apip.threema.ch + api + apip (`/identity/fetch_bulk`, 5 challenge endpoints): priority 7.25 | attack 8, business 8, tech 5, gate 10, cloud 3, fresh 7
+- [PRIO] work.test.threema.ch (public-namespace divergence, work_public.js): priority 5.65 | attack 6, business 6, tech 6, gate 5, cloud 4, fresh 7
+- [PRIO] safe-{01,1a,1b,02,00}.threema.ch (`/backups/{64hex}`): priority 5.25 | attack 5, business 9, tech 4, gate 1, cloud 2, fresh 8
+- [PRIO] g-*.0.threema.ch chat (256 shards): priority 5.10 | attack 7, business 8, tech 5, gate 0, cloud 2, fresh 4
+- [PRIO] threema-desktop key-storage (Windows ACL): priority 4.90 | attack 4, business 8, tech 4, gate 2, cloud 2, fresh 8
+- mediator/rendezvous dropped from top (NXDOMAIN → attack_surface ≈ 0 this cycle).
+
+STEP 3 — HYPOTHESES
+[HYP] Directory fetch_bulk account-status oracle via state/type/featureMask differential
+class: IDOR
+asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch `/identity/fetch_bulk`
+confidence: 55
+reasoning: Own probes: ECHOECHO returns byte-identical `state:0,type:0,featureLevel:3,featureMask:9` (135B GET / 152B bulk); invalid IDs silently omitted; ceiling exactly 10000/req; zero 429s across ~35 sequential probes. A deactivated/revoked ID that drops from batches or returns state≠0 is observable at 10k IDs/req.
+evidence_needed: one program-issued deactivated/revoked identity whose fetch_bulk entry differs (omitted or state≠0) from an active ID.
+verify_steps: AUTH_HELPED — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Content-Type: application/json' -d '{"identities":["<revokedTestId>","ECHOECHO"]}'` on all 3 hosts; diff state/type/featureMask vs ECHOECHO baseline; cross-check `GET /identity/<revokedTestId>` status.
+impact: mass account-status/revocation enumeration layered on accepted existence oracle → operational intel. Severity: Medium (escalation).
+testability: AUTH_HELPED (existence part PASSIVE)
+
+[HYP] Safe backup credentialed cross-origin read (distinct from triage-INVALID'd unauth-CORS finding)
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch `/backups/{64hex}` (203.56.112.231)
+confidence: 50
+reasoning: Own probes: unauth GET → 400/11B, ACAO `*`, no HSTS/Expect-CT on the 400 (present on OPTIONS 204); HTTP Basic backupId:backupKey confirmed; OPTIONS preflight returns CORS `*` + Access-Control-Allow-Headers: Authorization. Requires valid creds, so distinct from the REJECTED unauth-CORS finding.
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 + payload + ACAO/Expose-Headers/Allow-Credentials behavior on credentialed GET.
+verify_steps: AUTH_HELPED — `curl -s -u "<backupId:backupKey>" https://safe-01.threema.ch/backups/<backupId> -D -` vs 400 baseline; diff across all 5 hosts; OPTIONS preflight carrying Authorization.
+impact: with creds, identity keypair + full message-history backup readable from any attacker origin. Severity: High (with creds), unreachable without.
+testability: AUTH_HELPED
+
+[HYP] Staging work bundle route-diff → additional staging-only public endpoints
+class: MISCONFIG
+asset: work.test.threema.ch (vs work.threema.ch) `/cache/work_public.js?v=2.25.1`
+confidence: 45
+reasoning: Staging bundle (sha256 e48e18f7…, 1,443,948B) implements `/api-app/public/*` handlers; prod bundle (sha256 96501e21…, 1,400,541B) has zero; one instance (`/global/settings`) already live on staging (GET 200/299B) vs prod 404. Other handlers declared in the staging bundle may map to live staging-only backend routes.
+evidence_needed: additional `/api-app/*` literal(s) in staging bundle whose GET on staging differs from prod (200 vs 404).
+verify_steps: PASSIVE — `GET https://work.test.threema.ch/cache/work_public.js?v=2.25.1` and prod equivalent (≤1 rps), extract `/api-app/` string literals, diff sets; GET each candidate on staging vs prod; compare status/size.
+impact: discovery of additional staging-only public endpoints (potential data exposure). Severity: Low-Medium (staging divergence).
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] g-*.0 userbase-attribution lead (conf 58, from last leads): node-level identity→shard mapping is recon-intel, not a defect; mass real-user identity-range harvesting is out of the vulnerability-discovery mandate — dropped.
+- [PARKED] `/identity/revoke` invalid-ID connection-hold (conf 55, from last leads): availability/resource-exhaustion angle against production directory, not a data-class finding; connection-hold timing probes are not cleanly passive — dropped pending explicit authorization.
+- [PARKED] `check_revocation_key` POST-form (conf 45, from last leads): redundant with accepted existence primitive; only adds value with a revoked sample already covered by the higher-confidence account-status hypothesis — dropped.
+- Survivors re-checked: none on the REJECTED class list (BrowserWindow sandbox+worker, g-*.0.test staging chat, crypto.ts:223, broadcast key-format, check_revocation_key GET-form, saltyrtc/blob-mirror); all have concrete verify_steps; all conf ≥ 40. All kept.
+- [FINAL] 1. fetch_bulk account-status oracle (55) | 2. Safe credentialed cross-origin read (50) | 3. work.test staging bundle route-diff (45)
+
+STEP 5 — NEXT ACTION
+[NEXT] PROBE: `GET https://work.test.threema.ch/cache/work_public.js?v=2.25.1` and the prod equivalent (path confirmed from /en/login script tag this cycle), extract all `/api-app/` string literals, diff the two sets; then `GET`/`HEAD` each new candidate on work.test.threema.ch vs work.threema.ch at ≤1 rps to surface additional staging-only public endpoints (hunts further instances of the accepted MISCONFIG divergence class). Any 200 must be cross-verified against both hosts before it becomes a lead. The AUTH_HELPED batch (revoked test identity + Work test license + backupId:backupKey) remains the open HUMAN ask to close [FINAL] #1 and #2.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ mediator-*.threema.ch/rendezvous-*.threema.ch: sampled indices all NXDOMAIN this cycle (dig, AUTHORITY-1); prior split-routing surface (0-7→.247, 8-f→.247, uniform 403) de-registered — DNS contraction = surface contraction, sync exposure reduced.
+- [LEARN] ACCEPTED MISCONFIG @ work.test.threema.ch: staging public route is method-gated — GET 200/299B but HEAD 404; staging/prod GET divergence (200 vs 404) stable; class alive.
+- [LEARN] ACCEPTED OTHER @ g-*.0.threema.ch: first-byte routing split (.202/.204) re-confirmed via own resolution this cycle; no shard/PTR divergence — class stable.
+
+STEP 7 — RISK SCORE
+- [RISK] chat: 30 | passive channel data-closed (0-byte handshake, no cert/SAN leak); residual risk is adjacent directory enumeration, not chat itself.
+- [RISK] web: 55 | confirmed staging-only public endpoint divergence (GET 200/299 vs 404) + CSP leak of staging hostnames + broadcast key-gating; no credential exposure observed.
+- [RISK] sync: 20 | mediator/rendezvous now NXDOMAIN (surface de-registered); prior 403-uniform HTTPS posture offered no data.
+- [RISK] safe: 45 | credential-gated 400 baseline + header inconsistency (HSTS on OPTIONS 204, absent on GET 400) + credentialed-CORS preflight config; no data access without valid creds.
+- [RISK] desktop-src: 60 | key-storage ACL gap RAG-verified (full Ed25519 identity key + SQLCipher DB key recoverable by same-user process on Windows); local-attacker precondition, PoC pending Windows validation.

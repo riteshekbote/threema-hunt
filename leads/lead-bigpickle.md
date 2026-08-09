@@ -6051,3 +6051,32 @@ evidence_needed: program-issued work-credentials → /fetch2 returns 200 full-sy
 verify_steps: AUTH_HELPED — POST ds-apip-work.threema.ch/fetch2 with test work creds → 200 full-sync; diff vs /directory + /identities responses.
 impact: with work credentials, full Work subscription data sync; without creds the 401 gate holds. Severity: Medium (creds).
 testability: AUTH_HELPED
+## 2026-08-09 22:52:56 UTC [chat] (model bigpickle)
+[HYP] Directory fetch_bulk account-status oracle via state/type/featureMask differential
+class: IDOR
+asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch `/identity/fetch_bulk`
+confidence: 55
+reasoning: Own probes: ECHOECHO returns byte-identical `state:0,type:0,featureLevel:3,featureMask:9` (135B GET / 152B bulk); invalid IDs silently omitted; ceiling exactly 10000/req; zero 429s across ~35 sequential probes. A deactivated/revoked ID that drops from batches or returns state≠0 is observable at 10k IDs/req.
+evidence_needed: one program-issued deactivated/revoked identity whose fetch_bulk entry differs (omitted or state≠0) from an active ID.
+verify_steps: AUTH_HELPED — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Content-Type: application/json' -d '{"identities":["<revokedTestId>","ECHOECHO"]}'` on all 3 hosts; diff state/type/featureMask vs ECHOECHO baseline; cross-check `GET /identity/<revokedTestId>` status.
+impact: mass account-status/revocation enumeration layered on accepted existence oracle → operational intel. Severity: Medium (escalation).
+testability: AUTH_HELPED (existence part PASSIVE)
+[HYP] Safe backup credentialed cross-origin read (distinct from triage-INVALID'd unauth-CORS finding)
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch `/backups/{64hex}` (203.56.112.231)
+confidence: 50
+reasoning: Own probes: unauth GET → 400/11B, ACAO `*`, no HSTS/Expect-CT on the 400 (present on OPTIONS 204); HTTP Basic backupId:backupKey confirmed; OPTIONS preflight returns CORS `*` + Access-Control-Allow-Headers: Authorization. Requires valid creds, so distinct from the REJECTED unauth-CORS finding.
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 + payload + ACAO/Expose-Headers/Allow-Credentials behavior on credentialed GET.
+verify_steps: AUTH_HELPED — `curl -s -u "<backupId:backupKey>" https://safe-01.threema.ch/backups/<backupId> -D -` vs 400 baseline; diff across all 5 hosts; OPTIONS preflight carrying Authorization.
+impact: with creds, identity keypair + full message-history backup readable from any attacker origin. Severity: High (with creds), unreachable without.
+testability: AUTH_HELPED
+[HYP] Staging work bundle route-diff → additional staging-only public endpoints
+class: MISCONFIG
+asset: work.test.threema.ch (vs work.threema.ch) `/cache/work_public.js?v=2.25.1`
+confidence: 45
+reasoning: Staging bundle (sha256 e48e18f7…, 1,443,948B) implements `/api-app/public/*` handlers; prod bundle (sha256 96501e21…, 1,400,541B) has zero; one instance (`/global/settings`) already live on staging (GET 200/299B) vs prod 404. Other handlers declared in the staging bundle may map to live staging-only backend routes.
+evidence_needed: additional `/api-app/*` literal(s) in staging bundle whose GET on staging differs from prod (200 vs 404).
+verify_steps: PASSIVE — `GET https://work.test.threema.ch/cache/work_public.js?v=2.25.1` and prod equivalent (≤1 rps), extract `/api-app/` string literals, diff sets; GET each candidate on staging vs prod; compare status/size.
+impact: discovery of additional staging-only public endpoints (potential data exposure). Severity: Low-Medium (staging divergence).
+testability: PASSIVE
+[NEXT] PROBE: `GET https://work.test.threema.ch/cache/work_public.js?v=2.25.1` and the prod equivalent (path confirmed from /en/login script tag this cycle), extract all `/api-app/` string literals, diff the two sets; then `GET`/`HEAD` each new candidate on work.test.threema.ch vs work.threema.ch at ≤1 rps to surface additional staging-only public endpoints (hunts further instances of the accepted MISCONFIG divergence class). Any 200 must be cross-verified against both hosts before it becomes a lead. The AUTH_HELPED batch (revoked test identity + Work test license + backupId:backupKey) remains the open HUMAN ask to close [FINAL] #1 and #2.
