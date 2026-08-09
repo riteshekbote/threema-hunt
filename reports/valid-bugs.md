@@ -298,3 +298,9 @@
 - 2 lead(s) marked VALID at 2026-08-09 18:22:49 UTC
   - | VALID (duplicate) | 4 | Directory IDOR, Desktop key-storage ACL, Safe HSTS inconsistency, Challenge oracles |
   - | **VALID (duplicate)** | 4 | Directory IDOR, Desktop key-storage ACL, Safe HSTS inconsistency, Challenge oracles |
+
+- 4 lead(s) marked VALID at 2026-08-09 19:10:15 UTC
+  - | Q5 Novel? | **NO** | Already ACCEPTED — knowledge/index.md lines 20-21, 59, 67, 80, 82, 85-86, 94, 99, 104, 111, 124, 131, 134, 136, 142, 150, 158, 163, 167, 170, 172, 182, 189, 195, 199, 204, 220; 
+  - | Q7 Triager accept? | NO | No data access without valid credentials |
+  - | Q5 Novel? | **NO** | Already ACCEPTED — KB lines 20-21, 82, 85-86, 124; valid-bugs.md #1 |
+  - | **VALID** | 0 | — |
