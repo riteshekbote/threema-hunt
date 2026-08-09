@@ -241,3 +241,11 @@
   - VALID (new, reportable): 0
   - | 7 | ds-apip-work /identities cross-subscription metadata disclosure (TWRK-1633) | BUSLOGIC | bigpickle,ling3,ling3 | Y | AUTH_HELPED | med | N | Y(?) | Y | ? | **HOLD** | Requires AUTH_HELPED with v
   - | **VALID (new)** | 0 | — |
+
+- 6 lead(s) marked VALID at 2026-08-09 12:22:28 UTC
+  - **Verdict: ✅ VALID**
+  - | Q3 | **Debatable** — Endpoint is credential-gated (400 for unauth). CORS * enables cross-origin requests *with* credentials, but attacker still needs valid `backupId:backupKey`. No unauthenticated d
+  - | Q6 | **REJECTED** — CORS `*` on a credential-gated endpoint (HTTP 400 for unauthenticated requests) is a defense-in-depth gap, not a vulnerability. The always-rejected list includes "best practice" 
+  - | Q2 | **NO** — Returns 401 on all paths. Requires valid Work license. |
+  - | Q4 | **NO** — Requires AUTH_HELPED (valid credentials) to compare pre/post-login session IDs. Violates passive-first. |
+  - | 1 | Directory cluster identity→pubkey oracle | ✅ **VALID** | Unauth bulk existence oracle + CORS * + no rate limit |
