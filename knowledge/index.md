@@ -189,3 +189,5 @@
 - 2026-08-09 ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req; overflow→400 empty body with zero partial pubkey leak; CORS * stable.
 - 2026-08-09 ACCEPTED MISCONFIG @ safe-01.threema.ch: HSTS/Expect-CT header inconsistency (present on OPTIONS 204, absent on GET 400) stable across all 5 hosts.
 - 2026-08-09 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 15 source-path chain re-verified; PoC artifact exists; needs Windows validation.
+- 2026-08-09 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED at 95 confidence — 15 source-path chain re-verified; PoC artifact poc/key-storage-acl-bypass-poc.js generated (node --check OK, graceful no-op on Linux); needs Windows validation
+- 2026-08-09 ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64hex}`; HTTP Basic Auth `backupId:backupKey` + route-existence oracle confirmed; 5 hostnames uniform behind 203.56.112.231

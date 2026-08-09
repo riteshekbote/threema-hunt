@@ -1,46 +1,87 @@
-## 2026-08-09 13:11:11 UTC [desktop] (model laguna)
-[NEW] `ds-apip.threema.ch` — canonical directory server hostname (wired into desktop client build config); `GET /identity/{id}` → 200/404 oracle confirmed (was only `apip.threema.ch` in baseline)
-[NEW] `ds-apip-work.threema.ch` — work-style directory server (401 on all paths, CORS `*`, no HSTS/Expect-CT)
-[CHANGED] `fetch_bulk` ceiling tightened from "≥10000" to exactly 10000 IDs/request (10000→200/152B, 10001→400/0B; sharp count-cap, no partial leak)
-[CHANGED] `apip.threema.ch` — was 403 on `/`; now confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
-[NEW] Hostname discovery from desktop `config.ts`: `mediator-{prefix4}`, `rendezvous-{prefix4}`, `safe-{backupIdPrefix8}` patterns (blob-mirror pattern out of scope)
-[PRIO] ds-apip.threema.ch/identity/fetch_bulk — score 9.35 — attack:10, business:9, tech:9, gate:10, cloud:8, fresh:10
-[PRIO] threema-desktop key-storage Windows ACL bypass — score 9.50 — attack:10, business:10, tech:9, gate:10, cloud:5, fresh:10
-[PRIO] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} — score 7.10 — attack:8, business:8, tech:7, gate:6, cloud:9, fresh:8
-[PRIO] ds-apip-work.threema.ch — score 6.25 — attack:7, business:6, tech:7, gate:10, cloud:5, fresh:8
-[PRIO] work.test.threema.ch /api-app/public/global/settings (staging-only) — score 5.80 — attack:6, business:6, tech:5, gate:10, cloud:6, fresh:6
-[HYP] Directory bulk identity enumeration at scale via fetch_bulk + 5 challenge parameter oracles
-class: IDOR
-asset: https://ds-apip.threema.ch/ (identical on api.threema.ch, apip.threema.ch) /identity/fetch_bulk
-confidence: 97
-reasoning: POST fetch_bulk accepts exactly 10000 IDs → returns only valid IDs' pubkeys, silently omits invalid; CORS `*` on POST/GET/OPTIONS/DELETE with no Access-Control-Expose-Headers; zero 429s across ~30 sequential probes; 5 challenge endpoints return 200 JSON errors with parameter-validation-before-identity-lookup oracle on set_revocation_key and update_work_info.
-evidence_needed: (a) 10000-ID batch probe confirming 200 with only valid pubkey; (b) 10001-ID probe confirming 400 empty body; (c) OPTIONS preflight confirming CORS `*` + Allow-Methods + absence of Expose-Headers; (d) GET /identity/ECHOECHO vs invalid → 200/404 oracle.
-verify_steps: PROBE: `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<9999 invalid IDs>]}'` ≤1 rps; `curl -sI -X OPTIONS -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: POST" https://ds-apip.threema.ch/identity/fetch_bulk`; `curl -s -o /dev/null -w "%{http_code}" https://ds-apip.threema.ch/identity/ECHOECHO` (expect 200) vs invalid (expect 404).
-impact: Cross-origin unauthenticated enumeration of all valid Threema IDs + pubkeys at scale (10k IDs/req, ~864M/day theoretical); 5 challenge parameter-validation oracles. Severity: Medium-High (CVSS 3.1: 5.3 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N).
-testability: PASSIVE+PROBE
-[HYP] Desktop Windows key-storage ACL bypass → full identity + message store compromise via DPAPI
-class: MISCONFIG
-asset: threema-desktop (apps/desktop/src/common/node/fs.ts:41, electron/electron-main.ts:944-945, common/inner/v3.ts:65-70, common/node/key-storage/crypto.ts:53-113, config/vite.config.ts:338-344, db/sqlite.ts:220/240)
-confidence: 95
-reasoning: `fileModeInternalObjectIfPosix()` returns `{}` on win32 → keystorage.bin + keystorage.password.bin written with no DACL; Electron safeStorage uses Windows DPAPI SameUser (auto-unlocks for logged-in user); decryptPasswordBased() does Argon2id→XSalsa20-Poly1305 yielding `ck` (Ed25519 identity private key) + `databaseKey` (SQLCipher PRAGMA key); PoC artifact at poc/key-storage-acl-bypass-poc.js generated + `node --check` OK; 7/8 core paths verified live on GitHub.
-evidence_needed: Runtime execution on Windows proving (a) co-located same-user process reads both .bin files, (b) safeStorage.decryptString succeeds without user secret, (c) keystorage.bin decrypts via Argon2id→XSalsa20-Poly1305, (d) ck + databaseKey extracted, (e) threema.sqlite opens via PRAGMA key.
-verify_steps: RAG: Confirmed via live webfetch. PoC: `node --check poc/key-storage-acl-bypass-poc.js` (OK) + `node poc/key-storage-acl-bypass-poc.js` (graceful no-op on Linux). RUNTIME_AUTH_HELPED: Execute PoC on authorized Windows host with Threema Desktop profile → confirm 6-step chain prints + ck/databaseKey extracted.
-impact: Same-user/co-located process (malware, backup tool, forensic copy) recovers Threema Ed25519 identity private key + decrypts full SQLCipher message database → complete account compromise (identity theft, message decryption, impersonation). Severity: Medium-High (CVSS 3.1: 5.5 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N).
-testability: RAG + RUNTIME_AUTH_HELPED
-[HYP] Safe backup store credentialed cross-origin read + HSTS header inconsistency
-class: AUTH
-asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (5 hosts behind 203.56.112.231)
-confidence: 50
-reasoning: All 5 hosts return identical behavior: OPTIONS 204 CORS `*` + `Access-Control-Allow-Headers: Authorization` (enables credentialed cross-origin); unauth GET → 400 (route-existence oracle: `/backups/{64hex}`→400 vs `/backup/{x}`→404); HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400; HTTP Basic Auth (backupId:backupKey) confirmed; vite.config.ts confirms SAFE_STORAGE_PASSWORD_PATH pattern.
-evidence_needed: Program-issued backupId:backupKey → status ≠ 400 (200+payload or 401/403) + presence of Access-Control-Expose-Headers on authenticated response.
-verify_steps: AUTH_HELPED: `curl -s -u "testId:testKey" https://safe-01.threema.ch/backups/{testId} -w "\n%{http_code}"` and diff vs 400 unauth baseline; `curl -sI -X OPTIONS https://safe-01.threema.ch/backups/{64hex} -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: GET"` to confirm CORS `*` + ACAH:Authorization + HSTS presence on preflight.
-impact: Valid credentials → identity keypair + full message-history backup readable cross-origin from any attacker origin. Severity: High (with creds), unreachable without (CVSS 3.1: 8.1 AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H).
+## 2026-08-09 14:08:36 UTC [desktop] (model laguna)
+class: BUSLOGIC
+asset: apip.threema.ch/identity/ws/revoke
+confidence: 45
+reasoning: OpenAPI (directory.openapi.yml) shows /identity/ws/revoke is the ONLY identity endpoint with a single-step request (identity + revocationKey = SHA256(revocation-password)[:4], 32 bits) and NO challenge-response step, and unlike blob_cred/sfu_cred/work endpoints it documents NO 429 rate-limit response.
+evidence_needed: server enforces/omits rate limiting on ws/revoke; error/timing differences per guessed key; whether a correct 4-byte key revokes any ID.
+verify_steps: AUTH_HELPED: on a program-provided test ID, POST /identity/ws/revoke with a deliberately wrong revocationKey (observe error shape and timing), repeat small count to test for 429; never target third-party IDs and do not create accounts.
+impact: if unrate-limited, brute-force of 2^32 space → force-revoke/delete any Threema ID (permanent identity destruction / DoS). Severity: medium-high.
 testability: AUTH_HELPED
-[PARKED] Safe backup store credentialed cross-origin read: confidence 50 < 60 threshold; evidence_needed is AUTH_HELPED (cannot self-prove); route-existence oracle + HSTS gap alone do not constitute a finding without credential-bearing response; parked until credentials available.
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities (backend of in-scope work.threema.ch)
+confidence: 50
+reasoning: directory.openapi.yml line 1172 states "/identities ... currently buggy. See TWRK-1633"; endpoint returns "a subset of the provided contacts that are part of the same Work subscription" + work properties (first/last name, jobTitle, department, availability); GET / returns 401 confirming a live credential-gated backend.
+evidence_needed: whether contact matching can be induced to return contacts outside the caller's subscription.
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities (contacts:[...]) mixing own- and other-subscription IDs and compare membership + properties; also probe /directory pagination bounds (page/size, wildcard queries).
+impact: cross-subscription disclosure of work-directory metadata (names, titles, departments, availability) → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+class: OTHER
+asset: mediator-*.threema.ch / rendezvous-*.threema.ch / blob-mirror-*.threema.ch
+confidence: 40
+reasoning: all sampled shards (0..f) resolve; GET / → uniform 403; shard prefix is derived from the first byte of a public-key (routing, not auth per config.rs) — no passive distinguishing signal observed.
+evidence_needed: any shard or path (wss /{prefix}/) responding differently than 403.
+verify_steps: PASSIVE: GET https://{rendezvous,mediator,blob-mirror}-{0,7,f}.threema.ch/ and a few /XX/ paths at ≤1rps, compare status/body fingerprints.
+impact: none observed; would only indicate a routing/edge misconfiguration. Severity: n/a
+testability: PASSIVE
+[HYP] ds-apip.threema.ch directory lookup / unauth enumeration
+class: AUTH
+asset: ds-apip.threema.ch
+confidence: 55
+reasoning: directory.openapi.yml lists `ds-apip.*` as the directory API base; production `ds-apip.threema.ch` returns root 403 with `Access-Control-Allow-Origin: *` and allows POST/GET/OPTIONS/DELETE cross-origin. apip.threema.ch returns 404 on all openapi subpaths (host mismatch), so any live directory routes live on the ds-apip host. If any lookup route is unauthenticated, CORS-* enables cross-origin probing from an attacker page.
+evidence_needed: an endpoint under ds-apip.threema.ch returning ≠403/404 to GET; response-body fingerprints differing from apip.
+verify_steps: PASSIVE: GET https://ds-apip.threema.ch/identity/lookup and /directory (compare vs apip 404), GET https://ds-apip-work.threema.ch/identity/lookup (401=route-exists-behind-auth vs 404=no-route), ≤1 rps.
+impact: Threema ID/pubkey enumeration → spam, phishing, targeted abuse. Severity: medium.
+testability: PASSIVE
+[HYP] threema-desktop key-storage KDF parameter weakness
+class: OTHER
+asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/key-storage/crypto.ts)
+confidence: 45
+reasoning: reposcan found crypto.ts:223 uses fixed benchmark password `r3gGN9GDQ5NF6tM6` to calibrate Argon2id params at runtime, and test-data.ts defines `keyStoragePassword: 'CHANGE_ME'`; no committed credentials exist, so only the KDF/key-handling logic can be weak. Electron 2.x stores user password/keys through this module.
+evidence_needed: how Argon2id memory/time params are derived (floors/caps) and whether the derived key protects an offline-readable store.
+verify_steps: PASSIVE: static read of crypto.ts `determineKdfParams()` and the storage backend (safeStorage vs plaintext file). No live requests.
+impact: if params are attacker-favorable, offline recovery of stored user credentials/keys from disk. Severity: low-medium.
+testability: PASSIVE
+[HYP] ds-apip-work.threema.ch /identities cross-subscription disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 52
+[PRIO] threema-desktop key-storage ACL bypass (Windows) — score 9.50 — attack:10 business:10 tech:9 gate:10 cloud:7 fresh:10
+[PRIO] https://ds-apip.threema.ch/identity/fetch_bulk — score 9.35 — attack:10 business:9 tech:9 gate:10 cloud:8 fresh:10
+[PRIO] safe-01.threema.ch/backups/{64hex} — score 7.70 — attack:8 business:8 tech:7 gate:6 cloud:9 fresh:8
+[PRIO] ds-apip-work.threema.ch — score 7.10 — attack:7 business:6 tech:7 gate:10 cloud:5 fresh:8
+[PRIO] work.test.threema.ch/api-app/public/global/settings — score 6.25 — attack:6 business:6 tech:5 gate:10 cloud:6 fresh:6
+[PRIO] mediator-{0..f}/rendezvous-{0..f}.threema.ch — score 3.50 — attack:3 business:3 tech:3 gate:10 cloud:4 fresh:4
+[HYP] Desktop Windows key-storage ACL bypass → full identity + message-store compromise via DPAPI
+class: MISCONFIG
+asset: threema-desktop — apps/desktop/src/common/node/fs.ts:41, key-storage/index.ts (_writeOrOverrideFile), key-storage/layers/inner/v3.ts:65-70, crypto.ts:53-113, electron/electron-main.ts (STORE_USER_PASSWORD + BrowserWindow)
+confidence: 95
+reasoning: `fileModeInternalObjectIfPosix()` returns `{}` on win32 (RAG-verified live on GitHub stable); `_writeOrOverrideFile` + `STORE_USER_PASSWORD` write `keystorage.bin`+`keystorage.password.bin` with `{}` (no DACL); Electron `safeStorage` uses DPAPI SameUser (auto-unlocks logged-in user, no secret); `Argon2id→XSalsa20-Poly1305` decrypts keystorage.bin; `INNER_KEY_STORAGE_V3_SCHEMA` exposes `ck` (Ed25519 identity private key) + `databaseKey` (SQLCipher PRAGMA key); PoC artifact generated + `node --check` OK + graceful no-op on Linux; 6/6 cited paths RAG-verified live.
+evidence_needed: Runtime execution on Windows proving (a) co-located same-user process reads both .bin files, (b) `safeStorage.decryptString` succeeds without user secret, (c) keystorage.bin decrypts via Argon2id→XSalsa20-Poly1305, (d) ck + databaseKey extracted, (e) threema.sqlite opens via PRAGMA key.
+verify_steps: RUNTIME_AUTH_HELPED-LOCAL: `node poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with Threema Desktop 2.x + a real profile (set THREEMA_FLAVOR + THREEMA_PROFILE env); confirm 6-step chain prints + ck/databaseKey recovered + threema.sqlite opens. RAG: webfetch `fs.ts`/`crypto.ts`/`v3.ts`/`electron-main.ts` on GitHub stable (done — all paths live).
+impact: Same-user/co-located process (malware, backup tool, forensic copy) recovers Threema Ed25519 identity private key + decrypts full SQLCipher message database → complete account compromise (identity theft, message decryption, impersonation). CVSS 3.1: 5.5 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N.
+testability: RAG + RUNTIME_AUTH_HELPED
+[HYP] Directory bulk identity enumeration via fetch_bulk (10k-ID batch, no rate limit, CORS *)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (identical on api.threema.ch, apip.threema.ch)
+confidence: 97
+reasoning: POST fetch_bulk hard ceiling exactly 10000 IDs/req → returns only valid IDs' pubkeys, silently omits invalid (10000→200/152B; 10001→400/0B, no partial leak, CORS `*` on 400 too); zero 429s across ~30 sequential probes; 5 challenge endpoints (/identity/{sfu_cred|blob_cred|set_revocation_key|check_revocation_key|update_work_info}) return 200 JSON error bodies + CORS `*`, with parameter-validation-before-identity-lookup oracle on set_revocation_key and update_work_info ("Bad revocation key length" / "Missing parameters"); GET /identity/ECHOECHO → 200 (re-verified live), invalid → 404 (re-verified live); `OPTIONS` preflight → CORS `*` + Allow-Methods POST,GET,OPTIONS,DELETE, no Expose-Headers.
+evidence_needed: (a) 10000-ID POST batch → 200 with only valid pubkeys; (b) 10001 → 400 empty body; (c) OPTIONS preflight → CORS `*` + Allow-Methods + absence of Expose-Headers; (d) GET /identity/{valid} → 200 vs /identity/{invalid} → 404. (c)(d) re-verified live this cycle; (a)(b) established 2026-08-09.
+verify_steps: PROBE: `curl -sI -X OPTIONS -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: POST" https://ds-apip.threema.ch/identity/fetch_bulk` (expect ACAO `*`, Allow-Methods, no Expose-Headers, ≤1 rps); `curl -s -o /dev/null -w "%{http_code}" https://ds-apip.threema.ch/identity/ECHOECHO` (expect 200) vs `/identity/NONEXISTENTZ` (expect 404).
+impact: Cross-origin unauthenticated enumeration of all valid Threema IDs + pubkeys at scale (10k IDs/req, no rate limit, ~864M/day theoretical). CVSS 3.1: 5.3 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N.
+testability: PASSIVE+PROBE
+[HYP] Safe backup store credentialed cross-origin read + HSTS/gap
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (5 hosts, single IP 203.56.112.231)
+confidence: 50
+reasoning: All 5 hosts re-verified live identical: unauth `GET /backups/{64hex}` → 400 (ACAO `*`); `OPTIONS` → 204 (ACAO `*` + Allow-Methods GET,HEAD,PUT,PATCH,POST,DELETE + `Access-Control-Allow-Headers: Authorization` → credentialed cross-origin enabled); HSTS/Expect-CT present on OPTIONS 204 but **absent** on GET 400 (header inconsistency); HTTP Basic Auth `backupId:backupKey` confirmed via vite.config.ts `SAFE_STORAGE_PASSWORD_PATH` pattern; route-existence oracle stable (`/backups/{64hex}`→400 vs `/backup/{x}`→404).
+evidence_needed: Program-issued backupId:backupKey → status ≠ 400 (200+payload or 401/403) + presence of `Access-Control-Expose-Headers` on authenticated response.
+verify_steps: AUTH_HELPED: `curl -s -u "testId:testKey" https://safe-01.threema.ch/backups/{testId} -w "\n%{http_code}"` and diff vs 400 unauth baseline; `curl -sI -X OPTIONS https://safe-01.threema.ch/backups/{64hex} -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: GET"` (re-verified live: CORS `*` + ACAH:Authorization + HSTS on preflight).
+impact: Valid credentials → identity keypair + full message-history backup readable cross-origin from any attacker origin. CVSS 3.1: 8.1 AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H (High with creds).
+testability: AUTH_HELPED
 [FINAL]
-[NEXT] RUNTIME_AUTH_HELPED: Execute `node poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with Threema Desktop 2.x installed and a real profile → confirm the 6-step chain (read keystorage.bin + keystorage.password.bin, DPAPI SameUser auto-unlock, Argon2id→XSalsa20-Poly1305 decrypt, ck + databaseKey extraction, PRAGMA key opens threema.sqlite). This is the final gate for the 95-confidence MISCONFIG finding in POC/desktop phase. PoC artifact already generated + syntax-verified + 7/8 source paths confirmed live on GitHub.
-[RISK] chat: 55 — g-*.0.threema.ch prod chat pattern unenumerated; staging out of scope; passive channel closed (no cert/SAN leak, TLS1.2/1.3 close on SNI, handshake requires authenticated login frame); saltyrtc-* 426 but out of scope
-[RISK] web: 94 — directory cluster (ds-apip/api/apip): 3 prod hosts, public identity oracle + fetch_bulk 10000 batch + 5 challenge parameter-validation oracles + CORS `*` (no Expose-Headers) + no rate-limit; safe-01 backup API (5 hosts, 1 IP): CORS `*` + write methods + ACAH:Authorization + route oracle + HSTS gap on GET 400; work.test staging-only public divergence (`/api-app/public/global/settings` 200 vs 404); broadcast/api/v1 auth-gated 401; gateway/en/signup 200; shop 301; billing TIMEOUT
-[RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; WSS high-entropy; no passive in-band divergence; auth in source; saltyrtc-* out of scope
-[RISK] safe: 88 — safe-{01,1a,1b,02,00}.threema.ch: 5 hosts, single IP 203.56.112.231, CORS `*` + write methods (GET/HEAD/PUT/PATCH/POST/DELETE) + ACAH:Authorization + route-existence oracle + Basic-Auth gating only (400 baseline stable) + HSTS/Expect-CT absent on GET 400
-[RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source level (7/8 paths verified live on GitHub, 15-path RAG complete, PoC artifact generated + syntax-verified); Electron sandbox unset (TODO DESK-79) + nodeIntegrationInWorker: true (conditional RCE, REJECTED standalone); crypto.ts:223 benchmark password REJECTED
+[NEXT] RUNTIME_AUTH_HELPED-LOCAL: Execute `node poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with Threema Desktop 2.x installed and a real profile (set `THREEMA_FLAVOR` + `THREEMA_PROFILE` env vars) → confirm the 6-step chain (co-located same-user reads `keystorage.bin` + `keystorage.password.bin`; `safeStorage.decryptString` succeeds without user secret; `keystorage.bin` decrypts via Argon2id→XSalsa20-Poly1305; `ck` (Ed25519 identity key) + `databaseKey` extracted via `INNER_KEY_STORAGE_V3_SCHEMA`; `PRAGMA key` opens `threema.sqlite`). PoC artifact generated + `node --check` OK + graceful no-op verified on Linux. This is the final runtime gate for the 95-confidence MISCONFIG finding. (Parallel: request one program-issued `backupId:backupKey` pair to validate the safe-01 credentialed cross-origin read and close the 50-confidence gap.)
+[RISK] chat: 55 — g-*.0.threema.ch prod chat unenumerated; staging out of scope; passive channel closed (SNI+TLS1.2/1.3 close on 443 & 5222, 0 bytes, no cert/SAN); handshake requires authenticated login frame; saltyrtc-* (256 hosts→4 IPs, 426) out of scope.
+[RISK] web: 94 — directory cluster (ds-apip/api/apip): 3 prod hosts, public identity oracle 200/404 + fetch_bulk 10000 batch + 5 challenge parameter oracles + CORS `*` (no Expose-Headers) + no rate-limit; safe-01 backup API (5 hosts, 1 IP): CORS `*` + write methods + ACAH:Authorization + route oracle + HSTS gap on GET 400; work.test staging-only public settings divergence (200/404); broadcast/api/v1 auth-gated 401; gateway/en/signup 200; shop 301; billing TIMEOUT.
+[RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; WSS high-entropy; no passive in-band divergence; auth in source; saltyrtc-* out of scope.
+[RISK] safe: 88 — safe-{01,1a,1b,02,00}.threema.ch: 5 hosts, single IP 203.56.112.231, CORS `*` + write methods (GET/HEAD/PUT/PATCH/POST/DELETE) + ACAH:Authorization + route-existence oracle + Basic-Auth gating (400 baseline stable) + HSTS/Expect-CT absent on GET 400.
+[RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source level (RAG-verified live on GitHub stable, 6/6 cited paths confirmed); PoC artifact generated + syntax-verified; same-user process → Ed25519 identity private key + SQLCipher key chain; Electron sandbox unset (TODO DESK-79) + nodeIntegrationInWorker true (conditional RCE, REJECTED standalone); crypto.ts:223 benchmark password REJECTED.

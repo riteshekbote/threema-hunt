@@ -100,3 +100,4 @@ testability: HUMAN_ONLY
 [LEARN] ACCEPTED MISCONFIG @ safe-01.threema.ch: HSTS/Expect-CT header inconsistency (present on OPTIONS 204, absent on GET 400) stable across all 5 hosts.
 [LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 15 source-path chain re-verified; PoC artifact exists; needs Windows validation.
 [RISK] chat: 15 reason | web: 72 reason | sync: 30 reason | safe: 58 reason | desktop-src: 68 reason
+## 2026-08-09 13:56:14 UTC [sync] (model longcat)
