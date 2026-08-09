@@ -224,3 +224,4 @@
 - 2026-08-09 REJECTED class @ lead (BrowserWindow sandbox+nodeIntegrationInWorker): conditional RCE requires separate renderer exploit chain; 0 dynamic sinks in worker/ tree; not standalone. Surface accepted (sandbox unset, TODO DESK-79).
 - 2026-08-09 ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk (own probe): 3-ID batch -> 200 returns only valid pubkey; ECHOECHO->200 / ZZZZZZZZ->404; ACAA `*` + POST,GET,OPTIONS,DELETE confirmed.
 - 2026-08-09 ACCEPTED MISCONFIG @ safe-01.threema.ch/backups/{64hex} (own probe): 400 cred-gated; /backup/x->404 route oracle; OPTIONS 204 ACAA `*` + write-capable methods; stable.
+- 2026-08-09 ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk hard ceiling exactly 10000 IDs/request (10000→200/152B, 10001→400/0B); sharp count-cap, overflow→400 empty body with NO partial/overshoot pubkey leak; CORS `*` + Allow-Methods POST,GET,OPTIONS,DELETE on both 200 and 400; zero 429s across ~35 sequential probes
