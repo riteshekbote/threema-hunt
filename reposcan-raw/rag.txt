@@ -241,6 +241,9 @@
 - 2026-08-09 REJECTED class @ lead: Desktop BrowserWindow sandbox+nodeIntegrationInWorker — conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree confirmed via Electron docs), not standalone. `sandbox` is unset (not explicitly `false`), `// TODO(DESK-79)` at electron-main.ts:1255; L1240 comment "sandboxing is enabled by default" incorrect per Electron docs.
 - 2026-08-09 ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk count-cap re-verified this cycle with unique IDs — 10000 unique → 200/17B (empty identities), 10001 → 400/0B sharp; cross-origin Origin header confirmed (ACAO `*` on 200 body); 5 challenge param-oracles byte-stable; no 429 across 35+ probes.
 - 2026-08-09 ACCEPTED MISCONFIG @ safe-01.threema.ch (5 hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for `/backups/{64hex}` byte-stable; HTTP Basic Auth (backupId:backupKey) + route-existence oracle (400 vs 404) confirmed; 5 hostnames uniform behind 203.56.112.231.
+- 2026-08-09 ACCEPTED OTHER @ g-*.0.threema.ch: chat shard→node DNS split precisely mapped — `g-{00..7f}`→203.56.112.202, `g-{80..ff}`→203.56.112.204, sharp 0x7f/0x80 boundary, direct A records, IPv4-only, no `.1` tier (own probes this cycle).
+- 2026-08-09 ACCEPTED OTHER @ g-80.0.threema.ch (203.56.112.204): TCP 5222/443 connect with 0 bytes pushed — posture parity with node .202; prior "chat passive channel formally closed" (in-band) now verified for both prod nodes.
+- 2026-08-09 ACCEPTED class @ OTHER (DNS-attribution recon on chat): the prior in-band closure does NOT exhaust chat recon; DNS-level shard/node attribution is a live passive surface.
 === INVENTORY gladia ===
 # Inventory: threema
 
