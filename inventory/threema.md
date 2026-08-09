@@ -855,3 +855,5 @@
 - CHANGED `blob-mirror-{prefix4}.threema.ch/{prefix8}/` — blob server hostname pattern discovered in desktop source config.ts; NOT in scope per scope.yml
 - CHANGED `apip.threema.ch` — confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
 - CHANGED lead class 16 (g-*.0.test.threema.ch staging chat) formally REJECTED as out-of-scope per scope.yml
+
+## 2026-08-09 21:22:43 UTC

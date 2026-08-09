@@ -1720,3 +1720,9 @@
 - LEARN: ACCEPTED OTHER @ ds-apip.threema.ch: canonical directory server hostname confirmed via desktop client build config (config/vite.config.ts + OpenAPI); public GET
 - LEARN: REJECTED OTHER @ blob-mirror-{prefix4}.threema.ch/{prefix8}/: blob server hostname pattern discovered in desktop source config.ts — NOT in scope per scope.yml
 - LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DESK-79) and nodeIntegrationInWorker: true (TODO DESK-79) — L1240 
+
+## RANKED HYPOTHESES 2026-08-09 21:22:43 UTC
+- [97] https://ds-apip.threema.ch/identity/fetch_bulk: Directory bulk identity enumeration at 10k IDs/req + 5 challenge param-oracles (from reports/hypotheses-laguna.txt)
+- [58] g-*.0.threema.ch: Chat shard→physical-node attribution is deterministic and now fully mappable at scale (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: request program-issued authorized test identity + Work test license to execute the only remaining chat lever and triage HOLD #6 — (a) one framed CSP logi
+- NEXT(hypotheses-laguna.txt): RUNTIME_AUTH_HELPED-LOCAL: Execute `node poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with real Threema Desktop 2.x profile to confirm: (1) 

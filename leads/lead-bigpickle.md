@@ -5894,3 +5894,32 @@ evidence_needed: whether the membership filter can be induced to return out-of-s
 verify_steps: AUTH_HELPED — with authorized Work test license, POST /identities mixing own- and other-subscription IDs; compare membership + property leak; probe pagination bounds (page/size, wildcard).
 impact: cross-subscription disclosure of work-directory metadata → targeted phishing. Severity: medium.
 testability: AUTH_HELPED
+## 2026-08-09 21:21:21 UTC [chat] (model bigpickle)
+[HYP] Chat shard→physical-node attribution is deterministic and now fully mappable at scale
+class: OTHER
+asset: g-*.0.threema.ch (256 shards, morobbia .202 / boiron .204) + ds-apip.threema.ch/identity/fetch_bulk
+confidence: 58
+reasoning: 256/256 shards map 0x00-0x7f→.202, 0x80-0xff→.204 (own sweep, zero outliers); fetch_bulk returns identities+pubkeys unauthenticated; ECHOECHO(0x45)→g-45→.202 proves first-byte routing end-to-end. Both nodes data-closed without authenticated login (5222 EOF, no cert).
+evidence_needed: real (non-test) identity harvest → per-node userbase distribution; any shard/PTR divergence breaking the uniform split.
+verify_steps: PASSIVE — sweep remaining shard space only via fetch_bulk (already-accepted, ≤1 rps) and map each returned identity's first byte to .202/.204; `getent hosts g-{00,7f,80,ff}.0.threema.ch` re-checks; no data sent to chat nodes.
+impact: node-level userbase attribution (which physical node serves which identity range) at 10k IDs/req; reconnaissance/enumeration intel layered on the accepted IDOR. Severity: informational.
+testability: PASSIVE
+[HYP] Directory fetch_bulk account-status oracle via state/type/featureMask field differential
+class: IDOR
+asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch /identity/fetch_bulk
+confidence: 55
+reasoning: All reachable valid IDs return byte-identical state:0/type:0/featureLevel:3/featureMask:9 (sha256 c7cdb73b…); invalid IDs silently omitted; ceiling exactly 10000 IDs/req, zero 429s across ~35 probes. A deactivated/revoked ID dropping from a batch or returning state≠0 is observable.
+evidence_needed: one program-issued deactivated/revoked identity returning state≠0 or omitted from a batch.
+verify_steps: AUTH_HELPED — POST {"identities":["{deactivatedTestId}","ECHOECHO"]} on all 3 hosts; diff state/type/featureMask vs ECHOECHO.
+impact: mass account-status enumeration layered on accepted existence oracle → operational intel. Severity: Medium (escalation).
+testability: AUTH_HELPED
+[HYP] Safe backup credentialed cross-origin read (variant of triage-INVALID'd unauth-CORS finding)
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch /backups/{64hex} (203.56.112.231)
+confidence: 50
+reasoning: OPTIONS 204 → CORS * + Allow-Headers: Authorization; unauth GET → 400/11B route-oracle; HTTP Basic backupId:backupKey; HSTS/Expect-CT absent on GET 400, present on OPTIONS. Triage marked the unauth-CORS finding INVALID as defense-in-depth; this variant requires valid creds.
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 + payload + Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — `curl -s -u "<backupId:backupKey>" https://safe-01.threema.ch/backups/<backupId> -D -` vs 400 baseline, diff across all 5 hosts; OPTIONS preflight with Authorization header.
+impact: with creds, identity keypair + full message-history backup readable from any attacker origin. Severity: High (with creds), unreachable without.
+testability: AUTH_HELPED
+[NEXT] HUMAN: request program-issued authorized test identity + Work test license to execute the only remaining chat lever and triage HOLD #6 — (a) one framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch) to `g-00.0.threema.ch:5222` to confirm documented handshake against a test identity; (b) `POST ds-apip-work.threema.ch/identities` mixing own/foreign-subscription IDs for the cross-subscription test. Without creds, chat POC is at its passive ceiling (channel data-closed, staging out of scope).

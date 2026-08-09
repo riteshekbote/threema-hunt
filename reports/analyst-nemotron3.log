@@ -8455,3 +8455,55 @@ testability: PASSIVE
 [RISK] safe: 88 — safe-01.live with CORS * + write-capable methods + Access-Control-Allow-Headers: Authorization + HSTS/Expect-CT on preflight but NOT on GET 400; 5 hostnames same IP; route-existence oracle; Basic-Auth gating only
 
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source level (fs.ts:41, key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163 write with {} on win32 → no DACL restriction → DPAPI password recoverable by same-user → Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + SQLCipher databaseKey; PoC runtime-verified); plus Electron nodeIntegrationInWorker: true + sandbox unset (TODO DESK-79) at electron-main.ts:1252,1255
+===== ANALYST nemotron3 2026-08-09 21:22:43 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt
+total 268
+drwxr-xr-x 11 runner runner  4096 Aug  9 21:17 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 21:17 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 21:17 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 21:17 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 21:17 README.md
+-rw-r--r--  1 runner runner    43 Aug  9 21:17 analyst-out.txt
+-rw-r--r--  1 runner runner 81467 Aug  9 21:17 analyst-prompt.txt
+-rw-r--r--  1 runner runner 78403 Aug  9 21:17 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 21:17 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 21:17 knowledge
+drwxr-xr-x  2 runner runner 12288 Aug  9 21:17 leads
+-rw-r--r--  1 runner runner 22998 Aug  9 21:17 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 21:17 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 21:17 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 21:17 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 21:17 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 21:17 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 21:17 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 21:17 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 21:17 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 21:17 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 21:17 triage
+[0m
+[0m✱ [0mGlob "inventory/*"[90m 1 match[0m
+[0m✱ [0mGlob "knowledge/*"[90m 1 match[0m
+[0m✱ [0mGlob "leads/*"[90m 100 matches[0m
+[0m→ [0mRead inventory/threema.md
+[0m→ [0mRead knowledge/index.md
+[0m→ [0mRead leads/reposcan-latest.md
+[0m→ [0mRead leads/lead-nemotron3.md
+[0m→ [0mRead leads/lead-nemotron3.md[90m [offset=397][0m
+Now I have a good understanding of the current state. Let me analyze the delta between the knowledge base and the current inventory/leads. The knowledge base has entries up to 2026-08-09, and the leads file shows the latest cycle from 2026-08-09. Let me check the most recent entries in the knowledge base and compare with the latest inventory entries.
+
+From the inventory file, the latest entries are from 2026-08-09 10:52:59 UTC showing:
+- NEW broadcast.threema.ch/api/v1/ → HTTP 401
+- NEW gateway.threema.ch/en/signup → HTTP 200
+- CHANGED ds-apip.threema.ch/identity/fetch_bulk ceiling ≥10000 IDs/request
+- CHANGED ds-apip.test.threema.ch staging byte-identical to prod
+- CHANGED broadcast.threema.ch/api/v1/ key-format oracle disproven
+- CHANGED gateway.threema.ch endpoints mapped
+- CHANGED safe-01.threema.ch HSTS/Expect-CT inconsistency stable
+- CHANGED work.test.threema.ch staging-prod divergence stable
+
+From the knowledge base, the latest entries (around line 220) show:
+- ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk hard ceiling exactly 10000 IDs/request
+- ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk
