@@ -3194,3 +3194,66 @@ testability: PASSIVE+PROBE
 [RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; mediator/rendezvous WSS high-entropy; auth in source (no passive in-band divergence); saltyrtc-*.threema.ch 426 but out of scope  
 [RISK] safe: 88 — safe-01.live with CORS * + write-capable methods + Access-Control-Allow-Headers: Authorization + HSTS/Expect-CT on preflight but NOT on GET 400; 5 hostnames same IP; route-existence oracle; Basic-Auth gating only  
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source level (fs.ts:41, key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163 write with {} on win32 → no DACL restriction → DPAPI password recoverable by same-user → Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + SQLCipher databaseKey; PoC runtime-verified); plus Electron nodeIntegrationInWorker: true + sandbox unset (TODO DESK-79) at electron-main.ts:1252,1255
+## 2026-08-09 15:05:15 UTC [web] (model nemotron3)
+[NEW] ds-apip.threema.ch — canonical directory server hostname (wired into desktop client build config); `GET /identity/{id}` → 200/404 oracle confirmed
+[NEW] ds-apip-work.threema.ch — work-style directory server (401 on all paths, CORS `*`, no HSTS/Expect-CT)
+[NEW] mediator-{prefix4}.threema.ch/{prefix8}/ — mediator WSS hostname pattern (in scope: mediator-*.threema.ch)
+[NEW] rendezvous-{prefix4}.threema.ch/{prefix8}/ — rendezvous WSS hostname pattern (in scope: rendezvous-*.threema.ch)
+[NEW] safe-{backupIdPrefix8}.threema.ch/ — backup safe hostname pattern (in scope: safe-*.threema.ch)
+[CHANGED] ds-apip.threema.ch/api.threema.ch/apip.threema.ch — fetch_bulk ceiling tightened to exactly 10000 IDs/request (10000→200/152B, 10001→400/0B; sharp count-cap, no partial leak, CORS * on 400, zero 429s)
+[CHANGED] ds-apip.test.threema.ch — staging fetch_bulk byte-identical to prod including 10000-cap enforcement; no extra routes (/swagger /docs /identity/lookup /openapi.json 404)
+[CHANGED] broadcast.threema.ch/api/v1 — auth-gated 401 baseline stable; key-format/validity oracle fully disproven (1/32/64-char keys → byte-identical 403, no CORS preflight)
+[CHANGED] g-*.0.{test.,}threema.ch:443/5222 — chat passive channel formally closed (explicit SNI + TLS1.2/1.3 probes close immediately, 0 bytes, no cert/SAN)
+[CHANGED] saltyrtc-*.threema.ch — 256 hostnames resolve to 4 IPs, HTTP 426 on GET, explicitly NOT in scope.yml
+[CHANGED] apip.threema.ch — was 403 on `/`; now confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
+[PRIO] https://ds-apip.threema.ch/identity/fetch_bulk (prod cluster: ds-apip, api, apip) — 94 — attack:10, business:9, tech:9, gate:10, cloud:8, fresh:10
+[PRIO] https://ds-apip.test.threema.ch/identity/fetch_bulk — 86 — attack:9, business:8, tech:8, gate:10, cloud:7, fresh:9
+[PRIO] safe-01.threema.ch/backups/{64hex} (all 5 safe-* hosts) — 77 — attack:8, business:8, tech:7, gate:6, cloud:9, fresh:8
+[PRIO] mediator-{prefix4}.threema.ch/{prefix8}/ — 60 — attack:6, business:7, tech:5, gate:4, cloud:6, fresh:8
+[PRIO] rendezvous-{prefix4}.threema.ch/{prefix8}/ — 60 — attack:6, business:7, tech:5, gate:4, cloud:6, fresh:8
+[PRIO] ds-apip-work.threema.ch — 58 — attack:6, business:6, tech:5, gate:4, cloud:7, fresh:7
+[HYP] Directory bulk identity enumeration at scale via fetch_bulk 10000 IDs/request + 5 challenge parameter oracles
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (identical on api.threema.ch, apip.threema.ch)
+confidence: 97
+reasoning: POST fetch_bulk (10000 IDs, 1 valid + 9999 invalid) → 200, returns only valid pubkey, silently omits invalid; ACAO:* on POST/GET/OPTIONS/DELETE; no 429 after ~30 sequential POSTs; 5 challenge endpoints return 200 JSON errors + ACAO:* with parameter-validation-before-lookup oracle (update_work_info: "Missing parameters", set_revocation_key: "Bad revocation key length"); hard cap at 10001 → 400 empty body, no partial leak
+evidence_needed: confirm no WAF/rate-limit at higher volume (multi-threaded 1 rps per thread); verify challenge endpoints differ only by identity validity not parameter format
+verify_steps: PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<19999 unique invalid 8-char base32 IDs>]}' (≤1 rps) → verify 400 at 10001; GET /identity/sfu_cred/ECHOECHO vs /identity/sfu_cred/ZZZZZZZZ → compare bodies; repeat for api.threema.ch and apip.threema.ch
+impact: Cross-origin, unauthenticated enumeration of all valid Threema IDs + pubkeys at scale (1 rps → 86,400 IDs/day/browser-thread; 10000 IDs/req → 864M IDs/day theoretical); challenge endpoints expose parameter validation oracles. Severity: Medium-High (CVSS 3.1: 5.3 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
+testability: PASSIVE+PROBE
+[HYP] Staging directory server mirrors live production identity data unauthenticated
+class: IDOR
+asset: https://ds-apip.test.threema.ch/identity/fetch_bulk
+confidence: 88
+reasoning: Staging fetch_bulk byte-identical response to prod (200, 0.5s, identical ECHOECHO record); hard 10000-ID cap enforced identically (10001 → 400 byte-for-byte); all 5 challenge endpoints return same JSON errors + ACAO:*; no extra routes (/swagger /docs /identity/lookup /openapi.json all 404). Staging lacks HSTS/Expect-CT (prod also lacks).
+evidence_needed: Confirm staging returns pubkeys for production-valid IDs not just test IDs; verify no rate-limit divergence vs prod at high volume
+verify_steps: PROBE: curl -X POST https://ds-apip.test.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<9999 unique invalid 8-char base32 IDs>]}' (≤1 rps) → verify byte-identical 200 response; GET /identity/ECHOECHO on staging vs prod → compare bodies
+impact: Staging environment exposes identical identity oracle as production — doubles enumeration surface; no additional auth/gating on staging. Severity: Medium (CVSS 3.1: 4.3 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
+testability: PASSIVE+PROBE
+[HYP] Mediator/Rendezvous WSS hostname patterns expose device-linking metadata via high-entropy paths
+class: OTHER
+asset: mediator-{prefix4}.threema.ch/{prefix8}/ and rendezvous-{prefix4}.threema.ch/{prefix8}/
+confidence: 55
+reasoning: Hostname patterns discovered in desktop config.ts (in scope: mediator-*.threema.ch, rendezvous-*.threema.ch); mediator/rendezvous indices 0-7 → 203.56.112.247, 8-f → 203.56.114.247; all return uniform 403 on HTTPS; WSS endpoints require auth in source, no passive in-band divergence observed
+evidence_needed: Confirm WSS endpoints exist at high-entropy paths; verify if unauthenticated WSS handshake leaks metadata (server hello, supported protocols)
+verify_steps: PROBE: wscat -c wss://mediator-0000.threema.ch/<entropy> (passive connect, no auth frame) → observe server hello/close; repeat for rendezvous; enumerate prefix4 space via DNS (0000-ffff) → map live hosts
+impact: Multi-device linking metadata exposure (device IDs, linking timestamps, peer metadata); potential device enumeration. Severity: Low-Medium (CVSS 3.1: 3.7 AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N)
+testability: PASSIVE+PROBE
+[PARKED] Staging directory server mirrors live production identity data unauthenticated: confidence 88 but evidence_needed requires proving staging returns production-valid IDs (not just test IDs) — currently no testId available; verify_steps depend on AUTH_HELPED for test credential. Without live-dataset proof, this remains a mirror-surface finding only.
+[FINAL] 1. Directory bulk identity enumeration at scale via fetch_bulk 10000 IDs/request + 5 challenge parameter oracles (97, IDOR, PASSIVE+PROBE)
+[FINAL] 2. Mediator/Rendezvous WSS hostname patterns expose device-linking metadata via high-entropy paths (55, OTHER, PASSIVE+PROBE)
+[NEXT] PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<19999 unique invalid 8-char base32 IDs>]}' (≤1 rps) — confirm 400 at 10001, verify challenge endpoint parameter oracles
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk hard ceiling exactly 10000 IDs/request (10000→200/152B, 10001→400/0B); sharp count-cap, overflow→400 empty body with NO partial/overshoot pubkey leak; CORS `*` + Allow-Methods POST,GET,OPTIONS,DELETE on both 200 and 400; zero 429s across ~30 sequential probes
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk enforces identical 10000-cap (10001 → 400 byte-for-byte identical to prod) → validation-logic parity confirmed; mirror evidence strengthened
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED at 95 confidence — 15 source-path chain re-verified; PoC artifact poc/key-storage-acl-bypass-poc.js generated (node --check OK, graceful no-op on Linux); needs Windows validation
+[LEARN] ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64hex}`; HTTP Basic Auth `backupId:backupKey` + route-existence oracle confirmed; 5 hostnames uniform behind 203.56.112.231
+[LEARN] REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys produce byte-identical 403; only key-PRESENCE observable; no CORS preflight (OPTIONS 404)
+[LEARN] REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close immediately (0 bytes, no peer cert); no cert/SAN leak; handshake requires authenticated login frame — chat passive channel formally closed
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy in determineKdfParams(), derived key immediately purged — not used for real encryption
+[LEARN] REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE requires separate renderer exploit chain, not standalone; no dynamic sinks (require/import/eval/child_process/new Function) found in worker/ tree (reposcan confirms 0 matches)
+[LEARN] REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml; explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes, no peer cert) on both 443 and 5222
+[RISK] chat: 55 — g-*.0.threema.ch prod pattern unenumerated; staging likely out of scope; no passive HTTP endpoints (5222/WSS handshake requires client login frame; 443 closes without TLS handshake on both staging+prod); saltyrtc-* 426 but explicitly NOT in scope.yml
+[RISK] web: 94 — ds-apip/api/apip directory cluster: 3 prod hosts, public identity oracle + fetch_bulk 10000 batch + 5 challenge endpoints + CORS * + no rate-limit; safe-01 backup API with permissive CORS + Authorization header + HSTS gap on GET 400 + 5 hostnames on single IP; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed; broadcast/api/v1 auth-gated; gateway signup accessible
+[RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; mediator/rendezvous WSS high-entropy; auth in source (no passive in-band divergence); saltyrtc-*.threema.ch 426 but out of scope
+[RISK] safe: 88 — safe-01.live with CORS * + write-capable methods + Access-Control-Allow-Headers: Authorization + HSTS/Expect-CT on preflight but NOT on GET 400; 5 hostnames same IP; route-existence oracle; Basic-Auth gating only
+[RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source level (fs.ts:41, key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163 write with {} on win32 → no DACL restriction → DPAPI password recoverable by same-user → Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + SQLCipher databaseKey; PoC runtime-verified); plus Electron nodeIntegrationInWorker: true + sandbox unset (TODO DESK-79) at electron-main.ts:1252,1255

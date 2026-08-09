@@ -5171,3 +5171,4 @@ testability: RAG + RUNTIME_AUTH_HELPED
 [RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403; WSS high-entropy + auth in source; no passive in-band divergence; saltyrtc-* 426 out of scope.
 [RISK] safe: 80 — safe-{01,1a,1b,02,00} behind 203.56.112.231: CORS `*` + write-capable methods + Allow-Headers authorization + route-existence oracle + HSTS/Expect-CT absent on GET 400 present on OPTIONS; Basic-Auth gating only; no ACAC — impact contingent on valid creds.
 [RISK] desktop-src: 90 — Windows key-storage ACL bypass RAG-confirmed (95) chained to Ed25519 identity privkey + SQLCipher DB key; PoC artifact ready, runtime validation pending; Electron sandbox unset + nodeIntegrationInWorker (conditional RCE, REJECTED standalone); crypto.ts benchmark password REJECTED.
+## 2026-08-09 15:04:48 UTC [chat] (model bigpickle)
