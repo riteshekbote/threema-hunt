@@ -2834,3 +2834,36 @@ testability: PASSIVE + AUTH_HELPED
 [RISK] sync: 60 reason: mediator/rendezvous resolve but uniform 403 on HTTPS; WSS high-entropy, auth-in-source, no passive in-band divergence; saltyrtc pending scope ruling
 [RISK] safe: 88 reason: 5 hosts CORS * + write-capable methods + Access-Control-Allow-Headers: Authorization + HSTS/Expect-CT on OPTIONS 204 but NOT on GET 400 + Basic-Auth gating + route-existence oracle, all behind single IP 203.56.112.231
 [RISK] desktop-src: 95 reason: Windows key-storage ACL bypass now **POC-runtime-verified** end-to-end (fs.ts:41 → {} on win32; index.ts:559-560 / electron-main.ts:944-945 write keystorage.bin + keystorage.password.bin with no DACL; DPAPI→Argon2id→XSalsa20-Poly1305→inner protobuf→ck (Ed25519 identity privkey) + databaseKey; sqlite.ts:240 raw PRAGMA key opens SQLCipher DB, plaintext confirmed off-disk); plus Electron `nodeIntegrationInWorker: true` + `sandbox` unset (TODO DESK-79) at electron-main.ts:1252,1255
+## 2026-08-09 05:45:41 UTC [desktop] (model laguna)
+[HYP] Desktop Windows key-storage ACL bypass → permanent identity key + DB decryption
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop — `fs.ts:41`, `node/key-storage/index.ts:559-560`, `electron-main.ts:943-945`, `inner/v3.ts:65,70`, `node/key-storage/crypto.ts:53-113`, `node/db/sqlite.ts:237-240`
+confidence: 95
+reasoning: Source-VERIFIED on real main: `fileModeInternalObjectIfPosix()`→`{}` on win32, so both `keystorage.bin` (no DACL) and `keystorage.password.bin` (DPAPI blob, no DACL) are writable/readable by any same-user process; recovered master re-derives Argon2id→XSalsa20-Poly1305 to parse inner protobuf yielding `IdentityData.ck` (Ed25519 identity privkey, v3.ts:65) + `databaseKey` (sqlite.ts:240 `PRAGMA key`). Full key chain documented across 6 paths.
+evidence_needed: (1) Windows DACL audit → 0 explicit ACEs on keystorage.bin/password.bin [NOT yet runtime-proven — PoC file absent]; (2) DPAPI unwrap of password blob → master; (3) Argon2id+XSalsa20-Poly1305 decrypt → `ck`+`databaseKey`; (4) recovered 32B key opens SQLCipher DB.
+verify_steps: AUTH_HELPED-LOCAL: PowerShell `Get-Acl <profile>\data\keystorage.bin | %{$_.Access}` → expect 0 explicit ACEs; `[Security.Cryptography.ProtectedData]::Unprotect([Convert]::FromBase64String((Get-Content <profile>\data\keystorage.password.bin -AsByteStream -ReadCount 0)),$null,$null)` → master password; feed into Argon2id(salt,n,t,p)→XSalsa20-Poly1305 secretbox → parse inner protobuf for `ck`+`databaseKey`; open `database.db` with `PRAGMA key="x'<hex>'"` in SQLCipher. (PoC gap: `/tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py` does NOT exist — self-test NOT runtime-verified.)
+impact: Same-user malware exfiltrates permanent Ed25519 identity private key + full SQLCipher message store offline (non-resettable ID) — total account compromise + message-history disclosure. Severity: High. Non-resettable identity = persistent.
+testability: AUTH_HELPED-LOCAL (DACL+DPAPI require Windows live host; crypto pipeline is cross-platform-reproducible but lacks a test keystorage.bin fixture here)
+[HYP] Directory bulk identity enumeration at scale via fetch_bulk + challenge parameter oracles
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (identical on api.threema.ch, apip.threema.ch)
+confidence: 95
+reasoning: PASSIVE-PROBED this cycle: `POST /identity/fetch_bulk {"identities":["ECHOECHO",<499 invalid>]}` → HTTP 200, returns only the valid ID's pubkey; ACAO:`*` on POST/GET/OPTIONS/DELETE; no 429 after 1 rps probe. GET `/identity/{sfu_cred|blob_cred|set_revocation_key|check_revocation_key|update_work_info}` → 200 JSON error + ACAO:`*`; `update_work_info`→"Missing parameters" (param-validation-before-lookup oracle).
+evidence_needed: fetch_bulk ceiling ≥1000 IDs/request; confirm no WAF/limit at higher volume; confirm challenge oracle is identity-validity-gated vs param-only.
+verify_steps: PROBE (`≤1 rps`): `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<999 unique invalid 8-char base32>]}'` → 200+pubkey map, no 429; `GET /identity/update_work_info/ECHOECHO` vs `/identity/update_work_info/ZZZZZZZZ` to distinguish param-gate from identity-gate; repeat on api.threema.ch, apip.threema.ch.
+impact: Cross-origin, unauthenticated enumeration of all valid Threema IDs + pubkeys at scale; challenge endpoints expose param-validation oracle. Severity: Medium-High.
+testability: PASSIVE + PROBE
+[HYP] Safe backup API cross-origin credentialed read + HSTS gap + existence oracle
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (single IP 203.56.112.231)
+confidence: 80
+reasoning: PASSIVE-VERIFIED all 5 hosts: OPTIONS→204 with HSTS+Expect-CT+ACAO:`*`+ACAH:Authorization; GET no-auth→400 WITHOUT HSTS/Expect-CT; HTTP Basic Auth (backupId:backupKey); route distinction `/backups/{64hex}`→400 vs `/backup/{x}`→404 = existence oracle.
+evidence_needed: 400/200 body differs by existing vs non-existing backupId; valid program-issued creds→200+cross-origin-readable+Expose-Headers.
+verify_steps: AUTH_HELPED: `curl -u "backupId:backupKey" https://safe-01.threema.ch/backups/{backupId}` (≤1 rps) → confirm 200 + Access-Control-Expose-Headers; HUMAN: request program-issued test backupId:backupKey.
+impact: Cross-origin backup-ID existence enumeration + credentialed cross-origin readout of identity keypair + message-history backup. Severity: High (creds required)
+testability: PASSIVE + AUTH_HELPED + HUMAN
+[RISK] chat: 60 reason: g-*.0.{test.,}threema.ch prod pattern unenumerated; 5222/443 no passive divergence (requires authenticated login frame); saltyrtc pending HUMAN scope ruling — no passive HTTP endpoints
+[RISK] web: 92 reason: 3-prod-host directory cluster (ds-apip/api/apip) — public identity oracle + fetch_bulk batch + 5 challenge endpoints + CORS `*` + no rate-limit (source+probe verified); safe-01 backup CORS `*` + Authorization + HSTS gap on GET 400 + 5 hosts/single IP (probe verified); work/broadcast/gateway/shop reachable (TIMEOUT/cockpits); staging work public-API divergence confirmed
+[RISK] sync: 60 reason: mediator/rendezvous resolve but uniform 403 on HTTPS; WSS high-entropy, auth-in-source, no passive in-band divergence; saltyrtc pending scope ruling
+[RISK] safe: 88 reason: 5 hosts CORS `*` + write-capable methods + Access-Control-Allow-Headers: Authorization + HSTS/Expect-CT on OPTIONS 204 but NOT on GET 400 + Basic-Auth gating + route-existence oracle, all behind single IP 203.56.112.231 (probe verified)
+[RISK] desktop-src: 95 reason: Windows key-storage ACL bypass SOURCE-VERIFIED end-to-end on real main (fs.ts:41→`{}` win32; index.ts:559-560 + electron-main.ts:943-945 write with no DACL; v3.ts:65,70 expose ck+databaseKey; crypto.ts:60 Argon2id; sqlite.ts:240 PRAGMA key); runtime PoC NOT yet executed (PoC file absent, Windows host needed) — source-confidence 95, runtime-confidence 0 until HUMAN grants host+creds

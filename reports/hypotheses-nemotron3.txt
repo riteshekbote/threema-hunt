@@ -1,19 +1,15 @@
-## 2026-08-09 04:57:13 UTC [web] (model nemotron3)
-[NEW] saltyrtc-{00..ff}.threema.ch:443 — 256 hostnames, live SaltyRTC WSS signaling (HTTP 426 on GET), quadrant-split across 4 IPs (203.56.112.198/.199, 203.56.114.198/.199); NOT in scope.yml (only g-*.0 pattern listed for chat services)
-[CHANGED] Directory challenge endpoints: /identity/sfu_cred, /identity/blob_cred, /identity/set_revocation_key, /identity/check_revocation_key, /identity/update_work_info — all return 200 with JSON error bodies + CORS * on all 3 prod hosts (ds-apip, api, apip); parameter-validation-before-identity-lookup oracle confirmed (set_revocation_key: "Bad revocation key length", update_work_info: "Missing parameters")
-[CHANGED] fetch_bulk ceiling confirmed ≥500 IDs/request on all 3 prod directory hosts; no 429 after 30 sequential POSTs at 1 rps
-[CHANGED] safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for /backups/{64hex} — header inconsistency stable across all 5 hosts behind single IP 203.56.112.231
-[CHANGED] work.test.threema.ch: /api-app/public/global/settings → 200 (299B, staging-only) vs work.threema.ch → 404 HTML — divergence stable
-[PRIO] https://ds-apip.threema.ch/identity/fetch_bulk (api.threema.ch, apip.threema.ch), 8.20, attack_surface:9 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:9
+## 2026-08-09 05:40:34 UTC [web] (model nemotron3)
+[NEW] NO_DELTA — inventory at 2026-08-09 05:08:32 UTC shows only re-confirmations (CHANGED) of existing in-scope surface; saltyrtc-{00..ff}.threema.ch:443 discovered but explicitly NOT in scope.yml (only g-*.0.threema.ch pattern listed for chat).
+[PRIO] https://ds-apip.threema.ch/identity/fetch_bulk (mirror: api.threema.ch, apip.threema.ch), 8.20, attack_surface:9 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:9
 [PRIO] github.com/threema-ch/threema-desktop (Windows key-storage ACL bypass), 8.10, attack_surface:7 business_value:10 tech_exposure:8 gate_ease:8 cloud_surface:2 freshness:10
-[PRIO] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}, 7.10, attack_surface:8 business_value:9 tech_exposure:6 gate_ease:5 cloud_surface:4 freshness:8
+[PRIO] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (single IP 203.56.112.231), 7.10, attack_surface:8 business_value:9 tech_exposure:6 gate_ease:5 cloud_surface:4 freshness:8
 [HYP] Directory bulk identity enumeration at scale via fetch_bulk + challenge parameter oracles
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/fetch_bulk (identical on api.threema.ch, apip.threema.ch)
 confidence: 95
 reasoning: PASSIVE-VERIFIED: POST fetch_bulk (500 IDs, 1 valid + 499 invalid) → 200, returns only valid pubkey, silently omits invalid; ACAO:* on POST/GET/OPTIONS/DELETE; no 429 after 30 sequential POSTs at 1 rps; 5 challenge endpoints return 200 JSON errors + ACAO:* with parameter-validation-before-lookup oracle (update_work_info: "Missing parameters", set_revocation_key: "Bad revocation key length").
 evidence_needed: fetch_bulk ceiling beyond 500 IDs; confirm no WAF/rate-limit at higher volume; confirm challenge endpoints differ only by identity validity.
-verify_steps: PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["<1000 IDs>"]}' (≤1 rps) → verify 200 + pubkey map; GET /identity/sfu_cred/ECHOECHO vs /identity/sfu_cred/ZZZZZZZZ → compare bodies; repeat for api.threema.ch and apip.threema.ch.
+verify_steps: PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<999 unique invalid 8-char base32 IDs>]}' (≤1 rps) → verify 200 + pubkey map; GET /identity/sfu_cred/ECHOECHO vs /identity/sfu_cred/ZZZZZZZZ → compare bodies; repeat for api.threema.ch and apip.threema.ch.
 impact: Cross-origin, unauthenticated enumeration of all valid Threema IDs + pubkeys at scale (1 rps → 86,400 IDs/day/browser-thread); challenge endpoints expose parameter validation oracles. Severity: Medium-High.
 testability: PASSIVE + PROBE
 [HYP] Desktop Windows key-storage ACL bypass → master-password recovery → identity keypair + message-DB decryption

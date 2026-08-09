@@ -1,1 +1,86 @@
-## 2026-08-09 04:55:36 UTC [chat] (model bigpickle)
+## 2026-08-09 05:45:20 UTC [chat] (model bigpickle)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (+ api.threema.ch, apip.threema.ch)
+confidence: 95
+reasoning: 2000-ID single batch → 200 with valid ECHOECHO pubkey echo, 1999 invalid silently omitted, no 413/429 (this cycle). Prior: 100/500-ID identical, 30 sequential POSTs no rate-limit, CORS `*` POST/GET/OPTIONS/DELETE all 3 hosts, 5 challenge endpoints with parameter-validation-before-lookup oracles.
+evidence_needed: none beyond accepted record — bound ≈ 5.5e8 requests for the full 2^40 base32 space; report-ready.
+verify_steps: PASSIVE — already satisfied; further ceiling probes (10k/50k) only test body-size limit, no impact delta.
+impact: unauth identity→pubkey mapping of full keyspace, privacy/social-graph leakage; Medium-High, fully unauth.
+testability: PASSIVE
+[HYP] Shop order/license surface is server-rendered + session-gated (no unauth endpoint)
+class: OTHER
+asset: https://shop.threema.ch/en
+confidence: 42
+reasoning: 200 storefront SPA with orderId/OrderList/licenses refs but jQuery bundle has no fetch/`$.ajax`/URL literals; order data server-rendered, hCaptcha on flow, CSP `form-action 'self' https://billing.threema.ch` (billing still TIMEOUT). No exploitable unauth endpoint observed.
+evidence_needed: discovery of any order/license API path via rendered-page static analysis; 200/401/302 differential on it.
+verify_steps: PASSIVE — GET /en and parse inline forms/scripts for relative targets; single GET on any discovered path (≤1 rps); record status only, no credential guessing.
+impact: license-key/order data or flow tampering — Low-Medium, contingent on endpoint discovery; today stack/gate recon only.
+testability: PASSIVE
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (203.56.112.231)
+confidence: 50
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET byte-identical 400 with/without bogus Basic; route-existence oracle vs /backup/{x} 404; HSTS/Expect-CT absent on the 400. Valid creds the only missing input.
+evidence_needed: program-issued test backupId:backupKey → status ≠ 400 (200 payload / 401 / 403) + any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff vs known 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[NEXT] RAG: finalize the submission-ready report for the fetch_bulk identity→pubkey enumeration IDOR (ds-apip/api/apip.threema.ch) with the confirmed ceiling ≥ 2000 IDs/request (enumeration cost ≈ 5.5e8 requests for 2^40 space), CORS `*`, absent rate limiting (30 sequential POSTs), and the 5 challenge-parameter validation oracles — closes the highest-confidence fully-unauth finding; probe queue on this asset is saturated.
+[RISK] chat: 35 — g-* silent (5222/443); only saltyrtc-* answers (426, HUMAN_ONLY scope-gated); no data-plane access. | web: 52 — unauth identity→pubkey enumeration now ceiling ≥2000 IDs/request (~5.5e8 req for 2^40), CORS `*`, no rate limit; staging public-namespace divergence; no creds to escalate. | sync: 20 — mediator/rendezvous uniform 403, no in-band surface. | safe: 40 — backup API credential-gated; existence oracle + HSTS gap on 400 + credentialed CORS weaken posture but payload needs creds. | desktop-src: 55 — accepted Windows key-storage ACL bypass (same-user → Ed25519 keypair + SQLCipher DB) plus conditional sandbox/worker gap; local-only.
+[HYP] SaltyRTC signaling plane permanent-key fingerprint + framing recon
+class: OTHER
+asset: https://saltyrtc-{00..ff}.threema.ch:443 (quadrant-split 4 nodes: 203.56.112.198/.199, 203.56.114.198/.199)
+confidence: 75
+reasoning: GET → HTTP 426; bare WS upgrade → 101 then 1002; with `Sec-WebSocket-Protocol: v1.saltyrtc.org` → 101 + subprotocol echo then close 3001 (protocol-error); server waits for client-hello (peer key). Only chat-surface host answering in-band while g-* silent on 5222/443.
+evidence_needed: operator scope ruling (saltyrtc-* not in scope.yml g-*.0 pattern) — then server permanent-key fingerprint via one client-hello.
+verify_steps: HUMAN_ONLY — after ruling: `curl -sk --max-time 8 -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Protocol: v1.saltyrtc.org" -H "Sec-WebSocket-Key: {b64}" https://saltyrtc-00.threema.ch/` (≤1 rps); do NOT send client-hello without approval.
+impact: chat-signaling control plane passively reachable where g-* silent; server-key/framing fingerprint + future handshake recon; Low-Medium, scope-gated.
+testability: HUMAN_ONLY
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (203.56.112.231)
+confidence: 50
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route-existence oracle vs /backup/{x} 404; HSTS/Expect-CT absent on the 400. Valid creds the only missing input.
+evidence_needed: program-issued test backupId:backupKey → status ≠ 400 (200+payload or 401/403) + any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs known 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[HYP] Shop order/license surface is server-rendered + session-gated (no unauth endpoint)
+class: OTHER
+asset: https://shop.threema.ch/en
+confidence: 42
+reasoning: 200 storefront SPA with orderId/OrderList/licenses refs but jQuery bundle has no fetch/`$.ajax`/URL literals; order data server-rendered, hCaptcha on flow, CSP `form-action 'self' https://billing.threema.ch` (billing TIMEOUT). No exploitable unauth endpoint observed.
+evidence_needed: discovery of any order/license API path via rendered-page static analysis; 200/401/302 differential on it.
+verify_steps: PASSIVE — GET /en and parse inline forms/scripts for relative targets; single GET on any discovered path (≤1 rps); record status only, no credential guessing.
+impact: license-key/order data or flow tampering — Low-Medium, contingent on endpoint discovery; today stack/gate recon only.
+testability: PASSIVE
+[FINAL]
+[NEXT] RAG: done this cycle — submission-ready report authored at reports/fetch_bulk-identity-enumeration-idor.md (ceiling ≥2000 IDs/req, ≈5.5e8 req for 2^40 space, CORS `*`, no rate limit, 5 challenge-param oracles; CVSS ≈4.3). Next gate is HUMAN: request operator (a) scope ruling on saltyrtc-{00..ff}.threema.ch and (b) program-issued test backupId:backupKey for safe-01.threema.ch to close the two top open items; no further passive probes queued on saturated assets.
+confidence: 50
+[HYP] Broadcast X-Api-Key API key-presence differential (401 vs 403) + CORS `*`
+class: AUTH
+asset: https://broadcast.threema.ch/api/v1
+confidence: 60
+reasoning: GET /api/v1 → 401 `{"error":"Invalid X-Api-Key"}` with ACAO `*`; GET with any/empty X-Api-Key header → 403 same JSON body; subpaths 404. Route root live behind key check, CORS `*` permits cross-origin authenticated calls once key known; no rate limit observed yet.
+evidence_needed: response differential persists with Authorization/Bearer variant; whether `Access-Control-Allow-Headers` echoes X-Api-Key on preflight; any key-length oracle via timing.
+verify_steps: PASSIVE — `OPTIONS /api/v1` with `Access-Control-Request-Headers: X-Api-Key` + `Origin: https://attacker.example` (record ACAH); GET /api/v1 with 1-char vs 32-char key vs absent (≤1 rps); record status only.
+impact: if API key leaked/exposed elsewhere → full broadcast message API cross-origin; today recon + header-enumeration; Low-Medium, key-gated.
+testability: PASSIVE
+[HYP] Broadcast session + passkey login flow exposes user-enumeration or param oracle
+class: BUSLOGIC
+asset: https://broadcast.threema.ch/en/login
+confidence: 55
+reasoning: server-rendered login with CSRF token + passkey `/en/login/passkey/{start,complete}` refs; `/en/register` 302 to login; SESSIONID cookie on unauth GET. No differential yet probed between valid/invalid username POST paths.
+evidence_needed: POST /en/login username-existence differential (redirect vs re-render vs timing) — requires a single controlled POST (non-destructive, wrong password only).
+verify_steps: AUTH_HELPED — one `POST /en/login` (csrf_public_login_access + r param, username=fake@example.com, wrong password) vs valid-known test account if operator provides; compare status/body/Set-Cookie; ≤1 rps.
+impact: account enumeration on broadcast cockpit → targeted attacks; Low-Medium, contingent on differential.
+testability: AUTH_HELPED
+[HYP] Gateway signup form model (nested client[csrf_client]) reveals app stack oracle
+class: OTHER
+asset: https://gateway.threema.ch/en/signup
+confidence: 45
+reasoning: nested `client[company_name]`, `client[address][street]` fields + `client[csrf_client]` indicate single-app PHP-esque framework; `/api/*` nginx deny-all blocks API probing; signup hCaptcha-gated. No exploitable unauth endpoint observed.
+evidence_needed: any non-403 API path or POST /en/signup field-validation differential; currently low-value.
+verify_steps: PASSIVE — single GET on likely API paths under /en (e.g. /en/api/*) vs known 403/404 baselines; ≤1 rps; no credential guessing.
+impact: stack/gate recon only today; Low.
+testability: PASSIVE

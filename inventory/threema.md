@@ -386,3 +386,6 @@
 - CHANGED safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for /backups/{64hex} — header inconsistency stable across all 5 hosts behind single IP 203.56.11
 - CHANGED work.test.threema.ch: /api-app/public/global/settings → 200 (299B, staging-only) vs work.threema.ch → 404 HTML — divergence stable
 - NEW saltyrtc-{00..ff}.threema.ch:443 — 256 hostnames, live SaltyRTC WSS signaling (HTTP 426 on GET), quadrant-split across 4 IPs (203.56.112.198/.199, 203.56.114.198/.199); NOT in scope.yml (only g-*.0 pa
+
+## 2026-08-09 05:45:53 UTC
+- NEW NO_DELTA — inventory at 2026-08-09 05:08:32 UTC shows only re-confirmations (CHANGED) of existing in-scope surface; saltyrtc-{00..ff}.threema.ch:443 discovered but explicitly NOT in scope.yml (only g-

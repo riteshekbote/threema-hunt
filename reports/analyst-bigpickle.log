@@ -25749,3 +25749,1437 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK SCORE
 - [RISK] chat: 35 — g-* silent (5222/443); saltyrtc-* the only live chat-plane surface, scope-gated; handshake requires auth frame | web: 52 — unauth identity→pubkey enumeration ceiling ≥2000 IDs/req (~5.5e8 req for 2^40), CORS `*`, no rate limit, report finalized; staging public-namespace divergence stable; no creds to escalate | sync: 20 — mediator/rendezvous uniform 403, no in-band surface | safe: 40 — backup API credential-gated; existence oracle + HSTS gap on 400 + credentialed CORS weaken posture, payload needs creds | desktop-src: 55 — accepted Windows key-storage ACL bypass (same-user → Ed25519 keypair + SQLCipher DB) plus conditional sandbox/worker gap; PoC artifact still absent.
+===== ANALYST bigpickle 2026-08-09 05:45:53 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/ 2>/dev/null | head -50; echo "---REPORTS---"; ls -la /home/runner/work/threema-hunt/threema-hunt/reports/ 2>/dev/null | head -30
+total 188
+drwxr-xr-x 11 runner runner  4096 Aug  9 05:37 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 05:37 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 05:38 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 05:37 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 05:37 README.md
+-rw-r--r--  1 runner runner    32 Aug  9 05:38 analyst-out.txt
+-rw-r--r--  1 runner runner 52621 Aug  9 05:37 analyst-prompt.txt
+-rw-r--r--  1 runner runner 49557 Aug  9 05:37 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 05:37 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 05:37 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  9 05:37 leads
+-rw-r--r--  1 runner runner  7976 Aug  9 05:37 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 05:37 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 05:37 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 05:37 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 05:37 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 05:37 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 05:37 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 05:37 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 05:37 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 05:37 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 05:37 triage
+---REPORTS---
+total 5656
+drwxr-xr-x  2 runner runner    4096 Aug  9 05:37 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 05:37 ..
+-rw-r--r--  1 runner runner 1910071 Aug  9 05:37 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 3179157 Aug  9 05:37 analyst-laguna.log
+-rw-r--r--  1 runner runner   22447 Aug  9 05:37 analyst-ling3.log
+-rw-r--r--  1 runner runner    4590 Aug  9 05:37 analyst-longcat.log
+-rw-r--r--  1 runner runner  535907 Aug  9 05:37 analyst-nemotron3.log
+-rw-r--r--  1 runner runner      52 Aug  9 05:37 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner   34020 Aug  9 05:37 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 05:37 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 05:37 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner    9633 Aug  9 05:37 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  167475 Aug  9 05:37 hypotheses.md
+-rw-r--r--  1 runner runner   16712 Aug  9 05:37 valid-bugs.md
+[0m
+[0m$ [0mgit -C /home/runner/work/threema-hunt/threema-hunt log --oneline -5 2>/dev/null; echo "---STATUS---"; git -C /home/runner/work/threema-hunt/threema-hunt status --short 2>/dev/null | head -20
+6945165 triage 2026-08-09-05-26
+---STATUS---
+?? analyst-out.txt
+?? analyst-prompt.txt
+?? ctx.txt
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/state_bigpickle.json; echo "---"; ls /home/runner/work/threema-hunt/threema-hunt/reports/*.md 2>/dev/null; echo "---INVENTORY---"; ls /home/runner/work/threema-hunt/threema-hunt/inventory/
+{"phase": "POC", "target": "chat"}---
+/home/runner/work/threema-hunt/threema-hunt/reports/hypotheses.md
+/home/runner/work/threema-hunt/threema-hunt/reports/valid-bugs.md
+---INVENTORY---
+threema.md
+[0m
+[0m→ [0mRead probe-results.md
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reports/*.md /home/runner/work/threema-hunt/threema-hunt/leads/* 2>/dev/null; echo "---VALID-BUGS tail---"; tail -40 /home/runner/work/threema-hunt/threema-hunt/reports/valid-bugs.md
+-rw-r--r-- 1 runner runner 461873 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/lead-bigpickle.md
+-rw-r--r-- 1 runner runner 522729 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/lead-laguna.md
+-rw-r--r-- 1 runner runner   7686 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/lead-ling3.md
+-rw-r--r-- 1 runner runner   2632 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/lead-longcat.md
+-rw-r--r-- 1 runner runner 430369 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/lead-nemotron3.md
+-rw-r--r-- 1 runner runner  11048 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-18-43.md
+-rw-r--r-- 1 runner runner  13399 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-18-59.md
+-rw-r--r-- 1 runner runner  13429 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-19-20.md
+-rw-r--r-- 1 runner runner  11241 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-19-33.md
+-rw-r--r-- 1 runner runner   6565 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-20-11.md
+-rw-r--r-- 1 runner runner   9511 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-20-59.md
+-rw-r--r-- 1 runner runner  13472 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-21-13.md
+-rw-r--r-- 1 runner runner  10507 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-21-27.md
+-rw-r--r-- 1 runner runner  13665 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-22-10.md
+-rw-r--r-- 1 runner runner  10938 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-22-46.md
+-rw-r--r-- 1 runner runner  17321 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-23-10.md
+-rw-r--r-- 1 runner runner  15373 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-23-19.md
+-rw-r--r-- 1 runner runner  11670 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-23-50.md
+-rw-r--r-- 1 runner runner  14267 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-00-01.md
+-rw-r--r-- 1 runner runner  12628 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-00-19.md
+-rw-r--r-- 1 runner runner  13392 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-02-10.md
+-rw-r--r-- 1 runner runner  13822 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-02-23.md
+-rw-r--r-- 1 runner runner  13194 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-03-52.md
+-rw-r--r-- 1 runner runner  14260 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-04-47.md
+-rw-r--r-- 1 runner runner  15327 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-05-01.md
+-rw-r--r-- 1 runner runner  13092 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-05-29.md
+-rw-r--r-- 1 runner runner  11228 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-05-48.md
+-rw-r--r-- 1 runner runner  10378 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-06-08.md
+-rw-r--r-- 1 runner runner  11257 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-06-56.md
+-rw-r--r-- 1 runner runner  11788 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-07-12.md
+-rw-r--r-- 1 runner runner   9790 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-07-53.md
+-rw-r--r-- 1 runner runner  10972 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-08-07.md
+-rw-r--r-- 1 runner runner  13672 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-08-37.md
+-rw-r--r-- 1 runner runner   6321 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-08-42.md
+-rw-r--r-- 1 runner runner  16455 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-09-21.md
+-rw-r--r-- 1 runner runner  14107 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-09-40.md
+-rw-r--r-- 1 runner runner  14710 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-10-09.md
+-rw-r--r-- 1 runner runner  13912 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-10-27.md
+-rw-r--r-- 1 runner runner  15295 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-10-37.md
+-rw-r--r-- 1 runner runner  11119 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-11-08.md
+-rw-r--r-- 1 runner runner  16740 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-11-28.md
+-rw-r--r-- 1 runner runner  11393 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-11-30.md
+-rw-r--r-- 1 runner runner  10793 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-11-55.md
+-rw-r--r-- 1 runner runner  13925 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-12-00.md
+-rw-r--r-- 1 runner runner  12984 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-12-09.md
+-rw-r--r-- 1 runner runner  11553 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-13-01.md
+-rw-r--r-- 1 runner runner  16362 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-13-15.md
+-rw-r--r-- 1 runner runner  11685 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-13-56.md
+-rw-r--r-- 1 runner runner  11740 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-14-04.md
+-rw-r--r-- 1 runner runner  14858 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-14-28.md
+-rw-r--r-- 1 runner runner  10356 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-14-35.md
+-rw-r--r-- 1 runner runner  10513 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-15-08.md
+-rw-r--r-- 1 runner runner   6321 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-15-31.md
+-rw-r--r-- 1 runner runner  11739 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-16-00.md
+-rw-r--r-- 1 runner runner  15164 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-16-07.md
+-rw-r--r-- 1 runner runner  12405 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-16-15.md
+-rw-r--r-- 1 runner runner   6321 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-17-04.md
+-rw-r--r-- 1 runner runner  12923 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-17-51.md
+-rw-r--r-- 1 runner runner  15904 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-18-04.md
+-rw-r--r-- 1 runner runner  11771 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-18-36.md
+-rw-r--r-- 1 runner runner  12165 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-19-19.md
+-rw-r--r-- 1 runner runner  14685 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-19-46.md
+-rw-r--r-- 1 runner runner  13911 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-19-58.md
+-rw-r--r-- 1 runner runner   9017 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-20-14.md
+-rw-r--r-- 1 runner runner  17271 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-20-33.md
+-rw-r--r-- 1 runner runner  14693 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-20-41.md
+-rw-r--r-- 1 runner runner  13770 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-21-03.md
+-rw-r--r-- 1 runner runner  16811 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-21-11.md
+-rw-r--r-- 1 runner runner  14116 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-21-32.md
+-rw-r--r-- 1 runner runner  12845 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-21-41.md
+-rw-r--r-- 1 runner runner  12743 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-22-05.md
+-rw-r--r-- 1 runner runner  11547 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-22-19.md
+-rw-r--r-- 1 runner runner  12410 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-22-54.md
+-rw-r--r-- 1 runner runner   6471 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-23-19.md
+-rw-r--r-- 1 runner runner   6321 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-23-28.md
+-rw-r--r-- 1 runner runner  10531 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-23-48.md
+-rw-r--r-- 1 runner runner  13968 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-23-59.md
+-rw-r--r-- 1 runner runner  13598 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-09-00-07.md
+-rw-r--r-- 1 runner runner  12837 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-09-01-41.md
+-rw-r--r-- 1 runner runner  11706 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-09-02-39.md
+-rw-r--r-- 1 runner runner  12540 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-09-03-22.md
+-rw-r--r-- 1 runner runner  12484 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-09-04-04.md
+-rw-r--r-- 1 runner runner  13901 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-09-04-50.md
+-rw-r--r-- 1 runner runner  11067 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-09-05-12.md
+-rw-r--r-- 1 runner runner  11067 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-latest.md
+-rw-r--r-- 1 runner runner 167475 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/reports/hypotheses.md
+-rw-r--r-- 1 runner runner  16712 Aug  9 05:37 /home/runner/work/threema-hunt/threema-hunt/reports/valid-bugs.md
+---VALID-BUGS tail---
+  - | Q3 Impact | **CONTINGENT** — backup-ID existence enumeration (400-vs-404 oracle); full backup read requires valid backupId+backupKey |
+  - | Q5 Novel | **NO** — already ACCEPTED in KB (lines 30-31, 62, 79, 101, 106, 125, 128-129, 132, 135, 138); triaged as VALID in valid-bugs.md |
+  - | Q7 Triager accept | **CONDITIONAL** — already accepted as finding in valid-bugs.md; the 400-vs-404 oracle alone is weak but the CORS+Authorization pattern was accepted |
+  - | Q5 Novel | **NO** — already ACCEPTED in KB (lines 26, 74, 77-78, 92, 108, 121, 130, 133, 137); triaged as VALID in valid-bugs.md multiple times |
+  - | Q7 Triager accept | **PASS** — already accepted as finding #3 in valid-bugs.md |
+  - | Q5 Novel | **NO** — already ACCEPTED in KB (lines 32, 63, 75, 81, 95, 115, 118, 123); triaged as HOLD in valid-bugs.md |
+  - | Q7 Triager accept | **HOLD** — already triaged as HOLD/contingent in valid-bugs.md; exploitability depends on undiscovered secondary bug |
+
+- 6 lead(s) marked VALID at 2026-08-08 23:18:20 UTC
+  - | H1 | Directory identity→pubkey bulk oracle (fetch_bulk + GET /identity/{id}) | IDOR | ALL | Duplicate of prior VALID |
+  - | H2 | Safe backup CORS `*` + credentialed cross-origin read + existence oracle | AUTH | bigpickle, laguna, ling3, nemotron3 | Duplicate of prior VALID |
+  - | H3 | Desktop Windows key-storage ACL bypass → DPAPI → identity keypair + DB | MISCONFIG | bigpickle, laguna, ling3, nemotron3 | Duplicate of prior VALID |
+  - | Q4 Proof passive | **YES** — 100-ID batch → 200, only valid pubkey returned, silent omission; 30× POST no 429 |
+  - | Q7 Triager accept | CONDITIONAL — already accepted in valid-bugs.md |
+  - | Q5 Novel | **YES** — not previously triaged in valid-bugs.md or knowledge/index.md |
+
+- 15 lead(s) marked VALID at 2026-08-09 00:41:41 UTC
+  - | Q3 Real impact | ✅ YES | Mass valid-ID + pubkey harvesting → targeted phishing / recon |
+  - | Q5 Novel | ❌ NO | ACCEPTED in KB lines 20-21,27,59,67,80,82,85-86,94,99,104; VALID in valid-bugs.md |
+  - | Q5 Novel | ❌ NO | ACCEPTED in KB lines 26,74,77-78,92,108,121,130,133,137; VALID in valid-bugs.md |
+  - | Q2 Reachable | ⚠️ AUTH_HELPED | Returns 400 without valid backupId+backupKey; no data access demonstrated unauthenticated |
+  - | Q3 Real impact | ⚠️ CONTINGENT | 400-vs-404 oracle (route-existence) weak; full backup read requires valid creds |
+  - | Q5 Novel | ❌ NO | ACCEPTED in KB lines 30-31,62,79,101,106,125,128-129,132,135,138; triaged in valid-bugs.md |
+  - | Q6 Not always-rejected | ❌ NO | CORS \* on credential-gated endpoint is defense-in-depth only (per valid-bugs.md precedent) |
+  - | Q3 Real impact | ⚠️ LOW | Route-presence + parameter oracle; challenge-response still requires valid identity+secret |
+  - | Q5 Novel | ❌ NO | ACCEPTED in KB lines 32,63,75,81,95,115,118,123; REJECTED as standalone in valid-bugs.md (conditional) |
+  - | Q7 Triager accept | ❌ NO | Already REJECTED as standalone in valid-bugs.md |
+  - | Q4 Passive proof | ❌ NO | Requires AUTH_HELPED with valid Work test license |
+  - | Q5 Novel | ❌ NO | ACCEPTED then deemed OUT OF SCOPE in KB lines 36,56; REJECTED in valid-bugs.md |
+  - | Q2 Reachable | ⚠️ AUTH_HELPED | Requires login flow with valid creds to confirm |
+  - | VALID (new, reportable) | **0** |
+  - **Valid leads for reporting this cycle: 0.**
+
+- 6 lead(s) marked VALID at 2026-08-09 03:00:14 UTC
+  - | Q3 Real impact? | ❌ NO | 400 = credential-gated (HTTP Basic Auth backupId:backupKey). No data access without valid credentials. Route-existence oracle (400 vs 404) is weak. |
+  - | Q6 Not always-rejected? | ❌ NO | CORS* on credential-gated endpoint is defense-in-depth per valid-bugs.md precedent |
+  - | Q3 Real impact? | ❌ NO | No data access without valid credentials |
+  - | Q3 Real impact? | ❌ NO | No data access without valid credentials |
+  - | **VALID** | **0** | No novel, reportable findings |
+  - **Valid leads for reporting this cycle: 0.**
+[0m
+[0m$ [0mtail -60 /home/runner/work/threema-hunt/threema-hunt/leads/lead-bigpickle.md
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (+ api.threema.ch, apip.threema.ch)
+confidence: 95
+reasoning: 2000-ID single batch → 200 with valid ECHOECHO pubkey echo, 1999 invalid silently omitted, no 413/429 (this cycle). Prior: 100/500-ID identical, 30 sequential POSTs no rate-limit, CORS `*` POST/GET/OPTIONS/DELETE all 3 hosts, 5 challenge endpoints with parameter-validation-before-lookup oracles.
+evidence_needed: none beyond accepted record — bound ≈ 5.5e8 requests for the full 2^40 base32 space; report-ready.
+verify_steps: PASSIVE — already satisfied; further ceiling probes (10k/50k) only test body-size limit, no impact delta.
+impact: unauth identity→pubkey mapping of full keyspace, privacy/social-graph leakage; Medium-High, fully unauth.
+testability: PASSIVE
+[HYP] Shop order/license surface is server-rendered + session-gated (no unauth endpoint)
+class: OTHER
+asset: https://shop.threema.ch/en
+confidence: 42
+reasoning: 200 storefront SPA with orderId/OrderList/licenses refs but jQuery bundle has no fetch/`$.ajax`/URL literals; order data server-rendered, hCaptcha on flow, CSP `form-action 'self' https://billing.threema.ch` (billing still TIMEOUT). No exploitable unauth endpoint observed.
+evidence_needed: discovery of any order/license API path via rendered-page static analysis; 200/401/302 differential on it.
+verify_steps: PASSIVE — GET /en and parse inline forms/scripts for relative targets; single GET on any discovered path (≤1 rps); record status only, no credential guessing.
+impact: license-key/order data or flow tampering — Low-Medium, contingent on endpoint discovery; today stack/gate recon only.
+testability: PASSIVE
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (203.56.112.231)
+confidence: 50
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET byte-identical 400 with/without bogus Basic; route-existence oracle vs /backup/{x} 404; HSTS/Expect-CT absent on the 400. Valid creds the only missing input.
+evidence_needed: program-issued test backupId:backupKey → status ≠ 400 (200 payload / 401 / 403) + any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff vs known 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[NEXT] RAG: finalize the submission-ready report for the fetch_bulk identity→pubkey enumeration IDOR (ds-apip/api/apip.threema.ch) with the confirmed ceiling ≥ 2000 IDs/request (enumeration cost ≈ 5.5e8 requests for 2^40 space), CORS `*`, absent rate limiting (30 sequential POSTs), and the 5 challenge-parameter validation oracles — closes the highest-confidence fully-unauth finding; probe queue on this asset is saturated.
+[RISK] chat: 35 — g-* silent (5222/443); only saltyrtc-* answers (426, HUMAN_ONLY scope-gated); no data-plane access. | web: 52 — unauth identity→pubkey enumeration now ceiling ≥2000 IDs/request (~5.5e8 req for 2^40), CORS `*`, no rate limit; staging public-namespace divergence; no creds to escalate. | sync: 20 — mediator/rendezvous uniform 403, no in-band surface. | safe: 40 — backup API credential-gated; existence oracle + HSTS gap on 400 + credentialed CORS weaken posture but payload needs creds. | desktop-src: 55 — accepted Windows key-storage ACL bypass (same-user → Ed25519 keypair + SQLCipher DB) plus conditional sandbox/worker gap; local-only.
+## 2026-08-09 02:23:17 UTC [chat] (model bigpickle)
+[HYP] SaltyRTC signaling plane permanent-key fingerprint + framing recon
+class: OTHER
+asset: https://saltyrtc-{00..ff}.threema.ch:443 (quadrant-split 4 nodes: 203.56.112.198/.199, 203.56.114.198/.199)
+confidence: 75
+reasoning: GET → HTTP 426; bare WS upgrade → 101 then 1002; with `Sec-WebSocket-Protocol: v1.saltyrtc.org` → 101 + subprotocol echo then close 3001 (protocol-error); server waits for client-hello (peer key). Only chat-surface host answering in-band while g-* silent on 5222/443.
+evidence_needed: operator scope ruling (saltyrtc-* not in scope.yml g-*.0 pattern) — then server permanent-key fingerprint via one client-hello.
+verify_steps: HUMAN_ONLY — after ruling: `curl -sk --max-time 8 -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Protocol: v1.saltyrtc.org" -H "Sec-WebSocket-Key: {b64}" https://saltyrtc-00.threema.ch/` (≤1 rps); do NOT send client-hello without approval.
+impact: chat-signaling control plane passively reachable where g-* silent; server-key/framing fingerprint + future handshake recon; Low-Medium, scope-gated.
+testability: HUMAN_ONLY
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (203.56.112.231)
+confidence: 50
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route-existence oracle vs /backup/{x} 404; HSTS/Expect-CT absent on the 400. Valid creds the only missing input.
+evidence_needed: program-issued test backupId:backupKey → status ≠ 400 (200+payload or 401/403) + any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs known 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[HYP] Shop order/license surface is server-rendered + session-gated (no unauth endpoint)
+class: OTHER
+asset: https://shop.threema.ch/en
+confidence: 42
+reasoning: 200 storefront SPA with orderId/OrderList/licenses refs but jQuery bundle has no fetch/`$.ajax`/URL literals; order data server-rendered, hCaptcha on flow, CSP `form-action 'self' https://billing.threema.ch` (billing TIMEOUT). No exploitable unauth endpoint observed.
+evidence_needed: discovery of any order/license API path via rendered-page static analysis; 200/401/302 differential on it.
+verify_steps: PASSIVE — GET /en and parse inline forms/scripts for relative targets; single GET on any discovered path (≤1 rps); record status only, no credential guessing.
+impact: license-key/order data or flow tampering — Low-Medium, contingent on endpoint discovery; today stack/gate recon only.
+testability: PASSIVE
+[FINAL]
+[NEXT] RAG: done this cycle — submission-ready report authored at reports/fetch_bulk-identity-enumeration-idor.md (ceiling ≥2000 IDs/req, ≈5.5e8 req for 2^40 space, CORS `*`, no rate limit, 5 challenge-param oracles; CVSS ≈4.3). Next gate is HUMAN: request operator (a) scope ruling on saltyrtc-{00..ff}.threema.ch and (b) program-issued test backupId:backupKey for safe-01.threema.ch to close the two top open items; no further passive probes queued on saturated assets.
+## 2026-08-09 03:58:36 UTC [chat] (model bigpickle)
+## 2026-08-09 04:55:36 UTC [chat] (model bigpickle)
+[0m
+[0m$ [0mtail -30 /home/runner/work/threema-hunt/threema-hunt/reports/analyst-bigpickle.log
+confidence: 50
+  reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route-existence oracle vs /backup/{x} 404; HSTS/Expect-CT absent on the 400. Valid creds the only missing input.
+  evidence_needed: program-issued test backupId:backupKey → status ≠ 400 (200+payload or 401/403) + any Access-Control-Expose-Headers.
+  verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs known 400 baseline.
+  impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+  testability: AUTH_HELPED
+- [HYP] Work staging license-token route catches up to shipped frontend
+  class: MISCONFIG
+  asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+  confidence: 45
+  reasoning: staging bundle v2.25.1 implements GET (returns {username?,password?,expired,hasEmail}) + PUT with zod 64-char token validation, but staging backend returns method-agnostic 404 catch-all; prod bundle has zero /public/* handlers.
+  evidence_needed: backend deploys the route (returns ≠404 for a 64-char token).
+  verify_steps: PASSIVE — single GET `/api-app/public/license/token/{64zeros}` + single GET `/api-app/public/global/settings`, ≤1 rps, weekly cadence; record 404 vs non-404.
+  impact: if route enabled: unauthenticated 64-hex license-token→credential oracle; Low (tokens high-entropy).
+  testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] none dropped — all 3 ≥ 40; no class on the REJECTED list; each has concrete verify_steps. fetch_bulk (95) intentionally NOT re-emitted: finding finalized, probe queue saturated, no new evidence needed — remaining value is report-artifact persistence only (now re-verified).
+- [FINAL] 1) SaltyRTC signaling recon (75, HUMAN_ONLY) 2) Safe backup credentialed read (50, AUTH_HELPED) 3) Work.test license-token catch-up (45, PASSIVE).
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: request operator (a) scope ruling on saltyrtc-{00..ff}.threema.ch (only live chat-control-plane surface, outside scope.yml g-*.0 pattern) and (b) program-issued test backupId:backupKey for safe-01.threema.ch to close the two top open items; meanwhile the #1 finding's report artifact is re-authored and verified at reports/fetch_bulk-identity-enumeration-idor.md; remaining artifact gap = key-storage-acl-bypass-poc.py (requires fresh clone — reposcan-raw clones are empty).
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED IDOR @ ds-apip/api/apip.threema.ch: fetch_bulk identity→pubkey enumeration finding stable (duplicate-VALID); report artifact re-authored this cycle after silent non-persistence, now verified on disk.
+- [LEARN] CONFIRMED class @ pipeline: workspace artifacts do not reliably persist between cycles — deliverables must be re-verified each cycle before citing as done (report was absent despite prior "verified present" log).
+- [LEARN] ACCEPTED OTHER @ reposcan-raw: local source clones are empty placeholders; any RAG PoC authorship requires a fresh git clone (network) or operator-provided source — cannot be done offline.
+
+STEP 7 — RISK SCORE
+- [RISK] chat: 35 — g-* silent (5222/443); saltyrtc-* the only live chat-plane surface, scope-gated; handshake requires auth frame | web: 52 — unauth identity→pubkey enumeration ceiling ≥2000 IDs/req (~5.5e8 req for 2^40), CORS `*`, no rate limit, report finalized; staging public-namespace divergence stable; no creds to escalate | sync: 20 — mediator/rendezvous uniform 403, no in-band surface | safe: 40 — backup API credential-gated; existence oracle + HSTS gap on 400 + credentialed CORS weaken posture, payload needs creds | desktop-src: 55 — accepted Windows key-storage ACL bypass (same-user → Ed25519 keypair + SQLCipher DB) plus conditional sandbox/worker gap; PoC artifact still absent.
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/scripts/; echo "---"; ls /home/runner/work/threema-hunt/threema-hunt/triage/; echo "---KNOWLEDGE---"; ls /home/runner/work/threema-hunt/threema-hunt/knowledge/
+total 16
+drwxr-xr-x  2 runner runner 4096 Aug  9 05:37 .
+drwxr-xr-x 11 runner runner 4096 Aug  9 05:37 ..
+-rw-r--r--  1 runner runner 7771 Aug  9 05:37 sync-issues.py
+---
+run-2026-08-07-20-10.md
+run-2026-08-07-21-03.md
+run-2026-08-07-21-56.md
+run-2026-08-07-22-56.md
+run-2026-08-07-23-55.md
+run-2026-08-08-02-24.md
+run-2026-08-08-04-24.md
+run-2026-08-08-06-01.md
+run-2026-08-08-07-07.md
+run-2026-08-08-07-15.md
+run-2026-08-08-08-07.md
+run-2026-08-08-08-59.md
+run-2026-08-08-09-54.md
+run-2026-08-08-10-53.md
+run-2026-08-08-11-44.md
+run-2026-08-08-13-11.md
+run-2026-08-08-14-00.md
+run-2026-08-08-14-52.md
+run-2026-08-08-15-47.md
+run-2026-08-08-17-19.md
+run-2026-08-08-17-51.md
+run-2026-08-08-17-57.md
+run-2026-08-08-18-19.md
+run-2026-08-08-19-08.md
+run-2026-08-08-19-48.md
+run-2026-08-08-20-15.md
+run-2026-08-08-20-16.md
+run-2026-08-08-20-52.md
+run-2026-08-08-21-18.md
+run-2026-08-08-21-53.md
+run-2026-08-08-22-13.md
+run-2026-08-08-22-53.md
+run-2026-08-08-23-18.md
+run-2026-08-08-23-48.md
+run-2026-08-09-00-41.md
+run-2026-08-09-03-00.md
+run-2026-08-09-04-10.md
+run-2026-08-09-05-26.md
+---KNOWLEDGE---
+index.md
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/probe_cycle.py <<'EOF'
+import urllib.request, time, ssl, json
+ctx = ssl.create_default_context()
+ctx.check_hostname = False; ctx.verify_mode = ssl.CERT_NONE
+def probe(label, url, data=None, method=None, headers=None):
+    req = urllib.request.Request(url, data=data, method=method, headers=headers or {})
+    try:
+        with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+            body = r.read(300)
+            print(f"{label} -> {r.status} len={len(body)} ct={r.headers.get('Content-Type')} cors={r.headers.get('Access-Control-Allow-Origin')}")
+    except urllib.error.HTTPError as e:
+        body = e.read(300)
+        print(f"{label} -> HTTP {e.code} len={len(body)} cors={e.headers.get('Access-Control-Allow-Origin')}")
+    except Exception as e:
+        print(f"{label} -> ERR {e}")
+    time.sleep(1.2)
+
+probe("fetch_bulk", "https://ds-apip.threema.ch/identity/fetch_bulk", data=b'{"identities":["ECHOECHO"]}', method="POST", headers={"Content-Type":"application/json"})
+probe("safe-01 backups", "https://safe-01.threema.ch/backups/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+probe("saltyrtc-00", "https://saltyrtc-00.threema.ch/")
+probe("work.test settings", "https://work.test.threema.ch/api-app/public/global/settings")
+probe("shop.en", "https://shop.threema.ch/en")
+probe("billing", "https://billing.threema.ch/")
+probe("apip identity", "https://apip.threema.ch/identity/ECHOECHO")
+probe("ds-apip-work identities", "https://ds-apip-work.threema.ch/identities")
+EOF
+python3 /tmp/opencode/probe_cycle.py
+fetch_bulk -> 200 len=152 ct=application/json; charset=utf-8 cors=*
+safe-01 backups -> HTTP 400 len=11 cors=*
+saltyrtc-00 -> HTTP 426 len=165 cors=None
+work.test settings -> 200 len=299 ct=application/json cors=None
+shop.en -> 200 len=300 ct=text/html; charset=UTF-8 cors=None
+billing -> 200 len=300 ct=text/html; charset=utf-8 cors=None
+apip identity -> 200 len=135 ct=application/json; charset=utf-8 cors=*
+ds-apip-work identities -> HTTP 401 len=0 cors=*
+[0m
+Delta found: `billing.threema.ch` now resolves and returns HTTP 200 (previously TIMEOUT/DNS fail). Investigating passively.
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/billing_probe.py <<'EOF'
+import urllib.request, ssl, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def probe(label, url, method="GET", headers=None):
+    req = urllib.request.Request(url, method=method, headers=headers or {"User-Agent":"Mozilla/5.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=15, context=ctx) as r:
+            body = r.read(2000)
+            print(f"== {label} -> {r.status} url={r.geturl()}")
+            for h in ["Server","Content-Type","Set-Cookie","Location","X-Powered-By","Strict-Transport-Security","Access-Control-Allow-Origin","Cache-Control","Date"]:
+                v = r.headers.get(h)
+                if v: print(f"   {h}: {v}")
+            print(f"   body[:600]: {body[:600]!r}")
+    except urllib.error.HTTPError as e:
+        print(f"== {label} -> HTTP {e.code}")
+        for h in ["Server","Content-Type","Location","Access-Control-Allow-Origin","Strict-Transport-Security"]:
+            v = e.headers.get(h)
+            if v: print(f"   {h}: {v}")
+        print(f"   body: {e.read(400)!r}")
+    except Exception as e:
+        print(f"== {label} -> ERR {e}")
+    time.sleep(1.2)
+
+probe("billing root", "https://billing.threema.ch/")
+probe("billing head", "https://billing.threema.ch/", method="HEAD")
+probe("billing /en", "https://billing.threema.ch/en")
+probe("billing /login", "https://billing.threema.ch/login")
+EOF
+python3 /tmp/opencode/billing_probe.py
+== billing root -> 200 url=https://threema.com/en
+   Server: nginx
+   Content-Type: text/html; charset=utf-8
+   Strict-Transport-Security: max-age=31104000; includeSubdomains
+   Cache-Control: no-cache, private
+   Date: Sun, 09 Aug 2026 05:38:55 GMT
+   body[:600]: b'<!doctype html>\n<html lang="en" dir="ltr" class="scroll-pt-(--menu-height)">\n<head>\n    <meta charset="utf-8">\n    <meta http-equiv="X-UA-Compatible" content="IE=edge">\n    <meta name="viewport" content="width=device-width, initial-scale=1">\n    <title>Threema &ndash; Secure Communication For Individuals and Companies</title>\n<meta name="description" content="The secure instant messenger from Switzerland. GDPR-compliant messaging for individuals and organizations that value privacy, security and data protection." />\n<meta name="robots" content="index, follow" />\n<meta property="og:type" conten'
+== billing head -> 200 url=https://threema.com/en
+   Server: nginx
+   Content-Type: text/html; charset=utf-8
+   Strict-Transport-Security: max-age=31104000; includeSubdomains
+   Cache-Control: no-cache, private
+   Date: Sun, 09 Aug 2026 05:38:58 GMT
+   body[:600]: b'<!doctype html>\n<html lang="en" dir="ltr" class="scroll-pt-(--menu-height)">\n<head>\n    <meta charset="utf-8">\n    <meta http-equiv="X-UA-Compatible" content="IE=edge">\n    <meta name="viewport" content="width=device-width, initial-scale=1">\n    <title>Threema &ndash; Secure Communication For Individuals and Companies</title>\n<meta name="description" content="The secure instant messenger from Switzerland. GDPR-compliant messaging for individuals and organizations that value privacy, security and data protection." />\n<meta name="robots" content="index, follow" />\n<meta property="og:type" conten'
+== billing /en -> HTTP 404
+   Server: nginx
+   Content-Type: text/html; charset=UTF-8
+   body: b'<!DOCTYPE html>\n<html lang="de">\n\t<head>\n\t\t<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>\n\t\t<link rel="shortcut icon" href="/favicon.ico?v=1" type="image/x-icon"/>\n\t\t<link rel="icon" href="/favicon.ico?v=1" type="image/x-icon"/>\n\t\t<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>\n\t\t<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1"/>\n\t\t<l'
+== billing /login -> HTTP 404
+   Server: nginx
+   Content-Type: text/html; charset=UTF-8
+   body: b'<!DOCTYPE html>\n<html lang="de">\n\t<head>\n\t\t<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>\n\t\t<link rel="shortcut icon" href="/favicon.ico?v=1" type="image/x-icon"/>\n\t\t<link rel="icon" href="/favicon.ico?v=1" type="image/x-icon"/>\n\t\t<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>\n\t\t<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1"/>\n\t\t<l'
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/delta_probe2.py <<'EOF'
+import urllib.request, ssl, time, http.client, socket, ssl as ssllib
+ctx = ssllib.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssllib.CERT_NONE
+
+def raw_redirect(url):
+    try:
+        req = urllib.request.Request(url, method="GET", headers={"User-Agent":"Mozilla/5.0"})
+        opener = urllib.request.build_opener(urllib.request.HTTPRedirectHandler)
+        class NoRedirect(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, req, fp, code, msg, headers, newurl):
+                print(f"   REDIRECT {code} -> {newurl}")
+                return None
+        opener = urllib.request.build_opener(NoRedirect())
+        with opener.open(req, timeout=12, context=ctx) as r:
+            print(f"== {url} -> {r.status} server={r.headers.get('Server')} loc={r.headers.get('Location')}")
+    except urllib.error.HTTPError as e:
+        print(f"== {url} -> HTTP {e.code} loc={e.headers.get('Location')} server={e.headers.get('Server')}")
+    except Exception as e:
+        print(f"== {url} -> ERR {e}")
+    time.sleep(1.2)
+
+raw_redirect("https://billing.threema.ch/")
+raw_redirect("https://broadcast.threema.ch/")
+raw_redirect("https://gateway.threema.ch/")
+raw_redirect("https://billing.test.threema.ch/")
+EOF
+python3 /tmp/opencode/delta_probe2.py
+== https://billing.threema.ch/ -> ERR OpenerDirector.open() got an unexpected keyword argument 'context'
+== https://broadcast.threema.ch/ -> ERR OpenerDirector.open() got an unexpected keyword argument 'context'
+== https://gateway.threema.ch/ -> ERR OpenerDirector.open() got an unexpected keyword argument 'context'
+== https://billing.test.threema.ch/ -> ERR OpenerDirector.open() got an unexpected keyword argument 'context'
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/delta_probe3.py <<'EOF'
+import urllib.request, ssl, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        print(f"   REDIRECT {code} -> {newurl}")
+        return None
+
+def raw_redirect(url):
+    try:
+        opener = urllib.request.build_opener(NoRedirect())
+        req = urllib.request.Request(url, method="GET", headers={"User-Agent":"Mozilla/5.0"})
+        with opener.open(req, timeout=12) as r:
+            print(f"== {url} -> {r.status} server={r.headers.get('Server')} loc={r.headers.get('Location')}")
+    except urllib.error.HTTPError as e:
+        print(f"== {url} -> HTTP {e.code} loc={e.headers.get('Location')} server={e.headers.get('Server')} hsts={e.headers.get('Strict-Transport-Security')}")
+    except Exception as e:
+        print(f"== {url} -> ERR {e}")
+    time.sleep(1.2)
+
+raw_redirect("https://billing.threema.ch/")
+raw_redirect("https://billing.threema.ch/api")
+raw_redirect("https://billing.threema.ch/api/v1")
+raw_redirect("https://billing.test.threema.ch/")
+raw_redirect("https://broadcast.threema.ch/")
+raw_redirect("https://gateway.threema.ch/")
+EOF
+python3 /tmp/opencode/delta_probe3.py
+REDIRECT 301 -> https://threema.ch/
+== https://billing.threema.ch/ -> HTTP 301 loc=https://threema.ch server=nginx hsts=max-age=31104000; includeSubdomains
+== https://billing.threema.ch/api -> HTTP 404 loc=None server=nginx hsts=None
+== https://billing.threema.ch/api/v1 -> HTTP 404 loc=None server=nginx hsts=None
+== https://billing.test.threema.ch/ -> ERR <urlopen error [Errno 101] Network is unreachable>
+   REDIRECT 301 -> https://broadcast.threema.ch/en/login
+== https://broadcast.threema.ch/ -> HTTP 301 loc=/en/login server=nginx hsts=max-age=31104000; includeSubdomains
+   REDIRECT 302 -> https://gateway.threema.ch/en
+== https://gateway.threema.ch/ -> HTTP 302 loc=https://gateway.threema.ch/en server=nginx hsts=max-age=31104000; includeSubdomains
+[0m
+Major delta: `broadcast.threema.ch`, `gateway.threema.ch`, and `billing.threema.ch` were all TIMEOUT before — now they respond. Probing the newly-live surfaces.
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/live_probe.py <<'EOF'
+import urllib.request, ssl, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        print(f"   REDIRECT {code} -> {newurl}")
+        return None
+
+def probe(label, url, method="GET"):
+    try:
+        opener = urllib.request.build_opener(NoRedirect())
+        req = urllib.request.Request(url, method=method, headers={"User-Agent":"Mozilla/5.0","Accept":"text/html"})
+        with opener.open(req, timeout=15) as r:
+            body = r.read(1200)
+            print(f"== {label} -> {r.status} url={r.geturl()}")
+            for h in ["Server","Content-Type","Set-Cookie","Location","Strict-Transport-Security","X-Powered-By","Content-Security-Policy"]:
+                v = r.headers.get(h)
+                if v: print(f"   {h}: {v[:200]}")
+            print(f"   body[:400]: {body[:400]!r}")
+    except urllib.error.HTTPError as e:
+        print(f"== {label} -> HTTP {e.code}")
+        for h in ["Server","Content-Type","Location","Strict-Transport-Security","Set-Cookie"]:
+            v = e.headers.get(h)
+            if v: print(f"   {h}: {v[:200]}")
+        print(f"   body[:300]: {e.read(300)!r}")
+    except Exception as e:
+        print(f"== {label} -> ERR {e}")
+    time.sleep(1.3)
+
+probe("broadcast /en/login", "https://broadcast.threema.ch/en/login")
+probe("gateway /en", "https://gateway.threema.ch/en")
+probe("gateway /en/login", "https://gateway.threema.ch/en/login")
+EOF
+python3 /tmp/opencode/live_probe.py
+== broadcast /en/login -> 200 url=https://broadcast.threema.ch/en/login
+   Server: nginx
+   Content-Type: text/html; charset=UTF-8
+   Set-Cookie: SESSIONID=980bgfj97hfbqa0au2gp02682e; path=/; secure; HttpOnly; SameSite=Strict
+   Strict-Transport-Security: max-age=31104000; includeSubdomains
+   Content-Security-Policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-broadc
+   body[:400]: b'<!DOCTYPE html>\n<html lang="en"><head><title>Log in \xe2\x80\x93 Threema Broadcast</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>\n<meta name="sentry_dsn" content="https://b0684a0dbe2f422fa9d6708c5466ca20@bugs.threema.ch/5"/>\n<meta name="sentry_environm'
+   REDIRECT 302 -> https://gateway.threema.ch/en/login
+== gateway /en -> HTTP 302
+   Server: nginx
+   Content-Type: text/html; charset=UTF-8
+   Location: https://gateway.threema.ch/en/login
+   Strict-Transport-Security: max-age=31104000; includeSubdomains
+   Set-Cookie: SESSIONID=9iugrni8k0sa3ttn7a4m1ue0t4; path=/; secure; HttpOnly; SameSite=Strict
+   body[:300]: b''
+== gateway /en/login -> 200 url=https://gateway.threema.ch/en/login
+   Server: nginx
+   Content-Type: text/html; charset=UTF-8
+   Set-Cookie: SESSIONID=iftufgicec274ukh9ra7ga5ac9; path=/; secure; HttpOnly; SameSite=Strict
+   Strict-Transport-Security: max-age=31104000; includeSubdomains
+   Content-Security-Policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-gatewa
+   body[:400]: b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Gateway - Send and receive Threema messages with your own software.</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>\n<meta name="sentry_dsn" content="https://418f2f46e5564b94ab81fccaf023616a@b'
+[0m
+Major delta confirmed: three previously-TIMEOUT in-scope hosts now live. Probing their API surfaces passively.
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/broadcast_api.py <<'EOF'
+import urllib.request, ssl, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+def probe(label, url, method="GET"):
+    try:
+        opener = urllib.request.build_opener(NoRedirect())
+        req = urllib.request.Request(url, method=method, headers={"User-Agent":"Mozilla/5.0","Accept":"application/json,text/html"})
+        with opener.open(req, timeout=12) as r:
+            b = r.read(200)
+            print(f"== {label} -> {r.status} ct={r.headers.get('Content-Type')} loc={r.headers.get('Location')} cors={r.headers.get('Access-Control-Allow-Origin')} | {b[:120]!r}")
+    except urllib.error.HTTPError as e:
+        print(f"== {label} -> HTTP {e.code} ct={e.headers.get('Content-Type')} loc={e.headers.get('Location')} cors={e.headers.get('Access-Control-Allow-Origin')}")
+    except Exception as e:
+        print(f"== {label} -> ERR {e}")
+    time.sleep(1.3)
+
+# Broadcast API surface (mirrors work.test patterns)
+probe("br /api-app/public/global/settings", "https://broadcast.threema.ch/api-app/public/global/settings")
+probe("br /api/public/global/settings", "https://broadcast.threema.ch/api/public/global/settings")
+probe("br /ping", "https://broadcast.threema.ch/ping")
+probe("br /info/ping.php", "https://broadcast.threema.ch/info/ping.php")
+probe("br /api-app/me/profile", "https://broadcast.threema.ch/api-app/me/profile")
+probe("br /api/me", "https://broadcast.threema.ch/api/me")
+# Gateway API surface
+probe("gw /api/public/global/settings", "https://gateway.threema.ch/api/public/global/settings")
+probe("gw /api/v1/", "https://gateway.threema.ch/api/v1/")
+probe("gw /ping", "https://gateway.threema.ch/ping")
+probe("gw /info/ping.php", "https://gateway.threema.ch/info/ping.php")
+EOF
+python3 /tmp/opencode/broadcast_api.py
+== br /api-app/public/global/settings -> HTTP 404 ct=text/html; charset=UTF-8 loc=None cors=None
+== br /api/public/global/settings -> HTTP 404 ct=text/html; charset=UTF-8 loc=None cors=None
+== br /ping -> 204 ct=application/json loc=None cors=None | b''
+== br /info/ping.php -> HTTP 404 ct=text/html; charset=utf-8 loc=None cors=None
+== br /api-app/me/profile -> HTTP 404 ct=text/html; charset=UTF-8 loc=None cors=None
+== br /api/me -> HTTP 404 ct=text/html; charset=UTF-8 loc=None cors=None
+== gw /api/public/global/settings -> HTTP 403 ct=text/html; charset=utf-8 loc=None cors=None
+== gw /api/v1/ -> HTTP 403 ct=text/html; charset=utf-8 loc=None cors=None
+== gw /ping -> HTTP 404 ct=text/html; charset=UTF-8 loc=None cors=None
+== gw /info/ping.php -> HTTP 404 ct=text/html; charset=utf-8 loc=None cors=None
+[0m
+New surfaces confirmed. Let me extract more of the login pages to map their API surface.
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/html_scan.py <<'EOF'
+import urllib.request, ssl, re, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def get(url):
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0","Accept":"text/html"})
+        with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+            return r.read().decode("utf-8","replace")
+    except Exception as e:
+        return f"ERR {e}"
+
+for name, url in [("broadcast","https://broadcast.threema.ch/en/login"),("gateway","https://gateway.threema.ch/en/login")]:
+    html = get(url)
+    time.sleep(1.3)
+    if html.startswith("ERR"):
+        print(name, html); continue
+    print(f"=== {name} len={len(html)}")
+    for pat in [r'action="([^"]+)"', r'src="([^"]+\.js[^"]*)"', r'url\(?["\']?([^"\')]+\.js[^"\')]*)', r'"/[a-zA-Z0-9_\-./?&=]+"']:
+        found = sorted(set(re.findall(pat, html)))
+        if found:
+            print(f"  [{pat}]:")
+            for f in found[:40]:
+                print(f"    {f[:150]}")
+EOF
+python3 /tmp/opencode/html_scan.py
+=== broadcast len=5094
+  [action="([^"]+)"]:
+    /en/login
+  [src="([^"]+\.js[^"]*)"]:
+    /cache/broadcast_public.js?v%3D2.28.1
+  ["/[a-zA-Z0-9_\-./?&=]+"]:
+    "/de/anmelden"
+    "/en"
+    "/en/forgot-password"
+    "/en/login"
+    "/en/privacy"
+    "/en/terms-of-service"
+    "/es/iniciar-sesion"
+    "/favicon.ico?v=2"
+    "/fr/connexion"
+    "/images/logo_icon.svg?v=1"
+=== gateway len=3742
+  [src="([^"]+\.js[^"]*)"]:
+    /cache/gateway_public.js?O5v86dAdwPboCbz
+  ["/[a-zA-Z0-9_\-./?&=]+"]:
+    "/cache/gateway_public.css?O5v86dAdwPboCbz"
+    "/cache/gateway_public.js?O5v86dAdwPboCbz"
+    "/de/login"
+    "/en"
+    "/en/contact"
+    "/en/forgot-password"
+    "/en/login"
+    "/en/privacy"
+    "/en/signup"
+    "/en/terms-of-service"
+    "/favicon.ico?v=5"
+    "/images/logo_icon.svg?v=3"
+[0m
+New live surfaces confirmed. Checking the JS bundles for API routes (mirroring work.test pattern analysis).
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/js_api.py <<'EOF'
+import urllib.request, ssl, re, time, hashlib
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=20, context=ctx) as r:
+        return r.read()
+
+for name, url in [("broadcast_public","https://broadcast.threema.ch/cache/broadcast_public.js?v%3D2.28.1"),
+                  ("gateway_public","https://gateway.threema.ch/cache/gateway_public.js?O5v86dAdwPboCbz")]:
+    try:
+        b = get(url); time.sleep(1.3)
+        print(f"=== {name} len={len(b)} sha256={hashlib.sha256(b).hexdigest()[:16]}")
+        txt = b.decode("utf-8","replace")
+        for pat in [r'"/api[^"\\]*"', r"'/api[^'\\]*'", r'`/api[^`\\]*`', r'"/[a-zA-Z]+/[a-zA-Z]+/[a-zA-Z]+(?:\.[a-z]+)?[^"\\]*"']:
+            found = sorted(set(re.findall(pat, txt)))
+            if found:
+                print(f"  [{pat}]: {len(found)} uniques")
+                for f in found[:30]:
+                    print(f"    {f[:120]}")
+    except Exception as e:
+        print(f"{name} ERR {e}")
+EOF
+python3 /tmp/opencode/js_api.py
+=== broadcast_public len=1125461 sha256=e3fbfe8deca39eec
+  ["/[a-zA-Z]+/[a-zA-Z]+/[a-zA-Z]+(?:\.[a-z]+)?[^"\\]*"]: 3 uniques
+    "/images/icon/document-delivery.svg"
+    "/images/icon/schedule.svg"
+    "/web/images/icon/attach_file.svg"
+=== gateway_public len=376114 sha256=dd2fc6459d053693
+  ["/api[^"\\]*"]: 1 uniques
+    "/api/"
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/js_api2.py <<'EOF'
+import urllib.request, ssl, re, time, hashlib
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=20, context=ctx) as r:
+        return r.read()
+
+b = get("https://gateway.threema.ch/cache/gateway_public.js?O5v86dAdwPboCbz"); time.sleep(1.3)
+txt = b.decode("utf-8","replace")
+# look for url building / api paths / endpoints
+for pat in [r'api/[\w\-/\.\$\{\}]+', r'"/(?:v\d+/)?[\w\-]+(/[\w\-\$\{\}]+)+"', r"'/(?:v\d+/)?[\w\-]+(/[\w\-\$\{\}]+)+'", r'\.get\(["\'`][^"\'`]+', r'\.post\(["\'`][^"\'`]+', r'axios\.\w+\(["\'`][^"\'`]+', r'fetch\(["\'`][^"\'`]+']:
+    found = sorted(set(re.findall(pat, txt)))
+    if found:
+        print(f"  [{pat}]: {len(found)}")
+        for f in found[:40]:
+            print(f"    {f[:130]}")
+EOF
+python3 /tmp/opencode/js_api2.py
+[\.get\(["\'`][^"\'`]+]: 2
+    .get('Retry-After
+    .get('X-Sentry-Rate-Limits
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/js_api3.py <<'EOF'
+import urllib.request, ssl, re, time, hashlib
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=20, context=ctx) as r:
+        return r.read()
+
+b = get("https://broadcast.threema.ch/cache/broadcast_public.js?v%3D2.28.1"); time.sleep(1.3)
+txt = b.decode("utf-8","replace")
+print(f"broadcast len={len(b)}")
+for pat in [r'["\'`](/[a-zA-Z][\w\-/\.]*(?:\.[a-z]{2,5})?["\'`])', r'\.get\(["\'`][^"\'`]{3,60}', r'\.post\(["\'`][^"\'`]{3,60}', r'fetch\(["\'`][^"\'`]{3,60}', r'api[^"\'`\s]{2,60}']:
+    found = sorted(set(re.findall(pat, txt)))
+    if found:
+        print(f"  [{pat[:40]}...]: {len(found)}")
+        for f in found[:50]:
+            print(f"    {f[:130]}")
+EOF
+python3 /tmp/opencode/js_api3.py
+broadcast len=1125461
+  [["\'`](/[a-zA-Z][\w\-/\.]*(?:\.[a-z]{2,5...]: 8
+    /currencies"
+    /emoji-picker.html"
+    /emoji-picker.html'
+    /images/e1/'
+    /images/icon/document-delivery.svg"
+    /images/icon/schedule.svg"
+    /ping'
+    /web/images/icon/attach_file.svg"
+  [\.get\(["\'`][^"\'`]{3,60}...]: 10
+    .get("/emoji-picker.html
+    .get("Retry-After
+    .get("X-Sentry-Rate-Limits
+    .get("content-type
+    .get("length
+    .get("sentry.dsc
+    .get("sentry.sample_rand
+    .get("sentry.sample_rate
+    .get("set-cookie
+    .get('/ping
+  [api[^"\'`\s]{2,60}...]: 7
+    apierrors.${js(t)}
+    apierrors.addEventListener
+    apierrors.handleEvent
+    apierrors.requestAnimationFrame
+    apierrors.xhr.${i}
+    apiers.
+    apitalize
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/br_api.py <<'EOF'
+import urllib.request, ssl, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def probe(label, url, method="GET"):
+    req = urllib.request.Request(url, method=method, headers={"User-Agent":"Mozilla/5.0","Accept":"application/json,text/html"})
+    try:
+        with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+            b = r.read(400)
+            print(f"== {label} -> {r.status} ct={r.headers.get('Content-Type')} | {b[:200]!r}")
+    except urllib.error.HTTPError as e:
+        print(f"== {label} -> HTTP {e.code} ct={e.headers.get('Content-Type')} | {e.read(200)!r}")
+    except Exception as e:
+        print(f"== {label} -> ERR {e}")
+    time.sleep(1.3)
+
+probe("br /currencies", "https://broadcast.threema.ch/currencies")
+probe("br /currencies/", "https://broadcast.threema.ch/currencies/")
+probe("br /api/currencies", "https://broadcast.threema.ch/api/currencies")
+probe("br /ping", "https://broadcast.threema.ch/ping")
+EOF
+python3 /tmp/opencode/br_api.py
+== br /currencies -> HTTP 404 ct=text/html; charset=UTF-8 | b''
+== br /currencies/ -> HTTP 404 ct=text/html; charset=UTF-8 | b''
+== br /api/currencies -> HTTP 404 ct=text/html; charset=UTF-8 | b''
+== br /ping -> 204 ct=application/json | b''
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/br2.py <<'EOF'
+import urllib.request, ssl, time, re
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=20, context=ctx) as r:
+        return r.read()
+
+b = get("https://broadcast.threema.ch/cache/broadcast_public.js?v%3D2.28.1")
+txt = b.decode("utf-8","replace")
+# search for '/api/' occurrences with context
+for m in re.finditer(r'.{80}/api/.{80}', txt):
+    print("...", m.group(0)[:220].replace("\n"," "), "...")
+    print("---")
+EOF
+python3 /tmp/opencode/br2.py
+... :"",n=t.port?`:${t.port}`:"";return`${e}//${t.host}${n}${t.path?`/${t.path}`:""}/api/`}function gM(t){return`${pM(t)}${t.projectId}/envelope/`}function mM(t,e){const ...
+---
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/br3.py <<'EOF'
+import urllib.request, ssl, time, re
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=20, context=ctx) as r:
+        return r.read()
+
+b = get("https://broadcast.threema.ch/cache/broadcast_public.js?v%3D2.28.1")
+txt = b.decode("utf-8","replace")
+# find how api base is built - search for "baseUrl" / "API_BASE" / endpoint definitions
+for m in re.finditer(r'.{60}(baseUrl|apiBase|apiUrl|API_ROOT|endpoint|api/|\.threema\.ch/api).{60}', txt):
+    print("...", m.group(0)[:200].replace("\n"," "), "...")
+    print("---")
+EOF
+python3 /tmp/opencode/br3.py
+... rt}`:"";return`${e}//${t.host}${n}${t.path?`/${t.path}`:""}/api/`}function gM(t){return`${pM(t)}${t.projectId}/envelope/`}fu ...
+---
+... lowAbsoluteUrls:n.allowAbsoluteUrls=!0),pc.assertOptions(n,{baseUrl:Wt.spelling("baseURL"),withXsrfToken:Wt.spelling("withXSRFT ...
+---
+... "},startEndpoint:{reflect:!1,type:"String",attribute:"start-endpoint"},completeEndpoint:{reflect:!1,type:"String",attribute:"com ...
+---
+... n,{startEndpoint:{reflect:!1,type:"String",attribute:"start-endpoint"},completeEndpoint:{reflect:!1,type:"String",attribute:"com ...
+---
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/gw2.py <<'EOF'
+import urllib.request, ssl, time, re
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=20, context=ctx) as r:
+        return r.read()
+
+b = get("https://gateway.threema.ch/cache/gateway_public.js?O5v86dAdwPboCbz")
+txt = b.decode("utf-8","replace")
+print("gw len", len(b))
+# find endpoint-ish strings: /xx/yy paths
+for m in re.finditer(r'["\'`](/[\w\-]+/[\w\-/]+)["\'`]', txt):
+    s = m.group(1)
+    if 'cache' in s or s.endswith('.svg') or s.endswith('.png') or s.endswith('.css') or s.endswith('.js'): continue
+    print(s)
+print("=== gw unique path-ish ===")
+seen=set()
+for m in re.finditer(r'["\'`](/[\w\-/\.]+)["\'`]', txt):
+    s=m.group(1)
+    if s in seen: continue
+    seen.add(s)
+    if any(x in s for x in ['.svg','.png','.css','.js','.ico']): continue
+    print(s[:120])
+EOF
+python3 /tmp/opencode/gw2.py
+gw len 376114
+=== gw unique path-ish ===
+//
+/api/
+/currencies
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/gw3.py <<'EOF'
+import urllib.request, ssl, time, re
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=20, context=ctx) as r:
+        return r.read()
+
+b = get("https://gateway.threema.ch/cache/gateway_public.js?O5v86dAdwPboCbz")
+txt = b.decode("utf-8","replace")
+# currencies context
+for m in re.finditer(r'.{100}currencies.{200}', txt):
+    print("...", m.group(0)[:320].replace("\n"," "))
+    print("---")
+# how are API calls made - look for fetch/api patterns in app code (non-sentry)
+for m in re.finditer(r'.{80}axios.{120}', txt):
+    print("AX:", m.group(0)[:220].replace("\n"," "))
+    print("---")
+EOF
+python3 /tmp/opencode/gw3.py
+... ion(k,v){data.push({"name":"amount__"+k,"value":$(v).data('amount')})});$.ajax({method:"POST",url:"/currencies",data:data}).always(function(e){currencies=e;$('.currency-switcher').each(function(){let $select=$('<select/>');$select.change(function(){switchCurrentCurrency($select.find(':selected').val())});$(th
+---
+... ields=null;function switchCurrentCurrency(currency){if(currentCurrency!=currency){let x=null;$.each(currencies,function(foo,e){if(e.code==currency&&null===x){x=e}});if(x!=null){currentCurrency=x;amountFields.each(function(){let a=$(this);if(a.data('value-'+currency)){a.text(a.data('value-'+currency));if(a.dat
+---
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/cur.py <<'EOF'
+import urllib.request, ssl, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def probe(label, url, method="POST", data=None, headers=None):
+    req = urllib.request.Request(url, method=method, data=data, headers=headers or {"User-Agent":"Mozilla/5.0","Accept":"application/json,text/html"})
+    try:
+        with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+            b = r.read(600)
+            print(f"== {label} -> {r.status} ct={r.headers.get('Content-Type')} cors={r.headers.get('Access-Control-Allow-Origin')} | {b[:300]!r}")
+    except urllib.error.HTTPError as e:
+        print(f"== {label} -> HTTP {e.code} ct={e.headers.get('Content-Type')} | {e.read(300)!r}")
+    except Exception as e:
+        print(f"== {label} -> ERR {e}")
+    time.sleep(1.3)
+
+probe("gw POST /currencies", "https://gateway.threema.ch/currencies")
+probe("br POST /currencies", "https://broadcast.threema.ch/currencies")
+probe("gw GET /currencies", "https://gateway.threema.ch/currencies", method="GET")
+probe("br GET /currencies", "https://broadcast.threema.ch/currencies", method="GET")
+EOF
+python3 /tmp/opencode/cur.py
+== gw POST /currencies -> HTTP 404 ct=text/html; charset=UTF-8 | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Gateway - Send and receive Threema messages with your own software.</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>\n<meta http-equiv="Content-Type" content="tex'
+== br POST /currencies -> 200 ct=application/json cors=None | b'[{"code":"CHF","name":null,"current":true,"values":{}},{"code":"EUR","name":null,"current":false,"values":{}},{"code":"USD","name":null,"current":false,"values":{}}]'
+== gw GET /currencies -> HTTP 404 ct=text/html; charset=UTF-8 | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Gateway - Send and receive Threema messages with your own software.</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>\n<meta http-equiv="Content-Type" content="tex'
+== br GET /currencies -> HTTP 404 ct=text/html; charset=UTF-8 | b''
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/br_login.py <<'EOF'
+import urllib.request, ssl, time, re
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0","Accept":"text/html"})
+    with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+        return r.read().decode("utf-8","replace")
+
+html = get("https://broadcast.threema.ch/en/login")
+time.sleep(1.3)
+# find form fields and hidden inputs + ajax targets
+for m in re.finditer(r'<form[^>]*>', html):
+    print("FORM:", m.group(0)[:200])
+for m in re.finditer(r'<input[^>]*>', html):
+    print("INPUT:", m.group(0)[:200])
+# look for fetch/xhr in inline script
+for m in re.finditer(r'.{60}(fetch|XMLHttpRequest|\.ajax|csrf|token).{80}', html, re.I):
+    print("INLINE:", m.group(0)[:200])
+EOF
+python3 /tmp/opencode/br_login.py
+FORM: <form method="POST" action="/en/login">
+INPUT: <input type="hidden" name="r" value="https://broadcast.threema.ch/"/>
+INPUT: <input class="" type="hidden" name="csrf_public_login_access" id="csrf_public_login_access" value="7ed86276d7868508c2f9fbc6b4c5c9817889cb5e"/>
+INPUT: <input type="text" name="username" id="username" value="" required placeholder="Email" autofocus autocomplete="username webauthn" class=""/>
+INPUT: <input type="password" name="password" id="password" value="" required autocomplete="current-password webauthn" placeholder="Password" class=""/>
+INPUT: <input type="submit" style="position: absolute; left: -99999px"/>
+INLINE: ions, please log in.</p><input class="" type="hidden" name="csrf_public_login_access" id="csrf_public_login_access" value="7ed86276d7868508c2f9f
+INLINE: sskey/start' complete-endpoint='/en/login/passkey/complete' csrf-token='7ed86276d7868508c2f9fbc6b4c5c9817889cb5e' redirect-url='/en/login?r=http
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/passkey.py <<'EOF'
+import urllib.request, ssl, time, re
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def probe(label, url, method="GET", data=None, headers=None):
+    req = urllib.request.Request(url, method=method, data=data, headers=headers or {"User-Agent":"Mozilla/5.0","Accept":"application/json,text/html"})
+    try:
+        with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+            b = r.read(400)
+            print(f"== {label} -> {r.status} ct={r.headers.get('Content-Type')} | {b[:250]!r}")
+    except urllib.error.HTTPError as e:
+        print(f"== {label} -> HTTP {e.code} ct={e.headers.get('Content-Type')} | {e.read(250)!r}")
+    except Exception as e:
+        print(f"== {label} -> ERR {e}")
+    time.sleep(1.3)
+
+probe("br /en/login/passkey/start GET", "https://broadcast.threema.ch/en/login/passkey/start")
+probe("br /en/login/passkey/complete GET", "https://broadcast.threema.ch/en/login/passkey/complete")
+probe("br /en/login GET (no r)", "https://broadcast.threema.ch/en/login")
+probe("br /en/forgot-password", "https://broadcast.threema.ch/en/forgot-password")
+EOF
+python3 /tmp/opencode/passkey.py
+== br /en/login/passkey/start GET -> HTTP 404 ct=text/html; charset=UTF-8 | b''
+== br /en/login/passkey/complete GET -> HTTP 404 ct=text/html; charset=UTF-8 | b''
+== br /en/login GET (no r) -> 200 ct=text/html; charset=UTF-8 | b'<!DOCTYPE html>\n<html lang="en"><head><title>Log in \xe2\x80\x93 Threema Broadcast</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>\n<meta http-equiv="Content-Type" content="'
+== br /en/forgot-password -> 200 ct=text/html; charset=UTF-8 | b'<!DOCTYPE html>\n<html lang="en"><head><title>Forgot password? \xe2\x80\x93 Threema Broadcast</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>\n<meta http-equiv="Content-Type"'
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/forgot.py <<'EOF'
+import urllib.request, ssl, time, re
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0","Accept":"text/html"})
+    with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+        return r.read().decode("utf-8","replace")
+for name,url in [("br","https://broadcast.threema.ch/en/forgot-password"),("gw","https://gateway.threema.ch/en/login")]:
+    html = get(url); time.sleep(1.3)
+    print(f"=== {name}")
+    for m in re.finditer(r'<form[^>]*>', html):
+        print("FORM:", m.group(0)[:250])
+    for m in re.finditer(r'<input[^>]*>', html):
+        print("INPUT:", m.group(0)[:250])
+EOF
+python3 /tmp/opencode/forgot.py
+=== br
+FORM: <form method="POST">
+INPUT: <input type="email" name="email" id="email" value="" required placeholder="Email" class=""/>
+INPUT: <input type="submit" style="position: absolute; left: -99999px"/>
+=== gw
+FORM: <form method="POST">
+INPUT: <input class="" type="hidden" name="csrf_gwlogin" id="csrf_gwlogin" value="0bfdb53986bfd1ef5a7f082a8789d2b91e26c896"/>
+INPUT: <input type="text" name="username" id="username" value="" required placeholder="Email" autofocus class=""/>
+INPUT: <input type="password" name="password" id="password" value="" required placeholder="Password" class=""/>
+INPUT: <input type="submit" style="position: absolute; left: -99999px" onclick="if (typeof hcaptcha !== 'undefined' &#38;&#38; !hcaptcha.getResponse()) { event.preventDefault(); hcaptcha.execute({async: true}).then(() =&#62; $(this).closest('form').submit()
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/gw403.py <<'EOF'
+import urllib.request, ssl, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def probe(label, url, method="GET", headers=None):
+    req = urllib.request.Request(url, method=method, headers=headers or {"User-Agent":"Mozilla/5.0","Accept":"*/*"})
+    try:
+        with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+            b = r.read(400)
+            print(f"== {label} -> {r.status} ct={r.headers.get('Content-Type')} | {b[:250]!r}")
+    except urllib.error.HTTPError as e:
+        b = e.read(300)
+        print(f"== {label} -> HTTP {e.code} ct={e.headers.get('Content-Type')} | {b[:200]!r}")
+    except Exception as e:
+        print(f"== {label} -> ERR {e}")
+    time.sleep(1.3)
+
+probe("gw /api/ GET", "https://gateway.threema.ch/api/")
+probe("gw /api/ POST", "https://gateway.threema.ch/api/", method="POST")
+probe("gw /api OPTIONS", "https://gateway.threema.ch/api/", method="OPTIONS")
+probe("gw /en/signup", "https://gateway.threema.ch/en/signup")
+probe("gw /en/contact", "https://gateway.threema.ch/en/contact")
+probe("gw /en/forgot-password", "https://gateway.threema.ch/en/forgot-password")
+EOF
+python3 /tmp/opencode/gw403.py
+== gw /api/ GET -> HTTP 403 ct=text/html; charset=utf-8 | b'<html>\r\n<head><title>403 Forbidden</title></head>\r\n<body>\r\n<center><h1>403 Forbidden</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n'
+== gw /api/ POST -> HTTP 403 ct=text/html; charset=utf-8 | b'<html>\r\n<head><title>403 Forbidden</title></head>\r\n<body>\r\n<center><h1>403 Forbidden</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n'
+== gw /api OPTIONS -> HTTP 403 ct=text/html; charset=utf-8 | b'<html>\r\n<head><title>403 Forbidden</title></head>\r\n<body>\r\n<center><h1>403 Forbidden</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n'
+== gw /en/signup -> 200 ct=text/html; charset=UTF-8 | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Gateway - Send and receive Threema messages with your own software.</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable='
+== gw /en/contact -> 200 ct=text/html; charset=UTF-8 | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Gateway - Send and receive Threema messages with your own software.</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable='
+== gw /en/forgot-password -> 200 ct=text/html; charset=UTF-8 | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Gateway - Send and receive Threema messages with your own software.</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable='
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/gw_signup.py <<'EOF'
+import urllib.request, ssl, time, re
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0","Accept":"text/html"})
+    with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+        hdrs = dict(r.headers)
+        return r.read().decode("utf-8","replace"), hdrs
+
+html, hdrs = get("https://gateway.threema.ch/en/signup")
+time.sleep(1.3)
+print("=== gw signup headers")
+for h in ["Strict-Transport-Security","Content-Security-Policy","Set-Cookie","Server","X-Frame-Options","Referrer-Policy","Expect-CT"]:
+    if hdrs.get(h): print(f"  {h}: {hdrs[h][:300]}")
+for m in re.finditer(r'<form[^>]*>', html):
+    print("FORM:", m.group(0)[:300])
+for m in re.finditer(r'<input[^>]*>', html):
+    print("INPUT:", m.group(0)[:250])
+for m in re.finditer(r'action="([^"]+)"', html):
+    print("ACTION:", m.group(1))
+EOF
+python3 /tmp/opencode/gw_signup.py
+=== gw signup headers
+  Strict-Transport-Security: max-age=31104000; includeSubdomains
+  Content-Security-Policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-gateway.threema.ch; frame-src https://hcaptcha-assets.threema.ch; img-src 'self' https://static.threema.ch
+  Set-Cookie: SESSIONID=e565dakreaomp1cpj00t0o6bde; path=/; secure; HttpOnly; SameSite=Strict
+  Server: nginx
+  X-Frame-Options: DENY
+  Referrer-Policy: no-referrer
+  Expect-CT: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+FORM: <form method="POST">
+INPUT: <input type="text" name="name" id="name" value="" required placeholder="Name" class=""/>
+INPUT: <input type="email" name="email" id="email" value="" required placeholder="Email" class=""/>
+INPUT: <input type="password" name="password" id="password" value="" required placeholder="Password" class=""/>
+INPUT: <input class="" type="hidden" name="client[csrf_client]" id="client__csrf_client" value="5026ec4b6f4bfd81b7ec60ca6dc82553801f1d83"/>
+INPUT: <input type="text" name="client[company_name]" id="client__company_name" value="" placeholder="Company" class=""/>
+INPUT: <input type="text" name="client[address][street]" id="client__address__street" value="" required style="flex: 1" placeholder="Address" class=""/>
+INPUT: <input type="text" name="client[address][street_nr]" id="client__address__street_nr" value="" style="width: 4em;" placeholder="No." class=""/>
+INPUT: <input type="text" name="client[address][zip]" id="client__address__zip" value="" required style="width: 8em;" placeholder="ZIP" class=""/>
+INPUT: <input type="text" name="client[address][city]" id="client__address__city" value="" required style="flex: 1;" placeholder="City" class=""/>
+INPUT: <input type="checkbox" name="accept" id="accept" value="1" class="" required/>
+INPUT: <input type="submit" style="position: absolute; left: -99999px" onclick="if (typeof hcaptcha !== 'undefined' &#38;&#38; !hcaptcha.getResponse()) { event.preventDefault(); hcaptcha.execute({async: true}).then(() =&#62; $(this).closest('form').submit()
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/csp_full.py <<'EOF'
+import urllib.request, ssl, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0","Accept":"text/html"})
+    with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+        return dict(r.headers)
+for name,url in [("broadcast","https://broadcast.threema.ch/en/login"),("gateway","https://gateway.threema.ch/en/login")]:
+    h = get(url); time.sleep(1.3)
+    print(f"=== {name}")
+    for k,v in h.items():
+        if k.lower() in ("content-security-policy","strict-transport-security","expect-ct","server","set-cookie","x-frame-options","referrer-policy","x-content-type-options","permissions-policy"):
+            print(f"  {k}: {v}")
+EOF
+python3 /tmp/opencode/csp_full.py
+=== broadcast
+  Server: nginx
+  Set-Cookie: SESSIONID=r6ap8qpqf8jc9iihsm6cpdcrep; path=/; secure; HttpOnly; SameSite=Strict
+  Strict-Transport-Security: max-age=31104000; includeSubdomains
+  Expect-CT: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+  Content-Security-Policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-broadcast.threema.ch; frame-src https://hcaptcha-assets.threema.ch; img-src 'self' https://static.threema.ch https://avatar.threema.ch data:; media-src 'self' data: blob:; connect-src 'self' https://bugs.threema.ch https://hcaptcha-assets.threema.ch; object-src 'none'; worker-src 'self' blob:; child-src blob: https://hcaptcha-assets.threema.ch; frame-ancestors 'none'; form-action 'self' https://billing.threema.ch; upgrade-insecure-requests; base-uri https://broadcast.threema.ch; report-uri https://bugs.threema.ch/api/5/security/?sentry_key=b0684a0dbe2f422fa9d6708c5466ca20; report-to default
+  X-Frame-Options: DENY
+  Referrer-Policy: no-referrer
+=== gateway
+  Server: nginx
+  Set-Cookie: SESSIONID=epo2athdc3p1rjd2h8hsph2s5n; path=/; secure; HttpOnly; SameSite=Strict
+  Strict-Transport-Security: max-age=31104000; includeSubdomains
+  Expect-CT: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-gateway.threema.ch; frame-src https://hcaptcha-assets.threema.ch; img-src 'self' https://static.threema.ch https://avatar.threema.ch data:; media-src 'self' data:; connect-src 'self' https://hcaptcha-assets.threema.ch https://bugs.threema.ch; object-src 'none'; child-src blob: https://hcaptcha-assets.threema.ch; worker-src 'self' blob:; frame-ancestors 'none'; form-action 'self' https://billing.threema.ch; upgrade-insecure-requests; base-uri https://gateway.threema.ch; report-uri https://bugs.threema.ch/api/17/security/?sentry_key=418f2f46e5564b94ab81fccaf023616a; report-to default
+  Referrer-Policy: no-referrer
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/hc.py <<'EOF'
+import urllib.request, ssl, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def probe(label, url):
+    req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0","Accept":"*/*"})
+    try:
+        with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+            b = r.read(200)
+            print(f"== {label} -> {r.status} ct={r.headers.get('Content-Type')} | {b[:120]!r}")
+    except urllib.error.HTTPError as e:
+        print(f"== {label} -> HTTP {e.code} | {e.read(120)!r}")
+    except Exception as e:
+        print(f"== {label} -> ERR {e}")
+    time.sleep(1.3)
+probe("billing redirect chain /en", "https://billing.threema.ch/en")
+probe("hcaptcha-broadcast", "https://hcaptcha-broadcast.threema.ch/")
+probe("hcaptcha-gateway", "https://hcaptcha-gateway.threema.ch/")
+probe("hcaptcha-assets", "https://hcaptcha-assets.threema.ch/")
+EOF
+python3 /tmp/opencode/hc.py
+== billing redirect chain /en -> HTTP 404 | b'<!DOCTYPE html>\n<html lang="de">\n\t<head>\n\t\t<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>\n\t\t<link '
+== hcaptcha-broadcast -> 200 ct=text/html; charset=utf-8 | b'<!DOCTYPE html><!-- Last Published: Thu Jul 30 2026 19:54:28 GMT+0000 (Coordinated Universal Time) --><html data-wf-doma'
+== hcaptcha-gateway -> 200 ct=text/html; charset=utf-8 | b'<!DOCTYPE html><!-- Last Published: Thu Jul 30 2026 19:54:28 GMT+0000 (Coordinated Universal Time) --><html data-wf-doma'
+== hcaptcha-assets -> 200 ct=text/html | b'nonsense\n'
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/more.py <<'EOF'
+import urllib.request, ssl, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+def probe(label, url):
+    try:
+        opener = urllib.request.build_opener(NoRedirect())
+        req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0","Accept":"text/html"})
+        with opener.open(req, timeout=12) as r:
+            print(f"== {label} -> {r.status} loc={r.headers.get('Location')} ct={r.headers.get('Content-Type')}")
+    except urllib.error.HTTPError as e:
+        print(f"== {label} -> HTTP {e.code} loc={e.headers.get('Location')}")
+    except Exception as e:
+        print(f"== {label} -> ERR {e}")
+    time.sleep(1.3)
+probe("billing /", "https://billing.threema.ch/")
+probe("br /en/signup", "https://broadcast.threema.ch/en/signup")
+probe("br /en/register", "https://broadcast.threema.ch/en/register")
+probe("br /en/forgot-password (POST check later)", "https://broadcast.threema.ch/en/forgot-password")
+EOF
+python3 /tmp/opencode/more.py
+== billing / -> HTTP 301 loc=https://threema.ch
+== br /en/signup -> HTTP 404 loc=None
+== br /en/register -> HTTP 302 loc=https://broadcast.threema.ch/en/login
+== br /en/forgot-password (POST check later) -> 200 loc=None ct=text/html; charset=UTF-8
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/br_paths.py <<'EOF'
+import urllib.request, ssl, time, re
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=20, context=ctx) as r:
+        return r.read()
+b = get("https://broadcast.threema.ch/cache/broadcast_public.js?v%3D2.28.1")
+txt = b.decode("utf-8","replace")
+print("len", len(b))
+# all string literals that look like URL paths
+paths = sorted(set(re.findall(r'["\'`](/(?:en|de|fr|es|it|api)[\w\-/\.]*(?:\?[^"\'`]*)?)["\'`]', txt)))
+for p in paths:
+    print(p[:160])
+print("--- /en/login & logout refs ---")
+for p in sorted(set(re.findall(r'["\'`](/[\w\-]*(?:login|logout|logout|register|signup)[\w\-/]*)["\'`]', txt, re.I))):
+    print(p[:160])
+EOF
+python3 /tmp/opencode/br_paths.py
+len 1125461
+--- /en/login & logout refs ---
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/final_probe.py <<'EOF'
+import urllib.request, ssl, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def probe(label, url):
+    req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0","Accept":"*/*"})
+    try:
+        with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+            b = r.read(150)
+            print(f"== {label} -> {r.status} ct={r.headers.get('Content-Type')} cors={r.headers.get('Access-Control-Allow-Origin')} | {b[:100]!r}")
+    except urllib.error.HTTPError as e:
+        print(f"== {label} -> HTTP {e.code} ct={e.headers.get('Content-Type')} cors={e.headers.get('Access-Control-Allow-Origin')}")
+    except Exception as e:
+        print(f"== {label} -> ERR {e}")
+    time.sleep(1.3)
+
+probe("br robots", "https://broadcast.threema.ch/robots.txt")
+probe("gw robots", "https://gateway.threema.ch/robots.txt")
+probe("br /api-app/public/global/settings", "https://broadcast.threema.ch/api-app/public/global/settings")
+probe("gw /api-app/public/global/settings", "https://gateway.threema.ch/api-app/public/global/settings")
+probe("br /api/v1", "https://broadcast.threema.ch/api/v1")
+probe("gw /api/v1", "https://gateway.threema.ch/api/v1")
+probe("br /en", "https://broadcast.threema.ch/en")
+probe("gw /en", "https://gateway.threema.ch/en")
+EOF
+python3 /tmp/opencode/final_probe.py
+== br robots -> HTTP 404 ct=text/html; charset=UTF-8 cors=None
+== gw robots -> HTTP 404 ct=text/html; charset=UTF-8 cors=None
+== br /api-app/public/global/settings -> HTTP 404 ct=text/html; charset=UTF-8 cors=None
+== gw /api-app/public/global/settings -> HTTP 403 ct=text/html; charset=utf-8 cors=None
+== br /api/v1 -> HTTP 401 ct=text/html; charset=UTF-8 cors=*
+== gw /api/v1 -> HTTP 403 ct=text/html; charset=utf-8 cors=None
+== br /en -> 200 ct=text/html; charset=UTF-8 cors=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Log in \xe2\x80\x93 Threema Broadcast</title><meta name="viewpor'
+== gw /en -> 200 ct=text/html; charset=UTF-8 cors=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Gateway - Send and receive Threema messages wit'
+[0m
+`broadcast.threema.ch/api/v1` returns 401 with CORS `*` — new authenticated API namespace. Probing deeper.
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/api_v1.py <<'EOF'
+import urllib.request, ssl, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def probe(label, url, method="GET", headers=None):
+    req = urllib.request.Request(url, method=method, headers=headers or {"User-Agent":"Mozilla/5.0","Accept":"*/*"})
+    try:
+        with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+            b = r.read(400)
+            print(f"== {label} -> {r.status} ct={r.headers.get('Content-Type')} cors={r.headers.get('Access-Control-Allow-Origin')} | {b[:250]!r}")
+    except urllib.error.HTTPError as e:
+        print(f"== {label} -> HTTP {e.code} ct={e.headers.get('Content-Type')} cors={e.headers.get('Access-Control-Allow-Origin')} wwwauth={e.headers.get('WWW-Authenticate')} | {e.read(250)!r}")
+    except Exception as e:
+        print(f"== {label} -> ERR {e}")
+    time.sleep(1.3)
+
+probe("br /api/v1/", "https://broadcast.threema.ch/api/v1/")
+probe("br /api/v1/currencies", "https://broadcast.threema.ch/api/v1/currencies")
+probe("br /api/v1/users", "https://broadcast.threema.ch/api/v1/users")
+probe("br /api/v1 OPTIONS", "https://broadcast.threema.ch/api/v1", method="OPTIONS")
+probe("gw /api/v1 OPTIONS", "https://gateway.threema.ch/api/v1", method="OPTIONS")
+EOF
+python3 /tmp/opencode/api_v1.py
+== br /api/v1/ -> HTTP 401 ct=text/html; charset=UTF-8 cors=* wwwauth=None | b'{"error":"Invalid X-Api-Key"}'
+== br /api/v1/currencies -> HTTP 404 ct=text/html; charset=UTF-8 cors=None wwwauth=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>\n<meta http-equiv="Content-Type" content="text/html; '
+== br /api/v1/users -> HTTP 404 ct=text/html; charset=UTF-8 cors=None wwwauth=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>\n<meta http-equiv="Content-Type" content="text/html; '
+== br /api/v1 OPTIONS -> HTTP 301 ct=text/html; charset=UTF-8 cors=None wwwauth=None | b''
+== gw /api/v1 OPTIONS -> HTTP 403 ct=text/html; charset=utf-8 cors=None wwwauth=None | b'<html>\r\n<head><title>403 Forbidden</title></head>\r\n<body>\r\n<center><h1>403 Forbidden</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n'
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/api_routes.py <<'EOF'
+import urllib.request, ssl, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def probe(label, url, headers=None):
+    req = urllib.request.Request(url, headers=headers or {"User-Agent":"Mozilla/5.0","Accept":"*/*"})
+    try:
+        with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+            b = r.read(150)
+            print(f"== {label} -> {r.status} cors={r.headers.get('Access-Control-Allow-Origin')} | {b[:100]!r}")
+    except urllib.error.HTTPError as e:
+        print(f"== {label} -> HTTP {e.code} cors={e.headers.get('Access-Control-Allow-Origin')} | {e.read(100)!r}")
+    except Exception as e:
+        print(f"== {label} -> ERR {e}")
+    time.sleep(1.2)
+
+for path in ["", "/messages", "/broadcasts", "/contacts", "/groups", "/channels", "/clients", "/distribution-lists", "/health", "/status", "/account", "/subscriptions", "/plans", "/invoices"]:
+    probe(f"br /api/v1{path}", f"https://broadcast.threema.ch/api/v1{path}")
+EOF
+python3 /tmp/opencode/api_routes.py
+== br /api/v1 -> HTTP 401 cors=* | b'{"error":"Invalid X-Api-Key"}'
+== br /api/v1/messages -> HTTP 404 cors=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content='
+== br /api/v1/broadcasts -> HTTP 404 cors=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content='
+== br /api/v1/contacts -> HTTP 404 cors=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content='
+== br /api/v1/groups -> HTTP 404 cors=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content='
+== br /api/v1/channels -> HTTP 404 cors=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content='
+== br /api/v1/clients -> HTTP 404 cors=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content='
+== br /api/v1/distribution-lists -> HTTP 404 cors=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content='
+== br /api/v1/health -> HTTP 404 cors=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content='
+== br /api/v1/status -> HTTP 404 cors=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content='
+== br /api/v1/account -> HTTP 404 cors=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content='
+== br /api/v1/subscriptions -> HTTP 404 cors=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content='
+== br /api/v1/plans -> HTTP 404 cors=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content='
+== br /api/v1/invoices -> HTTP 404 cors=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content='
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/cors.py <<'EOF'
+import urllib.request, ssl, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def probe(label, url, method="OPTIONS", headers=None):
+    req = urllib.request.Request(url, method=method, headers=headers or {"User-Agent":"Mozilla/5.0","Origin":"https://evil.example","Access-Control-Request-Method":"GET","Access-Control-Request-Headers":"X-Api-Key"})
+    try:
+        with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+            b = r.read(150)
+            print(f"== {label} -> {r.status}")
+            for h in ["Access-Control-Allow-Origin","Access-Control-Allow-Methods","Access-Control-Allow-Headers","Access-Control-Allow-Credentials","Access-Control-Expose-Headers"]:
+                v = r.headers.get(h)
+                if v: print(f"   {h}: {v}")
+    except urllib.error.HTTPError as e:
+        print(f"== {label} -> HTTP {e.code}")
+        for h in ["Access-Control-Allow-Origin","Access-Control-Allow-Methods","Access-Control-Allow-Headers","Access-Control-Allow-Credentials","Access-Control-Expose-Headers"]:
+            v = e.headers.get(h)
+            if v: print(f"   {h}: {v}")
+    except Exception as e:
+        print(f"== {label} -> ERR {e}")
+    time.sleep(1.3)
+
+probe("br /api/v1 OPTIONS evil origin", "https://broadcast.threema.ch/api/v1")
+probe("br /api/v1 GET evil origin", "https://broadcast.threema.ch/api/v1", method="GET", headers={"User-Agent":"Mozilla/5.0","Origin":"https://evil.example","Accept":"*/*"})
+EOF
+python3 /tmp/opencode/cors.py
+== br /api/v1 OPTIONS evil origin -> HTTP 301
+== br /api/v1 GET evil origin -> HTTP 401
+   Access-Control-Allow-Origin: *
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/cors2.py <<'EOF'
+import urllib.request, ssl, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def probe(label, url, method="OPTIONS", headers=None):
+    req = urllib.request.Request(url, method=method, headers=headers or {"User-Agent":"Mozilla/5.0","Origin":"https://evil.example","Access-Control-Request-Method":"GET","Access-Control-Request-Headers":"X-Api-Key"})
+    try:
+        with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+            print(f"== {label} -> {r.status}")
+            for h in ["Access-Control-Allow-Origin","Access-Control-Allow-Methods","Access-Control-Allow-Headers","Access-Control-Allow-Credentials","Access-Control-Expose-Headers"]:
+                v = r.headers.get(h)
+                if v: print(f"   {h}: {v}")
+    except urllib.error.HTTPError as e:
+        print(f"== {label} -> HTTP {e.code}")
+        for h in ["Access-Control-Allow-Origin","Access-Control-Allow-Methods","Access-Control-Allow-Headers","Access-Control-Allow-Credentials","Access-Control-Expose-Headers"]:
+            v = e.headers.get(h)
+            if v: print(f"   {h}: {v}")
+    except Exception as e:
+        print(f"== {label} -> ERR {e}")
+    time.sleep(1.3)
+
+probe("br /api/v1/ OPTIONS", "https://broadcast.threema.ch/api/v1/")
+probe("br /api/v1/ GET evil-origin no-key", "https://broadcast.threema.ch/api/v1/", method="GET", headers={"User-Agent":"Mozilla/5.0","Origin":"https://evil.example","Accept":"*/*"})
+EOF
+python3 /tmp/opencode/cors2.py
+== br /api/v1/ OPTIONS -> HTTP 404
+== br /api/v1/ GET evil-origin no-key -> HTTP 401
+   Access-Control-Allow-Origin: *
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat > /tmp/opencode/final2.py <<'EOF'
+import urllib.request, ssl, time
+ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+def probe(label, url, headers=None):
+    req = urllib.request.Request(url, headers=headers or {"User-Agent":"Mozilla/5.0","Accept":"*/*"})
+    try:
+        with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+            b = r.read(150)
+            print(f"== {label} -> {r.status} cors={r.headers.get('Access-Control-Allow-Origin')} | {b[:120]!r}")
+    except urllib.error.HTTPError as e:
+        print(f"== {label} -> HTTP {e.code} cors={e.headers.get('Access-Control-Allow-Origin')} | {e.read(120)!r}")
+    except Exception as e:
+        print(f"== {label} -> ERR {e}")
+    time.sleep(1.2)
+
+# broadcast API with bogus X-Api-Key -> different response? 
+probe("br /api/v1 bogus-key", "https://broadcast.threema.ch/api/v1", headers={"User-Agent":"Mozilla/5.0","X-Api-Key":"deadbeefdeadbeefdeadbeefdeadbeef","Accept":"*/*"})
+probe("br /api/v1 empty-key", "https://broadcast.threema.ch/api/v1", headers={"User-Agent":"Mozilla/5.0","X-Api-Key":"","Accept":"*/*"})
+probe("br /api/ HEAD", "https://broadcast.threema.ch/api", headers={"User-Agent":"Mozilla/5.0","Accept":"*/*"})
+probe("gw /api/v1 GET", "https://gateway.threema.ch/api/v1", headers={"User-Agent":"Mozilla/5.0","Accept":"*/*"})
+EOF
+python3 /tmp/opencode/final2.py
+== br /api/v1 bogus-key -> HTTP 403 cors=* | b'{"error":"Invalid X-Api-Key"}'
+== br /api/v1 empty-key -> HTTP 403 cors=* | b'{"error":"Invalid X-Api-Key"}'
+== br /api/ HEAD -> HTTP 404 cors=None | b'<!DOCTYPE html>\n<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content="width=device-width,'
+== gw /api/v1 GET -> HTTP 403 cors=None | b'<html>\r\n<head><title>403 Forbidden</title></head>\r\n<body>\r\n<center><h1>403 Forbidden</h1></center>\r\n<hr><center>nginx</c'
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat >> probe-results.md <<'EOF'
+
+## 2026-08-09 05:52:00 UTC
+https://billing.threema.ch/ -> 301 loc=https://threema.ch (WAS TIMEOUT/DNS-fail)
+https://broadcast.threema.ch/en/login -> 200 SESSIONID cookie, CSRF csrf_public_login_access, passkey start/complete refs, hCaptcha CSP, form-action https://billing.threema.ch (WAS TIMEOUT)
+https://gateway.threema.ch/en/login -> 200 csrf_gwlogin, hCaptcha, SESSIONID (WAS TIMEOUT)
+https://gateway.threema.ch/en/signup -> 200 client[csrf_client] hidden field
+https://broadcast.threema.ch/api/v1 -> 401 {"error":"Invalid X-Api-Key"} CORS *
+https://broadcast.threema.ch/api/v1 (X-Api-Key bogus) -> 403 {"error":"Invalid X-Api-Key"} CORS *
+https://gateway.threema.ch/api/v1 -> 403 nginx (deny-all on /api/*)
+https://broadcast.threema.ch/currencies POST -> 200 [{CHF,EUR,USD}] (jQuery currency-switcher)
+https://broadcast.threema.ch/ping -> 204
+https://broadcast.threema.ch/info/ping.php -> 404 (differs from work: 200)
+https://broadcast.threema.ch/en/register -> 302 to /en/login
+EOF
+echo done
+done
+[0m
+Recording this cycle's probe results and producing the structured output.
+STEP 1 — DELTA
+- [NEW] broadcast.threema.ch now live (WAS TIMEOUT): `/en/login` 200 with SESSIONID cookie (Secure/HttpOnly/SameSite=Strict), CSRF `csrf_public_login_access`, hCaptcha, passkey start/complete refs, CSP `form-action 'self' https://billing.threema.ch`; `/ping` 204; `/info/ping.php` 404 (differs from work); `/en/register` 302.
+- [NEW] gateway.threema.ch now live (WAS TIMEOUT): `/en/login` 200 (`csrf_gwlogin`), `/en/signup` 200 (nested `client[csrf_client]` form), `/en/contact`/`/en/forgot-password` 200; `/api/*` blanket nginx 403 (deny-all); `/currencies` 404 vs broadcast's 200.
+- [NEW] broadcast.threema.ch/api/v1 → 401 `{"error":"Invalid X-Api-Key"}` with `Access-Control-Allow-Origin: *`; with bogus/empty X-Api-Key → 403 same body; all 3 prod-adjacent subpaths (/messages, /broadcasts, etc.) → 404 — X-Api-Key-gated API root confirmed, 401-vs-403 key-presence differential.
+- [NEW] billing.threema.ch now resolves (WAS DNS-fail/TIMEOUT): `/` → 301 to https://threema.ch (marketing, out of scope); `/en`, `/login` → 404 custom German error page.
+- [CHANGED] broadcast/gateway/billing production hosts flipped from unreachable to live since 2026-08-07 baseline — web-surface delta, in-scope per scope.yml.
+
+STEP 2 — PRIORITIZE
+- [PRIO] https://broadcast.threema.ch/api/v1 — score 8.2 | attack_surface=8 business_value=7 tech_exposure=8 (X-Api-Key JSON API, CORS `*`, 401/403 differential) gate_ease=8 (key presence check observable unauth) cloud_surface=7 freshness=10
+- [PRIO] https://gateway.threema.ch (login/signup/api) — score 7.3 | attack_surface=7 business_value=7 tech_exposure=7 (CSRF, hCaptcha, nested form model, nginx deny) gate_ease=6 cloud_surface=6 freshness=10
+- [PRIO] https://billing.threema.ch — score 4.6 | attack_surface=2 business_value=6 tech_exposure=5 (301 to threema.ch; 404 custom pages) gate_ease=7 cloud_surface=5 freshness=8
+
+STEP 3 — HYPOTHESES
+[HYP] Broadcast X-Api-Key API key-presence differential (401 vs 403) + CORS `*`
+class: AUTH
+asset: https://broadcast.threema.ch/api/v1
+confidence: 60
+reasoning: GET /api/v1 → 401 `{"error":"Invalid X-Api-Key"}` with ACAO `*`; GET with any/empty X-Api-Key header → 403 same JSON body; subpaths 404. Route root live behind key check, CORS `*` permits cross-origin authenticated calls once key known; no rate limit observed yet.
+evidence_needed: response differential persists with Authorization/Bearer variant; whether `Access-Control-Allow-Headers` echoes X-Api-Key on preflight; any key-length oracle via timing.
+verify_steps: PASSIVE — `OPTIONS /api/v1` with `Access-Control-Request-Headers: X-Api-Key` + `Origin: https://attacker.example` (record ACAH); GET /api/v1 with 1-char vs 32-char key vs absent (≤1 rps); record status only.
+impact: if API key leaked/exposed elsewhere → full broadcast message API cross-origin; today recon + header-enumeration; Low-Medium, key-gated.
+testability: PASSIVE
+[HYP] Broadcast session + passkey login flow exposes user-enumeration or param oracle
+class: BUSLOGIC
+asset: https://broadcast.threema.ch/en/login
+confidence: 55
+reasoning: server-rendered login with CSRF token + passkey `/en/login/passkey/{start,complete}` refs; `/en/register` 302 to login; SESSIONID cookie on unauth GET. No differential yet probed between valid/invalid username POST paths.
+evidence_needed: POST /en/login username-existence differential (redirect vs re-render vs timing) — requires a single controlled POST (non-destructive, wrong password only).
+verify_steps: AUTH_HELPED — one `POST /en/login` (csrf_public_login_access + r param, username=fake@example.com, wrong password) vs valid-known test account if operator provides; compare status/body/Set-Cookie; ≤1 rps.
+impact: account enumeration on broadcast cockpit → targeted attacks; Low-Medium, contingent on differential.
+testability: AUTH_HELPED
+[HYP] Gateway signup form model (nested client[csrf_client]) reveals app stack oracle
+class: OTHER
+asset: https://gateway.threema.ch/en/signup
+confidence: 45
+reasoning: nested `client[company_name]`, `client[address][street]` fields + `client[csrf_client]` indicate single-app PHP-esque framework; `/api/*` nginx deny-all blocks API probing; signup hCaptcha-gated. No exploitable unauth endpoint observed.
+evidence_needed: any non-403 API path or POST /en/signup field-validation differential; currently low-value.
+verify_steps: PASSIVE — single GET on likely API paths under /en (e.g. /en/api/*) vs known 403/404 baselines; ≤1 rps; no credential guessing.
+impact: stack/gate recon only today; Low.
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] billing.threema.ch redirect-to-threema.ch: 301 to marketing + 404 pages = decommissioned/redirected, out-of-scope target content, no API surface → dropped.
+- [PARKED] gateway /api/* 403 deny-all: blanket nginx block, no route differentiation → recon-only, dropped from FINAL (subsumed in signup HYP).
+- [FINAL] 1) Broadcast X-Api-Key differential + CORS (60, PASSIVE) 2) Broadcast login/passkey enumeration (55, AUTH_HELPED) 3) Gateway signup stack oracle (45, PASSIVE).
+
+STEP 5 — NEXT ACTION
+- [NEXT] PROBE: `OPTIONS https://broadcast.threema.ch/api/v1` with `Origin: https://attacker.example` + `Access-Control-Request-Headers: X-Api-Key` (record Access-Control-Allow-Headers/Methods), then GET /api/v1 with 1-char vs 32-char X-Api-Key (≤1 rps, status-only) to close the key-presence differential and confirm cross-origin API-key usage envelope.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ broadcast.threema.ch: prod host flipped from TIMEOUT to live — `/ping` 204 + `/info/ping.php` 404 (work host shows 200) → live-host liveness divergence is not uniform across web apps.
+- [LEARN] ACCEPTED AUTH @ broadcast.threema.ch/api/v1: X-Api-Key-gated API root confirmed live with CORS `*`; 401 (no key) vs 403 (any key present) is a key-presence oracle, not a validity oracle.
+- [LEARN] ACCEPTED MISCONFIG @ billing.threema.ch: billing prod now 301s to threema.ch marketing — billing application surface appears decommissioned behind redirect; scope.yml billing entry has no reachable app today.
+- [LEARN] ACCEPTED OTHER @ gateway.threema.ch: `/api/*` blanket nginx 403 (deny-all) — no route oracle at layer 7 for the API namespace; web UI (login/signup) is the only reachable surface.
+
+STEP 7 — RISK SCORE
+- [RISK] chat: 35 — g-* silent (5222/443); saltyrtc-* only live chat-plane surface, scope-gated; no data-plane access. | web: 56 — identity→pubkey enumeration (ceiling ≥2000 IDs/req) + 3 hosts flipped live (broadcast/gateway/billing) exposing X-Api-Key API (CORS `*`), login/passkey, signup; no creds yet; risk up from 52. | sync: 20 — mediator/rendezvous uniform 403, no in-band surface. | safe: 40 — backup API credential-gated; existence oracle + HSTS gap on 400 + credentialed CORS weaken posture; payload needs creds. | desktop-src: 55 — accepted Windows key-storage ACL bypass (same-user → Ed25519 keypair + SQLCipher DB); local-only.
