@@ -198,3 +198,21 @@
 
 - 1 lead(s) marked VALID at 2026-08-09 06:39:26 UTC
   - VALID: 0
+
+- 16 lead(s) marked VALID at 2026-08-09 07:44:09 UTC
+  - | Q3 Real impact? | ✅ YES — mass valid-ID + pubkey harvesting → targeted phishing / recon |
+  - | Q5 Novel? | ❌ NO — already ACCEPTED in knowledge base and triaged as VALID in `valid-bugs.md` multiple times |
+  - **Verdict:** **VALID (duplicate)** — Medium | CVSS 3.1: **4.3 (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)**
+  - | Q5 Novel? | ❌ NO — already ACCEPTED in knowledge base and triaged as VALID multiple times |
+  - **Verdict:** **VALID (duplicate, confidence strengthened)** — Medium-High | CVSS 3.1: **5.5 (AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N)** (local attack vector, high confidentiality impact)
+  - | Q5 Novel? | ❌ NO — already ACCEPTED in knowledge base, triaged as HOLD/conditional in `valid-bugs.md` |
+  - | Q7 Accept? | ❌ NO as standalone — valid concern but not a vuln without demonstrated secondary bug |
+  - | Q2 Reachable? | ⚠️ AUTH_HELPED — `GET /backups/{64hex}` returns 400 without valid `backupId:backupKey`; data access requires credentials |
+  - | Q4 Passive proof? | ⚠️ Can confirm CORS headers + 400 response; cannot confirm data access without valid credentials |
+  - | Q5 Novel? | ❌ NO — already triaged in `valid-bugs.md`, REJECTED as defense-in-depth |
+  - | Q7 Accept? | ❌ NO — no data access without valid credentials |
+  - | Q1 In scope? | ❌ **NO** — scope.yml lists `apip.threema.ch` and `mediator-*.threema.ch` etc., but `.test` staging variants are **not** listed. Per `valid-bugs.md` precedent, staging variants treated
+  - | Q2 Reachable? | ⚠️ AUTH_HELPED — returns 401 on all paths; requires valid Work test license |
+  - | Q5 Novel? | ⚠️ Not triaged as valid vuln, only hypothesized; OpenAPI flags it "currently buggy" (TWRK-1633) |
+  - **Verdict:** **HOLD** — OpenAPI flags it "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Cannot be proven with passive GET/HEAD only. Retain for program-provided t
+  - | **VALID** | 2 | #1 Directory IDOR (duplicate), #2 Desktop Windows key-storage ACL (duplicate) |
