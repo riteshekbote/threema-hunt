@@ -347,3 +347,25 @@
 
 - 1 lead(s) marked VALID at 2026-08-09 21:58:03 UTC
   - | **VALID** | 4 | All duplicates — already in `valid-bugs.md` |
+
+- 21 lead(s) marked VALID at 2026-08-09 22:21:15 UTC
+  - | Q3 Real impact? | YES | Mass valid-ID + pubkey harvesting at ~10k IDs/request, no rate limit, cross-origin readable → targeted phishing/recon at scale |
+  - | Q4 Passive proof? | YES | `GET /identity/ECHOECHO`→200, `/identity/ZZZZZZZZ`→404; `POST /identity/fetch_bulk`→200 with only valid pubkey; 35× sequential POSTs all 200, zero 429 |
+  - | Q5 Novel? | NO | Already ACCEPTED in KB (lines 20-21, 27, 59, 67, 80, 82, 85-86, 94, 99, 104, 111, 124, 131, 134, 136, 142, 150, 158, 163, 167, 170, 172, 182, 189, 195, 199, 204, 220); triaged as VA
+  - | Q7 Triager accept? | YES | Already accepted as finding #1 in valid-bugs.md |
+  - **Verdict: VALID (duplicate)** — Confidence 95. Already reported. CVSS 3.1: **5.3 (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)**
+  - | Q5 Novel? | NO | Already ACCEPTED in KB (lines 26, 74, 77-78, 92, 108, 121, 130, 133, 137, 143, 187, 192, 197, 203); triaged as VALID in valid-bugs.md |
+  - | Q7 Triager accept? | YES | Already accepted as finding #3 in valid-bugs.md |
+  - **Verdict: VALID (duplicate)** — Confidence 95. Already reported. CVSS 3.1: **5.5 (AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N)** — needs Windows host validation for full PoC
+  - | Q3 Real impact? | NO | Credential-gated (400, not 200). No unauthenticated data access demonstrated. CORS `*` + Allow-Headers: Authorization only matters if attacker already has valid `backupId:back
+  - | Q4 Passive proof? | PARTIAL | Can confirm CORS headers + 400 response; cannot confirm data access without valid credentials |
+  - | Q5 Novel? | NO | Already ACCEPTED in KB; triaged in valid-bugs.md |
+  - | Q6 Not always-rejected? | NO | CORS `*` on credential-gated endpoint is defense-in-depth only (per valid-bugs.md precedent) |
+  - | Q7 Triager accept? | NO | No data access without valid credentials |
+  - **Verdict: VALID (duplicate, low severity)** — Already accepted. CVSS 3.1: **3.1 (AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:N/A:N)**
+  - | Q3 Real impact? | LOW | Route-presence + parameter-validation oracle only; challenge-response still requires valid identity+secret |
+  - **Verdict: VALID (duplicate, low severity)** — Already accepted. CVSS 3.1: **3.7 (AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N)**
+  - | Q2 Reachable? | AUTH_HELPED | Returns 401 on all paths; requires valid Work test license |
+  - | Q4 Passive proof? | NO | Requires AUTH_HELPED with valid Work credentials + cross-subscription contact probes |
+  - | Q5 Novel? | YES | Not previously triaged as valid vuln; only hypothesized (OpenAPI flags it "currently buggy" TWRK-1633) |
+  - **Verdict: HOLD** — OpenAPI flags endpoint "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Cannot be proven via passive GET/HEAD only. Retain for program-provided 
