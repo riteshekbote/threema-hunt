@@ -335,3 +335,9 @@ https://billing.threema.ch/{login,order/invoice,sso,oauth2,api/v1,index.php/logi
 https://broadcast.threema.ch/en/login/passkey/start -> HTTP 404
 https://broadcast.threema.ch/cache/broadcast_public.js?v=2.28.1 -> 200 len=1125461 type=application/javascript; charset=utf-8
 https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-09 18:12:44 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400

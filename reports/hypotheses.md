@@ -1562,3 +1562,12 @@
 - [45] billing.threema.ch: billing.threema.ch 404-differential route-presence oracle (from reports/hypotheses-bigpickle.txt)
 - NEXT(hypotheses-bigpickle.txt): PROBE: `curl -sS -m 8 -w '%{http_code} %{size_download}' https://billing.threema.ch/{login,order/invoice,sso,oauth2,api/v1,index.php/login,index.php/order,sessi
 - NEXT(hypotheses-laguna.txt): RUNTIME_AUTH_HELPED-LOCAL: Execute `node poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with Threema Desktop 2.x installed and a real profile 
+
+## RANKED HYPOTHESES 2026-08-09 18:12:42 UTC
+- [97] https://ds-apip.threema.ch/identity/fetch_bulk: Directory bulk identity enumeration at scale via fetch_bulk 10000 IDs/request + 5 challenge parameter oracles (from reports/hypotheses-laguna.txt)
+- NEXT(hypotheses-laguna.txt): RUNTIME_AUTH_HELPED-LOCAL: Execute `node poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with Threema Desktop 2.x installed and a real profile 
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy in `determineKdfParams()`, derived
+- LEARN: REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE requires separate renderer exploit chain (no dynamic sinks require/import/eval
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk hard ceiling exactly 10000 IDs/request confirmed via own probes this cycle — 10000
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
+- LEARN: PENDING @ poc/key-storage-acl-bypass-poc.js: PoC artifact generated in workspace, `node --check` PASS, graceful no-op on Linux confirmed — needs Windows runtime

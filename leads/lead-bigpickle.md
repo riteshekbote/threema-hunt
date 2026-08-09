@@ -5539,3 +5539,4 @@ verify_steps: AUTH_HELPED — `curl -sS -m 8 -X POST https://shop.threema.ch/en/
 impact: invoice-ref existence + potential license-key recovery for guessed refs. Medium-High (escalation).
 testability: AUTH_HELPED
 [NEXT] PROBE: `curl -sS -m 8 "https://broadcast.threema.ch/cache/broadcast_public.js?v=2.28.1" -o /tmp/opencode/broadcast_public.js && grep -oE '(url|endpoint)[:="][^"]{2,80}'` — passive harvest of the newly-confirmed broadcast public bundle for additional in-scope endpoints (API paths, passkey/forgot-password handlers) to extend the v2.28.1 surface map before any POST tests.
+## 2026-08-09 18:08:41 UTC [chat] (model bigpickle)

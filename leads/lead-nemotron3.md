@@ -3549,3 +3549,5 @@ class: IDOR
 asset: https://ds-apip.threema.ch/identity/fetch_bulk (identical on api.threema.ch, apip.threema.ch)
 confidence: 97
 reasoning: POST fetch_bulk (10000 IDs, 1 valid + 9999 invalid) → 200, returns only valid pubkey, silently omits invalid; ACAO:* on POST/GET/OPTIONS/DELETE; no 429 after ~30 sequential POSTs; 5 challenge endpoints return 200 JSON errors + ACAO:* with parameter-validation-before-lookup oracle (update
+## 2026-08-09 18:07:00 UTC [web] (model nemotron3)
+[NEW] NO_DELTA — inventory (2026-08-09 10:52 UTC) and knowledge base (2026-08-09 latest
