@@ -724,3 +724,11 @@
 - CHANGED apip.threema.ch — confirmed 200 on /identity/{id} (public identity lookup) and 404 on invalid IDs
 - CHANGED saltyrtc-*.threema.ch — 256 hostnames resolve to 4 IPs, HTTP 426, explicitly NOT in scope.yml
 - CHANGED blob-mirror-{prefix4}.threema.ch/{prefix8}/ — blob server hostname pattern discovered in desktop source config.ts; NOT in scope per scope.yml
+
+## 2026-08-09 18:12:42 UTC
+- NEW NO_DELTA — inventory (2026-08-09 10:52 UTC) and knowledge base (2026-08-09 latest
+- NEW poc/key-storage-acl-bypass-poc.js — PoC artifact generated in workspace (was claimed in KB but NOT present; now present) — node --check PASS, graceful no-op on Linux confirmed
+- CHANGED — PROBE: fetch_bulk 10000/10001 boundary re-confirmed via own probes — 10000→200/152B, 10001→400/0B; all 3 hosts (ds-apip/api/apip) byte-identical for fetch_bulk + GET /identity/{id}
+- CHANGED — PROBE: 5 challenge endpoints re-confirmed (sfu_cred→"Identity not found", blob_cred→"Identity not found", set_revocation_key→"Bad revocation key length", check_revocation_key→"Identity not found", u
+- CHANGED — PROBE: safe-01 OPTIONS → 204, ACAO:`*` + Allow-Methods GET,HEAD,PUT,PATCH,POST,DELETE + Allow-Headers: Authorization; GET → 400, HSTS/Expect-CT ABSENT (gap re-confirmed)
+- NEW — No other new surface items discovered
