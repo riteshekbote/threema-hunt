@@ -437,3 +437,13 @@
 - CHANGED `ds-apip.test.threema.ch/identity/fetch_bulk` — staging byte-identical to prod (200, 0.69s, identical ECHOECHO record); `/swagger` `/docs` `/identity/lookup` `/openapi.json` all 404
 - CHANGED `broadcast.threema.ch/api/v1/` — key-format oracle DISPROVEN: absent key → 401, any key (1/32/64-char) → byte-identical 403 (sha256 707fe8f5…); subpath → 404 HTML
 - CHANGED `gateway.threema.ch` — `/v1` → 404 catch-all, `/api/v1` → 403 (nginx deny), `/en/signup` → 200 (14KB); no exposed msgapi route
+
+## 2026-08-09 10:11:42 UTC
+- NEW `broadcast.threema.ch/api/v1/` → HTTP 401 (auth-gated API endpoint confirmed; 301 without trailing slash)
+- NEW `gateway.threema.ch/en/signup` → HTTP 200 (signup page accessible)
+- CHANGED `ds-apip.threema.ch/identity/fetch_bulk` — ceiling ≥1000 IDs/request confirmed (1000-ID batch → 200, valid-only response, silent omit, ACAO:*, no 429)
+- CHANGED `ds-apip.test.threema.ch/identity/fetch_bulk` — staging byte-identical to prod; no extra routes (/swagger /docs /openapi.json 404)
+- CHANGED `broadcast.threema.ch/api/v1/` — key-format oracle disproven (absent key→401, any key→byte-identical 403)
+- CHANGED `gateway.threema.ch` — /v1→404, /api/v1→403 (nginx deny), /en/signup→200 (14KB); no msgapi route
+- CHANGED `safe-01.threema.ch/backups/{64hex}` — HSTS/Expect-CT on OPTIONS 204, ABSENT on GET 400 (stable across 5 hosts)
+- CHANGED `work.test.threema.ch/api-app/public/global/settings` → 200 (staging-only) vs `work.threema.ch` → 404 (prod)
