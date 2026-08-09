@@ -3939,3 +3939,4 @@ testability: RAG + RUNTIME_AUTH_HELPED
 [RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; WSS high-entropy; auth in source; no passive in-band divergence; saltyrtc-* out of scope.
 [RISK] safe: 88 — safe-{01,1a,1b,02,00}: 5 hosts single IP 203.56.112.231, CORS `*` + write-capable methods + Access-Control-Allow-Headers: Authorization + route-existence oracle + Basic-Auth gating (400 baseline stable) + HSTS/Expect-CT absent on GET 400.
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source level (RAG-verified on `stable`, 6/6 core paths + 4 supporting paths); PoC artifact claimed but NOT present in workspace (must regenerate); same-user → Ed25519 identity privkey + SQLCipher key chain; BrowserWindow nodeIntegrationInWorker:true + sandbox unset (TODO DESK-79, conditional RCE REJECTED standalone); crypto.ts:223 benchmark password REJECTED.
+## 2026-08-09 17:08:54 UTC [desktop] (model laguna)

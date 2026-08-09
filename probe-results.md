@@ -311,3 +311,13 @@ https://billing.threema.ch` -> ERR <urlopen error [Errno -2] Name or service not
 https://shop.threema.ch/en/retrieve-keys -> 200 len=? type=text/html; charset=UTF-8
 https://billing.threema.ch/{login,order/invoice,sso,oauth2,api/v1,index.php/login,index.php/order,session,payment -> HTTP 404
 https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-09 17:14:31 UTC
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://billing.threema.ch/<word>` -> HTTP 404
+https://billing.threema.ch/login -> HTTP 404
+https://billing.threema.ch` -> ERR <urlopen error [Errno -2] Name or service not know
+https://shop.threema.ch/en/retrieve-keys -> 200 len=? type=text/html; charset=UTF-8
+https://billing.threema.ch/{login,order/invoice,sso,oauth2,api/v1,index.php/login,index.php/order,session,payment -> HTTP 404
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8

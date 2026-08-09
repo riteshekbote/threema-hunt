@@ -37532,3 +37532,805 @@ testability: AUTH_HELPED
 - [RISK] sync: 55 — mediator/rendezvous uniform 403; WSS high-entropy + auth in source; no passive divergence.
 - [RISK] safe: 80 — safe-{01,1a,1b,02,00}: CORS `*` + write methods + Allow-Headers authorization + route oracle + HSTS gap on GET 400; Basic-auth gated, no ACAC.
 - [RISK] desktop-src: 90 — Windows key-storage ACL bypass RAG-confirmed (95) → Ed25519 privkey + SQLCipher DB key; PoC ready, runtime pending; sandbox/worker gap rejected standalone.
+===== ANALYST bigpickle 2026-08-09 17:14:27 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/ && ls -la /home/runner/work/threema-hunt/threema-hunt/reports/ 2>/dev/null; ls -la /home/runner/work/threema-hunt/threema-hunt/poc/ 2>/dev/null
+total 240
+drwxr-xr-x 11 runner runner  4096 Aug  9 17:06 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 17:06 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 17:06 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 17:06 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 17:06 README.md
+-rw-r--r--  1 runner runner    32 Aug  9 17:06 analyst-out.txt
+-rw-r--r--  1 runner runner 73229 Aug  9 17:06 analyst-prompt.txt
+-rw-r--r--  1 runner runner 70165 Aug  9 17:06 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 17:06 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 17:06 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  9 17:06 leads
+-rw-r--r--  1 runner runner 18025 Aug  9 17:06 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 17:06 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 17:06 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 17:06 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 17:06 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 17:06 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 17:06 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 17:06 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 17:06 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 17:06 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 17:06 triage
+total 8384
+drwxr-xr-x  2 runner runner    4096 Aug  9 17:06 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 17:06 ..
+-rw-r--r--  1 runner runner 3036184 Aug  9 17:06 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 4617498 Aug  9 17:06 analyst-laguna.log
+-rw-r--r--  1 runner runner   26335 Aug  9 17:06 analyst-ling3.log
+-rw-r--r--  1 runner runner   11817 Aug  9 17:06 analyst-longcat.log
+-rw-r--r--  1 runner runner  779643 Aug  9 17:06 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    3238 Aug  9 17:06 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner    8292 Aug  9 17:06 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 17:06 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 17:06 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   13586 Aug  9 17:06 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  239378 Aug  9 17:06 hypotheses.md
+-rw-r--r--  1 runner runner   24573 Aug  9 17:06 valid-bugs.md
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/state_bigpickle.json; echo "---"; cat /home/runner/work/threema-hunt/threema-hunt/analyst-out.txt; echo "---"; ls /home/runner/work/threema-hunt/threema-hunt/inventory/ /home/runner/work/threema-hunt/threema-hunt/knowledge/ /home/runner/work/threema-hunt/threema-hunt/leads/
+{"phase": "POC", "target": "chat"}---
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/ && ls -la /home/runner/work/threema-hunt/threema-hunt/reports/ 2>/dev/null; ls -la /home/runner/work/threema-hunt/threema-hunt/poc/ 2>/dev/null
+total 240
+drwxr-xr-x 11 runner runner  4096 Aug  9 17:06 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 17:06 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 17:06 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 17:06 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 17:06 README.md
+-rw-r--r--  1 runner runner    32 Aug  9 17:06 analyst-out.txt
+-rw-r--r--  1 runner runner 73229 Aug  9 17:06 analyst-prompt.txt
+-rw-r--r--  1 runner runner 70165 Aug  9 17:06 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 17:06 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 17:06 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  9 17:06 leads
+-rw-r--r--  1 runner runner 18025 Aug  9 17:06 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 17:06 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 17:06 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 17:06 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 17:06 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 17:06 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 17:06 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 17:06 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 17:06 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 17:06 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 17:06 triage
+total 8384
+drwxr-xr-x  2 runner runner    4096 Aug  9 17:06 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 17:06 ..
+-rw-r--r--  1 runner runner 3036184 Aug  9 17:06 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 4617498 Aug  9 17:06 analyst-laguna.log
+-rw-r--r--  1 runner runner   26335 Aug  9 17:06 analyst-ling3.log
+-rw-r--r--  1 runner runner   11817 Aug  9 17:06 analyst-longcat.log
+-rw-r--r--  1 runner runner  779643 Aug  9 17:06 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    3238 Aug  9 17:06 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner    8292 Aug  9 17:06 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 17:06 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 17:06 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   13586 Aug  9 17:06 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  239378 Aug  9 17:06 hypotheses.md
+-rw-r--r--  1 runner runner   24573 Aug  9 17:06 valid-bugs.md
+[0m
+---
+/home/runner/work/threema-hunt/threema-hunt/inventory/:
+threema.md
+
+/home/runner/work/threema-hunt/threema-hunt/knowledge/:
+index.md
+
+/home/runner/work/threema-hunt/threema-hunt/leads/:
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-nemotron3.md
+reposcan-2026-08-07-18-43.md
+reposcan-2026-08-07-18-59.md
+reposcan-2026-08-07-19-20.md
+reposcan-2026-08-07-19-33.md
+reposcan-2026-08-07-20-11.md
+reposcan-2026-08-07-20-59.md
+reposcan-2026-08-07-21-13.md
+reposcan-2026-08-07-21-27.md
+reposcan-2026-08-07-22-10.md
+reposcan-2026-08-07-22-46.md
+reposcan-2026-08-07-23-10.md
+reposcan-2026-08-07-23-19.md
+reposcan-2026-08-07-23-50.md
+reposcan-2026-08-08-00-01.md
+reposcan-2026-08-08-00-19.md
+reposcan-2026-08-08-02-10.md
+reposcan-2026-08-08-02-23.md
+reposcan-2026-08-08-03-52.md
+reposcan-2026-08-08-04-47.md
+reposcan-2026-08-08-05-01.md
+reposcan-2026-08-08-05-29.md
+reposcan-2026-08-08-05-48.md
+reposcan-2026-08-08-06-08.md
+reposcan-2026-08-08-06-56.md
+reposcan-2026-08-08-07-12.md
+reposcan-2026-08-08-07-53.md
+reposcan-2026-08-08-08-07.md
+reposcan-2026-08-08-08-37.md
+reposcan-2026-08-08-08-42.md
+reposcan-2026-08-08-09-21.md
+reposcan-2026-08-08-09-40.md
+reposcan-2026-08-08-10-09.md
+reposcan-2026-08-08-10-27.md
+reposcan-2026-08-08-10-37.md
+reposcan-2026-08-08-11-08.md
+reposcan-2026-08-08-11-28.md
+reposcan-2026-08-08-11-30.md
+reposcan-2026-08-08-11-55.md
+reposcan-2026-08-08-12-00.md
+reposcan-2026-08-08-12-09.md
+reposcan-2026-08-08-13-01.md
+reposcan-2026-08-08-13-15.md
+reposcan-2026-08-08-13-56.md
+reposcan-2026-08-08-14-04.md
+reposcan-2026-08-08-14-28.md
+reposcan-2026-08-08-14-35.md
+reposcan-2026-08-08-15-08.md
+reposcan-2026-08-08-15-31.md
+reposcan-2026-08-08-16-00.md
+reposcan-2026-08-08-16-07.md
+reposcan-2026-08-08-16-15.md
+reposcan-2026-08-08-17-04.md
+reposcan-2026-08-08-17-51.md
+reposcan-2026-08-08-18-04.md
+reposcan-2026-08-08-18-36.md
+reposcan-2026-08-08-19-19.md
+reposcan-2026-08-08-19-46.md
+reposcan-2026-08-08-19-58.md
+reposcan-2026-08-08-20-14.md
+reposcan-2026-08-08-20-33.md
+reposcan-2026-08-08-20-41.md
+reposcan-2026-08-08-21-03.md
+reposcan-2026-08-08-21-11.md
+reposcan-2026-08-08-21-32.md
+reposcan-2026-08-08-21-41.md
+reposcan-2026-08-08-22-05.md
+reposcan-2026-08-08-22-19.md
+reposcan-2026-08-08-22-54.md
+reposcan-2026-08-08-23-19.md
+reposcan-2026-08-08-23-28.md
+reposcan-2026-08-08-23-48.md
+reposcan-2026-08-08-23-59.md
+reposcan-2026-08-09-00-07.md
+reposcan-2026-08-09-01-41.md
+reposcan-2026-08-09-02-39.md
+reposcan-2026-08-09-03-22.md
+reposcan-2026-08-09-04-04.md
+reposcan-2026-08-09-04-50.md
+reposcan-2026-08-09-05-12.md
+reposcan-2026-08-09-05-48.md
+reposcan-2026-08-09-06-47.md
+reposcan-2026-08-09-06-55.md
+reposcan-2026-08-09-07-37.md
+reposcan-2026-08-09-07-53.md
+reposcan-2026-08-09-08-15.md
+reposcan-2026-08-09-08-43.md
+reposcan-2026-08-09-09-10.md
+reposcan-2026-08-09-09-26.md
+reposcan-2026-08-09-09-57.md
+reposcan-2026-08-09-10-07.md
+reposcan-2026-08-09-10-16.md
+reposcan-2026-08-09-10-56.md
+reposcan-2026-08-09-11-31.md
+reposcan-2026-08-09-12-01.md
+reposcan-2026-08-09-12-21.md
+reposcan-2026-08-09-12-54.md
+reposcan-2026-08-09-13-19.md
+reposcan-2026-08-09-13-55.md
+reposcan-2026-08-09-14-13.md
+reposcan-2026-08-09-14-38.md
+reposcan-2026-08-09-15-07.md
+reposcan-2026-08-09-15-12.md
+reposcan-2026-08-09-15-43.md
+reposcan-2026-08-09-15-51.md
+reposcan-2026-08-09-16-06.md
+reposcan-2026-08-09-16-34.md
+reposcan-2026-08-09-16-49.md
+reposcan-latest.md
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/leads/lead-bigpickle.md; echo "=====LATEST REPOSCAN====="; cat /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-09-16-49.md 2>/dev/null | head -60
+...output truncated...
+
+Full output saved to: /home/runner/.local/share/opencode/tool-output/tool_fe77de808001KjL5gvjr4J1DYb
+
+=====LATEST REPOSCAN=====
+
+===== REPOSCAN 2026-08-09 16:49:08 UTC =====
+## Grep hits:
+SCAN SUMMARY: 6656 code/config files scanned, 56 hits
+reposcan-raw/threema-ch/threema-ios/Threema/AppMigration.swift:873: let persistenceKeyLicensePassword = "Threema license password"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/SafeDataTests.swift:11: serverPassword: "password1",
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift:15: let expectedAuthToken = "authToken"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift:18: let expectedPassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:50: licenseStoreMock.licensePassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:72: (username: nil as String?, password: "testPassword" as String?, description: "nil username"),
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:148: licenseStoreMock.licensePassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:13: let expectedPassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:37: (username: nil as String?, password: "validPassword" as String?, description: "nil username"),
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:103: password: "testPassword",
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:67: let result = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:76: let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:105: let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift:30: let password = "abcdefghijkl"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift:227: let validPassword = "ABcd!@#tgk092"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:28: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:76: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:120: safePassword: "shootdeathstar"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift:38: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift:83: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt:49: """sfuToken='********', expirationDate=$expirationDate)"""
+reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:911: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/storage/models/WebClientSessionModel.java:28: public static final String COLUMN_PUSH_TOKEN = "push_token";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/storage/databaseupdate/DatabaseUpdateToVersion37.java:48: static final String COLUMN_PUSH_TOKEN = "push_token";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/utils/IceCandidateParser.java:43: public final static String TOKEN = "[a-zA-Z]+";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/webclient/converter/ClientInfo.java:37: private final static String PUSH_TOKEN = "pushToken";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt:70: "iceUsernameFragment='$iceUsernameFragment', icePassword='$icePassword', " +
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/notifications/NotificationChannels.kt:52: const val NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/dialogs/PasswordEntryDialog.java:47: public static final @NonNull String KEY_PASSWORD = "password";
+reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:15: publicApiKey = "b3e20afbf356a8748bb62ac165aa780c",
+reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:19: publicApiKey = "615af77cb3d980c41b3b04b07417cc7d",
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:147: DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:153: WORK_SERVER_LEGACY_URL: 'https://ds-apip-work.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:154: WORK_SERVER_URL: 'https://work.test.threema.ch/',
+
+## Model analysis:
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mecho "REAL_SECRET: none found"
+echo ""
+echo "TEST_OR_EXAMPLE:"
+echo "| File | Line | Context | SHA256(secret) |"
+echo "|------|------|---------|----------------|"
+echo "| threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | serverPassword: \"password1\" | 0b14d501a594442a01c6859541bcb3e8164d183d32937b851835442f69d5c7b9e2 |"
+echo "| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15 | expectedAuthToken = \"authToken\" | 6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b |"
+echo "| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 18 | expectedPassword = \"testPassword\" | 8b9c9b6b5f3a4a7e8d9c0b1a2f3e4d5c6b7a8f9e0d1c2b3a4f5e6d7c8b9a0f1e2 |"
+echo "| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift | 50 | licenseStoreMock.licensePassword = \"testPassword\" | (same as above) |"
+echo "| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift | 72 | password: \"testPassword\" | (same as above) |"
+echo "| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift | 148 | licenseStoreMock.licensePassword = \"testPassword\" | (same as above) |"
+echo "| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift | 13 | expectedPassword = \"testPassword\" | (same as above) |"
+[0m
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead leads/lead-bigpickle.md[90m [offset=417][0m
+[0m→ [0mRead leads/lead-bigpickle.md[90m [offset=797][0m
+[0m
+[0m$ [0mwc -l /home/runner/work/threema-hunt/threema-hunt/leads/lead-bigpickle.md; tail -200 /home/runner/work/threema-hunt/threema-hunt/leads/lead-bigpickle.md
+5256 /home/runner/work/threema-hunt/threema-hunt/leads/lead-bigpickle.md
+impact: Same-user attacker recovers full Ed25519 identity key + SQLCipher database key → decrypts full local message DB.
+testability: HUMAN_ONLY
+[PARKED] safe backup API credential brute via CORS cross-origin — confidence 55 but testability is AUTH_HELPED + HUMAN_ONLY (requires valid credential); passive-only scope cannot advance; parked pending token/credential from program.
+[FINAL]
+[NEXT] HUMAN: Request program-issued test credentials for safe-01.threema.ch backup API (backupId:backupKey pair) to validate whether CORS * credentialed requests succeed cross-origin with valid auth header. Alternative: confirm whether rate-limit is absent on GET /backups/{64hex} with valid Basic auth.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req; overflow→400 empty body with zero partial pubkey leak; CORS * stable.
+[LEARN] ACCEPTED MISCONFIG @ safe-01.threema.ch: HSTS/Expect-CT header inconsistency (present on OPTIONS 204, absent on GET 400) stable across all 5 hosts.
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 15 source-path chain re-verified; PoC artifact exists; needs Windows validation.
+[RISK] chat: 15 reason | web: 72 reason | sync: 30 reason | safe: 58 reason | desktop-src: 68 reason
+[HYP] fetch_bulk account-status oracle via state/type echo
+class: IDOR
+asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch identity/fetch_bulk + GET /identity/{id}
+confidence: 55
+reasoning: Own probes this cycle captured full schema — every reachable valid ID (ECHOECHO/*3MAW0RK/*SUPPORT/*THREEMA) returns state:0,type:0,featureLevel:3 (featureMask varies 9/15, proven normal). A deactivated/revoked identity returning state≠0 (or being dropped like invalid IDs) would be a mass account-status oracle at 10k IDs/req, no rate limit, CORS `*`, no ACAC. Response schema confirmed stable on all 3 hosts + staging.
+evidence_needed: one program-issued deactivated/revoked identity returning state≠0 (or omitted) vs the active state:0 baseline in fetch_bulk.
+verify_steps: AUTH_HELPED — `POST {"identities":["{deactivatedTestId}","ECHOECHO","*THREEMA"]}` to all 3 hosts + ds-apip.test.threema.ch; diff state/type/featureMask.
+impact: mass account-status enumeration layered on the accepted existence oracle. Medium (escalation).
+testability: AUTH_HELPED
+[HYP] safe-01 credentialed backup read + CORS header-allowance (route-existence oracle already accepted)
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 50
+reasoning: Own OPTIONS probe this cycle: ACAO:`*` + Allow-Methods GET/HEAD/PUT/PATCH/POST/DELETE + Allow-Headers `authorization` + HSTS/Expect-CT on 204, but NO Access-Control-Allow-Credentials → browser credentialed-mode blocked; only attacker-supplied Authorization header (requires knowing backupId:backupKey) is CORS-readable. Unauth GET → 400 byte-identical across 5 hosts (203.56.112.231); route oracle `/backups/{64hex}`→400 vs `/backup/{x}`→404 stable.
+evidence_needed: valid backupId:backupKey → status ≠ 400 (200+payload or 401/403) + Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}`; diff vs 400 baseline; re-check ACAC on authenticated response.
+impact: valid creds → identity keypair + message-history backup readable cross-origin. High with creds, unreachable without.
+testability: AUTH_HELPED
+[HYP] Desktop Windows key-storage ACL bypass → full identity compromise via DPAPI
+class: MISCONFIG
+asset: threema-desktop key-storage (fs.ts:41, index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, sqlite.ts:240)
+confidence: 95
+reasoning: RAG-VERIFIED chain (15 source paths): win32 `{}` mode → keystorage.bin/keystorage.password.bin written without DACL; safeStorage (DPAPI) password recoverable by same-user processes; Argon2id→XSalsa20-Poly1305 yields `ck` (Ed25519 identity privkey) + `databaseKey`; raw SQLCipher PRAGMA key. PoC artifact exists (`node --check` OK, graceful no-op on Linux). No contradicting evidence; stable across cycles.
+evidence_needed: Windows runtime proof — same-user process reads both .bin files, decrypts password via DPAPI, decrypts keystorage.bin → ck + databaseKey, opens threema.sqlite with PRAGMA key.
+verify_steps: RUNTIME_AUTH_HELPED — execute `poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with a real Threema Desktop 2.x profile.
+impact: same-user malware extracts full identity keypair + decrypts message DB → complete account compromise. Medium-High (CVSS 3.1 ~5.5, AV:L).
+testability: RAG + RUNTIME_AUTH_HELPED
+[NEXT] HUMAN: request one program-issued test identity (deactivated), one backupId:backupKey pair, and one work test license from the lead — a single credential set unblocks all four surviving hypotheses in parallel: fetch_bulk state/type oracle ([55]), staging live-dataset mirror proof ([88]), `curl -u testId:testKey https://safe-01.threema.ch/backups/{testId}` vs 400 baseline ([50]), and ds-apip-work /identities TWRK-1633 cross-subscription test ([42]). Chat target is formally closed (g-*.0.{test.,}threema.ch:443/5222 close connection on SNI; handshake requires authenticated login frame) — recommend pivoting phase away from chat until credentials arrive.
+[RISK] chat: 55 — identity→pubkey enumeration (10k IDs/req, no rate limit, CORS `*`, 6 challenge endpoints) exposes the chat identity space unauthenticated; chat transport itself closed (g-*.0 close-on-SNI, no cert/SAN leak, handshake needs auth); staging chat out of scope.
+[RISK] web: 90 — directory cluster: 3 prod hosts + staging mirror, public existence oracle + 10k batch + challenge/validation oracles + CORS `*`; safe-01: 5 hostnames/1 IP, CORS `*` + write methods + Allow-Headers authorization + route oracle + HSTS gap on GET 400 (all credential-gated); work/broadcast/gateway cockpits reachable with PHP sessions/CSP/Sentry, auth-gated APIs; work backend /fetch2+/directory+/identities 401-gated; /api-client/v1 dead.
+[RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; WSS high-entropy + auth in source; no passive in-band divergence; saltyrtc-* 426 but explicitly out of scope.
+[RISK] safe: 80 — safe-{01,1a,1b,02,00}.threema.ch behind 203.56.112.231: CORS `*` + write-capable methods + Allow-Headers authorization + route-existence oracle + HSTS/Expect-CT absent on GET 400 but present on OPTIONS; Basic-Auth gating only; no ACAC (browser credentialed mode blocked) — impact contingent on valid creds.
+[RISK] desktop-src: 90 — Windows key-storage ACL bypass RAG-confirmed (95) chained to Ed25519 identity privkey + SQLCipher DB key; PoC artifact ready, runtime validation pending; Electron sandbox unset + nodeIntegrationInWorker (conditional RCE, REJECTED standalone); crypto.ts benchmark password REJECTED.
+## 2026-08-09 14:26:38 UTC [chat] (model bigpickle)
+confidence: 55
+reasoning: Own probes this cycle captured full schema — every reachable valid ID (ECHOECHO/*3MAW0RK/*SUPPORT/*THREEMA) returns state:0,type:0,featureLevel:3 (featureMask varies 9/15, proven normal). A deactivated/revoked identity returning state≠0 (or being dropped like invalid IDs) would be a mass account-status oracle at 10k IDs/req, no rate limit, CORS `*`, no ACAC. Response schema confirmed stable on all 3 hosts + staging.
+evidence_needed: one program-issued deactivated/revoked identity returning state≠0 (or omitted) vs the active state:0 baseline in fetch_bulk.
+verify_steps: AUTH_HELPED — `POST {"identities":["{deactivatedTestId}","ECHOECHO","*THREEMA"]}` to all 3 hosts + ds-apip.test.threema.ch; diff state/type/featureMask.
+impact: mass account-status enumeration layered on the accepted existence oracle. Medium (escalation).
+testability: AUTH_HELPED
+[HYP] safe-01 credentialed backup read + CORS header-allowance (route-existence oracle already accepted)
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 50
+reasoning: Own OPTIONS probe this cycle: ACAO:`*` + Allow-Methods GET/HEAD/PUT/PATCH/POST/DELETE + Allow-Headers `authorization` + HSTS/Expect-CT on 204, but NO Access-Control-Allow-Credentials → browser credentialed-mode blocked; only attacker-supplied Authorization header (requires knowing backupId:backupKey) is CORS-readable. Unauth GET → 400 byte-identical across 5 hosts (203.56.112.231); route oracle `/backups/{64hex}`→400 vs `/backup/{x}`→404 stable.
+evidence_needed: valid backupId:backupKey → status ≠ 400 (200+payload or 401/403) + Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}`; diff vs 400 baseline; re-check ACAC on authenticated response.
+impact: valid creds → identity keypair + message-history backup readable cross-origin. High with creds, unreachable without.
+testability: AUTH_HELPED
+[HYP] Desktop Windows key-storage ACL bypass → full identity compromise via DPAPI
+class: MISCONFIG
+asset: threema-desktop key-storage (fs.ts:41, index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, sqlite.ts:240)
+confidence: 95
+reasoning: RAG-VERIFIED chain (15 source paths): win32 `{}` mode → keystorage.bin/keystorage.password.bin written without DACL; safeStorage (DPAPI) password recoverable by same-user processes; Argon2id→XSalsa20-Poly1305 yields `ck` (Ed25519 identity privkey) + `databaseKey`; raw SQLCipher PRAGMA key. PoC artifact exists (`node --check` OK, graceful no-op on Linux). No contradicting evidence; stable across cycles.
+evidence_needed: Windows runtime proof — same-user process reads both .bin files, decrypts password via DPAPI, decrypts keystorage.bin → ck + databaseKey, opens threema.sqlite with PRAGMA key.
+verify_steps: RUNTIME_AUTH_HELPED — execute `poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with a real Threema Desktop 2.x profile.
+impact: same-user malware extracts full identity keypair + decrypts message DB → complete account compromise. Medium-High (CVSS 3.1 ~5.5, AV:L).
+testability: RAG + RUNTIME_AUTH_HELPED
+[NEXT] HUMAN: request one program-issued test identity (deactivated), one backupId:backupKey pair, and one work test license from the lead — a single credential set unblocks all four surviving hypotheses in parallel: fetch_bulk state/type oracle ([55]), staging live-dataset mirror proof ([88]), `curl -u testId:testKey https://safe-01.threema.ch/backups/{testId}` vs 400 baseline ([50]), and ds-apip-work /identities TWRK-1633 cross-subscription test ([42]). Chat target is formally closed (g-*.0.{test.,}threema.ch:443/5222 close connection on SNI; handshake requires authenticated login frame) — recommend pivoting phase away from chat until credentials arrive.
+[RISK] chat: 55 — identity→pubkey enumeration (10k IDs/req, no rate limit, CORS `*`, 6 challenge endpoints) exposes the chat identity space unauthenticated; chat transport itself closed (g-*.0 close-on-SNI, no cert/SAN leak, handshake needs auth); staging chat out of scope.
+[RISK] web: 90 — directory cluster: 3 prod hosts + staging mirror, public existence oracle + 10k batch + challenge/validation oracles + CORS `*`; safe-01: 5 hostnames/1 IP, CORS `*` + write methods + Allow-Headers authorization + route oracle + HSTS gap on GET 400 (all credential-gated); work/broadcast/gateway cockpits reachable with PHP sessions/CSP/Sentry, auth-gated APIs; work backend /fetch2+/directory+/identities 401-gated; /api-client/v1 dead.
+[RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; WSS high-entropy + auth in source; no passive in-band divergence; saltyrtc-* 426 but explicitly out of scope.
+[RISK] safe: 80 — safe-{01,1a,1b,02,00}.threema.ch behind 203.56.112.231: CORS `*` + write-capable methods + Allow-Headers authorization + route-existence oracle + HSTS/Expect-CT absent on GET 400 but present on OPTIONS; Basic-Auth gating only; no ACAC (browser credentialed mode blocked) — impact contingent on valid creds.
+[RISK] desktop-src: 90 — Windows key-storage ACL bypass RAG-confirmed (95) chained to Ed25519 identity privkey + SQLCipher DB key; PoC artifact ready, runtime validation pending; Electron sandbox unset + nodeIntegrationInWorker (conditional RCE, REJECTED standalone); crypto.ts benchmark password REJECTED.
+[PRIO] ds-apip.threema.ch (fetch_bulk + /identity/{id} + 5 challenge endpoints) | 8.60 | attack:10 business:7 tech:7 gate:10 cloud:8 fresh:9
+[PRIO] safe-01.threema.ch (5 hostnames, 203.56.112.231, /backups/{64hex}) | 7.85 | attack:8 business:9 tech:6 gate:6 cloud:10 fresh:7
+[PRIO] threema-desktop key-storage (Windows) | 7.20 | attack:8 business:8 tech:5 gate:4 cloud:6 fresh:9
+[PRIO] ds-apip-work.threema.ch | 6.15 | attack:7 business:8 tech:6 gate:3 cloud:6 fresh:7
+[PRIO] mediator-*/rendezvous-* (WSS hostname pattern) | 5.75 | attack:6 business:7 tech:6 gate:4 cloud:5 fresh:6
+[HYP] fetch_bulk account-status oracle via state/type echo
+class: IDOR
+asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch identity/fetch_bulk + GET /identity/{id}
+confidence: 55
+reasoning: All reachable valid IDs (ECHOECHO/*3MAW0RK/*SUPPORT/*THREEMA) return state:0,type:0,featureLevel:3, featureMask 9/15; schema stable all 3 hosts + staging. A deactivated/revoked identity returning state≠0 (or dropped) = mass status oracle at 10k IDs/req.
+evidence_needed: one program-issued deactivated/revoked identity returning state≠0 (or omitted) vs state:0 baseline.
+verify_steps: AUTH_HELPED — `POST {"identities":["{deactivatedTestId}","ECHOECHO","*THREEMA"]}` to all 3 hosts + staging; diff state/type/featureMask.
+impact: mass account-status enumeration layered on accepted existence oracle. Medium (escalation).
+testability: AUTH_HELPED
+[HYP] safe-01 credentialed backup read + CORS header-allowance
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 50
+reasoning: OPTIONS 204 this cycle: ACAO `*` + GET/HEAD/PUT/PATCH/POST/DELETE + Allow-Headers authorization + HSTS/Expect-CT, but NO Access-Control-Allow-Credentials → only attacker-supplied Authorization header (requires knowing backupId:backupKey) is CORS-readable. Unauth GET → 400/11B stable.
+evidence_needed: valid backupId:backupKey → status ≠ 400 + Access-Control-Expose-Headers presence.
+verify_steps: AUTH_HELPED — `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}`; diff vs 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin. High with creds, unreachable without.
+testability: AUTH_HELPED
+[HYP] Desktop Windows key-storage ACL bypass → full identity compromise via DPAPI
+class: MISCONFIG
+asset: threema-desktop key-storage (fs.ts:41, index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, sqlite.ts:240)
+confidence: 95
+reasoning: RAG-VERIFIED chain (15 source paths): win32 `{}` mode → .bin files without DACL; safeStorage (DPAPI) password recoverable same-user; Argon2id→XSalsa20-Poly1305 → ck (Ed25519) + databaseKey; raw SQLCipher PRAGMA key. PoC artifact exists (node --check OK, no-op on Linux). No contradicting evidence.
+evidence_needed: Windows runtime proof — same-user process reads .bin files, DPAPI-decrypts password, decrypts keystorage.bin → ck + databaseKey, opens threema.sqlite.
+verify_steps: RUNTIME_AUTH_HELPED — execute `poc/key-storage-acl-bypass-poc.js` on authorized Windows host with real Threema Desktop 2.x profile.
+impact: same-user malware extracts full identity keypair + decrypts message DB → complete account compromise. Medium-High (CVSS 3.1 ~5.5, AV:L).
+testability: RAG + RUNTIME_AUTH_HELPED
+[PARKED] fetch_bulk account-status oracle ([55]): kept — AUTH_HELPED but concrete verify_steps exist; only blocker is credential availability.
+[PARKED] safe-01 credentialed backup read ([50]): kept — verify_steps concrete; confidence ≥40; blocked on creds not logic.
+[FINAL] 1. Desktop Windows key-storage ACL bypass ([95], MISCONFIG, RAG+RUNTIME_AUTH_HELPED) 2. fetch_bulk account-status oracle ([55], IDOR, AUTH_HELPED) 3. safe-01 credentialed backup read ([50], AUTH, AUTH_HELPED)
+[NEXT] HUMAN: request from the program lead one credential set — a deactivated test identity, one safe backupId:backupKey pair, and one work test license. This single grant unblocks all three surviving hypotheses in parallel: fetch_bulk state/type diff ([55]), `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` vs 400 baseline ([50]), and the ds-apip-work /identities cross-subscription test. Chat phase formally closed (g-*.0 close-on-SNI, no cert leak, handshake requires authenticated login frame); recommend phase pivot away from chat until credentials arrive.
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.threema.ch/ds-apip.test.threema.ch/safe-01.threema.ch/work.test.threema.ch: all probed endpoints byte-stable this cycle — fetch_bulk 200 (288B/152B), safe-01 OPTIONS 204 with ACAO `*` + Allow-Headers authorization (no ACAC) + HSTS gap on GET 400, work.test settings 200/299B — no regression, no divergence; prior accepted findings hold.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch: fetch_bulk invalid-ID silent-omit behavior re-confirmed this cycle (3-ID batch → 288B, only valid IDs echoed) — response-size differential is a stable enumeration primitive.
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 15 source-path chain re-verified; PoC artifact exists; needs Windows validation — stable across cycles.
+[RISK] chat: 55 — identity→pubkey + status oracle (10k IDs/req, no rate limit, CORS `*`, 5 challenge endpoints) exposes chat identity space unauthenticated; chat transport itself closed (g-*.0 close-on-SNI, no cert/SAN, handshake needs auth); staging chat out of scope.
+[RISK] web: 90 — directory cluster: 3 prod hosts + staging mirror, public existence oracle + 10k batch + parameter-validation oracles + CORS `*`; safe-01: 5 hostnames/1 IP, CORS `*` + write methods + Allow-Headers authorization + route oracle + HSTS gap on GET 400 (all credential-gated); work/broadcast/gateway cockpits reachable, auth-gated APIs.
+[RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403; WSS high-entropy + auth in source; no passive in-band divergence; saltyrtc-* 426 out of scope.
+[RISK] safe: 80 — safe-{01,1a,1b,02,00} behind 203.56.112.231: CORS `*` + write-capable methods + Allow-Headers authorization + route-existence oracle + HSTS/Expect-CT absent on GET 400 present on OPTIONS; Basic-Auth gating only; no ACAC — impact contingent on valid creds.
+[RISK] desktop-src: 90 — Windows key-storage ACL bypass RAG-confirmed (95) chained to Ed25519 identity privkey + SQLCipher DB key; PoC artifact ready, runtime validation pending; Electron sandbox unset + nodeIntegrationInWorker (conditional RCE, REJECTED standalone); crypto.ts benchmark password REJECTED.
+## 2026-08-09 15:04:48 UTC [chat] (model bigpickle)
+## 2026-08-09 15:32:34 UTC [chat] (model bigpickle)
+class: IDOR
+asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch identity/fetch_bulk + GET /identity/{id}
+confidence: 55
+reasoning: All reachable valid IDs (ECHOECHO/*3MAW0RK/*SUPPORT/*THREEMA) return state:0,type:0,featureLevel:3, featureMask 9/15; schema byte-stable across 3 prod hosts + staging. fetch_bulk confirmed 10k IDs/req, no rate limit, CORS `*` — mass-status primitive if any deactivated/revoked ID returns state≠0 or is dropped.
+evidence_needed: one program-issued deactivated identity returning state≠0 (or omitted) vs the state:0 baseline.
+verify_steps: AUTH_HELPED — `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["{deactivatedTestId}","ECHOECHO","*THREEMA"]}'`; repeat on api.threema.ch, apip.threema.ch, ds-apip.test.threema.ch; diff state/type/featureMask vs ECHOECHO.
+impact: mass account-status enumeration layered on the already-accepted existence oracle — identifies deactivated/revoked/flagged accounts at 10k IDs/req. Medium (escalation).
+testability: AUTH_HELPED
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 50
+reasoning: OPTIONS 204 returns ACAO `*` + GET/HEAD/PUT/PATCH/POST/DELETE + Allow-Headers authorization + HSTS/Expect-CT but NO Access-Control-Allow-Credentials → only an attacker-known Authorization header is CORS-readable. Unauth GET → 400/11B stable across all 5 hosts; route-existence oracle (/backups/{64hex}→400 vs /backup/{x}→404) confirmed.
+evidence_needed: valid backupId:backupKey → status ≠ 400 + Access-Control-Expose-Headers presence.
+verify_steps: AUTH_HELPED — `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}`; diff status/headers vs the unauth 400 baseline on all 5 hostnames.
+impact: with creds → identity keypair + message-history backup readable; cross-origin readability of a credentialed GET depends on exposed headers. High with creds, unreachable without.
+testability: AUTH_HELPED
+class: MISCONFIG
+asset: threema-desktop key-storage (fs.ts:41, index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, sqlite.ts:240)
+confidence: 95
+reasoning: RAG-VERIFIED (15 source paths): win32 `{}` file mode → keystorage.bin + keystorage.password.bin written without DACL; safeStorage (DPAPI) password recoverable same-user; Argon2id→XSalsa20-Poly1305 yields `ck` (Ed25519 privkey) + databaseKey; raw SQLCipher PRAGMA key. PoC artifact exists (node --check OK, graceful no-op on Linux). No contradicting evidence across cycles.
+evidence_needed: Windows runtime proof — same-user process reads both .bin files, DPAPI-decrypts password, decrypts keystorage.bin → ck + databaseKey, opens threema.sqlite with PRAGMA key.
+verify_steps: RUNTIME_AUTH_HELPED — execute `poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with a real Threema Desktop 2.x profile.
+impact: same-user malware extracts full identity keypair + decrypts message DB → complete account compromise. Medium-High (CVSS 3.1 ~5.5, AV:L).
+testability: RAG + RUNTIME_AUTH_HELPED
+## 2026-08-09 15:59:14 UTC [chat] (model bigpickle)
+[HYP] fetch_bulk account-status oracle
+class: IDOR
+asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch identity/fetch_bulk + GET /identity/{id}
+confidence: 55
+reasoning: All reachable valid IDs (ECHOECHO/*3MAW0RK/*SUPPORT/*THREEMA) return state:0,type:0,featureLevel:3, featureMask 9/15; schema byte-stable across 3 prod hosts + staging. fetch_bulk confirmed 10k IDs/req, no rate limit, CORS `*` — mass-status primitive if any deactivated/revoked ID returns state≠0 or is dropped.
+evidence_needed: one program-issued deactivated identity returning state≠0 (or omitted) vs the state:0 baseline.
+verify_steps: AUTH_HELPED — `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["{deactivatedTestId}","ECHOECHO","*THREEMA"]}'`; repeat on api.threema.ch, apip.threema.ch, ds-apip.test.threema.ch; diff state/type/featureMask vs ECHOECHO.
+impact: mass account-status enumeration layered on the accepted existence oracle — identifies deactivated/revoked/flagged accounts at 10k IDs/req. Medium (escalation).
+testability: AUTH_HELPED
+[HYP] safe-01 credentialed backup read + CORS header-allowance
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 50
+reasoning: OPTIONS 204 returns ACAO `*` + GET/HEAD/PUT/PATCH/POST/DELETE + Allow-Headers authorization + HSTS/Expect-CT but NO Access-Control-Allow-Credentials → only an attacker-known Authorization header is CORS-readable. Unauth GET → 400/11B stable; route-existence oracle (/backups/{64hex}→400 vs /backup/{x}→404) confirmed.
+evidence_needed: valid backupId:backupKey → status ≠ 400 + Access-Control-Expose-Headers presence.
+verify_steps: AUTH_HELPED — `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}`; diff status/headers vs the unauth 400 baseline on all 5 hostnames.
+impact: with creds → identity keypair + message-history backup readable; cross-origin readability of credentialed GET depends on exposed headers. High with creds, unreachable without.
+testability: AUTH_HELPED
+[HYP] Desktop Windows key-storage ACL bypass → full identity compromise via DPAPI
+class: MISCONFIG
+asset: threema-desktop key-storage (fs.ts:41, index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, sqlite.ts:240)
+confidence: 95
+reasoning: RAG-VERIFIED chain (15 source paths): win32 `{}` mode → keystorage.bin + keystorage.password.bin written without DACL; safeStorage (DPAPI) password recoverable same-user; Argon2id→XSalsa20-Poly1305 yields ck (Ed25519 privkey) + databaseKey; raw SQLCipher PRAGMA key. PoC artifact exists (node --check OK, no-op on Linux). No contradicting evidence across cycles.
+evidence_needed: Windows runtime proof — same-user process reads both .bin files, DPAPI-decrypts password, decrypts keystorage.bin → ck + databaseKey, opens threema.sqlite.
+verify_steps: RUNTIME_AUTH_HELPED — execute `poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with a real Threema Desktop 2.x profile.
+impact: same-user malware extracts full identity keypair + decrypts message DB → complete account compromise. Medium-High (CVSS 3.1 ~5.5, AV:L).
+testability: RAG + RUNTIME_AUTH_HELPED
+## 2026-08-09 16:44:30 UTC [chat] (model bigpickle)
+[HYP] billing.threema.ch 404-differential route-presence oracle
+class: OTHER
+asset: billing.threema.ch
+confidence: 45
+reasoning: Host flipped TIMEOUT→LIVE this cycle. App-served 404 (1024B German page) vs nginx 404 (146B) discriminates recognized vs unknown paths; `/cache/*` + favicon 200 prove a real PHP billing app behind nginx; HSTS+Expect-CT present; no non-404 route found across ~40 probed paths.
+evidence_needed: any path returning ≠404/403 (login, order, api, sso, oauth), or a content/status differential in 404 body vs the known 1024B baseline.
+verify_steps: PASSIVE — `curl -sS -m 8 -o /dev/null -w '%{http_code} %{size_download}' https://billing.threema.ch/<word>` and `curl -sS -m 8 https://billing.threema.ch/login | sha256sum` vs baseline 1024B body; wordlist of billing-app routes (login, order, invoice, sso, oauth, session, payment, api/v1, index.php/*).
+impact: maps a previously-unreachable billing backend; any live unauth route = direct billing/payment data exposure. Medium (only if route found).
+testability: PASSIVE
+[HYP] shop.threema.ch `/en/retrieve-keys` invoice_ref enumeration oracle
+class: BUSLOGIC
+asset: shop.threema.ch/en/retrieve-keys
+confidence: 45
+reasoning: POST form (type, email, invoice_ref) retrieves license keys; no hCaptcha on this page (buy page has it) and no visible rate-limit header; CSP `form-action 'self' https://billing.threema.ch` shows shop form submissions terminate at the billing backend.
+evidence_needed: response differential for valid-format vs invalid invoice_ref (e.g., "key sent" vs "not found" vs 200/4xx), or any 429/ratelimit.
+verify_steps: AUTH_HELPED — `curl -sS -m 8 -X POST https://shop.threema.ch/en/retrieve-keys -d 'type=private&email=test@example.com&invoice_ref=INV-000000'` (and format variants), diff body/status; needs an authorized invoice_ref to confirm true-positive. POST only — violates passive GET/HEAD rule, so only under authorized test.
+impact: invoice-ref existence oracle + potential license-key recovery for guessed refs. Medium-High (escalation).
+testability: AUTH_HELPED
+[HYP] fetch_bulk account-status oracle (existing)
+class: IDOR
+asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch identity/fetch_bulk
+confidence: 55
+reasoning: All reachable valid IDs return state:0/type:0/featureLevel:3; fetch_bulk 10k IDs/req, no rate limit, CORS `*` — mass-status primitive if any deactivated ID returns state≠0 or is dropped.
+evidence_needed: one program-issued deactivated identity returning state≠0 (or omitted).
+verify_steps: AUTH_HELPED — `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Content-Type: application/json' -d '{"identities":["{deactivatedTestId}","ECHOECHO","*THREEMA"]}'` on all 4 hosts; diff state/featureMask vs ECHOECHO.
+impact: mass account-status enumeration layered on accepted existence oracle. Medium.
+testability: AUTH_HELPED
+[NEXT] PROBE: `curl -sS -m 8 -w '%{http_code} %{size_download}' https://billing.threema.ch/{login,order/invoice,sso,oauth2,api/v1,index.php/login,index.php/order,session,payment}` — diff each body sha256 vs the known 1024B app-404 baseline to find any live non-404 route on the newly-live billing host.
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/probe-results.md
+## 2026-08-08 17:01:28 UTC
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://ds-apip.threema.ch/identity/{blob_cred|sfu_cred|set_revocation_key|check_revocation_key|update_work_info -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/{fetch_bulk|sfu_cred|blob_cred|set_revocation_key|check_revocation_key|update_work_info -> HTTP 404
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+
+## 2026-08-08 17:40:36 UTC
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+
+## 2026-08-08 17:59:22 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+
+## 2026-08-08 18:31:22 UTC
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+
+## 2026-08-08 19:12:56 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://github.com/threema-ch/threema-desktop -> 200 len=? type=text/html; charset=utf-8
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+https://ds-apip.threema.ch/identity/check_revocation_key?identity=ECHOECHO&revocation_key={128 -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-08 19:42:32 UTC
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+
+## 2026-08-08 20:10:16 UTC
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+
+## 2026-08-08 20:37:18 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+https://work.test.threema.ch/api-app/public/global/settings -> 200 len=? type=application/json
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+https://work.threema.ch/api-app/public/global/settings -> HTTP 404
+
+## 2026-08-08 21:04:20 UTC
+https://saltyrtc-00.threema.ch/` -> HTTP 426
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://work.test.threema.ch/api-app/public/global/settings -> 200 len=? type=application/json
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+https://work.threema.ch/api-app/public/global/settings -> HTTP 404
+
+## 2026-08-08 21:26:54 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+https://github.com/threema-ch/threema-desktop` -> HTTP 404
+https://saltyrtc-00.threema.ch/` -> HTTP 426
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+https://work.test.threema.ch/api-app/public/global/settings -> 200 len=? type=application/json
+https://work.threema.ch/api-app/public/global/settings -> HTTP 404
+
+## 2026-08-08 22:01:21 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+https://saltyrtc-00.threema.ch/` -> HTTP 426
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+
+## 2026-08-08 22:16:30 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://saltyrtc-00.threema.ch/` -> HTTP 426
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+
+## 2026-08-08 22:51:10 UTC
+https://ds-apip.threema.ch/identity/lookup -> HTTP 404
+https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
+https://saltyrtc-00.threema.ch/` -> HTTP 426
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+
+## 2026-08-08 23:17:53 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://saltyrtc-00.threema.ch/` -> HTTP 426
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+
+## 2026-08-08 23:47:05 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://saltyrtc-00.threema.ch/` -> HTTP 426
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+
+## 2026-08-09 00:05:12 UTC
+https://github.com/threema-ch/threema-desktop -> 200 len=? type=text/html; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+https://github.com/threema-ch/threema-desktop` -> HTTP 404
+https://shop.threema.ch/en -> 200 len=? type=text/html; charset=UTF-8
+https://billing.threema.ch` -> ERR <urlopen error [Errno -2] Name or service not know
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+
+## 2026-08-09 02:37:41 UTC
+https://saltyrtc-00.threema.ch/` -> HTTP 426
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://shop.threema.ch/en -> 200 len=? type=text/html; charset=UTF-8
+https://billing.threema.ch` -> ERR <urlopen error [Errno -2] Name or service not know
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+
+## 2026-08-09 04:02:06 UTC
+https://saltyrtc-00.threema.ch/` -> HTTP 426
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://shop.threema.ch/en -> 200 len=? type=text/html; charset=UTF-8
+https://billing.threema.ch` -> ERR <urlopen error [Errno -2] Name or service not know
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+
+## 2026-08-09 05:08:35 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+https://saltyrtc-00.threema.ch/` -> HTTP 426
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://shop.threema.ch/en -> 200 len=? type=text/html; charset=UTF-8
+https://billing.threema.ch` -> ERR <urlopen error [Errno -2] Name or service not know
+
+## 2026-08-09 05:45:58 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+https://shop.threema.ch/en -> 200 len=? type=text/html; charset=UTF-8
+https://billing.threema.ch` -> ERR <urlopen error [Errno -2] Name or service not know
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://saltyrtc-00.threema.ch/` -> HTTP 426
+https://broadcast.threema.ch/api/v1 -> HTTP 401
+https://broadcast.threema.ch/en/login -> 200 len=? type=text/html; charset=UTF-8
+https://gateway.threema.ch/en/signup -> 200 len=? type=text/html; charset=UTF-8
+
+## 2026-08-09 06:43:55 UTC
+https://saltyrtc-00.threema.ch/` -> HTTP 426
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://shop.threema.ch/en -> 200 len=? type=text/html; charset=UTF-8
+https://billing.threema.ch` -> ERR <urlopen error [Errno -2] Name or service not know
+https://broadcast.threema.ch/api/v1 -> HTTP 401
+https://broadcast.threema.ch/en/login -> 200 len=? type=text/html; charset=UTF-8
+https://gateway.threema.ch/en/signup -> 200 len=? type=text/html; charset=UTF-8
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+https://ds-apip.threema.ch/identity/lookup -> HTTP 404
+https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
+https://ds-apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-09 07:33:04 UTC
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.test.threema.ch/swagger` -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://broadcast.threema.ch/api/v1 -> HTTP 401
+https://gateway.threema.ch/en/signup -> 200 len=? type=text/html; charset=UTF-8
+https://work.test.threema.ch/api-app/public/global/settings -> 200 len=? type=application/json
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400
+
+## 2026-08-09 08:12:08 UTC
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.test.threema.ch/swagger` -> HTTP 404
+https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
+https://ds-apip.threema.ch/identity/lookup -> HTTP 404
+https://ds-apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://broadcast.threema.ch/api/v1 -> HTTP 401
+https://gateway.threema.ch/en/signup -> 200 len=? type=text/html; charset=UTF-8
+https://broadcast.threema.ch/api/v1/health -> HTTP 404
+
+## 2026-08-09 09:06:02 UTC
+https://broadcast.threema.ch/api/v1 -> HTTP 401
+https://gateway.threema.ch/en/signup -> 200 len=? type=text/html; charset=UTF-8
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://broadcast.threema.ch/api/v1/health -> HTTP 404
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://work.test.threema.ch/api-app/public/global/settings -> 200 len=? type=application/json
+https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef -> HTTP 400
+https://safe-01.threema.ch/backups/ -> HTTP 404
+
+## 2026-08-09 09:53:58 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://gateway.threema.ch/en/signup -> 200 len=? type=text/html; charset=UTF-8
+
+## 2026-08-09 10:11:45 UTC
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef -> HTTP 400
+
+## 2026-08-09 10:53:01 UTC
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-09 11:25:54 UTC
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.test.threema.ch/identity/fetch_bulk` -> HTTP 404
+
+## 2026-08-09 11:54:19 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://ds-apip.threema.ch/identity/ZZZZZZZZ` -> HTTP 404
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.test.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-09 12:18:21 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://ds-apip.threema.ch/identity/ZZZZZZZZ` -> HTTP 404
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://ds-apip.threema.ch/ -> HTTP 403
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.test.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-09 13:16:56 UTC
+https://ds-apip.threema.ch/ -> HTTP 403
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-09 14:08:53 UTC
+https://ds-apip.threema.ch/identity/lookup -> HTTP 404
+https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/ -> HTTP 403
+
+## 2026-08-09 14:29:44 UTC
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-09 15:08:28 UTC
+https://ds-apip.threema.ch/identity/lookup -> HTTP 404
+https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+
+## 2026-08-09 15:41:02 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-09 16:03:56 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+
+## 2026-08-09 16:44:53 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+https://billing.threema.ch/<word>` -> HTTP 404
+https://billing.threema.ch/login -> HTTP 404
+https://billing.threema.ch` -> ERR <urlopen error [Errno -2] Name or service not know
+https://shop.threema.ch/en/retrieve-keys -> 200 len=? type=text/html; charset=UTF-8
+https://billing.threema.ch/{login,order/invoice,sso,oauth2,api/v1,index.php/login,index.php/order,session,payment -> HTTP 404
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+[0m
+[93m[1m! [0mpermission requested: external_directory (/home/*); auto-rejecting
+[0m✗ [0mcat /home/runner/work/threema-hunt/threema-hunt/state_laguna.json /home/runner/work/threema-hunt/threema-hunt/state_ling3.json /home/runner/work/threema-hunt/threema-hunt/state_longcat.json /home/worker 2>/dev/null; cat /home/runner/work/threema-hunt/threema-hunt/state_nemotron3.json; echo "---LAST PROBE RESULTS LINE COUNT---"; wc -l /home/runner/work/threema-hunt/threema-hunt/probe-results.md; echo "---date---"; date -u failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
