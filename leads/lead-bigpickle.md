@@ -3671,3 +3671,4 @@ impact: license-key/order data or flow tampering — Low-Medium, contingent on e
 testability: PASSIVE
 [FINAL]
 [NEXT] RAG: done this cycle — submission-ready report authored at reports/fetch_bulk-identity-enumeration-idor.md (ceiling ≥2000 IDs/req, ≈5.5e8 req for 2^40 space, CORS `*`, no rate limit, 5 challenge-param oracles; CVSS ≈4.3). Next gate is HUMAN: request operator (a) scope ruling on saltyrtc-{00..ff}.threema.ch and (b) program-issued test backupId:backupKey for safe-01.threema.ch to close the two top open items; no further passive probes queued on saturated assets.
+## 2026-08-09 03:58:36 UTC [chat] (model bigpickle)

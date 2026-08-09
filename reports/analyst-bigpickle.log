@@ -24502,3 +24502,415 @@ STEP 7 — RISK SCORE:
 - [RISK] sync: 20 — mediator/rendezvous uniform 403, no in-band surface.
 - [RISK] safe: 40 — backup API credential-gated; existence oracle + HSTS gap on 400 + credentialed CORS weaken posture but payload needs creds.
 - [RISK] desktop-src: 55 — accepted Windows key-storage ACL bypass (same-user → Ed25519 keypair + SQLCipher DB) plus conditional sandbox/worker gap; local-only.
+===== ANALYST bigpickle 2026-08-09 04:02:03 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la reports/ 2>/dev/null; echo "---"; ls -la /tmp/opencode/threema-desktop/ 2>/dev/null | head -20; echo "---"; ls /tmp/opencode/ 2>/dev/null
+total 5100
+drwxr-xr-x  2 runner runner    4096 Aug  9 03:54 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 03:54 ..
+-rw-r--r--  1 runner runner 1823998 Aug  9 03:54 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 2764360 Aug  9 03:54 analyst-laguna.log
+-rw-r--r--  1 runner runner   22015 Aug  9 03:54 analyst-ling3.log
+-rw-r--r--  1 runner runner    4410 Aug  9 03:54 analyst-longcat.log
+-rw-r--r--  1 runner runner  509143 Aug  9 03:54 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    3436 Aug  9 03:54 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      52 Aug  9 03:54 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 03:54 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 03:54 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner    8356 Aug  9 03:54 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  159414 Aug  9 03:54 hypotheses.md
+-rw-r--r--  1 runner runner   16712 Aug  9 03:54 valid-bugs.md
+---
+---
+[0m
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m
+[0m$ [0mgrep -rn "fetch_bulk-identity-enumeration-idor" reports/ 2>/dev/null; echo "exit=$?"; echo "---valid-bugs---"; head -40 reports/valid-bugs.md
+reports/analyst-bigpickle.log:24437:[0m← [0mWrite reports/fetch_bulk-identity-enumeration-idor.md
+reports/analyst-bigpickle.log:24442:- [CHANGED] fetch_bulk enumeration bound carried to artifact: 2000-ID batch → 200 with ECHOECHO pubkey echo, 1999 invalid silently omitted, no 413/429 (ceiling ≥2000; ≈5.5e8 req for full 2^40 space) — now written to reports/fetch_bulk-identity-enumeration-idor.md; triage run 2026-08-09 00:41 confirmed duplicate-VALID (#1), 3 HOLD, 0 new reportable.
+reports/analyst-bigpickle.log:24493:[NEXT] RAG: done this cycle — submission-ready report authored at reports/fetch_bulk-identity-enumeration-idor.md (ceiling ≥2000 IDs/req, ≈5.5e8 req for 2^40 space, CORS `*`, no rate limit, 5 challenge-param oracles; CVSS ≈4.3). Next gate is HUMAN: request operator (a) scope ruling on saltyrtc-{00..ff}.threema.ch and (b) program-issued test backupId:backupKey for safe-01.threema.ch to close the two top open items; no further passive probes queued on saturated assets.
+reports/hypotheses-bigpickle.txt:30:[NEXT] RAG: done this cycle — submission-ready report authored at reports/fetch_bulk-identity-enumeration-idor.md (ceiling ≥2000 IDs/req, ≈5.5e8 req for 2^40 space, CORS `*`, no rate limit, 5 challenge-param oracles; CVSS ≈4.3). Next gate is HUMAN: request operator (a) scope ruling on saltyrtc-{00..ff}.threema.ch and (b) program-issued test backupId:backupKey for safe-01.threema.ch to close the two top open items; no further passive probes queued on saturated assets.
+reports/hypotheses.md:1019:- NEXT(hypotheses-bigpickle.txt): RAG: done this cycle — submission-ready report authored at reports/fetch_bulk-identity-enumeration-idor.md (ceiling ≥2000 IDs/req, ≈5.5e8 req for 2^40 space, CO
+exit=0
+---valid-bugs---
+# Validated Bugs
+
+- 2026-08-07 ~18:00 UTC - SEED STATE: 0 valid bugs. Pipeline not yet run; hypotheses are recon-based and UNVALIDATED.
+
+- 3 lead(s) marked VALID at 2026-08-07 21:03:52 UTC
+  - | Q5 Novel? | **NO** — already ACCEPTED (knowledge/index.md line 21: "POST /identity/fetch_bulk returns pubkeys for valid IDs only, no auth") |
+  - | Q4 Passive proof? | **PARTIAL** — can confirm CORS headers + 404 on random IDs; cannot confirm oracle without valid id+key pair |
+  - | **VALID** | 0 | — |
+
+- 3 lead(s) marked VALID at 2026-08-07 21:56:25 UTC
+  - **Verdict: HOLD** — Speculative; requires AUTH_HELPED with valid credentials to confirm. Needs program to provide test credentials.
+  - | Q4 | PARTIAL — can confirm CORS headers; cannot confirm oracle without valid id+key |
+  - | **VALID** | 0 | — |
+
+- 2 lead(s) marked VALID at 2026-08-07 23:55:35 UTC
+  - | Q3 | **NO** | All data-access routes return 400 (credential-gated). No unauthenticated data access demonstrated. CORS `*` + Authorization header on an auth-gated API only matters if the attacker alr
+  - | Q7 | **NO** | Requires valid credentials to have any impact. No unauthenticated data access demonstrated. |
+
+- 3 lead(s) marked VALID at 2026-08-08 04:24:31 UTC
+  - **Verdict: VALID**
+  - **Verdict: HOLD** — Defense-in-depth/hardening gap. `sandbox:false` + `nodeIntegrationInWorker:true` are real hardening concerns but constitute a vulnerability ONLY when chained with a demonstrated re
+  - | **VALID** | 1 | #3 Desktop Windows key-storage ACL bypass |
+
+- 6 lead(s) marked VALID at 2026-08-08 06:01:58 UTC
+  - **Verdict: VALID** (duplicate of already-accepted KB finding — no new action needed)
+  - **Verdict: HOLD** — credential-gated; real impact requires credential compromise; enumeration oracle is weak (route existence only). AUTH_HELPED needed to confirm (1) HTTP 200 for valid backupId+backu
+  - | Q7 | ✅ YES | Reasonable triager accepts as valid local-privilege finding for privacy-focused messenger |
+  - **Verdict: VALID** (duplicate of already-accepted KB finding — confidence strengthened 75→95)
+  - | 1 | Directory identity→pubkey bulk enumeration + CORS * + no rate limit | IDOR | **VALID** | 5.3 Med | Already accepted |
+  - | 3 | Desktop Windows key-storage ACL bypass → identity compromise | MISCONFIG | **VALID** | 5.5 Med | Already accepted (strengthened) |
+
+- 8 lead(s) marked VALID at 2026-08-08 07:07:02 UTC
+  - | Q4 Passive proof? | **YES** — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` returns 200 with pubkey
+  - **Verdict: ✅ VALID**
+  - **Verdict: ✅ VALID (low severity)**
+  - **Verdict: ✅ VALID (medium, local access required)**
+  - | Q7 Triager accept? | **NO** — no data access without valid credentials; CORS `*` on a credential-gated endpoint is not a vulnerability |
+  - | 1 | Directory cluster identity enumeration (IDOR) | ✅ **VALID** | 5.3 | Medium |
+  - | 2 | Staging directory server public exposure | ✅ **VALID** | 3.1 | Low |
+  - | 3 | Desktop Windows key storage ACL bypass | ✅ **VALID** | 4.6 | Medium |
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/; echo "---glob report---"; find /home/runner/work/threema-hunt -name "*fetch_bulk*" -o -name "*.md" 2>/dev/null | grep -v reports/hypotheses | head; echo "---poc---"; find / -name "*key-storage-acl*" 2>/dev/null | head; echo "done"
+total 188
+drwxr-xr-x 11 runner runner  4096 Aug  9 03:54 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 03:54 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 03:54 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 03:54 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 03:54 README.md
+-rw-r--r--  1 runner runner  6303 Aug  9 03:55 analyst-out.txt
+-rw-r--r--  1 runner runner 51850 Aug  9 03:54 analyst-prompt.txt
+-rw-r--r--  1 runner runner 48786 Aug  9 03:54 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 03:54 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 03:54 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  9 03:54 leads
+-rw-r--r--  1 runner runner  7100 Aug  9 03:54 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 03:54 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 03:54 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 03:54 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 03:54 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 03:54 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 03:54 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 03:54 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 03:54 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 03:54 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 03:54 triage
+---glob report---
+/home/runner/work/threema-hunt/threema-hunt/knowledge/index.md
+/home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-13-56.md
+/home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-12-09.md
+/home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-14-28.md
+/home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-10-37.md
+/home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-10-27.md
+/home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-07-22-10.md
+/home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-08-07.md
+/home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-08-22-05.md
+/home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-09-01-41.md
+---poc---
+
+
+<shell_metadata>
+shell tool terminated command after exceeding timeout 120000 ms. If this command is expected to take longer and is not waiting for interactive input, retry with a larger timeout value in milliseconds.
+</shell_metadata>
+[0m
+[0m$ [0mcat state_bigpickle.json; echo; ls inventory/ knowledge/ triage/ leads/ | head -40; echo "---"; ls -la /tmp/opencode/ 2>/dev/null; echo "poc check:"; test -f /tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py && echo PRESENT || echo ABSENT
+{"phase": "POC", "target": "chat"}
+inventory/:
+threema.md
+
+knowledge/:
+index.md
+
+leads/:
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-nemotron3.md
+reposcan-2026-08-07-18-43.md
+reposcan-2026-08-07-18-59.md
+reposcan-2026-08-07-19-20.md
+reposcan-2026-08-07-19-33.md
+reposcan-2026-08-07-20-11.md
+reposcan-2026-08-07-20-59.md
+reposcan-2026-08-07-21-13.md
+reposcan-2026-08-07-21-27.md
+reposcan-2026-08-07-22-10.md
+reposcan-2026-08-07-22-46.md
+reposcan-2026-08-07-23-10.md
+reposcan-2026-08-07-23-19.md
+reposcan-2026-08-07-23-50.md
+reposcan-2026-08-08-00-01.md
+reposcan-2026-08-08-00-19.md
+reposcan-2026-08-08-02-10.md
+reposcan-2026-08-08-02-23.md
+reposcan-2026-08-08-03-52.md
+reposcan-2026-08-08-04-47.md
+reposcan-2026-08-08-05-01.md
+reposcan-2026-08-08-05-29.md
+reposcan-2026-08-08-05-48.md
+reposcan-2026-08-08-06-08.md
+reposcan-2026-08-08-06-56.md
+reposcan-2026-08-08-07-12.md
+reposcan-2026-08-08-07-53.md
+reposcan-2026-08-08-08-07.md
+reposcan-2026-08-08-08-37.md
+---
+total 16
+drwxr-xr-x  2 runner runner  4096 Aug  9 03:54 .
+drwxrwxrwt 15 root   root   12288 Aug  9 03:54 ..
+poc check:
+ABSENT
+[0m
+[0m$ [0mls -t leads/reposcan-*.md | head -3; echo "---"; ls -t reports/*.log | head; echo "---"; ls -t inventory/
+leads/reposcan-2026-08-09-00-07.md
+leads/reposcan-2026-08-09-01-41.md
+leads/reposcan-2026-08-09-02-39.md
+---
+reports/analyst-ling3.log
+reports/analyst-longcat.log
+reports/analyst-nemotron3.log
+reports/analyst-laguna.log
+reports/analyst-bigpickle.log
+---
+threema.md
+[0m
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m
+[0m$ [0mwc -l leads/reposcan-2026-08-09-02-39.md leads/reposcan-2026-08-09-01-41.md leads/reposcan-2026-08-09-00-07.md 2>/dev/null; echo "---tail of 02-39---"; tail -30 leads/reposcan-2026-08-09-02-39.md 2>/dev/null
+112 leads/reposcan-2026-08-09-02-39.md
+  119 leads/reposcan-2026-08-09-01-41.md
+  142 leads/reposcan-2026-08-09-00-07.md
+  373 total
+---tail of 02-39---
+|------|------|----------|
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
+| threema-android/domain/protocol/src/directory.openapi.yml | 7, 911 | Same staging directory endpoints |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | Same staging directory endpoints |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 7, 911 | Same staging directory endpoints |
+| threema-desktop/apps/desktop/config/vite.config.ts | 147, 153, 154 | `DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/'`, `WORK_SERVER_LEGACY_URL: 'https://ds-apip-work.test.threema.ch/'`, `WORK_SERVER_URL: 'https://work.test.threema.ch/'` |
+
+#### INTERESTING
+| File | Line | Note |
+|------|------|------|
+| threema-android/app/src/main/java/ch/threema/app/utils/IceCandidateParser.java | 43 | `TOKEN = "[a-zA-Z]+"` (regex pattern, not secret) |
+| threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt | 70 | `icePassword` in string template (code, not hardcoded secret) |
+| threema-android/app/src/main/java/ch/threema/app/notifications/NotificationChannels.kt | 52 | `NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"` (constant name) |
+| threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt | 15, 19 | Two distinct Sentry public DSN keys (prod vs dev?) |
+
+---
+
+### Verdict List
+
+| Candidate | REPORT_CANDIDATE | Reason |
+|-----------|------------------|--------|
+| Sentry publicApiKey (line 15) | **no** | Public DSN key for error tracking — designed to be client-visible |
+| Sentry publicApiKey (line 19) | **no** | Public DSN key for error tracking — designed to be client-visible |
+| Benchmark password `r3gGN9GDQ5NF6tM6` (crypto.ts:223) | **no** | **RAG-REJECTED** — benchmark-only dummy in `determineKdfParams()`, derived key purged immediately (line 233), not used for real encryption |
+| All test fixtures (`testPassword`, `shootdeathstar`, `CHANGE_ME`, etc.) | **no** | Test/example data only |
+| Staging endpoints in OpenAPI specs & vite.config.ts | **no** | Known staging hosts (`ds-apip.test.threema.ch`, `work.test.threema.ch`) — already documented in RAG as accepted surfaces |
+| IceCandidateParser TOKEN regex | **no** | Pattern constant, not a secret |
+| Notification channel constant name | **no** | Identifier string, not a secret |
+
+**No reportable secrets found in this delta.** All hits are either test fixtures, known staging endpoints (already in RAG), public Sentry DSN keys, or the benchmark dummy password previously rejected.
+[0m
+[0m$ [0mls reposcan-raw/ 2>/dev/null; echo "---"; ls reposcan-raw/*/ 2>/dev/null | head -20; echo "---grep log for poc/report write events---"; grep -n "key-storage-acl-bypass-poc\|fetch_bulk-identity-enumeration-idor" reports/analyst-bigpickle.log | tail -8
+analysis.txt
+grep-delta.txt
+grep-hits.prev.txt
+grep-hits.txt
+rag.txt
+threema-ch
+---
+app-remote-protocol
+compose-area
+push-relay
+threema-android
+threema-bot-sdk
+threema-desktop
+threema-ios
+threema-markup
+threema-msgapi-sdk-java
+threema-msgapi-sdk-php
+threema-msgapi-sdk-python
+threema-msgapi-sdk-rust
+threema-web
+threema-web-electron
+wasm-minisign-verify
+webrtc-build-docker
+---grep log for poc/report write events---
+24437:[0m← [0mWrite reports/fetch_bulk-identity-enumeration-idor.md
+24442:- [CHANGED] fetch_bulk enumeration bound carried to artifact: 2000-ID batch → 200 with ECHOECHO pubkey echo, 1999 invalid silently omitted, no 413/429 (ceiling ≥2000; ≈5.5e8 req for full 2^40 space) — now written to reports/fetch_bulk-identity-enumeration-idor.md; triage run 2026-08-09 00:41 confirmed duplicate-VALID (#1), 3 HOLD, 0 new reportable.
+24493:[NEXT] RAG: done this cycle — submission-ready report authored at reports/fetch_bulk-identity-enumeration-idor.md (ceiling ≥2000 IDs/req, ≈5.5e8 req for 2^40 space, CORS `*`, no rate limit, 5 challenge-param oracles; CVSS ≈4.3). Next gate is HUMAN: request operator (a) scope ruling on saltyrtc-{00..ff}.threema.ch and (b) program-issued test backupId:backupKey for safe-01.threema.ch to close the two top open items; no further passive probes queued on saturated assets.
+[0m
+[0m$ [0mls reposcan-raw/threema-ch/threema-desktop/ 2>/dev/null; echo "---"; find reposcan-raw/threema-ch/threema-desktop -name "index.ts" -path "*key-storage*" 2>/dev/null; echo "---"; find reposcan-raw/threema-ch/threema-desktop -name "*.ts" -path "*key-storage*" 2>/dev/null | head
+---
+---
+[0m
+[0m$ [0mdu -sh reposcan-raw/threema-ch/threema-desktop 2>/dev/null; ls -la reposcan-raw/threema-ch/threema-desktop 2>/dev/null; echo "---android---"; du -sh reposcan-raw/threema-ch/threema-android 2>/dev/null
+4.0K	reposcan-raw/threema-ch/threema-desktop
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  9 03:54 .
+drwxr-xr-x 18 runner runner 4096 Aug  9 03:54 ..
+---android---
+4.0K	reposcan-raw/threema-ch/threema-android
+[0m
+[0m$ [0mls triage/; echo "---"; tail -40 reports/valid-bugs.md; echo "---grep fetch_bulk in valid-bugs---"; grep -c "fetch_bulk" reports/valid-bugs.md
+run-2026-08-07-20-10.md
+run-2026-08-07-21-03.md
+run-2026-08-07-21-56.md
+run-2026-08-07-22-56.md
+run-2026-08-07-23-55.md
+run-2026-08-08-02-24.md
+run-2026-08-08-04-24.md
+run-2026-08-08-06-01.md
+run-2026-08-08-07-07.md
+run-2026-08-08-07-15.md
+run-2026-08-08-08-07.md
+run-2026-08-08-08-59.md
+run-2026-08-08-09-54.md
+run-2026-08-08-10-53.md
+run-2026-08-08-11-44.md
+run-2026-08-08-13-11.md
+run-2026-08-08-14-00.md
+run-2026-08-08-14-52.md
+run-2026-08-08-15-47.md
+run-2026-08-08-17-19.md
+run-2026-08-08-17-51.md
+run-2026-08-08-17-57.md
+run-2026-08-08-18-19.md
+run-2026-08-08-19-08.md
+run-2026-08-08-19-48.md
+run-2026-08-08-20-15.md
+run-2026-08-08-20-16.md
+run-2026-08-08-20-52.md
+run-2026-08-08-21-18.md
+run-2026-08-08-21-53.md
+run-2026-08-08-22-13.md
+run-2026-08-08-22-53.md
+run-2026-08-08-23-18.md
+run-2026-08-08-23-48.md
+run-2026-08-09-00-41.md
+run-2026-08-09-03-00.md
+---
+  - | Q3 Impact | **CONTINGENT** — backup-ID existence enumeration (400-vs-404 oracle); full backup read requires valid backupId+backupKey |
+  - | Q5 Novel | **NO** — already ACCEPTED in KB (lines 30-31, 62, 79, 101, 106, 125, 128-129, 132, 135, 138); triaged as VALID in valid-bugs.md |
+  - | Q7 Triager accept | **CONDITIONAL** — already accepted as finding in valid-bugs.md; the 400-vs-404 oracle alone is weak but the CORS+Authorization pattern was accepted |
+  - | Q5 Novel | **NO** — already ACCEPTED in KB (lines 26, 74, 77-78, 92, 108, 121, 130, 133, 137); triaged as VALID in valid-bugs.md multiple times |
+  - | Q7 Triager accept | **PASS** — already accepted as finding #3 in valid-bugs.md |
+  - | Q5 Novel | **NO** — already ACCEPTED in KB (lines 32, 63, 75, 81, 95, 115, 118, 123); triaged as HOLD in valid-bugs.md |
+  - | Q7 Triager accept | **HOLD** — already triaged as HOLD/contingent in valid-bugs.md; exploitability depends on undiscovered secondary bug |
+
+- 6 lead(s) marked VALID at 2026-08-08 23:18:20 UTC
+  - | H1 | Directory identity→pubkey bulk oracle (fetch_bulk + GET /identity/{id}) | IDOR | ALL | Duplicate of prior VALID |
+  - | H2 | Safe backup CORS `*` + credentialed cross-origin read + existence oracle | AUTH | bigpickle, laguna, ling3, nemotron3 | Duplicate of prior VALID |
+  - | H3 | Desktop Windows key-storage ACL bypass → DPAPI → identity keypair + DB | MISCONFIG | bigpickle, laguna, ling3, nemotron3 | Duplicate of prior VALID |
+  - | Q4 Proof passive | **YES** — 100-ID batch → 200, only valid pubkey returned, silent omission; 30× POST no 429 |
+  - | Q7 Triager accept | CONDITIONAL — already accepted in valid-bugs.md |
+  - | Q5 Novel | **YES** — not previously triaged in valid-bugs.md or knowledge/index.md |
+
+- 15 lead(s) marked VALID at 2026-08-09 00:41:41 UTC
+  - | Q3 Real impact | ✅ YES | Mass valid-ID + pubkey harvesting → targeted phishing / recon |
+  - | Q5 Novel | ❌ NO | ACCEPTED in KB lines 20-21,27,59,67,80,82,85-86,94,99,104; VALID in valid-bugs.md |
+  - | Q5 Novel | ❌ NO | ACCEPTED in KB lines 26,74,77-78,92,108,121,130,133,137; VALID in valid-bugs.md |
+  - | Q2 Reachable | ⚠️ AUTH_HELPED | Returns 400 without valid backupId+backupKey; no data access demonstrated unauthenticated |
+  - | Q3 Real impact | ⚠️ CONTINGENT | 400-vs-404 oracle (route-existence) weak; full backup read requires valid creds |
+  - | Q5 Novel | ❌ NO | ACCEPTED in KB lines 30-31,62,79,101,106,125,128-129,132,135,138; triaged in valid-bugs.md |
+  - | Q6 Not always-rejected | ❌ NO | CORS \* on credential-gated endpoint is defense-in-depth only (per valid-bugs.md precedent) |
+  - | Q3 Real impact | ⚠️ LOW | Route-presence + parameter oracle; challenge-response still requires valid identity+secret |
+  - | Q5 Novel | ❌ NO | ACCEPTED in KB lines 32,63,75,81,95,115,118,123; REJECTED as standalone in valid-bugs.md (conditional) |
+  - | Q7 Triager accept | ❌ NO | Already REJECTED as standalone in valid-bugs.md |
+  - | Q4 Passive proof | ❌ NO | Requires AUTH_HELPED with valid Work test license |
+  - | Q5 Novel | ❌ NO | ACCEPTED then deemed OUT OF SCOPE in KB lines 36,56; REJECTED in valid-bugs.md |
+  - | Q2 Reachable | ⚠️ AUTH_HELPED | Requires login flow with valid creds to confirm |
+  - | VALID (new, reportable) | **0** |
+  - **Valid leads for reporting this cycle: 0.**
+
+- 6 lead(s) marked VALID at 2026-08-09 03:00:14 UTC
+  - | Q3 Real impact? | ❌ NO | 400 = credential-gated (HTTP Basic Auth backupId:backupKey). No data access without valid credentials. Route-existence oracle (400 vs 404) is weak. |
+  - | Q6 Not always-rejected? | ❌ NO | CORS* on credential-gated endpoint is defense-in-depth per valid-bugs.md precedent |
+  - | Q3 Real impact? | ❌ NO | No data access without valid credentials |
+  - | Q3 Real impact? | ❌ NO | No data access without valid credentials |
+  - | **VALID** | **0** | No novel, reportable findings |
+  - **Valid leads for reporting this cycle: 0.**
+---grep fetch_bulk in valid-bugs---
+7
+[0m
+[0m← [0mWrite reports/fetch_bulk-identity-enumeration-idor.md
+Wrote file successfully.
+[0m
+[0m$ [0mls -la reports/fetch_bulk-identity-enumeration-idor.md
+-rw-r--r-- 1 runner runner 3576 Aug  9 03:58 reports/fetch_bulk-identity-enumeration-idor.md
+[0m
+Report artifact restored and verified. Structured blocks:
+
+STEP 1 — DELTA
+- [CHANGED] reports/fetch_bulk-identity-enumeration-idor.md claimed authored last cycle (log line 24437 "Write …") but file was ABSENT from reports/ — now re-authored and present (verified, 3.6 KB) with the confirmed ≥2000-ID ceiling, ≈5.5e8-request full-space bound, CORS `*`, no rate limit, and the 5 challenge-parameter oracles.
+- [CHANGED] /tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py still ABSENT — /tmp/opencode/ entirely empty this cycle; the 95-confidence Windows ACL-bypass finding's PoC gap persists (reposcan-raw/threema-ch/* clones are 4 KB empty placeholders, so authorship requires a fresh clone).
+- [NEW] NO network-surface delta: latest reposcan (02:39) verdict list reports zero new reportable items — all hits are known staging hosts, public Sentry DSNs, the REJECTED benchmark dummy, and test fixtures.
+- [NEW] triage run 2026-08-09 03:00:14 closed with VALID=0 new reportable; safe/hold items re-affirmed.
+
+STEP 2 — PRIORITIZE
+- [PRIO] directory cluster ds-apip/api/apip.threema.ch, 7.45, attack=9 business=8 tech=6 gate=10 cloud=6 fresh=2 (finding ACCEPTED/duplicate-VALID; now needs only archival + monitoring)
+- [PRIO] threema-desktop source, 7.15, attack=7 business=8 tech=8 gate=10 cloud=4 fresh=3 (95-conf Windows key-storage ACL bypass; PoC artifact gap open)
+- [PRIO] shop.threema.ch, 6.5, attack=6 business=7 tech=5 gate=8 cloud=5 fresh=8 (order/license surface; only partially probed)
+- [PRIO] safe-{01,1a,1b,02,00}.threema.ch, 5.65, attack=5 business=9 tech=5 gate=4 cloud=6 fresh=2 (credential-gated; AUTH_HELPED)
+- [PRIO] work.test.threema.ch /api-app, 5.05, attack=5 business=5 tech=5 gate=6 cloud=3 fresh=6 (public-namespace divergence + license-token catch-up monitor)
+
+STEP 3 — HYPOTHESES
+- [HYP] SaltyRTC signaling plane permanent-key fingerprint + framing recon
+  class: OTHER
+  asset: https://saltyrtc-{00..ff}.threema.ch:443 (203.56.112.198/.199, 203.56.114.198/.199)
+  confidence: 75
+  reasoning: GET → 426; bare WS upgrade → 101 then 1002; with `Sec-WebSocket-Protocol: v1.saltyrtc.org` → 101 + subprotocol echo then close 3001; server waits for client-hello. Only chat-surface host answering in-band while g-* silent on 5222/443.
+  evidence_needed: operator scope ruling (saltyrtc-* outside scope.yml g-*.0 pattern) — then one client-hello for server permanent-key fingerprint.
+  verify_steps: HUMAN_ONLY — after ruling: `curl -sk --max-time 8 -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Protocol: v1.saltyrtc.org" -H "Sec-WebSocket-Key: {b64}" https://saltyrtc-00.threema.ch/` (≤1 rps); do NOT send client-hello without approval.
+  impact: chat-signaling control plane passively reachable where g-* silent; server-key/framing fingerprint + future handshake recon; Low-Medium, scope-gated.
+  testability: HUMAN_ONLY
+- [HYP] Safe backup store credentialed cross-origin read
+  class: AUTH
+  asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (203.56.112.231)
+  confidence: 50
+  reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route-existence oracle vs /backup/{x} 404; HSTS/Expect-CT absent on the 400. Valid creds the only missing input.
+  evidence_needed: program-issued test backupId:backupKey → status ≠ 400 (200+payload or 401/403) + any Access-Control-Expose-Headers.
+  verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs known 400 baseline.
+  impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+  testability: AUTH_HELPED
+- [HYP] Work staging license-token route catches up to shipped frontend
+  class: MISCONFIG
+  asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+  confidence: 45
+  reasoning: staging bundle v2.25.1 implements GET (returns {username?,password?,expired,hasEmail}) + PUT for the route with zod 64-char token validation, but staging backend returns method-agnostic 404 catch-all; prod bundle has zero /public/* handlers.
+  evidence_needed: backend deploys the route (returns ≠404 for a 64-char token).
+  verify_steps: PASSIVE — single GET `/api-app/public/license/token/{64zeros}` and single GET `/api-app/public/global/settings`, ≤1 rps, weekly cadence; record 404 vs non-404.
+  impact: if route enabled: unauthenticated 64-hex license-token→credential oracle; Low (tokens high-entropy).
+  testability: PASSIVE
+- [HYP] Shop order/license surface is server-rendered + session-gated (no unauth endpoint)
+  class: OTHER
+  asset: https://shop.threema.ch/en
+  confidence: 42
+  reasoning: 200 storefront SPA with orderId/OrderList/licenses refs but jQuery bundle has no fetch/`$.ajax`/URL literals; order data server-rendered, hCaptcha on flow, CSP `form-action 'self' https://billing.threema.ch` (billing still TIMEOUT). No exploitable unauth endpoint observed.
+  evidence_needed: discovery of any order/license API path via rendered-page static analysis; 200/401/302 differential on it.
+  verify_steps: PASSIVE — GET /en, parse inline forms/scripts for relative targets; single GET on any discovered path (≤1 rps); record status only.
+  impact: license-key/order data or flow tampering — Low-Medium, contingent on endpoint discovery.
+  testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] none dropped — all 4 ≥ 40; no class on the REJECTED list; each has concrete verify_steps.
+- [FINAL] 1) SaltyRTC signaling recon (75, HUMAN_ONLY) 2) Safe backup credentialed read (50, AUTH_HELPED) 3) Work.test license-token catch-up (45, PASSIVE) 4) Shop order/license surface (42, PASSIVE). Directory cluster and desktop source findings remain finalized/ACCEPTED — no new hypothesis warranted.
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: request operator (a) scope ruling on saltyrtc-{00..ff}.threema.ch (out-of-scope per current scope.yml g-*.0 pattern, but the only live chat-control-plane surface) and (b) program-issued test backupId:backupKey for safe-01.threema.ch to close the two top open items; workspace deliverable gap on the #1 finding closed this cycle (reports/fetch_bulk-identity-enumeration-idor.md verified present); remaining artifact gap = key-storage-acl-bypass-poc.py (assigned to laguna, needs fresh clone — reposcan-raw clones are empty).
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED IDOR @ ds-apip/api/apip.threema.ch: fetch_bulk identity→pubkey enumeration finding stable (duplicate-VALID), report artifact now present and verified after prior cycle's write silently failed to persist.
+- [LEARN] CONFIRMED class @ pipeline: workspace artifacts do not reliably persist between cycles — deliverables must be re-verified (report absent despite "Write" log; reposcan-raw clones empty 4 KB) before citing as done.
+- [LEARN] ACCEPTED OTHER @ reposcan-raw: local source clones are empty placeholders — any RAG PoC authorship requires a fresh git clone (network) or operator-provided source; cannot be done offline this cycle.
+
+STEP 7 — RISK SCORE
+- [RISK] chat: 35 — g-* silent (5222/443); saltyrtc-* the only live chat-plane surface, scope-gated; handshake requires auth frame | web: 52 — unauth identity→pubkey enumeration ceiling ≥2000 IDs/req (~5.5e8 req for 2^40), CORS `*`, no rate limit, report finalized; staging public-namespace divergence stable; no creds to escalate | sync: 20 — mediator/rendezvous uniform 403, no in-band surface | safe: 40 — backup API credential-gated; existence oracle + HSTS gap on 400 + credentialed CORS weaken posture, payload needs creds | desktop-src: 55 — accepted Windows key-storage ACL bypass (same-user → Ed25519 keypair + SQLCipher DB) plus conditional sandbox/worker gap; PoC artifact still absent.

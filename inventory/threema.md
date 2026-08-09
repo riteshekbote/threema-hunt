@@ -375,3 +375,6 @@
 - NEW NO_DELTA — inventory at 2026-08-08 23:47:03 UTC matches last leads; no new surface items since last cycle
 
 ## 2026-08-09 02:37:39 UTC
+
+## 2026-08-09 04:02:03 UTC
+- NEW saltyrtc-{00..ff}.threema.ch:443 — 256 hostnames, live SaltyRTC WSS signaling (HTTP 426 on GET), quadrant-split across 4 IPs (203.56.112.198/.199, 203.56.114.198/.199); NOT in scope.yml (only g-*.0 pa
