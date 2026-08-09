@@ -4327,3 +4327,35 @@ evidence_needed: completed TLS handshake + full cert chain (CN/SAN), or a distin
 verify_steps: `echo | timeout 15 openssl s_client -connect g-00.0.threema.ch:443 -servername g-00.0.threema.ch -tls1_2 -brief 2>&1 | head -40`; repeat for :5222 and for staging .34. Two-to-four connections, read-only, ≤1 rps.
 impact: cert/SAN leak → new surface enumeration; otherwise closes the chat passive channel. Severity: informational→low.
 testability: PASSIVE
+## 2026-08-09 10:09:23 UTC [chat] (model bigpickle)
+[HYP] fetch_bulk returns lifecycle `state`/`type` echo for deactivated/revoked identities → account-status oracle beyond existence
+class: IDOR
+asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/fetch_bulk
+confidence: 45
+reasoning: ECHOECHO record returns explicit `state:0,type:0`; record shape carries lifecycle fields; silent-omit differential already proven for invalid IDs — deactivated-but-present IDs would either echo with `state!=0` or vanish, both observable.
+evidence_needed: one known-deactivated identity's fetch_bulk response diffed against ECHOECHO (state/type change or absence).
+verify_steps: AUTH_HELPED — POST fetch_bulk `{"identities":["<program-issued revoked testId>","ECHOECHO"]}`; diff `state`/`type` vs baseline; one request at 1 rps.
+impact: extends the accepted [95] enumeration finding into account-lifecycle disclosure (deactivation/ban status) → targeted targeting of stale accounts. Severity: low-medium (incremental to existing finding).
+testability: AUTH_HELPED
+[HYP] Staging directory server serves a LIVE identity dataset, not a snapshot
+class: MISCONFIG
+asset: ds-apip.test.threema.ch (identity API)
+confidence: 85
+reasoning: fetch_bulk staging byte-identical to prod for ECHOECHO; identical route surface (/swagger /docs /openapi.json 404 both); HSTS/Expect-CT on staging only.
+evidence_needed: byte-diff of a NON-ECHOECHO identity staging vs prod → identical publicKey proves live dataset.
+verify_steps: AUTH_HELPED — single `GET /identity/{testId}` on ds-apip.test.threema.ch and ds-apip.threema.ch; `diff` publicKey. No third-party real IDs.
+impact: internet-reachable staging exposing live identity directory unauthenticated (exposure + defense-in-depth gap). Severity: low-medium.
+testability: AUTH_HELPED
+[HYP] Safe backup store credentialed cross-origin read + HSTS gap (persisted)
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 50
+reasoning: OPTIONS 204 CORS `*` + ACAH:Authorization (all 5 hosts); unauth GET byte-identical 400; route-existence oracle stable; HSTS/Expect-CT absent on GET 400.
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 (200+payload or 401/403) + Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}`; diff vs 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin (High with creds, unreachable without).
+testability: AUTH_HELPED
+[NEXT] HUMAN: request one program-issued test identity (plus test backupId:backupKey) from the lead — a single identity enables all three surviving hypotheses: `GET /identity/{testId}` diff staging vs prod ([85]), fetch_bulk `state` echo ([45]), and `curl -u testId:testKey https://safe-01.threema.ch/backups/{testId}` vs 400 baseline ([50]).
+[LEARN] REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes read, no peer certificate); no cert/SAN leak; handshake requires authenticated login frame — chat passive channel formally closed.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling ≥10000 IDs/req confirmed (10000-batch → 200, 0.80s, 152B, ECHOECHO echoed, 9999 invalid silently omitted, no 413/429) — enumeration throughput bound ~10k IDs per request; prior 5000-ID probe also 200.
+[RISK] chat: 58 — identity→pubkey enumeration now ≥10k IDs/request unauth + CORS `*` + no rate limit on all 3 directory hosts (throughput 10x prior bound); chat transport passive channel closed, no new surface. | web: 35 — cockpit assets key/basic-auth gated; broadcast presence-oracle only; work.test single benign public endpoint. | sync: 20 — mediator/rendezvous uniform 403, no in-band divergence; handshake requires auth. | safe: 40 — backup API credential-gated (400 unauth) + route-existence oracle + HSTS inconsistency; impact contingent on valid creds. | desktop-src: 45 — key-storage Windows ACL bypass RAG-verified (95) chained to SQLCipher+Ed25519 disclosure; sandbox/worker gaps conditional.

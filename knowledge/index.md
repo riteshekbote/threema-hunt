@@ -159,3 +159,5 @@
 - 2026-08-09 ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk byte-identical to prod; no extra routes (/swagger /docs /openapi.json 404); mirror evidence strengthened 72→85.
 - 2026-08-09 REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys produce byte-identical 403; only key-PRESENCE observable; no CORS preflight (OPTIONS 404)
 - 2026-08-09 ACCEPTED OTHER @ gateway.threema.ch: /v1 → 404 catch-all, /api/v1 → 403 (nginx deny), /en/signup → 200 (14KB page); no exposed msgapi route on this host
+- 2026-08-09 REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes read, no peer certificate); no cert/SAN leak; handshake requires authenticated login frame — chat passive channel formally closed.
+- 2026-08-09 ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling ≥10000 IDs/req confirmed (10000-batch → 200, 0.80s, 152B, ECHOECHO echoed, 9999 invalid silently omitted, no 413/429) — enumeration throughput bound ~10k IDs per request; prior 5000-ID probe also 200.
