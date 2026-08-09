@@ -262,3 +262,6 @@
   - | Q3 Real impact? | **LOW** — route-presence + parameter-validation oracle only; challenge-response still requires valid identity+secret |
   - | Q5 Novel? | **NO** — triaged in valid-bugs.md |
   - | **VALID** | **0** | — |
+
+- 1 lead(s) marked VALID at 2026-08-09 14:24:02 UTC
+  - | **VALID** | **0** | No novel, reportable findings |
