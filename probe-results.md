@@ -202,3 +202,8 @@ https://safe-01.threema.ch/backups/{64hex -> HTTP 400
 https://work.test.threema.ch/api-app/public/global/settings -> 200 len=? type=application/json
 https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef -> HTTP 400
 https://safe-01.threema.ch/backups/ -> HTTP 404
+
+## 2026-08-09 09:53:58 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://gateway.threema.ch/en/signup -> 200 len=? type=text/html; charset=UTF-8

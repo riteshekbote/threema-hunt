@@ -4299,3 +4299,31 @@ evidence_needed: program-issued test backupId:backupKey → status ≠ 400 (200+
 verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}`, diff vs 400 baseline.
 impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
 testability: AUTH_HELPED
+## 2026-08-09 09:36:52 UTC [chat] (model bigpickle)
+[HYP] fetch_bulk has no practical batch ceiling — enumeration throughput bound
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (all 3 prod hosts)
+confidence: 55
+reasoning: 1000-ID batch → 200 (0.42s, ECHOECHO echoed, 999 invalid silently omitted), no 413/429; request-body cap never hit. Same on staging mirror. Established POST probe precedent from prior accepted cycles.
+evidence_needed: a >1000-ID batch (5000) returning 200 → ceiling ≥5000, no byte-size guard; a 413/429/400 would bound it.
+verify_steps: single POST at 1 rps: `curl -sk -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<4999 unique 8-char invalid IDs>]}'`; count echoed records; repeat once only if ambiguous.
+impact: tightens severity/throughput bound of the already-reported IDOR (POC completion); not a new vuln by itself. Severity: low.
+testability: PASSIVE
+[HYP] Staging directory server is a byte-identical unauthenticated mirror of the live identity directory
+class: MISCONFIG
+asset: ds-apip.test.threema.ch
+confidence: 85
+reasoning: fetch_bulk byte-identical to prod for ECHOECHO; staging has HSTS/Expect-CT where prod lacks them; identical route surface (/swagger /docs /openapi.json 404 on both).
+evidence_needed: byte-diff of a non-ECHOECHO identity staging vs prod to prove LIVE dataset, not a snapshot.
+verify_steps: AUTH_HELPED — single GET /identity/{program-issued testId} on staging + prod; diff publicKey.
+impact: internet-reachable staging env serving live identity directory unauthenticated; exposure/defense-in-depth gap. Severity: low-medium.
+testability: AUTH_HELPED
+[HYP] g-*.0.threema.ch:443/5222 yields cert/SAN or protocol fingerprint under explicit SNI
+class: OTHER
+asset: g-{00..ff}.0.threema.ch:443/:5222 (prod 203.56.112.202/.204, staging 203.56.114.34)
+confidence: 45
+reasoning: Prior probes recorded TCP 5222 → 0 bytes and "443 closes without TLS handshake" but no SNI/TLS-version/cipher variants were recorded. Under correct SNI a handshake may complete and expose cert CN/SAN (internal chat hostnames); failure re-confirms prior finding. No in-band divergence obtainable otherwise; handshake requires authenticated login frame.
+evidence_needed: completed TLS handshake + full cert chain (CN/SAN), or a distinct recorded failure differing from prior baseline.
+verify_steps: `echo | timeout 15 openssl s_client -connect g-00.0.threema.ch:443 -servername g-00.0.threema.ch -tls1_2 -brief 2>&1 | head -40`; repeat for :5222 and for staging .34. Two-to-four connections, read-only, ≤1 rps.
+impact: cert/SAN leak → new surface enumeration; otherwise closes the chat passive channel. Severity: informational→low.
+testability: PASSIVE

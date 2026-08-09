@@ -1167,3 +1167,12 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy, derived key immediately purged
 - LEARN: ACCEPTED OTHER @ broadcast.threema.ch: `/api/v1` → HTTP 401 (auth-gated API endpoint newly confirmed)
 - LEARN: ACCEPTED OTHER @ gateway.threema.ch: `/en/signup` → 200 (signup page accessible)
+
+## RANKED HYPOTHESES 2026-08-09 09:53:56 UTC
+- [95] https://ds-apip.threema.ch/identity/fetch_bulk: Directory bulk identity enumeration at scale via fetch_bulk ≥1000 IDs/request + 5 challenge parameter oracles (from reports/hypotheses-nemotron3.txt)
+- [55] https://ds-apip.threema.ch/identity/fetch_bulk: fetch_bulk has no practical batch ceiling — enumeration throughput bound (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<1999 unique invalid 8-char
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling re-confirmed ≥1000 IDs/req (1000-ID batch → 200, 0.42s, 999 invalid silent
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk byte-identical to prod; no extra routes (/swagger /docs /openapi.json 404); mirror evidence str
+- LEARN: REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys produce byte-identical 403; only key-PRESENCE observable;
+- LEARN: ACCEPTED OTHER @ gateway.threema.ch: /v1 → 404 catch-all, /api/v1 → 403 (nginx deny), /en/signup → 200 (14KB page); no exposed msgapi route on this host
