@@ -179,3 +179,11 @@
   - | Q2 Reachable | ⚠️ AUTH_HELPED | Requires login flow with valid creds to confirm |
   - | VALID (new, reportable) | **0** |
   - **Valid leads for reporting this cycle: 0.**
+
+- 6 lead(s) marked VALID at 2026-08-09 03:00:14 UTC
+  - | Q3 Real impact? | ❌ NO | 400 = credential-gated (HTTP Basic Auth backupId:backupKey). No data access without valid credentials. Route-existence oracle (400 vs 404) is weak. |
+  - | Q6 Not always-rejected? | ❌ NO | CORS* on credential-gated endpoint is defense-in-depth per valid-bugs.md precedent |
+  - | Q3 Real impact? | ❌ NO | No data access without valid credentials |
+  - | Q3 Real impact? | ❌ NO | No data access without valid credentials |
+  - | **VALID** | **0** | No novel, reportable findings |
+  - **Valid leads for reporting this cycle: 0.**
