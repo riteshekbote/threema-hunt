@@ -1726,3 +1726,25 @@
 - [58] g-*.0.threema.ch: Chat shard→physical-node attribution is deterministic and now fully mappable at scale (from reports/hypotheses-bigpickle.txt)
 - NEXT(hypotheses-bigpickle.txt): HUMAN: request program-issued authorized test identity + Work test license to execute the only remaining chat lever and triage HOLD #6 — (a) one framed CSP logi
 - NEXT(hypotheses-laguna.txt): RUNTIME_AUTH_HELPED-LOCAL: Execute `node poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with real Threema Desktop 2.x profile to confirm: (1) 
+
+## RANKED HYPOTHESES 2026-08-09 21:58:13 UTC
+- [97] https://ds-apip.threema.ch/identity/fetch_bulk: Directory bulk identity enumeration at 10k IDs/req + 5 challenge param-oracles (from reports/hypotheses-bigpickle.txt)
+- [55] `https://ds-apip-work.threema.ch/identity/lookup`: Work directory server auth bypass via identity lookup behind 401 gate (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: `curl -s https://work.test.threema.ch/api-app/public/global/settings` (≤1 rps) — confirm 200/299B staging-only response body; parallel `curl -s https://w
+- NEXT(hypotheses-bigpickle.txt): RUNTIME_AUTH_HELPED-LOCAL: Execute `node poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with real Threema Desktop 2.x profile to confirm: (1) 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk hard ceiling exactly 10000 IDs/request (10000→200/152B, 10001→400/0B); sharp count
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk enforces identical 10000-cap (10001 → 400 byte-for-byte identical to prod) → validation-logic p
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED at 95 confidence — 15 source-path chain re-verified; PoC artifact poc/key-storage-acl-b
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
+- LEARN: REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys produce byte-identical 403; only key-PRESENCE observable;
+- LEARN: REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close immediately (0 bytes, no peer cert); no cert/SAN leak; handshake 
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy in determineKdfParams(), derived k
+- LEARN: REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE requires separate renderer exploit chain, not standalone; no dynamic sinks (re
+- LEARN: REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml; explicit SNI + TLS1.2/1.3 probes all close connection immediatel
+- LEARN: ACCEPTED OTHER @ mediator-{prefix4}.threema.ch/{prefix8}/: mediator WSS hostname pattern confirmed in scope (mediator-*.threema.ch); DNS resolves to split IPs (
+- LEARN: ACCEPTED OTHER @ rendezvous-{prefix4}.threema.ch/{prefix8}/: rendezvous WSS hostname pattern confirmed in scope (rendezvous-*.threema.ch); same DNS split routin
+- LEARN: ACCEPTED OTHER @ safe-{backupIdPrefix8}.threema.ch/: backup safe hostname pattern confirmed in scope (safe-*.threema.ch); 5 hostnames (safe-01, safe-1a, safe-1b
+- LEARN: ACCEPTED OTHER @ ds-apip-work.threema.ch: work-style directory server confirmed live — 401 on all paths (/identity/*, /identities), CORS `*`, no HSTS/Expect-CT,
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch: canonical directory server hostname confirmed via desktop client build config (config/vite.config.ts + OpenAPI); public GET
+- LEARN: REJECTED OTHER @ blob-mirror-{prefix4}.threema.ch/{prefix8}/: blob server hostname pattern discovered in desktop source config.ts — NOT in scope per scope.yml
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DESK-79) and nodeIntegrationInWorker: true (TODO DESK-79) — L1240 

@@ -4465,3 +4465,4 @@ testability: AUTH_HELPED
 [RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f}: DNS split routing confirmed, uniform 403 on HTTPS; saltyrtc-* (HTTP 426) explicitly NOT in scope.yml.
 [RISK] safe: 89 — 5 hosts behind single IP; CORS `*` + write-capable methods + Allow-Headers: Authorization; route-existence oracle (400 vs 404); HTTP Basic Auth; HSTS/Expect-CT absent on GET 400; needs valid backup credentials.
 [RISK] desktop-src: 96 — Windows key-storage ACL bypass RAG-VERIFIED at 95 confidence (15 source paths); PoC now present + syntax-verified; needs Windows runtime validation; BrowserWindow sandbox: false + nodeIntegrationInWorker: true (conditional RCE REJECTED standalone).
+## 2026-08-09 21:58:01 UTC [desktop] (model laguna)
