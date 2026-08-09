@@ -183,7 +183,18 @@
 - 6 lead(s) marked VALID at 2026-08-09 03:00:14 UTC
   - | Q3 Real impact? | ❌ NO | 400 = credential-gated (HTTP Basic Auth backupId:backupKey). No data access without valid credentials. Route-existence oracle (400 vs 404) is weak. |
   - | Q6 Not always-rejected? | ❌ NO | CORS* on credential-gated endpoint is defense-in-depth per valid-bugs.md precedent |
-  - | Q3 Real impact? | ❌ NO | No data access without valid credentials |
-  - | Q3 Real impact? | ❌ NO | No data access without valid credentials |
-  - | **VALID** | **0** | No novel, reportable findings |
-  - **Valid leads for reporting this cycle: 0.**
+   - | Q3 Real impact? | ❌ NO | No data access without valid credentials |
+   - | Q3 Real impact? | ❌ NO | No data access without valid credentials |
+   - | **VALID** | **0** | No novel, reportable findings |
+   - **Valid leads for reporting this cycle: 0.**
+
+- 15 lead(s) marked VALID at 2026-08-09 05:48:00 UTC
+   - | Q5 Novel? | ❌ NO | All 15 leads are duplicates of already-ACCEPTED KB findings (knowledge/index.md) |
+   - | Q3 Real impact? | ❌ NO | 400/401/404 = credential-gated or dead; no unauthenticated data access demonstrated |
+   - | Q1 In scope? | ❌ NO | saltyrtc-*.threema.ch NOT in scope.yml |
+   - | Q7 Triager accept? | ❌ NO | Login/signup/shop pages + 401-gated APIs are expected behavior, not vulns |
+   - | **VALID** | **0** | No novel, reportable findings |
+   - **Valid leads for reporting this cycle: 0.**
+
+- 1 lead(s) marked VALID at 2026-08-09 06:39:26 UTC
+  - VALID: 0
