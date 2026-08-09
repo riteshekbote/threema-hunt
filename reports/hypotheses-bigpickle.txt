@@ -1,55 +1,29 @@
-## 2026-08-09 20:54:38 UTC [chat] (model bigpickle)
+## 2026-08-09 21:21:21 UTC [chat] (model bigpickle)
+[HYP] Chat shard→physical-node attribution is deterministic and now fully mappable at scale
+class: OTHER
+asset: g-*.0.threema.ch (256 shards, morobbia .202 / boiron .204) + ds-apip.threema.ch/identity/fetch_bulk
+confidence: 58
+reasoning: 256/256 shards map 0x00-0x7f→.202, 0x80-0xff→.204 (own sweep, zero outliers); fetch_bulk returns identities+pubkeys unauthenticated; ECHOECHO(0x45)→g-45→.202 proves first-byte routing end-to-end. Both nodes data-closed without authenticated login (5222 EOF, no cert).
+evidence_needed: real (non-test) identity harvest → per-node userbase distribution; any shard/PTR divergence breaking the uniform split.
+verify_steps: PASSIVE — sweep remaining shard space only via fetch_bulk (already-accepted, ≤1 rps) and map each returned identity's first byte to .202/.204; `getent hosts g-{00,7f,80,ff}.0.threema.ch` re-checks; no data sent to chat nodes.
+impact: node-level userbase attribution (which physical node serves which identity range) at 10k IDs/req; reconnaissance/enumeration intel layered on the accepted IDOR. Severity: informational.
+testability: PASSIVE
 [HYP] Directory fetch_bulk account-status oracle via state/type/featureMask field differential
 class: IDOR
-asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch `/identity/fetch_bulk`
+asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch /identity/fetch_bulk
 confidence: 55
-reasoning: All reachable valid IDs return byte-identical `state:0/type:0/featureLevel:3/featureMask:9` (sha256 `c7cdb73b…`, 135B); invalid IDs silently omitted; ceiling exactly 10000 IDs/req with zero 429s on ~35 sequential probes. A deactivated/revoked ID that drops out of a batch or returns `state≠0` is observable at 10k IDs/req.
-evidence_needed: one program-issued deactivated/revoked identity returning `state≠0` or being omitted from a fetch_bulk batch.
-verify_steps: AUTH_HELPED — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Content-Type: application/json' -d '{"identities":["{deactivatedTestId}","ECHOECHO"]}'` on all 3 hosts; diff state/type/featureMask vs ECHOECHO.
-impact: mass account-status enumeration layered on the accepted existence oracle → targeted operational-intel. Severity: Medium (escalation).
+reasoning: All reachable valid IDs return byte-identical state:0/type:0/featureLevel:3/featureMask:9 (sha256 c7cdb73b…); invalid IDs silently omitted; ceiling exactly 10000 IDs/req, zero 429s across ~35 probes. A deactivated/revoked ID dropping from a batch or returning state≠0 is observable.
+evidence_needed: one program-issued deactivated/revoked identity returning state≠0 or omitted from a batch.
+verify_steps: AUTH_HELPED — POST {"identities":["{deactivatedTestId}","ECHOECHO"]} on all 3 hosts; diff state/type/featureMask vs ECHOECHO.
+impact: mass account-status enumeration layered on accepted existence oracle → operational intel. Severity: Medium (escalation).
 testability: AUTH_HELPED
-[HYP] Chat shard→physical-node attribution from identity first byte
-class: OTHER
-asset: g-*.0.threema.ch (256 shards, morobbia .202 / boiron .204)
-confidence: 45
-reasoning: DNS split is exactly first-byte-of-identity based (g-80 boundary), same routing model as mediator/rendezvous; identities+pubkeys are harvestable via fetch_bulk; PTR names morobbia/boiron/chliwindgaellen are forward-NXDOMAIN (no SNI bypass). Both nodes close 443/5222 without TLS handshake.
-evidence_needed: correlation of a known identity's first byte with its node IP; any shard/PTR divergence breaking the uniform 403/close posture.
-verify_steps: PASSIVE — `getent hosts g-{00,7f,80,ff}.0.threema.ch` vs fetch_bulk-returned identity first bytes; `timeout 5 openssl s_client -connect <node>:443 -servername morobbia.threema.ch -brief` to re-confirm no-cert close; ≤1 rps.
-impact: node-level userbase attribution (which physical node serves which identity range). Reconnaissance only; no data access. Severity: informational.
-testability: PASSIVE
-[HYP] Safe backup store credentialed cross-origin read + HSTS header inconsistency
+[HYP] Safe backup credentialed cross-origin read (variant of triage-INVALID'd unauth-CORS finding)
 class: AUTH
-asset: safe-{01,1a,1b,02,00}.threema.ch `/backups/{64hex}` (5 hosts, 203.56.112.231)
+asset: safe-{01,1a,1b,02,00}.threema.ch /backups/{64hex} (203.56.112.231)
 confidence: 50
-reasoning: OPTIONS 204 → CORS `*` + Allow-Methods incl. GET + `Access-Control-Allow-Headers: Authorization` (credentialed cross-origin); unauth GET → 400/11B route-oracle; HTTP Basic `backupId:backupKey`; HSTS/Expect-CT absent on GET 400 but present on OPTIONS 204.
-evidence_needed: program-issued backupId:backupKey → status ≠ 400 + payload + `Access-Control-Expose-Headers` on credentialed response.
-verify_steps: AUTH_HELPED — `curl -s -u "<backupId:backupKey>" https://safe-01.threema.ch/backups/<backupId> -D -` vs 400 unauth baseline, diff across all 5 hostnames; `curl -sI -X OPTIONS https://safe-01.threema.ch/backups/{64hex} -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: GET"`.
-impact: valid creds → identity keypair + full message-history backup readable from any attacker origin. Severity: High (with creds), unreachable without.
+reasoning: OPTIONS 204 → CORS * + Allow-Headers: Authorization; unauth GET → 400/11B route-oracle; HTTP Basic backupId:backupKey; HSTS/Expect-CT absent on GET 400, present on OPTIONS. Triage marked the unauth-CORS finding INVALID as defense-in-depth; this variant requires valid creds.
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 + payload + Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — `curl -s -u "<backupId:backupKey>" https://safe-01.threema.ch/backups/<backupId> -D -` vs 400 baseline, diff across all 5 hosts; OPTIONS preflight with Authorization header.
+impact: with creds, identity keypair + full message-history backup readable from any attacker origin. Severity: High (with creds), unreachable without.
 testability: AUTH_HELPED
-[HYP] Directory fetch_bulk account-status oracle via state/type/featureMask differential
-class: IDOR
-asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch `/identity/fetch_bulk`
-confidence: 55
-reasoning: All reachable valid IDs return byte-identical `state:0/type:0/featureLevel:3/featureMask:9`; invalid IDs silently omitted; ceiling exactly 10000 IDs/req, zero 429s across ~35 sequential probes. A deactivated/revoked ID dropping from a batch or returning `state≠0` is observable at 10k IDs/req.
-evidence_needed: one program-issued deactivated/revoked identity returning `state≠0` or omitted from a fetch_bulk batch.
-verify_steps: AUTH_HELPED — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Content-Type: application/json' -d '{"identities":["{deactivatedTestId}","ECHOECHO"]}'` on all 3 hosts; diff state/type/featureMask vs ECHOECHO.
-impact: mass account-status enumeration layered on the accepted existence oracle → operational intel. Severity: Medium (escalation).
-testability: AUTH_HELPED
-[HYP] Chat shard→physical-node attribution from identity first byte
-class: OTHER
-asset: g-*.0.threema.ch (256 shards, morobbia .202 / boiron .204)
-confidence: 48
-reasoning: DNS split is exactly first-byte-of-identity based (g-80 boundary); identities+pubkeys harvestable via fetch_bulk; new: 5222 pushes a per-connection random 80-byte hello on any frame — no static node fingerprint, so DNS/PTR is the only discriminator; both nodes still data-closed without authenticated login.
-evidence_needed: correlation of a known identity's first byte with its node IP; any shard/PTR divergence breaking the uniform posture.
-verify_steps: PASSIVE — `getent hosts g-{00,7f,80,ff}.0.threema.ch`; compare against fetch_bulk-returned identity first bytes; re-confirm 5222 hello is per-conn random (no fingerprint).
-impact: node-level userbase attribution (which physical node serves which identity range). Reconnaissance only. Severity: informational.
-testability: PASSIVE
-[HYP] ds-apip-work.threema.ch /identities cross-subscription disclosure
-class: BUSLOGIC
-asset: ds-apip-work.threema.ch/identities
-confidence: 52
-reasoning: directory.openapi.yml:1172 flags "/identities ... currently buggy. See TWRK-1633"; endpoint returns a subset of provided contacts in the same Work subscription + work properties (first/last name, jobTitle, department, availability). Host live, 401 on all paths, CORS `*`.
-evidence_needed: whether the membership filter can be induced to return out-of-subscription contacts.
-verify_steps: AUTH_HELPED — with authorized Work test license, POST /identities mixing own- and other-subscription IDs; compare membership + property leak; probe pagination bounds (page/size, wildcard).
-impact: cross-subscription disclosure of work-directory metadata → targeted phishing. Severity: medium.
-testability: AUTH_HELPED
+[NEXT] HUMAN: request program-issued authorized test identity + Work test license to execute the only remaining chat lever and triage HOLD #6 — (a) one framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch) to `g-00.0.threema.ch:5222` to confirm documented handshake against a test identity; (b) `POST ds-apip-work.threema.ch/identities` mixing own/foreign-subscription IDs for the cross-subscription test. Without creds, chat POC is at its passive ceiling (channel data-closed, staging out of scope).
