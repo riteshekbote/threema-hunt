@@ -3611,3 +3611,33 @@ testability: HUMAN_ONLY
 [NEXT] PROBE: single POST to https://ds-apip.threema.ch/identity/fetch_bulk with `{"identities":["ECHOECHO",<1999 unique invalid 8-char base32 IDs>]}` (≤1 rps) — finds the true batch ceiling (200+pubkey vs 413/429), finalizing enumeration cost = ceil(2^40 / ceiling) requests; closes the throughput bound on the top finding. (saltyrtc client-hello still deferred pending operator scope ruling; safe probe requires AUTH_HELPED creds.)
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk single-request 500-ID batch → 200 with valid pubkey echo, 499 invalid silently omitted, no 413/429 — request-body/batch ceiling ≥ 500 confirmed, no rate limit; enumeration-throughput bound tightened this cycle.
 [RISK] chat: 35 — g-* silent (5222/443); only saltyrtc-* answers (426, scope-gated); no data-plane access. | web: 52 — unauth identity→pubkey IDOR at scale now confirmed ≥500 IDs/request with no rate limit (2^40 space ≈ 2.2e9 requests), CORS `*`, plus staging public-namespace divergence; no creds to escalate. | sync: 20 — mediator/rendezvous uniform 403, no in-band surface. | safe: 40 — backup API credential-gated; existence oracle + HSTS gap on 400 + credentialed CORS weaken posture but payload needs creds. | desktop-src: 55 — accepted Windows key-storage ACL bypass (same-user → Ed25519 keypair + SQLCipher DB) plus conditional sandbox/worker gap; local-only.
+## 2026-08-09 00:04:39 UTC [chat] (model bigpickle)
+[HYP] fetch_bulk batch ceiling → full-keyspace enumeration bound (finalized)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (+ api.threema.ch, apip.threema.ch)
+confidence: 95
+reasoning: 2000-ID single batch → 200 with valid ECHOECHO pubkey echo, 1999 invalid silently omitted, no 413/429 (this cycle). Prior: 100/500-ID identical, 30 sequential POSTs no rate-limit, CORS `*` POST/GET/OPTIONS/DELETE all 3 hosts, 5 challenge endpoints with parameter-validation-before-lookup oracles.
+evidence_needed: none beyond accepted record — bound ≈ 5.5e8 requests for the full 2^40 base32 space; report-ready.
+verify_steps: PASSIVE — already satisfied; further ceiling probes (10k/50k) only test body-size limit, no impact delta.
+impact: unauth identity→pubkey mapping of full keyspace, privacy/social-graph leakage; Medium-High, fully unauth.
+testability: PASSIVE
+[HYP] Shop order/license surface is server-rendered + session-gated (no unauth endpoint)
+class: OTHER
+asset: https://shop.threema.ch/en
+confidence: 42
+reasoning: 200 storefront SPA with orderId/OrderList/licenses refs but jQuery bundle has no fetch/`$.ajax`/URL literals; order data server-rendered, hCaptcha on flow, CSP `form-action 'self' https://billing.threema.ch` (billing still TIMEOUT). No exploitable unauth endpoint observed.
+evidence_needed: discovery of any order/license API path via rendered-page static analysis; 200/401/302 differential on it.
+verify_steps: PASSIVE — GET /en and parse inline forms/scripts for relative targets; single GET on any discovered path (≤1 rps); record status only, no credential guessing.
+impact: license-key/order data or flow tampering — Low-Medium, contingent on endpoint discovery; today stack/gate recon only.
+testability: PASSIVE
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (203.56.112.231)
+confidence: 50
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET byte-identical 400 with/without bogus Basic; route-existence oracle vs /backup/{x} 404; HSTS/Expect-CT absent on the 400. Valid creds the only missing input.
+evidence_needed: program-issued test backupId:backupKey → status ≠ 400 (200 payload / 401 / 403) + any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff vs known 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[NEXT] RAG: finalize the submission-ready report for the fetch_bulk identity→pubkey enumeration IDOR (ds-apip/api/apip.threema.ch) with the confirmed ceiling ≥ 2000 IDs/request (enumeration cost ≈ 5.5e8 requests for 2^40 space), CORS `*`, absent rate limiting (30 sequential POSTs), and the 5 challenge-parameter validation oracles — closes the highest-confidence fully-unauth finding; probe queue on this asset is saturated.
+[RISK] chat: 35 — g-* silent (5222/443); only saltyrtc-* answers (426, HUMAN_ONLY scope-gated); no data-plane access. | web: 52 — unauth identity→pubkey enumeration now ceiling ≥2000 IDs/request (~5.5e8 req for 2^40), CORS `*`, no rate limit; staging public-namespace divergence; no creds to escalate. | sync: 20 — mediator/rendezvous uniform 403, no in-band surface. | safe: 40 — backup API credential-gated; existence oracle + HSTS gap on 400 + credentialed CORS weaken posture but payload needs creds. | desktop-src: 55 — accepted Windows key-storage ACL bypass (same-user → Ed25519 keypair + SQLCipher DB) plus conditional sandbox/worker gap; local-only.

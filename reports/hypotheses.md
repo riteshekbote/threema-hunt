@@ -991,3 +991,23 @@
 - LEARN: REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy, derived key immediately purged
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk single-request 500-ID batch → 200 with valid pubkey echo, 499 invalid silently omi
+
+## RANKED HYPOTHESES 2026-08-09 00:05:09 UTC
+- [95] https://ds-apip.threema.ch/identity/fetch_bulk: fetch_bulk batch ceiling → full-keyspace enumeration bound (finalized) (from reports/hypotheses-bigpickle.txt)
+- [95] https://ds-apip.threema.ch/identity/fetch_bulk: Directory bulk identity enumeration at scale via fetch_bulk + challenge parameter oracles (from reports/hypotheses-nemotron3.txt)
+- [95] github.com/threema-ch/threema-desktop: Windows key-storage ACL bypass: offline master-key recovery → identity keypair + SQLCipher DB (from reports/hypotheses-laguna.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<999 unique invalid 8-char 
+- NEXT(hypotheses-bigpickle.txt): RAG: finalize the submission-ready report for the fetch_bulk identity→pubkey enumeration IDOR (ds-apip/api/apip.threema.ch) with the confirmed ceiling ≥ 2000 ID
+- NEXT(hypotheses-laguna.txt): RAG: Re-clone `https://github.com/threema-ch/threema-desktop` (commit `stable`) and author the PoC script at `/tmp/opencode/threema-desktop/key-storage-acl-bypa
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk 100+ batch + 5 challenge endpoints + CORS * + no rate-limit + parameter-validation
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop (Windows): key-storage ACL bypass RAG-verified at 95 confidence — full Ed25519 identity key + SQLCipher key chain confirmed
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated /backups/{64hex} — heade
+- LEARN: REJECTED IDOR @ ds-apip/api/apip.threema.ch check_revocation_key GET form: validation-order oracle disproven — ECHOECHO vs ZZZZZZZZ produce byte-identical "Iden
+- LEARN: REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE requires separate renderer exploit chain, not standalone
+- LEARN: REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy, derived key immediately purged
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): Source verification chain stable this cycle — `fs.ts:41` returns `{}` on win32; `index.ts:559-560`/`
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk 500-ID batch re-confirmed via own probe (200, silent omit of invalid IDs, ACAO:`*`
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated `/backups/{64hex}`; HTTP
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/global/settings` → 200 (staging-only, 299B) vs 404 (prod) divergence stable; sole live public route in `
+- LEARN: REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap remains formally REJECTED as standalone (conditional RCE requires separate renderer exploit chai
