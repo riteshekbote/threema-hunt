@@ -162,3 +162,20 @@
   - | Q4 Proof passive | **YES** — 100-ID batch → 200, only valid pubkey returned, silent omission; 30× POST no 429 |
   - | Q7 Triager accept | CONDITIONAL — already accepted in valid-bugs.md |
   - | Q5 Novel | **YES** — not previously triaged in valid-bugs.md or knowledge/index.md |
+
+- 15 lead(s) marked VALID at 2026-08-09 00:41:41 UTC
+  - | Q3 Real impact | ✅ YES | Mass valid-ID + pubkey harvesting → targeted phishing / recon |
+  - | Q5 Novel | ❌ NO | ACCEPTED in KB lines 20-21,27,59,67,80,82,85-86,94,99,104; VALID in valid-bugs.md |
+  - | Q5 Novel | ❌ NO | ACCEPTED in KB lines 26,74,77-78,92,108,121,130,133,137; VALID in valid-bugs.md |
+  - | Q2 Reachable | ⚠️ AUTH_HELPED | Returns 400 without valid backupId+backupKey; no data access demonstrated unauthenticated |
+  - | Q3 Real impact | ⚠️ CONTINGENT | 400-vs-404 oracle (route-existence) weak; full backup read requires valid creds |
+  - | Q5 Novel | ❌ NO | ACCEPTED in KB lines 30-31,62,79,101,106,125,128-129,132,135,138; triaged in valid-bugs.md |
+  - | Q6 Not always-rejected | ❌ NO | CORS \* on credential-gated endpoint is defense-in-depth only (per valid-bugs.md precedent) |
+  - | Q3 Real impact | ⚠️ LOW | Route-presence + parameter oracle; challenge-response still requires valid identity+secret |
+  - | Q5 Novel | ❌ NO | ACCEPTED in KB lines 32,63,75,81,95,115,118,123; REJECTED as standalone in valid-bugs.md (conditional) |
+  - | Q7 Triager accept | ❌ NO | Already REJECTED as standalone in valid-bugs.md |
+  - | Q4 Passive proof | ❌ NO | Requires AUTH_HELPED with valid Work test license |
+  - | Q5 Novel | ❌ NO | ACCEPTED then deemed OUT OF SCOPE in KB lines 36,56; REJECTED in valid-bugs.md |
+  - | Q2 Reachable | ⚠️ AUTH_HELPED | Requires login flow with valid creds to confirm |
+  - | VALID (new, reportable) | **0** |
+  - **Valid leads for reporting this cycle: 0.**
