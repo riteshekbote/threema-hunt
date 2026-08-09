@@ -959,3 +959,27 @@
 - NEW No AAAA/CNAME on chat shards — IPv4-only, direct-A mapping (no LB aliasing at DNS layer).
 - CHANGED Prior "chat passive channel formally closed" now bounded to in-band 443/5222 data only; DNS-attribution recon on chat was NOT exhausted (this cycle proves a new surface).
 - CHANGED `poc/key-storage-acl-bypass-poc.js` — PoC artifact NOW GENERATED + `node --check` PASS + Linux no-op confirmed (was claimed-but-missing in prior cycle; `find` returned zero results)
+
+## 2026-08-09 23:58:04 UTC
+- NEW `poc/key-storage-acl-bypass-poc.js` — PoC artifact NOW present in workspace, `node --check` PASS, graceful no-op on Linux confirmed (was claimed-but-missing in prior cycle)
+- NEW `g-{00,7f,80,ff}.1.threema.ch` → NXDOMAIN — no `.1` group tier exists on chat shards (only `.0` tier; 256 groups total)
+- NEW Chat shards IPv4-only, direct A records — no AAAA/CNAME on `g-*.0.threema.ch` (no LB aliasing at DNS layer)
+- CHANGED `broadcast.threema.ch/api/v1` → HTTP 401 auth-gated confirmed (key-format oracle disproven; 1/32/64-char keys byte-identical 403)
+- CHANGED `gateway.threema.ch/en/signup` → HTTP 200 (14KB signup page accessible; no msgapi route exposed)
+- NEW `g-*.0.threema.ch` prod chat DNS shard→node map (own probe, 21 shards + 0x7f/0x80 bisect): `g-{00..7f}` → 203.56.112.202 (128 shards), `g-{80..ff}` → 203.56.112.204 (128 shards); sharp deterministic s
+- NEW Second prod chat node 203.56.112.204 (`g-80.0.threema.ch`): TCP 5222 AND 443 connect but push 0 bytes — byte-parity with node .202; node-level uniform posture now confirmed across both prod chat nodes
+- NEW No `.1` group tier: `g-{00,7f,80,ff}.1.threema.ch` → NXDOMAIN (only `.0` tier exists; 256 groups total).
+- NEW No AAAA/CNAME on chat shards — IPv4-only, direct-A mapping (no LB aliasing at DNS layer).
+- CHANGED Prior "chat passive channel formally closed" now bounded to in-band 443/5222 data only; DNS-attribution recon on chat was NOT exhausted (this cycle proves a new surface).
+- NEW `mediator-{prefix4}.threema.ch/{prefix8}/` — mediator WSS hostname pattern confirmed in scope (`mediator-*.threema.ch`); DNS split IPs (0-7→203.56.112.247, 8-f→203.56.114.247); uniform 403 on HTTPS; h
+- NEW `rendezvous-{prefix4}.threema.ch/{prefix8}/` — rendezvous WSS hostname pattern confirmed in scope (`rendezvous-*.threema.ch`); same DNS split routing as mediator; uniform 403 on HTTPS; high-entropy pa
+- NEW `safe-{backupIdPrefix8}.threema.ch/` — backup safe hostname pattern confirmed in scope (`safe-*.threema.ch`); 5 hostnames (safe-01, safe-1a, safe-1b, safe-02, safe-00) resolve to single IP 203.56.112.
+- NEW `ds-apip-work.threema.ch` — work-style directory server confirmed live; 401 on all paths (/identity/*, /identities); CORS `*`; no HSTS/Expect-CT; Basic auth required
+- NEW `ds-apip.threema.ch` — canonical directory server hostname confirmed via desktop client build config (config/vite.config.ts + OpenAPI); public GET /identity/{id} returns 200/404 oracle
+- CHANGED `poc/key-storage-acl-bypass-poc.js` — PoC artifact NOW GENERATED + `node --check` PASS + Linux no-op confirmed (was claimed-but-missing in prior cycle; `find` returned zero results)
+- CHANGED `crypto.ts:223` — benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c`) — RE-VERIFIED via WebFetch on GitHub `stable`: `determineKdfParams()
+- CHANGED `electron-main.ts:1252-1255` — `nodeIntegrationInWorker: true` (TODO DESK-79) + `sandbox` unset (not `sandbox: false` explicitly; Electron defaults to `false`, L1240 comment "sandboxing is enabled by 
+- CHANGED `ds-apip.threema.ch/identity/fetch_bulk` — 10000-ID count-cap re-verified with unique IDs: 10000→200/152B, 10001→400/0B (sharp); cross-origin Origin header returns ECHOECHO pubkey + ACAO `*`
+- CHANGED `inner/v3.ts:65,70` — `INNER_KEY_STORAGE_V3_SCHEMA` confirmed via WebFetch exposes `identityData.ck` (Ed25519 identity privkey) + `databaseKey` (SQLCipher key)
+- CHANGED `vite.config.ts` — confirmed `KEY_STORAGE_PATH: ['data','keystorage.bin']` + `SAFE_STORAGE_PASSWORD_PATH: ['data','keystorage.password.bin']` + `DATABASE_PATH: ['data','threema.sqlite']` + `ELECTRON_S
+- CHANGED `poc/key-storage-acl-bypass-poc.js` — PoC artifact NOW GENERATED + `node --check` PASS + Linux no-op confirmed (was claimed-but-missing in prior cycle; `find` returned zero results)

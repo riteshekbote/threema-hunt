@@ -243,3 +243,4 @@
 - 2026-08-09 ACCEPTED OTHER @ g-*.0.threema.ch: chat shard→node DNS split precisely mapped — `g-{00..7f}`→203.56.112.202, `g-{80..ff}`→203.56.112.204, sharp 0x7f/0x80 boundary, direct A records, IPv4-only, no `.1` tier (own probes this cycle).
 - 2026-08-09 ACCEPTED OTHER @ g-80.0.threema.ch (203.56.112.204): TCP 5222/443 connect with 0 bytes pushed — posture parity with node .202; prior "chat passive channel formally closed" (in-band) now verified for both prod nodes.
 - 2026-08-09 ACCEPTED class @ OTHER (DNS-attribution recon on chat): the prior in-band closure does NOT exhaust chat recon; DNS-level shard/node attribution is a live passive surface.
+- 2026-08-09 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED at 95 confidence — 15 source-path chain re-verified; PoC artifact poc/key-storage-acl-bypass-poc.js generated (node --check PASS, graceful no-op on Linux); needs Windows validation
