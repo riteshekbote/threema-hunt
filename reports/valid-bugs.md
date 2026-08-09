@@ -265,3 +265,10 @@
 
 - 1 lead(s) marked VALID at 2026-08-09 14:24:02 UTC
   - | **VALID** | **0** | No novel, reportable findings |
+
+- 5 lead(s) marked VALID at 2026-08-09 15:00:45 UTC
+  - ### Verdict: **VALID** (Medium)
+  - | Q2 | **Partial** — route is credential-gated (400 for unauth, not 404). CORS * with Allow-Headers: Authorization means an attacker page can make *credentialed* cross-origin requests — but only if th
+  - | Q3 | **Low** — without valid backupId:backupKey (64-hex + high-entropy key, unguessable), no data access. The 400-vs-404 distinction reveals route existence only (already known from source). |
+  - | Q7 | **Hold** — potentially valid but requires program-issued test credentials. |
+  - | 1 | Directory cluster identity→pubkey oracle + CORS * + no rate limit | **VALID** | Medium (5.3) | Threema security (confirm channel) |
