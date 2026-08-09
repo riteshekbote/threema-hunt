@@ -48126,3 +48126,735 @@ All three survive: confidence ≥ 40, classes (MISCONFIG/IDOR/AUTH) not on the r
 [RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; WSS high-entropy; no passive in-band divergence; auth in source; saltyrtc-* out of scope.
 [RISK] safe: 88 — safe-{01,1a,1b,02,00}.threema.ch: 5 hosts, single IP 203.56.112.231, CORS `*` + write methods (GET/HEAD/PUT/PATCH/POST/DELETE) + ACAH:Authorization + route-existence oracle + Basic-Auth gating (400 baseline stable) + HSTS/Expect-CT absent on GET 400.
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source level (RAG-verified live on GitHub stable, 6/6 cited paths confirmed); PoC artifact generated + syntax-verified; same-user process → Ed25519 identity private key + SQLCipher key chain; Electron sandbox unset (TODO DESK-79) + nodeIntegrationInWorker true (conditional RCE, REJECTED standalone); crypto.ts:223 benchmark password REJECTED.
+===== ANALYST laguna 2026-08-09 14:29:42 UTC =====
+[0m
+> build · laguna-s-2.1-free
+[0m
+I'll start by exploring the workspace structure to understand current findings and what's been done.
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/
+total 232
+drwxr-xr-x 11 runner runner  4096 Aug  9 14:25 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 14:25 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 14:25 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 14:25 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 14:25 README.md
+-rw-r--r--  1 runner runner   140 Aug  9 14:25 analyst-out.txt
+-rw-r--r--  1 runner runner 69669 Aug  9 14:25 analyst-prompt.txt
+-rw-r--r--  1 runner runner 66605 Aug  9 14:25 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 leads
+-rw-r--r--  1 runner runner 15413 Aug  9 14:25 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 14:25 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 14:25 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 14:25 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 14:25 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 14:25 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 14:25 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 14:25 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 triage
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reports/ /home/runner/work/threema-hunt/threema-hunt/knowledge/ /home/runner/work/threema-hunt/threema-hunt/leads/ /home/runner/work/threema-hunt/threema-hunt/inventory/
+/home/runner/work/threema-hunt/threema-hunt/inventory/:
+total 80
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 14:25 ..
+-rw-r--r--  1 runner runner 70088 Aug  9 14:25 threema.md
+
+/home/runner/work/threema-hunt/threema-hunt/knowledge/:
+total 52
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 14:25 ..
+-rw-r--r--  1 runner runner 42757 Aug  9 14:25 index.md
+
+/home/runner/work/threema-hunt/threema-hunt/leads/:
+total 3276
+drwxr-xr-x  2 runner runner   4096 Aug  9 14:25 .
+drwxr-xr-x 11 runner runner   4096 Aug  9 14:25 ..
+-rw-r--r--  1 runner runner 670404 Aug  9 14:25 lead-bigpickle.md
+-rw-r--r--  1 runner runner 626762 Aug  9 14:25 lead-laguna.md
+-rw-r--r--  1 runner runner   8310 Aug  9 14:25 lead-ling3.md
+-rw-r--r--  1 runner runner   7324 Aug  9 14:25 lead-longcat.md
+-rw-r--r--  1 runner runner 565616 Aug  9 14:25 lead-nemotron3.md
+-rw-r--r--  1 runner runner  11048 Aug  9 14:25 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner  13399 Aug  9 14:25 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner  13429 Aug  9 14:25 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner  11241 Aug  9 14:25 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner   6565 Aug  9 14:25 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner   9511 Aug  9 14:25 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner  13472 Aug  9 14:25 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner  10507 Aug  9 14:25 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner  13665 Aug  9 14:25 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner  10938 Aug  9 14:25 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner  17321 Aug  9 14:25 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner  15373 Aug  9 14:25 reposcan-2026-08-07-23-19.md
+-rw-r--r--  1 runner runner  11670 Aug  9 14:25 reposcan-2026-08-07-23-50.md
+-rw-r--r--  1 runner runner  14267 Aug  9 14:25 reposcan-2026-08-08-00-01.md
+-rw-r--r--  1 runner runner  12628 Aug  9 14:25 reposcan-2026-08-08-00-19.md
+-rw-r--r--  1 runner runner  13392 Aug  9 14:25 reposcan-2026-08-08-02-10.md
+-rw-r--r--  1 runner runner  13822 Aug  9 14:25 reposcan-2026-08-08-02-23.md
+-rw-r--r--  1 runner runner  13194 Aug  9 14:25 reposcan-2026-08-08-03-52.md
+-rw-r--r--  1 runner runner  14260 Aug  9 14:25 reposcan-2026-08-08-04-47.md
+-rw-r--r--  1 runner runner  15327 Aug  9 14:25 reposcan-2026-08-08-05-01.md
+-rw-r--r--  1 runner runner  13092 Aug  9 14:25 reposcan-2026-08-08-05-29.md
+-rw-r--r--  1 runner runner  11228 Aug  9 14:25 reposcan-2026-08-08-05-48.md
+-rw-r--r--  1 runner runner  10378 Aug  9 14:25 reposcan-2026-08-08-06-08.md
+-rw-r--r--  1 runner runner  11257 Aug  9 14:25 reposcan-2026-08-08-06-56.md
+-rw-r--r--  1 runner runner  11788 Aug  9 14:25 reposcan-2026-08-08-07-12.md
+-rw-r--r--  1 runner runner   9790 Aug  9 14:25 reposcan-2026-08-08-07-53.md
+-rw-r--r--  1 runner runner  10972 Aug  9 14:25 reposcan-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner  13672 Aug  9 14:25 reposcan-2026-08-08-08-37.md
+-rw-r--r--  1 runner runner   6321 Aug  9 14:25 reposcan-2026-08-08-08-42.md
+-rw-r--r--  1 runner runner  16455 Aug  9 14:25 reposcan-2026-08-08-09-21.md
+-rw-r--r--  1 runner runner  14107 Aug  9 14:25 reposcan-2026-08-08-09-40.md
+-rw-r--r--  1 runner runner  14710 Aug  9 14:25 reposcan-2026-08-08-10-09.md
+-rw-r--r--  1 runner runner  13912 Aug  9 14:25 reposcan-2026-08-08-10-27.md
+-rw-r--r--  1 runner runner  15295 Aug  9 14:25 reposcan-2026-08-08-10-37.md
+-rw-r--r--  1 runner runner  11119 Aug  9 14:25 reposcan-2026-08-08-11-08.md
+-rw-r--r--  1 runner runner  16740 Aug  9 14:25 reposcan-2026-08-08-11-28.md
+-rw-r--r--  1 runner runner  11393 Aug  9 14:25 reposcan-2026-08-08-11-30.md
+-rw-r--r--  1 runner runner  10793 Aug  9 14:25 reposcan-2026-08-08-11-55.md
+-rw-r--r--  1 runner runner  13925 Aug  9 14:25 reposcan-2026-08-08-12-00.md
+-rw-r--r--  1 runner runner  12984 Aug  9 14:25 reposcan-2026-08-08-12-09.md
+-rw-r--r--  1 runner runner  11553 Aug  9 14:25 reposcan-2026-08-08-13-01.md
+-rw-r--r--  1 runner runner  16362 Aug  9 14:25 reposcan-2026-08-08-13-15.md
+-rw-r--r--  1 runner runner  11685 Aug  9 14:25 reposcan-2026-08-08-13-56.md
+-rw-r--r--  1 runner runner  11740 Aug  9 14:25 reposcan-2026-08-08-14-04.md
+-rw-r--r--  1 runner runner  14858 Aug  9 14:25 reposcan-2026-08-08-14-28.md
+-rw-r--r--  1 runner runner  10356 Aug  9 14:25 reposcan-2026-08-08-14-35.md
+-rw-r--r--  1 runner runner  10513 Aug  9 14:25 reposcan-2026-08-08-15-08.md
+-rw-r--r--  1 runner runner   6321 Aug  9 14:25 reposcan-2026-08-08-15-31.md
+-rw-r--r--  1 runner runner  11739 Aug  9 14:25 reposcan-2026-08-08-16-00.md
+-rw-r--r--  1 runner runner  15164 Aug  9 14:25 reposcan-2026-08-08-16-07.md
+-rw-r--r--  1 runner runner  12405 Aug  9 14:25 reposcan-2026-08-08-16-15.md
+-rw-r--r--  1 runner runner   6321 Aug  9 14:25 reposcan-2026-08-08-17-04.md
+-rw-r--r--  1 runner runner  12923 Aug  9 14:25 reposcan-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  15904 Aug  9 14:25 reposcan-2026-08-08-18-04.md
+-rw-r--r--  1 runner runner  11771 Aug  9 14:25 reposcan-2026-08-08-18-36.md
+-rw-r--r--  1 runner runner  12165 Aug  9 14:25 reposcan-2026-08-08-19-19.md
+-rw-r--r--  1 runner runner  14685 Aug  9 14:25 reposcan-2026-08-08-19-46.md
+-rw-r--r--  1 runner runner  13911 Aug  9 14:25 reposcan-2026-08-08-19-58.md
+-rw-r--r--  1 runner runner   9017 Aug  9 14:25 reposcan-2026-08-08-20-14.md
+-rw-r--r--  1 runner runner  17271 Aug  9 14:25 reposcan-2026-08-08-20-33.md
+-rw-r--r--  1 runner runner  14693 Aug  9 14:25 reposcan-2026-08-08-20-41.md
+-rw-r--r--  1 runner runner  13770 Aug  9 14:25 reposcan-2026-08-08-21-03.md
+-rw-r--r--  1 runner runner  16811 Aug  9 14:25 reposcan-2026-08-08-21-11.md
+-rw-r--r--  1 runner runner  14116 Aug  9 14:25 reposcan-2026-08-08-21-32.md
+-rw-r--r--  1 runner runner  12845 Aug  9 14:25 reposcan-2026-08-08-21-41.md
+-rw-r--r--  1 runner runner  12743 Aug  9 14:25 reposcan-2026-08-08-22-05.md
+-rw-r--r--  1 runner runner  11547 Aug  9 14:25 reposcan-2026-08-08-22-19.md
+-rw-r--r--  1 runner runner  12410 Aug  9 14:25 reposcan-2026-08-08-22-54.md
+-rw-r--r--  1 runner runner   6471 Aug  9 14:25 reposcan-2026-08-08-23-19.md
+-rw-r--r--  1 runner runner   6321 Aug  9 14:25 reposcan-2026-08-08-23-28.md
+-rw-r--r--  1 runner runner  10531 Aug  9 14:25 reposcan-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner  13968 Aug  9 14:25 reposcan-2026-08-08-23-59.md
+-rw-r--r--  1 runner runner  13598 Aug  9 14:25 reposcan-2026-08-09-00-07.md
+-rw-r--r--  1 runner runner  12837 Aug  9 14:25 reposcan-2026-08-09-01-41.md
+-rw-r--r--  1 runner runner  11706 Aug  9 14:25 reposcan-2026-08-09-02-39.md
+-rw-r--r--  1 runner runner  12540 Aug  9 14:25 reposcan-2026-08-09-03-22.md
+-rw-r--r--  1 runner runner  12484 Aug  9 14:25 reposcan-2026-08-09-04-04.md
+-rw-r--r--  1 runner runner  13901 Aug  9 14:25 reposcan-2026-08-09-04-50.md
+-rw-r--r--  1 runner runner  11067 Aug  9 14:25 reposcan-2026-08-09-05-12.md
+-rw-r--r--  1 runner runner  11859 Aug  9 14:25 reposcan-2026-08-09-05-48.md
+-rw-r--r--  1 runner runner  13461 Aug  9 14:25 reposcan-2026-08-09-06-47.md
+-rw-r--r--  1 runner runner  12488 Aug  9 14:25 reposcan-2026-08-09-06-55.md
+-rw-r--r--  1 runner runner  16116 Aug  9 14:25 reposcan-2026-08-09-07-37.md
+-rw-r--r--  1 runner runner   7436 Aug  9 14:25 reposcan-2026-08-09-07-53.md
+-rw-r--r--  1 runner runner  11170 Aug  9 14:25 reposcan-2026-08-09-08-15.md
+-rw-r--r--  1 runner runner  12517 Aug  9 14:25 reposcan-2026-08-09-08-43.md
+-rw-r--r--  1 runner runner  10944 Aug  9 14:25 reposcan-2026-08-09-09-10.md
+-rw-r--r--  1 runner runner  12832 Aug  9 14:25 reposcan-2026-08-09-09-26.md
+-rw-r--r--  1 runner runner   9567 Aug  9 14:25 reposcan-2026-08-09-09-57.md
+-rw-r--r--  1 runner runner  12475 Aug  9 14:25 reposcan-2026-08-09-10-07.md
+-rw-r--r--  1 runner runner  12838 Aug  9 14:25 reposcan-2026-08-09-10-16.md
+-rw-r--r--  1 runner runner  13621 Aug  9 14:25 reposcan-2026-08-09-10-56.md
+-rw-r--r--  1 runner runner  15973 Aug  9 14:25 reposcan-2026-08-09-11-31.md
+-rw-r--r--  1 runner runner  11091 Aug  9 14:25 reposcan-2026-08-09-12-01.md
+-rw-r--r--  1 runner runner  11474 Aug  9 14:25 reposcan-2026-08-09-12-21.md
+-rw-r--r--  1 runner runner  11500 Aug  9 14:25 reposcan-2026-08-09-12-54.md
+-rw-r--r--  1 runner runner   8370 Aug  9 14:25 reposcan-2026-08-09-13-19.md
+-rw-r--r--  1 runner runner  14419 Aug  9 14:25 reposcan-2026-08-09-13-55.md
+-rw-r--r--  1 runner runner  14702 Aug  9 14:25 reposcan-2026-08-09-14-13.md
+-rw-r--r--  1 runner runner  14702 Aug  9 14:25 reposcan-latest.md
+
+/home/runner/work/threema-hunt/threema-hunt/reports/:
+total 7612
+drwxr-xr-x  2 runner runner    4096 Aug  9 14:25 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 14:25 ..
+-rw-r--r--  1 runner runner 2830740 Aug  9 14:25 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 3989741 Aug  9 14:25 analyst-laguna.log
+-rw-r--r--  1 runner runner   25255 Aug  9 14:25 analyst-ling3.log
+-rw-r--r--  1 runner runner   11367 Aug  9 14:25 analyst-longcat.log
+-rw-r--r--  1 runner runner  717052 Aug  9 14:25 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   40037 Aug  9 14:25 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner   13274 Aug  9 14:25 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 14:25 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 14:25 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   12746 Aug  9 14:25 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  218298 Aug  9 14:25 hypotheses.md
+-rw-r--r--  1 runner runner   23840 Aug  9 14:25 valid-bugs.md
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/analyst-out.txt /home/runner/work/threema-hunt/threema-hunt/state_nemotron3.json /home/runner/work/threema-hunt/threema-hunt/state_longcat.json /home/runner/work/threema-hunt/threema-hunt/state_leng3.json 2>/dev/null; echo "---SCOPE---"; cat /home/runner/work/threema-hunt/threema-hunt/scope.yml
+[0m
+> build · laguna-s-2.1-free
+[0m
+I'll start by exploring the workspace structure to understand current findings and what's been done.
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/
+total 232
+drwxr-xr-x 11 runner runner  4096 Aug  9 14:25 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 14:25 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 14:25 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 14:25 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 14:25 README.md
+-rw-r--r--  1 runner runner   140 Aug  9 14:25 analyst-out.txt
+-rw-r--r--  1 runner runner 69669 Aug  9 14:25 analyst-prompt.txt
+-rw-r--r--  1 runner runner 66605 Aug  9 14:25 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 leads
+-rw-r--r--  1 runner runner 15413 Aug  9 14:25 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 14:25 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 14:25 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 14:25 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 14:25 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 14:25 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 14:25 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 14:25 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 triage
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reports/ /home/runner/work/threema-hunt/threema-hunt/knowledge/ /home/runner/work/threema-hunt/threema-hunt/leads/ /home/runner/work/threema-hunt/threema-hunt/inventory/
+/home/runner/work/threema-hunt/threema-hunt/inventory/:
+total 80
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 14:25 ..
+-rw-r--r--  1 runner runner 70088 Aug  9 14:25 threema.md
+
+/home/runner/work/threema-hunt/threema-hunt/knowledge/:
+total 52
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 14:25 ..
+-rw-r--r--  1 runner runner 42757 Aug  9 14:25 index.md
+
+/home/runner/work/threema-hunt/threema-hunt/leads/:
+total 3276
+drwxr-xr-x  2 runner runner   4096 Aug  9 14:25 .
+drwxr-xr-x 11 runner runner   4096 Aug  9 14:25 ..
+-rw-r--r--  1 runner runner 670404 Aug  9 14:25 lead-bigpickle.md
+-rw-r--r--  1 runner runner 626762 Aug  9 14:25 lead-laguna.md
+-rw-r--r--  1 runner runner   8310 Aug  9 14:25 lead-ling3.md
+-rw-r--r--  1 runner runner   7324 Aug  9 14:25 lead-longcat.md
+-rw-r--r--  1 runner runner 565616 Aug  9 14:25 lead-nemotron3.md
+-rw-r--r--  1 runner runner  11048 Aug  9 14:25 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner  13399 Aug  9 14:25 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner  13429 Aug  9 14:25 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner  11241 Aug  9 14:25 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner   6565 Aug  9 14:25 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner   9511 Aug  9 14:25 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner  13472 Aug  9 14:25 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner  10507 Aug  9 14:25 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner  13665 Aug  9 14:25 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner  10938 Aug  9 14:25 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner  17321 Aug  9 14:25 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner  15373 Aug  9 14:25 reposcan-2026-08-07-23-19.md
+-rw-r--r--  1 runner runner  11670 Aug  9 14:25 reposcan-2026-08-07-23-50.md
+-rw-r--r--  1 runner runner  14267 Aug  9 14:25 reposcan-2026-08-08-00-01.md
+-rw-r--r--  1 runner runner  12628 Aug  9 14:25 reposcan-2026-08-08-00-19.md
+-rw-r--r--  1 runner runner  13392 Aug  9 14:25 reposcan-2026-08-08-02-10.md
+-rw-r--r--  1 runner runner  13822 Aug  9 14:25 reposcan-2026-08-08-02-23.md
+-rw-r--r--  1 runner runner  13194 Aug  9 14:25 reposcan-2026-08-08-03-52.md
+-rw-r--r--  1 runner runner  14260 Aug  9 14:25 reposcan-2026-08-08-04-47.md
+-rw-r--r--  1 runner runner  15327 Aug  9 14:25 reposcan-2026-08-08-05-01.md
+-rw-r--r--  1 runner runner  13092 Aug  9 14:25 reposcan-2026-08-08-05-29.md
+-rw-r--r--  1 runner runner  11228 Aug  9 14:25 reposcan-2026-08-08-05-48.md
+-rw-r--r--  1 runner runner  10378 Aug  9 14:25 reposcan-2026-08-08-06-08.md
+-rw-r--r--  1 runner runner  11257 Aug  9 14:25 reposcan-2026-08-08-06-56.md
+-rw-r--r--  1 runner runner  11788 Aug  9 14:25 reposcan-2026-08-08-07-12.md
+-rw-r--r--  1 runner runner   9790 Aug  9 14:25 reposcan-2026-08-08-07-53.md
+-rw-r--r--  1 runner runner  10972 Aug  9 14:25 reposcan-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner  13672 Aug  9 14:25 reposcan-2026-08-08-08-37.md
+-rw-r--r--  1 runner runner   6321 Aug  9 14:25 reposcan-2026-08-08-08-42.md
+-rw-r--r--  1 runner runner  16455 Aug  9 14:25 reposcan-2026-08-08-09-21.md
+-rw-r--r--  1 runner runner  14107 Aug  9 14:25 reposcan-2026-08-08-09-40.md
+-rw-r--r--  1 runner runner  14710 Aug  9 14:25 reposcan-2026-08-08-10-09.md
+-rw-r--r--  1 runner runner  13912 Aug  9 14:25 reposcan-2026-08-08-10-27.md
+-rw-r--r--  1 runner runner  15295 Aug  9 14:25 reposcan-2026-08-08-10-37.md
+-rw-r--r--  1 runner runner  11119 Aug  9 14:25 reposcan-2026-08-08-11-08.md
+-rw-r--r--  1 runner runner  16740 Aug  9 14:25 reposcan-2026-08-08-11-28.md
+-rw-r--r--  1 runner runner  11393 Aug  9 14:25 reposcan-2026-08-08-11-30.md
+-rw-r--r--  1 runner runner  10793 Aug  9 14:25 reposcan-2026-08-08-11-55.md
+-rw-r--r--  1 runner runner  13925 Aug  9 14:25 reposcan-2026-08-08-12-00.md
+-rw-r--r--  1 runner runner  12984 Aug  9 14:25 reposcan-2026-08-08-12-09.md
+-rw-r--r--  1 runner runner  11553 Aug  9 14:25 reposcan-2026-08-08-13-01.md
+-rw-r--r--  1 runner runner  16362 Aug  9 14:25 reposcan-2026-08-08-13-15.md
+-rw-r--r--  1 runner runner  11685 Aug  9 14:25 reposcan-2026-08-08-13-56.md
+-rw-r--r--  1 runner runner  11740 Aug  9 14:25 reposcan-2026-08-08-14-04.md
+-rw-r--r--  1 runner runner  14858 Aug  9 14:25 reposcan-2026-08-08-14-28.md
+-rw-r--r--  1 runner runner  10356 Aug  9 14:25 reposcan-2026-08-08-14-35.md
+-rw-r--r--  1 runner runner  10513 Aug  9 14:25 reposcan-2026-08-08-15-08.md
+-rw-r--r--  1 runner runner   6321 Aug  9 14:25 reposcan-2026-08-08-15-31.md
+-rw-r--r--  1 runner runner  11739 Aug  9 14:25 reposcan-2026-08-08-16-00.md
+-rw-r--r--  1 runner runner  15164 Aug  9 14:25 reposcan-2026-08-08-16-07.md
+-rw-r--r--  1 runner runner  12405 Aug  9 14:25 reposcan-2026-08-08-16-15.md
+-rw-r--r--  1 runner runner   6321 Aug  9 14:25 reposcan-2026-08-08-17-04.md
+-rw-r--r--  1 runner runner  12923 Aug  9 14:25 reposcan-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  15904 Aug  9 14:25 reposcan-2026-08-08-18-04.md
+-rw-r--r--  1 runner runner  11771 Aug  9 14:25 reposcan-2026-08-08-18-36.md
+-rw-r--r--  1 runner runner  12165 Aug  9 14:25 reposcan-2026-08-08-19-19.md
+-rw-r--r--  1 runner runner  14685 Aug  9 14:25 reposcan-2026-08-08-19-46.md
+-rw-r--r--  1 runner runner  13911 Aug  9 14:25 reposcan-2026-08-08-19-58.md
+-rw-r--r--  1 runner runner   9017 Aug  9 14:25 reposcan-2026-08-08-20-14.md
+-rw-r--r--  1 runner runner  17271 Aug  9 14:25 reposcan-2026-08-08-20-33.md
+-rw-r--r--  1 runner runner  14693 Aug  9 14:25 reposcan-2026-08-08-20-41.md
+-rw-r--r--  1 runner runner  13770 Aug  9 14:25 reposcan-2026-08-08-21-03.md
+-rw-r--r--  1 runner runner  16811 Aug  9 14:25 reposcan-2026-08-08-21-11.md
+-rw-r--r--  1 runner runner  14116 Aug  9 14:25 reposcan-2026-08-08-21-32.md
+-rw-r--r--  1 runner runner  12845 Aug  9 14:25 reposcan-2026-08-08-21-41.md
+-rw-r--r--  1 runner runner  12743 Aug  9 14:25 reposcan-2026-08-08-22-05.md
+-rw-r--r--  1 runner runner  11547 Aug  9 14:25 reposcan-2026-08-08-22-19.md
+-rw-r--r--  1 runner runner  12410 Aug  9 14:25 reposcan-2026-08-08-22-54.md
+-rw-r--r--  1 runner runner   6471 Aug  9 14:25 reposcan-2026-08-08-23-19.md
+-rw-r--r--  1 runner runner   6321 Aug  9 14:25 reposcan-2026-08-08-23-28.md
+-rw-r--r--  1 runner runner  10531 Aug  9 14:25 reposcan-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner  13968 Aug  9 14:25 reposcan-2026-08-08-23-59.md
+-rw-r--r--  1 runner runner  13598 Aug  9 14:25 reposcan-2026-08-09-00-07.md
+-rw-r--r--  1 runner runner  12837 Aug  9 14:25 reposcan-2026-08-09-01-41.md
+-rw-r--r--  1 runner runner  11706 Aug  9 14:25 reposcan-2026-08-09-02-39.md
+-rw-r--r--  1 runner runner  12540 Aug  9 14:25 reposcan-2026-08-09-03-22.md
+-rw-r--r--  1 runner runner  12484 Aug  9 14:25 reposcan-2026-08-09-04-04.md
+-rw-r--r--  1 runner runner  13901 Aug  9 14:25 reposcan-2026-08-09-04-50.md
+-rw-r--r--  1 runner runner  11067 Aug  9 14:25 reposcan-2026-08-09-05-12.md
+-rw-r--r--  1 runner runner  11859 Aug  9 14:25 reposcan-2026-08-09-05-48.md
+-rw-r--r--  1 runner runner  13461 Aug  9 14:25 reposcan-2026-08-09-06-47.md
+-rw-r--r--  1 runner runner  12488 Aug  9 14:25 reposcan-2026-08-09-06-55.md
+-rw-r--r--  1 runner runner  16116 Aug  9 14:25 reposcan-2026-08-09-07-37.md
+-rw-r--r--  1 runner runner   7436 Aug  9 14:25 reposcan-2026-08-09-07-53.md
+-rw-r--r--  1 runner runner  11170 Aug  9 14:25 reposcan-2026-08-09-08-15.md
+-rw-r--r--  1 runner runner  12517 Aug  9 14:25 reposcan-2026-08-09-08-43.md
+-rw-r--r--  1 runner runner  10944 Aug  9 14:25 reposcan-2026-08-09-09-10.md
+-rw-r--r--  1 runner runner  12832 Aug  9 14:25 reposcan-2026-08-09-09-26.md
+-rw-r--r--  1 runner runner   9567 Aug  9 14:25 reposcan-2026-08-09-09-57.md
+-rw-r--r--  1 runner runner  12475 Aug  9 14:25 reposcan-2026-08-09-10-07.md
+-rw-r--r--  1 runner runner  12838 Aug  9 14:25 reposcan-2026-08-09-10-16.md
+-rw-r--r--  1 runner runner  13621 Aug  9 14:25 reposcan-2026-08-09-10-56.md
+-rw-r--r--  1 runner runner  15973 Aug  9 14:25 reposcan-2026-08-09-11-31.md
+-rw-r--r--  1 runner runner  11091 Aug  9 14:25 reposcan-2026-08-09-12-01.md
+-rw-r--r--  1 runner runner  11474 Aug  9 14:25 reposcan-2026-08-09-12-21.md
+-rw-r--r--  1 runner runner  11500 Aug  9 14:25 reposcan-2026-08-09-12-54.md
+-rw-r--r--  1 runner runner   8370 Aug  9 14:25 reposcan-2026-08-09-13-19.md
+-rw-r--r--  1 runner runner  14419 Aug  9 14:25 reposcan-2026-08-09-13-55.md
+-rw-r--r--  1 runner runner  14702 Aug  9 14:25 reposcan-2026-08-09-14-13.md
+-rw-r--r--  1 runner runner  14702 Aug  9 14:25 reposcan-latest.md
+
+/home/runner/work/threema-hunt/threema-hunt/reports/:
+total 7612
+drwxr-xr-x  2 runner runner    4096 Aug  9 14:25 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 14:25 ..
+-rw-r--r--  1 runner runner 2830740 Aug  9 14:25 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 3989741 Aug  9 14:25 analyst-laguna.log
+-rw-r--r--  1 runner runner   25255 Aug  9 14:25 analyst-ling3.log
+-rw-r--r--  1 runner runner   11367 Aug  9 14:25 analyst-longcat.log
+-rw-r--r--  1 runner runner  717052 Aug  9 14:25 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   40037 Aug  9 14:25 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner   13274 Aug  9 14:25 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 14:25 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 14:25 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   12746 Aug  9 14:25 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  218298 Aug  9 14:25 hypotheses.md
+-rw-r--r--  1 runner runner   23840 Aug  9 14:25 valid-bugs.md
+[0m
+{"phase": "POC", "target": "web"}{"phase": "POC", "target": "sync"}---SCOPE---
+programs:
+  threema:
+    name: Threema
+    disclosure_policy: TBD - operator-provided program scope (update once public channel confirmed)
+    assets:
+      - name: "Android Source Code"
+        priority: In
+      - name: "iOS App Source Code"
+        priority: In
+      - name: "Desktop 2.x App Source Code (github.com/threema-ch/threema-desktop)"
+        priority: In
+      - name: "g-*.0.threema.ch (chat services)"
+        priority: In
+      - name: "mediator-*.threema.ch (multi-device synchronization server)"
+        priority: In
+      - name: "rendezvous-*.threema.ch (multi-device linking server)"
+        priority: In
+      - name: "apip.threema.ch (directory server / ID service)"
+        priority: In
+      - name: "safe-*.threema.ch (backup service)"
+        priority: In
+      - name: "work.threema.ch (work cockpit & backend)"
+        priority: In
+      - name: "broadcast.threema.ch (broadcast cockpit & backend)"
+        priority: In
+      - name: "gateway.threema.ch (gateway cockpit & backend)"
+        priority: In
+      - name: "shop.threema.ch (threema shop)"
+        priority: In
+      - name: "billing.threema.ch (billing system)"
+        priority: In
+    out_of_scope:
+      - "All other targets and third-party services not listed above"
+    github_orgs:
+      - threema-ch
+
+rules:
+  passive_first: true          # GET/HEAD reads first; no invasive testing without program approval
+  max_requests_per_second: 1   # never hammer
+  no_doom: true                # no DoS/DDoS, no resource-exhaustion tests
+  no_account_creation: true    # no mass signups without program approval
+  no_data_modification: true   # no writes, deletes, state changes on live infra
+  no_pre_disclosure: true      # never disclose before program response
+  redact_secrets_in_commits: true   # commit sha256 of secrets, never raw values
+
+# Multi-model ensemble: every hunt run picks a rotation of the 5 models.
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/state_laguna.json; echo "---"; cat /home/runner/work/threema-hunt/threema-hunt/state_bigpickle.json; echo "---"; cat /home/runner/work/threema-hunt/threema-hunt/state_nemotron3.json
+{"phase": "POC", "target": "desktop"}---
+{"phase": "POC", "target": "chat"}---
+{"phase": "POC", "target": "web"}
+[0m
+[0m→ [0mRead analyst-prompt.txt[90m [limit=80][0m
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/poc/ 2>/dev/null; echo "---reposcan-latest---"; cat /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-latest.md
+---reposcan-latest---
+
+===== REPOSCAN 2026-08-09 14:13:44 UTC =====
+## Grep hits:
+SCAN SUMMARY: 6656 code/config files scanned, 56 hits
+reposcan-raw/threema-ch/threema-ios/Threema/AppMigration.swift:873: let persistenceKeyLicensePassword = "Threema license password"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/SafeDataTests.swift:11: serverPassword: "password1",
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift:15: let expectedAuthToken = "authToken"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift:18: let expectedPassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:50: licenseStoreMock.licensePassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:72: (username: nil as String?, password: "testPassword" as String?, description: "nil username"),
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift:148: licenseStoreMock.licensePassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:13: let expectedPassword = "testPassword"
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:37: (username: nil as String?, password: "validPassword" as String?, description: "nil username"),
+reposcan-raw/threema-ch/threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift:103: password: "testPassword",
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:67: let result = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:76: let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/SafeTests.swift:105: let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar")
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift:30: let password = "abcdefghijkl"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift:227: let validPassword = "ABcd!@#tgk092"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:28: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:76: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift:120: safePassword: "shootdeathstar"
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift:38: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift:83: if let key = SafeStore.createKey(identity: "ECHOECHO", safePassword: "shootdeathstar"),
+reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-ios/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt:49: """sfuToken='********', expirationDate=$expirationDate)"""
+reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/protocol/src/directory.openapi.yml:911: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:7: - url: https://ds-apip-work.test.threema.ch
+reposcan-raw/threema-ch/threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml:917: - url: https://ds-apip.test.threema.ch
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/storage/models/WebClientSessionModel.java:28: public static final String COLUMN_PUSH_TOKEN = "push_token";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/storage/databaseupdate/DatabaseUpdateToVersion37.java:48: static final String COLUMN_PUSH_TOKEN = "push_token";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/utils/IceCandidateParser.java:43: public final static String TOKEN = "[a-zA-Z]+";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/webclient/converter/ClientInfo.java:37: private final static String PUSH_TOKEN = "pushToken";
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt:70: "iceUsernameFragment='$iceUsernameFragment', icePassword='$icePassword', " +
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/notifications/NotificationChannels.kt:52: const val NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"
+reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/dialogs/PasswordEntryDialog.java:47: public static final @NonNull String KEY_PASSWORD = "password";
+reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:15: publicApiKey = "b3e20afbf356a8748bb62ac165aa780c",
+reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:19: publicApiKey = "615af77cb3d980c41b3b04b07417cc7d",
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:147: DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:153: WORK_SERVER_LEGACY_URL: 'https://ds-apip-work.test.threema.ch/',
+reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts:154: WORK_SERVER_URL: 'https://work.test.threema.ch/',
+
+## Model analysis:
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0msha256sum <<< "Threema license password" | cut -d' ' -f1
+c6ef56ceef46a163980a2be7a79b03c2ff4f502f018d8b6fae94369497c1e866
+[0m
+[0m$ [0msha256sum <<< "password1" | cut -d' ' -f1
+6beb82a31d6ce0484b07da04008f9d125f6787282f43b09d1410d9ee90067ef4
+[0m
+[0m$ [0msha256sum <<< "authToken" | cut -d' ' -f1
+7742701ddc27e0a93672208d34f5e7ee53c03686c1d12fcbafb99d677749c9fd
+[0m
+[0m$ [0msha256sum <<< "testPassword" | cut -d' ' -f1
+9af5a1b6b0c5f11536e6823b9c9eeb6cafccfa075b64feceec2154807cc2a405
+[0m
+[0m$ [0msha256sum <<< "shootdeathstar" | cut -d' ' -f1
+6e55663afa26bf878799d4b9467831cedf37e393bf0b1311a53c1635e1d97285
+[0m
+[0m$ [0msha256sum <<< "abcdefghijkl" | cut -d' ' -f1
+6cd0fe73aecda67f987bc42c5fd158fd08eb31b0645432b1afee4be2cbae380d
+[0m
+[0m$ [0msha256sum <<< "ABcd!@#tgk092" | cut -d' ' -f1
+c87a8dd6856f1cba6e9508e664ebf6799fa20486751cbac399951c5672ca9262
+[0m
+[0m$ [0msha256sum <<< "CHANGE_ME" | cut -d' ' -f1
+52279f2ab782880085bc41371271f70e94b464cce50897e2c12cef7e0f6b5144
+[0m
+[0m$ [0msha256sum <<< "r3gGN9GDQ5NF6tM6" | cut -d' ' -f1
+52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c
+[0m
+### REAL_SECRET
+| File | Line | Secret SHA256 | Context |
+|------|------|---------------|---------|
+| (none) | - | - | No live credentials found in scan |
+
+### TEST_OR_EXAMPLE
+| File | Line | Secret SHA256 | Context |
+|------|------|---------------|---------|
+| threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | 6beb82a31d6ce0484b07da04008f9d125f6787282f43b09d1410d9ee90067ef4 | `serverPassword: "password1"` - test fixture |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15 | 7742701ddc27e0a93672208d34f5e7ee53c03686c1d12fcbafb99d677749c9fd | `expectedAuthToken = "authToken"` - test placeholder |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 18 | 9af5a1b6b0c5f11536e6823b9c9eeb6cafccfa075b64feceec2154807cc2a405 | `expectedPassword = "testPassword"` - test placeholder |
+| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift | 50,72,148 | 9af5a1b6b0c5f11536e6823b9c9eeb6cafccfa075b64feceec2154807cc2a405 | `licensePassword = "testPassword"` - mock data |
+| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift | 13,37,103 | 9af5a1b6b0c5f11536e6823b9c9eeb6cafccfa075b64feceec2154807cc2a405 | `password = "testPassword"/"validPassword"` - test data |
+| threema-ios/ThreemaTests/SafeTests.swift | 67,76,105 | 6e55663afa26bf878799d4b9467831cedf37e393bf0b1311a53c1635e1d97285 | `safePassword: "shootdeathstar"` with identity `ECHOECHO` - test vector |
+| threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift | 30 | 6cd0fe73aecda67f987bc42c5fd158fd08eb31b0645432b1afee4be2cbae380d | `password = "abcdefghijkl"` - validator test |
+| threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift | 227 | c87a8dd6856f1cba6e9508e664ebf6799fa20486751cbac399951c5672ca9262 | `validPassword = "ABcd!@#tgk092"` - validator test |
+| threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift | 28,76,120 | 6e55663afa26bf878799d4b9467831cedf37e393bf0b1311a53c1635e1d97285 | `safePassword: "shootdeathstar"` - manual test |
+| threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift | 38,83 | 6e55663afa26bf878799d4b9467831cedf37e393bf0b1311a53c1635e1d97285 | `safePassword: "shootdeathstar"` - manual test |
+| threema-desktop/apps/desktop/src/common/test-data.ts | 62 | 52279f2ab782880085bc41371271f70e94b464cce50897e2c12cef7e0f6b5144 | `keyStoragePassword: 'CHANGE_ME'` - explicit placeholder |
+| threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts | 223 | 52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c | Benchmark dummy `r3gGN9GDQ5NF6tM6` in `determineKdfParams()` - **RAG-VERIFIED REJECTED** (key purged at line 233, not used for real encryption) |
+
+### ENDPOINT_LEAK
+| File | Line | Endpoint | Type |
+|------|------|----------|------|
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` | Staging work directory |
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 917 | `https://ds-apip.test.threema.ch` | Staging directory |
+| threema-android/domain/protocol/src/directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` | Staging work directory |
+| threema-android/domain/protocol/src/directory.openapi.yml | 911 | `https://ds-apip.test.threema.ch` | Staging directory |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` | Staging work directory |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 917 | `https://ds-apip.test.threema.ch` | Staging directory |
+| threema-desktop/apps/desktop/config/vite.config.ts | 147 | `https://ds-apip.test.threema.ch/` | Staging directory (build config) |
+| threema-desktop/apps/desktop/config/vite.config.ts | 153 | `https://ds-apip-work.test.threema.ch/` | Staging work directory (build config) |
+| threema-desktop/apps/desktop/config/vite.config.ts | 154 | `https://work.test.threema.ch/` | Staging work webapp (build config) |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` | Staging work directory |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 911 | `https://ds-apip.test.threema.ch` | Staging directory |
+
+### INTERESTING
+| File | Line | Finding |
+|------|------|---------|
+| threema-ios/Threema/AppMigration.swift | 873 | `persistenceKeyLicensePassword = "Threema license password"` - Keychain key name (not a secret value) |
+| threema-android/domain/src/main/java/.../SfuToken.kt | 49 | `sfuToken='********'` masked in `toString()` - shows token structure |
+| threema-android/.../WebClientSessionModel.java | 28 | `COLUMN_PUSH_TOKEN = "push_token"` - DB schema constant |
+| threema-android/.../DatabaseUpdateToVersion37.java | 48 | `COLUMN_PUSH_TOKEN = "push_token"` - migration schema |
+| threema-android/.../IceCandidateParser.java | 43 | `TOKEN = "[a-zA-Z]+"` - regex pattern constant |
+| threema-android/.../ClientInfo.java | 37 | `PUSH_TOKEN = "pushToken"` - JSON field name |
+| threema-android/.../JoinResponse.kt | 70 | `icePassword='$icePassword'` in log/toString - runtime value reference |
+| threema-android/.../NotificationChannels.kt | 52 | `NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"` - channel ID string |
+| threema-android/.../PasswordEntryDialog.java | 47 | `KEY_PASSWORD = "password"` - Bundle key constant |
+| threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt | 15 | Sentry public DSN `b3e20afbf356a8748bb62ac165aa780c` (public by design) |
+| threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt | 19 | Sentry public DSN `615af77cb3d980c41b3b04b07417cc7d` (public by design) |
+| threema-desktop/.../enum/index.ts | 3126,3162 | `LOAD_USER_PASSWORD` / `STORE_USER_PASSWORD` - Redux action type constants |
+| threema-desktop/.../enum/schema.ts | 983,1000 | Same action type constants (duplicated) |
+| threema-desktop/.../webrtc/src/sdp/ice-password.ts | 12 | Validation error message for ICE password format |
+
+---
+
+### VERDICT LIST
+
+| Candidate | Category | REPORT_CANDIDATE |
+|-----------|----------|------------------|
+| Benchmark password `r3gGN9GDQ5NF6tM6` in crypto.ts:223 | TEST_OR_EXAMPLE (RAG-verified benchmark dummy, key purged) | **no** |
+| All test fixtures (`password1`, `testPassword`, `shootdeathstar`, `CHANGE_ME`, etc.) | TEST_OR_EXAMPLE | **no** |
+| Staging endpoints in OpenAPI specs & vite.config.ts (`ds-apip.test.threema.ch`, `ds-apip-work.test.threema.ch`, `work.test.threema.ch`) | ENDPOINT_LEAK (known staging hosts, already in scope/knowledge base) | **no** |
+| Sentry public DSN keys | INTERESTING (public keys by design) | **no** |
+| Constant strings (DB columns, action types, key names, regex patterns) | INTERESTING (code constants, not secrets) | **no** |
+| Masked `sfuToken='********'` in toString() | INTERESTING (defensive coding, no leak) | **no** |
+
+**No reportable REAL_SECRET candidates in this scan delta.** All findings are test data, known staging endpoints (already tracked), or code constants.
+[0m
+Let me check the key artifacts and reposcan results relevant to the desktop target.
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/
+analysis.txt
+grep-delta.txt
+grep-hits.prev.txt
+grep-hits.txt
+rag.txt
+threema-ch
+[0m
+Let me look at the key desktop source files that are central to the ACL bypass finding.
+[0m$ [0mls -R /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/ | head -100
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/:
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/ -type f | head -50
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/grep-delta.txt
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/grep-hits.prev.txt
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/rag.txt
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/grep-hits.txt
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/analysis.txt
+[0m
+[0m→ [0mRead reposcan-raw/grep-hits.txt
+[0m→ [0mRead reposcan-raw/rag.txt
+[0m
+[0m$ [0mwc -l /home/runner/work/threema-hunt/threema-hunt/analyst-prompt.txt /home/runner/work/threema-hunt/threema-hunt/knowledge/index.md /home/runner/work/threema-hunt/threema-hunt/ctx.txt
+384 /home/runner/work/threema-hunt/threema-hunt/analyst-prompt.txt
+   193 /home/runner/work/threema-hunt/threema-hunt/knowledge/index.md
+   348 /home/runner/work/threema-hunt/threema-hunt/ctx.txt
+   925 total
+[0m
+[0m→ [0mRead ctx.txt
+[0m→ [0mRead ctx.txt[90m [offset=250][0m
+[0m→ [0mRead knowledge/index.md
+Let me read the knowledge index and probe results to understand the desktop target status.
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reports/*.log | sort; echo "---"; ls /home/runner/work/threema-hunt/threema-hunt/scripts/; echo "---triage---"; ls -la /home/runner/work/threema-hunt/threema-hunt/triage/
+/home/runner/work/threema-hunt/threema-hunt/reports/analyst-bigpickle.log
+/home/runner/work/threema-hunt/threema-hunt/reports/analyst-laguna.log
+/home/runner/work/threema-hunt/threema-hunt/reports/analyst-ling3.log
+/home/runner/work/threema-hunt/threema-hunt/reports/analyst-longcat.log
+/home/runner/work/threema-hunt/threema-hunt/reports/analyst-nemotron3.log
+---
+sync-issues.py
+---triage---
+total 952
+drwxr-xr-x  2 runner runner  4096 Aug  9 14:25 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 14:25 ..
+-rw-r--r--  1 runner runner 81432 Aug  9 14:25 run-2026-08-07-20-10.md
+-rw-r--r--  1 runner runner 18280 Aug  9 14:25 run-2026-08-07-21-03.md
+-rw-r--r--  1 runner runner 18224 Aug  9 14:25 run-2026-08-07-21-56.md
+-rw-r--r--  1 runner runner 12766 Aug  9 14:25 run-2026-08-07-22-56.md
+-rw-r--r--  1 runner runner 27810 Aug  9 14:25 run-2026-08-07-23-55.md
+-rw-r--r--  1 runner runner  1637 Aug  9 14:25 run-2026-08-08-02-24.md
+-rw-r--r--  1 runner runner 18651 Aug  9 14:25 run-2026-08-08-04-24.md
+-rw-r--r--  1 runner runner 20107 Aug  9 14:25 run-2026-08-08-06-01.md
+-rw-r--r--  1 runner runner 23637 Aug  9 14:25 run-2026-08-08-07-07.md
+-rw-r--r--  1 runner runner 18269 Aug  9 14:25 run-2026-08-08-07-15.md
+-rw-r--r--  1 runner runner 12515 Aug  9 14:25 run-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner   236 Aug  9 14:25 run-2026-08-08-08-59.md
+-rw-r--r--  1 runner runner 11791 Aug  9 14:25 run-2026-08-08-09-54.md
+-rw-r--r--  1 runner runner 10557 Aug  9 14:25 run-2026-08-08-10-53.md
+-rw-r--r--  1 runner runner   896 Aug  9 14:25 run-2026-08-08-11-44.md
+-rw-r--r--  1 runner runner   428 Aug  9 14:25 run-2026-08-08-13-11.md
+-rw-r--r--  1 runner runner  7773 Aug  9 14:25 run-2026-08-08-14-00.md
+-rw-r--r--  1 runner runner 19408 Aug  9 14:25 run-2026-08-08-14-52.md
+-rw-r--r--  1 runner runner 25063 Aug  9 14:25 run-2026-08-08-15-47.md
+-rw-r--r--  1 runner runner 27020 Aug  9 14:25 run-2026-08-08-17-19.md
+-rw-r--r--  1 runner runner  7619 Aug  9 14:25 run-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  6252 Aug  9 14:25 run-2026-08-08-17-57.md
+-rw-r--r--  1 runner runner 22001 Aug  9 14:25 run-2026-08-08-18-19.md
+-rw-r--r--  1 runner runner 13783 Aug  9 14:25 run-2026-08-08-19-08.md
+-rw-r--r--  1 runner runner   855 Aug  9 14:25 run-2026-08-08-19-48.md
+-rw-r--r--  1 runner runner  3697 Aug  9 14:25 run-2026-08-08-20-15.md
+-rw-r--r--  1 runner runner 48286 Aug  9 14:25 run-2026-08-08-20-16.md
+-rw-r--r--  1 runner runner   288 Aug  9 14:25 run-2026-08-08-20-52.md
+-rw-r--r--  1 runner runner   306 Aug  9 14:25 run-2026-08-08-21-18.md
+-rw-r--r--  1 runner runner 20264 Aug  9 14:25 run-2026-08-08-21-53.md
+-rw-r--r--  1 runner runner   319 Aug  9 14:25 run-2026-08-08-22-13.md
+-rw-r--r--  1 runner runner 25573 Aug  9 14:25 run-2026-08-08-22-53.md
+-rw-r--r--  1 runner runner 57527 Aug  9 14:25 run-2026-08-08-23-18.md
+-rw-r--r--  1 runner runner   228 Aug  9 14:25 run-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner 36585 Aug  9 14:25 run-2026-08-09-00-41.md
+-rw-r--r--  1 runner runner 25496 Aug  9 14:25 run-2026-08-09-03-00.md
+-rw-r--r--  1 runner runner   324 Aug  9 14:25 run-2026-08-09-04-10.md
+-rw-r--r--  1 runner runner   292 Aug  9 14:25 run-2026-08-09-05-26.md
+-rw-r--r--  1 runner runner 13044 Aug  9 14:25 run-2026-08-09-05-48.md
+-rw-r--r--  1 runner runner 23442 Aug  9 14:25 run-2026-08-09-06-39.md
+-rw-r--r--  1 runner runner 15689 Aug  9 14:25 run-2026-08-09-07-44.md
+-rw-r--r--  1 runner runner 24960 Aug  9 14:25 run-2026-08-09-08-32.md
+-rw-r--r--  1 runner runner   621 Aug  9 14:25 run-2026-08-09-09-27.md
+-rw-r--r--  1 runner runner 62572 Aug  9 14:25 run-2026-08-09-10-21.md
+-rw-r--r--  1 runner runner   338 Aug  9 14:25 run-2026-08-09-10-56.md
+-rw-r--r--  1 runner runner 21593 Aug  9 14:25 run-2026-08-09-11-53.md
+-rw-r--r--  1 runner runner 22109 Aug  9 14:25 run-2026-08-09-12-22.md
+-rw-r--r--  1 runner runner 31687 Aug  9 14:25 run-2026-08-09-13-28.md
+-rw-r--r--  1 runner runner  5183 Aug  9 14:25 run-2026-08-09-14-24.md
+-rw-r--r--  1 runner runner  2617 Aug  9 14:25 triage-2026-08-09-1011.md
+[0m
+[0m→ [0mRead reports/analyst-laguna.log
+[0m→ [0mRead probe-results.md
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt -name "key-storage-acl-bypass-poc*" 2>/dev/null; echo "---poc dir---"; ls -la /home/runner/work/threema-hunt/threema-hunt/poc 2>/dev/null || echo "no poc dir"; echo "---git log---"; cd /home/runner/work/threema-hunt/threema-hunt && git log --oneline -5 2>/dev/null
+---poc dir---
+no poc dir
+---git log---
+50819a6 triage 2026-08-09-14-24
+[0m
+Let me check for the PoC artifact and the GitHub source files for the desktop key-storage finding.
+Let me fetch the desktop source code from GitHub to verify the key-storage finding.
+[0m✗ [0mWebFetch https://raw.githubusercontent.com/threema-ch/threema-desktop/main/apps/desktop/src/common/node/fs.ts failed
+[91m[1mError: [0mStatusCode: non 2xx status code (404 GET https://raw.githubusercontent.com/threema-ch/threema-desktop/main/apps/desktop/src/common/node/fs.ts)
+[0m
+[0m$ [0mcurl -s "https://api.github.com/repos/threema-ch/threema-desktop" | grep -E '"default_branch"|"full_name"'; echo "---"; curl -s "https://api.github.com/repos/threema-ch/threema-desktop/branches" | grep '"name"' | head
+"full_name": "threema-ch/threema-desktop",
+  "default_branch": "stable",
+---
+    "name": "stable",
+[0m
+[0m% [0mWebFetch https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/apps/desktop/src/common/node/fs.ts
+Confirmed `fs.ts` returns `{}` on win32. Now let me verify the key-storage chain files.
+[0m% [0mWebFetch https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/apps/desktop/src/common/node/key-storage/index.ts
+[0m✗ [0mWebFetch https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/apps/desktop/src/common/node/key-storage/layers/inner/v3.ts failed
+[91m[1mError: [0mStatusCode: non 2xx status code (404 GET https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/apps/desktop/src/common/node/key-storage/layers/inner/v3.ts)
+[0m
+[0m$ [0mcurl -s "https://api.github.com/repos/threema-ch/threema-desktop/git/trees/stable?recursive=1" | grep -iE "v3\.ts|key-storage.*layers|sqlite|crypto\.ts|electron-main" | head -30
+"path": "apps/desktop/src/common/key-storage/layers",
+      "path": "apps/desktop/src/common/key-storage/layers/common.ts",
+      "path": "apps/desktop/src/common/key-storage/layers/inner",
+      "path": "apps/desktop/src/common/key-storage/layers/inner/v1.ts",
+      "path": "apps/desktop/src/common/key-storage/layers/inner/v2.ts",
+      "path": "apps/desktop/src/common/key-storage/layers/inner/v3.ts",
+      "path": "apps/desktop/src/common/key-storage/layers/intermediate",
+      "path": "apps/desktop/src/common/key-storage/layers/intermediate/v1.ts",
+      "path": "apps/desktop/src/common/key-storage/layers/intermediate/v1_1.ts",
+      "path": "apps/desktop/src/common/key-storage/layers/outer",
+      "path": "apps/desktop/src/common/key-storage/layers/outer/common.ts",
+      "path": "apps/desktop/src/common/key-storage/layers/outer/v1.ts",
+      "path": "apps/desktop/src/common/key-storage/layers/outer/v2.ts",
+      "path": "apps/desktop/src/common/node/db/sqlite.ts",
+      "path": "apps/desktop/src/common/node/file-storage/file-crypto.ts",
+      "path": "apps/desktop/src/common/node/key-storage/crypto.ts",
+      "path": "apps/desktop/src/electron/electron-main.ts",
+      "path": "apps/desktop/src/test/mocha/common/node/db/sqlite.spec.ts",
+      "path": "packages/protocol/src/structbuf/extra/crypto.ts",
+[0m
+The paths are slightly different from the cited ones. Let me verify the actual source files.
+[0m% [0mWebFetch https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/apps/desktop/src/common/key-storage/layers/inner/v3.ts
+[0m% [0mWebFetch https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/apps/desktop/src/common/node/db/sqlite.ts
+Confirmed sqlite.ts uses the databaseKey as PRAGMA key. Now let me verify crypto.ts and electron-main.ts.
+[0m% [0mWebFetch https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/apps/desktop/src/common/node/key-storage/crypto.ts
+Confirmed the Argon2id→XSalsa20-Poly1305 chain and the benchmark password purge. Now let me verify the electron-main.ts safeStorage usage.
+[0m
+[0m$ [0mcurl -s "https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/apps/desktop/src/electron/electron-main.ts" | grep -n -iE "safeStorage|STORE_USER_PASSWORD|keystorage.password|keystorage\.bin|BrowserWindow|sandbox|nodeIntegrationInWorker" | head -30
+39:import {getSafeStoragePasswordPath} from '~/common/node/safe-storage/helpers';
+667:    let window: electron.BrowserWindow | undefined;
+668:    let screenSharingReminderWindow: electron.BrowserWindow | undefined;
+915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+916:            if (!fs.existsSync(safeStoragePasswordPath)) {
+921:            if (electron.safeStorage.isEncryptionAvailable()) {
+923:                    const encryptedPassword = fs.readFileSync(safeStoragePasswordPath);
+924:                    return electron.safeStorage.decryptString(encryptedPassword);
+930:                    'Electron safeStorage is not available (no password manager?), loading password skipped.',
+936:            ElectronIpcCommand.STORE_USER_PASSWORD,
+940:                if (electron.safeStorage.isEncryptionAvailable()) {
+941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+943:                        const encryptedPassword = electron.safeStorage.encryptString(password);
+945:                        fs.writeFileSync(safeStoragePasswordPath, encryptedPassword, options);
+952:                        'Electron safeStorage is not available (no password manager?), storing password skipped.',
+983:                    isSafeStorageAvailable: electron.safeStorage.isEncryptionAvailable(),
+1216:        window = new electron.BrowserWindow({
+1240:                // `contextIsolation`, and sandboxing is enabled by default.
+1242:                // Unfortunately we cannot get rid of `nodeIntegrationInWorker` because preload
+1252:                nodeIntegrationInWorker: true, // TODO(DESK-79): Change to false once worker preload scripts are supported in Electron
+1255:                // TODO(DESK-79): Enable `sandbox: true` once worker preload scripts are supported in Electron
+1484:            case 'sandbox':
+1545:                        // Sandbox directive:
+1552:                        'sandbox allow-downloads allow-same-origin allow-scripts allow-forms allow-popups',
+1673:    // In internal test builds on sandbox, we enable crash reporting.
+1741:    // Create main BrowserWindow when electron is ready
+[0m
+[0m$ [0mcurl -s "https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/apps/desktop/src/electron/electron-main.ts" > /tmp/electron-main.ts; wc -l /tmp/electron-main.ts
+1831 /tmp/electron-main.ts
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mRead /tmp/electron-main.ts failed[90m [offset=905, limit=70][0m
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

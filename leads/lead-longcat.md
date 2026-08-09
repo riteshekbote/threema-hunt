@@ -101,3 +101,4 @@ testability: HUMAN_ONLY
 [LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 15 source-path chain re-verified; PoC artifact exists; needs Windows validation.
 [RISK] chat: 15 reason | web: 72 reason | sync: 30 reason | safe: 58 reason | desktop-src: 68 reason
 ## 2026-08-09 13:56:14 UTC [sync] (model longcat)
+## 2026-08-09 14:25:48 UTC [sync] (model longcat)

@@ -1398,3 +1398,21 @@
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req; overflow→400 empty body with zero part
 - LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch: HSTS/Expect-CT header inconsistency (present on OPTIONS 204, absent on GET 400) stable across all 5 hosts.
 - LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 15 source-path chain re-verified; PoC artifact exists; needs Windows validation.
+
+## RANKED HYPOTHESES 2026-08-09 14:29:42 UTC
+- [97] https://ds-apip.threema.ch/identity/fetch_bulk: Directory bulk identity enumeration at scale via fetch_bulk 10000 IDs/request + 5 challenge parameter oracles (from reports/hypotheses-nemotron3.txt)
+- [55] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}: safe-01 credentialed backup read + CORS header-allowance (route-existence oracle already accepted) (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<19999 unique invalid 8-cha
+- NEXT(hypotheses-bigpickle.txt): HUMAN: request one program-issued test identity (deactivated), one backupId:backupKey pair, and one work test license from the lead — a single credential set un
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk hard ceiling exactly 10000 IDs/request (10000→200/152B, 10001→400/0B); sharp count
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk enforces identical 10000-cap (10001 → 400 byte-for-byte identical to prod) → validation-logic p
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED at 95 confidence — 15 source-path chain re-verified; PoC artifact poc/key-storage-acl-b
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
+- LEARN: REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys produce byte-identical 403; only key-PRESENCE observable;
+- LEARN: REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close immediately (0 bytes, no peer cert); no cert/SAN leak; handshake 
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy in determineKdfParams(), derived k
+- LEARN: REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE requires separate renderer exploit chain, not standalone; no dynamic sinks (re
+- LEARN: REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml; explicit SNI + TLS1.2/1.3 probes all close connection immediatel
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.threema.ch/ds-apip.test.threema.ch/safe-01.threema.ch/work.test.threema.ch: all probed endpoints byte-stable this cycle — fetch_bul
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch: fetch_bulk invalid-ID silent-omit behavior re-confirmed this cycle (3-ID batch → 288B, only valid IDs echoed) — response-siz
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 15 source-path chain re-verified; PoC artifact exists; needs Windows validation — stable across cycl

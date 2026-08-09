@@ -3383,3 +3383,4 @@ testability: AUTH_HELPED
 [RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; WSS high-entropy; no passive in-band divergence; auth in source; saltyrtc-* out of scope.
 [RISK] safe: 88 — safe-{01,1a,1b,02,00}.threema.ch: 5 hosts, single IP 203.56.112.231, CORS `*` + write methods (GET/HEAD/PUT/PATCH/POST/DELETE) + ACAH:Authorization + route-existence oracle + Basic-Auth gating (400 baseline stable) + HSTS/Expect-CT absent on GET 400.
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source level (RAG-verified live on GitHub stable, 6/6 cited paths confirmed); PoC artifact generated + syntax-verified; same-user process → Ed25519 identity private key + SQLCipher key chain; Electron sandbox unset (TODO DESK-79) + nodeIntegrationInWorker true (conditional RCE, REJECTED standalone); crypto.ts:223 benchmark password REJECTED.
+## 2026-08-09 14:29:30 UTC [desktop] (model laguna)
