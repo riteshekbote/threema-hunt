@@ -759,3 +759,13 @@
 - CHANGED RAG (own): full desktop chain verified live on GitHub `stable` (fs.ts, key-storage/index.ts, electron-main.ts:912-945, inner/v3.ts, crypto.ts, sqlite.ts); files data/keystorage.bin + data/keystorage.p
 - CHANGED PROBE (own): electron-main.ts:1240-1255 BrowserWindow — sandbox NOT set (TODO DESK-79), nodeIntegrationInWorker:true (TODO DESK-79).
 - NEW — No other new surface items discovered.
+
+## 2026-08-09 19:31:30 UTC
+- NEW `broadcast.threema.ch/api/v1` → HTTP 401 (auth-gated API endpoint confirmed; 301 without trailing slash)
+- NEW `gateway.threema.ch/en/signup` → HTTP 200 (signup page accessible)
+- CHANGED `ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/fetch_bulk` — ceiling exactly 10000 IDs/request (sharp count-cap: 10000→200/152B, 10001→400/0B, no partial leak, CORS `*` on both, zero 429s
+- CHANGED `ds-apip.test.threema.ch/identity/fetch_bulk` — staging byte-identical to prod including 10000-cap enforcement; no extra routes (/swagger /docs /identity/lookup /openapi.json all 404)
+- CHANGED `broadcast.threema.ch/api/v1` — key-format/validity oracle disproven (absent key→401, any 1/32/64-char key→byte-identical 403 sha256 `707fe8f5…`; no CORS preflight)
+- CHANGED `gateway.threema.ch` — fully mapped: `/v1`→404 catch-all, `/api/v1`→403 nginx deny, `/en/signup`→200 (14KB); no msgapi route exposed
+- CHANGED `safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}` — HSTS/Expect-CT present on OPTIONS 204, ABSENT on GET 400 stable across all 5 hosts behind 203.56.112.231
+- CHANGED `work.test.threema.ch/api-app/public/global/settings` → 200 (staging-only, 299B) vs `work.threema.ch` → 404 (prod) — divergence stable

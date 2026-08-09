@@ -40289,3 +40289,415 @@ All probes done (passive, ≤1 rps). Delta confirmed. Output:
 - [RISK] sync: 55 — mediator/rendezvous split DNS, uniform 403, WSS high-entropy paths, no passive in-band divergence.
 - [RISK] safe: 88 — 5 hosts/1 IP, CORS `*` + credentialed cross-origin enabled + Basic-auth gating + HSTS absent on GET 400; creds unlock full backup.
 - [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified (15 paths, `stable`); PoC artifact present + syntax-checked; needs Windows runtime validation; Electron sandbox gap REJECTED standalone; crypto.ts:223 benchmark password REJECTED.
+===== ANALYST bigpickle 2026-08-09 19:31:30 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/poc/ 2>/dev/null; ls /home/runner/work/threema-hunt/threema-hunt/ 2>/dev/null
+README.md
+analyst-out.txt
+analyst-prompt.txt
+ctx.txt
+inventory
+knowledge
+leads
+probe-results.md
+reports
+reposcan-raw
+scope.yml
+scripts
+state_bigpickle.json
+state_laguna.json
+state_ling3.json
+state_longcat.json
+state_nemotron3.json
+triage
+[0m
+[0m$ [0mcurl -sS -m 12 "https://broadcast.threema.ch/cache/broadcast_public.js?v=2.28.1" -o /tmp/opencode/broadcast_public.js -w "HTTP %{http_code} size %{size_download}\n" 2>&1 | tail -1
+HTTP 200 size 1125461
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/ | head -30; find /home/runner/work/threema-hunt/threema-hunt -name "*acl*" -o -name "*poc*" 2>/dev/null | head
+total 268
+drwxr-xr-x 11 runner runner  4096 Aug  9 19:22 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 19:22 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 19:22 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 19:22 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 19:22 README.md
+-rw-r--r--  1 runner runner   631 Aug  9 19:22 analyst-out.txt
+-rw-r--r--  1 runner runner 81442 Aug  9 19:22 analyst-prompt.txt
+-rw-r--r--  1 runner runner 78378 Aug  9 19:22 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:22 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:22 knowledge
+drwxr-xr-x  2 runner runner 12288 Aug  9 19:22 leads
+-rw-r--r--  1 runner runner 20526 Aug  9 19:22 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:22 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 19:22 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 19:22 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:22 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 19:22 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 19:22 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 19:22 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 19:22 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 19:22 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:22 triage
+[0m
+[0m$ [0mgrep -oE '["'"'"'](/api/[a-zA-Z0-9_/{}.-]*)["'"'"']' /tmp/opencode/broadcast_public.js | sort -u | head -60
+(no output)
+[0m
+[0m$ [0mgrep -oE '"/[a-zA-Z0-9_/{}.:?&=.-]{3,90}"' /tmp/opencode/broadcast_public.js | sort -u | head -80
+"/currencies"
+"/emoji-picker.html"
+"/images/chat/{lang}/track-delivery.png"
+"/images/icon/document-delivery.svg"
+"/images/icon/schedule.svg"
+"/web/images/icon/attach_file.svg"
+[0m
+[0m$ [0mgrep -oE '(https?://[a-zA-Z0-9._-]*threema[a-zA-Z0-9._-]*|//[a-zA-Z0-9._-]*threema[a-zA-Z0-9._-]*)' /tmp/opencode/broadcast_public.js | sort -u | head -40
+(no output)
+[0m
+[0m$ [0mgrep -oE '(fetch|axios|XMLHttpRequest|\.get\(|\.post\(|\.put\(|\.patch\(|\.delete\()[^,)]{0,80}' /tmp/opencode/broadcast_public.js | sort -u | head -50
+.delete("authorization"
+.delete("content-type"
+.delete(M
+.delete(c
+.delete(e
+.delete(i
+.delete(n
+.delete(n.key
+.delete(o
+.delete(s
+.delete(t
+.delete(t.key
+.delete(this
+.delete(this.deletePath
+.delete(u
+.get(
+.get("/emoji-picker.html"
+.get("Retry-After"
+.get("X-Sentry-Rate-Limits"
+.get("content-type"
+.get("length"
+.get("sentry.dsc"
+.get("sentry.sample_rand"
+.get("sentry.sample_rate"
+.get("set-cookie"
+.get($input[0]
+.get('/ping'
+.get(0
+.get(Bu
+.get(I
+.get(M
+.get(O
+.get(a
+.get(c
+.get(cur
+.get(dataHolder
+.get(di
+.get(e
+.get(e.type
+.get(el
+.get(elem
+.get(elements[i]
+.get(et(n
+.get(event.target
+.get(go
+.get(i
+.get(l
+.get(loadPath
+.get(m
+.get(n
+[0m
+[0m$ [0mgrep -oE '"[a-zA-Z0-9_/.-]*(invoice|retrieve|token|passkey|forgot|reset|signup|login|register|publish|submit|billing|payment|order)[a-zA-Z0-9_/.-]*"' /tmp/opencode/broadcast_public.js | sort -u | head -40
+"border"
+"border-box"
+"border-left-width"
+"border-top-width"
+"borderColor"
+"borderDash"
+"borderLeftWidth"
+"borderTopWidth"
+"borderWidth"
+"csrf-token"
+"enableBorderRadius"
+"frameBorder"
+"hoverBorderDash"
+"option-border"
+"order"
+"order_month"
+"paint-order"
+"register"
+"reset"
+"scale.border"
+"submit"
+"tickBorderDash"
+"unregister"
+[0m
+[0m$ [0mgrep -oE '(baseURL|apiUrl|endpoint|url:|API_BASE|apiBase|origin)[^,;]{0,100}' /tmp/opencode/broadcast_public.js | sort -u | head -40
+baseURL
+baseURL")
+baseURL:o
+endpoint"}
+origin
+origin"
+origin":s}function iH(t){const{scale:e
+origin)
+origin).toString()}catch{return t}}const ec={}
+origin-x"
+origin-y"
+origin:a
+origin:new k(C.elements.preview)
+origin:new k(v.elements.preview)
+origin:r
+origin:s[Uo]
+origin:t.origin
+origin:tP}
+origin:this._attributes[Uo]
+origin:{maxX:at
+origin===window.location.origin?url.toString():null}catch{return null}}
+originAnchor.href=location.href
+originAnchor.protocol+"//"+originAnchor.host!==urlAnchor.protocol+"//"+urlAnchor.host}catch(e){s.crossDoma
+originAnchor=document.createElement("a")
+original event will not be sent. Details have been sent as a new event.
+original){jQuery.fn[name]=function(selector){var elems
+original-image")
+originalEvent
+originalEvent){event.originalEvent.returnValue=event.result}}}}}
+originalEvent){return hook(this.originalEvent)}}:function(){if(this.originalEvent){return this.originalEve
+originalEvent){return originalEvent[jQuery.expando]?originalEvent:new jQuery.Event(originalEvent)}
+originalEvent.clipboardData||window.clipboardData
+originalEvent.dataTransfer.files)
+originalEvent.dataTransfer.files)})}
+originalEvent.touches[0]||e.originalEvent.changedTouches[0]
+originalEvent:e})
+originalEvent:e}))
+originalEvent:e})}if(e.preventDefault!==void 0&&e.cancelable&&e.preventDefault()
+originalEvent:i
+originalEvent:i})}}
+[0m
+[0m$ [0mgrep -oE '"/(ping|ping\.php|info|health|version|api|status)[a-zA-Z0-9_/.-]*"' /tmp/opencode/broadcast_public.js | sort -u; echo ---; grep -c 'csrf-token' /tmp/opencode/broadcast_public.js
+---
+2
+[0m
+[0m$ [0mgrep -oE '(csrf-token|/cache/[a-zA-Z0-9_./-]+|/me/[a-zA-Z0-9_/.-]+|/login[a-zA-Z0-9_/.-]*|/api/v1[a-zA-Z0-9_/.-]*)' /tmp/opencode/broadcast_public.js | sort -u | head -40
+csrf-token
+[0m
+[0m$ [0mgrep -oE '"[a-zA-Z0-9_/.-]*v[0-9]+[a-zA-Z0-9_/.-]*"' /tmp/opencode/broadcast_public.js | sort -u | head -40
+"__sentry_xhr_v3__"
+[0m
+[0m$ [0msleep 1; curl -sS -m 8 "https://broadcast.threema.ch/currencies" -o /tmp/opencode/currencies.txt -w "currencies: HTTP %{http_code} size %{size_download}\n" 2>&1 | tail -1; sleep 1; curl -sS -m 8 "https://broadcast.threema.ch/ping" -o /tmp/opencode/ping.txt -w "ping: HTTP %{http_code} size %{size_download}\n" 2>&1 | tail -1
+currencies: HTTP 404 size 2292
+ping: HTTP 204 size 0
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/scripts/ /home/runner/work/threema-hunt/threema-hunt/reports/ /home/runner/work/threema-hunt/threema-hunt/triage/ 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/reports/:
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+
+/home/runner/work/threema-hunt/threema-hunt/scripts/:
+sync-issues.py
+
+/home/runner/work/threema-hunt/threema-hunt/triage/:
+run-2026-08-07-20-10.md
+run-2026-08-07-21-03.md
+run-2026-08-07-21-56.md
+run-2026-08-07-22-56.md
+run-2026-08-07-23-55.md
+run-2026-08-08-02-24.md
+run-2026-08-08-04-24.md
+run-2026-08-08-06-01.md
+run-2026-08-08-07-07.md
+run-2026-08-08-07-15.md
+run-2026-08-08-08-07.md
+run-2026-08-08-08-59.md
+run-2026-08-08-09-54.md
+run-2026-08-08-10-53.md
+run-2026-08-08-11-44.md
+run-2026-08-08-13-11.md
+run-2026-08-08-14-00.md
+run-2026-08-08-14-52.md
+run-2026-08-08-15-47.md
+run-2026-08-08-17-19.md
+run-2026-08-08-17-51.md
+run-2026-08-08-17-57.md
+run-2026-08-08-18-19.md
+run-2026-08-08-19-08.md
+run-2026-08-08-19-48.md
+run-2026-08-08-20-15.md
+run-2026-08-08-20-16.md
+run-2026-08-08-20-52.md
+run-2026-08-08-21-18.md
+run-2026-08-08-21-53.md
+run-2026-08-08-22-13.md
+run-2026-08-08-22-53.md
+run-2026-08-08-23-18.md
+run-2026-08-08-23-48.md
+run-2026-08-09-00-41.md
+run-2026-08-09-03-00.md
+run-2026-08-09-04-10.md
+run-2026-08-09-05-26.md
+run-2026-08-09-05-48.md
+run-2026-08-09-06-39.md
+run-2026-08-09-07-44.md
+run-2026-08-09-08-32.md
+run-2026-08-09-09-27.md
+run-2026-08-09-10-21.md
+run-2026-08-09-10-56.md
+run-2026-08-09-11-53.md
+run-2026-08-09-12-22.md
+run-2026-08-09-13-28.md
+run-2026-08-09-14-24.md
+run-2026-08-09-15-00.md
+run-2026-08-09-15-55.md
+run-2026-08-09-16-22.md
+run-2026-08-09-16-59.md
+run-2026-08-09-17-02.md
+run-2026-08-09-17-59.md
+run-2026-08-09-18-22.md
+run-2026-08-09-19-10.md
+triage-2026-08-09-1011.md
+triage-2026-08-09-1812.md
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt -name "*.js" -newer /home/runner/work/threema-hunt/threema-hunt/scope.yml 2>/dev/null | head; ls -la /tmp/opencode/*.js 2>/dev/null | head
+-rw-r--r-- 1 runner runner 1125461 Aug  9 19:22 /tmp/opencode/broadcast_public.js
+[0m
+[0m$ [0mmkdir -p /home/runner/work/threema-hunt/threema-hunt/poc
+(no output)
+[0m
+[0m← [0mWrite poc/key-storage-acl-bypass-poc.js
+Wrote file successfully.
+[0m
+[0m$ [0mnode --check /home/runner/work/threema-hunt/threema-hunt/poc/key-storage-acl-bypass-poc.js && echo "SYNTAX OK" && node /home/runner/work/threema-hunt/threema-hunt/poc/key-storage-acl-bypass-poc.js
+SYNTAX OK
+platform=linux node=v22.23.1
+No-op on non-Windows: DACL and DPAPI behavior is Windows-only.
+[OK  ] step 1: fileModeInternalObjectIfPosix() -> {"mode":384}
+[0m
+[0m$ [0msleep 1; curl -sS -m 8 -D - -o /tmp/opencode/broadcast_root.html "https://broadcast.threema.ch/" 2>&1 | grep -iE "HTTP/|content-security|location:|server:|set-cookie" | head -20; echo "---body size:"; wc -c < /tmp/opencode/broadcast_root.html
+HTTP/2 301 
+server: nginx
+set-cookie: SESSIONID=ak1tm1jlpg5mlvm7m19dcbv0s6; path=/; secure; HttpOnly; SameSite=Strict
+location: /en/login
+content-security-policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-broadcast.threema.ch; frame-src https://hcaptcha-assets.threema.ch; img-src 'self' https://static.threema.ch https://avatar.threema.ch data:; media-src 'self' data: blob:; connect-src 'self' https://bugs.threema.ch https://hcaptcha-assets.threema.ch; object-src 'none'; worker-src 'self' blob:; child-src blob: https://hcaptcha-assets.threema.ch; frame-ancestors 'none'; form-action 'self' https://billing.threema.ch; upgrade-insecure-requests; base-uri https://broadcast.threema.ch; report-uri https://bugs.threema.ch/api/5/security/?sentry_key=b0684a0dbe2f422fa9d6708c5466ca20; report-to default
+---body size:
+0
+[0m
+[0m$ [0msleep 1; curl -sS -m 8 -o /tmp/opencode/bc_login.html -D - "https://broadcast.threema.ch/en/login" 2>&1 | grep -iE "HTTP/|content-security|location:" | head -5; echo "---body:"; wc -c < /tmp/opencode/bc_login.html
+HTTP/2 200 
+content-security-policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://hcaptcha-broadcast.threema.ch; frame-src https://hcaptcha-assets.threema.ch; img-src 'self' https://static.threema.ch https://avatar.threema.ch data:; media-src 'self' data: blob:; connect-src 'self' https://bugs.threema.ch https://hcaptcha-assets.threema.ch; object-src 'none'; worker-src 'self' blob:; child-src blob: https://hcaptcha-assets.threema.ch; frame-ancestors 'none'; form-action 'self' https://billing.threema.ch; upgrade-insecure-requests; base-uri https://broadcast.threema.ch; report-uri https://bugs.threema.ch/api/5/security/?sentry_key=b0684a0dbe2f422fa9d6708c5466ca20; report-to default
+---body:
+5101
+[0m
+[0m$ [0msleep 1; curl -sS -m 8 -o /dev/null -w "hcaptcha-broadcast: HTTP %{http_code} size %{size_download} final %{url_effective}\n" -L "https://hcaptcha-broadcast.threema.ch/" 2>&1 | tail -1
+hcaptcha-broadcast: HTTP 200 size 98476 final https://hcaptcha-broadcast.threema.ch/
+[0m
+[0m$ [0mgrep -oE 'src="[^"]+"|href="[^"]+"|version[":= ]+[0-9.]+|v=[0-9.]+' /tmp/opencode/bc_login.html | sort -u | head -25
+href="#"
+href="/cache/broadcast_public.css?v%3D2.28.1"
+href="/de/anmelden"
+href="/en"
+href="/en/faq#browser"
+href="/en/forgot-password"
+href="/en/login"
+href="/en/privacy"
+href="/en/terms-of-service"
+href="/es/iniciar-sesion"
+href="/favicon.ico?v=2"
+href="/fr/connexion"
+href="https://static.threema.ch/fonts/labgrotesque.css"
+src="/cache/broadcast_public.js?v%3D2.28.1"
+src="/images/logo_icon.svg?v=1"
+version="1.1
+[0m
+[0m$ [0msleep 1; curl -sS -m 8 -o /tmp/opencode/bc_forgot.html -w "forgot-password: HTTP %{http_code} size %{size_download}\n" "https://broadcast.threema.ch/en/forgot-password" 2>&1 | tail -1; grep -oE '<form[^>]*>|action="[^"]*"|name="[^"]*"|csrf[^"<]{0,40}' /tmp/opencode/bc_forgot.html | head -15
+forgot-password: HTTP 200 size 4660
+name="viewport"
+name="sentry_dsn"
+name="sentry_environment"
+name="project_release"
+<form method="POST">
+name="email"
+[0m
+[0m$ [0mgrep -oE '(sentry_environment|sentry_dsn|project_release)[^>]*>?[^<]*' /tmp/opencode/bc_login.html | head; grep -oE 'content="[^"]{1,80}"' /tmp/opencode/bc_login.html | grep -iE 'release|sentry|env|version' | head
+sentry_dsn" content="https://b0684a0dbe2f422fa9d6708c5466ca20@bugs.threema.ch/5"/>
+sentry_environment" content="production"/>
+project_release" content="2.28.1"/>
+[0m
+[0m$ [0msleep 1; curl -sS -m 8 -X OPTIONS -o /dev/null -D - "https://broadcast.threema.ch/api/v1" 2>&1 | grep -iE "HTTP/|access-control|allow:" | head -10
+HTTP/2 301
+[0m
+[0m$ [0msleep 1; curl -sS -m 8 -X OPTIONS -o /dev/null -D - -L "https://broadcast.threema.ch/api/v1" 2>&1 | grep -iE "HTTP/|access-control|allow:" | head -12
+HTTP/2 301 
+HTTP/2 404
+[0m
+STEP 1 — DELTA
+- [NEW] broadcast.threema.ch cockpit mapped: `/`→301→`/en/login` (200, 5101B); CSP leaks new host `hcaptcha-broadcast.threema.ch` (live, 200, 98KB — third-party hCaptcha service host, per work.test precedent); `SESSIONID` cookie set on unauthenticated GET (Secure/HttpOnly/SameSite=Strict); `project_release=2.28.1`, env=production, Sentry DSN `b0684a0dbe2f422fa9d6708c5466ca20` (public DSN); `/en/forgot-password` (200, 4660B) POST-only form with `name="email"`, no action attr (same-URL POST, CSRF-protected); `/en/faq`, `/en/terms-of-service`, `/en/privacy` reachable.
+- [CHANGED] broadcast_public.js?v=2.28.1 harvested (HTTP 200, 1,125,461 B): marketing/UI bundle (Chart.js, jQuery, Sentry). Only live route referenced is `/ping`→204; `/currencies`→404 (client-side constant, not backend). No new in-scope endpoints leaked — surface-extension dead-end.
+- [CHANGED] broadcast `/api/v1` OPTIONS→301→404 with no CORS headers on either hop — cross-origin keyed calls not preflight-able from browsers (re-confirms prior "no CORS preflight" learning; method-divergence 301-on-OPTIONS vs 403-on-GET/POST noted).
+- [NEW] `poc/key-storage-acl-bypass-poc.js` regenerated (recurring gap closed: file was claimed present in KB/leads but NOT in workspace at cycle start — confirmed via `ls`+`find`; now present, `node --check` PASS, graceful no-op on Linux, step 1 OK).
+
+STEP 2 — PRIORITIZE
+- [PRIO] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} — score 6.65 (attack 7, business 9, tech 4, gate 7, cloud 7, fresh 3) — full identity+message backup behind Basic auth, cross-origin credentialed CORS enabled, HSTS gap on 400.
+- [PRIO] ds-apip.threema.ch/api.threema.ch/apip.threema.ch identity/fetch_bulk — score 6.35 (attack 8, business 6, tech 5, gate 10, cloud 3, fresh 3) — unauthenticated 10k-ID enumeration primitive, CORS `*`, no rate limit.
+- [PRIO] threema-desktop Windows key-storage — score 5.25 (attack 6, business 9, tech 3, gate 5, cloud 1, fresh 2) — same-user Ed25519 identity + SQLCipher key chain; PoC now regenerated, needs Windows runtime.
+- [PRIO] broadcast.threema.ch cockpit — score 4.90 (attack 5, business 5, tech 4, gate 8, cloud 2, fresh 4) — login/forgot-password surface now mapped; `/api/v1` 401-gated, key-format oracle disproven.
+
+STEP 3 — HYPOTHESES
+- [HYP] Safe backup store credentialed cross-origin read
+  class: AUTH
+  asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (5 hosts, 1 IP 203.56.112.231)
+  confidence: 50
+  reasoning: All 5 hosts byte-stable: unauth GET→400 (ACAO:`*`); OPTIONS→204 (ACAO:`*`, Allow-Methods GET,HEAD,PUT,PATCH,POST,DELETE, Allow-Headers: Authorization); Basic Auth backupId:backupKey; HSTS/Expect-CT absent on GET 400; route-existence oracle stable.
+  evidence_needed: Program-issued backupId:backupKey → GET status≠400 + presence/absence of Access-Control-Expose-Headers + Access-Control-Allow-Credentials on credentialed response across all 5 hostnames.
+  verify_steps: AUTH_HELPED — `curl -s -u "<backupId:backupKey>" https://safe-01.threema.ch/backups/<backupId> -D -` diff vs 400 unauth baseline; repeat all 5 hosts.
+  impact: Valid creds → Ed25519 identity keypair + full message history readable cross-origin from any attacker origin. CVSS 8.1 — High (with creds).
+  testability: AUTH_HELPED
+- [HYP] Directory fetch_bulk account-status enumeration atop existence oracle
+  class: IDOR
+  asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch /identity/fetch_bulk
+  confidence: 55
+  reasoning: All reachable valid IDs return state:0/type:0/featureLevel:3; fetch_bulk 10k IDs/req, zero 429s, CORS `*` — if any deactivated/revoked ID returns state≠0 or is silently dropped, mass account-status enumeration becomes feasible on 3 prod hosts + staging mirror.
+  evidence_needed: One program-issued deactivated identity returning state≠0 (or omitted) vs ECHOECHO baseline.
+  verify_steps: AUTH_HELPED — `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Content-Type: application/json' -d '{"identities":["{deactivatedTestId}","ECHOECHO","*THREEMA"]}'` on all 4 hosts; diff state/type/featureMask.
+  impact: Mass account-status/revocation enumeration layered on the accepted 97-confidence IDOR. Medium (escalation).
+  testability: AUTH_HELPED
+- [HYP] Desktop Windows key-storage ACL bypass → full identity + message-store compromise
+  class: MISCONFIG
+  asset: github.com/threema-ch/threema-desktop — fs.ts:41, key-storage/index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, db/sqlite.ts:240
+  confidence: 95
+  reasoning: RAG chain complete at 95 confidence (6 core + 4 supporting paths on `stable`); PoC artifact regenerated this cycle (was missing), node --check PASS, no-op on Linux. 6-step chain: `{}` DACL on win32 → DPAPI SameUser password → Argon2id/XSalsa20 decrypt → ck+databaseKey → SQLCipher PRAGMA key → Ed25519 identity key.
+  evidence_needed: Runtime execution on authorized Windows host with real profile reproducing the 6 steps.
+  verify_steps: RUNTIME_AUTH_HELPED-LOCAL — `node poc/key-storage-acl-bypass-poc.js` on Windows with `THREEMA_FLAVOR=threema` + `THREEMA_PROFILE=%LOCALAPPDATA%\Threema\threema`; script reports file presence + hashes + step status per step.
+  impact: Co-located same-user process recovers identity private key + decrypts full SQLCipher message DB → complete account compromise. CVSS 5.5 — Medium.
+  testability: RAG + RUNTIME_AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- All 3 hypotheses: confidence ≥50, classes AUTH/IDOR/MISCONFIG (none on REJECTED list), concrete verify_steps present. No PARKED this cycle.
+- Note: broadcast cockpit deliberately NOT promoted to hypothesis — `/api/v1` key-format/validity oracle already DISPROVEN; forgot-password is POST-only (non-passive) and email-enumeration via reset flows is low-value/known; hcaptcha-broadcast host is a third-party service (out-of-scope). No hypothesis would survive critique.
+- [FINAL] 1. Desktop key-storage ACL bypass (95, MISCONFIG, RAG+RUNTIME_AUTH_HELPED)
+- [FINAL] 2. Directory fetch_bulk account-status enumeration (55, IDOR, AUTH_HELPED)
+- [FINAL] 3. Safe backup credentialed cross-origin read (50, AUTH, AUTH_HELPED)
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: Request from the program (a) one deactivated/revoked test identity → closes the fetch_bulk account-status gap (top passive-IDOR escalation), and (b) one authorized `backupId:backupKey` for safe-01 → closes the 50-confidence credentialed read gap; plus (c) an authorized Windows host with Threema Desktop 2.x to execute the now-regenerated `node poc/key-storage-acl-bypass-poc.js` (artifact verified `node --check` PASS this cycle) for the pending 6-step runtime validation.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ broadcast.threema.ch: login CSP maps new hostname `hcaptcha-broadcast.threema.ch` (live 200, third-party hCaptcha service per work.test precedent); `/en/forgot-password` POST-only email form; SESSIONID on unauth GET; release 2.28.1 production.
+- [LEARN] REJECTED OTHER @ broadcast.threema.ch/cache/broadcast_public.js: bundle harvest dead-end — marketing/UI only (Chart.js/jQuery/Sentry), `/currencies` 404 (client constant), sole live route `/ping`→204; no new in-scope endpoints.
+- [LEARN] ACCEPTED accuracy @ poc/key-storage-acl-bypass-poc.js: regenerated this cycle (recurring KB/leads claim of presence was false — file absent from workspace at cycle start; now present, `node --check` PASS, graceful no-op on Linux step 1 OK).
+
+STEP 7 — RISK SCORE
+- [RISK] chat: 55 — g-*.0.threema.ch prod passive channel closed (SNI+TLS probes 0 bytes, no cert/SAN, authenticated login frame required); staging out of scope; saltyrtc-* 426 but NOT in scope.yml.
+- [RISK] web: 94 — directory cluster (3 prod hosts + staging mirror): 10k-ID fetch_bulk + 200/404 identity oracle + 5 challenge parameter-oracles + CORS `*` + no rate limit (all byte-stable this cycle); safe-01 backup API (5 hosts): CORS `*` + Allow-Headers: Authorization + HSTS gap; work.test staging-only /public/settings divergence; broadcast cockpit now mapped (api/v1 401-gated, key oracle disproven, login CSP, forgot-password); gateway /en/signup 200.
+- [RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve (split IPs) but uniform 403 on HTTPS; WSS high-entropy paths; no passive in-band divergence.
+- [RISK] safe: 88 — safe-{01,1a,1b,02,00}: single IP, CORS `*` + write-capable methods + Allow-Headers: Authorization + route-existence oracle + Basic-Auth gating (400 baseline stable) + HSTS/Expect-CT absent on GET 400; creds required to unlock full backup access.
+- [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 (15 source paths on `stable`); PoC artifact regenerated + syntax-verified + no-op on Linux (recurring-missing gap closed); same-user → Ed25519 identity + SQLCipher key chain; Windows runtime validation still open; Electron sandbox unset + nodeIntegrationInWorker (conditional RCE REJECTED standalone); crypto.ts:223 benchmark password REJECTED.

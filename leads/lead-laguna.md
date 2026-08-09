@@ -4189,3 +4189,4 @@ testability: AUTH_HELPED
 [RISK] sync: 55 — mediator-/rendezvous- resolve, uniform 403; no passive in-band divergence; saltyrtc-* out of scope.
 [RISK] safe: 89 — safe-{01,1a,1b,02,00}: 5 hosts/IP, CORS `*` + write-capable methods + Allow-Headers:Authorization + route-existence oracle + Basic-Auth 400 baseline (re-verified) + HSTS/Expect-CT absent on GET 400; needs creds.
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified 95 (6 core + supporting on GitHub `stable` this cycle); PoC artifact generated, node --check PASS, Linux no-op; same-user -> Ed25519 identity privkey + full SQLCipher DB; needs Windows runtime validation; crypto.ts:223 benchmark REJECTED; BrowserWindow sandbox unset (conditional RCE REJECTED standalone).
+## 2026-08-09 19:31:19 UTC [desktop] (model laguna)
