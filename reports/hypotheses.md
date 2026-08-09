@@ -1556,3 +1556,9 @@
 - LEARN: ACCEPTED MISCONFIG @ ds-apip.threema.ch/ds-apip.test.threema.ch/safe-01.threema.ch/work.test.threema.ch: all probed endpoints byte-stable this cycle — fetch_bul
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch: fetch_bulk invalid-ID silent-omit behavior re-confirmed this cycle (3-ID batch → 288B, only valid IDs echoed) — response-siz
 - LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 15 source-path chain re-verified; PoC artifact exists; needs Windows validation — stable across cycl
+
+## RANKED HYPOTHESES 2026-08-09 17:48:24 UTC
+- [97] https://ds-apip.threema.ch/identity/fetch_bulk: Directory bulk identity enumeration at scale via fetch_bulk 10000 IDs/request + 5 challenge parameter oracles (from reports/hypotheses-nemotron3.txt)
+- [45] billing.threema.ch: billing.threema.ch 404-differential route-presence oracle (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: `curl -sS -m 8 -w '%{http_code} %{size_download}' https://billing.threema.ch/{login,order/invoice,sso,oauth2,api/v1,index.php/login,index.php/order,sessi
+- NEXT(hypotheses-laguna.txt): RUNTIME_AUTH_HELPED-LOCAL: Execute `node poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with Threema Desktop 2.x installed and a real profile 
