@@ -1,10 +1,6 @@
-## 2026-08-09 11:20:10 UTC [web] (model nemotron3)
+## 2026-08-09 11:49:31 UTC [web] (model nemotron3)
 [NEW] `ds-apip.threema.ch/identity/fetch_bulk` — hard ceiling confirmed at exactly 10,000 IDs/request (10,000 → 200/152B, 10,001 → 400/0B); sharp count-cap boundary proven
 [NEW] `ds-apip.test.threema.ch/identity/fetch_bulk` — staging enforces identical 10,000-ID cap (10,001 → 400 byte-for-byte identical to prod); validation-logic parity confirmed
-[NEW] `broadcast.threema.ch/api/v1` → HTTP 401 (auth-gated API endpoint confirmed; 301 without trailing slash); key-format oracle disproven (absent key→401, any 1/32/64-char key→byte-identical 403)
-[NEW] `gateway.threema.ch/en/signup` → HTTP 200 (14KB signup page); `/v1`→404, `/api/v1`→403 (nginx deny); no msgapi route exposed
-[NEW] `safe-01.threema.ch/backups/{64hex}` — HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 (stable across all 5 safe-* hosts behind 203.56.112.231); HTTP Basic Auth (backupId:backupKey) confirmed
-[NEW] `work.test.threema.ch/api-app/public/global/settings` → 200 (staging-only, 299B) vs `work.threema.ch` → 404 (prod); sole live public route in `/api-app/public/*` namespace
 [NEW] `apip.threema.ch` — canonical directory server hostname (wired into desktop client build config); GET `/identity/{id}` → 200/404 oracle confirmed
 [NEW] `ds-apip-work.threema.ch` — work-style directory server (401 on all paths `/identity/*`, `/identities`; CORS `*`; no HSTS/Expect-CT)
 [NEW] Hostname patterns discovered in desktop source `config.ts`: `mediator-{prefix4}.threema.ch/{prefix8}/`, `rendezvous-{prefix4}.threema.ch/{prefix8}/`, `safe-{backupIdPrefix8}.threema.ch/`, `blob-mirror-{prefix4}.threema.ch/{prefix8}/` (latter NOT in scope)
@@ -18,6 +14,7 @@
 [PRIO] `threema-desktop` (Windows key-storage ACL bypass) — **95** — attack:10 (Ed25519 privkey + SQLCipher key chain), business:10 (full identity compromise), tech:9 (DPAPI recoverable, no DACL), gate:10 (local), cloud:5, fresh:9 (RAG-verified 15 paths, PoC gap noted)
 [PRIO] `safe-01.threema.ch/backups/{64hex}` (all 5 safe-* hosts) — **82** — attack:8 (CORS* + write methods + Auth header), business:8 (backup data), tech:7 (Basic Auth, route oracle), gate:6 (cred-gated 400), cloud:9 (5 hosts, 1 IP), fresh:8 (HSTS gap stable)
 [PRIO] `work.test.threema.ch/api-app/public/global/settings` — **65** — attack:6, business:6, tech:5 (staging-only public ns), gate:10, cloud:5, fresh:7 (divergence stable)
+[PRIO] `ds-apip-work.threema.ch` (work directory prod) — **58** — attack:6 (401-gated, CORS*), business:6 (work IDs), tech:5 (auth required), gate:4 (Basic auth), cloud:7, fresh:7 (newly confirmed 401 on all paths)
 [HYP] Directory bulk identity enumeration at scale via fetch_bulk 10000 IDs/request + 5 challenge parameter oracles
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/fetch_bulk (identical on api.threema.ch, apip.threema.ch)
