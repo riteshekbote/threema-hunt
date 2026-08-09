@@ -378,3 +378,11 @@
 
 ## 2026-08-09 04:02:03 UTC
 - NEW saltyrtc-{00..ff}.threema.ch:443 — 256 hostnames, live SaltyRTC WSS signaling (HTTP 426 on GET), quadrant-split across 4 IPs (203.56.112.198/.199, 203.56.114.198/.199); NOT in scope.yml (only g-*.0 pa
+
+## 2026-08-09 05:08:32 UTC
+- NEW saltyrtc-{00..ff}.threema.ch:443 — 256 hostnames, live SaltyRTC WSS signaling (HTTP 426 on GET), quadrant-split across 4 IPs (203.56.112.198/.199, 203.56.114.198/.199); NOT in scope.yml (only g-*.0 pa
+- CHANGED Directory challenge endpoints: /identity/sfu_cred, /identity/blob_cred, /identity/set_revocation_key, /identity/check_revocation_key, /identity/update_work_info — all return 200 with JSON error bodies
+- CHANGED fetch_bulk ceiling confirmed ≥500 IDs/request on all 3 prod directory hosts; no 429 after 30 sequential POSTs at 1 rps
+- CHANGED safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for /backups/{64hex} — header inconsistency stable across all 5 hosts behind single IP 203.56.11
+- CHANGED work.test.threema.ch: /api-app/public/global/settings → 200 (299B, staging-only) vs work.threema.ch → 404 HTML — divergence stable
+- NEW saltyrtc-{00..ff}.threema.ch:443 — 256 hostnames, live SaltyRTC WSS signaling (HTTP 426 on GET), quadrant-split across 4 IPs (203.56.112.198/.199, 203.56.114.198/.199); NOT in scope.yml (only g-*.0 pa
