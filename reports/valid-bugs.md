@@ -236,3 +236,8 @@
   - | **Q1 In scope?** | ❌ NO — `.test` staging variant NOT in scope.yml (per valid-bugs.md precedent) |
   - | **VALID** | **0** | No novel, reportable findings |
   - **VALID (new, reportable) leads: 0**
+
+- 3 lead(s) marked VALID at 2026-08-09 11:53:46 UTC
+  - VALID (new, reportable): 0
+  - | 7 | ds-apip-work /identities cross-subscription metadata disclosure (TWRK-1633) | BUSLOGIC | bigpickle,ling3,ling3 | Y | AUTH_HELPED | med | N | Y(?) | Y | ? | **HOLD** | Requires AUTH_HELPED with v
+  - | **VALID (new)** | 0 | — |
