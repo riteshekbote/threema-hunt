@@ -857,3 +857,22 @@
 - CHANGED lead class 16 (g-*.0.test.threema.ch staging chat) formally REJECTED as out-of-scope per scope.yml
 
 ## 2026-08-09 21:22:43 UTC
+
+## 2026-08-09 21:58:13 UTC
+- NEW `mediator-{prefix4}.threema.ch/{prefix8}/` — mediator WSS hostname pattern confirmed in scope (`mediator-*.threema.ch`); DNS split IPs (0-7→203.56.112.247, 8-f→203.56.114.247); uniform 403 on HTTPS; h
+- NEW `rendezvous-{prefix4}.threema.ch/{prefix8}/` — rendezvous WSS hostname pattern confirmed in scope (`rendezvous-*.threema.ch`); same DNS split routing as mediator; uniform 403 on HTTPS; high-entropy pa
+- NEW `safe-{backupIdPrefix8}.threema.ch/` — backup safe hostname pattern confirmed in scope (`safe-*.threema.ch`); 5 hostnames (safe-01, safe-1a, safe-1b, safe-02, safe-00) resolve to single IP 203.56.112.
+- NEW `ds-apip-work.threema.ch` — work-style directory server confirmed live; 401 on all paths (/identity/*, /identities); CORS `*`; no HSTS/Expect-CT; Basic auth required
+- NEW `ds-apip.threema.ch` — canonical directory server hostname confirmed via desktop client build config (config/vite.config.ts + OpenAPI); public GET /identity/{id} returns 200/404 oracle
+- NEW `poc/key-storage-acl-bypass-poc.js` — PoC artifact generated in workspace (was claimed but missing; now present); `node --check` PASS; graceful no-op on Linux confirmed
+- CHANGED `broadcast.threema.ch/api/v1` → HTTP 401 (auth-gated API endpoint confirmed; 301 without trailing slash)
+- CHANGED `gateway.threema.ch/en/signup` → HTTP 200 (signup page accessible, 14KB)
+- CHANGED `ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/fetch_bulk` — ceiling exactly 10000 IDs/request (sharp count-cap: 10000→200/152B, 10001→400/0B, no partial leak, CORS `*` on both, zero 429s
+- CHANGED `ds-apip.test.threema.ch/identity/fetch_bulk` — staging byte-identical to prod including 10000-cap enforcement; no extra routes (/swagger /docs /identity/lookup /openapi.json all 404)
+- CHANGED `safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}` — HSTS/Expect-CT present on OPTIONS 204, ABSENT on GET 400 stable across all 5 hosts behind 203.56.112.231
+- CHANGED `work.test.threema.ch/api-app/public/global/settings` → 200 (staging-only, 299B) vs `work.threema.ch` → 404 (prod) — divergence stable
+- CHANGED `g-*.0.{test.,}threema.ch:443/5222` — chat passive channel formally closed (explicit SNI + TLS1.2/1.3 probes close immediately, 0 bytes, no cert/SAN)
+- CHANGED `saltyrtc-*.threema.ch` — 256 hostnames resolve to 4 IPs, HTTP 426, explicitly NOT in scope.yml
+- CHANGED `blob-mirror-{prefix4}.threema.ch/{prefix8}/` — blob server hostname pattern discovered in desktop source config.ts; NOT in scope per scope.yml
+- CHANGED `apip.threema.ch` — confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
+- CHANGED lead class 16 (g-*.0.test.threema.ch staging chat) formally REJECTED as out-of-scope per scope.yml
