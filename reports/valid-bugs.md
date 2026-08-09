@@ -294,3 +294,7 @@
   - | Q2 Reachable? | ⚠️ AUTH_HELPED | Returns 401 on all paths; requires valid Work test license |
   - | Q4 Passive proof? | ❌ NO | Requires AUTH_HELPED with valid Work credentials + cross-subscription contact probes |
   - | Q5 Novel? | ⚠️ YES | Not previously triaged as valid vuln; only hypothesized (OpenAPI flags it "currently buggy" TWRK-1633) |
+
+- 2 lead(s) marked VALID at 2026-08-09 18:22:49 UTC
+  - | VALID (duplicate) | 4 | Directory IDOR, Desktop key-storage ACL, Safe HSTS inconsistency, Challenge oracles |
+  - | **VALID (duplicate)** | 4 | Directory IDOR, Desktop key-storage ACL, Safe HSTS inconsistency, Challenge oracles |
