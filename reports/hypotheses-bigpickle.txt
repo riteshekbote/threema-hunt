@@ -1,4 +1,61 @@
-## 2026-08-09 23:18:29 UTC [chat] (model bigpickle)
+## 2026-08-09 23:57:52 UTC [chat] (model bigpickle)
+testability: AUTH_HELPED
+[NEXT] HUMAN: request program-issued authorized test identity + Work test license + backupId:backupKey to execute the three remaining AUTH_HELPED levers in one batch — (a) one framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch) to `g-00.0.threema.ch:5222` to confirm the documented handshake against a test identity (the only remaining chat lever; channel confirmed data-closed without it this cycle); (b) `POST ds-apip-work.threema.ch/identities` mixing own/foreign-subscription IDs for the cross-subscription test (TWRK-1633); (c) credentialed `GET safe-01.threema.ch/backups/<backupId>` to close the safe variant. Without creds, chat POC is at its passive ceiling.
+[HYP] /identity/revoke invalid-ID connection hold → identity-existence oracle + resource-exhaustion surface
+class: IDOR
+asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch `/identity/revoke`
+confidence: 55
+reasoning: Own probe (all 3 hosts): POST {"identity":"ECHOECHO"} → 200 challenge {token,tokenRespKeyPub} in 0.49-0.5s; {"identity":"ZZZZZZZZ"} → connection held >15s (000 timeout), 4/4 reproducible, same TLS path. Empty body → 200 "Identity not found" fast. Endpoint documented in spec (id-revocation-request, challenge-response two-step).
+evidence_needed: sustained valid≈0.5s vs invalid>15s latency split across hosts; distinct body/status for a revoked program-issued identity.
+verify_steps: PROBE — time POST /identity/revoke valid vs invalid on all 3 hosts (≤1 rps, 20s cap); repeat 2x; also check_revocation_key POST-form valid-vs-invalid body diff. AUTH_HELPED — same with a revoked test ID.
+impact: additional existence primitive layered on accepted fetch_bulk IDOR; invalid-ID lookups hold server connections ≥15s each → connection-exhaustion/availability surface. Severity: Low-Medium.
+testability: PASSIVE
+[HYP] check_revocation_key POST-form challenge → revocation-status oracle
+class: IDOR
+asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch `/identity/check_revocation_key`
+confidence: 45
+reasoning: Own probe: POST {"identity":"ECHOECHO"} → 200 challenge (135-136B); {"identity":"ZZZZZZZZ"} → 200 "Identity not found" (46B). Prior REJECTED learning covered only the GET query-param form (byte-identical); POST form shows a body differential.
+evidence_needed: revoked test ID → distinct response vs active ID's challenge issuance.
+verify_steps: PROBE — confirm body differential (135B vs 46B) on all 3 hosts. AUTH_HELPED — revoked vs active test IDs.
+impact: if revoked IDs respond distinctly → revocation-status enumeration at scale; without revoked sample only existence confirmation (already accepted). Severity: Low-Medium.
+testability: AUTH_HELPED (existence part PASSIVE)
+[HYP] Work /fetch2 full-sync data exposure behind credential gate
+class: AUTH
+asset: ds-apip-work.threema.ch `/fetch2`
+confidence: 45
+reasoning: Spec (directory.openapi.yml:1137) documents /fetch2 "Full sync of all data associated to the Work subscription" with work-credentials; route live (401 on empty body). /directory (work contact search) + /identities (TWRK-1633 bug note) also 401-gated. Spec documents 429 on work flavor — rate-limit differential vs public flavor.
+evidence_needed: program-issued work-credentials → /fetch2 returns 200 full-sync payload (contacts/properties); confirm no field readable without full auth.
+verify_steps: AUTH_HELPED — POST ds-apip-work.threema.ch/fetch2 with test work creds → 200 full-sync; diff vs /directory + /identities responses.
+impact: with work credentials, full Work subscription data sync; without creds the 401 gate holds. Severity: Medium (creds).
+testability: AUTH_HELPED
+[HYP] Directory fetch_bulk account-status oracle via state/type/featureMask differential
+class: IDOR
+asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch `/identity/fetch_bulk`
+confidence: 55
+reasoning: Own probes: ECHOECHO returns byte-identical `state:0,type:0,featureLevel:3,featureMask:9` (135B GET / 152B bulk); invalid IDs silently omitted; ceiling exactly 10000/req; zero 429s across ~35 sequential probes. A deactivated/revoked ID that drops from batches or returns state≠0 is observable at 10k IDs/req.
+evidence_needed: one program-issued deactivated/revoked identity whose fetch_bulk entry differs (omitted or state≠0) from an active ID.
+verify_steps: AUTH_HELPED — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Content-Type: application/json' -d '{"identities":["<revokedTestId>","ECHOECHO"]}'` on all 3 hosts; diff state/type/featureMask vs ECHOECHO baseline; cross-check `GET /identity/<revokedTestId>` status.
+impact: mass account-status/revocation enumeration layered on accepted existence oracle → operational intel. Severity: Medium (escalation).
+testability: AUTH_HELPED (existence part PASSIVE)
+[HYP] Safe backup credentialed cross-origin read (distinct from triage-INVALID'd unauth-CORS finding)
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch `/backups/{64hex}` (203.56.112.231)
+confidence: 50
+reasoning: Own probes: unauth GET → 400/11B, ACAO `*`, no HSTS/Expect-CT on the 400 (present on OPTIONS 204); HTTP Basic backupId:backupKey confirmed; OPTIONS preflight returns CORS `*` + Access-Control-Allow-Headers: Authorization. Requires valid creds, so distinct from the REJECTED unauth-CORS finding.
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 + payload + ACAO/Expose-Headers/Allow-Credentials behavior on credentialed GET.
+verify_steps: AUTH_HELPED — `curl -s -u "<backupId:backupKey>" https://safe-01.threema.ch/backups/<backupId> -D -` vs 400 baseline; diff across all 5 hosts; OPTIONS preflight carrying Authorization.
+impact: with creds, identity keypair + full message-history backup readable from any attacker origin. Severity: High (with creds), unreachable without.
+testability: AUTH_HELPED
+[HYP] Staging work bundle route-diff → additional staging-only public endpoints
+class: MISCONFIG
+asset: work.test.threema.ch (vs work.threema.ch) `/cache/work_public.js?v=2.25.1`
+confidence: 45
+reasoning: Staging bundle (sha256 e48e18f7…, 1,443,948B) implements `/api-app/public/*` handlers; prod bundle (sha256 96501e21…, 1,400,541B) has zero; one instance (`/global/settings`) already live on staging (GET 200/299B) vs prod 404. Other handlers declared in the staging bundle may map to live staging-only backend routes.
+evidence_needed: additional `/api-app/*` literal(s) in staging bundle whose GET on staging differs from prod (200 vs 404).
+verify_steps: PASSIVE — `GET https://work.test.threema.ch/cache/work_public.js?v=2.25.1` and prod equivalent (≤1 rps), extract `/api-app/` string literals, diff sets; GET each candidate on staging vs prod; compare status/size.
+impact: discovery of additional staging-only public endpoints (potential data exposure). Severity: Low-Medium (staging divergence).
+testability: PASSIVE
+[NEXT] PROBE: `GET https://work.test.threema.ch/cache/work_public.js?v=2.25.1` and the prod equivalent (path confirmed from /en/login script tag this cycle), extract all `/api-app/` string literals, diff the two sets; then `GET`/`HEAD` each new candidate on work.test.threema.ch vs work.threema.ch at ≤1 rps to surface additional staging-only public endpoints (hunts further instances of the accepted MISCONFIG divergence class). Any 200 must be cross-verified against both hosts before it becomes a lead. The AUTH_HELPED batch (revoked test identity + Work test license + backupId:backupKey) remains the open HUMAN ask to close [FINAL] #1 and #2.
 class: BUSLOGIC
 asset: apip.threema.ch/identity/ws/revoke
 confidence: 45
@@ -88,3 +145,30 @@ testability: PASSIVE
 [LEARN] ACCEPTED OTHER @ g-80.0.threema.ch (203.56.112.204): TCP 5222/443 connect with 0 bytes pushed — posture parity with node .202; prior "chat passive channel formally closed" (in-band) now verified for both prod nodes.
 [LEARN] ACCEPTED class @ OTHER (DNS-attribution recon on chat): the prior in-band closure does NOT exhaust chat recon; DNS-level shard/node attribution is a live passive surface.
 [RISK] chat: 55 — 256-shard map now fully attributable to 2 prod nodes (new), but in-band 443/5222 data-closed on both nodes, no cert/SAN, staging out of scope; only remaining lever is the AUTH_HELPED framed CSP login. | web: 50 — prod gated (401/403), broadcast key-oracle disproven, staging divergence confined to benign 299B /global/settings. | sync: 40 — mediator/rendezvous uniform 403 WSS-only; staging variants out of scope. | safe: 55 — credential-gated backup API with HSTS-header inconsistency + credentialed-CORS preflight; exposure only with creds. | desktop-src: 50 — Windows key-storage ACL bypass VALID (CVSS 5.5), sandbox/worker gap conditional; public source.
+[HYP] serverGroup→node attribution closeable end-to-end via program test identity
+class: OTHER
+asset: g-*.0.threema.ch (256 shards; 203.56.112.202 / 203.56.112.204)
+confidence: 60
+reasoning: 256-shard→2-node map now definitive and deterministic (sharp 0x7f/0x80). Source proves serverGroup is server-assigned at identity creation and stored client-side, so a test identity's keystorage reveals its exact group → g-XX.0 → exact node. Only unknown is a real identity's group value.
+evidence_needed: one program-issued test identity + its serverGroup value (from keystorage); successful framed CSP login to the predicted g-XX.0 host.
+verify_steps: AUTH_HELPED — read test identity's serverGroup from keystorage; resolve `g-{serverGroup}.0.threema.ch` (map already proves the IP); connect g-XX.0.threema.ch:5222 with the documented framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch); confirm predicted node accepts.
+impact: every Threema identity attributable to an exact physical node/IP from public DNS once its group is known → node-targeted recon, per-shard availability measurement, sharper fetch_bulk IDOR targeting. Severity: Low (recon; no in-band data).
+testability: AUTH_HELPED
+[HYP] IPv6-only edge path on dual-stack prod backends diverges from v4 filtering
+class: OTHER
+asset: safe-{01,1a,1b,02,00}.threema.ch / work.threema.ch / broadcast.threema.ch (AAAA 2a14:3e40:112:312::*)
+confidence: 40
+reasoning: All non-chat backends publish AAAA; chat and apip/api are v4-only. If edge WAF/rate-limit policy binds to v4 egress, a v6 path could bypass controls on the credential-gated safe API (HSTS-header inconsistency already confirmed on v4).
+evidence_needed: v6 GET to safe-01 AAAA endpoint returns different status/CORS/HSTS than v4 baseline.
+verify_steps: PASSIVE — from a v6-capable host: `curl -6 https://safe-01.threema.ch/backups/{64hex}` vs v4 400/11B baseline; diff status/HSTS/ACAO. Not executable from this environment (no v6 egress confirmed this cycle).
+impact: if divergent, bypass of edge controls → amplification of accepted safe/IDOR surface. Severity: Low-Medium (unverified).
+testability: PASSIVE
+[HYP] Legacy vhosts on edge .214 expose forgotten route table distinct from ds-apip
+class: OTHER
+asset: apip.threema.ch / api.threema.ch (203.56.112.214, IPv4-only)
+confidence: 40
+reasoning: Same IP as ds-apip but 404 on identity routes, no AAAA → separate virtual hosts, likely older generation (v4-only like chat). Route-set difference is observable and may include retired/forgotten endpoints.
+evidence_needed: a path returning ≠404 on apip/api that differs from ds-apip handling.
+verify_steps: PASSIVE — GET /identity/{id} + /identity/fetch_bulk + 5 challenge endpoints on apip/api vs ds-apip (already 404 vs 200); extend to /v1, /api, /status at ≤1 rps; diff status/size.
+impact: potential forgotten-endpoint exposure; otherwise only archival note. Severity: Low.
+testability: PASSIVE
