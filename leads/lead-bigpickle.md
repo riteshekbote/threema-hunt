@@ -4271,3 +4271,31 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling re-confirmed ≥1000 IDs/req (1000-ID batch → 200, 0.42s, 999 invalid silently omitted); report persisted this cycle.
 [LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk byte-identical to prod; no extra routes (/swagger /docs /openapi.json 404); mirror evidence strengthened 72→85.
 [RISK] chat: 55 — identity→pubkey enumeration at 1000 IDs/req unauth + CORS * on all 3 directory hosts; no rate limit; staging mirrors it byte-identically. | web: 35 — cockpit assets key-gated/basic-auth gated; broadcast presence-oracle only; work.test public namespace single benign endpoint. | sync: 20 — mediator/rendezvous uniform 403, no in-band divergence obtained; handshake requires auth. | safe: 40 — backup API credential-gated (400 unauth) with route-existence oracle + HSTS inconsistency on 400; CORS * + Authorization preflight; impact contingent on valid creds. | desktop-src: 45 — key-storage Windows ACL bypass RAG-verified (95) chained to SQLCipher+Ed25519 key disclosure; browser window sandbox/worker gaps conditional; crypto.ts benchmark password rejected.
+## 2026-08-09 09:00:25 UTC [chat] (model bigpickle)
+[HYP] Staging directory server is a byte-identical unauthenticated mirror of the live identity directory
+class: MISCONFIG
+asset: ds-apip.test.threema.ch (identity API)
+confidence: 85
+reasoning: fetch_bulk returns byte-identical JSON to prod for ECHOECHO (200, same publicKey/featureLevel/state/type); staging has HSTS/Expect-CT where prod lacks them; /swagger /docs /identity/lookup /openapi.json all 404 on staging = same route surface, no version skew.
+evidence_needed: byte-diff of a non-ECHOECHO identity staging vs prod to prove the dataset is LIVE not a snapshot.
+verify_steps: AUTH_HELPED — single GET /identity/{testId} on staging + prod, diff publicKey; no third-party real IDs.
+impact: internet-reachable staging serving live identity directory unauthenticated; exposure/defense-in-depth gap. Severity: low-medium.
+testability: AUTH_HELPED
+[HYP] Work directory backend cross-subscription metadata disclosure via buggy /identities
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 55
+reasoning: /identities, /directory, /identity/lookup all → 401 (routes exist behind gate) while prod ds-apip returns 404 for those; directory.openapi.yml:1172 flags /identities "currently buggy" (TWRK-1633); endpoint returns same-subscription contacts + work PII (first/last name, jobTitle, department, availability).
+evidence_needed: whether membership filter can be induced to return out-of-subscription contacts (mixed own/other-subscription batch), pagination/wildcard surface.
+verify_steps: AUTH_HELPED — with authorized Work test license, POST /identities mixing own/other-subscription IDs; probe page/size params.
+impact: cross-subscription Work directory PII disclosure → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[HYP] Safe backup store credentialed cross-origin read + HSTS gap
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (203.56.112.231)
+confidence: 50
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route-existence oracle (400 vs /backup/{x} 404); HSTS/Expect-CT absent on GET 400 but present on preflight.
+evidence_needed: program-issued test backupId:backupKey → status ≠ 400 (200+payload or 401/403) + any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}`, diff vs 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED

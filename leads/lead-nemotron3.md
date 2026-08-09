@@ -2603,3 +2603,54 @@ testability: PASSIVE + PROBE
 [RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; mediator/rendezvous WSS high-entropy; auth in source (no passive in-band divergence); saltyrtc-*.threema.ch 426 but pending scope ruling
 [RISK] safe: 88 reason: safe-01.live with CORS * + write-capable methods + Access-Control-Allow-Headers: Authorization + HSTS/Expect-CT on preflight but NOT on GET 400; 5 hostnames same IP; route-existence oracle; Basic-Auth gating only
 [RISK] desktop-src: 95 reason: Windows key-storage ACL bypass CONFIRMED at source level (fs.ts:41, key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163 write with {} on win32 → no DACL restriction → DPAPI password recoverable by same-user → Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + SQLCipher databaseKey; PoC runtime-verified); plus Electron nodeIntegrationInWorker: true + sandbox unset (TODO DESK-79) at electron-main.ts:1252,1255
+## 2026-08-09 09:00:20 UTC [web] (model nemotron3)
+[CHANGED] `gateway.threema.ch` — additional endpoints mapped: `/v1` → 404 catch-all, `/api/v1` → 403 (nginx deny), `/en/signup` → 200 (14KB page); no exposed msgapi route on this host
+[CHANGED] `ds-apip.test.threema.ch` — staging `fetch_bulk` BYTE-IDENTICAL to prod (200, 0.69s, identical ECHOECHO record); staging `/swagger` `/docs` `/identity/lookup` `/openapi.json` all 404 = same route surface as prod
+[CHANGED] `fetch_bulk` ceiling — 1000-ID batch → 200 (0.42s, 152B, ECHOECHO echoed, 999 invalid silently omitted); ceiling now ≥1000. Report persisted to `reports/fetch_bulk-identity-enumeration-idor.md`
+[CHANGED] `broadcast.threema.ch/api/v1/` — absent key → 401, any key (1/32/64-char) → 403, bodies byte-identical (sha256 707fe8f5…); subpath → 404 HTML; release banner 2.28.1 + Sentry DSN (public). Key-format oracle DISPROVEN.
+[PRIO] https://ds-apip.threema.ch/identity/fetch_bulk (mirror: api.threema.ch, apip.threema.ch), 8.35, attack_surface:9 business_value:8 tech_exposure:8 gate_ease:10 cloud_surface:5 freshness:10
+[PRIO] https://ds-apip.test.threema.ch/identity/fetch_bulk, 7.55, attack_surface:8 business_value:7 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:9
+[PRIO] https://safe-01.threema.ch/backups/{64hex} (all 5 hosts), 7.10, attack_surface:7 business_value:7 tech_exposure:6 gate_ease:3 cloud_surface:6 freshness:8
+[PRIO] https://work.test.threema.ch/api-app/public/global/settings, 6.20, attack_surface:6 business_value:6 tech_exposure:5 gate_ease:10 cloud_surface:4 freshness:7
+[PRIO] https://gateway.threema.ch/en/signup, 5.80, attack_surface:6 business_value:6 tech_exposure:5 gate_ease:8 cloud_surface:4 freshness:7
+[PRIO] https://broadcast.threema.ch/api/v1, 5.30, attack_surface:6 business_value:7 tech_exposure:5 gate_ease:3 cloud_surface:5 freshness:6
+[HYP] Directory bulk identity enumeration at scale via fetch_bulk ≥1000 IDs/request + 5 challenge parameter oracles
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (identical on api.threema.ch, apip.threema.ch)
+confidence: 95
+reasoning: PASSIVE-VERIFIED: POST fetch_bulk (1000 IDs, 1 valid + 999 invalid) → 200, returns only valid pubkey, silently omits invalid; ACAO:* on POST/GET/OPTIONS/DELETE; no 429 after 30 sequential POSTs at 1 rps; 5 challenge endpoints return 200 JSON errors + ACAO:* with parameter-validation-before-lookup oracle (update_work_info: "Missing parameters", set_revocation_key: "Bad revocation key length").
+evidence_needed: fetch_bulk ceiling beyond 1000 IDs; confirm no WAF/rate-limit at higher volume; confirm challenge endpoints differ only by identity validity.
+verify_steps: PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<1999 unique invalid 8-char base32 IDs>]}' (≤1 rps) → verify 200 + pubkey map; GET /identity/sfu_cred/ECHOECHO vs /identity/sfu_cred/ZZZZZZZZ → compare bodies; repeat for api.threema.ch and apip.threema.ch.
+impact: Cross-origin, unauthenticated enumeration of all valid Threema IDs + pubkeys at scale (1 rps → 86,400 IDs/day/browser-thread; 1000 IDs/req → 86M IDs/day theoretical); challenge endpoints expose parameter validation oracles. Severity: Medium-High.
+testability: PASSIVE + PROBE
+[HYP] Staging directory server mirrors live production identity data unauthenticated
+class: IDOR
+asset: https://ds-apip.test.threema.ch/identity/fetch_bulk
+confidence: 85
+reasoning: STAGING-VERIFIED: fetch_bulk byte-identical response to prod (200, 0.69s, identical ECHOECHO record); all 5 challenge endpoints return same JSON errors + ACAO:*; no extra routes (/swagger /docs /identity/lookup /openapi.json all 404). Staging lacks HSTS/Expect-CT (prod also lacks) — no transport security divergence.
+evidence_needed: Confirm staging returns pubkeys for production-valid IDs not just test IDs; verify no rate-limit divergence vs prod.
+verify_steps: PROBE: curl -X POST https://ds-apip.test.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<999 unique invalid 8-char base32 IDs>]}' (≤1 rps) → verify byte-identical 200 response; GET /identity/ECHOECHO on staging vs prod → compare bodies.
+impact: Staging environment exposes identical identity oracle as production — doubles enumeration surface; no additional auth/gating on staging. Severity: Medium.
+testability: PASSIVE + PROBE
+[HYP] Safe backup API credential stuffing via Basic Auth + permissive CORS + HSTS gap on GET 400
+class: AUTH
+asset: https://safe-01.threema.ch/backups/{64hex} (all 5 hosts: safe-01, safe-1a, safe-1b, safe-02, safe-00)
+confidence: 70
+reasoning: PASSIVE-VERIFIED: GET /backups/{64hex} → 400 (route exists, credential-gated) vs /backup/{x} → 404 (route oracle); OPTIONS returns ACAO:* + Access-Control-Allow-Headers: Authorization enabling credentialed cross-origin requests; HTTP Basic Auth (backupId:backupKey) confirmed; HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency weakens transport security; 5 hostnames behind single IP 203.56.112.231.
+evidence_needed: Rate limiting on auth attempts; whether backupId format is predictable/enumerable; whether leaked credentials from other Threema services work (SSO/shared identity).
+verify_steps: PASSIVE: curl -I https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef (confirm 400 + WWW-Authenticate: Basic); curl -X OPTIONS https://safe-01.threema.ch/backups/... (confirm ACAO:* + ACAH:Authorization); repeat for safe-1a, safe-1b, safe-02, safe-00. ≤1 rps.
+impact: If backup credentials leaked/reused → cross-origin credentialed access to user backups (messages, media, keys). HSTS gap on error response enables sslstrip-style downgrade on credentialed requests. Severity: Medium-High.
+testability: PASSIVE
+[PARKED] Safe backup API credential stuffing via Basic Auth + permissive CORS + HSTS gap on GET 400: confidence 70 but gate_ease only 3 (credential-gated 400) — requires credential access not currently available; verify_steps only confirm surface, not exploitability without AUTH_HELPED
+[FINAL] 1. Directory bulk identity enumeration at scale via fetch_bulk ≥1000 IDs/request + 5 challenge parameter oracles — 95 confidence, IDOR, PASSIVE+PROBE
+[FINAL] 2. Staging directory server mirrors live production identity data unauthenticated — 85 confidence, IDOR, PASSIVE+PROBE
+[NEXT] PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<1999 unique invalid 8-char base32 IDs>]}' (≤1 rps) — finds fetch_bulk ceiling at 2000 IDs
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling re-confirmed ≥1000 IDs/req (1000-ID batch → 200, 0.42s, 999 invalid silently omitted); report persisted this cycle
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk byte-identical to prod; no extra routes (/swagger /docs /openapi.json 404); mirror evidence strengthened 72→85
+[LEARN] REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys produce byte-identical 403; only key-PRESENCE observable; no CORS preflight (OPTIONS 404)
+[LEARN] ACCEPTED OTHER @ gateway.threema.ch: /v1 → 404 catch-all, /api/v1 → 403 (nginx deny), /en/signup → 200 (14KB page); no exposed msgapi route on this host
+[RISK] chat: 60 reason: g-*.0.threema.ch prod pattern unenumerated; staging likely out of scope; no passive HTTP endpoints (5222/WSS handshake requires client login frame; 443 closes without TLS handshake on both staging + prod); saltyrtc-* 426 but pending scope ruling
+[RISK] web: 92 reason: ds-apip/api/apip directory cluster — 3 prod hosts, public identity oracle + fetch_bulk ≥1000 batch + 5 challenge endpoints + CORS * + no rate-limit; safe-01 backup API with permissive CORS + Authorization header + HSTS gap on GET 400 + 5 hostnames on single IP; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed; broadcast/api/v1 auth-gated; gateway signup accessible
+[RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; mediator/rendezvous WSS high-entropy; auth in source (no passive in-band divergence); saltyrtc-*.threema.ch 426 but pending scope ruling
+[RISK] safe: 88 reason: safe-01.live with CORS * + write-capable methods + Access-Control-Allow-Headers: Authorization + HSTS/Expect-CT on preflight but NOT on GET 400; 5 hostnames same IP; route-existence oracle; Basic-Auth gating only
+[RISK] desktop-src: 95 reason: Windows key-storage ACL bypass CONFIRMED at source level (fs.ts:41, key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163 write with {} on win32 → no DACL restriction → DPAPI password recoverable by same-user → Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + SQLCipher databaseKey; PoC runtime-verified); plus Electron nodeIntegrationInWorker: true + sandbox unset (TODO DESK-79) at electron-main.ts:1252,1255

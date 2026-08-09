@@ -1147,3 +1147,23 @@
 - LEARN: REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys yield byte-identical 403 (sha256 707fe8f5…); only key-pre
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling re-confirmed ≥1000 IDs/req (1000-ID batch → 200, 0.42s, 999 invalid silent
 - LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk byte-identical to prod; no extra routes (/swagger /docs /openapi.json 404); mirror evidence str
+
+## RANKED HYPOTHESES 2026-08-09 09:05:56 UTC
+- [95] https://ds-apip.threema.ch/identity/fetch_bulk: Directory bulk identity enumeration at scale via fetch_bulk ≥1000 IDs/request + 5 challenge parameter oracles (from reports/hypotheses-nemotron3.txt)
+- [85] ds-apip.test.threema.ch: Staging directory server is a byte-identical unauthenticated mirror of the live identity directory (from reports/hypotheses-bigpickle.txt)
+- [55] https://broadcast.threema.ch/api/v1: Broadcast API authentication bypass via credential stuffing or token leakage (from reports/hypotheses-laguna.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<1999 unique invalid 8-char
+- NEXT(hypotheses-laguna.txt): PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<999 unique invalid 8-char 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling re-confirmed ≥1000 IDs/req (1000-ID batch → 200, 0.42s, 999 invalid silent
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk byte-identical to prod; no extra routes (/swagger /docs /openapi.json 404); mirror evidence str
+- LEARN: REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys produce byte-identical 403; only key-PRESENCE observable;
+- LEARN: ACCEPTED OTHER @ gateway.threema.ch: /v1 → 404 catch-all, /api/v1 → 403 (nginx deny), /en/signup → 200 (14KB page); no exposed msgapi route on this host
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk 100+ batch + 5 challenge endpoints + CORS * + no rate-limit + parameter-validation
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop (Windows): key-storage ACL bypass RAG-verified at 95 confidence — full Ed25519 identity key + SQLCipher key chain confirmed
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated /backups/{64hex} — heade
+- LEARN: REJECTED IDOR @ ds-apip/api/apip.threema.ch check_revocation_key GET form: validation-order oracle disproven — ECHOECHO vs ZZZZZZZZ produce byte-identical "Iden
+- LEARN: REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE requires separate renderer exploit chain, not standalone
+- LEARN: REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy, derived key immediately purged
+- LEARN: ACCEPTED OTHER @ broadcast.threema.ch: `/api/v1` → HTTP 401 (auth-gated API endpoint newly confirmed)
+- LEARN: ACCEPTED OTHER @ gateway.threema.ch: `/en/signup` → 200 (signup page accessible)
