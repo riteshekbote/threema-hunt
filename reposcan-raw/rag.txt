@@ -221,6 +221,10 @@
 - 2026-08-09 ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk hard ceiling exactly 10000 IDs/request confirmed via own probes this cycle — 10000→200/152B, 10001→400/0B (sharp count-cap, no partial leak, CORS `*` on both 200 and 400, zero 429s across ~35 sequential probes); ECHOECHO+ZZZ batch returns only valid IDs' pubkeys on all 3 hosts byte-identical.
 - 2026-08-09 ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64hex}` — header inconsistency re-confirmed via own probe this cycle; HTTP Basic Auth `backupId:backupKey` + route-existence oracle + credentialed cross-origin CORS (Allow-Headers: Authorization) all byte-stable.
 - 2026-08-09 PENDING @ poc/key-storage-acl-bypass-poc.js: PoC artifact generated in workspace, `node --check` PASS, graceful no-op on Linux confirmed — needs Windows runtime validation (RUNTIME_AUTH_HELPED-LOCAL) to close the remaining evidence gap for the 6-step chain.
+- 2026-08-09 REJECTED MISCONFIG @ crypto.ts:223 — benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) re-verified on GitHub `stable` this cycle: benchmark-only dummy in `determineKdfParams()`, `benchmarkKey.purge()` immediate; NOT used for real encryption.
+- 2026-08-09 REJECTED class @ lead (BrowserWindow sandbox+nodeIntegrationInWorker): conditional RCE requires separate renderer exploit chain; 0 dynamic sinks in worker/ tree; not standalone. Surface accepted (sandbox unset, TODO DESK-79).
+- 2026-08-09 ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk (own probe): 3-ID batch -> 200 returns only valid pubkey; ECHOECHO->200 / ZZZZZZZZ->404; ACAA `*` + POST,GET,OPTIONS,DELETE confirmed.
+- 2026-08-09 ACCEPTED MISCONFIG @ safe-01.threema.ch/backups/{64hex} (own probe): 400 cred-gated; /backup/x->404 route oracle; OPTIONS 204 ACAA `*` + write-capable methods; stable.
 === INVENTORY gladia ===
 # Inventory: threema
 
