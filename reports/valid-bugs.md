@@ -344,3 +344,6 @@
   - - **Verdict: HOLD** — OpenAPI flags endpoint "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Cannot be proven via passive GET/HEAD only. Retain for program-provide
   - +   - **Verdict: HOLD** — OpenAPI flags endpoint "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Retain for program-provided test credentials.
   - | **VALID** | 4 | All duplicates of previously reported findings |
+
+- 1 lead(s) marked VALID at 2026-08-09 21:58:03 UTC
+  - | **VALID** | 4 | All duplicates — already in `valid-bugs.md` |
