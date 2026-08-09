@@ -1,19 +1,29 @@
-## 2026-08-09 19:25:10 UTC [web] (model nemotron3)
-[NEW] `broadcast.threema.ch/api/v1` → HTTP 401 (auth-gated API endpoint confirmed; 301 without trailing slash)
-[NEW] `gateway.threema.ch/en/signup` → HTTP 200 (signup page accessible)
-[CHANGED] `ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/fetch_bulk` — ceiling exactly 10000 IDs/request (sharp count-cap: 10000→200/152B, 10001→400/0B, no partial leak, CORS `*` on both, zero 429s across ~35 probes)
-[CHANGED] `ds-apip.test.threema.ch/identity/fetch_bulk` — staging byte-identical to prod including 10000-cap enforcement; no extra routes (/swagger /docs /identity/lookup /openapi.json all 404)
-[CHANGED] `broadcast.threema.ch/api/v1` — key-format/validity oracle disproven (absent key→401, any 1/32/64-char key→byte-identical 403 sha256 `707fe8f5…`; no CORS preflight)
-[CHANGED] `gateway.threema.ch` — fully mapped: `/v1`→404 catch-all, `/api/v1`→403 nginx deny, `/en/signup`→200 (14KB); no msgapi route exposed
-[CHANGED] `safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}` — HSTS/Expect-CT present on OPTIONS 204, ABSENT on GET 400 stable across all 5 hosts behind 203.56.112.231
-[CHANGED] `work.test.threema.ch/api-app/public/global/settings` → 200 (staging-only, 299B) vs `work.threema.ch` → 404 (prod) — divergence stable
-[PRIO] https://ds-apip.threema.ch/identity/fetch_bulk (prod cluster: ds-apip, api, apip) — 94 — attack=10 business=9 tech=9 gate=10 cloud=8 fresh=10
-[PRIO] github.com/threema-ch/threema-desktop (Windows key-storage ACL bypass) — 95 — attack=10 business=10 tech=10 gate=10 cloud=5 fresh=10
-[PRIO] https://ds-apip.test.threema.ch/identity/fetch_bulk — 86 — attack=9 business=8 tech=8 gate=10 cloud=7 fresh=9
+## 2026-08-09 19:56:35 UTC [web] (model nemotron3)
+[NEW] mediator-{prefix4}.threema.ch/{prefix8}/ — mediator WSS hostname pattern confirmed in scope; DNS split IPs (0-7→203.56.112.247, 8-f→203.56.114.247); uniform 403 on HTTPS; high-entropy path structure
+[NEW] rendezvous-{prefix4}.threema.ch/{prefix8}/ — rendezvous WSS hostname pattern confirmed in scope; same DNS split routing as mediator; uniform 403 on HTTPS; high-entropy path structure
+[NEW] safe-{backupIdPrefix8}.threema.ch/ — backup safe hostname pattern confirmed in scope (safe-*.threema.ch); 5 hostnames (safe-01, safe-1a, safe-1b, safe-02, safe-00) resolve to single IP 203.56.112.231
+[NEW] ds-apip-work.threema.ch — work-style directory server confirmed live; 401 on all paths (/identity/*, /identities); CORS `*`; no HSTS/Expect-CT; Basic auth required
+[NEW] ds-apip.threema.ch — canonical directory server hostname confirmed via desktop client build config (config/vite.config.ts + OpenAPI); public GET /identity/{id} returns 200/404 oracle
+[NEW] poc/key-storage-acl-bypass-poc.js — PoC artifact generated in workspace (was claimed but missing; now present); node --check PASS; graceful no-op on Linux confirmed
+[CHANGED] broadcast.threema.ch/api/v1 → HTTP 401 (auth-gated API endpoint confirmed; 301 without trailing slash)
+[CHANGED] gateway.threema.ch/en/signup → HTTP 200 (signup page accessible, 14KB)
+[CHANGED] ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/fetch_bulk — ceiling exactly 10000 IDs/request (sharp count-cap: 10000→200/152B, 10001→400/0B, no partial leak, CORS `*` on both, zero 429s)
+[CHANGED] ds-apip.test.threema.ch/identity/fetch_bulk — staging byte-identical to prod including 10000-cap enforcement; no extra routes (/swagger /docs /identity/lookup /openapi.json all 404)
+[CHANGED] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} — HSTS/Expect-CT present on OPTIONS 204, ABSENT on GET 400 stable across all 5 hosts behind 203.56.112.231
+[CHANGED] work.test.threema.ch/api-app/public/global/settings → 200 (staging-only, 299B) vs work.threema.ch → 404 (prod) — divergence stable
+[CHANGED] g-*.0.{test.,}threema.ch:443/5222 — chat passive channel formally closed (explicit SNI + TLS1.2/1.3 probes close immediately, 0 bytes, no cert/SAN)
+[CHANGED] saltyrtc-*.threema.ch — 256 hostnames resolve to 4 IPs, HTTP 426, explicitly NOT in scope.yml
+[CHANGED] blob-mirror-{prefix4}.threema.ch/{prefix8}/ — blob server hostname pattern discovered in desktop source config.ts; NOT in scope per scope.yml
+[PRIO] https://ds-apip.threema.ch/identity/fetch_bulk — 96 — attack=10 business=10 tech=9 gate=10 cloud=7 fresh=9
+[PRIO] github.com/threema-ch/threema-desktop (Windows key-storage ACL bypass) — 94 — attack=10 business=10 tech=10 gate=10 cloud=5 fresh=9
+[PRIO] https://ds-apip.test.threema.ch/identity/fetch_bulk — 86 — attack=9 business=8 tech=8 gate=10 cloud=7 fresh=8
 [PRIO] safe-01.threema.ch/backups/{64hex} (all 5 safe-* hosts) — 77 — attack=8 business=8 tech=7 gate=6 cloud=9 fresh=8
-[PRIO] broadcast.threema.ch/api/v1 — 58 — attack=6 business=7 tech=5 gate=4 cloud=6 fresh=7
-[PRIO] gateway.threema.ch/en/signup — 52 — attack=5 business=6 tech=4 gate=5 cloud=5 fresh=8
-[PRIO] work.test.threema.ch/api-app/public/global/settings — 65 — attack=7 business=6 tech=6 gate=10 cloud=5 fresh=7
+[PRIO] https://ds-apip-work.threema.ch — 71 — attack=7 business=7 tech=7 gate=4 cloud=8 fresh=9
+[PRIO] https://work.test.threema.ch/api-app/public/global/settings — 65 — attack=7 business=6 tech=6 gate=10 cloud=5 fresh=7
+[PRIO] https://broadcast.threema.ch/api/v1 — 58 — attack=6 business=7 tech=5 gate=4 cloud=6 fresh=7
+[PRIO] https://gateway.threema.ch/en/signup — 52 — attack=5 business=6 tech=4 gate=5 cloud=5 fresh=8
+[PRIO] mediator-{prefix4}.threema.ch/{prefix8}/ — 48 — attack=5 business=6 tech=6 gate=3 cloud=7 fresh=9
+[PRIO] rendezvous-{prefix4}.threema.ch/{prefix8}/ — 48 — attack=5 business=6 tech=6 gate=3 cloud=7 fresh=9
 [HYP] Directory bulk identity enumeration at scale via fetch_bulk 10000 IDs/request + 5 challenge parameter oracles
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/fetch_bulk (identical on api.threema.ch, apip.threema.ch)
@@ -42,10 +52,9 @@ verify_steps: PROBE: curl -X POST https://ds-apip.test.threema.ch/identity/fetch
 impact: If test identity valid on staging, confirms prod enumeration logic without touching prod; if staging dataset isolated, validates mirror fidelity for safe testing. Severity: Low-Medium (CVSS 3.1: 3.7 AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N)
 testability: PASSIVE (requires test credential for full validation)
 [PARKED] Staging directory server mirrors production fetch_bulk logic exactly including 10000-cap — potential test-credential oracle: confidence 85 but evidence_needed requires program-issued testId (not passive-only); verify_steps not fully passive-first without credential.
-[PARKED] broadcast.threema.ch/api/v1 key-format oracle: REJECTED class AUTH per knowledge base (key-format disproven, only key-presence observable, no CORS preflight) — already closed.
-[PARKED] gateway.threema.ch/en/signup: signup page accessible but no auth bypass or logic flaw identified; low attack surface for bug bounty.
 [FINAL] 1. Directory bulk identity enumeration at scale via fetch_bulk 10000 IDs/request + 5 challenge parameter oracles (97, IDOR, PASSIVE)
 [FINAL] 2. Desktop Windows key-storage ACL bypass → full identity + message-store compromise via DPAPI (95, MISCONFIG, AUTH_HELPED)
+[FINAL] 3. Staging directory server mirrors production fetch_bulk logic exactly including 10000-cap — potential test-credential oracle (85, MISCONFIG, PASSIVE)
 [NEXT] PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<9999 unique invalid 8-char base32 IDs>]}' (≤1 rps) — confirm 200 with only ECHOECHO pubkey, verify sharp 10000-cap boundary, re-confirm 5 challenge endpoint parameter oracles
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk hard ceiling exactly 10000 IDs/request (10000→200/152B, 10001→400/0B); sharp count-cap, overflow→400 empty body with NO partial/overshoot pubkey leak; CORS `*` + Allow-Methods POST,GET,OPTIONS,DELETE on both 200 and 400; zero 429s across ~35 sequential probes
 [LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk enforces identical 10000-cap (10001 → 400 byte-for-byte identical to prod) → validation-logic parity confirmed; mirror evidence strengthened

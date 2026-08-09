@@ -40701,3 +40701,608 @@ STEP 7 — RISK SCORE
 - [RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve (split IPs) but uniform 403 on HTTPS; WSS high-entropy paths; no passive in-band divergence.
 - [RISK] safe: 88 — safe-{01,1a,1b,02,00}: single IP, CORS `*` + write-capable methods + Allow-Headers: Authorization + route-existence oracle + Basic-Auth gating (400 baseline stable) + HSTS/Expect-CT absent on GET 400; creds required to unlock full backup access.
 - [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 (15 source paths on `stable`); PoC artifact regenerated + syntax-verified + no-op on Linux (recurring-missing gap closed); same-user → Ed25519 identity + SQLCipher key chain; Windows runtime validation still open; Electron sandbox unset + nodeIntegrationInWorker (conditional RCE REJECTED standalone); crypto.ts:223 benchmark password REJECTED.
+===== ANALYST bigpickle 2026-08-09 19:56:47 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/ && ls -la /home/runner/work/threema-hunt/threema-hunt/poc/ 2>/dev/null && ls -la /home/runner/work/threema-hunt/threema-hunt/reports/ 2>/dev/null && ls -la /tmp/opencode/ 2>/dev/null
+total 268
+drwxr-xr-x 11 runner runner  4096 Aug  9 19:52 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 19:52 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 19:52 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 19:52 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 19:52 README.md
+-rw-r--r--  1 runner runner    32 Aug  9 19:52 analyst-out.txt
+-rw-r--r--  1 runner runner 81471 Aug  9 19:52 analyst-prompt.txt
+-rw-r--r--  1 runner runner 78407 Aug  9 19:52 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:52 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:52 knowledge
+drwxr-xr-x  2 runner runner 12288 Aug  9 19:52 leads
+-rw-r--r--  1 runner runner 20753 Aug  9 19:52 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:52 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 19:52 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 19:52 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:52 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 19:52 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 19:52 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 19:52 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 19:52 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 19:52 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:52 triage
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/poc 2>&1; echo "---inventory---"; ls -la /home/runner/work/threema-hunt/threema-hunt/inventory/; echo "---reports---"; ls -la /home/runner/work/threema-hunt/threema-hunt/reports/
+ls: cannot access '/home/runner/work/threema-hunt/threema-hunt/poc': No such file or directory
+---inventory---
+total 100
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:52 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 19:52 ..
+-rw-r--r--  1 runner runner 93624 Aug  9 19:52 threema.md
+---reports---
+total 8996
+drwxr-xr-x  2 runner runner    4096 Aug  9 19:52 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 19:52 ..
+-rw-r--r--  1 runner runner 3263573 Aug  9 19:52 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 4927891 Aug  9 19:52 analyst-laguna.log
+-rw-r--r--  1 runner runner   27415 Aug  9 19:52 analyst-ling3.log
+-rw-r--r--  1 runner runner   12267 Aug  9 19:52 analyst-longcat.log
+-rw-r--r--  1 runner runner  858775 Aug  9 19:52 analyst-nemotron3.log
+-rw-r--r--  1 runner runner      52 Aug  9 19:52 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      52 Aug  9 19:52 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 19:52 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 19:52 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   13212 Aug  9 19:52 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  255319 Aug  9 19:52 hypotheses.md
+-rw-r--r--  1 runner runner   28209 Aug  9 19:52 valid-bugs.md
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt -name "*key-storage*" 2>/dev/null; echo "---"; find /home/runner/work/threema-hunt/threema-hunt -name "*.js" -path "*poc*" 2>/dev/null; echo "---gitlog---"; cd /home/runner/work/threema-hunt/threema-hunt && git log --oneline -5 && git status --short | head -20
+---
+---gitlog---
+6dbe626 reposcan 2026-08-09-19-35
+?? analyst-out.txt
+?? analyst-prompt.txt
+?? ctx.txt
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat state_bigpickle.json && echo "---" && cat reports/hypotheses-bigpickle.txt && echo "---analyst-out---" && cat analyst-out.txt && echo "---lead files tail---" && ls leads/ | head -40
+{"phase": "POC", "target": "chat"}---
+## 2026-08-09 19:25:15 UTC [chat] (model bigpickle)
+---analyst-out---
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/ && ls -la /home/runner/work/threema-hunt/threema-hunt/poc/ 2>/dev/null && ls -la /home/runner/work/threema-hunt/threema-hunt/reports/ 2>/dev/null && ls -la /tmp/opencode/ 2>/dev/null
+total 268
+drwxr-xr-x 11 runner runner  4096 Aug  9 19:52 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 19:52 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 19:52 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 19:52 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 19:52 README.md
+-rw-r--r--  1 runner runner    32 Aug  9 19:52 analyst-out.txt
+-rw-r--r--  1 runner runner 81471 Aug  9 19:52 analyst-prompt.txt
+-rw-r--r--  1 runner runner 78407 Aug  9 19:52 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:52 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:52 knowledge
+drwxr-xr-x  2 runner runner 12288 Aug  9 19:52 leads
+-rw-r--r--  1 runner runner 20753 Aug  9 19:52 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:52 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 19:52 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 19:52 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:52 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 19:52 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 19:52 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 19:52 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 19:52 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 19:52 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:52 triage
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/poc 2>&1; echo "---inventory---"; ls -la /home/runner/work/threema-hunt/threema-hunt/inventory/; echo "---reports---"; ls -la /home/runner/work/threema-hunt/threema-hunt/reports/
+ls: cannot access '/home/runner/work/threema-hunt/threema-hunt/poc': No such file or directory
+---inventory---
+total 100
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:52 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 19:52 ..
+-rw-r--r--  1 runner runner 93624 Aug  9 19:52 threema.md
+---reports---
+total 8996
+drwxr-xr-x  2 runner runner    4096 Aug  9 19:52 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 19:52 ..
+-rw-r--r--  1 runner runner 3263573 Aug  9 19:52 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 4927891 Aug  9 19:52 analyst-laguna.log
+-rw-r--r--  1 runner runner   27415 Aug  9 19:52 analyst-ling3.log
+-rw-r--r--  1 runner runner   12267 Aug  9 19:52 analyst-longcat.log
+-rw-r--r--  1 runner runner  858775 Aug  9 19:52 analyst-nemotron3.log
+-rw-r--r--  1 runner runner      52 Aug  9 19:52 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      52 Aug  9 19:52 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 19:52 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 19:52 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   13212 Aug  9 19:52 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  255319 Aug  9 19:52 hypotheses.md
+-rw-r--r--  1 runner runner   28209 Aug  9 19:52 valid-bugs.md
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt -name "*key-storage*" 2>/dev/null; echo "---"; find /home/runner/work/threema-hunt/threema-hunt -name "*.js" -path "*poc*" 2>/dev/null; echo "---gitlog---"; cd /home/runner/work/threema-hunt/threema-hunt && git log --oneline -5 && git status --short | head -20
+---
+---gitlog---
+6dbe626 reposcan 2026-08-09-19-35
+?? analyst-out.txt
+?? analyst-prompt.txt
+?? ctx.txt
+[0m
+---lead files tail---
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-nemotron3.md
+reposcan-2026-08-07-18-43.md
+reposcan-2026-08-07-18-59.md
+reposcan-2026-08-07-19-20.md
+reposcan-2026-08-07-19-33.md
+reposcan-2026-08-07-20-11.md
+reposcan-2026-08-07-20-59.md
+reposcan-2026-08-07-21-13.md
+reposcan-2026-08-07-21-27.md
+reposcan-2026-08-07-22-10.md
+reposcan-2026-08-07-22-46.md
+reposcan-2026-08-07-23-10.md
+reposcan-2026-08-07-23-19.md
+reposcan-2026-08-07-23-50.md
+reposcan-2026-08-08-00-01.md
+reposcan-2026-08-08-00-19.md
+reposcan-2026-08-08-02-10.md
+reposcan-2026-08-08-02-23.md
+reposcan-2026-08-08-03-52.md
+reposcan-2026-08-08-04-47.md
+reposcan-2026-08-08-05-01.md
+reposcan-2026-08-08-05-29.md
+reposcan-2026-08-08-05-48.md
+reposcan-2026-08-08-06-08.md
+reposcan-2026-08-08-06-56.md
+reposcan-2026-08-08-07-12.md
+reposcan-2026-08-08-07-53.md
+reposcan-2026-08-08-08-07.md
+reposcan-2026-08-08-08-37.md
+reposcan-2026-08-08-08-42.md
+reposcan-2026-08-08-09-21.md
+reposcan-2026-08-08-09-40.md
+reposcan-2026-08-08-10-09.md
+reposcan-2026-08-08-10-27.md
+reposcan-2026-08-08-10-37.md
+reposcan-2026-08-08-11-08.md
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat leads/lead-bigpickle.md 2>/dev/null | head -80; echo "===probe-results==="; tail -60 probe-results.md
+# LEADS bigpickle (seed)
+- SEED: no model output yet; pipeline starts on first run.
+## 2026-08-07 18:34:07 UTC [chat] (model bigpickle)
+class: BUSLOGIC
+asset: apip.threema.ch/identity/ws/revoke
+confidence: 45
+reasoning: OpenAPI (directory.openapi.yml) shows /identity/ws/revoke is the ONLY identity endpoint with a single-step request (identity + revocationKey = SHA256(revocation-password)[:4], 32 bits) and NO challenge-response step, and unlike blob_cred/sfu_cred/work endpoints it documents NO 429 rate-limit response.
+evidence_needed: server enforces/omits rate limiting on ws/revoke; error/timing differences per guessed key; whether a correct 4-byte key revokes any ID.
+verify_steps: AUTH_HELPED: on a program-provided test ID, POST /identity/ws/revoke with a deliberately wrong revocationKey (observe error shape and timing), repeat small count to test for 429; never target third-party IDs and do not create accounts.
+impact: if unrate-limited, brute-force of 2^32 space → force-revoke/delete any Threema ID (permanent identity destruction / DoS). Severity: medium-high.
+testability: AUTH_HELPED
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities (backend of in-scope work.threema.ch)
+confidence: 50
+reasoning: directory.openapi.yml line 1172 states "/identities ... currently buggy. See TWRK-1633"; endpoint returns "a subset of the provided contacts that are part of the same Work subscription" + work properties (first/last name, jobTitle, department, availability); GET / returns 401 confirming a live credential-gated backend.
+evidence_needed: whether contact matching can be induced to return contacts outside the caller's subscription.
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities (contacts:[...]) mixing own- and other-subscription IDs and compare membership + properties; also probe /directory pagination bounds (page/size, wildcard queries).
+impact: cross-subscription disclosure of work-directory metadata (names, titles, departments, availability) → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+class: OTHER
+asset: mediator-*.threema.ch / rendezvous-*.threema.ch / blob-mirror-*.threema.ch
+confidence: 40
+reasoning: all sampled shards (0..f) resolve; GET / → uniform 403; shard prefix is derived from the first byte of a public-key (routing, not auth per config.rs) — no passive distinguishing signal observed.
+evidence_needed: any shard or path (wss /{prefix}/) responding differently than 403.
+verify_steps: PASSIVE: GET https://{rendezvous,mediator,blob-mirror}-{0,7,f}.threema.ch/ and a few /XX/ paths at ≤1rps, compare status/body fingerprints.
+impact: none observed; would only indicate a routing/edge misconfiguration. Severity: n/a
+testability: PASSIVE
+## 2026-08-07 18:50:01 UTC [chat] (model bigpickle)
+[HYP] ds-apip.threema.ch directory lookup / unauth enumeration
+class: AUTH
+asset: ds-apip.threema.ch
+confidence: 55
+reasoning: directory.openapi.yml lists `ds-apip.*` as the directory API base; production `ds-apip.threema.ch` returns root 403 with `Access-Control-Allow-Origin: *` and allows POST/GET/OPTIONS/DELETE cross-origin. apip.threema.ch returns 404 on all openapi subpaths (host mismatch), so any live directory routes live on the ds-apip host. If any lookup route is unauthenticated, CORS-* enables cross-origin probing from an attacker page.
+evidence_needed: an endpoint under ds-apip.threema.ch returning ≠403/404 to GET; response-body fingerprints differing from apip.
+verify_steps: PASSIVE: GET https://ds-apip.threema.ch/identity/lookup and /directory (compare vs apip 404), GET https://ds-apip-work.threema.ch/identity/lookup (401=route-exists-behind-auth vs 404=no-route), ≤1 rps.
+impact: Threema ID/pubkey enumeration → spam, phishing, targeted abuse. Severity: medium.
+testability: PASSIVE
+[HYP] threema-desktop key-storage KDF parameter weakness
+class: OTHER
+asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/key-storage/crypto.ts)
+confidence: 45
+reasoning: reposcan found crypto.ts:223 uses fixed benchmark password `r3gGN9GDQ5NF6tM6` to calibrate Argon2id params at runtime, and test-data.ts defines `keyStoragePassword: 'CHANGE_ME'`; no committed credentials exist, so only the KDF/key-handling logic can be weak. Electron 2.x stores user password/keys through this module.
+evidence_needed: how Argon2id memory/time params are derived (floors/caps) and whether the derived key protects an offline-readable store.
+verify_steps: PASSIVE: static read of crypto.ts `determineKdfParams()` and the storage backend (safeStorage vs plaintext file). No live requests.
+impact: if params are attacker-favorable, offline recovery of stored user credentials/keys from disk. Severity: low-medium.
+testability: PASSIVE
+[HYP] ds-apip-work.threema.ch /identities cross-subscription disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 52
+reasoning: directory.openapi.yml:1172 flags "/identities ... currently buggy. See TWRK-1633"; endpoint returns a subset of provided contacts in the same Work subscription plus work properties (first/last name, jobTitle, department, availability). Host now confirmed live returning 401 with permissive CORS.
+evidence_needed: whether the membership filter can be induced to return out-of-subscription contacts.
+verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities mixing own- and other-subscription IDs and compare membership + property leak; probe pagination bounds (page/size, wildcard).
+impact: cross-subscription disclosure of work-directory metadata → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[NEXT] PROBE: GET https://ds-apip-work.threema.ch/identity/lookup and /directory (401 vs 404 distinguishes route-existence behind the auth gate), then GET https://ds-apip.threema.ch/identity/lookup + /directory at ≤1 rps to fingerprint the directory host independently of apip.
+## 2026-08-07 19:12:20 UTC [chat] (model bigpickle)
+[HYP] ds-apip.test.threema.ch staging directory server publicly exposed
+class: MISCONFIG
+asset: ds-apip.test.threema.ch
+confidence: 60
+reasoning: verified 200 on GET /identity/ECHOECHO and /identity/fetch_bulk with same JSON shape and CORS `*` as production ds-apip.threema.ch; hostname is a staging/test env (ds-apip.test.*), yet answers the live identity API with no auth and no documented client reference.
+evidence_needed: whether the test host mirrors live production data or an isolated dataset (byte-diff a real ID's publicKey across hosts) and whether it exposes extra routes or an older/newer build (error-shape/header skew).
+verify_steps: PASSIVE: GET https://ds-apip.test.threema.ch/identity/ECHOECHO and /identity/fetch_bulk with full headers, diff Server/Date/body fingerprints vs ds-apip.threema.ch; HEAD a few extra paths (/, /identity/lookup, /swagger) at ≤1rps; no third-party IDs.
+impact: internet-reachable staging env; version skew, unpatched/test-only routes, or a full unauthenticated mirror of the identity directory. Severity: low-medium.
+testability: PASSIVE
+[HYP] Unauthenticated bulk identity lookup + CORS `*` enables cross-origin directory enumeration
+class: BUSLOGIC
+asset: apip.threema.ch/identity/fetch_bulk
+confidence: 55
+reasoning: GET /identity/{id} returns 200 + publicKey/featureLevel/state/type for existing IDs, 404 otherwise; GET /identity/fetch_bulk → `{"identities":[]}` proves a bulk route parsing an `identities` array; CORS allows Origin `*`, methods POST/GET/OPTIONS/DELETE, header Content-Type — a malicious page can POST bulk lookups cross-origin.
+evidence_needed: whether POST fetch_bulk returns records without any token, batch-size caps, and whether the `state` field discriminates active vs revoked/suspended IDs.
+verify_steps: AUTH_HELPED: with an authorized test ID set {ECHOECHO active, official revoked/echo test IDs, random-invalid}, POST /identity/fetch_bulk and compare presence/state/type; only official test IDs, no third-party real IDs; GET probes ≤1rps only.
+impact: mass existence/state oracle + publicKey harvesting for spam/phishing/profile building; endpoint is by-design public, so impact is scale via bulk+CORS. Severity: low-medium.
+testability: AUTH_HELPED
+[HYP] ds-apip-work.threema.ch /identities cross-subscription metadata disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 52
+reasoning: directory OpenAPI flags /identities "currently buggy" (TWRK-1633); returns same-subscription contacts plus first/last name, jobTitle, department, availability; host answers 401 (route exists behind credential gate, permissive CORS).
+===probe-results===
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+
+## 2026-08-09 16:44:53 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+https://billing.threema.ch/<word>` -> HTTP 404
+https://billing.threema.ch/login -> HTTP 404
+https://billing.threema.ch` -> ERR <urlopen error [Errno -2] Name or service not know
+https://shop.threema.ch/en/retrieve-keys -> 200 len=? type=text/html; charset=UTF-8
+https://billing.threema.ch/{login,order/invoice,sso,oauth2,api/v1,index.php/login,index.php/order,session,payment -> HTTP 404
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-09 17:14:31 UTC
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://billing.threema.ch/<word>` -> HTTP 404
+https://billing.threema.ch/login -> HTTP 404
+https://billing.threema.ch` -> ERR <urlopen error [Errno -2] Name or service not know
+https://shop.threema.ch/en/retrieve-keys -> 200 len=? type=text/html; charset=UTF-8
+https://billing.threema.ch/{login,order/invoice,sso,oauth2,api/v1,index.php/login,index.php/order,session,payment -> HTTP 404
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-09 17:48:30 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+https://billing.threema.ch/<word>` -> HTTP 404
+https://billing.threema.ch/login -> HTTP 404
+https://billing.threema.ch` -> ERR <urlopen error [Errno -2] Name or service not know
+https://shop.threema.ch/en/retrieve-keys -> 200 len=? type=text/html; charset=UTF-8
+https://billing.threema.ch/{login,order/invoice,sso,oauth2,api/v1,index.php/login,index.php/order,session,payment -> HTTP 404
+https://broadcast.threema.ch/en/login/passkey/start -> HTTP 404
+https://broadcast.threema.ch/cache/broadcast_public.js?v=2.28.1 -> 200 len=1125461 type=application/javascript; charset=utf-8
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-09 18:12:44 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+
+## 2026-08-09 19:04:13 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://ds-apip.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-09 19:31:32 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+[0m
+[0m$ [0mls -la /tmp/opencode/ 2>/dev/null; echo "---broadcast js---"; ls -la /tmp/opencode/broadcast_public.js 2>/dev/null && grep -oE '"(/api/[a-zA-Z0-9_/{}:.-]+|/[a-zA-Z0-9_/{}:.-]*(login|passkey|token|key|invoice|recover)[a-zA-Z0-9_/{}:.-]*)"' /tmp/opencode/broadcast_public.js 2>/dev/null | sort -u | head -40
+total 16
+drwxr-xr-x  2 runner runner  4096 Aug  9 19:52 .
+drwxrwxrwt 15 root   root   12288 Aug  9 19:52 ..
+---broadcast js---
+[0m
+[0m$ [0mcd /tmp/opencode && curl -sS -m 20 "https://broadcast.threema.ch/cache/broadcast_public.js?v=2.28.1" -o broadcast_public.js && ls -la broadcast_public.js && sha256sum broadcast_public.js
+-rw-r--r-- 1 runner runner 1125461 Aug  9 19:52 broadcast_public.js
+e3fbfe8deca39eec8bf450058fe36ae362375e664f28b726445ac520ecd9849e  broadcast_public.js
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oE '"(/api/[a-zA-Z0-9_/{}.:$-]+)"' broadcast_public.js | sort -u | head -60; echo "===other paths==="; grep -oE '"(/v[0-9]/[a-zA-Z0-9_/{}.:$-]+)"' broadcast_public.js | sort -u | head -30; echo "===passkey/token/key handlers==="; grep -oE '"(/[a-zA-Z0-9_/-]*(passkey|token|invoice|recover|license|key)[a-zA-Z0-9_/-]*)"' broadcast_public.js | sort -u | head -30
+===other paths===
+===passkey/token/key handlers===
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oE '(fetch|axios|request|\.get|\.post)\([^)]{1,60}' broadcast_public.js | grep -oE '"[^"]{2,60}"' | sort -u | head -60
+"/emoji-picker.html"
+"Content-Type"
+"POST"
+"Retry-After"
+"X-Csrf-Token"
+"X-Sentry-Rate-Limits"
+"__className__"
+"click"
+"content-type"
+"data"
+"display"
+"events"
+"finish"
+"fxshow"
+"globalEval"
+"handle"
+"hasDataAttrs"
+"json"
+"length"
+"queueHooks"
+"script"
+"sentry.dsc"
+"sentry.sample_rand"
+"sentry.sample_rate"
+"set-cookie"
+"text/plain, */*"
+"value"
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oE '"[a-zA-Z0-9_/.-]*api[a-zA-Z0-9_/.-]*"' broadcast_public.js | sort -u | head -30; echo "===login/identity/session fragments==="; grep -oE '"[a-zA-Z0-9_/.-]*(login|identity|session|account|profile|me/)[a-zA-Z0-9_/.-]*"' broadcast_public.js | sort -u | head -40
+"auto.browser.browserapierrors.addEventListener"
+"auto.browser.browserapierrors.handleEvent"
+"auto.browser.browserapierrors.requestAnimationFrame"
+"autocapitalize"
+===login/identity/session fragments===
+"color-profile"
+"identity_avatar_singular"
+"identity_content_availability_saved_error"
+"identity_content_availability_saved_successfully"
+"identity_emulator_input"
+"identity_send_disabled"
+"identity_simulator_first_message"
+"identity_simulator_singular"
+"preview-identity-avatar"
+"profile"
+"remove_receiver_from_all_lists_and_groups_warning_has_identity_application"
+"sentry.profile_id"
+"session"
+"session_extend_error"
+"session_extend_success"
+"sessions"
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oE '"(auth|oidc|oauth|webauthn|enroll|verify|credential|backup|restore|2fa|totp)[a-zA-Z0-9_/.-]*"' broadcast_public.js | sort -u | head -30; echo "===url assignment patterns==="; grep -oE '(url|href|src|action)\s*[:=]\s*"[/a-zA-Z0-9_.:-]{3,50}"' broadcast_public.js | sort -u | head -40
+"auth"
+"authenticator-name"
+"authorization"
+"credentials"
+"webauthn"
+"webauthn-authentication"
+"webauthn-registration"
+===url assignment patterns===
+href="http://xdsoft.net/jqplugins/datetimepicker/"
+url:"/currencies"
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oE 'url:\s*"[a-zA-Z0-9_/{}.:-]+"' broadcast_public.js | sort -u | head -40; echo "===xhr/ajax paths==="; grep -oE 'url:\s*[a-zA-Z0-9_]+' broadcast_public.js | sort -u | head -20
+url:"/currencies"
+===xhr/ajax paths===
+url:Fv
+url:P
+url:a
+url:e
+url:j
+url:jForm
+url:location
+url:n
+url:o
+url:options
+url:r
+url:s
+url:settings
+url:t
+url:this
+url:url
+url:y
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oE '"[^"]*api[^"]*"' broadcast_public.js | grep -iE '/api|api/|\.api' | sort -u | head -30; echo "===concat url patterns==="; grep -oE '"[^"]{3,40}"\s*\+\s*"[^"]{1,40}"' broadcast_public.js | sort -u | head -30
+"}/api/`}function gM(t){return`${pM(t)}${t.projectId}/envelope/`}function mM(t,e){const n={sentry_version:hM};return t.publicKey&&(n.sentry_key=t.publicKey),e&&(n.sentry_client=`${e.name}/${e.version}`),new URLSearchParams(n).toString()}function bM(t,e,n){return e||`${gM(t)}?${mM(t,n)}`}const sv=[];function vM(t){const e={};return t.forEach(n=>{const{name:s}=n,i=e[s];i&&!i.isDefaultInstance&&n.isDefaultInstance||(e[s]=n)}),Object.values(e)}function yM(t){const e=t.defaultIntegrations||[],n=t.integrations;e.forEach(i=>{i.isDefaultInstance=!0});let s;if(Array.isArray(n))s=[...e,...n];else if(typeof n=="
+===concat url patterns===
+"' href='' disabled='disabled'></a>"+"<select id='"
+")(?:\\(("+"('((?:\\\\.|[^\\\\'])*)'|\"
+")*)|"+".*"
+")}function ve(t){const e=t.replace(/-/g,"+").replace(/_/g,"
+",rwhitespace=new RegExp(whitespace+"+","
+"-\r\\' disabled='disabled'>"+"<option selected=''></option></select>"
+"margin:auto;border:1px;padding:1px;"+"width:60%;top:1%"
+[0m
+[0m$ [0mcd /tmp/opencode && sleep 1; curl -sS -m 12 -o /dev/null -w "broadcast/currencies -> %{http_code} %{size_download}B\n" "https://broadcast.threema.ch/currencies"; sleep 1; curl -sS -m 12 "https://broadcast.threema.ch/currencies" | head -c 400
+broadcast/currencies -> 404 2292B
+<!DOCTYPE html>
+<html lang="en"><head><title>Threema Broadcast</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="sentry_dsn" content="https://b0684a0dbe2f422fa9d6708c5466ca20@bugs.threema.ch/5"/>
+<meta name="sentry_environment" conten
+[0m
+[0m$ [0mcd /tmp/opencode && curl -sS -m 12 "https://broadcast.threema.ch/currencies" | grep -oE '<meta[^>]*>' | head -20
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="sentry_dsn" content="https://b0684a0dbe2f422fa9d6708c5466ca20@bugs.threema.ch/5"/>
+<meta name="sentry_environment" content="production"/>
+<meta name="project_release" content="2.28.1"/>
+[0m
+[0m$ [0mcd /tmp/opencode && for h in ds-apip api apip; do sleep 1; echo "== $h =="; curl -sS -m 12 "https://$h.threema.ch/identity/ECHOECHO" -o /tmp/opencode/echo_$h.json -w "%{http_code} %{size_download}B\n"; done; sha256sum /tmp/opencode/echo_*.json
+== ds-apip ==
+200 135B
+== api ==
+200 135B
+== apip ==
+200 135B
+c7cdb73b9d2282512d2199cdde85dc0083e2f7cfa31fbd9c6ab392af91284cd7  /tmp/opencode/echo_api.json
+c7cdb73b9d2282512d2199cdde85dc0083e2f7cfa31fbd9c6ab392af91284cd7  /tmp/opencode/echo_apip.json
+c7cdb73b9d2282512d2199cdde85dc0083e2f7cfa31fbd9c6ab392af91284cd7  /tmp/opencode/echo_ds-apip.json
+[0m
+[0m$ [0mcd /tmp/opencode && cat echo_ds-apip.json; echo; sleep 1; curl -sS -m 12 -o /dev/null -w "safe-01 GET /backups/{64hex} -> %{http_code} %{size_download}B\n" "https://safe-01.threema.ch/backups/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"; sleep 1; curl -sS -m 12 -o /dev/null -w "safe-01 OPTIONS -> %{http_code}\n" -X OPTIONS "https://safe-01.threema.ch/backups/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}
+safe-01 GET /backups/{64hex} -> 400 11B
+safe-01 OPTIONS -> 204
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && grep -rn "key-storage-acl-bypass-poc" --include="*.md" --include="*.txt" . | head -20
+./reposcan-raw/rag.txt:150:- 2026-08-09 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): Source verification chain stable this cycle — `fs.ts:41` returns `{}` on win32; `index.ts:559-560`/`electron-main.ts:944-945` write keystorage files with `{}` (no ACL); `inner/v3.ts:65,70` exposes `IdentityData.ck` + `databaseKey`; `crypto.ts:53-113` Argon2id→XSalsa20-Poly1305 (key purged at :113); `db/sqlite.ts:220` raw SQLCipher PRAGMA key. PoC gap: `/tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py` NOT present in workspace despite lead reference.
+./reposcan-raw/rag.txt:188:- 2026-08-09 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED at 95 confidence — `fs.ts:41` returns `{}` on win32; `index.ts:559-560`/`electron-main.ts:944-945` write keystorage.bin + keystorage.password.bin without ACL; `inner/v3.ts:65,70` exposes `ck` + `databaseKey`; `crypto.ts:53-113` Argon2id→XSalsa20-Poly1305; `sqlite.ts:240` raw SQLCipher PRAGMA key. PoC artifact `poc/key-storage-acl-bypass-poc.js` generated this cycle (node --check OK, graceful no-op on Linux).
+./reposcan-raw/rag.txt:193:- 2026-08-09 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED at 95 confidence — 15 source-path chain re-verified; PoC artifact poc/key-storage-acl-bypass-poc.js generated (node --check OK, graceful no-op on Linux); needs Windows validation
+./reposcan-raw/rag.txt:198:- 2026-08-09 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG verification chain COMPLETE at 95 confidence — all 6 core paths + 4 supporting paths verified live on GitHub stable via WebFetch: fs.ts:41 (empty {} on win32), key-storage/index.ts:555-560 (_writeOrOverrideFile uses fileModeInternalObjectIfPosix), electron/electron-main.ts:944-945 (STORE_USER_PASSWORD writes keystorage.password.bin with {} no-ACL options), inner/v3.ts:65,70 (INNER_KEY_STORAGE_V3_SCHEMA exposes identityData.ck + databaseKey), crypto.ts:53-113 (Argon2id→XSalsa20-Poly1305 decrypt, key purged) + :223 (benchmark dummy) + :233 (benchmarkKey.purge), db/sqlite.ts:240 (PRAGMA key = databaseKey, raw SQLCipher). Exact filenames confirmed: data/keystorage.bin + data/keystorage.password.bin. PoC artifact poc/key-storage-acl-bypass-poc.js generated + syntax-verified + graceful no-op on Linux.
+./reposcan-raw/rag.txt:204:- 2026-08-09 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG verification chain COMPLETE at 95 confidence — 6 core paths + 4 supporting paths verified live on GitHub `stable` via WebFetch; PoC artifact `poc/key-storage-acl-bypass-poc.js` generated + syntax-verified + graceful no-op on Linux. Byte-stable this cycle; no regressions.
+./reposcan-raw/rag.txt:223:- 2026-08-09 PENDING @ poc/key-storage-acl-bypass-poc.js: PoC artifact generated in workspace, `node --check` PASS, graceful no-op on Linux confirmed — needs Windows runtime validation (RUNTIME_AUTH_HELPED-LOCAL) to close the remaining evidence gap for the 6-step chain.
+./knowledge/index.md:149:- 2026-08-09 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): Source verification chain stable this cycle — `fs.ts:41` returns `{}` on win32; `index.ts:559-560`/`electron-main.ts:944-945` write keystorage files with `{}` (no ACL); `inner/v3.ts:65,70` exposes `IdentityData.ck` + `databaseKey`; `crypto.ts:53-113` Argon2id→XSalsa20-Poly1305 (key purged at :113); `db/sqlite.ts:220` raw SQLCipher PRAGMA key. PoC gap: `/tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py` NOT present in workspace despite lead reference.
+./knowledge/index.md:187:- 2026-08-09 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED at 95 confidence — `fs.ts:41` returns `{}` on win32; `index.ts:559-560`/`electron-main.ts:944-945` write keystorage.bin + keystorage.password.bin without ACL; `inner/v3.ts:65,70` exposes `ck` + `databaseKey`; `crypto.ts:53-113` Argon2id→XSalsa20-Poly1305; `sqlite.ts:240` raw SQLCipher PRAGMA key. PoC artifact `poc/key-storage-acl-bypass-poc.js` generated this cycle (node --check OK, graceful no-op on Linux).
+./knowledge/index.md:192:- 2026-08-09 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED at 95 confidence — 15 source-path chain re-verified; PoC artifact poc/key-storage-acl-bypass-poc.js generated (node --check OK, graceful no-op on Linux); needs Windows validation
+./knowledge/index.md:197:- 2026-08-09 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG verification chain COMPLETE at 95 confidence — all 6 core paths + 4 supporting paths verified live on GitHub stable via WebFetch: fs.ts:41 (empty {} on win32), key-storage/index.ts:555-560 (_writeOrOverrideFile uses fileModeInternalObjectIfPosix), electron/electron-main.ts:944-945 (STORE_USER_PASSWORD writes keystorage.password.bin with {} no-ACL options), inner/v3.ts:65,70 (INNER_KEY_STORAGE_V3_SCHEMA exposes identityData.ck + databaseKey), crypto.ts:53-113 (Argon2id→XSalsa20-Poly1305 decrypt, key purged) + :223 (benchmark dummy) + :233 (benchmarkKey.purge), db/sqlite.ts:240 (PRAGMA key = databaseKey, raw SQLCipher). Exact filenames confirmed: data/keystorage.bin + data/keystorage.password.bin. PoC artifact poc/key-storage-acl-bypass-poc.js generated + syntax-verified + graceful no-op on Linux.
+./knowledge/index.md:203:- 2026-08-09 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG verification chain COMPLETE at 95 confidence — 6 core paths + 4 supporting paths verified live on GitHub `stable` via WebFetch; PoC artifact `poc/key-storage-acl-bypass-poc.js` generated + syntax-verified + graceful no-op on Linux. Byte-stable this cycle; no regressions.
+./knowledge/index.md:222:- 2026-08-09 PENDING @ poc/key-storage-acl-bypass-poc.js: PoC artifact generated in workspace, `node --check` PASS, graceful no-op on Linux confirmed — needs Windows runtime validation (RUNTIME_AUTH_HELPED-LOCAL) to close the remaining evidence gap for the 6-step chain.
+./leads/lead-bigpickle.md:5007:reasoning: `fileModeInternalObjectIfPosix()` returns `{}` on win32 → keystorage.bin + keystorage.password.bin written with no DACL; Electron safeStorage uses Windows DPAPI SameUser (auto-unlocks for logged-in user); decryptPasswordBased() does Argon2id→XSalsa20-Poly1305 yielding `ck` (Ed25519 identity private key) + `databaseKey` (SQLCipher PRAGMA key); PoC artifact at poc/key-storage-acl-bypass-poc.js generated + `node --check` OK; 7/8 core paths verified live on GitHub.
+./leads/lead-bigpickle.md:5009:verify_steps: RAG: Confirmed via live webfetch. PoC: `node --check poc/key-storage-acl-bypass-poc.js` (OK) + `node poc/key-storage-acl-bypass-poc.js` (graceful no-op on Linux). RUNTIME_AUTH_HELPED: Execute PoC on authorized Windows host with Threema Desktop profile → confirm 6-step chain prints + ck/databaseKey extracted.
+./leads/lead-bigpickle.md:5023:[NEXT] RUNTIME_AUTH_HELPED: Execute `node poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with Threema Desktop 2.x installed and a real profile → confirm the 6-step chain (read keystorage.bin + keystorage.password.bin, DPAPI SameUser auto-unlock, Argon2id→XSalsa20-Poly1305 decrypt, ck + databaseKey extraction, PRAGMA key opens threema.sqlite). This is the final gate for the 95-confidence MISCONFIG finding in POC/desktop phase. PoC artifact already generated + syntax-verified + 7/8 source paths confirmed live on GitHub.
+./leads/lead-bigpickle.md:5055:evidence_needed: Source chain confirmed. PoC artifact (poc/key-storage-acl-bypass-poc.js) exists but untested on actual Windows host.
+./leads/lead-bigpickle.md:5090:verify_steps: RUNTIME_AUTH_HELPED — execute `poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with a real Threema Desktop 2.x profile.
+./leads/lead-bigpickle.md:5121:verify_steps: RUNTIME_AUTH_HELPED — execute `poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with a real Threema Desktop 2.x profile.
+./leads/lead-bigpickle.md:5159:verify_steps: RUNTIME_AUTH_HELPED — execute `poc/key-storage-acl-bypass-poc.js` on authorized Windows host with real Threema Desktop 2.x profile.
+./leads/lead-bigpickle.md:5197:verify_steps: RUNTIME_AUTH_HELPED — execute `poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with a real Threema Desktop 2.x profile.
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && sed -n '4980,5025p' leads/lead-bigpickle.md; echo "===scripts==="; ls scripts/
+[FINAL] 1. Directory bulk identity enumeration at scale via fetch_bulk 10000 IDs/request + 5 challenge parameter oracles (97, IDOR, PASSIVE+PROBE)
+[FINAL] 2. Desktop Windows key-storage ACL bypass → full identity compromise via DPAPI (95, MISCONFIG, RAG)
+[FINAL] 3. Staging directory server mirrors live production identity data unauthenticated (88, IDOR, PASSIVE+PROBE) — PARKED pending testId
+[NEXT] PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":
+[NEW] `ds-apip.threema.ch` — canonical directory server hostname (wired into desktop client build config); `GET /identity/{id}` → 200/404 oracle confirmed (was only `apip.threema.ch` in baseline)
+[NEW] `ds-apip-work.threema.ch` — work-style directory server (401 on all paths, CORS `*`, no HSTS/Expect-CT)
+[CHANGED] `fetch_bulk` ceiling tightened from "≥10000" to exactly 10000 IDs/request (10000→200/152B, 10001→400/0B; sharp count-cap, no partial leak)
+[CHANGED] `apip.threema.ch` — was 403 on `/`; now confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
+[NEW] Hostname discovery from desktop `config.ts`: `mediator-{prefix4}`, `rendezvous-{prefix4}`, `safe-{backupIdPrefix8}` patterns (blob-mirror pattern out of scope)
+[PRIO] ds-apip.threema.ch/identity/fetch_bulk — score 9.35 — attack:10, business:9, tech:9, gate:10, cloud:8, fresh:10
+[PRIO] threema-desktop key-storage Windows ACL bypass — score 9.50 — attack:10, business:10, tech:9, gate:10, cloud:5, fresh:10
+[PRIO] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} — score 7.10 — attack:8, business:8, tech:7, gate:6, cloud:9, fresh:8
+[PRIO] ds-apip-work.threema.ch — score 6.25 — attack:7, business:6, tech:7, gate:10, cloud:5, fresh:8
+[PRIO] work.test.threema.ch /api-app/public/global/settings (staging-only) — score 5.80 — attack:6, business:6, tech:5, gate:10, cloud:6, fresh:6
+[HYP] Directory bulk identity enumeration at scale via fetch_bulk + 5 challenge parameter oracles
+class: IDOR
+asset: https://ds-apip.threema.ch/ (identical on api.threema.ch, apip.threema.ch) /identity/fetch_bulk
+confidence: 97
+reasoning: POST fetch_bulk accepts exactly 10000 IDs → returns only valid IDs' pubkeys, silently omits invalid; CORS `*` on POST/GET/OPTIONS/DELETE with no Access-Control-Expose-Headers; zero 429s across ~30 sequential probes; 5 challenge endpoints return 200 JSON errors with parameter-validation-before-identity-lookup oracle on set_revocation_key and update_work_info.
+evidence_needed: (a) 10000-ID batch probe confirming 200 with only valid pubkey; (b) 10001-ID probe confirming 400 empty body; (c) OPTIONS preflight confirming CORS `*` + Allow-Methods + absence of Expose-Headers; (d) GET /identity/ECHOECHO vs invalid → 200/404 oracle.
+verify_steps: PROBE: `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<9999 invalid IDs>]}'` ≤1 rps; `curl -sI -X OPTIONS -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: POST" https://ds-apip.threema.ch/identity/fetch_bulk`; `curl -s -o /dev/null -w "%{http_code}" https://ds-apip.threema.ch/identity/ECHOECHO` (expect 200) vs invalid (expect 404).
+impact: Cross-origin unauthenticated enumeration of all valid Threema IDs + pubkeys at scale (10k IDs/req, ~864M/day theoretical); 5 challenge parameter-validation oracles. Severity: Medium-High (CVSS 3.1: 5.3 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N).
+testability: PASSIVE+PROBE
+[HYP] Desktop Windows key-storage ACL bypass → full identity + message store compromise via DPAPI
+class: MISCONFIG
+asset: threema-desktop (apps/desktop/src/common/node/fs.ts:41, electron/electron-main.ts:944-945, common/inner/v3.ts:65-70, common/node/key-storage/crypto.ts:53-113, config/vite.config.ts:338-344, db/sqlite.ts:220/240)
+confidence: 95
+reasoning: `fileModeInternalObjectIfPosix()` returns `{}` on win32 → keystorage.bin + keystorage.password.bin written with no DACL; Electron safeStorage uses Windows DPAPI SameUser (auto-unlocks for logged-in user); decryptPasswordBased() does Argon2id→XSalsa20-Poly1305 yielding `ck` (Ed25519 identity private key) + `databaseKey` (SQLCipher PRAGMA key); PoC artifact at poc/key-storage-acl-bypass-poc.js generated + `node --check` OK; 7/8 core paths verified live on GitHub.
+evidence_needed: Runtime execution on Windows proving (a) co-located same-user process reads both .bin files, (b) safeStorage.decryptString succeeds without user secret, (c) keystorage.bin decrypts via Argon2id→XSalsa20-Poly1305, (d) ck + databaseKey extracted, (e) threema.sqlite opens via PRAGMA key.
+verify_steps: RAG: Confirmed via live webfetch. PoC: `node --check poc/key-storage-acl-bypass-poc.js` (OK) + `node poc/key-storage-acl-bypass-poc.js` (graceful no-op on Linux). RUNTIME_AUTH_HELPED: Execute PoC on authorized Windows host with Threema Desktop profile → confirm 6-step chain prints + ck/databaseKey extracted.
+impact: Same-user/co-located process (malware, backup tool, forensic copy) recovers Threema Ed25519 identity private key + decrypts full SQLCipher message database → complete account compromise (identity theft, message decryption, impersonation). Severity: Medium-High (CVSS 3.1: 5.5 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N).
+testability: RAG + RUNTIME_AUTH_HELPED
+[HYP] Safe backup store credentialed cross-origin read + HSTS header inconsistency
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (5 hosts behind 203.56.112.231)
+confidence: 50
+reasoning: All 5 hosts return identical behavior: OPTIONS 204 CORS `*` + `Access-Control-Allow-Headers: Authorization` (enables credentialed cross-origin); unauth GET → 400 (route-existence oracle: `/backups/{64hex}`→400 vs `/backup/{x}`→404); HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400; HTTP Basic Auth (backupId:backupKey) confirmed; vite.config.ts confirms SAFE_STORAGE_PASSWORD_PATH pattern.
+evidence_needed: Program-issued backupId:backupKey → status ≠ 400 (200+payload or 401/403) + presence of Access-Control-Expose-Headers on authenticated response.
+verify_steps: AUTH_HELPED: `curl -s -u "testId:testKey" https://safe-01.threema.ch/backups/{testId} -w "\n%{http_code}"` and diff vs 400 unauth baseline; `curl -sI -X OPTIONS https://safe-01.threema.ch/backups/{64hex} -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: GET"` to confirm CORS `*` + ACAH:Authorization + HSTS presence on preflight.
+impact: Valid credentials → identity keypair + full message-history backup readable cross-origin from any attacker origin. Severity: High (with creds), unreachable without (CVSS 3.1: 8.1 AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H).
+testability: AUTH_HELPED
+[PARKED] Safe backup store credentialed cross-origin read: confidence 50 < 60 threshold; evidence_needed is AUTH_HELPED (cannot self-prove); route-existence oracle + HSTS gap alone do not constitute a finding without credential-bearing response; parked until credentials available.
+[FINAL]
+[NEXT] RUNTIME_AUTH_HELPED: Execute `node poc/key-storage-acl-bypass-poc.js` on an authorized Windows host with Threema Desktop 2.x installed and a real profile → confirm the 6-step chain (read keystorage.bin + keystorage.password.bin, DPAPI SameUser auto-unlock, Argon2id→XSalsa20-Poly1305 decrypt, ck + databaseKey extraction, PRAGMA key opens threema.sqlite). This is the final gate for the 95-confidence MISCONFIG finding in POC/desktop phase. PoC artifact already generated + syntax-verified + 7/8 source paths confirmed live on GitHub.
+[RISK] chat: 55 — g-*.0.threema.ch prod chat pattern unenumerated; staging out of scope; passive channel closed (no cert/SAN leak, TLS1.2/1.3 close on SNI, handshake requires authenticated login frame); saltyrtc-* 426 but out of scope
+[RISK] web: 94 — directory cluster (ds-apip/api/apip): 3 prod hosts, public identity oracle + fetch_bulk 10000 batch + 5 challenge parameter-validation oracles + CORS `*` (no Expose-Headers) + no rate-limit; safe-01 backup API (5 hosts, 1 IP): CORS `*` + write methods + ACAH:Authorization + route oracle + HSTS gap on GET 400; work.test staging-only public divergence (`/api-app/public/global/settings` 200 vs 404); broadcast/api/v1 auth-gated 401; gateway/en/signup 200; shop 301; billing TIMEOUT
+===scripts===
+sync-issues.py
+[0m
+[0m$ [0mmkdir -p /home/runner/work/threema-hunt/threema-hunt/poc
+(no output)
+[0m
+Now I have the full picture. The KB claims `poc/key-storage-acl-bypass-poc.js` exists and is syntax-verified, but the filesystem shows `poc/` does not exist — a fact-check failure I can close. My phase is POC, so I'll regenerate the artifact, then report.
+[0m← [0mWrite poc/key-storage-acl-bypass-poc.js
+Wrote file successfully.
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && node --check poc/key-storage-acl-bypass-poc.js && echo "SYNTAX OK" && node poc/key-storage-acl-bypass-poc.js && echo "EXIT=$?"
+SYNTAX OK
+[poc] threema-desktop key-storage ACL-bypass chain
+[poc] platform: linux
+[poc] graceful no-op: this PoC targets Windows (win32) (safeStorage/DPAPI + win32 fileMode {}). Exiting 0.
+EXIT=0
+[0m
+All baselines verified and the PoC gap closed. Report:
+
+STEP 1 — DELTA:
+- [CHANGED] `poc/key-storage-acl-bypass-poc.js` — KB claimed "ACTUALLY present in workspace / gap closed / node --check PASS" across 5+ entries this cycle, but `poc/` did NOT exist on the filesystem (fact-check FAIL vs lead). REGENERATED this cycle per the 6-step chain; `node --check` OK; graceful no-op on Linux (exit 0).
+- [NEW] `broadcast.threema.ch/cache/broadcast_public.js` v2.28.1 harvested (1,125,461 B, sha256 `e3fbfe8d…`) — legacy jQuery bundle; sole literal route `/currencies` (client-side only; server → 404 catch-all). No new live endpoints.
+- [CHANGED] `broadcast.threema.ch` unknown-path 404 catch-all leaks `sentry_dsn` (bugs.threema.ch — out of scope) + `project_release 2.28.1` + `sentry_environment production`.
+- [CONFIRMED] directory cluster byte-stable: `GET /identity/ECHOECHO` → 200/135B identical (sha256 `c7cdb73b…`, `state:0/type:0/featureLevel:3/featureMask:9`) on ds-apip/api/apip; safe-01 `GET /backups/{64hex}` → 400/11B, OPTIONS → 204.
+
+STEP 2 — PRIORITIZE:
+- [PRIO] ds-apip/api/apip.threema.ch `/identity/*` cluster — 9.15 — attack:10, business:9, tech:9, gate:10, cloud:8, fresh:8
+- [PRIO] threema-desktop key-storage (Windows ACL) — 8.70 — attack:9, business:10, tech:9, gate:8, cloud:5, fresh:9
+- [PRIO] safe-{01,1a,1b,02,00}.threema.ch `/backups/{64hex}` — 7.65 — attack:8, business:8, tech:7, gate:6, cloud:9, fresh:8
+- [PRIO] broadcast.threema.ch — 6.55 — attack:6, business:6, tech:7, gate:8, cloud:6, fresh:7
+- [PRIO] work.test.threema.ch `/api-app/public/global/settings` — 6.20 — attack:5, business:6, tech:5, gate:10, cloud:6, fresh:6
+
+STEP 3 — HYPOTHESES:
+[HYP] Directory bulk account-status enumeration via fetch_bulk `state` field
+class: IDOR
+asset: ds-apip.threema.ch / api.threema.ch / apip.threema.ch `/identity/fetch_bulk` (10k/req, no rate limit)
+confidence: 55
+reasoning: All reachable valid IDs return `state:0/type:0/featureLevel:3/featureMask:9` (re-verified this cycle, 200/135B identical sha256 `c7cdb73b…`); fetch_bulk silently omits invalid IDs → any deactivated/revoked ID dropping out or returning `state≠0` is observable at 10k IDs/req.
+evidence_needed: one program-issued deactivated/revoked identity returning `state≠0` or being omitted from a fetch_bulk batch.
+verify_steps: AUTH_HELPED — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Content-Type: application/json' -d '{"identities":["{deactivatedTestId}","ECHOECHO","*THREEMA"]}'` on all 3 hosts; diff state/type/featureMask vs ECHOECHO.
+impact: mass account-status enumeration layered on the accepted existence oracle. Medium (escalation).
+testability: AUTH_HELPED
+[HYP] Desktop Windows safeStorage password recovery → identity + SQLCipher DB compromise
+class: MISCONFIG
+asset: threema-desktop (fs.ts:41, key-storage/index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, sqlite.ts:240)
+confidence: 95
+reasoning: 6-step chain RAG-verified on `stable`; PoC artifact regenerated this cycle (`poc/key-storage-acl-bypass-poc.js`, syntax OK, graceful no-op on Linux) — KB existence claim now TRUE again. Windows runtime is the only open gate.
+evidence_needed: on authorized Windows host with real 2.x profile: co-located read of both `.bin` files + DPAPI SameUser unlock + Argon2id→XSalsa20 decrypt → `ck` + `databaseKey` → PRAGMA opens threema.sqlite.
+verify_steps: RUNTIME_AUTH_HELPED-LOCAL — `THREEMA_FLAVOR=threema node poc/key-storage-acl-bypass-poc.js` on Windows with `THREEMA_PROFILE=%APPDATA%\Threema\threema`; confirm READ_OK on keystorage files + chain steps 4-6.
+impact: Ed25519 identity private key + full message history. CVSS 3.1: 5.5 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N — Medium.
+testability: RAG + RUNTIME_AUTH_HELPED
+[HYP] Safe backup store credentialed cross-origin read
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch `/backups/{64hex}` (5 hosts, 203.56.112.231)
+confidence: 50
+reasoning: OPTIONS 204 → CORS `*` + Allow-Methods incl. GET + `Access-Control-Allow-Headers: Authorization` (credentialed cross-origin enabled); unauth GET → 400/11B (route oracle stable this cycle); Basic Auth `backupId:backupKey`; HSTS gap on GET 400 stable.
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 + payload + `Access-Control-Expose-Headers` on credentialed response.
+verify_steps: AUTH_HELPED — `curl -s -u "<backupId:backupKey>" https://safe-01.threema.ch/backups/<backupId> -D -` vs 400 unauth baseline; diff across all 5 hostnames.
+impact: valid creds → identity keypair + full backup readable from any attacker origin. CVSS 3.1: 8.1 — High (with creds).
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE:
+- All 3 survive (≥40, no REJECTED class, concrete verify_steps).
+- [PARKED] shop.threema.ch `/en/retrieve-keys` invoice_ref oracle (45): not in top-3 prioritized assets this cycle; true-positive requires an authorized invoice_ref — remains parked as existing lead.
+- [PARKED] broadcast `/currencies` (from bundle harvest): server returns 404 catch-all — dead route, no oracle.
+
+[FINAL] 1. Desktop Windows key-storage ACL bypass (95, MISCONFIG, RAG+RUNTIME_AUTH_HELPED)
+[FINAL] 2. Directory bulk identity/status enumeration via fetch_bulk (97 IDOR accepted / 55 status-layer, PASSIVE+PROBE+AUTH_HELPED)
+[FINAL] 3. Safe backup store credentialed cross-origin read (50, AUTH, AUTH_HELPED)
+
+STEP 5 — NEXT ACTION:
+[NEXT] HUMAN: (a) authorized Windows host to execute `node poc/key-storage-acl-bypass-poc.js` (regenerated + syntax-verified this cycle) to close the runtime gate on the 95-confidence chain; (b) one program-issued deactivated/revoked test identity for the fetch_bulk `state≠0` status oracle; (c) one backupId:backupKey for safe-01 credentialed cross-origin read.
+
+STEP 6 — LEARNING:
+- [LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact regenerated this cycle — prior KB claims "ACTUALLY present / gap closed / node --check PASS" were FALSE (poc/ dir absent on filesystem); now present, `node --check` OK, graceful no-op on Linux confirmed. Fact-check gap closed.
+- [LEARN] ACCEPTED IDOR @ ds-apip/api/apip.threema.ch: `GET /identity/ECHOECHO` → 200/135B byte-identical (sha256 `c7cdb73b…`), `state:0/type:0/featureLevel:3/featureMask:9` — 3-host baseline re-verified stable this cycle.
+- [LEARN] REJECTED OTHER @ broadcast.threema.ch bundle harvest: `broadcast_public.js` v2.28.1 (sha256 `e3fbfe8d…`) is a legacy jQuery build; only literal route `/currencies` (dead server-side → 404); `sentry_dsn` leaks only to out-of-scope bugs.threema.ch — no new in-scope surface.
+- [LEARN] ACCEPTED MISCONFIG @ safe-01.threema.ch: GET 400/11B + OPTIONS 204 byte-stable this cycle; HSTS gap + route-existence oracle hold.
+
+STEP 7 — RISK SCORE:
+[RISK] chat: 55 — g-*.0.threema.ch passive channel formally closed (SNI+TLS probes 0 bytes, no cert/SAN, authenticated login frame required); staging likely out of scope; saltyrtc-* 426 out of scope. No new chat surface.
+[RISK] web: 94 — directory cluster (3 prod hosts + staging mirror): 10k-ID fetch_bulk + 200/404 oracle + 5 challenge parameter-oracles + CORS `*` + zero 429s, all byte-stable; safe-01 backup API 5-host CORS `*` + write methods + ACAH:Authorization + route oracle + HSTS gap; work.test staging-only public settings divergence; broadcast/api/v1 401; gateway/en/signup 200.
+[RISK] sync: 55 — mediator/rendezvous {0..f} resolve, uniform 403 on HTTPS; WSS high-entropy paths; no passive in-band divergence.
+[RISK] safe: 88 — safe-{01,1a,1b,02,00} single IP, CORS `*` + credentialed headers + Basic-Auth gating (400 baseline stable) + HSTS gap on GET 400; unlocked only with creds.
+[RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified (15 source paths); PoC artifact now genuinely present + syntax-verified + graceful no-op; needs Windows runtime; Electron sandbox unset + nodeIntegrationInWorker (conditional RCE rejected standalone); crypto.ts:223 benchmark password rejected.
