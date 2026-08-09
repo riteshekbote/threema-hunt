@@ -372,3 +372,25 @@
 
 - 1 lead(s) marked VALID at 2026-08-09 22:59:21 UTC
   - | **VALID** | 4 | All duplicates — already in `valid-bugs.md` |
+
+- 22 lead(s) marked VALID at 2026-08-09 23:54:21 UTC
+  - | Q3 Real impact? | YES — mass valid-ID + pubkey harvesting at ~10k IDs/req, silent omission oracle, CORS* makes it cross-origin readable, zero rate limit |
+  - | Q4 Passive proof? | YES — `GET /identity/ECHOECHO`→200+pubkey, `/identity/ZZZZZZZZ`→404; `POST /identity/fetch_bulk {"identities":["ECHOECHO","ZZZZZZZZ"]}`→200 valid-only; OPTIONS→ACAO:* |
+  - | Q5 Novel? | **NO** — ACCEPTED KB lines 20-21,27,59,67,80,82,85-86,94,99,104,111,124,131,134,136; VALID #1 in valid-bugs.md since 2026-08-07 |
+  - | Q5 Novel? | **NO** — ACCEPTED KB lines 26,74,77-78,92,108,121,130,133,137,143,187; VALID #3 in valid-bugs.md |
+  - | Q5 Novel? | **NO** — ACCEPTED KB lines 32,63,75,81,95,115,118,123; triaged as conditional/HOLD in valid-bugs.md |
+  - | Q6 Not always-rejected? | Borderline — valid hardening concern, not a standalone vuln |
+  - **Verdict: HOLD (conditional — valid defense-in-depth gap, not a standalone reportable vuln).** Retriaged as HOLD per valid-bugs.md precedent. Re-open only if a secondary worker exploit primitive is f
+  - | Q2 Reachable? | Route reachable; data access requires valid `backupId:backupKey` (64-hex id + high-entropy key). Unauthenticated GET→400, not 200/404/401 |
+  - | Q3 Real impact? | NO without valid credentials. 400-vs-404 oracle reveals route existence only (already known from source/KB). CORS* lets an attacker page send credentialed cross-origin requests, bu
+  - | Q4 Proof? | Partial — CORS headers + 400 response confirmed; data access needs valid creds |
+  - | Q5 Novel? | **NO** — ACCEPTED KB lines 30-31,62,79,101,106,125; triaged in valid-bugs.md |
+  - | Q6 Not always-rejected? | **NO** — CORS* on a credential-gated endpoint (400) is best-practice/defense-in-depth only, per valid-bugs.md precedent (2026-08-08 08:07:09 UTC, 07:15:49 UTC, etc.) |
+  - | Q3 Real impact? | LOW — route presence + parameter-validation oracle (e.g. `set_revocation_key`→"Bad revocation key length"); challenge-response still requires valid identity+secret. No auth bypass 
+  - | Q2 Reachable? | AUTH_HELPED — returns 401 on all paths; requires valid Work test license |
+  - | Q4 Proof? | **NO** — requires AUTH_HELPED with valid Work license + cross-subscription contact probes |
+  - | Q5 Novel? | Not triaged as a valid vuln (only hypothesized) |
+  - **Verdict: HOLD.** Interesting (OpenAPI TWRK-1633), but cannot be proven with passive GET/HEAD. Retain for program-provided Work test credentials. Consistent with valid-bugs.md HOLD precedent across m
+  - | Q1 In scope? | **NO** — scope.yml lists `apip.threema.ch` and `safe-*.threema.ch` etc.; `.test` staging variants are **not** listed. Per valid-bugs.md precedent, staging variants treated as out-of-s
+  - | Q1 In scope? | **NO** — scope.yml lists `work.threema.ch`, not `work.test.threema.ch`. Per valid-bugs.md precedent, staging treated as out-of-scope |
+  - | Q1 | **NO** — scope.yml lists `g-*.0.threema.ch`, `mediator-*.threema.ch`, `rendezvous-*.threema.ch`; `.test` staging variants NOT listed. Per valid-bugs.md precedent, out of scope |
