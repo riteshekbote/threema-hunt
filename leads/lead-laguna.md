@@ -4397,3 +4397,4 @@ reasoning: Own probe: GET /backups/{64hex} → 400 (size 11, ACAO:`*`, cred-gate
 evidence_needed: Program-issued backupId:backupKey → status ≠ 400 + Access-Control-Expose-Headers/Allow-Credentials on credentialed GET, across all 5 hosts.
 verify_steps: AUTH_HELPED: curl -s -u "<backupId:backupKey>" https://safe-01.threema.ch/backups/<backupId> -D - → diff vs 400 baseline; check Expose-Headers/Allow-Credentials on credentialed GET across all 5 hosts.
 impact: With valid backup credentials → identity keypair + full message-history backup readable cross-origin. CVSS 8.1 AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H — High (creds required).
+## 2026-08-09 20:52:15 UTC [desktop] (model laguna)
