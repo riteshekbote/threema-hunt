@@ -732,3 +732,30 @@
 - CHANGED — PROBE: 5 challenge endpoints re-confirmed (sfu_cred→"Identity not found", blob_cred→"Identity not found", set_revocation_key→"Bad revocation key length", check_revocation_key→"Identity not found", u
 - CHANGED — PROBE: safe-01 OPTIONS → 204, ACAO:`*` + Allow-Methods GET,HEAD,PUT,PATCH,POST,DELETE + Allow-Headers: Authorization; GET → 400, HSTS/Expect-CT ABSENT (gap re-confirmed)
 - NEW — No other new surface items discovered
+
+## 2026-08-09 19:04:09 UTC
+- NEW `mediator-{prefix4}.threema.ch/{prefix8}/` — mediator WSS hostname pattern confirmed in scope (mediator-*.threema.ch); DNS resolves to split IPs (0-7→203.56.112.247, 8-f→203.56.114.247); uniform 403 o
+- NEW `rendezvous-{prefix4}.threema.ch/{prefix8}/` — rendezvous WSS hostname pattern confirmed in scope (rendezvous-*.threema.ch); same DNS split routing as mediator; uniform 403 on HTTPS; high-entropy path
+- NEW `safe-{backupIdPrefix8}.threema.ch/` — backup safe hostname pattern confirmed in scope (safe-*.threema.ch); 5 hostnames (safe-01, safe-1a, safe-1b, safe-02, safe-00) resolve to single IP 203.56.112.23
+- NEW `ds-apip-work.threema.ch` — work-style directory server confirmed live (401 on all paths /identity/*, /identities; CORS *; no HSTS/Expect-CT; Basic auth required)
+- NEW `ds-apip.threema.ch` — canonical directory server hostname confirmed via desktop client build config (config/vite.config.ts + OpenAPI); public GET /identity/{id} returns 200/404 oracle
+- NEW `poc/key-storage-acl-bypass-poc.js` — PoC artifact generated this cycle (node --check OK; graceful no-op on Linux confirmed)
+- CHANGED `ds-apip.threema.ch/api.threema.ch/apip.threema.ch` — fetch_bulk ceiling exactly 10000 IDs/request (sharp count-cap, 10001→400 empty body, no partial leak, CORS * on 400, zero 429s)
+- CHANGED `ds-apip.test.threema.ch` — staging fetch_bulk byte-identical to prod including 10000-cap enforcement; no extra routes (/swagger /docs /identity/lookup /openapi.json 404)
+- CHANGED `broadcast.threema.ch/api/v1` — auth-gated 401 baseline stable; key-format/validity oracle fully disproven (1/32/64-char keys → byte-identical 403, no CORS preflight)
+- CHANGED `g-*.0.{test.,}threema.ch:443/5222` — chat passive channel formally closed (explicit SNI + TLS1.2/1.3 probes close immediately, 0 bytes, no cert/SAN)
+- CHANGED `apip.threema.ch` — confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
+- CHANGED `saltyrtc-*.threema.ch` — 256 hostnames resolve to 4 IPs, HTTP 426 on GET, explicitly NOT in scope.yml
+- CHANGED `blob-mirror-{prefix4}.threema.ch/{prefix8}/` — blob server hostname pattern discovered in desktop source config.ts; NOT in scope per scope.yml
+- NEW poc/key-storage-acl-bypass-poc.js — PoC artifact generated in workspace (was claimed in KB but NOT present; now present) — node --check PASS, graceful no-op on Linux confirmed
+- CHANGED — PROBE: fetch_bulk 10000/10001 boundary re-confirmed via own probes — 10000→200/152B, 10001→400/0B; all 3 hosts (ds-apip/api/apip) byte-identical for fetch_bulk + GET /identity/{id}
+- CHANGED — PROBE: 5 challenge endpoints re-confirmed (sfu_cred→"Identity not found", blob_cred→"Identity not found", set_revocation_key→"Bad revocation key length", check_revocation_key→"Identity not found", u
+- CHANGED — PROBE: safe-01 OPTIONS → 204, ACAO:`*` + Allow-Methods GET,HEAD,PUT,PATCH,POST,DELETE + Allow-Headers: Authorization; GET → 400, HSTS/Expect-CT ABSENT (gap re-confirmed)
+- NEW — No other new surface items discovered
+- NEW poc/key-storage-acl-bypass-poc.js — PoC artifact generated (was claimed present but `poc/` was empty; gap closed). node --check PASS; graceful no-op on Linux; read-only, sha256-only, no network.
+- CHANGED PROBE (own): POST ds-apip.threema.ch/identity/fetch_bulk {"ECHOECHO","ZZZZZZZZ","NONEXISTENTZZ"} -> 200 returns ONLY ECHOECHO pubkey; ACAA `*` + Allow-Methods POST,GET,OPTIONS,DELETE + Allow-Headers C
+- CHANGED PROBE (own): GET /identity/ECHOECHO->200 vs /ZZZZZZZZ->404 (ds-apip).
+- CHANGED PROBE (own): safe-01 GET /backups/{64hex}->400 (size 11); GET /backup/x->404 (size 147); OPTIONS 204 ACAA `*` + GET,HEAD,PUT,PATCH,POST,DELETE.
+- CHANGED RAG (own): full desktop chain verified live on GitHub `stable` (fs.ts, key-storage/index.ts, electron-main.ts:912-945, inner/v3.ts, crypto.ts, sqlite.ts); files data/keystorage.bin + data/keystorage.p
+- CHANGED PROBE (own): electron-main.ts:1240-1255 BrowserWindow — sandbox NOT set (TODO DESK-79), nodeIntegrationInWorker:true (TODO DESK-79).
+- NEW — No other new surface items discovered.
