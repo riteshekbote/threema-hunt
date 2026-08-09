@@ -1,27 +1,56 @@
 [0m
 > build · nemotron-3-ultra-free
 [0m
-[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && ls reposcan-raw/threema-ch/
-app-remote-protocol
-compose-area
-push-relay
-threema-android
-threema-bot-sdk
-threema-desktop
-threema-ios
-threema-markup
-threema-msgapi-sdk-java
-threema-msgapi-sdk-php
-threema-msgapi-sdk-python
-threema-msgapi-sdk-rust
-threema-web
-threema-web-electron
-wasm-minisign-verify
-webrtc-build-docker
-[0m
-[0m→ [0mRead reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt
-[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts[90m [limit=30, offset=215][0m
-[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/config/vite.config.ts[90m [limit=25, offset=140][0m
-[93m[1m! [0mpermission requested: external_directory (/home/runner/work/threema-ch/threema-desktop/apps/desktop/src/common/*); auto-rejecting
-[0m✗ [0mRead /home/runner/work/threema-ch/threema-desktop/apps/desktop/src/common/test-data.ts failed[90m [limit=20, offset=55][0m
-[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+### TEST_OR_EXAMPLE
+| File | Line | Context |
+|------|------|---------|
+| threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | `serverPassword: "password1"` |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15 | `expectedAuthToken = "authToken"` |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 18 | `expectedPassword = "testPassword"` |
+| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift | 50 | `licensePassword = "testPassword"` |
+| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift | 72 | `password: "testPassword"` |
+| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift | 148 | `licensePassword = "testPassword"` |
+| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift | 13 | `expectedPassword = "testPassword"` |
+| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift | 37 | `password: "validPassword"` |
+| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift | 103 | `password: "testPassword"` |
+| threema-ios/ThreemaTests/SafeTests.swift | 67,76,105 | `safePassword: "shootdeathstar"` (test identity ECHOECHO) |
+| threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift | 30 | `password = "abcdefghijkl"` |
+| threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift | 227 | `validPassword = "ABcd!@#tgk092"` |
+| threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift | 28,76,120 | `safePassword: "shootdeathstar"` |
+| threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift | 38,83 | `safePassword: "shootdeathstar"` |
+| threema-desktop/apps/desktop/src/common/test-data.ts | 62 | `keyStoragePassword: 'CHANGE_ME'` |
+
+### ENDPOINT_LEAK
+| File | Line | Endpoint |
+|------|------|----------|
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` |
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 917 | `https://ds-apip.test.threema.ch` |
+| threema-android/domain/protocol/src/directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` |
+| threema-android/domain/protocol/src/directory.openapi.yml | 911 | `https://ds-apip.test.threema.ch` |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 917 | `https://ds-apip.test.threema.ch` |
+| threema-desktop/apps/desktop/config/vite.config.ts | 147 | `DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/'` |
+| threema-desktop/apps/desktop/config/vite.config.ts | 153 | `WORK_SERVER_LEGACY_URL: 'https://ds-apip-work.test.threema.ch/'` |
+| threema-desktop/apps/desktop/config/vite.config.ts | 154 | `WORK_SERVER_URL: 'https://work.test.threema.ch/'` |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 911 | `https://ds-apip.test.threema.ch` |
+
+### INTERESTING
+| File | Line | Note |
+|------|------|------|
+| threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt | 49 | SFU token masked in `toString()` — good practice |
+| threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt | 15,19 | Sentry **public** DSN keys (public by design) |
+| threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts | 223 | Benchmark-only dummy password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) — **already REJECTED** per RAG (derived key purged, not used for real encryption) |
+
+---
+
+### VERDICT
+| Candidate | REPORT_CANDIDATE | Reason |
+|-----------|------------------|--------|
+| Staging URLs in openapi.yml / vite.config.ts | **no** | Known staging endpoints (ds-apip.test, ds-apip-work.test, work.test) — already documented in RAG as ACCEPTED MISCONFIG (staging directory servers publicly reachable with identical API surface) |
+| Benchmark password in crypto.ts:223 | **no** | **REJECTED** per RAG (2026-08-07 through 2026-08-09): hardcoded dummy in `determineKdfParams()`, derived key immediately purged, not used for real encryption |
+| Sentry public DSN keys | **no** | Public keys by design (client-side error reporting) |
+| All test/fixture passwords | **no** | Confined to test directories, obviously fake values |
+| SFU token masking | **no** | Defensive coding, not a leak |
+
+**No new reportable secrets found in this scan delta.** All hits are either test data, known staging endpoints (already tracked), or previously rejected findings.
