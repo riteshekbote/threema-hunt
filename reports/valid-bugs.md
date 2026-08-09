@@ -322,4 +322,25 @@
   - | Q4 Passive proof? | NO | Requires AUTH_HELPED with valid Work credentials + cross-subscription contact probes |
   - | Q5 Novel? | YES | Not previously triaged as valid vuln; only hypothesized (OpenAPI flags it "currently buggy" TWRK-1633) |
   - **Verdict: HOLD** — OpenAPI flags endpoint "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Cannot be proven via passive GET/HEAD only. Retain for program-provided 
-  - | **VALID (new)** | **0** | — |
+   - | **VALID (new)** | **0** | — |
+
+- 12 lead(s) marked VALID at 2026-08-09 20:56 UTC
+   - | Q5 Novel? | **NO** | Already ACCEPTED in knowledge/index.md; triaged as VALID in valid-bugs.md |
+   - | Q5 Novel? | **NO** | Already ACCEPTED in knowledge/index.md; triaged as VALID in valid-bugs.md |
+   - | Q3 Real impact? | **NO** | Credential-gated (400, not 200); CORS * on credential-gated endpoint is defense-in-depth only |
+   - | Q5 Novel? | **NO** | Already ACCEPTED in KB; triaged in valid-bugs.md |
+   - | Q5 Novel? | **NO** | Already ACCEPTED in KB; triaged in valid-bugs.md |
+   - | Q4 Passive proof? | **NO** | Requires AUTH_HELPED with valid Work test license |
+   - | Q1 In scope? | **NO** | staging `.test` variants not in scope.yml |
+   - | Q1 In scope? | **NO** | staging not in scope.yml |
+   - | Q7 Triager accept? | **NO** | Conditional RCE requires separate renderer exploit chain; not standalone |
+   - | Q3 Real impact? | **NONE** | Debunked — Ed25519 signature verification confirmed secure |
+   - | Q3 Real impact? | **NONE** | Debunked — benchmark-only dummy, key immediately purged |
+   - | Q2 Reachable? | **NO** | Returns 404 — endpoint not publicly routable |
+   - **Verdict: HOLD** — OpenAPI flags endpoint "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Retain for program-provided test credentials.
+   - | **VALID (new)** | **0** | — |
+
+- 3 lead(s) marked VALID at 2026-08-09 20:59:29 UTC
+  - - **Verdict: HOLD** — OpenAPI flags endpoint "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Cannot be proven via passive GET/HEAD only. Retain for program-provide
+  - +   - **Verdict: HOLD** — OpenAPI flags endpoint "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Retain for program-provided test credentials.
+  - | **VALID** | 4 | All duplicates of previously reported findings |
