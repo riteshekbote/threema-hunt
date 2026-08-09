@@ -1288,3 +1288,59 @@
 - LEARN: ACCEPTED OTHER @ gateway.threema.ch: `/v1`→404 catch-all, `/api/v1`→403 (nginx deny), `/en/signup`→200 (14KB); no exposed msgapi route on this host.
 - LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED at 95 confidence — `fs.ts:41` returns `{}` on win32; `index.ts:559-560`/`electron-main.
 - LEARN: ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/global/settings` → 200 (staging-only, 299B, appLinkHost + 3 app-download URLs) vs 404 on prod — sole liv
+
+## RANKED HYPOTHESES 2026-08-09 12:18:16 UTC
+- [97] https://ds-apip.threema.ch/identity/fetch_bulk: Directory bulk identity enumeration at scale via fetch_bulk 10000 IDs/request + 5 challenge parameter oracles (from reports/hypotheses-nemotron3.txt)
+- [96] ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/fetch_bulk: Directory identity→pubkey enumeration at scale + lifecycle-state oracle (from reports/hypotheses-laguna.txt)
+- [50] ds-apip.threema.ch/api.threema.ch/apip.threema.ch: Directory fetch_bulk lifecycle state/type echo → chat account-status oracle (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<19999 unique invalid 8-cha
+- NEXT(hypotheses-bigpickle.txt): HUMAN: request one program-issued test identity (plus test backupId:backupKey) from the lead — a single identity enables all three surviving hypotheses: `GET /i
+- NEXT(hypotheses-laguna.txt): PROBE: `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<9999 unique 8-char bas
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk hard ceiling exactly 10000 IDs/request confirmed — 10000 → 200 (152B, ECHOECHO ech
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk enforces identical 10000-cap (10001 → 400 byte-for-byte identical to prod) → validation-logic p
+- LEARN: REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys produce byte-identical 403; only key-PRESENCE observable;
+- LEARN: ACCEPTED OTHER @ gateway.threema.ch: /v1 → 404 catch-all, /api/v1 → 403 (nginx deny), /en/signup → 200 (14KB); no exposed msgapi route
+- LEARN: REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close immediately (0 bytes, no peer cert); no cert/SAN leak; handshake 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: 5 challenge endpoints (sfu_cred, blob_cred, set_revocation_key, check_revocation_key, update_
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated /backups/{64hex} — heade
+- LEARN: REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE requires separate renderer exploit chain, not standalone
+- LEARN: REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy in determineKdfParams(), derived k
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling ≥10000 IDs/req confirmed (10000-batch → 200, 0.80s, 152B, ECHOECHO echoed,
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk byte-identical to prod; ceiling ≥10000; no extra routes (/swagger /docs /openapi.json 404); mir
+- LEARN: REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys produce byte-identical 403; only key-PRESENCE observable;
+- LEARN: ACCEPTED OTHER @ gateway.threema.ch: /v1 → 404 catch-all, /api/v1 → 403 (nginx deny), /en/signup → 200 (14KB page); no exposed msgapi route on this host
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated /backups/{64hex} — heade
+- LEARN: REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes read, no peer certificate); no ce
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: 5 challenge endpoints (sfu_cred, blob_cred, set_revocation_key, check_revocation_key, update_
+- LEARN: REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes read, no peer certificate); no ce
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling ≥10000 IDs/req confirmed (10000-batch → 200, 0.80s, 152B, ECHOECHO echoed,
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling ≥10000 IDs/req confirmed (10000-batch → 200, 0.80s, 152B, ECHOECHO echoed,
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk byte-identical to prod; ceiling ≥10000; no extra routes (/swagger /docs /openapi.json 404); mir
+- LEARN: REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys produce byte-identical 403; only key-PRESENCE observable;
+- LEARN: ACCEPTED OTHER @ gateway.threema.ch: /v1 → 404 catch-all, /api/v1 → 403 (nginx deny), /en/signup → 200 (14KB page); no exposed msgapi route on this host
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated /backups/{64hex} — heade
+- LEARN: REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes read, no peer certificate); no ce
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: 5 challenge endpoints (sfu_cred, blob_cred, set_revocation_key, check_revocation_key, update_
+- LEARN: REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes read, no peer certificate); no ce
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling ≥10000 IDs/req confirmed (10000-batch → 200, 0.80s, 152B, ECHOECHO echoed,
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark-only password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c`) confi
+- LEARN: REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE requires separate renderer exploit chain, not standalone; no dynamic sinks (re
+- LEARN: REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml; explicit SNI + TLS1.2/1.3 probes all close connection immediatel
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk hard ceiling exactly 10000 IDs/request (10000→200/152B, 10001→400/0B); sharp count
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk byte-identical to prod (response body + 10000-cap enforcement identical); no extra routes (/swa
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
+- LEARN: ACCEPTED OTHER @ broadcast.threema.ch: `/api/v1` → HTTP 401 (auth-gated API endpoint); key-format/validity oracle DISPROVEN — absent key→401, any 1/32/64-char k
+- LEARN: ACCEPTED OTHER @ gateway.threema.ch: `/v1`→404 catch-all, `/api/v1`→403 (nginx deny), `/en/signup`→200 (14KB); no exposed msgapi route on this host.
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED at 95 confidence — `fs.ts:41` returns `{}` on win32; `index.ts:559-560`/`electron-main.
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/global/settings` → 200 (staging-only, 299B, appLinkHost + 3 app-download URLs) vs 404 on prod — sole liv
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark-only password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c`) confi
+- LEARN: REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE requires separate renderer exploit chain, not standalone; no dynamic sinks (re
+- LEARN: REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml; explicit SNI + TLS1.2/1.3 probes all close connection immediatel
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk hard ceiling exactly 10000 IDs/request (10000→200/152B, 10001→400/0B); sharp count
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk byte-identical to prod (response body + 10000-cap enforcement identical); no extra routes (/swa
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
+- LEARN: ACCEPTED OTHER @ broadcast.threema.ch: `/api/v1` → HTTP 401 (auth-gated API endpoint); key-format/validity oracle DISPROVEN — absent key→401, any 1/32/64-char k
+- LEARN: ACCEPTED OTHER @ gateway.threema.ch: `/v1`→404 catch-all, `/api/v1`→403 (nginx deny), `/en/signup`→200 (14KB); no exposed msgapi route on this host.
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED at 95 confidence — `fs.ts:41` returns `{}` on win32; `index.ts:559-560`/`electron-main.
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/global/settings` → 200 (staging-only, 299B, appLinkHost + 3 app-download URLs) vs 404 on prod — sole liv
