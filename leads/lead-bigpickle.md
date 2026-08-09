@@ -6080,3 +6080,93 @@ verify_steps: PASSIVE — `GET https://work.test.threema.ch/cache/work_public.js
 impact: discovery of additional staging-only public endpoints (potential data exposure). Severity: Low-Medium (staging divergence).
 testability: PASSIVE
 [NEXT] PROBE: `GET https://work.test.threema.ch/cache/work_public.js?v=2.25.1` and the prod equivalent (path confirmed from /en/login script tag this cycle), extract all `/api-app/` string literals, diff the two sets; then `GET`/`HEAD` each new candidate on work.test.threema.ch vs work.threema.ch at ≤1 rps to surface additional staging-only public endpoints (hunts further instances of the accepted MISCONFIG divergence class). Any 200 must be cross-verified against both hosts before it becomes a lead. The AUTH_HELPED batch (revoked test identity + Work test license + backupId:backupKey) remains the open HUMAN ask to close [FINAL] #1 and #2.
+## 2026-08-09 23:18:29 UTC [chat] (model bigpickle)
+class: BUSLOGIC
+asset: apip.threema.ch/identity/ws/revoke
+confidence: 45
+reasoning: OpenAPI (directory.openapi.yml) shows /identity/ws/revoke is the ONLY identity endpoint with a single-step request (identity + revocationKey = SHA256(revocation-password)[:4], 32 bits) and NO challenge-response step, and unlike blob_cred/sfu_cred/work endpoints it documents NO 429 rate-limit response.
+evidence_needed: server enforces/omits rate limiting on ws/revoke; error/timing differences per guessed key; whether a correct 4-byte key revokes any ID.
+verify_steps: AUTH_HELPED: on a program-provided test ID, POST /identity/ws/revoke with a deliberately wrong revocationKey (observe error shape and timing), repeat small count to test for 429; never target third-party IDs and do not create accounts.
+impact: if unrate-limited, brute-force of 2^32 space → force-revoke/delete any Threema ID (permanent identity destruction / DoS). Severity: medium-high.
+testability: AUTH_HELPED
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities (backend of in-scope work.threema.ch)
+confidence: 50
+reasoning: directory.openapi.yml line 1172 states "/identities ... currently buggy. See TWRK-1633"; endpoint returns "a subset of the provided contacts that are part of the same Work subscription" + work properties (first/last name, jobTitle, department, availability); GET / returns 401 confirming a live credential-gated backend.
+evidence_needed: whether contact matching can be induced to return contacts outside the caller's subscription.
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities (contacts:[...]) mixing own- and other-subscription IDs and compare membership + properties; also probe /directory pagination bounds (page/size, wildcard queries).
+impact: cross-subscription disclosure of work-directory metadata (names, titles, departments, availability) → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+class: OTHER
+asset: mediator-*.threema.ch / rendezvous-*.threema.ch / blob-mirror-*.threema.ch
+confidence: 40
+reasoning: all sampled shards (0..f) resolve; GET / → uniform 403; shard prefix is derived from the first byte of a public-key (routing, not auth per config.rs) — no passive distinguishing signal observed.
+evidence_needed: any shard or path (wss /{prefix}/) responding differently than 403.
+verify_steps: PASSIVE: GET https://{rendezvous,mediator,blob-mirror}-{0,7,f}.threema.ch/ and a few /XX/ paths at ≤1rps, compare status/body fingerprints.
+impact: none observed; would only indicate a routing/edge misconfiguration. Severity: n/a
+testability: PASSIVE
+[HYP] ds-apip.threema.ch directory lookup / unauth enumeration
+class: AUTH
+asset: ds-apip.threema.ch
+confidence: 55
+reasoning: directory.openapi.yml lists `ds-apip.*` as the directory API base; production `ds-apip.threema.ch` returns root 403 with `Access-Control-Allow-Origin: *` and allows POST/GET/OPTIONS/DELETE cross-origin. apip.threema.ch returns 404 on all openapi subpaths (host mismatch), so any live directory routes live on the ds-apip host. If any lookup route is unauthenticated, CORS-* enables cross-origin probing from an attacker page.
+evidence_needed: an endpoint under ds-apip.threema.ch returning ≠403/404 to GET; response-body fingerprints differing from apip.
+verify_steps: PASSIVE: GET https://ds-apip.threema.ch/identity/lookup and /directory (compare vs apip 404), GET https://ds-apip-work.threema.ch/identity/lookup (401=route-exists-behind-auth vs 404=no-route), ≤1 rps.
+impact: Threema ID/pubkey enumeration → spam, phishing, targeted abuse. Severity: medium.
+testability: PASSIVE
+[HYP] threema-desktop key-storage KDF parameter weakness
+class: OTHER
+asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/key-storage/crypto.ts)
+confidence: 45
+reasoning: reposcan found crypto.ts:223 uses fixed benchmark password `r3gGN9GDQ5NF6tM6` to calibrate Argon2id params at runtime, and test-data.ts defines `keyStoragePassword: 'CHANGE_ME'`; no committed credentials exist, so only the KDF/key-handling logic can be weak. Electron 2.x stores user password/keys through this module.
+evidence_needed: how Argon2id memory/time params are derived (floors/caps) and whether the derived key protects an offline-readable store.
+verify_steps: PASSIVE: static read of crypto.ts `determineKdfParams()` and the storage backend (safeStorage vs plaintext file). No live requests.
+impact: if params are attacker-favorable, offline recovery of stored user credentials/keys from disk. Severity: low-medium.
+testability: PASSIVE
+[HYP] ds-apip-work.threema.ch /identities cross-subscription disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 52
+reasoning: directory.openapi.yml:1172 flags "/identities ... currently buggy. See TWRK-1633"; endpoint returns a subset of provided contacts in the same Work subscription plus work properties (first/last name, jobTitle, department, availability). Host now confirmed live returning 401 with permissive CORS.
+evidence_needed: whether the membership filter can be induced to return out-of-subscription contacts.
+verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities mixing own- and other-subscription IDs and compare membership + property leak; probe pagination bounds (page/size, wildcard).
+impact: cross-subscription disclosure of work-directory metadata → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[NEXT] PROBE: GET https://ds-apip-work.threema.ch/identity/lookup and /directory (401 vs 404 distinguishes route-existence behind the auth gate), then GET https://ds-apip.threema.ch/identity/lookup + /directory at ≤1 rps to fingerprint the directory host independently of apip.
+[HYP] ds-apip.test.threema.ch staging directory server publicly exposed
+class: MISCONFIG
+asset: ds-apip.test.threema.ch
+[NEW] `g-*.0.threema.ch` prod chat DNS shard→node map (own probe, 21 shards + 0x7f/0x80 bisect): `g-{00..7f}` → 203.56.112.202 (128 shards), `g-{80..ff}` → 203.56.112.204 (128 shards); sharp deterministic split at high-bit 0x80, direct A records.
+[NEW] Second prod chat node 203.56.112.204 (`g-80.0.threema.ch`): TCP 5222 AND 443 connect but push 0 bytes — byte-parity with node .202; node-level uniform posture now confirmed across both prod chat nodes.
+[NEW] No `.1` group tier: `g-{00,7f,80,ff}.1.threema.ch` → NXDOMAIN (only `.0` tier exists; 256 groups total).
+[NEW] No AAAA/CNAME on chat shards — IPv4-only, direct-A mapping (no LB aliasing at DNS layer).
+[CHANGED] Prior "chat passive channel formally closed" now bounded to in-band 443/5222 data only; DNS-attribution recon on chat was NOT exhausted (this cycle proves a new surface).
+[PRIO] g-*.0.threema.ch (chat cluster shard→node map) — score 4.95 — attack_surface 4, business_value 5, tech_exposure 2, gate_ease 10 (public DNS), cloud_surface 1, freshness 8
+[PRIO] Cross-family prefix-MSB split topology (.112 vs .114 /24; chat/mediator/rendezvous vs staging) — score 4.60 — attack_surface 3, business_value 4, tech_exposure 3, gate_ease 10 (public DNS), cloud_surface 2, freshness 7
+[PRIO] 203.56.112.204 (g-{80..ff} chat node, newly attributed) — score 4.45 — attack_surface 3, business_value 4, tech_exposure 2, gate_ease 10, cloud_surface 1, freshness 8
+[HYP] Identity→server-group→physical-node attribution fully deterministic on chat
+class: OTHER
+asset: g-*.0.threema.ch (256 shards; 203.56.112.202 / 203.56.112.204)
+confidence: 55
+reasoning: Own probes: 21 shards sampled + 0x7f/0x80 bisect give a clean 128/128 split on two direct-A nodes (no CNAME/AAAA, no .1 tier). libthreema derives the chat server group from the identity prefix, so identity-first-byte → exact `g-XX.0.threema.ch` → exact physical node.
+evidence_needed: (a) source confirmation of the identity→group algorithm; (b) one program-issued test identity whose predicted node accepts the framed CSP login.
+verify_steps: PASSIVE — RAG read of threema-desktop/libthreema ServerAddressProvider to pin the group-derivation formula; cross-check group space (base32 first char) vs the 256 DNS names. AUTH_HELPED — `g-00.0.threema.ch:5222` framed login (16B cookie+64B box+32B ext+24B reserved+32B vouch) against the test identity; compare predicted vs actual node.
+impact: any Threema identity is attributable to an exact physical node/IP from public DNS alone → node-targeted recon, per-shard availability measurement, sharper targeting for the accepted fetch_bulk IDOR. Severity: Low (recon refinement; no in-band data).
+testability: PASSIVE (map) + AUTH_HELPED (predictive login)
+[HYP] Prefix-MSB split reveals site A/B topology across in-scope families, with prod mediator 8-f co-resident on the staging-adjacent .114 /24
+class: OTHER
+asset: mediator-*.threema.ch / rendezvous-*.threema.ch / g-*.0.threema.ch DNS
+confidence: 50
+reasoning: Own probe: chat splits .112.202/.112.204 at 0x80. KB: mediator/rendezvous split at index 7/8 → .112.247 vs .114.247. Staging chat .114.34 sits on the same .114 /24 as prod mediator 8-f — a second site/zone hosting both staging and a prod shard half.
+evidence_needed: full .112/.114 host-to-family census; confirmation no OTHER prod in-scope family resolves into .114 except mediator/rendezvous 8-f.
+verify_steps: PASSIVE — `getent ahosts` over sampled prefixes (g-*, mediator-*, rendezvous-*, safe-*, ds-apip*, work*) at 1/s; group by /24; diff single-site vs split-site families; confirm staging-only presence in .114 beyond mediator 8-f.
+impact: site/zone attribution for every in-scope backend + shard→node→site map; operational recon and cross-tenant adjacency note (prod mediator on same /24 as staging chat). Severity: Low (recon).
+testability: PASSIVE
+[PARKED] Node FIN-vs-RST close-behavior fingerprint (conf 40, OTHER): requires raw-socket close-frame observation beyond the GET/HEAD spirit, and adds no attacker capability beyond the map already delivered — low yield, dropped.
+[PARKED] Shard A-record TTL / failover-remap stability (conf 35): speculative, requires longitudinal polling, no_doom-adjacent — below 40, dropped.
+[FINAL] 1. Identity→server-group→node attribution (conf 55) — grounded in this cycle's own DNS probes + KB split patterns; RAG + AUTH_HELPED chain concrete. 2. Cross-family site A/B topology (conf 50) — fully PASSIVE DNS verification.
+[NEXT] PROBE: complete the definitive chat map — enumerate ALL 256 `g-{00..ff}.0.threema.ch` A records at 1/s (DNS-only, ~4.5 min), verifying the sharp 0x7f/0x80 boundary holds with no wildcard answer and no third node; write the full shard→node table to `probe-results.md`. Open HUMAN ask unchanged: program-issued test identity (+ Work test license + backupId:backupKey) to run the framed CSP login against the now-predicted chat node and close the only remaining in-band chat lever.
+[LEARN] ACCEPTED OTHER @ g-*.0.threema.ch: chat shard→node DNS split precisely mapped — `g-{00..7f}`→203.56.112.202, `g-{80..ff}`→203.56.112.204, sharp 0x7f/0x80 boundary, direct A records, IPv4-only, no `.1` tier (own probes this cycle).
+[LEARN] ACCEPTED OTHER @ g-80.0.threema.ch (203.56.112.204): TCP 5222/443 connect with 0 bytes pushed — posture parity with node .202; prior "chat passive channel formally closed" (in-band) now verified for both prod nodes.
+[LEARN] ACCEPTED class @ OTHER (DNS-attribution recon on chat): the prior in-band closure does NOT exhaust chat recon; DNS-level shard/node attribution is a live passive surface.
+[RISK] chat: 55 — 256-shard map now fully attributable to 2 prod nodes (new), but in-band 443/5222 data-closed on both nodes, no cert/SAN, staging out of scope; only remaining lever is the AUTH_HELPED framed CSP login. | web: 50 — prod gated (401/403), broadcast key-oracle disproven, staging divergence confined to benign 299B /global/settings. | sync: 40 — mediator/rendezvous uniform 403 WSS-only; staging variants out of scope. | safe: 55 — credential-gated backup API with HSTS-header inconsistency + credentialed-CORS preflight; exposure only with creds. | desktop-src: 50 — Windows key-storage ACL bypass VALID (CVSS 5.5), sandbox/worker gap conditional; public source.
