@@ -2994,3 +2994,33 @@ testability: AUTH_HELPED
 [PRIO] ds-apip.threema.ch (directory server API), 7.95
 [PRIO] threema-desktop source (github.com/threema-ch/threema-desktop), 6.70
 [PRIO] safe-{XX}.threema.ch (backup service), 5.55
+## 2026-08-09 11:25:43 UTC [desktop] (model laguna)
+[HYP] fetch_bulk lifecycle state/type echo for deactivated identities → account-status oracle
+class: IDOR
+asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/fetch_bulk
+confidence: 45
+reasoning: ECHOECHO record echoes explicit `state:0,type:0`; record shape carries lifecycle fields; silent-omit differential already proven for invalid IDs — deactivated-but-present IDs would either echo with `state!=0` or vanish, both observable.
+evidence_needed: a known-deactivated/revoked identity's fetch_bulk response diffed against ECHOECHO (state/type change or absence).
+verify_steps: AUTH_HELPED — single `POST /identity/fetch_bulk {"identities":["<program-revoked-testId>","ECHOECHO"]}`; diff state/type vs ECHOECHO baseline; 1 rps.
+impact: extends the accepted [96] enumeration into account-lifecycle disclosure (deactivation/ban status) → stale-account targeting. Severity: low-medium (incremental).
+testability: AUTH_HELPED
+[HYP] Safe backup credentialed cross-origin read + HSTS header inconsistency
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 50
+reasoning: OPTIONS 204 CORS `*` + `Access-Control-Allow-Headers: Authorization` (all 5 hosts); unauth GET byte-identical 400 (route-existence oracle); HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400; HTTP Basic Auth `backupId:backupKey` confirmed.
+evidence_needed: program-issued backupId:backupKey → status ≠ 400 (200+payload or 401/403) + presence of `Access-Control-Expose-Headers`.
+verify_steps: AUTH_HELPED — `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}`; diff vs the 400 baseline.
+impact: valid creds → identity keypair + full message-history backup readable cross-origin; the cross-origin angle only lands with creds. Severity: High (with creds), unreachable without.
+testability: AUTH_HELPED
+[HYP] Desktop key-storage ACL bypass: same-user Windows process recovers identity key + SQLCipher DB
+class: MISCONFIG
+asset: apps/desktop/src/common/key-storage/index.ts:559-560 (keystorage.bin) + apps/desktop/src/electron/electron-main.ts:944-945 (keystorage.password.bin)
+confidence: 95
+reasoning: Freshly cloned repo RAG-verified this cycle — `fileModeInternalObjectIfPosix()` returns `{}` on win32 (fs.ts:41); both `keystorage.bin` (Argon2id-encrypted) and `keystorage.password.bin` (Electron safeStorage/DPAPI) written with `{}` = no ACL; DPAPI SameUser auto-unlocks for the logged-in user; inner v3 exposes `ck` (Ed25519) + `databaseKey`; SQLCipher opened via `PRAGMA key` (sqlite.ts:240). PoC artifact generated this cycle.
+evidence_needed: runtime execution on Windows proving (a) co-located read of both bin files, (b) `safeStorage.decryptString` succeeds without a user-supplied secret, (c) keystorage.bin decrypts, (d) `ck`+`databaseKey` extracted, (e) message DB opens.
+verify_steps: RAG (source chain verified 15/15 paths) + RUNTIME — run `poc/key-storage-acl-bypass-poc.js` on a Windows host with a real Threema profile; confirm the 6-step chain prints.
+impact: same-user/co-located process recovers the Threema Ed25519 identity private key + full decrypted message store. Severity: medium (local-access pre-req).
+testability: RAG + RUNTIME
+[FINAL] (ranked): fetch_bulk account-status oracle (45) → safe credentialed read + HSTS gap (50) → desktop key-storage ACL bypass runtime PoC (95).
+[NEXT] RAG: the desktop key-storage ACL-bypass chain was re-verified this cycle against a freshly cloned `github.com/threema-ch/threema-desktop` — all 15 source paths confirmed (`fs.ts:41`, `key-storage/index.ts:559-560`, `electron-main.ts:944-945`, `inner/v3.ts:65,70`, `crypto.ts:53-113/:113`, `sqlite.ts:240`, plus `config.ts:183-193`/`vite.config.ts:338-344` path constants). The missing PoC artifact was generated at `poc/key-storage-acl-bypass-poc.js` (`node --check` OK; runs clean as a graceful no-op on Linux, emitting the Windows execution chain). Runtime confirmation is delegated to the lead: execute the PoC on a Windows host with a real Threema profile to confirm DPAPI SameUser auto-unlock + `PRAGMA key` (sqlite.ts:240).
