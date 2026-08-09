@@ -1,15 +1,30 @@
-## 2026-08-09 07:32:28 UTC [web] (model nemotron3)
-[NEW] `broadcast.threema.ch/api/v1` → HTTP 401 (auth-gated API endpoint, new surface)
-[NEW] `gateway.threema.ch/en/signup` → HTTP 200 (signup page, new accessible surface)
-[CHANGED] `saltyrtc-{00..ff}.threema.ch:443` — 256 hostnames, live SaltyRTC WSS signaling (HTTP 426 on GET), quadrant-split across 4 IPs; explicitly NOT in scope.yml (only g-*.0 pattern listed for chat) — re-confirmed out of scope
+## 2026-08-09 08:10:32 UTC [web] (model nemotron3)
+[NEW] `broadcast.threema.ch/api/v1` → HTTP 401 (auth-gated API endpoint newly confirmed)
+[NEW] `gateway.threema.ch/en/signup` → HTTP 200 (signup page accessible)
 [CHANGED] `ds-apip.threema.ch/api.threema.ch/apip.threema.ch` — fetch_bulk 500-ID batch ceiling re-confirmed; 5 challenge endpoints + parameter-validation oracles + CORS * + no rate-limit stable
 [CHANGED] `safe-{01,1a,1b,02,00}.threema.ch` — HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for `/backups/{64hex}` stable across all 5 hosts behind single IP 203.56.112.231
 [CHANGED] `work.test.threema.ch` — `/api-app/public/global/settings` → 200 (299B, staging-only) vs 404 prod divergence stable; sole live public route in `/api-app/public/*` namespace
-[PRIO] https://ds-apip.threema.ch/identity/fetch_bulk (mirror: api.threema.ch, apip.threema.ch), 8.20, attack_surface:9 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:9
-[PRIO] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (single IP 203.56.112.231), 7.10, attack_surface:8 business_value:9 tech_exposure:6 gate_ease:5 cloud_surface:4 freshness:8
 [PRIO] https://broadcast.threema.ch/api/v1, 6.30, attack_surface:7 business_value:7 tech_exposure:6 gate_ease:3 cloud_surface:5 freshness:8
 [PRIO] https://gateway.threema.ch/en/signup, 5.80, attack_surface:6 business_value:6 tech_exposure:5 gate_ease:8 cloud_surface:4 freshness:7
-[PRIO] https://work.test.threema.ch/api-app/public/global/settings, 5.50, attack_surface:6 business_value:5 tech_exposure:5 gate_ease:10 cloud_surface:3 freshness:6
+[PRIO] https://ds-apip.threema.ch/identity/fetch_bulk (mirror: api.threema.ch, apip.threema.ch), 8.20, attack_surface:9 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:9
+[HYP] Broadcast API authentication bypass via credential stuffing or token leakage
+class: AUTH
+asset: https://broadcast.threema.ch/api/v1
+confidence: 55
+reasoning: NEW surface — `/api/v1` returns HTTP 401 (auth-gated) not 404, confirming live API endpoint; broadcast cockpit likely manages customer-facing messaging campaigns (high business value); PHP/Symfony stack inferred from work.threema.ch patterns; no public auth documentation.
+evidence_needed: (1) Auth mechanism type (session cookie, Bearer token, API key); (2) Whether credentials from work.threema.ch or gateway.threema.ch are accepted (SSO/shared identity); (3) Rate limiting on auth endpoints; (4) API schema via OPTIONS or error messages.
+verify_steps: PASSIVE: curl -I https://broadcast.threema.ch/api/v1 (confirm 401 + WWW-Authenticate header); curl -X OPTIONS https://broadcast.threema.ch/api/v1 (CORS, allowed methods); curl https://broadcast.threema.ch/api/v1/health (common unauth endpoint); ≤1 rps.
+impact: If auth bypassed → access to broadcast campaign data, customer lists, message templates, analytics — business communication compromise. Severity: Medium-High.
+testability: PASSIVE
+[HYP] Gateway signup page user enumeration via registration flow
+class: IDOR
+asset: https://gateway.threema.ch/en/signup
+confidence: 45
+reasoning: NEW surface — `/en/signup` returns HTTP 200 (accessible signup page); gateway likely handles SMS/email gateway customers; registration forms often leak email/phone existence via validation errors or timing; PHP backend inferred.
+evidence_needed: (1) Form fields and validation behavior (email/phone uniqueness checks); (2) Rate limiting on signup submissions; (3) Whether existing customer emails/phones return distinct errors; (4) CSRF protection presence.
+verify_steps: PASSIVE: curl -s https://gateway.threema.ch/en/signup | grep -E 'email|phone|csrf|token' (form structure); curl -X POST https://gateway.threema.ch/en/signup -d 'email=test@example.com' -H 'Content-Type: application/x-www-form-urlencoded' (≤1 rps, observe error differentiation).
+impact: Enumeration of gateway customer emails/phones → targeted phishing, credential stuffing against gateway portal. Severity: Low-Medium.
+testability: PASSIVE
 [HYP] Directory bulk identity enumeration at scale via fetch_bulk + challenge parameter oracles
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/fetch_bulk (identical on api.threema.ch, apip.threema.ch)
@@ -19,32 +34,9 @@ evidence_needed: fetch_bulk ceiling beyond 500 IDs; confirm no WAF/rate-limit at
 verify_steps: PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<999 unique invalid 8-char base32 IDs>]}' (≤1 rps) → verify 200 + pubkey map; GET /identity/sfu_cred/ECHOECHO vs /identity/sfu_cred/ZZZZZZZZ → compare bodies; repeat for api.threema.ch and apip.threema.ch.
 impact: Cross-origin, unauthenticated enumeration of all valid Threema IDs + pubkeys at scale (1 rps → 86,400 IDs/day/browser-thread); challenge endpoints expose parameter validation oracles. Severity: Medium-High.
 testability: PASSIVE + PROBE
-[HYP] Desktop Windows key-storage ACL bypass → master-password recovery → identity keypair + message-DB decryption
-class: MISCONFIG
-asset: github.com/threema-ch/threema-desktop — fs.ts:41, key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163, internal-protobuf/key-storage-file.ts:IdentityData.ck, crypto.ts:53-88, db/sqlite.ts:220
-confidence: 95
-reasoning: RAG-VERIFIED against cloned stable: fileModeInternalObjectIfPosix() returns {} on win32; keystorage.bin, keystorage.password.bin (DPAPI blob), electron-settings.json all written via {...{}} (no mode); inner layer exposes IdentityData.ck (Ed25519 identity private key) + databaseKey; Argon2id→XSalsa20-Poly1305 decrypts inner (crypto.ts:113 purges key); databaseKey used as raw SQLCipher PRAGMA key (sqlite.ts:220, no PBKDF2).
-evidence_needed: (1) Win32 DACL audit → 0 explicit ACEs on keystorage.bin/password.bin (inherited-only); (2) DPAPI CryptProtectData on password blob → master password; (3) Argon2id(master) → secretbox.decrypt(inner) → protobuf InnerKeyStorage → ck + databaseKey; (4) sqlite3 threema.sqlite "PRAGMA key=x'...'" → plaintext.
-verify_steps: AUTH_HELPED-LOCAL: PowerShell Get-Acl ...\keystorage.bin | % {$_.Access} → 0 explicit ACEs; [Security.Cryptography.ProtectedData]::Unprotect([Convert]::FromBase64String(blob),...,CurrentUser) → password; Python argon2.low_level.hash_secret_raw(...) + nacl.secret.SecretBox → decrypt inner → read identityData.ck + databaseKey; sqlite3 with derived key.
-impact: Co-located same-user malware exfiltrates permanent Ed25519 identity key + full SQLCipher message store offline, never needing the master-password UI. Severity: High.
-testability: AUTH_HELPED-LOCAL
-[HYP] Safe backup API cross-origin credentialed read + HSTS gap + existence oracle
-class: AUTH
-asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (single IP 203.56.112.231)
-confidence: 80
-reasoning: PASSIVE-VERIFIED on all 5 hosts: OPTIONS → 204 with HSTS+Expect-CT + ACAO:* + ACAH:Authorization; GET (no auth) → 400 "Bad Request" WITHOUT HSTS/Expect-CT; HTTP Basic Auth (backupId:backupKey); route distinction /backups/{64hex}→400 vs /backup/{x}→404 = existence oracle.
-evidence_needed: (1) 400 body differs for existing vs non-existing backupId; (2) valid program-issued credentials → 200 + cross-origin-readable payload + any Access-Control-Expose-Headers; (3) HSTS absent on GET 400 (confirmed).
-verify_steps: PASSIVE (DONE): OPTIONS + GET 400 vs 404 on all 5 hosts. AUTH_HELPED: curl -u "backupId:backupKey" https://safe-01.threema.ch/backups/{backupId} (≤1 rps) → confirm 200 + Expose-Headers. HUMAN: request program-issued test backupId:backupKey.
-impact: Cross-origin backup-ID existence enumeration + credentialed cross-origin readout of identity keypair + message-history backup (once creds leaked). Severity: High (creds required).
-testability: PASSIVE + AUTH_HELPED
-[PARKED] Desktop BrowserWindow sandbox+worker gap: REJECTED class per knowledge (conditional RCE requires separate renderer exploit chain, not standalone)
-[PARKED] g-*.0.test.threema.ch staging chat cluster: REJECTED class per knowledge (out of scope per scope.yml)
-[PARKED] crypto.ts:223 hardcoded password: REJECTED MISCONFIG per knowledge (benchmark-only dummy, derived key immediately purged)
-[PARKED] check_revocation_key GET validation-order oracle: REJECTED IDOR per knowledge (ECHOECHO vs ZZZZZZZZ produce byte-identical "Identity not found")
-[PARKED] saltyrtc-{00..ff}.threema.ch:443: NOT in scope.yml (only g-*.0 pattern listed for chat services)
-[FINAL] 1. Directory bulk identity enumeration (fetch_bulk + challenge oracles) — 95 confidence, IDOR, PASSIVE+PROBE
-[FINAL] 2. Desktop Windows key-storage ACL bypass → identity + DB compromise — 95 confidence, MISCONFIG, AUTH_HELPED-LOCAL
-[FINAL] 3. Safe backup cross-origin credentialed read + HSTS gap + existence oracle — 80 confidence, AUTH, PASSIVE+AUTH_HELPED
+[PARKED] Broadcast API authentication bypass via credential stuffing or token leakage: confidence 55 but gate_ease only 3 (auth-gated 401) — requires credential access not currently available; no concrete verify_steps without AUTH_HELPED
+[PARKED] Gateway signup page user enumeration via registration flow: confidence 45 < 50 threshold; class IDOR but actually AUTH/ENUM class; verify_steps require POST which modifies state (account creation attempt) — violates passive-first
+[FINAL] 1. Directory bulk identity enumeration at scale via fetch_bulk + challenge parameter oracles — 95 confidence, IDOR, PASSIVE+PROBE
 [NEXT] PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<999 unique invalid 8-char base32 IDs>]}' (≤1 rps) — finds fetch_bulk ceiling at 1000 IDs
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk 100+ batch + 5 challenge endpoints + CORS * + no rate-limit + parameter-validation oracles — all re-confirmed this cycle
 [LEARN] ACCEPTED MISCONFIG @ threema-desktop (Windows): key-storage ACL bypass RAG-verified at 95 confidence — full Ed25519 identity key + SQLCipher key chain confirmed via 15 source paths

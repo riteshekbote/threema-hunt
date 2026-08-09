@@ -406,3 +406,15 @@
 - CHANGED `ds-apip.threema.ch/api.threema.ch/apip.threema.ch` — fetch_bulk 500-ID batch ceiling re-confirmed; 5 challenge endpoints + parameter-validation oracles + CORS * + no rate-limit stable
 - CHANGED `safe-{01,1a,1b,02,00}.threema.ch` — HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for `/backups/{64hex}` stable across all 5 hosts behind single IP 203.56.112.231
 - CHANGED `work.test.threema.ch` — `/api-app/public/global/settings` → 200 (299B, staging-only) vs 404 prod divergence stable; sole live public route in `/api-app/public/*` namespace
+
+## 2026-08-09 08:12:02 UTC
+- NEW `broadcast.threema.ch/api/v1` → HTTP 401 (auth-gated API endpoint newly confirmed)
+- NEW `gateway.threema.ch/en/signup` → HTTP 200 (signup page accessible)
+- CHANGED `ds-apip.threema.ch/api.threema.ch/apip.threema.ch` — fetch_bulk 500-ID batch ceiling re-confirmed; 5 challenge endpoints + parameter-validation oracles + CORS * + no rate-limit stable
+- CHANGED `safe-{01,1a,1b,02,00}.threema.ch` — HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for `/backups/{64hex}` stable across all 5 hosts behind single IP 203.56.112.231
+- CHANGED `work.test.threema.ch` — `/api-app/public/global/settings` → 200 (299B, staging-only) vs 404 prod divergence stable; sole live public route in `/api-app/public/*` namespace
+- NEW gateway.threema.ch: /v1 → 404 catch-all, /api/v1 → 403 (nginx deny), /en/signup → 200 (14KB page). No exposed msgapi route on this host.
+- CHANGED ds-apip.test.threema.ch — staging fetch_bulk BYTE-IDENTICAL to prod (200, 0.69s, identical ECHOECHO record); staging /swagger /docs /identity/lookup /openapi.json all 404 = same route surface as prod 
+- CHANGED fetch_bulk ceiling — 1000-ID batch → 200 (0.42s, 152B, ECHOECHO echoed, 999 invalid silently omitted); ceiling now ≥1000. Report persisted to reports/fetch_bulk-identity-enumeration-idor.md (was unper
+- CHANGED broadcast.threema.ch/api/v1/ — absent key → 401, any key (1/32/64-char) → 403, bodies byte-identical (sha256 707fe8f5…); subpath → 404 HTML; release banner 2.28.1 + Sentry DSN (public). Key-format ora
+- NEW gateway.threema.ch — /v1 → 404 catch-all, /api/v1 → 403 nginx deny, /en/signup → 200 (14KB); no exposed msgapi route on this host.

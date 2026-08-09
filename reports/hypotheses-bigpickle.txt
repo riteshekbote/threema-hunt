@@ -1,4 +1,4 @@
-## 2026-08-09 07:31:44 UTC [chat] (model bigpickle)
+## 2026-08-09 08:11:52 UTC [chat] (model bigpickle)
 [HYP] Staging directory server mirrors live production identity data unauthenticated
 class: MISCONFIG
 asset: ds-apip.test.threema.ch (identity API)
@@ -27,3 +27,246 @@ verify_steps: PASSIVE — GET /api/v1/ with X-Api-Key lengths 1/32/64 vs absent 
 impact: key-presence/format oracle + recon of auth model; cross-origin usage blocked (no preflight); real impact requires key leak. Severity: low.
 testability: PASSIVE
 [NEXT] PROBE: byte-diff fetch_bulk on staging vs prod — `curl -sk -X POST https://ds-apip.test.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` (≤1 rps) and diff JSON/headers vs the same POST to `https://ds-apip.threema.ch/identity/fetch_bulk`; then single HEAD `https://ds-apip.test.threema.ch/swagger` + `/docs` (≤1 rps) to probe for extra staging-only routes.
+impact: Threema ID/pubkey enumeration → spam, phishing, targeted abuse. Severity: medium.
+testability: PASSIVE
+[HYP] threema-desktop key-storage KDF parameter weakness
+class: OTHER
+asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/key-storage/crypto.ts)
+confidence: 45
+reasoning: reposcan found crypto.ts:223 uses fixed benchmark password `r3gGN9GDQ5NF6tM6` to calibrate Argon2id params at runtime, and test-data.ts defines `keyStoragePassword: 'CHANGE_ME'`; no committed credentials exist, so only the KDF/key-handling logic can be weak. Electron 2.x stores user password/keys through this module.
+evidence_needed: how Argon2id memory/time params are derived (floors/caps) and whether the derived key protects an offline-readable store.
+verify_steps: PASSIVE: static read of crypto.ts `determineKdfParams()` and the storage backend (safeStorage vs plaintext file). No live requests.
+impact: if params are attacker-favorable, offline recovery of stored user credentials/keys from disk. Severity: low-medium.
+testability: PASSIVE
+[HYP] ds-apip-work.threema.ch /identities cross-subscription disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 52
+reasoning: directory.openapi.yml:1172 flags "/identities ... currently buggy. See TWRK-1633"; endpoint returns a subset of provided contacts in the same Work subscription plus work properties (first/last name, jobTitle, department, availability). Host now confirmed live returning 401 with permissive CORS.
+evidence_needed: whether the membership filter can be induced to return out-of-subscription contacts.
+verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities mixing own- and other-subscription IDs and compare membership + property leak; probe pagination bounds (page/size, wildcard).
+impact: cross-subscription disclosure of work-directory metadata → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[NEXT] PROBE: GET https://ds-apip-work.threema.ch/identity/lookup and /directory (401 vs 404 distinguishes route-existence behind the auth gate), then GET https://ds-apip.threema.ch/identity/lookup + /directory at ≤1 rps to fingerprint the directory host independently of apip.
+[HYP] ds-apip.test.threema.ch staging directory server publicly exposed
+class: MISCONFIG
+asset: ds-apip.test.threema.ch
+confidence: 60
+reasoning: verified 200 on GET /identity/ECHOECHO and /identity/fetch_bulk with same JSON shape and CORS `*` as production ds-apip.threema.ch; hostname is a staging/test env (ds-apip.test.*), yet answers the live identity API with no auth and no documented client reference.
+evidence_needed: whether the test host mirrors live production data or an isolated dataset (byte-diff a real ID's publicKey across hosts) and whether it exposes extra routes or an older/newer build (error-shape/header skew).
+verify_steps: PASSIVE: GET https://ds-apip.test.threema.ch/identity/ECHOECHO and /identity/fetch_bulk with full headers, diff Server/Date/body fingerprints vs ds-apip.threema.ch; HEAD a few extra paths (/, /identity/lookup, /swagger) at ≤1rps; no third-party IDs.
+impact: internet-reachable staging env; version skew, unpatched/test-only routes, or a full unauthenticated mirror of the identity directory. Severity: low-medium.
+testability: PASSIVE
+[HYP] Unauthenticated bulk identity lookup + CORS `*` enables cross-origin directory enumeration
+class: BUSLOGIC
+asset: apip.threema.ch/identity/fetch_bulk
+confidence: 55
+reasoning: GET /identity/{id} returns 200 + publicKey/featureLevel/state/type for existing IDs, 404 otherwise; GET /identity/fetch_bulk → `{"identities":[]}` proves a bulk route parsing an `identities` array; CORS allows Origin `*`, methods POST/GET/OPTIONS/DELETE, header Content-Type — a malicious page can POST bulk lookups cross-origin.
+evidence_needed: whether POST fetch_bulk returns records without any token, batch-size caps, and whether the `state` field discriminates active vs revoked/suspended IDs.
+verify_steps: AUTH_HELPED: with an authorized test ID set {ECHOECHO active, official revoked/echo test IDs, random-invalid}, POST /identity/fetch_bulk and compare presence/state/type; only official test IDs, no third-party real IDs; GET probes ≤1rps only.
+impact: mass existence/state oracle + publicKey harvesting for spam/phishing/profile building; endpoint is by-design public, so impact is scale via bulk+CORS. Severity: low-medium.
+testability: AUTH_HELPED
+[HYP] ds-apip-work.threema.ch /identities cross-subscription metadata disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 52
+reasoning: directory OpenAPI flags /identities "currently buggy" (TWRK-1633); returns same-subscription contacts plus first/last name, jobTitle, department, availability; host answers 401 (route exists behind credential gate, permissive CORS).
+[HYP] Directory bulk identity→pubkey enumeration IDOR — final report with corrected ceiling
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (identical api.threema.ch, apip.threema.ch)
+confidence: 95
+reasoning: PASSIVE-VERIFIED: 500-ID batch → 200, valid pubkey echoed, invalid silently omitted; ACAO:* on POST/GET/OPTIONS/DELETE; no 429 over 30 sequential POSTs; 5 challenge endpoints return 200 JSON errors with param-validation-before-lookup (set_revocation_key "Bad revocation key length", update_work_info "Missing parameters"); no Access-Control-Expose-Headers. Claimed ceiling ≥2000 and report file are unpersisted/unsupported.
+evidence_needed: persist report with CONFIRMED ceiling ≥500 (2^40/500 ≈ 2.2e9 requests for full sweep at 1 rps); optional single bounded probe to test 1000/req.
+verify_steps: RAG — write reports/fetch_bulk-identity-enumeration-idor.md with verified numbers (ceiling ≥500, CORS `*`, no rate limit, 5 oracles, CVSS ≈4.3). Optional single `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<999 unique invalid 8-char base32>]}'` (≤1 rps) to test 1000-ID ceiling; no further probing if WAF/429 appears.
+impact: unauthenticated cross-origin enumeration of valid IDs+pubkeys at scale; enumeration cost only bounded by batch ceiling and absent rate limit. Severity: Medium (CVSS ≈4.3).
+testability: PASSIVE
+[HYP] Safe backup store credentialed cross-origin read + HSTS gap
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (203.56.112.231)
+confidence: 50
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route-existence oracle (/backups/{64hex} 400 vs /backup/{x} 404); HSTS/Expect-CT absent on the 400 but present on preflight. Valid creds are the only missing input.
+evidence_needed: program-issued test backupId:backupKey → status ≠ 400 (200+payload or 401/403) + any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs known 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[HYP] Broadcast X-Api-Key key-presence differential (401 vs 403) + preflight ACAH echo
+class: AUTH
+asset: https://broadcast.threema.ch/api/v1
+confidence: 60
+reasoning: GET /api/v1 → 401 `{"error":"Invalid X-Api-Key"}` with ACAO `*`; GET with any/empty X-Api-Key → 403 same JSON; subpaths 404. Route root live behind key check, CORS `*` permits cross-origin calls once key known.
+evidence_needed: whether `Access-Control-Allow-Headers` echoes X-Api-Key on preflight; 401-vs-403 differential persists across key length/timing.
+verify_steps: PASSIVE — `OPTIONS /api/v1` with `Origin: https://attacker.example` + `Access-Control-Request-Method: GET` + `Access-Control-Request-Headers: X-Api-Key` (record ACAH); GET /api/v1 with 1-char vs 32-char key vs absent (≤1 rps); record status only.
+impact: if API key leaked → full broadcast message API cross-origin; today recon + header enumeration; Low-Medium, key-gated.
+testability: PASSIVE
+[HYP] Staging directory server mirrors live production identity data unauthenticated
+class: MISCONFIG
+asset: ds-apip.test.threema.ch (identity API)
+confidence: 72
+reasoning: GET /identity/ECHOECHO returns byte-identical record to prod ds-apip (same publicKey/featureLevel/featureMask/state/type); GET /identity/fetch_bulk works with same JSON shape + CORS `*`; threema-desktop vite.config.ts points DIRECTORY_SERVER_URL at this test host; staging has HSTS/Expect-CT where prod lacks them.
+evidence_needed: whether byte-identical responses extend to real (non-ECHOECHO) IDs, and whether staging exposes extra/older routes (fetch_bulk ceiling, additional endpoints).
+verify_steps: PASSIVE — GET /identity/fetch_bulk with official ECHOECHO + 99 random-invalid on staging, diff body/headers vs prod; HEAD /swagger, /docs, /identity/lookup, / on staging at ≤1 rps (no third-party IDs).
+impact: internet-reachable staging env serving live directory data with no auth; version skew/test-only routes; unauthenticated mirror of the identity directory. Severity: low-medium.
+testability: PASSIVE
+[HYP] Work directory backend cross-subscription metadata disclosure via buggy /identities
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 55
+reasoning: /identities, /directory, /identity/lookup all → 401 (route exists behind gate) while ds-apip.threema.ch returns 404 for /directory + /identity/lookup (no route); directory.openapi.yml flags /identities "currently buggy" (TWRK-1633) and names ds-apip-work.test.threema.ch as base URL; endpoint returns same-subscription contacts + work metadata (first/last name, jobTitle, department, availability).
+evidence_needed: whether membership filter can be induced to return out-of-subscription contacts (mixed own/other-subscription ID batch), and pagination/param surface (page/size, wildcard).
+verify_steps: AUTH_HELPED — with authorized Work test license, POST /identities mixing own- and other-subscription IDs, compare membership + property leak; probe pagination bounds. PASSIVE only: GET /identities + /directory + /identity/lookup to lock the 401 route map (done this cycle).
+impact: cross-subscription disclosure of Work directory PII → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[HYP] Broadcast API key-presence differential is a key-format/presence oracle on a live cockpit backend
+class: AUTH
+asset: broadcast.threema.ch/api/v1/
+confidence: 58
+reasoning: no-key GET → 401, any X-Api-Key → 403 (1-char key enough to flip status); /api/v1 301→/api/v1/ (nginx); OPTIONS → 404 (no CORS preflight, so browser blocks cross-origin keyed calls); route root lives behind key check on a cockpit backend with HSTS+Expect-CT+CSP.
+evidence_needed: whether 403-vs-401 persists across key lengths/formats (valid-format oracle) and whether the 401/403 JSON body differs (error-shape differential).
+verify_steps: PASSIVE — GET /api/v1/ with X-Api-Key lengths 1/32/64 vs absent at ≤1 rps, record status + body; GET a subpath /api/v1/{x} to confirm 404-route floor.
+impact: key-presence/format oracle + recon of auth model; cross-origin usage blocked (no preflight); real impact requires key leak. Severity: low.
+testability: PASSIVE
+[NEXT] PROBE: byte-diff fetch_bulk on staging vs prod — `curl -sk -X POST https://ds-apip.test.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` (≤1 rps) and diff JSON/headers vs the same POST to `https://ds-apip.threema.ch/identity/fetch_bulk`; then single HEAD `https://ds-apip.test.threema.ch/swagger` + `/docs` (≤1 rps) to probe for extra staging-only routes.
+impact: Threema ID/pubkey enumeration → spam, phishing, targeted abuse. Severity: medium.
+testability: PASSIVE
+[HYP] threema-desktop key-storage KDF parameter weakness
+class: OTHER
+asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/key-storage/crypto.ts)
+confidence: 45
+reasoning: reposcan found crypto.ts:223 uses fixed benchmark password `r3gGN9GDQ5NF6tM6` to calibrate Argon2id params at runtime, and test-data.ts defines `keyStoragePassword: 'CHANGE_ME'`; no committed credentials exist, so only the KDF/key-handling logic can be weak. Electron 2.x stores user password/keys through this module.
+evidence_needed: how Argon2id memory/time params are derived (floors/caps) and whether the derived key protects an offline-readable store.
+verify_steps: PASSIVE: static read of crypto.ts `determineKdfParams()` and the storage backend (safeStorage vs plaintext file). No live requests.
+impact: if params are attacker-favorable, offline recovery of stored user credentials/keys from disk. Severity: low-medium.
+testability: PASSIVE
+[HYP] ds-apip-work.threema.ch /identities cross-subscription disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 52
+reasoning: directory.openapi.yml:1172 flags "/identities ... currently buggy. See TWRK-1633"; endpoint returns a subset of provided contacts in the same Work subscription plus work properties (first/last name, jobTitle, department, availability). Host now confirmed live returning 401 with permissive CORS.
+evidence_needed: whether the membership filter can be induced to return out-of-subscription contacts.
+verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities mixing own- and other-subscription IDs and compare membership + property leak; probe pagination bounds (page/size, wildcard).
+impact: cross-subscription disclosure of work-directory metadata → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[NEXT] PROBE: GET https://ds-apip-work.threema.ch/identity/lookup and /directory (401 vs 404 distinguishes route-existence behind the auth gate), then GET https://ds-apip.threema.ch/identity/lookup + /directory at ≤1 rps to fingerprint the directory host independently of apip.
+[HYP] ds-apip.test.threema.ch staging directory server publicly exposed
+class: MISCONFIG
+asset: ds-apip.test.threema.ch
+confidence: 60
+reasoning: verified 200 on GET /identity/ECHOECHO and /identity/fetch_bulk with same JSON shape and CORS `*` as production ds-apip.threema.ch; hostname is a staging/test env (ds-apip.test.*), yet answers the live identity API with no auth and no documented client reference.
+evidence_needed: whether the test host mirrors live production data or an isolated dataset (byte-diff a real ID's publicKey across hosts) and whether it exposes extra routes or an older/newer build (error-shape/header skew).
+verify_steps: PASSIVE: GET https://ds-apip.test.threema.ch/identity/ECHOECHO and /identity/fetch_bulk with full headers, diff Server/Date/body fingerprints vs ds-apip.threema.ch; HEAD a few extra paths (/, /identity/lookup, /swagger) at ≤1rps; no third-party IDs.
+impact: internet-reachable staging env; version skew, unpatched/test-only routes, or a full unauthenticated mirror of the identity directory. Severity: low-medium.
+testability: PASSIVE
+[HYP] Unauthenticated bulk identity lookup + CORS `*` enables cross-origin directory enumeration
+class: BUSLOGIC
+asset: apip.threema.ch/identity/fetch_bulk
+confidence: 55
+reasoning: GET /identity/{id} returns 200 + publicKey/featureLevel/state/type for existing IDs, 404 otherwise; GET /identity/fetch_bulk → `{"identities":[]}` proves a bulk route parsing an `identities` array; CORS allows Origin `*`, methods POST/GET/OPTIONS/DELETE, header Content-Type — a malicious page can POST bulk lookups cross-origin.
+evidence_needed: whether POST fetch_bulk returns records without any token, batch-size caps, and whether the `state` field discriminates active vs revoked/suspended IDs.
+verify_steps: AUTH_HELPED: with an authorized test ID set {ECHOECHO active, official revoked/echo test IDs, random-invalid}, POST /identity/fetch_bulk and compare presence/state/type; only official test IDs, no third-party real IDs; GET probes ≤1rps only.
+impact: mass existence/state oracle + publicKey harvesting for spam/phishing/profile building; endpoint is by-design public, so impact is scale via bulk+CORS. Severity: low-medium.
+testability: AUTH_HELPED
+[HYP] ds-apip-work.threema.ch /identities cross-subscription metadata disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 52
+reasoning: directory OpenAPI flags /identities "currently buggy" (TWRK-1633); returns same-subscription contacts plus first/last name, jobTitle, department, availability; host answers 401 (route exists behind credential gate, permissive CORS).
+[HYP] Directory bulk identity→pubkey enumeration IDOR — final report with corrected ceiling
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (identical api.threema.ch, apip.threema.ch)
+confidence: 95
+reasoning: PASSIVE-VERIFIED: 500-ID batch → 200, valid pubkey echoed, invalid silently omitted; ACAO:* on POST/GET/OPTIONS/DELETE; no 429 over 30 sequential POSTs; 5 challenge endpoints return 200 JSON errors with param-validation-before-lookup (set_revocation_key "Bad revocation key length", update_work_info "Missing parameters"); no Access-Control-Expose-Headers. Claimed ceiling ≥2000 and report file are unpersisted/unsupported.
+evidence_needed: persist report with CONFIRMED ceiling ≥500 (2^40/500 ≈ 2.2e9 requests for full sweep at 1 rps); optional single bounded probe to test 1000/req.
+verify_steps: RAG — write reports/fetch_bulk-identity-enumeration-idor.md with verified numbers (ceiling ≥500, CORS `*`, no rate limit, 5 oracles, CVSS ≈4.3). Optional single `curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<999 unique invalid 8-char base32>]}'` (≤1 rps) to test 1000-ID ceiling; no further probing if WAF/429 appears.
+impact: unauthenticated cross-origin enumeration of valid IDs+pubkeys at scale; enumeration cost only bounded by batch ceiling and absent rate limit. Severity: Medium (CVSS ≈4.3).
+testability: PASSIVE
+[HYP] Safe backup store credentialed cross-origin read + HSTS gap
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (203.56.112.231)
+confidence: 50
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route-existence oracle (/backups/{64hex} 400 vs /backup/{x} 404); HSTS/Expect-CT absent on the 400 but present on preflight. Valid creds are the only missing input.
+evidence_needed: program-issued test backupId:backupKey → status ≠ 400 (200+payload or 401/403) + any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}` (≤1 rps), diff status/body/Expose-Headers vs known 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[HYP] Broadcast X-Api-Key key-presence differential (401 vs 403) + preflight ACAH echo
+class: AUTH
+asset: https://broadcast.threema.ch/api/v1
+confidence: 60
+reasoning: GET /api/v1 → 401 `{"error":"Invalid X-Api-Key"}` with ACAO `*`; GET with any/empty X-Api-Key → 403 same JSON; subpaths 404. Route root live behind key check, CORS `*` permits cross-origin calls once key known.
+evidence_needed: whether `Access-Control-Allow-Headers` echoes X-Api-Key on preflight; 401-vs-403 differential persists across key length/timing.
+verify_steps: PASSIVE — `OPTIONS /api/v1` with `Origin: https://attacker.example` + `Access-Control-Request-Method: GET` + `Access-Control-Request-Headers: X-Api-Key` (record ACAH); GET /api/v1 with 1-char vs 32-char key vs absent (≤1 rps); record status only.
+impact: if API key leaked → full broadcast message API cross-origin; today recon + header enumeration; Low-Medium, key-gated.
+testability: PASSIVE
+[HYP] Staging directory server mirrors live production identity data unauthenticated
+class: MISCONFIG
+asset: ds-apip.test.threema.ch (identity API)
+confidence: 72
+reasoning: GET /identity/ECHOECHO returns byte-identical record to prod ds-apip (same publicKey/featureLevel/featureMask/state/type); GET /identity/fetch_bulk works with same JSON shape + CORS `*`; threema-desktop vite.config.ts points DIRECTORY_SERVER_URL at this test host; staging has HSTS/Expect-CT where prod lacks them.
+evidence_needed: whether byte-identical responses extend to real (non-ECHOECHO) IDs, and whether staging exposes extra/older routes (fetch_bulk ceiling, additional endpoints).
+verify_steps: PASSIVE — GET /identity/fetch_bulk with official ECHOECHO + 99 random-invalid on staging, diff body/headers vs prod; HEAD /swagger, /docs, /identity/lookup, / on staging at ≤1 rps (no third-party IDs).
+impact: internet-reachable staging env serving live directory data with no auth; version skew/test-only routes; unauthenticated mirror of the identity directory. Severity: low-medium.
+testability: PASSIVE
+[HYP] Work directory backend cross-subscription metadata disclosure via buggy /identities
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 55
+reasoning: /identities, /directory, /identity/lookup all → 401 (route exists behind gate) while ds-apip.threema.ch returns 404 for /directory + /identity/lookup (no route); directory.openapi.yml flags /identities "currently buggy" (TWRK-1633) and names ds-apip-work.test.threema.ch as base URL; endpoint returns same-subscription contacts + work metadata (first/last name, jobTitle, department, availability).
+evidence_needed: whether membership filter can be induced to return out-of-subscription contacts (mixed own/other-subscription ID batch), and pagination/param surface (page/size, wildcard).
+verify_steps: AUTH_HELPED — with authorized Work test license, POST /identities mixing own- and other-subscription IDs, compare membership + property leak; probe pagination bounds. PASSIVE only: GET /identities + /directory + /identity/lookup to lock the 401 route map (done this cycle).
+impact: cross-subscription disclosure of Work directory PII → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[HYP] Broadcast API key-presence differential is a key-format/presence oracle on a live cockpit backend
+class: AUTH
+asset: broadcast.threema.ch/api/v1/
+confidence: 58
+reasoning: no-key GET → 401, any X-Api-Key → 403 (1-char key enough to flip status); /api/v1 301→/api/v1/ (nginx); OPTIONS → 404 (no CORS preflight, so browser blocks cross-origin keyed calls); route root lives behind key check on a cockpit backend with HSTS+Expect-CT+CSP.
+evidence_needed: whether 403-vs-401 persists across key lengths/formats (valid-format oracle) and whether the 401/403 JSON body differs (error-shape differential).
+verify_steps: PASSIVE — GET /api/v1/ with X-Api-Key lengths 1/32/64 vs absent at ≤1 rps, record status + body; GET a subpath /api/v1/{x} to confirm 404-route floor.
+impact: key-presence/format oracle + recon of auth model; cross-origin usage blocked (no preflight); real impact requires key leak. Severity: low.
+testability: PASSIVE
+[NEXT] PROBE: byte-diff fetch_bulk on staging vs prod — `curl -sk -X POST https://ds-apip.test.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` (≤1 rps) and diff JSON/headers vs the same POST to `https://ds-apip.threema.ch/identity/fetch_bulk`; then single HEAD `https://ds-apip.test.threema.ch/swagger` + `/docs` (≤1 rps) to probe for extra staging-only routes.
+[NEW] gateway.threema.ch: /v1 → 404 catch-all, /api/v1 → 403 (nginx deny), /en/signup → 200 (14KB page). No exposed msgapi route on this host.
+[LEARN] REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys produce byte-identical 403; only key-PRESENCE is observable; no CORS preflight (OPTIONS 404) so no cross-origin keyed calls. Low value; closed.
+[NEXT] HUMAN — request operator for program-issued (a) safe test backupId:backupKey, (b) non-ECHOECHO test identity / Work test license. Passive surface saturated; remaining open items (safe read, work /identities cross-subscription, staging real-ID diff) are all credential-gated.
+[CHANGED] ds-apip.test.threema.ch — staging fetch_bulk BYTE-IDENTICAL to prod (200, 0.69s, identical ECHOECHO record); staging /swagger /docs /identity/lookup /openapi.json all 404 = same route surface as prod (no extra routes). Staging-mirror evidence upgraded.
+[CHANGED] fetch_bulk ceiling — 1000-ID batch → 200 (0.42s, 152B, ECHOECHO echoed, 999 invalid silently omitted); ceiling now ≥1000. Report persisted to reports/fetch_bulk-identity-enumeration-idor.md (was unpersisted despite triage-VALID; laguna ≥2000 claim unsupported).
+[CHANGED] broadcast.threema.ch/api/v1/ — absent key → 401, any key (1/32/64-char) → 403, bodies byte-identical (sha256 707fe8f5…); subpath → 404 HTML; release banner 2.28.1 + Sentry DSN (public). Key-format oracle DISPROVEN; presence-only.
+[NEW] gateway.threema.ch — /v1 → 404 catch-all, /api/v1 → 403 nginx deny, /en/signup → 200 (14KB); no exposed msgapi route on this host.
+[PRIO] ds-apip.test.threema.ch | score 6.6 | attack=7 business=4 tech=5 gate=10 cloud=3 fresh=8
+[PRIO] ds-apip-work.threema.ch/identities | score 4.9 | attack=5 business=7 tech=6 gate=2 cloud=3 fresh=4
+[PRIO] broadcast.threema.ch/api/v1/ | score 4.15 | attack=4 business=4 tech=5 gate=4 cloud=3 fresh=5
+[HYP] Staging directory server is a byte-identical unauthenticated mirror of the production identity directory
+class: MISCONFIG
+asset: ds-apip.test.threema.ch (identity API)
+confidence: 85
+reasoning: fetch_bulk returns byte-identical JSON to prod ds-apip for ECHOECHO (200, 0.69s both hosts, same publicKey/featureLevel/featureMask/state/type); staging has HSTS/Expect-CT where prod lacks them; /swagger /docs /identity/lookup /openapi.json 404 on staging (same route surface — no version skew exposed). threema-desktop vite.config.ts:147 points DIRECTORY_SERVER_URL at this host (dev config, not prod).
+evidence_needed: byte-diff of a non-ECHOECHO identity across staging vs prod to prove the staging dataset is LIVE (not a snapshot) — requires program-issued test identity; operator scope ruling on whether .test hosts are reportable.
+verify_steps: AUTH_HELPED — single GET /identity/{testId} on staging + prod, diff publicKey; no third-party real IDs.
+impact: internet-reachable staging env serving the live identity directory unauthenticated; defense-in-depth and exposure gap. Severity: low-medium.
+testability: AUTH_HELPED
+[HYP] Work directory backend cross-subscription metadata disclosure via buggy /identities
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 55
+reasoning: /identities, /directory, /identity/lookup all → 401 (routes exist behind gate) while prod ds-apip returns 404 for those; directory.openapi.yml:1172 flags /identities "currently buggy" (TWRK-1633) and names ds-apip-work.test.threema.ch as base URL; endpoint returns same-subscription contacts + work PII (first/last name, jobTitle, department, availability).
+evidence_needed: whether membership filter can be induced to return out-of-subscription contacts (mixed own/other-subscription batch), pagination/wildcard surface.
+verify_steps: AUTH_HELPED — with authorized Work test license, POST /identities mixing own/other-subscription IDs; probe page/size params. Passive route-map (401) already locked.
+impact: cross-subscription Work directory PII disclosure → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[HYP] Safe backup store credentialed cross-origin read + HSTS gap
+class: AUTH
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (203.56.112.231)
+confidence: 50
+reasoning: OPTIONS → 204 CORS `*` + ACAH:Authorization (all 5 hosts); GET /backups/{64hex} byte-identical 400 with/without bogus Basic; route-existence oracle (400 vs /backup/{x} 404); HSTS/Expect-CT absent on GET 400 but present on preflight. Valid creds are the only missing input.
+evidence_needed: program-issued test backupId:backupKey → status ≠ 400 (200+payload or 401/403) + any Access-Control-Expose-Headers.
+verify_steps: AUTH_HELPED — single `curl -u "testId:testKey" https://safe-01.threema.ch/backups/{testId}`, diff vs 400 baseline.
+impact: valid creds → identity keypair + message-history backup readable cross-origin; High with creds, unreachable without.
+testability: AUTH_HELPED
+[PARKED] Broadcast API key-presence differential — confidence drops below threshold: presence-only oracle (401 vs 403), bodies byte-identical, no format/validity leak, no CORS preflight (OPTIONS 404 → no cross-origin keyed calls), impact requires key leak; closed as LEARN REJECTED.
+[PARKED] Staging-mirror real-ID diff — cannot be verified passively without a program-issued test identity (rules prohibit third-party real IDs); folded into AUTH_HELPED evidence gap.
+[FINAL] 1. Staging mirror MISCONFIG (85) | 2. Work /identities BUSLOGIC (55) | 3. Safe backup read AUTH (50) — all three now gated on operator-provided credentials.
+[NEXT] HUMAN: request operator for (a) program-issued test backupId:backupKey for safe-{01,1a,1b,02,00}.threema.ch, (b) a non-ECHOECHO test identity or Work test license. Passive surface is saturated — the top fetch_bulk IDOR is reported (reports/fetch_bulk-identity-enumeration-idor.md, ceiling ≥1000), staging mirror and broadcast oracle are characterized; every remaining open item is credential-gated and cannot advance with GET/HEAD alone.
+[LEARN] REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys yield byte-identical 403 (sha256 707fe8f5…); only key-presence observable; no CORS preflight. Key-gated, low value.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling re-confirmed ≥1000 IDs/req (1000-ID batch → 200, 0.42s, 999 invalid silently omitted); report persisted this cycle.
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk byte-identical to prod; no extra routes (/swagger /docs /openapi.json 404); mirror evidence strengthened 72→85.
+[RISK] chat: 55 — identity→pubkey enumeration at 1000 IDs/req unauth + CORS * on all 3 directory hosts; no rate limit; staging mirrors it byte-identically. | web: 35 — cockpit assets key-gated/basic-auth gated; broadcast presence-oracle only; work.test public namespace single benign endpoint. | sync: 20 — mediator/rendezvous uniform 403, no in-band divergence obtained; handshake requires auth. | safe: 40 — backup API credential-gated (400 unauth) with route-existence oracle + HSTS inconsistency on 400; CORS * + Authorization preflight; impact contingent on valid creds. | desktop-src: 45 — key-storage Windows ACL bypass RAG-verified (95) chained to SQLCipher+Ed25519 key disclosure; browser window sandbox/worker gaps conditional; crypto.ts benchmark password rejected.
