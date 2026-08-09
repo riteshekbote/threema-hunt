@@ -220,3 +220,19 @@
 - 2 lead(s) marked VALID at 2026-08-09 08:32:55 UTC
   - | **VALID (new)** | **0** | No novel, reportable findings this cycle. |
   - **Valid leads for reporting this cycle: 0.**
+
+- 14 lead(s) marked VALID at 2026-08-09 10:21:23 UTC
+  - | **Q5 Novel?** | ❌ **NO** — ACCEPTED in KB lines 20-21, 27, 59, 67, 80, 82, 85-86, 94, 99, 104; triaged as VALID in valid-bugs.md multiple times |
+  - | **Q7 Triager accept?** | ✅ YES — already accepted as finding #1 in valid-bugs.md |
+  - | **Q2 Reachable?** | ⚠️ AUTH_HELPED — returns 400 without valid `backupId:backupKey` (HTTP Basic Auth); no unauthenticated data access |
+  - | **Q3 Real impact?** | ❌ NO — credential-gated; 400 = route exists but auth required; CORS `*` on credential-gated endpoint is defense-in-depth only (per valid-bugs.md precedent) |
+  - | **Q4 Passive proof?** | ⚠️ Can confirm CORS headers + 400 response; cannot confirm data access without valid credentials |
+  - | **Q6 Not always-rejected?** | ❌ NO — CORS `*` on credential-gated endpoint is best-practice/defense-in-depth (per valid-bugs.md precedent) |
+  - | **Q7 Triager accept?** | ❌ NO — no data access without valid credentials; duplicate |
+  - | **Q1 In scope?** | ❌ NO — scope.yml lists `work.threema.ch` but NOT `work.test.threema.ch` staging variants (per valid-bugs.md precedent, staging variants treated as out-of-scope) |
+  - | **Q1 In scope?** | ❌ NO — `work.test.threema.ch` is staging; scope.yml lists `work.threema.ch` only (per valid-bugs.md precedent, staging variants treated as out-of-scope) |
+  - | **Q5 Novel?** | ❌ NO — ACCEPTED in KB lines 36, 56; triaged as VALID then deemed OUT OF SCOPE |
+  - | **Q5 Novel?** | ❌ NO — ACCEPTED in KB; validation oracle disproven in valid-bugs.md |
+  - | **Q1 In scope?** | ❌ NO — `.test` staging variant NOT in scope.yml (per valid-bugs.md precedent) |
+  - | **VALID** | **0** | No novel, reportable findings |
+  - **VALID (new, reportable) leads: 0**
