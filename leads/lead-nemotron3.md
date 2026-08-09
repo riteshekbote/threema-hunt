@@ -2549,3 +2549,57 @@ testability: PASSIVE + AUTH_HELPED
 [RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; mediator/rendezvous WSS high-entropy; auth in source (no passive in-band divergence); saltyrtc-*.threema.ch 426 but pending scope ruling
 [RISK] safe: 88 reason: safe-01.live with CORS * + write-capable methods + Access-Control-Allow-Headers: Authorization + HSTS/Expect-CT on preflight but NOT on GET 400; 5 hostnames same IP; route-existence oracle; Basic-Auth gating only
 [RISK] desktop-src: 95 reason: Windows key-storage ACL bypass CONFIRMED at source level (fs.ts:41, key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163 write with {} on win32 → no DACL restriction → DPAPI password recoverable by same-user → Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + SQLCipher databaseKey; PoC runtime-verified); plus Electron nodeIntegrationInWorker: true + sandbox unset (TODO DESK-79) at electron-main.ts:1252,1255
+## 2026-08-09 08:10:32 UTC [web] (model nemotron3)
+[NEW] `broadcast.threema.ch/api/v1` → HTTP 401 (auth-gated API endpoint newly confirmed)
+[NEW] `gateway.threema.ch/en/signup` → HTTP 200 (signup page accessible)
+[CHANGED] `ds-apip.threema.ch/api.threema.ch/apip.threema.ch` — fetch_bulk 500-ID batch ceiling re-confirmed; 5 challenge endpoints + parameter-validation oracles + CORS * + no rate-limit stable
+[CHANGED] `safe-{01,1a,1b,02,00}.threema.ch` — HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for `/backups/{64hex}` stable across all 5 hosts behind single IP 203.56.112.231
+[CHANGED] `work.test.threema.ch` — `/api-app/public/global/settings` → 200 (299B, staging-only) vs 404 prod divergence stable; sole live public route in `/api-app/public/*` namespace
+[PRIO] https://broadcast.threema.ch/api/v1, 6.30, attack_surface:7 business_value:7 tech_exposure:6 gate_ease:3 cloud_surface:5 freshness:8
+[PRIO] https://gateway.threema.ch/en/signup, 5.80, attack_surface:6 business_value:6 tech_exposure:5 gate_ease:8 cloud_surface:4 freshness:7
+[PRIO] https://ds-apip.threema.ch/identity/fetch_bulk (mirror: api.threema.ch, apip.threema.ch), 8.20, attack_surface:9 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:9
+[HYP] Broadcast API authentication bypass via credential stuffing or token leakage
+class: AUTH
+asset: https://broadcast.threema.ch/api/v1
+confidence: 55
+reasoning: NEW surface — `/api/v1` returns HTTP 401 (auth-gated) not 404, confirming live API endpoint; broadcast cockpit likely manages customer-facing messaging campaigns (high business value); PHP/Symfony stack inferred from work.threema.ch patterns; no public auth documentation.
+evidence_needed: (1) Auth mechanism type (session cookie, Bearer token, API key); (2) Whether credentials from work.threema.ch or gateway.threema.ch are accepted (SSO/shared identity); (3) Rate limiting on auth endpoints; (4) API schema via OPTIONS or error messages.
+verify_steps: PASSIVE: curl -I https://broadcast.threema.ch/api/v1 (confirm 401 + WWW-Authenticate header); curl -X OPTIONS https://broadcast.threema.ch/api/v1 (CORS, allowed methods); curl https://broadcast.threema.ch/api/v1/health (common unauth endpoint); ≤1 rps.
+impact: If auth bypassed → access to broadcast campaign data, customer lists, message templates, analytics — business communication compromise. Severity: Medium-High.
+testability: PASSIVE
+[HYP] Gateway signup page user enumeration via registration flow
+class: IDOR
+asset: https://gateway.threema.ch/en/signup
+confidence: 45
+reasoning: NEW surface — `/en/signup` returns HTTP 200 (accessible signup page); gateway likely handles SMS/email gateway customers; registration forms often leak email/phone existence via validation errors or timing; PHP backend inferred.
+evidence_needed: (1) Form fields and validation behavior (email/phone uniqueness checks); (2) Rate limiting on signup submissions; (3) Whether existing customer emails/phones return distinct errors; (4) CSRF protection presence.
+verify_steps: PASSIVE: curl -s https://gateway.threema.ch/en/signup | grep -E 'email|phone|csrf|token' (form structure); curl -X POST https://gateway.threema.ch/en/signup -d 'email=test@example.com' -H 'Content-Type: application/x-www-form-urlencoded' (≤1 rps, observe error differentiation).
+impact: Enumeration of gateway customer emails/phones → targeted phishing, credential stuffing against gateway portal. Severity: Low-Medium.
+testability: PASSIVE
+[HYP] Directory bulk identity enumeration at scale via fetch_bulk + challenge parameter oracles
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (identical on api.threema.ch, apip.threema.ch)
+confidence: 95
+reasoning: PASSIVE-VERIFIED: POST fetch_bulk (500 IDs, 1 valid + 499 invalid) → 200, returns only valid pubkey, silently omits invalid; ACAO:* on POST/GET/OPTIONS/DELETE; no 429 after 30 sequential POSTs at 1 rps; 5 challenge endpoints return 200 JSON errors + ACAO:* with parameter-validation-before-lookup oracle (update_work_info: "Missing parameters", set_revocation_key: "Bad revocation key length").
+evidence_needed: fetch_bulk ceiling beyond 500 IDs; confirm no WAF/rate-limit at higher volume; confirm challenge endpoints differ only by identity validity.
+verify_steps: PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<999 unique invalid 8-char base32 IDs>]}' (≤1 rps) → verify 200 + pubkey map; GET /identity/sfu_cred/ECHOECHO vs /identity/sfu_cred/ZZZZZZZZ → compare bodies; repeat for api.threema.ch and apip.threema.ch.
+impact: Cross-origin, unauthenticated enumeration of all valid Threema IDs + pubkeys at scale (1 rps → 86,400 IDs/day/browser-thread); challenge endpoints expose parameter validation oracles. Severity: Medium-High.
+testability: PASSIVE + PROBE
+[PARKED] Broadcast API authentication bypass via credential stuffing or token leakage: confidence 55 but gate_ease only 3 (auth-gated 401) — requires credential access not currently available; no concrete verify_steps without AUTH_HELPED
+[PARKED] Gateway signup page user enumeration via registration flow: confidence 45 < 50 threshold; class IDOR but actually AUTH/ENUM class; verify_steps require POST which modifies state (account creation attempt) — violates passive-first
+[FINAL] 1. Directory bulk identity enumeration at scale via fetch_bulk + challenge parameter oracles — 95 confidence, IDOR, PASSIVE+PROBE
+[NEXT] PROBE: curl -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO",<999 unique invalid 8-char base32 IDs>]}' (≤1 rps) — finds fetch_bulk ceiling at 1000 IDs
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk 100+ batch + 5 challenge endpoints + CORS * + no rate-limit + parameter-validation oracles — all re-confirmed this cycle
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop (Windows): key-storage ACL bypass RAG-verified at 95 confidence — full Ed25519 identity key + SQLCipher key chain confirmed via 15 source paths
+[LEARN] ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated /backups/{64hex} — header inconsistency stable
+[LEARN] REJECTED IDOR @ ds-apip/api/apip.threema.ch check_revocation_key GET form: validation-order oracle disproven — ECHOECHO vs ZZZZZZZZ produce byte-identical "Identity not found"
+[LEARN] REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE requires separate renderer exploit chain, not standalone
+[LEARN] REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy, derived key immediately purged
+[LEARN] ACCEPTED OTHER @ broadcast.threema.ch: `/api/v1` → HTTP 401 (auth-gated API endpoint newly confirmed)
+[LEARN] ACCEPTED OTHER @ gateway.threema.ch: `/en/signup` → 200 (signup page accessible)
+[RISK] chat: 60 reason: g-*.0.threema.ch prod pattern unenumerated; staging likely out of scope; no passive HTTP endpoints (5222/WSS handshake requires client login frame; 443 closes without TLS handshake on both staging + prod); saltyrtc-* 426 but pending scope ruling
+[RISK] web: 92 reason: ds-apip/api/apip directory cluster — 3 prod hosts, public identity oracle + fetch_bulk batch + 5 challenge endpoints + CORS * + no rate-limit; safe-01 backup API with permissive CORS + Authorization header + HSTS gap on GET 400 + 5 hostnames on single IP; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed; broadcast/api/v1 auth-gated; gateway signup accessible
+[RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; mediator/rendezvous WSS high-entropy; auth in source (no passive in-band divergence); saltyrtc-*.threema.ch 426 but pending scope ruling
+[RISK] safe: 88 reason: safe-01.live with CORS * + write-capable methods + Access-Control-Allow-Headers: Authorization + HSTS/Expect-CT on preflight but NOT on GET 400; 5 hostnames same IP; route-existence oracle; Basic-Auth gating only
+[RISK] desktop-src: 95 reason: Windows key-storage ACL bypass CONFIRMED at source level (fs.ts:41, key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163 write with {} on win32 → no DACL restriction → DPAPI password recoverable by same-user → Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + SQLCipher databaseKey; PoC runtime-verified); plus Electron nodeIntegrationInWorker: true + sandbox unset (TODO DESK-79) at electron-main.ts:1252,1255
