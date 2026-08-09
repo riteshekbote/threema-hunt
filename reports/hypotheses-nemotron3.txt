@@ -1,8 +1,15 @@
-## 2026-08-09 05:40:34 UTC [web] (model nemotron3)
-[NEW] NO_DELTA — inventory at 2026-08-09 05:08:32 UTC shows only re-confirmations (CHANGED) of existing in-scope surface; saltyrtc-{00..ff}.threema.ch:443 discovered but explicitly NOT in scope.yml (only g-*.0.threema.ch pattern listed for chat).
+## 2026-08-09 06:29:45 UTC [web] (model nemotron3)
+[NEW] `broadcast.threema.ch/api/v1` → HTTP 401 (auth-gated API endpoint, new surface)
+[NEW] `gateway.threema.ch/en/signup` → HTTP 200 (signup page, new accessible surface)
+[CHANGED] `saltyrtc-{00..ff}.threema.ch:443` — 256 hostnames, live SaltyRTC WSS signaling (HTTP 426 on GET), quadrant-split across 4 IPs; explicitly NOT in scope.yml (only g-*.0 pattern listed for chat) — re-confirmed out of scope
+[CHANGED] `ds-apip.threema.ch/api.threema.ch/apip.threema.ch` — fetch_bulk 500-ID batch ceiling re-confirmed; 5 challenge endpoints + parameter-validation oracles + CORS * + no rate-limit stable
+[CHANGED] `safe-{01,1a,1b,02,00}.threema.ch` — HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for `/backups/{64hex}` stable across all 5 hosts behind single IP 203.56.112.231
+[CHANGED] `work.test.threema.ch` — `/api-app/public/global/settings` → 200 (299B, staging-only) vs 404 prod divergence stable; sole live public route in `/api-app/public/*` namespace
 [PRIO] https://ds-apip.threema.ch/identity/fetch_bulk (mirror: api.threema.ch, apip.threema.ch), 8.20, attack_surface:9 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:9
 [PRIO] github.com/threema-ch/threema-desktop (Windows key-storage ACL bypass), 8.10, attack_surface:7 business_value:10 tech_exposure:8 gate_ease:8 cloud_surface:2 freshness:10
 [PRIO] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (single IP 203.56.112.231), 7.10, attack_surface:8 business_value:9 tech_exposure:6 gate_ease:5 cloud_surface:4 freshness:8
+[PRIO] https://broadcast.threema.ch/api/v1, 6.30, attack_surface:7 business_value:7 tech_exposure:6 gate_ease:3 cloud_surface:5 freshness:8
+[PRIO] https://gateway.threema.ch/en/signup, 5.80, attack_surface:6 business_value:6 tech_exposure:5 gate_ease:8 cloud_surface:4 freshness:7
 [HYP] Directory bulk identity enumeration at scale via fetch_bulk + challenge parameter oracles
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/fetch_bulk (identical on api.threema.ch, apip.threema.ch)
@@ -30,7 +37,11 @@ evidence_needed: (1) 400 body differs for existing vs non-existing backupId; (2)
 verify_steps: PASSIVE (DONE): OPTIONS + GET 400 vs 404 on all 5 hosts. AUTH_HELPED: curl -u "backupId:backupKey" https://safe-01.threema.ch/backups/{backupId} (≤1 rps) → confirm 200 + Expose-Headers. HUMAN: request program-issued test backupId:backupKey.
 impact: Cross-origin backup-ID existence enumeration + credentialed cross-origin readout of identity keypair + message-history backup (once creds leaked). Severity: High (creds required).
 testability: PASSIVE + AUTH_HELPED
-[PARKED] SaltyRTC signaling plane permanent-key fingerprint + framing recon: out of scope per scope.yml (only g-*.0.threema.ch listed for chat services; saltyrtc-* pattern not included)
+[PARKED] Desktop BrowserWindow sandbox+worker gap: REJECTED class per knowledge (conditional RCE requires separate renderer exploit chain, not standalone)
+[PARKED] g-*.0.test.threema.ch staging chat cluster: REJECTED class per knowledge (out of scope per scope.yml)
+[PARKED] crypto.ts:223 hardcoded password: REJECTED MISCONFIG per knowledge (benchmark-only dummy, derived key immediately purged)
+[PARKED] check_revocation_key GET validation-order oracle: REJECTED IDOR per knowledge (ECHOECHO vs ZZZZZZZZ produce byte-identical "Identity not found")
+[PARKED] saltyrtc-{00..ff}.threema.ch:443: NOT in scope.yml (only g-*.0 pattern listed for chat services)
 [FINAL] 1. Directory bulk identity enumeration (fetch_bulk + challenge oracles) — 95 confidence, IDOR, PASSIVE+PROBE
 [FINAL] 2. Desktop Windows key-storage ACL bypass → identity + DB compromise — 95 confidence, MISCONFIG, AUTH_HELPED-LOCAL
 [FINAL] 3. Safe backup cross-origin credentialed read + HSTS gap + existence oracle — 80 confidence, AUTH, PASSIVE+AUTH_HELPED
@@ -42,8 +53,10 @@ testability: PASSIVE + AUTH_HELPED
 [LEARN] REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE requires separate renderer exploit chain, not standalone
 [LEARN] REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml
 [LEARN] REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy, derived key immediately purged
+[LEARN] ACCEPTED OTHER @ broadcast.threema.ch: `/api/v1` → HTTP 401 (auth-gated API endpoint newly confirmed)
+[LEARN] ACCEPTED OTHER @ gateway.threema.ch: `/en/signup` → 200 (signup page accessible)
 [RISK] chat: 60 reason: g-*.0.threema.ch prod pattern unenumerated; staging likely out of scope; no passive HTTP endpoints (5222/WSS handshake requires client login frame; 443 closes without TLS handshake on both staging + prod); saltyrtc-* 426 but pending scope ruling
-[RISK] web: 92 reason: ds-apip/api/apip directory cluster — 3 prod hosts, public identity oracle + fetch_bulk batch + 5 challenge endpoints + CORS * + no rate-limit; safe-01 backup API with permissive CORS + Authorization header + HSTS gap on GET 400 + 5 hostnames on single IP; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed
+[RISK] web: 92 reason: ds-apip/api/apip directory cluster — 3 prod hosts, public identity oracle + fetch_bulk batch + 5 challenge endpoints + CORS * + no rate-limit; safe-01 backup API with permissive CORS + Authorization header + HSTS gap on GET 400 + 5 hostnames on single IP; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed; broadcast/api/v1 auth-gated; gateway signup accessible
 [RISK] sync: 60 reason: mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; mediator/rendezvous WSS high-entropy; auth in source (no passive in-band divergence); saltyrtc-*.threema.ch 426 but pending scope ruling
 [RISK] safe: 88 reason: safe-01.live with CORS * + write-capable methods + Access-Control-Allow-Headers: Authorization + HSTS/Expect-CT on preflight but NOT on GET 400; 5 hostnames same IP; route-existence oracle; Basic-Auth gating only
 [RISK] desktop-src: 95 reason: Windows key-storage ACL bypass CONFIRMED at source level (fs.ts:41, key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163 write with {} on win32 → no DACL restriction → DPAPI password recoverable by same-user → Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + SQLCipher databaseKey; PoC runtime-verified); plus Electron nodeIntegrationInWorker: true + sandbox unset (TODO DESK-79) at electron-main.ts:1252,1255
