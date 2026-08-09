@@ -487,3 +487,22 @@
 - NEW safe-{backupIdPrefix8}.threema.ch/ — backup safe hostname pattern (in scope: `safe-*.threema.ch`)
 - NEW rendezvous-{prefix4}.threema.ch/{prefix8}/ — rendezvous WSS hostname pattern (in scope: `rendezvous-*.threema.ch`)
 - CHANGED apip.threema.ch — was 403 on `/`; now confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
+
+## 2026-08-09 11:54:15 UTC
+- NEW `ds-apip.threema.ch/identity/fetch_bulk` — hard ceiling confirmed at exactly 10,000 IDs/request (10,000 → 200/152B, 10,001 → 400/0B); sharp count-cap boundary proven
+- NEW `ds-apip.test.threema.ch/identity/fetch_bulk` — staging enforces identical 10,000-ID cap (10,001 → 400 byte-for-byte identical to prod); validation-logic parity confirmed
+- NEW `apip.threema.ch` — canonical directory server hostname (wired into desktop client build config); GET `/identity/{id}` → 200/404 oracle confirmed
+- NEW `ds-apip-work.threema.ch` — work-style directory server (401 on all paths `/identity/*`, `/identities`; CORS `*`; no HSTS/Expect-CT)
+- NEW Hostname patterns discovered in desktop source `config.ts`: `mediator-{prefix4}.threema.ch/{prefix8}/`, `rendezvous-{prefix4}.threema.ch/{prefix8}/`, `safe-{backupIdPrefix8}.threema.ch/`, `blob-mirror
+- CHANGED `ds-apip.threema.ch/api.threema.ch/apip.threema.ch` — `fetch_bulk` ceiling tightened from "≥10000" to "exactly 10000" (overflow → 400 empty body, NO partial pubkey leak, CORS `*` on 400, zero 429s)
+- CHANGED `ds-apip.test.threema.ch` — mirror evidence strengthened: byte-identical fetch_bulk responses + identical 10000-cap enforcement; still no live-dataset proof without testId
+- CHANGED `broadcast.threema.ch/api/v1` — auth-gated 401 baseline stable; key-format/validity oracle fully disproven
+- CHANGED `g-*.0.{test.,}threema.ch:443/5222` — chat passive channel formally closed: explicit SNI + TLS1.2/1.3 probes all close immediately (0 bytes, no cert/SAN); handshake requires authenticated login frame
+- CHANGED `saltyrtc-*.threema.ch` — 256 hostnames resolve to 4 IPs, HTTP 426 on GET, but explicitly NOT in scope.yml
+- NEW ds-apip.threema.ch — canonical directory server hostname (matches inventory `apip.threema.ch` but is the actual host wired into desktop client build config)
+- NEW ds-apip-work.threema.ch — work-style directory server (returns 401 on all paths, requires Basic auth)
+- NEW blob-mirror-{prefix4}.threema.ch/{prefix8}/ — blob server hostname pattern (discovered in desktop source `config.ts`; NOT in scope — does not match any scope wildcard)
+- NEW mediator-{prefix4}.threema.ch/{prefix8}/ — mediator WSS hostname pattern (in scope: `mediator-*.threema.ch`)
+- NEW safe-{backupIdPrefix8}.threema.ch/ — backup safe hostname pattern (in scope: `safe-*.threema.ch`)
+- NEW rendezvous-{prefix4}.threema.ch/{prefix8}/ — rendezvous WSS hostname pattern (in scope: `rendezvous-*.threema.ch`)
+- CHANGED apip.threema.ch — was 403 on `/`; now confirmed 200 on `/identity/{id}` (public identity lookup) and 404 on invalid IDs
