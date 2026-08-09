@@ -39293,3 +39293,1327 @@ testability: PASSIVE + AUTH_HELPED + HUMAN
 [RISK] sync: 60 reason: mediator/rendezvous resolve but uniform 403 on HTTPS; WSS high-entropy, auth-in-source, no passive in-band divergence; saltyrtc pending scope ruling
 [RISK] safe: 88 reason: 5 hosts CORS `*` + write-capable methods + Access-Control-Allow-Headers: Authorization + HSTS/Expect-CT on OPTIONS 204 but NOT on GET 400 + Basic-Auth gating + route-existence oracle, all behind single IP 203.56.112.231 (probe verified)
 [RISK] desktop-src: 95 reason: Windows key-storage ACL bypass SOURCE-VERIFIED end-to-end on real main (fs.ts:41→`{}` win32; index.ts:559-560 + electron-main.ts:943-945 write with no DACL; v3.ts:65,70 expose ck+databaseKey; crypto.ts:60 Argon2id; sqlite.ts:240 PRAGMA key); runtime PoC NOT yet executed (PoC file absent, Windows host needed) — source-confidence 95, runtime-confidence 0 until HUMAN grants host+creds
+===== ANALYST laguna 2026-08-09 06:43:50 UTC =====
+[0m
+> build · laguna-s-2.1-free
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threima-hunt 2>/dev/null || ls -la /home/runner/work/threema-hunt/threema-hunt
+total 200
+drwxr-xr-x 11 runner runner  4096 Aug  9 06:25 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 06:25 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 06:25 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 06:25 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 06:25 README.md
+-rw-r--r--  1 runner runner    39 Aug  9 06:25 analyst-out.txt
+-rw-r--r--  1 runner runner 56903 Aug  9 06:25 analyst-prompt.txt
+-rw-r--r--  1 runner runner 53839 Aug  9 06:25 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 06:25 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 06:25 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  9 06:25 leads
+-rw-r--r--  1 runner runner  8623 Aug  9 06:25 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 06:25 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 06:25 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 06:25 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 06:25 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 06:25 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 06:25 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 06:25 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 06:25 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 06:25 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 06:25 triage
+[0m
+[0m$ [0mls -la /tmp/opencode/threema-desktop/ 2>/dev/null; echo "---"; find /home/runner/work/threema-hunt/threema-hunt -maxdepth 2 -type d | head -40
+---
+/home/runner/work/threema-hunt/threema-hunt
+/home/runner/work/threema-hunt/threema-hunt/.github
+/home/runner/work/threema-hunt/threema-hunt/.github/workflows
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch
+/home/runner/work/threema-hunt/threema-hunt/knowledge
+/home/runner/work/threema-hunt/threema-hunt/.git
+/home/runner/work/threema-hunt/threema-hunt/.git/objects
+/home/runner/work/threema-hunt/threema-hunt/.git/hooks
+/home/runner/work/threema-hunt/threema-hunt/.git/logs
+/home/runner/work/threema-hunt/threema-hunt/.git/refs
+/home/runner/work/threema-hunt/threema-hunt/.git/info
+/home/runner/work/threema-hunt/threema-hunt/leads
+/home/runner/work/threema-hunt/threema-hunt/reports
+/home/runner/work/threema-hunt/threema-hunt/inventory
+/home/runner/work/threema-hunt/threema-hunt/scripts
+/home/runner/work/threema-hunt/threema-hunt/triage
+[0m
+I'll explore the workspace to understand the current state, then follow the 8-step analyst process.
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reports/ /home/runner/work/threema-hunt/threema-hunt/leads/ /home/runner/work/threema-hunt/threema-hunt/inventory/ /home/runner/work/threema-hunt/threema-hunt/triage/
+/home/runner/work/threema-hunt/threema-hunt/inventory/:
+total 52
+drwxr-xr-x  2 runner runner  4096 Aug  9 06:25 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 06:25 ..
+-rw-r--r--  1 runner runner 42536 Aug  9 06:25 threema.md
+
+/home/runner/work/threema-hunt/threema-hunt/leads/:
+total 2584
+drwxr-xr-x  2 runner runner   4096 Aug  9 06:25 .
+drwxr-xr-x 11 runner runner   4096 Aug  9 06:25 ..
+-rw-r--r--  1 runner runner 471624 Aug  9 06:25 lead-bigpickle.md
+-rw-r--r--  1 runner runner 528814 Aug  9 06:25 lead-laguna.md
+-rw-r--r--  1 runner runner   7734 Aug  9 06:25 lead-ling3.md
+-rw-r--r--  1 runner runner   2682 Aug  9 06:25 lead-longcat.md
+-rw-r--r--  1 runner runner 439172 Aug  9 06:25 lead-nemotron3.md
+-rw-r--r--  1 runner runner  11048 Aug  9 06:25 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner  13399 Aug  9 06:25 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner  13429 Aug  9 06:25 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner  11241 Aug  9 06:25 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner   6565 Aug  9 06:25 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner   9511 Aug  9 06:25 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner  13472 Aug  9 06:25 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner  10507 Aug  9 06:25 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner  13665 Aug  9 06:25 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner  10938 Aug  9 06:25 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner  17321 Aug  9 06:25 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner  15373 Aug  9 06:25 reposcan-2026-08-07-23-19.md
+-rw-r--r--  1 runner runner  11670 Aug  9 06:25 reposcan-2026-08-07-23-50.md
+-rw-r--r--  1 runner runner  14267 Aug  9 06:25 reposcan-2026-08-08-00-01.md
+-rw-r--r--  1 runner runner  12628 Aug  9 06:25 reposcan-2026-08-08-00-19.md
+-rw-r--r--  1 runner runner  13392 Aug  9 06:25 reposcan-2026-08-08-02-10.md
+-rw-r--r--  1 runner runner  13822 Aug  9 06:25 reposcan-2026-08-08-02-23.md
+-rw-r--r--  1 runner runner  13194 Aug  9 06:25 reposcan-2026-08-08-03-52.md
+-rw-r--r--  1 runner runner  14260 Aug  9 06:25 reposcan-2026-08-08-04-47.md
+-rw-r--r--  1 runner runner  15327 Aug  9 06:25 reposcan-2026-08-08-05-01.md
+-rw-r--r--  1 runner runner  13092 Aug  9 06:25 reposcan-2026-08-08-05-29.md
+-rw-r--r--  1 runner runner  11228 Aug  9 06:25 reposcan-2026-08-08-05-48.md
+-rw-r--r--  1 runner runner  10378 Aug  9 06:25 reposcan-2026-08-08-06-08.md
+-rw-r--r--  1 runner runner  11257 Aug  9 06:25 reposcan-2026-08-08-06-56.md
+-rw-r--r--  1 runner runner  11788 Aug  9 06:25 reposcan-2026-08-08-07-12.md
+-rw-r--r--  1 runner runner   9790 Aug  9 06:25 reposcan-2026-08-08-07-53.md
+-rw-r--r--  1 runner runner  10972 Aug  9 06:25 reposcan-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner  13672 Aug  9 06:25 reposcan-2026-08-08-08-37.md
+-rw-r--r--  1 runner runner   6321 Aug  9 06:25 reposcan-2026-08-08-08-42.md
+-rw-r--r--  1 runner runner  16455 Aug  9 06:25 reposcan-2026-08-08-09-21.md
+-rw-r--r--  1 runner runner  14107 Aug  9 06:25 reposcan-2026-08-08-09-40.md
+-rw-r--r--  1 runner runner  14710 Aug  9 06:25 reposcan-2026-08-08-10-09.md
+-rw-r--r--  1 runner runner  13912 Aug  9 06:25 reposcan-2026-08-08-10-27.md
+-rw-r--r--  1 runner runner  15295 Aug  9 06:25 reposcan-2026-08-08-10-37.md
+-rw-r--r--  1 runner runner  11119 Aug  9 06:25 reposcan-2026-08-08-11-08.md
+-rw-r--r--  1 runner runner  16740 Aug  9 06:25 reposcan-2026-08-08-11-28.md
+-rw-r--r--  1 runner runner  11393 Aug  9 06:25 reposcan-2026-08-08-11-30.md
+-rw-r--r--  1 runner runner  10793 Aug  9 06:25 reposcan-2026-08-08-11-55.md
+-rw-r--r--  1 runner runner  13925 Aug  9 06:25 reposcan-2026-08-08-12-00.md
+-rw-r--r--  1 runner runner  12984 Aug  9 06:25 reposcan-2026-08-08-12-09.md
+-rw-r--r--  1 runner runner  11553 Aug  9 06:25 reposcan-2026-08-08-13-01.md
+-rw-r--r--  1 runner runner  16362 Aug  9 06:25 reposcan-2026-08-08-13-15.md
+-rw-r--r--  1 runner runner  11685 Aug  9 06:25 reposcan-2026-08-08-13-56.md
+-rw-r--r--  1 runner runner  11740 Aug  9 06:25 reposcan-2026-08-08-14-04.md
+-rw-r--r--  1 runner runner  14858 Aug  9 06:25 reposcan-2026-08-08-14-28.md
+-rw-r--r--  1 runner runner  10356 Aug  9 06:25 reposcan-2026-08-08-14-35.md
+-rw-r--r--  1 runner runner  10513 Aug  9 06:25 reposcan-2026-08-08-15-08.md
+-rw-r--r--  1 runner runner   6321 Aug  9 06:25 reposcan-2026-08-08-15-31.md
+-rw-r--r--  1 runner runner  11739 Aug  9 06:25 reposcan-2026-08-08-16-00.md
+-rw-r--r--  1 runner runner  15164 Aug  9 06:25 reposcan-2026-08-08-16-07.md
+-rw-r--r--  1 runner runner  12405 Aug  9 06:25 reposcan-2026-08-08-16-15.md
+-rw-r--r--  1 runner runner   6321 Aug  9 06:25 reposcan-2026-08-08-17-04.md
+-rw-r--r--  1 runner runner  12923 Aug  9 06:25 reposcan-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  15904 Aug  9 06:25 reposcan-2026-08-08-18-04.md
+-rw-r--r--  1 runner runner  11771 Aug  9 06:25 reposcan-2026-08-08-18-36.md
+-rw-r--r--  1 runner runner  12165 Aug  9 06:25 reposcan-2026-08-08-19-19.md
+-rw-r--r--  1 runner runner  14685 Aug  9 06:25 reposcan-2026-08-08-19-46.md
+-rw-r--r--  1 runner runner  13911 Aug  9 06:25 reposcan-2026-08-08-19-58.md
+-rw-r--r--  1 runner runner   9017 Aug  9 06:25 reposcan-2026-08-08-20-14.md
+-rw-r--r--  1 runner runner  17271 Aug  9 06:25 reposcan-2026-08-08-20-33.md
+-rw-r--r--  1 runner runner  14693 Aug  9 06:25 reposcan-2026-08-08-20-41.md
+-rw-r--r--  1 runner runner  13770 Aug  9 06:25 reposcan-2026-08-08-21-03.md
+-rw-r--r--  1 runner runner  16811 Aug  9 06:25 reposcan-2026-08-08-21-11.md
+-rw-r--r--  1 runner runner  14116 Aug  9 06:25 reposcan-2026-08-08-21-32.md
+-rw-r--r--  1 runner runner  12845 Aug  9 06:25 reposcan-2026-08-08-21-41.md
+-rw-r--r--  1 runner runner  12743 Aug  9 06:25 reposcan-2026-08-08-22-05.md
+-rw-r--r--  1 runner runner  11547 Aug  9 06:25 reposcan-2026-08-08-22-19.md
+-rw-r--r--  1 runner runner  12410 Aug  9 06:25 reposcan-2026-08-08-22-54.md
+-rw-r--r--  1 runner runner   6471 Aug  9 06:25 reposcan-2026-08-08-23-19.md
+-rw-r--r--  1 runner runner   6321 Aug  9 06:25 reposcan-2026-08-08-23-28.md
+-rw-r--r--  1 runner runner  10531 Aug  9 06:25 reposcan-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner  13968 Aug  9 06:25 reposcan-2026-08-08-23-59.md
+-rw-r--r--  1 runner runner  13598 Aug  9 06:25 reposcan-2026-08-09-00-07.md
+-rw-r--r--  1 runner runner  12837 Aug  9 06:25 reposcan-2026-08-09-01-41.md
+-rw-r--r--  1 runner runner  11706 Aug  9 06:25 reposcan-2026-08-09-02-39.md
+-rw-r--r--  1 runner runner  12540 Aug  9 06:25 reposcan-2026-08-09-03-22.md
+-rw-r--r--  1 runner runner  12484 Aug  9 06:25 reposcan-2026-08-09-04-04.md
+-rw-r--r--  1 runner runner  13901 Aug  9 06:25 reposcan-2026-08-09-04-50.md
+-rw-r--r--  1 runner runner  11067 Aug  9 06:25 reposcan-2026-08-09-05-12.md
+-rw-r--r--  1 runner runner  11859 Aug  9 06:25 reposcan-2026-08-09-05-48.md
+-rw-r--r--  1 runner runner  11859 Aug  9 06:25 reposcan-latest.md
+
+/home/runner/work/threema-hunt/threema-hunt/reports/:
+total 5800
+drwxr-xr-x  2 runner runner    4096 Aug  9 06:25 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 06:25 ..
+-rw-r--r--  1 runner runner 2014921 Aug  9 06:25 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 3222391 Aug  9 06:25 analyst-laguna.log
+-rw-r--r--  1 runner runner   22663 Aug  9 06:25 analyst-ling3.log
+-rw-r--r--  1 runner runner    4680 Aug  9 06:25 analyst-longcat.log
+-rw-r--r--  1 runner runner  553652 Aug  9 06:25 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    9751 Aug  9 06:25 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner    6085 Aug  9 06:25 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 06:25 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 06:25 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner    8803 Aug  9 06:25 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  169554 Aug  9 06:25 hypotheses.md
+-rw-r--r--  1 runner runner   16712 Aug  9 06:25 valid-bugs.md
+
+/home/runner/work/threema-hunt/threema-hunt/triage/:
+total 704
+drwxr-xr-x  2 runner runner  4096 Aug  9 06:25 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 06:25 ..
+-rw-r--r--  1 runner runner 81432 Aug  9 06:25 run-2026-08-07-20-10.md
+-rw-r--r--  1 runner runner 18280 Aug  9 06:25 run-2026-08-07-21-03.md
+-rw-r--r--  1 runner runner 18224 Aug  9 06:25 run-2026-08-07-21-56.md
+-rw-r--r--  1 runner runner 12766 Aug  9 06:25 run-2026-08-07-22-56.md
+-rw-r--r--  1 runner runner 27810 Aug  9 06:25 run-2026-08-07-23-55.md
+-rw-r--r--  1 runner runner  1637 Aug  9 06:25 run-2026-08-08-02-24.md
+-rw-r--r--  1 runner runner 18651 Aug  9 06:25 run-2026-08-08-04-24.md
+-rw-r--r--  1 runner runner 20107 Aug  9 06:25 run-2026-08-08-06-01.md
+-rw-r--r--  1 runner runner 23637 Aug  9 06:25 run-2026-08-08-07-07.md
+-rw-r--r--  1 runner runner 18269 Aug  9 06:25 run-2026-08-08-07-15.md
+-rw-r--r--  1 runner runner 12515 Aug  9 06:25 run-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner   236 Aug  9 06:25 run-2026-08-08-08-59.md
+-rw-r--r--  1 runner runner 11791 Aug  9 06:25 run-2026-08-08-09-54.md
+-rw-r--r--  1 runner runner 10557 Aug  9 06:25 run-2026-08-08-10-53.md
+-rw-r--r--  1 runner runner   896 Aug  9 06:25 run-2026-08-08-11-44.md
+-rw-r--r--  1 runner runner   428 Aug  9 06:25 run-2026-08-08-13-11.md
+-rw-r--r--  1 runner runner  7773 Aug  9 06:25 run-2026-08-08-14-00.md
+-rw-r--r--  1 runner runner 19408 Aug  9 06:25 run-2026-08-08-14-52.md
+-rw-r--r--  1 runner runner 25063 Aug  9 06:25 run-2026-08-08-15-47.md
+-rw-r--r--  1 runner runner 27020 Aug  9 06:25 run-2026-08-08-17-19.md
+-rw-r--r--  1 runner runner  7619 Aug  9 06:25 run-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  6252 Aug  9 06:25 run-2026-08-08-17-57.md
+-rw-r--r--  1 runner runner 22001 Aug  9 06:25 run-2026-08-08-18-19.md
+-rw-r--r--  1 runner runner 13783 Aug  9 06:25 run-2026-08-08-19-08.md
+-rw-r--r--  1 runner runner   855 Aug  9 06:25 run-2026-08-08-19-48.md
+-rw-r--r--  1 runner runner  3697 Aug  9 06:25 run-2026-08-08-20-15.md
+-rw-r--r--  1 runner runner 48286 Aug  9 06:25 run-2026-08-08-20-16.md
+-rw-r--r--  1 runner runner   288 Aug  9 06:25 run-2026-08-08-20-52.md
+-rw-r--r--  1 runner runner   306 Aug  9 06:25 run-2026-08-08-21-18.md
+-rw-r--r--  1 runner runner 20264 Aug  9 06:25 run-2026-08-08-21-53.md
+-rw-r--r--  1 runner runner   319 Aug  9 06:25 run-2026-08-08-22-13.md
+-rw-r--r--  1 runner runner 25573 Aug  9 06:25 run-2026-08-08-22-53.md
+-rw-r--r--  1 runner runner 57527 Aug  9 06:25 run-2026-08-08-23-18.md
+-rw-r--r--  1 runner runner   228 Aug  9 06:25 run-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner 36585 Aug  9 06:25 run-2026-08-09-00-41.md
+-rw-r--r--  1 runner runner 25496 Aug  9 06:25 run-2026-08-09-03-00.md
+-rw-r--r--  1 runner runner   324 Aug  9 06:25 run-2026-08-09-04-10.md
+-rw-r--r--  1 runner runner   292 Aug  9 06:25 run-2026-08-09-05-26.md
+[0m
+[0m$ [0mfor f in /home/runner/work/threema-hunt/threema-hunt/state_*.json; do echo "=== $f ==="; cat "$f"; echo; done
+=== /home/runner/work/threema-hunt/threema-hunt/state_bigpickle.json ===
+{"phase": "POC", "target": "chat"}
+=== /home/runner/work/threema-hunt/threema-hunt/state_laguna.json ===
+{"phase": "POC", "target": "desktop"}
+=== /home/runner/work/threema-hunt/threema-hunt/state_ling3.json ===
+{"phase": "POC", "target": "safe"}
+=== /home/runner/work/threema-hunt/threema-hunt/state_longcat.json ===
+{"phase": "POC", "target": "sync"}
+=== /home/runner/work/threema-hunt/threema-hunt/state_nemotron3.json ===
+{"phase": "POC", "target": "web"}
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/scope.yml
+programs:
+  threema:
+    name: Threema
+    disclosure_policy: TBD - operator-provided program scope (update once public channel confirmed)
+    assets:
+      - name: "Android Source Code"
+        priority: In
+      - name: "iOS App Source Code"
+        priority: In
+      - name: "Desktop 2.x App Source Code (github.com/threema-ch/threema-desktop)"
+        priority: In
+      - name: "g-*.0.threema.ch (chat services)"
+        priority: In
+      - name: "mediator-*.threema.ch (multi-device synchronization server)"
+        priority: In
+      - name: "rendezvous-*.threema.ch (multi-device linking server)"
+        priority: In
+      - name: "apip.threema.ch (directory server / ID service)"
+        priority: In
+      - name: "safe-*.threema.ch (backup service)"
+        priority: In
+      - name: "work.threema.ch (work cockpit & backend)"
+        priority: In
+      - name: "broadcast.threema.ch (broadcast cockpit & backend)"
+        priority: In
+      - name: "gateway.threema.ch (gateway cockpit & backend)"
+        priority: In
+      - name: "shop.threema.ch (threema shop)"
+        priority: In
+      - name: "billing.threema.ch (billing system)"
+        priority: In
+    out_of_scope:
+      - "All other targets and third-party services not listed above"
+    github_orgs:
+      - threema-ch
+
+rules:
+  passive_first: true          # GET/HEAD reads first; no invasive testing without program approval
+  max_requests_per_second: 1   # never hammer
+  no_doom: true                # no DoS/DDoS, no resource-exhaustion tests
+  no_account_creation: true    # no mass signups without program approval
+  no_data_modification: true   # no writes, deletes, state changes on live infra
+  no_pre_disclosure: true      # never disclose before program response
+  redact_secrets_in_commits: true   # commit sha256 of secrets, never raw values
+
+# Multi-model ensemble: every hunt run picks a rotation of the 5 models.
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
+[0m
+[0m→ [0mRead analyst-prompt.txt
+[0m→ [0mRead ctx.txt
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/analyst-out.txt; echo "==="; cat /home/runner/work/threema-hunt/threema-hunt/scripts/*.sh 2>/dev/null | head -50; echo "==="; ls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/
+[0m
+> build · laguna-s-2.1-free
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threima-hunt 2>/dev/null || ls -la /home/runner/work/threema-hunt/threema-hunt
+total 200
+drwxr-xr-x 11 runner runner  4096 Aug  9 06:25 .
+drwxr-xr-x  3 runner runner  4096 Aug  9 06:25 ..
+drwxr-xr-x  7 runner runner  4096 Aug  9 06:25 .git
+drwxr-xr-x  3 runner runner  4096 Aug  9 06:25 .github
+-rw-r--r--  1 runner runner  1049 Aug  9 06:25 README.md
+-rw-r--r--  1 runner runner    39 Aug  9 06:25 analyst-out.txt
+-rw-r--r--  1 runner runner 56903 Aug  9 06:25 analyst-prompt.txt
+-rw-r--r--  1 runner runner 53839 Aug  9 06:25 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug  9 06:25 inventory
+drwxr-xr-x  2 runner runner  4096 Aug  9 06:25 knowledge
+drwxr-xr-x  2 runner runner  4096 Aug  9 06:25 leads
+-rw-r--r--  1 runner runner  8623 Aug  9 06:25 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug  9 06:25 reports
+drwxr-xr-x  3 runner runner  4096 Aug  9 06:25 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug  9 06:25 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug  9 06:25 scripts
+-rw-r--r--  1 runner runner    34 Aug  9 06:25 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug  9 06:25 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug  9 06:25 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug  9 06:25 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug  9 06:25 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug  9 06:25 triage
+[0m
+[0m$ [0mls -la /tmp/opencode/threema-desktop/ 2>/dev/null; echo "---"; find /home/runner/work/threema-hunt/threema-hunt -maxdepth 2 -type d | head -40
+---
+/home/runner/work/threema-hunt/threema-hunt
+/home/runner/work/threema-hunt/threema-hunt/.github
+/home/runner/work/threema-hunt/threema-hunt/.github/workflows
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch
+/home/runner/work/threema-hunt/threema-hunt/knowledge
+/home/runner/work/threema-hunt/threema-hunt/.git
+/home/runner/work/threema-hunt/threema-hunt/.git/objects
+/home/runner/work/threema-hunt/threema-hunt/.git/hooks
+/home/runner/work/threema-hunt/threema-hunt/.git/logs
+/home/runner/work/threema-hunt/threema-hunt/.git/refs
+/home/runner/work/threema-hunt/threema-hunt/.git/info
+/home/runner/work/threema-hunt/threema-hunt/leads
+/home/runner/work/threema-hunt/threema-hunt/reports
+/home/runner/work/threema-hunt/threema-hunt/inventory
+/home/runner/work/threema-hunt/threema-hunt/scripts
+/home/runner/work/threema-hunt/threema-hunt/triage
+[0m
+I'll explore the workspace to understand the current state, then follow the 8-step analyst process.
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reports/ /home/runner/work/threema-hunt/threema-hunt/leads/ /home/runner/work/threema-hunt/threema-hunt/inventory/ /home/runner/work/threema-hunt/threema-hunt/triage/
+/home/runner/work/threema-hunt/threema-hunt/inventory/:
+total 52
+drwxr-xr-x  2 runner runner  4096 Aug  9 06:25 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 06:25 ..
+-rw-r--r--  1 runner runner 42536 Aug  9 06:25 threema.md
+
+/home/runner/work/threema-hunt/threema-hunt/leads/:
+total 2584
+drwxr-xr-x  2 runner runner   4096 Aug  9 06:25 .
+drwxr-xr-x 11 runner runner   4096 Aug  9 06:25 ..
+-rw-r--r--  1 runner runner 471624 Aug  9 06:25 lead-bigpickle.md
+-rw-r--r--  1 runner runner 528814 Aug  9 06:25 lead-laguna.md
+-rw-r--r--  1 runner runner   7734 Aug  9 06:25 lead-ling3.md
+-rw-r--r--  1 runner runner   2682 Aug  9 06:25 lead-longcat.md
+-rw-r--r--  1 runner runner 439172 Aug  9 06:25 lead-nemotron3.md
+-rw-r--r--  1 runner runner  11048 Aug  9 06:25 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner  13399 Aug  9 06:25 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner  13429 Aug  9 06:25 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner  11241 Aug  9 06:25 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner   6565 Aug  9 06:25 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner   9511 Aug  9 06:25 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner  13472 Aug  9 06:25 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner  10507 Aug  9 06:25 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner  13665 Aug  9 06:25 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner  10938 Aug  9 06:25 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner  17321 Aug  9 06:25 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner  15373 Aug  9 06:25 reposcan-2026-08-07-23-19.md
+-rw-r--r--  1 runner runner  11670 Aug  9 06:25 reposcan-2026-08-07-23-50.md
+-rw-r--r--  1 runner runner  14267 Aug  9 06:25 reposcan-2026-08-08-00-01.md
+-rw-r--r--  1 runner runner  12628 Aug  9 06:25 reposcan-2026-08-08-00-19.md
+-rw-r--r--  1 runner runner  13392 Aug  9 06:25 reposcan-2026-08-08-02-10.md
+-rw-r--r--  1 runner runner  13822 Aug  9 06:25 reposcan-2026-08-08-02-23.md
+-rw-r--r--  1 runner runner  13194 Aug  9 06:25 reposcan-2026-08-08-03-52.md
+-rw-r--r--  1 runner runner  14260 Aug  9 06:25 reposcan-2026-08-08-04-47.md
+-rw-r--r--  1 runner runner  15327 Aug  9 06:25 reposcan-2026-08-08-05-01.md
+-rw-r--r--  1 runner runner  13092 Aug  9 06:25 reposcan-2026-08-08-05-29.md
+-rw-r--r--  1 runner runner  11228 Aug  9 06:25 reposcan-2026-08-08-05-48.md
+-rw-r--r--  1 runner runner  10378 Aug  9 06:25 reposcan-2026-08-08-06-08.md
+-rw-r--r--  1 runner runner  11257 Aug  9 06:25 reposcan-2026-08-08-06-56.md
+-rw-r--r--  1 runner runner  11788 Aug  9 06:25 reposcan-2026-08-08-07-12.md
+-rw-r--r--  1 runner runner   9790 Aug  9 06:25 reposcan-2026-08-08-07-53.md
+-rw-r--r--  1 runner runner  10972 Aug  9 06:25 reposcan-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner  13672 Aug  9 06:25 reposcan-2026-08-08-08-37.md
+-rw-r--r--  1 runner runner   6321 Aug  9 06:25 reposcan-2026-08-08-08-42.md
+-rw-r--r--  1 runner runner  16455 Aug  9 06:25 reposcan-2026-08-08-09-21.md
+-rw-r--r--  1 runner runner  14107 Aug  9 06:25 reposcan-2026-08-08-09-40.md
+-rw-r--r--  1 runner runner  14710 Aug  9 06:25 reposcan-2026-08-08-10-09.md
+-rw-r--r--  1 runner runner  13912 Aug  9 06:25 reposcan-2026-08-08-10-27.md
+-rw-r--r--  1 runner runner  15295 Aug  9 06:25 reposcan-2026-08-08-10-37.md
+-rw-r--r--  1 runner runner  11119 Aug  9 06:25 reposcan-2026-08-08-11-08.md
+-rw-r--r--  1 runner runner  16740 Aug  9 06:25 reposcan-2026-08-08-11-28.md
+-rw-r--r--  1 runner runner  11393 Aug  9 06:25 reposcan-2026-08-08-11-30.md
+-rw-r--r--  1 runner runner  10793 Aug  9 06:25 reposcan-2026-08-08-11-55.md
+-rw-r--r--  1 runner runner  13925 Aug  9 06:25 reposcan-2026-08-08-12-00.md
+-rw-r--r--  1 runner runner  12984 Aug  9 06:25 reposcan-2026-08-08-12-09.md
+-rw-r--r--  1 runner runner  11553 Aug  9 06:25 reposcan-2026-08-08-13-01.md
+-rw-r--r--  1 runner runner  16362 Aug  9 06:25 reposcan-2026-08-08-13-15.md
+-rw-r--r--  1 runner runner  11685 Aug  9 06:25 reposcan-2026-08-08-13-56.md
+-rw-r--r--  1 runner runner  11740 Aug  9 06:25 reposcan-2026-08-08-14-04.md
+-rw-r--r--  1 runner runner  14858 Aug  9 06:25 reposcan-2026-08-08-14-28.md
+-rw-r--r--  1 runner runner  10356 Aug  9 06:25 reposcan-2026-08-08-14-35.md
+-rw-r--r--  1 runner runner  10513 Aug  9 06:25 reposcan-2026-08-08-15-08.md
+-rw-r--r--  1 runner runner   6321 Aug  9 06:25 reposcan-2026-08-08-15-31.md
+-rw-r--r--  1 runner runner  11739 Aug  9 06:25 reposcan-2026-08-08-16-00.md
+-rw-r--r--  1 runner runner  15164 Aug  9 06:25 reposcan-2026-08-08-16-07.md
+-rw-r--r--  1 runner runner  12405 Aug  9 06:25 reposcan-2026-08-08-16-15.md
+-rw-r--r--  1 runner runner   6321 Aug  9 06:25 reposcan-2026-08-08-17-04.md
+-rw-r--r--  1 runner runner  12923 Aug  9 06:25 reposcan-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  15904 Aug  9 06:25 reposcan-2026-08-08-18-04.md
+-rw-r--r--  1 runner runner  11771 Aug  9 06:25 reposcan-2026-08-08-18-36.md
+-rw-r--r--  1 runner runner  12165 Aug  9 06:25 reposcan-2026-08-08-19-19.md
+-rw-r--r--  1 runner runner  14685 Aug  9 06:25 reposcan-2026-08-08-19-46.md
+-rw-r--r--  1 runner runner  13911 Aug  9 06:25 reposcan-2026-08-08-19-58.md
+-rw-r--r--  1 runner runner   9017 Aug  9 06:25 reposcan-2026-08-08-20-14.md
+-rw-r--r--  1 runner runner  17271 Aug  9 06:25 reposcan-2026-08-08-20-33.md
+-rw-r--r--  1 runner runner  14693 Aug  9 06:25 reposcan-2026-08-08-20-41.md
+-rw-r--r--  1 runner runner  13770 Aug  9 06:25 reposcan-2026-08-08-21-03.md
+-rw-r--r--  1 runner runner  16811 Aug  9 06:25 reposcan-2026-08-08-21-11.md
+-rw-r--r--  1 runner runner  14116 Aug  9 06:25 reposcan-2026-08-08-21-32.md
+-rw-r--r--  1 runner runner  12845 Aug  9 06:25 reposcan-2026-08-08-21-41.md
+-rw-r--r--  1 runner runner  12743 Aug  9 06:25 reposcan-2026-08-08-22-05.md
+-rw-r--r--  1 runner runner  11547 Aug  9 06:25 reposcan-2026-08-08-22-19.md
+-rw-r--r--  1 runner runner  12410 Aug  9 06:25 reposcan-2026-08-08-22-54.md
+-rw-r--r--  1 runner runner   6471 Aug  9 06:25 reposcan-2026-08-08-23-19.md
+-rw-r--r--  1 runner runner   6321 Aug  9 06:25 reposcan-2026-08-08-23-28.md
+-rw-r--r--  1 runner runner  10531 Aug  9 06:25 reposcan-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner  13968 Aug  9 06:25 reposcan-2026-08-08-23-59.md
+-rw-r--r--  1 runner runner  13598 Aug  9 06:25 reposcan-2026-08-09-00-07.md
+-rw-r--r--  1 runner runner  12837 Aug  9 06:25 reposcan-2026-08-09-01-41.md
+-rw-r--r--  1 runner runner  11706 Aug  9 06:25 reposcan-2026-08-09-02-39.md
+-rw-r--r--  1 runner runner  12540 Aug  9 06:25 reposcan-2026-08-09-03-22.md
+-rw-r--r--  1 runner runner  12484 Aug  9 06:25 reposcan-2026-08-09-04-04.md
+-rw-r--r--  1 runner runner  13901 Aug  9 06:25 reposcan-2026-08-09-04-50.md
+-rw-r--r--  1 runner runner  11067 Aug  9 06:25 reposcan-2026-08-09-05-12.md
+-rw-r--r--  1 runner runner  11859 Aug  9 06:25 reposcan-2026-08-09-05-48.md
+-rw-r--r--  1 runner runner  11859 Aug  9 06:25 reposcan-latest.md
+
+/home/runner/work/threema-hunt/threema-hunt/reports/:
+total 5800
+drwxr-xr-x  2 runner runner    4096 Aug  9 06:25 .
+drwxr-xr-x 11 runner runner    4096 Aug  9 06:25 ..
+-rw-r--r--  1 runner runner 2014921 Aug  9 06:25 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 3222391 Aug  9 06:25 analyst-laguna.log
+-rw-r--r--  1 runner runner   22663 Aug  9 06:25 analyst-ling3.log
+-rw-r--r--  1 runner runner    4680 Aug  9 06:25 analyst-longcat.log
+-rw-r--r--  1 runner runner  553652 Aug  9 06:25 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    9751 Aug  9 06:25 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner    6085 Aug  9 06:25 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug  9 06:25 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug  9 06:25 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner    8803 Aug  9 06:25 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  169554 Aug  9 06:25 hypotheses.md
+-rw-r--r--  1 runner runner   16712 Aug  9 06:25 valid-bugs.md
+
+/home/runner/work/threema-hunt/threema-hunt/triage/:
+total 704
+drwxr-xr-x  2 runner runner  4096 Aug  9 06:25 .
+drwxr-xr-x 11 runner runner  4096 Aug  9 06:25 ..
+-rw-r--r--  1 runner runner 81432 Aug  9 06:25 run-2026-08-07-20-10.md
+-rw-r--r--  1 runner runner 18280 Aug  9 06:25 run-2026-08-07-21-03.md
+-rw-r--r--  1 runner runner 18224 Aug  9 06:25 run-2026-08-07-21-56.md
+-rw-r--r--  1 runner runner 12766 Aug  9 06:25 run-2026-08-07-22-56.md
+-rw-r--r--  1 runner runner 27810 Aug  9 06:25 run-2026-08-07-23-55.md
+-rw-r--r--  1 runner runner  1637 Aug  9 06:25 run-2026-08-08-02-24.md
+-rw-r--r--  1 runner runner 18651 Aug  9 06:25 run-2026-08-08-04-24.md
+-rw-r--r--  1 runner runner 20107 Aug  9 06:25 run-2026-08-08-06-01.md
+-rw-r--r--  1 runner runner 23637 Aug  9 06:25 run-2026-08-08-07-07.md
+-rw-r--r--  1 runner runner 18269 Aug  9 06:25 run-2026-08-08-07-15.md
+-rw-r--r--  1 runner runner 12515 Aug  9 06:25 run-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner   236 Aug  9 06:25 run-2026-08-08-08-59.md
+-rw-r--r--  1 runner runner 11791 Aug  9 06:25 run-2026-08-08-09-54.md
+-rw-r--r--  1 runner runner 10557 Aug  9 06:25 run-2026-08-08-10-53.md
+-rw-r--r--  1 runner runner   896 Aug  9 06:25 run-2026-08-08-11-44.md
+-rw-r--r--  1 runner runner   428 Aug  9 06:25 run-2026-08-08-13-11.md
+-rw-r--r--  1 runner runner  7773 Aug  9 06:25 run-2026-08-08-14-00.md
+-rw-r--r--  1 runner runner 19408 Aug  9 06:25 run-2026-08-08-14-52.md
+-rw-r--r--  1 runner runner 25063 Aug  9 06:25 run-2026-08-08-15-47.md
+-rw-r--r--  1 runner runner 27020 Aug  9 06:25 run-2026-08-08-17-19.md
+-rw-r--r--  1 runner runner  7619 Aug  9 06:25 run-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  6252 Aug  9 06:25 run-2026-08-08-17-57.md
+-rw-r--r--  1 runner runner 22001 Aug  9 06:25 run-2026-08-08-18-19.md
+-rw-r--r--  1 runner runner 13783 Aug  9 06:25 run-2026-08-08-19-08.md
+-rw-r--r--  1 runner runner   855 Aug  9 06:25 run-2026-08-08-19-48.md
+-rw-r--r--  1 runner runner  3697 Aug  9 06:25 run-2026-08-08-20-15.md
+-rw-r--r--  1 runner runner 48286 Aug  9 06:25 run-2026-08-08-20-16.md
+-rw-r--r--  1 runner runner   288 Aug  9 06:25 run-2026-08-08-20-52.md
+-rw-r--r--  1 runner runner   306 Aug  9 06:25 run-2026-08-08-21-18.md
+-rw-r--r--  1 runner runner 20264 Aug  9 06:25 run-2026-08-08-21-53.md
+-rw-r--r--  1 runner runner   319 Aug  9 06:25 run-2026-08-08-22-13.md
+-rw-r--r--  1 runner runner 25573 Aug  9 06:25 run-2026-08-08-22-53.md
+-rw-r--r--  1 runner runner 57527 Aug  9 06:25 run-2026-08-08-23-18.md
+-rw-r--r--  1 runner runner   228 Aug  9 06:25 run-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner 36585 Aug  9 06:25 run-2026-08-09-00-41.md
+-rw-r--r--  1 runner runner 25496 Aug  9 06:25 run-2026-08-09-03-00.md
+-rw-r--r--  1 runner runner   324 Aug  9 06:25 run-2026-08-09-04-10.md
+-rw-r--r--  1 runner runner   292 Aug  9 06:25 run-2026-08-09-05-26.md
+[0m
+[0m$ [0mfor f in /home/runner/work/threema-hunt/threema-hunt/state_*.json; do echo "=== $f ==="; cat "$f"; echo; done
+=== /home/runner/work/threema-hunt/threema-hunt/state_bigpickle.json ===
+{"phase": "POC", "target": "chat"}
+=== /home/runner/work/threema-hunt/threema-hunt/state_laguna.json ===
+{"phase": "POC", "target": "desktop"}
+=== /home/runner/work/threema-hunt/threema-hunt/state_ling3.json ===
+{"phase": "POC", "target": "safe"}
+=== /home/runner/work/threema-hunt/threema-hunt/state_longcat.json ===
+{"phase": "POC", "target": "sync"}
+=== /home/runner/work/threema-hunt/threema-hunt/state_nemotron3.json ===
+{"phase": "POC", "target": "web"}
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/scope.yml
+programs:
+  threema:
+    name: Threema
+    disclosure_policy: TBD - operator-provided program scope (update once public channel confirmed)
+    assets:
+      - name: "Android Source Code"
+        priority: In
+      - name: "iOS App Source Code"
+        priority: In
+      - name: "Desktop 2.x App Source Code (github.com/threema-ch/threema-desktop)"
+        priority: In
+      - name: "g-*.0.threema.ch (chat services)"
+        priority: In
+      - name: "mediator-*.threema.ch (multi-device synchronization server)"
+        priority: In
+      - name: "rendezvous-*.threema.ch (multi-device linking server)"
+        priority: In
+      - name: "apip.threema.ch (directory server / ID service)"
+        priority: In
+      - name: "safe-*.threema.ch (backup service)"
+        priority: In
+      - name: "work.threema.ch (work cockpit & backend)"
+        priority: In
+      - name: "broadcast.threema.ch (broadcast cockpit & backend)"
+        priority: In
+      - name: "gateway.threema.ch (gateway cockpit & backend)"
+        priority: In
+      - name: "shop.threema.ch (threema shop)"
+        priority: In
+      - name: "billing.threema.ch (billing system)"
+        priority: In
+    out_of_scope:
+      - "All other targets and third-party services not listed above"
+    github_orgs:
+      - threema-ch
+
+rules:
+  passive_first: true          # GET/HEAD reads first; no invasive testing without program approval
+  max_requests_per_second: 1   # never hammer
+  no_doom: true                # no DoS/DDoS, no resource-exhaustion tests
+  no_account_creation: true    # no mass signups without program approval
+  no_data_modification: true   # no writes, deletes, state changes on live infra
+  no_pre_disclosure: true      # never disclose before program response
+  redact_secrets_in_commits: true   # commit sha256 of secrets, never raw values
+
+# Multi-model ensemble: every hunt run picks a rotation of the 5 models.
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
+[0m
+[0m→ [0mRead analyst-prompt.txt
+[0m→ [0mRead ctx.txt
+===
+===
+app-remote-protocol
+compose-area
+push-relay
+threema-android
+threema-bot-sdk
+threema-desktop
+threema-ios
+threema-markup
+threema-msgapi-sdk-java
+threema-msgapi-sdk-php
+threema-msgapi-sdk-python
+threema-msgapi-sdk-rust
+threema-web
+threema-web-electron
+wasm-minisign-verify
+webrtc-build-docker
+[0m
+[0m→ [0mRead reports/hypotheses-laguna.txt
+[0m→ [0mRead probe-results.md
+[0m✗ [0mRead knowledge/threema.md failed[90m [limit=120][0m
+[91m[1mError: [0mFile not found: /home/runner/work/threema-hunt/threema-hunt/knowledge/threema.md
+Let me read my leads, hypotheses, probe results, and start exploring the desktop source code.
+[0m
+[0m$ [0mfind /home/runner/work/threema-hunt/threema-hunt -name "*.ts" -path "*threema-desktop*" 2>/dev/null | head -5; echo "---"; find /home/runner/work/threema-hunt/threema-hunt -maxdepth 3 -name "*.ts" 2>/dev/null | head -20
+---
+[0m
+[0m$ [0mgrep -rl "fileModeInternalObjectIfPosix\|keystorage\|key-storage" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw 2>/dev/null | head; echo "==="; ls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/ 2>/dev/null
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/grep-hits.prev.txt
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/rag.txt
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/grep-hits.txt
+/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/analysis.txt
+===
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 .
+drwxr-xr-x 18 runner runner 4096 Aug  9 06:25 ..
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/; echo "==="; grep -n "fileModeInternalObjectIfPosix\|keystorage\|key-storage\|electron-main\|v3.ts\|crypto.ts\|sqlite.ts" /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/grep-hits.txt | head -60
+total 72
+drwxr-xr-x 18 runner runner 4096 Aug  9 06:25 .
+drwxr-xr-x  3 runner runner 4096 Aug  9 06:25 ..
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 app-remote-protocol
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 compose-area
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 push-relay
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 threema-android
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 threema-bot-sdk
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 threema-desktop
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 threema-ios
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 threema-markup
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 threema-msgapi-sdk-java
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 threema-msgapi-sdk-php
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 threema-msgapi-sdk-python
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 threema-msgapi-sdk-rust
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 threema-web
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 threema-web-electron
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 wasm-minisign-verify
+drwxr-xr-x  2 runner runner 4096 Aug  9 06:25 webrtc-build-docker
+===
+42:reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts:223: password: 'r3gGN9GDQ5NF6tM6',
+[0m
+The repo isn't cloned. Let me examine the reposcan and grep-hit files that document the source code findings.
+[0m→ [0mRead reposcan-raw/grep-hits.txt
+[0m→ [0mRead leads/lead-laguna.md
+[0m
+[0m$ [0mhead -200 /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/analysis.txt
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && sha256sum <<< "r3gGN9GDQ5NF6tM6" | cut -d' ' -f1
+52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && sha256sum <<< "b3e20afbf356a8748bb62ac165aa780c" | cut -d' ' -f1
+3a826628a3584aedbc126b5510a786b8c8ff39a77f505a711ab3d40aa13bbfd3
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && sha256sum <<< "615af77cb3d980c41b3b04b07417cc7d" | cut -d' ' -f1
+3686395fe9274de4d839715ffadf1b3cfae473a204e8a11e27f9cbdf8aca2dee
+[0m
+### Classification Tables
+
+#### REAL_SECRET
+| File | Line | Secret SHA256 | Notes |
+|------|------|---------------|-------|
+| *(none)* | — | — | No live credentials found |
+
+#### TEST_OR_EXAMPLE
+| File | Line | Pattern | Context |
+|------|------|---------|---------|
+| threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | `password1` | Unit test fixture |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15 | `authToken` | Unit test expectation |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 18 | `testPassword` | Unit test fixture |
+| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift | 50,72,148 | `testPassword` | Unit test fixtures |
+| threema-ios/ThreemaFrameworkTests/WorkDataAPICallerTests.swift | 13,37,103 | `testPassword`/`validPassword` | Unit test fixtures |
+| threema-ios/ThreemaTests/SafeTests.swift | 67,76,105 | `shootdeathstar` | Integration test password |
+| threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift | 30,227 | `abcdefghijkl`, `ABcd!@#tgk092` | Validator test cases |
+| threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift | 28,76,120 | `shootdeathstar` | Manual test fixture |
+| threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift | 38,83 | `shootdeathstar` | Manual test fixture |
+| threema-desktop/apps/desktop/src/common/test-data.ts | 62 | `CHANGE_ME` | Test placeholder |
+
+#### ENDPOINT_LEAK (staging/internal URLs in source)
+| File | Line | Endpoint |
+|------|------|----------|
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` |
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 917 | `https://ds-apip.test.threema.ch` |
+| threema-android/domain/protocol/src/directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` |
+| threema-android/domain/protocol/src/directory.openapi.yml | 911 | `https://ds-apip.test.threema.ch` |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 917 | `https://ds-apip.test.threema.ch` |
+| threema-desktop/apps/desktop/config/vite.config.ts | 147 | `https://ds-apip.test.threema.ch/` |
+| threema-desktop/apps/desktop/config/vite.config.ts | 153 | `https://ds-apip-work.test.threema.ch/` |
+| threema-desktop/apps/desktop/config/vite.config.ts | 154 | `https://work.test.threema.ch/` |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 911 | `https://ds-apip.test.threema.ch` |
+
+#### INTERESTING
+| File | Line | Finding | Notes |
+|------|------|---------|-------|
+| threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt | 15 | Sentry public API key (DSN) | `3a826628a3584aedbc126b5510a786b8c8ff39a77f505a711ab3d40aa13bbfd3` |
+| threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt | 19 | Sentry public API key (DSN) | `3686395fe9274de4d839715ffadf1b3cfae473a204e8a11e27f9cbdf8aca2dee` |
+| threema-android/domain/src/main/java/ch/threema/domain/protocol/api/SfuToken.kt | 49 | Masked token in `toString()` | `sfuToken='********'` — defensive logging |
+| threema-android/app/src/main/java/ch/threema/app/notifications/NotificationChannels.kt | 52 | Channel ID constant | `remote_secret_monitor` — naming only |
+| threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts | 223 | Hardcoded benchmark password | `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c` — **RAG-confirmed benchmark-only dummy in `determineKdfParams()`, derived key purged at line 233** |
+
+---
+
+### Verdict List
+
+| Candidate | Category | REPORT_CANDIDATE | Rationale |
+|-----------|----------|------------------|-----------|
+| Sentry public API keys (2) | INTERESTING | **no** | Public DSN components (not secrets); acceptable in client-side source |
+| Staging directory/work URLs (11 occurrences) | ENDPOINT_LEAK | **no** | Known staging hosts already in scope/inventory; not secret |
+| `crypto.ts:223` benchmark password | INTERESTING | **no** | **RAG-verified reject**: benchmark-only dummy in `determineKdfParams()`, key immediately purged (`benchmarkKey.purge()` at line 233) |
+| All test passwords/fixtures | TEST_OR_EXAMPLE | **no** | Standard test data patterns |
+| `sfuToken='********'` masking | INTERESTING | **no** | Defensive logging practice |
+| `remote_secret_monitor` channel ID | INTERESTING | **no** | Naming constant only |
+
+**No reportable secrets found in this scan.** All hits are either test fixtures, known staging endpoints (already tracked), or previously analyzed and rejected findings (benchmark password in crypto.ts).
+[0m
+[0m→ [0mRead README.md
+[0m→ [0mRead reports/valid-bugs.md
+[0m
+[0m$ [0mwhich git python3 && python3 --version && git --version
+/usr/bin/git
+/usr/bin/python3
+Python 3.12.3
+git version 2.54.0
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop/
+(no output)
+[0m
+Now I understand the picture. My state is `POC/desktop` — I'm the laguna model targeting threema-desktop. The key finding is the Windows key-storage ACL bypass, but the source code isn't locally available and the PoC file is absent. Let me clone the public repo (static source audit is explicitly passive-first/in-scope) to verify the source claims and build the PoC.
+[0m$ [0mgit clone --depth 1 https://github.com/threema-ch/threema-desktop.git /tmp/opencode/threema-desktop-src 2>&1 | tail -5
+Cloning into '/tmp/opencode/threema-desktop-src'...
+[0m
+[0m$ [0mls -la /tmp/opencode/threema-desktop-src/ 2>/dev/null && echo "=== clone done ===" || echo "=== not yet ==="
+total 704
+drwxr-xr-x 12 runner runner   4096 Aug  9 06:30 .
+drwxr-xr-x  3 runner runner   4096 Aug  9 06:30 ..
+drwxr-xr-x  3 runner runner   4096 Aug  9 06:30 .devcontainer
+-rw-r--r--  1 runner runner    253 Aug  9 06:30 .editorconfig
+drwxr-xr-x  7 runner runner   4096 Aug  9 06:30 .git
+-rw-r--r--  1 runner runner     63 Aug  9 06:30 .gitattributes
+-rw-r--r--  1 runner runner    189 Aug  9 06:30 .gitignore
+drwxr-xr-x  3 runner runner   4096 Aug  9 06:30 .gitlab
+-rw-r--r--  1 runner runner  47542 Aug  9 06:30 .gitlab-ci.yml
+-rw-r--r--  1 runner runner      0 Aug  9 06:30 .gitmodules
+drwxr-xr-x  2 runner runner   4096 Aug  9 06:30 .licenses
+-rw-r--r--  1 runner runner      8 Aug  9 06:30 .nvmrc
+-rw-r--r--  1 runner runner   1242 Aug  9 06:30 .prettierignore
+-rw-r--r--  1 runner runner    983 Aug  9 06:30 .prettierrc.yml
+drwxr-xr-x  2 runner runner   4096 Aug  9 06:30 .vscode
+-rw-r--r--  1 runner runner  13991 Aug  9 06:30 AGENTS.md
+-rw-r--r--  1 runner runner    857 Aug  9 06:30 CONTRIBUTING.md
+-rw-r--r--  1 runner runner  68024 Aug  9 06:30 LICENSE-3RD-PARTY.txt
+-rw-r--r--  1 runner runner  34520 Aug  9 06:30 LICENSE.txt
+-rw-r--r--  1 runner runner   9563 Aug  9 06:30 README.md
+-rw-r--r--  1 runner runner    743 Aug  9 06:30 SECURITY.md
+drwxr-xr-x  4 runner runner   4096 Aug  9 06:30 apps
+drwxr-xr-x  6 runner runner   4096 Aug  9 06:30 containers
+-rw-r--r--  1 runner runner     21 Aug  9 06:30 contributors.csv
+drwxr-xr-x  3 runner runner   4096 Aug  9 06:30 docs
+-rw-r--r--  1 runner runner  10248 Aug  9 06:30 logo_dark.svg
+-rw-r--r--  1 runner runner  10270 Aug  9 06:30 logo_light.svg
+-rw-r--r--  1 runner runner   9008 Aug  9 06:30 package.json
+drwxr-xr-x 17 runner runner   4096 Aug  9 06:30 packages
+-rw-r--r--  1 runner runner 403246 Aug  9 06:30 pnpm-lock.yaml
+-rw-r--r--  1 runner runner   1832 Aug  9 06:30 pnpm-workspace.yaml
+drwxr-xr-x  2 runner runner   4096 Aug  9 06:30 scripts
+-rw-r--r--  1 runner runner   2320 Aug  9 06:30 turbo.jsonc
+=== clone done ===
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop-src -name "fs.ts" -path "*node*" 2>/dev/null; echo "==="; find /tmp/opencode/threema-desktop-src -name "index.ts" -path "*key-storage*" 2>/dev/null; echo "==="; find /tmp/opencode/threema-desktop-src -name "electron-main.ts" 2>/dev/null; echo "==="; find /tmp/opencode/threema-desktop-src -name "v3.ts" -path "*inner*" 2>/dev/null; echo "==="; find /tmp/opencode/threema-desktop-src -name "crypto.ts" -path "*key-storage*" 2>/dev/null; echo "==="; find /tmp/opencode/threema-desktop-src -name "sqlite.ts" -path "*db*" 2>/dev/null
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/fs.ts
+===
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/index.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/key-storage/index.ts
+===
+/tmp/opencode/threema-desktop-src/apps/desktop/src/electron/electron-main.ts
+===
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/inner/v3.ts
+===
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/key-storage/crypto.ts
+===
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/db/sqlite.ts
+[0m
+Repo cloned. Now let me verify the source code findings by reading the specific files mentioned in the knowledge base.
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/fs.ts
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/key-storage/index.ts[90m [offset=540, limit=60][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/key-storage/crypto.ts[90m [offset=40, limit=90][0m
+[0m
+[0m$ [0mgrep -n "keystorage.password\|fileModeInternalObjectIfPosix\|safeStorage\|_writeOrOverrideFile" /tmp/opencode/threema-desktop-src/apps/desktop/src/electron/electron-main.ts | head -20
+36:import {directoryModeInternalObjectIfPosix, fileModeInternalObjectIfPosix} from '~/common/node/fs';
+915:            const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+916:            if (!fs.existsSync(safeStoragePasswordPath)) {
+921:            if (electron.safeStorage.isEncryptionAvailable()) {
+923:                    const encryptedPassword = fs.readFileSync(safeStoragePasswordPath);
+924:                    return electron.safeStorage.decryptString(encryptedPassword);
+930:                    'Electron safeStorage is not available (no password manager?), loading password skipped.',
+940:                if (electron.safeStorage.isEncryptionAvailable()) {
+941:                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+943:                        const encryptedPassword = electron.safeStorage.encryptString(password);
+944:                        const options = {...fileModeInternalObjectIfPosix()};
+945:                        fs.writeFileSync(safeStoragePasswordPath, encryptedPassword, options);
+952:                        'Electron safeStorage is not available (no password manager?), storing password skipped.',
+983:                    isSafeStorageAvailable: electron.safeStorage.isEncryptionAvailable(),
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/inner/v3.ts[90m [limit=90, offset=40][0m
+[0m
+[0m$ [0mgrep -n "PRAGMA key\|databaseKey\|getDatabaseKey\|pragma" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/db/sqlite.ts | head -20
+218:                if (message.startsWith('PRAGMA key')) {
+219:                    this._log.debug('PRAGMA key <redacted>');
+239:            this._rawDb.pragma('cipher_compatibility = 4');
+240:            this._rawDb.pragma(`key = "x'${dbKeyHex}'"`);
+245:        const provider: unknown = this._rawDb.pragma('cipher_provider', {simple: true});
+253:        this._rawDb.pragma('cipher_log_source = NONE');
+254:        this._rawDb.pragma('cipher_log_source = CORE');
+255:        this._rawDb.pragma('cipher_log_source = MUTEX');
+256:        this._rawDb.pragma('cipher_log_source = PROVIDER');
+261:        // failsafe mechanism, set that option again here using a pragma.
+262:        this._rawDb.pragma('temp_store = MEMORY');
+269:        this._rawDb.pragma('journal_mode = WAL');
+281:        this._rawDb.pragma('wal_autocheckpoint = 800');
+292:        // More details can be found at https://www.sqlite.org/pragma.html#pragma_synchronous
+293:        this._rawDb.pragma('synchronous = NORMAL');
+[0m
+Source confirmed for 3 of 6 paths. Let me verify the remaining paths: electron-main.ts (password file), v3.ts (protobuf inner), and sqlite.ts (PRAGMA key).
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/key-storage/index.ts[90m [limit=120, offset=1][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/key-storage/index.ts[90m [limit=100, offset=440][0m
+All 6 source paths confirmed. Let me now understand the full key chain — the outer layer structure and how the password connects to the inner protobuf.
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/key-storage/helpers.ts
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop-src -path "*internal-protobuf/key-storage*" -o -path "*key-storage*" -name "*.ts" | grep -v node_modules | head -20; echo "==="; grep -rn "getSafeStoragePasswordPath\|KEY_STORAGE_PATH\|KEY_STORAGE_PASSWORD_PATH" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/ --include="*.ts" | grep -v node_modules | head -10
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/internal-protobuf/key-storage-file.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/internal-protobuf/key-storage-file.proto
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/index.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/common.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/outer/v1.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/outer/v2.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/outer/common.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/intermediate/v1.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/intermediate/v1_1.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/common.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/inner/v1.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/inner/v3.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/inner/v2.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/key-storage/crypto.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/key-storage/migration.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/key-storage/index.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/key-storage/helpers.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/app/ui/components/partials/modals/key-storage-migration-failed-modal/props.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/test/mocha/common/node/key-storage/file-system-key-storage.spec.ts
+===
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/vite-client.d.ts:343:    readonly DEPRECATED_KEY_STORAGE_PATH: readonly string[];
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/vite-client.d.ts:344:    readonly KEY_STORAGE_PATH: readonly string[];
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/config.ts:104:    readonly DEPRECATED_KEY_STORAGE_PATH: readonly string[];
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/config.ts:109:    readonly KEY_STORAGE_PATH: readonly string[];
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/config.ts:170:    | 'KEY_STORAGE_PATH'
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/config.ts:171:    | 'DEPRECATED_KEY_STORAGE_PATH'
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/config.ts:183:    DEPRECATED_KEY_STORAGE_PATH: import.meta.env.DEPRECATED_KEY_STORAGE_PATH,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/config.ts:184:    KEY_STORAGE_PATH: import.meta.env.KEY_STORAGE_PATH,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/safe-storage/helpers.ts:13:export function getSafeStoragePasswordPath(profileDirectoryPath: string): string {
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/safe-storage/helpers.ts:22:    const safeStoragePasswordPath = getSafeStoragePasswordPath(profileDirectoryPath);
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/key-storage/crypto.ts[90m [limit=40, offset=1][0m
+Now let me find the protobuf encoding definitions and the KDF parameter structure to understand the exact binary formats for the PoC.
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/internal-protobuf/key-storage-file.proto
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/outer/common.ts
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/safe-storage/helpers.ts
+[0m
+[0m$ [0mgrep -n "KEY_STORAGE_PATH\|SAFE_STORAGE_PASSWORD_PATH" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/config.ts | head; echo "==="; grep -rn "EncryptedDataWithNonceAhead\|NONCE_UNGUARDED_SCOPE\|nonceAhead\|secretbox\|SecretBox\|decryptorWithNonceAhead\|CREATE_BUFFER_TOKEN" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/ --include="*.ts" | grep -v node_modules | grep -v ".spec." | head -30
+104:    readonly DEPRECATED_KEY_STORAGE_PATH: readonly string[];
+109:    readonly KEY_STORAGE_PATH: readonly string[];
+136:    readonly SAFE_STORAGE_PASSWORD_PATH: readonly string[];
+170:    | 'KEY_STORAGE_PATH'
+171:    | 'DEPRECATED_KEY_STORAGE_PATH'
+176:    | 'SAFE_STORAGE_PASSWORD_PATH'
+183:    DEPRECATED_KEY_STORAGE_PATH: import.meta.env.DEPRECATED_KEY_STORAGE_PATH,
+184:    KEY_STORAGE_PATH: import.meta.env.KEY_STORAGE_PATH,
+193:    SAFE_STORAGE_PASSWORD_PATH: import.meta.env.SAFE_STORAGE_PASSWORD_PATH,
+===
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/csp-keys.ts:63:        crypto.getSecretBox(
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/tweetnacl.ts:50:    readonly crypto_secretbox_KEYBYTES: u8;
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/tweetnacl.ts:51:    readonly crypto_secretbox_NONCEBYTES: u8;
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/tweetnacl.ts:52:    readonly crypto_secretbox_ZEROBYTES: u8;
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/tweetnacl.ts:53:    readonly crypto_secretbox_BOXZEROBYTES: u8;
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/tweetnacl.ts:62:    crypto_secretbox: (
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/tweetnacl.ts:70:    crypto_secretbox_open: (
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/tweetnacl.ts:92:const PLAIN_HEADROOM = nacl.crypto_secretbox_ZEROBYTES;
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/tweetnacl.ts:93:const ENCRYPTED_HEADROOM = nacl.crypto_secretbox_BOXZEROBYTES;
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/tweetnacl.ts:124:        const code = nacl.crypto_secretbox(
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/tweetnacl.ts:133:                `box.encrypt tweetnacl.lowlevel.crypto_secretbox returned ${code}`,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/tweetnacl.ts:154:        const code = nacl.crypto_secretbox_open(
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/tweetnacl.ts:163:                `box.decrypt tweetnacl.lowlevel.crypto_secretbox_open returned ${code}`,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/tweetnacl.ts:221:    public getSecretBox<
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:12:    type EncryptedDataWithNonceAhead,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:16:    NONCE_UNGUARDED_SCOPE,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:36:export const CREATE_BUFFER_TOKEN = Symbol('create-buffer-token');
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:37:export type CreateBufferToken = typeof CREATE_BUFFER_TOKEN;
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:88:        if (nonceScope !== NONCE_UNGUARDED_SCOPE) {
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:207:    ): EncryptedDataWithNonceAhead {
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:223:        return encryptedWithNonceAhead as EncryptedDataWithNonceAhead;
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:231:        if (this._box.nonceScope === NONCE_UNGUARDED_SCOPE) {
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:344:        if (bufferOrToken === CREATE_BUFFER_TOKEN) {
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:386:            bufferOrToken === CREATE_BUFFER_TOKEN
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:409:    public decryptorWithNonceAhead(
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:411:        encryptedWithNonceAhead: EncryptedDataWithNonceAhead,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:561:        const box = crypto.getSecretBox(
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:566:            NONCE_UNGUARDED_SCOPE,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:570:            .encryptor(CREATE_BUFFER_TOKEN, secret.unwrap() as ReadonlyUint8Array as PlainData)
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:584:                box.decryptorWithNonceAhead(decryptBuffer, encryptedKey).decrypt(undefined)
+[0m
+[0m$ [0mfind /tmp/opencode/threema-desktop-src -name "*.ts" -path "*crypto*" | grep -v node_modules | grep -v ".spec." | head -20; echo "==="; find /tmp/opencode/threema-desktop-src -name "box.ts" -path "*crypto*" | grep -v node_modules | head
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/dom/crypto/group-call.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/dom/crypto/random.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/dom/crypto.d.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/blake2b/index.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/blake2b/implementation.d.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/nonce.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/csp-keys.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/tweetnacl.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/group-call.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/random.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/device-group-keys.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/index.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/file-storage/file-crypto.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/key-storage/crypto.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/node/crypto/random.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/test/mocha/common/crypto/blake2b/test-vectors.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/test/mocha/common/data/crypto-box-test-cases.ts
+/tmp/opencode/threema-desktop-src/apps/desktop/src/worker/backend/media-crypto-worker.ts
+/tmp/opencode/threema-desktop-src/packages/protocol/src/structbuf/extra/crypto.ts
+===
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts
+[0m
+Let me check the encryption format (nonce-ahead XSalsa20-Poly1305), the STATIC_CONFIG paths, and the test fixtures which may show the exact byte layout.
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts[90m [limit=100, offset=1][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts[90m [limit=100, offset=200][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/tweetnacl.ts[90m [limit=100, offset=40][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts[90m [limit=100, offset=390][0m
+[0m
+[0m$ [0mgrep -n "NONCE_LENGTH\|KEY_LENGTH\|EncryptedDataWithNonceAhead\|NONCE_UNGUARDED_SCOPE" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/index.ts | head -20; echo "==="; grep -n "export.*NACL_CONSTANTS\|NONCE_LENGTH\|KEY_LENGTH" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/nacl-constants.ts 2>/dev/null /tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/*.ts 2>/dev/null | head -20
+21:    KEY_LENGTH: 32,
+26:    NONCE_LENGTH: 24,
+213:    return raw instanceof Uint8Array && raw.byteLength === NACL_CONSTANTS.KEY_LENGTH;
+224:            `Expected public key to be ${NACL_CONSTANTS.KEY_LENGTH} bytes but has ${key.byteLength} bytes`,
+236:    return value instanceof Uint8Array && value.byteLength === NACL_CONSTANTS.NONCE_LENGTH;
+274:    return raw instanceof Uint8Array && raw.byteLength === NACL_CONSTANTS.KEY_LENGTH;
+285:            `Expected Ed25519 public key to be ${NACL_CONSTANTS.KEY_LENGTH} bytes but has ${key.byteLength} bytes`,
+365:export type EncryptedDataWithNonceAhead = WeakOpaque<
+367:    {readonly EncryptedDataWithNonceAhead: unique symbol}
+371: * Ensure array contains at least NONCE_LENGTH + MAC_LENGTH bytes.
+373: * @throws If the array is not at least NONCE_LENGTH + MAC_LENGTH bytes long.
+375:export function ensureEncryptedDataWithNonceAhead(bytes: Uint8Array): EncryptedDataWithNonceAhead {
+376:    const ciphertextLength = NACL_CONSTANTS.NONCE_LENGTH + NACL_CONSTANTS.MAC_LENGTH;
+382:    return bytes as EncryptedDataWithNonceAhead;
+430:export const NONCE_UNGUARDED_SCOPE: unique symbol = Symbol('nonce-unguarded-scope');
+433: * The type of {@link NONCE_UNGUARDED_SCOPE}.
+435:export type NonceUnguardedScope = typeof NONCE_UNGUARDED_SCOPE;
+===
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:139:            NACL_CONSTANTS.NONCE_LENGTH + this._box.crypto.plainHeadroom,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:156:            NACL_CONSTANTS.NONCE_LENGTH + this._box.crypto.encryptedHeadroom,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:162:        const nonce = this._array.subarray(0, NACL_CONSTANTS.NONCE_LENGTH) as Nonce;
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:171:            NACL_CONSTANTS.NONCE_LENGTH + this._box.crypto.encryptedHeadroom,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:195:            NACL_CONSTANTS.NONCE_LENGTH + this._box.crypto.encryptedHeadroom,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:233:                this._array.subarray(0, NACL_CONSTANTS.NONCE_LENGTH),
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:253:        const arrayHeadroom = this._array.subarray(0, NACL_CONSTANTS.NONCE_LENGTH);
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:270:        const array = this._array.subarray(NACL_CONSTANTS.NONCE_LENGTH);
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:317:        this.encryptorHeadroom = NACL_CONSTANTS.NONCE_LENGTH + crypto.plainHeadroom;
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:345:            nonce = new Uint8Array(NACL_CONSTANTS.NONCE_LENGTH) as Nonce;
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:349:            nonce = buffer.bytes(NACL_CONSTANTS.NONCE_LENGTH) as Nonce;
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:414:        const nonce = encryptedWithNonceAhead.subarray(0, NACL_CONSTANTS.NONCE_LENGTH) as Nonce;
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:417:        const encrypted = encryptedWithNonceAhead.subarray(NACL_CONSTANTS.NONCE_LENGTH);
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:563:                crypto.randomBytes(new Uint8Array(NACL_CONSTANTS.KEY_LENGTH)),
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:564:                NACL_CONSTANTS.KEY_LENGTH,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts:586:                NACL_CONSTANTS.KEY_LENGTH,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/device-group-keys.ts:111:            return deriveKey(NACL_CONSTANTS.KEY_LENGTH, dgk.asReadonly(), {
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/group-call.ts:42:export const GROUP_CALL_KEY_LENGTH = 32;
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/group-call.ts:48:    ReadonlyRawKey<typeof GROUP_CALL_KEY_LENGTH>,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/group-call.ts:58:    return tag<RawGroupCallKey>(wrapRawKey(key, GROUP_CALL_KEY_LENGTH).asReadonly());
+[0m
+[0m$ [0mgrep -n "NONCE_LENGTH\|MAC_LENGTH\|KEY_LENGTH\|EncryptedDataWithNonceAhead\|RawEncryptedData" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/index.ts | head -20; echo "===CONFIG==="; grep -A2 "KEY_STORAGE_PATH\|SAFE_STORAGE_PASSWORD_PATH" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/config.ts | head -20; echo "===ENV==="; grep -rn "KEY_STORAGE_PATH\|SAFE_STORAGE_PASSWORD_PATH" /tmp/opencode/threema-desktop-src/apps/desktop/config/ 2>/dev/null | head; grep -rn "KEY_STORAGE_PATH\|SAFE_STORAGE_PASSWORD_PATH" /tmp/opencode/threema-desktop-src/apps/desktop/*.config.* /tmp/opencode/threema-desktop-src/apps/desktop/vite*.ts 2>/dev/null | head
+21:    KEY_LENGTH: 32,
+26:    NONCE_LENGTH: 24,
+31:    MAC_LENGTH: 16,
+213:    return raw instanceof Uint8Array && raw.byteLength === NACL_CONSTANTS.KEY_LENGTH;
+224:            `Expected public key to be ${NACL_CONSTANTS.KEY_LENGTH} bytes but has ${key.byteLength} bytes`,
+236:    return value instanceof Uint8Array && value.byteLength === NACL_CONSTANTS.NONCE_LENGTH;
+274:    return raw instanceof Uint8Array && raw.byteLength === NACL_CONSTANTS.KEY_LENGTH;
+285:            `Expected Ed25519 public key to be ${NACL_CONSTANTS.KEY_LENGTH} bytes but has ${key.byteLength} bytes`,
+354:export type RawEncryptedData = WeakOpaque<Uint8Array, {readonly RawEncryptedData: unique symbol}>;
+365:export type EncryptedDataWithNonceAhead = WeakOpaque<
+367:    {readonly EncryptedDataWithNonceAhead: unique symbol}
+371: * Ensure array contains at least NONCE_LENGTH + MAC_LENGTH bytes.
+373: * @throws If the array is not at least NONCE_LENGTH + MAC_LENGTH bytes long.
+375:export function ensureEncryptedDataWithNonceAhead(bytes: Uint8Array): EncryptedDataWithNonceAhead {
+376:    const ciphertextLength = NACL_CONSTANTS.NONCE_LENGTH + NACL_CONSTANTS.MAC_LENGTH;
+382:    return bytes as EncryptedDataWithNonceAhead;
+411:    readonly encrypt: (encrypted: RawEncryptedData, plain: RawPlainData, nonce: Nonce) => void;
+424:    readonly decrypt: (plain: RawPlainData, encrypted: RawEncryptedData, nonce: Nonce) => void;
+===CONFIG===
+    readonly DEPRECATED_KEY_STORAGE_PATH: readonly string[];
+
+    /**
+--
+    readonly KEY_STORAGE_PATH: readonly string[];
+
+    /**
+--
+    readonly SAFE_STORAGE_PASSWORD_PATH: readonly string[];
+}
+
+--
+    | 'KEY_STORAGE_PATH'
+    | 'DEPRECATED_KEY_STORAGE_PATH'
+    | 'FILE_STORAGE_PATH'
+    | 'DATABASE_PATH'
+--
+    | 'SAFE_STORAGE_PASSWORD_PATH'
+> = {
+    MEDIATOR_FRAME_MIN_BYTE_LENGTH: 4,
+===ENV===
+/tmp/opencode/threema-desktop-src/apps/desktop/config/vite.config.ts:338:        DEPRECATED_KEY_STORAGE_PATH: ['data', 'keystorage.pb3'],
+/tmp/opencode/threema-desktop-src/apps/desktop/config/vite.config.ts:339:        KEY_STORAGE_PATH: ['data', 'keystorage.bin'],
+/tmp/opencode/threema-desktop-src/apps/desktop/config/vite.config.ts:344:        SAFE_STORAGE_PASSWORD_PATH: ['data', 'keystorage.password.bin'],
+[0m
+[0m$ [0mpython3 -c "import argon2; print('argon2 OK', argon2.__version__)" 2>&1; python3 -c "import nacl; print('pynacl OK', nacl.__version__)" 2>&1; python3 -c "import nacl.bindings; print('nacl.bindings OK')" 2>&1; pip3 list 2>/dev/null | grep -i -E "argon|nacl|protobuf|cryptography" 
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'argon2'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'nacl'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'nacl'
+cryptography       41.0.7
+[0m
+I've verified all 6 source paths. Now let me check available Python crypto libraries to build the PoC, and read the protobuf TS definitions for exact field encoding.
+[0m$ [0mgrep -rn "argon2id\|Argon2idParameters\|encrypted_intermediate\|encryptedIntermediate\|kdfParameters\|plaintext_inner\|plaintextInner\|database_key\|databaseKey\|identity_data\|identityData" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/internal-protobuf/key-storage-file.ts | head -40
+27:export interface Argon2idParameters {
+28:  version: Argon2idParameters_Argon2Version;
+40:export const Argon2idParameters_Argon2Version = { VERSION_1_3: 0, UNRECOGNIZED: -1 } as const;
+42:export type Argon2idParameters_Argon2Version =
+43:  typeof Argon2idParameters_Argon2Version[keyof typeof Argon2idParameters_Argon2Version];
+45:export namespace Argon2idParameters_Argon2Version {
+46:  export type VERSION_1_3 = typeof Argon2idParameters_Argon2Version.VERSION_1_3;
+47:  export type UNRECOGNIZED = typeof Argon2idParameters_Argon2Version.UNRECOGNIZED;
+204:  identityData:
+210:  databaseKey: Uint8Array;
+236:  identityData:
+246:  databaseKey: Uint8Array;
+266:  identityData:
+272:  databaseKey: Uint8Array;
+295:    { $case: "plaintextInner"; plaintextInner: Uint8Array }
+316:    { $case: "plaintextInner"; plaintextInner: Uint8Array }
+351:  kdfParameters?: { $case: "argon2id"; argon2id: Argon2idParameters } | undefined;
+376:  encryptedIntermediate: Uint8Array;
+378:  kdfParameters?: { $case: "argon2id"; argon2id: Argon2idParameters } | undefined;
+381:function createBaseArgon2idParameters(): Argon2idParameters {
+385:export const Argon2idParameters: MessageFns<Argon2idParameters> = {
+386:  encode(message: Argon2idParameters, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+405:  decode(input: BinaryReader | Uint8Array, length?: number): Argon2idParameters {
+408:    const message = createBaseArgon2idParameters();
+832:    identityData: undefined,
+834:    databaseKey: new Uint8Array(0),
+847:    if (message.identityData !== undefined) {
+848:      IdentityData.encode(message.identityData, writer.uint32(10).fork()).join();
+853:    if (message.databaseKey.length !== 0) {
+854:      writer.uint32(26).bytes(message.databaseKey);
+891:          message.identityData = IdentityData.decode(reader, reader.uint32());
+907:          message.databaseKey = reader.bytes();
+954:    identityData: undefined,
+957:    databaseKey: new Uint8Array(0),
+966:    if (message.identityData !== undefined) {
+967:      IdentityData.encode(message.identityData, writer.uint32(10).fork()).join();
+975:    if (message.databaseKey.length !== 0) {
+976:      writer.uint32(34).bytes(message.databaseKey);
+1002:          message.identityData = IdentityData.decode(reader, reader.uint32());
+1026:          message.databaseKey = reader.bytes();
+[0m
+[0m$ [0mpip3 install argon2-cffi pynacl 2>&1 | tail -8
+Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 221.8/221.8 kB 68.1 MB/s eta 0:00:00
+Downloading argon2_cffi_bindings-25.1.0-cp39-abi3-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl (87 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 87.1/87.1 kB 31.1 MB/s eta 0:00:00
+Downloading pycparser-3.0-py3-none-any.whl (48 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.2/48.2 kB 17.0 MB/s eta 0:00:00
+Installing collected packages: pycparser, cffi, pynacl, argon2-cffi-bindings, argon2-cffi
+Successfully installed argon2-cffi-25.1.0 argon2-cffi-bindings-25.1.0 cffi-2.1.1 pycparser-3.0 pynacl-1.6.2
+[0m
+I need argon2 and PyNaCl for the crypto pipeline. Let me install them and verify the protobuf field encoding by checking the generated TS definitions.
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/index.ts[90m [limit=30, offset=15][0m
+[0m
+[0m$ [0msed -n '200,300p' /tmp/opencode/threema-desktop-src/apps/desktop/src/common/internal-protobuf/key-storage-file.ts
+* format.
+   */
+  schemaVersion: number;
+  /** Data associated to the Threema ID */
+  identityData:
+    | IdentityData
+    | undefined;
+  /** The device group key (32 bytes) */
+  dgk: Uint8Array;
+  /** The SQLCipher database encryption key (32 bytes) */
+  databaseKey: Uint8Array;
+  /** Device IDs */
+  deviceIds:
+    | DeviceIds
+    | undefined;
+  /** The device cookie (16 bytes) */
+  deviceCookie?:
+    | Uint8Array
+    | undefined;
+  /** Threema Work Credentials (if any) */
+  workCredentials:
+    | ThreemaWorkCredentials
+    | undefined;
+  /** Threema OnPrem Config (if any) */
+  onPremConfig: OnPremConfig | undefined;
+}
+
+/**
+ * Inner key storage V2, encoded in the following way:
+ *
+ * 1. Let `data` be the result of encoding this key storage to bytes.
+ * 2. Let `version` be the selected `InnerKeyStorage_Version.V2_X` version.
+ * 3. Return `u16-le(version) || data`.
+ */
+export interface InnerKeyStorageV2 {
+  /** Data associated to the Threema ID */
+  identityData:
+    | IdentityData
+    | undefined;
+  /** Threema Work Credentials (if any) */
+  workCredentials:
+    | ThreemaWorkCredentials
+    | undefined;
+  /** The device group key (32 bytes) */
+  dgk: Uint8Array;
+  /** The SQLCipher database encryption key (32 bytes) */
+  databaseKey: Uint8Array;
+  /** Device IDs */
+  deviceIds:
+    | DeviceIds
+    | undefined;
+  /** The device cookie (16 bytes) */
+  deviceCookie: Uint8Array;
+  /** Threema OnPrem config (if any) */
+  onPremConfig: OnPremConfig | undefined;
+}
+
+/**
+ * Inner key storage V3, encoded in the following way:
+ *
+ * 1. Let `data` be the result of encoding this key storage to bytes.
+ * 2. Let `version` be the selected `InnerKeyStorage_Version.V3_X` version.
+ * 3. Return `u16-le(version) || data`.
+ */
+export interface InnerKeyStorageV3 {
+  /** Data associated to the Threema ID */
+  identityData:
+    | IdentityData
+    | undefined;
+  /** The device group key (32 bytes) */
+  dgk: Uint8Array;
+  /** The SQLCipher database encryption key (32 bytes) */
+  databaseKey: Uint8Array;
+  /** Device IDs */
+  deviceIds:
+    | DeviceIds
+    | undefined;
+  /** The device cookie (16 bytes) */
+  deviceCookie: Uint8Array;
+}
+
+/**
+ * Intermediate key storage V1, encoded in the following way:
+ *
+ * 1. Let `data` be the result of encoding this key storage to bytes.
+ * 2. Let `version` be the selected `IntermediateKeyStorage_Version.V1_X` version.
+ * 3. Return `u16-le(version) || data`.
+ */
+export interface IntermediateKeyStorageV1 {
+  inner?:
+    | //
+    /**
+     * A compatible, version-prefixed inner key storage without any further
+     * protection
+     */
+    { $case: "plaintextInner"; plaintextInner: Uint8Array }
+    | //
+    /** Inner key storage protected by the Remote Secret protocol */
+    { $case: "remoteSecretProtectedInner"; remoteSecretProtectedInner: RemoteSecretProtected }
+    | undefined;
+}
+[0m
+Both argon2 and PyNaCl installed. Let me verify the protobuf field encoding and the exact encryption format by checking the generated protobuf code and crypto constants.
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=60, offset=820][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=80, offset=930][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/internal-protobuf/key-storage-file.ts[90m [limit=100, offset=1010][0m
+[0m
+[0m$ [0mgrep -n "function createBaseIdentityData\|IdentityData.encode\|IdentityData.decode\|writer.uint32\|message.identity\|message.ck\|message.serverGroup" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/internal-protobuf/key-storage-file.ts | head -30; echo "=== ARGS2ID ==="; grep -n "createBaseArgon2idParameters\|Argon2idParameters.encode\|Argon2idParameters.decode\|message.version\|message.salt\|message.memoryBytes\|message.iterations\|message.parallelism" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/internal-protobuf/key-storage-file.ts | head -20
+388:      writer.uint32(8).int32(message.version);
+391:      writer.uint32(18).bytes(message.salt);
+394:      writer.uint32(24).uint32(message.memoryBytes);
+397:      writer.uint32(32).uint32(message.iterations);
+400:      writer.uint32(40).uint32(message.parallelism);
+474:      writer.uint32(10).bytes(message.remoteSecretAuthenticationToken);
+477:      writer.uint32(18).bytes(message.remoteSecretHash);
+480:      writer.uint32(26).string(message.onPremCachedRemoteSecretEndpointUrl);
+483:      writer.uint32(34).bytes(message.encryptedInner);
+544:      writer.uint32(8).uint64(message.d2mDeviceId.toString());
+547:      writer.uint32(16).uint64(message.cspDeviceId.toString());
+585:function createBaseIdentityData(): IdentityData {
+591:    if (message.identity !== "") {
+592:      writer.uint32(10).string(message.identity);
+594:    if (message.ck.length !== 0) {
+595:      writer.uint32(18).bytes(message.ck);
+597:    if (message.serverGroup !== "") {
+598:      writer.uint32(34).string(message.serverGroup);
+615:          message.identity = reader.string();
+623:          message.ck = reader.bytes();
+631:          message.serverGroup = reader.string();
+651:      writer.uint32(10).string(message.oppfUrl);
+654:      writer.uint32(16).uint64(message.lastUpdated.toString());
+657:      writer.uint32(26).string(message.oppfCachedConfig);
+710:      writer.uint32(10).string(message.username);
+713:      writer.uint32(18).string(message.password);
+845:      writer.uint32(40).uint32(message.schemaVersion);
+847:    if (message.identityData !== undefined) {
+848:      IdentityData.encode(message.identityData, writer.uint32(10).fork()).join();
+851:      writer.uint32(18).bytes(message.dgk);
+=== ARGS2ID ===
+381:function createBaseArgon2idParameters(): Argon2idParameters {
+387:    if (message.version !== 0) {
+388:      writer.uint32(8).int32(message.version);
+390:    if (message.salt.length !== 0) {
+391:      writer.uint32(18).bytes(message.salt);
+393:    if (message.memoryBytes !== 0) {
+394:      writer.uint32(24).uint32(message.memoryBytes);
+396:    if (message.iterations !== 0) {
+397:      writer.uint32(32).uint32(message.iterations);
+399:    if (message.parallelism !== 0) {
+400:      writer.uint32(40).uint32(message.parallelism);
+408:    const message = createBaseArgon2idParameters();
+417:          message.version = reader.int32() as any;
+425:          message.salt = reader.bytes();
+433:          message.memoryBytes = reader.uint32();
+441:          message.iterations = reader.uint32();
+449:          message.parallelism = reader.uint32();
+1292:        Argon2idParameters.encode(message.kdfParameters.argon2id, writer.uint32(18).fork()).join();
+1326:          message.kdfParameters = { $case: "argon2id", argon2id: Argon2idParameters.decode(reader, reader.uint32()) };
+1350:        Argon2idParameters.encode(message.kdfParameters.argon2id, writer.uint32(18).fork()).join();
+[0m
+[0m$ [0mgrep -n "createBaseOuterKeyStorageV2\|OuterKeyStorageV2.encode\|OuterKeyStorageV2.decode\|createBaseIntermediateKeyStorageV1_1\|IntermediateKeyStorageV1_1.encode\|IntermediateKeyStorageV1_1.decode\|message.encryptedIntermediate\|message.kdfParameters\|message.plaintextInner\|message.workCredentials\|message.onPremConfig" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/internal-protobuf/key-storage-file.ts | head -30
+862:    if (message.workCredentials !== undefined) {
+863:      ThreemaWorkCredentials.encode(message.workCredentials, writer.uint32(50).fork()).join();
+865:    if (message.onPremConfig !== undefined) {
+866:      OnPremConfig.encode(message.onPremConfig, writer.uint32(58).fork()).join();
+931:          message.workCredentials = ThreemaWorkCredentials.decode(reader, reader.uint32());
+939:          message.onPremConfig = OnPremConfig.decode(reader, reader.uint32());
+969:    if (message.workCredentials !== undefined) {
+970:      ThreemaWorkCredentials.encode(message.workCredentials, writer.uint32(18).fork()).join();
+984:    if (message.onPremConfig !== undefined) {
+985:      OnPremConfig.encode(message.onPremConfig, writer.uint32(58).fork()).join();
+1010:          message.workCredentials = ThreemaWorkCredentials.decode(reader, reader.uint32());
+1050:          message.onPremConfig = OnPremConfig.decode(reader, reader.uint32());
+1217:    if (message.workCredentials !== undefined) {
+1218:      ThreemaWorkCredentials.encode(message.workCredentials, writer.uint32(26).fork()).join();
+1220:    if (message.onPremConfig !== undefined) {
+1221:      OnPremConfig.encode(message.onPremConfig, writer.uint32(34).fork()).join();
+1257:          message.workCredentials = ThreemaWorkCredentials.decode(reader, reader.uint32());
+1265:          message.onPremConfig = OnPremConfig.decode(reader, reader.uint32());
+1290:    switch (message.kdfParameters?.$case) {
+1292:        Argon2idParameters.encode(message.kdfParameters.argon2id, writer.uint32(18).fork()).join();
+1326:          message.kdfParameters = { $case: "argon2id", argon2id: Argon2idParameters.decode(reader, reader.uint32()) };
+1339:function createBaseOuterKeyStorageV2(): OuterKeyStorageV2 {
+1345:    if (message.encryptedIntermediate.length !== 0) {
+1346:      writer.uint32(10).bytes(message.encryptedIntermediate);
+1348:    switch (message.kdfParameters?.$case) {
+1350:        Argon2idParameters.encode(message.kdfParameters.argon2id, writer.uint32(18).fork()).join();
+1359:    const message = createBaseOuterKeyStorageV2();
+1368:          message.encryptedIntermediate = reader.bytes();
+1376:          message.kdfParameters = { $case: "argon2id", argon2id: Argon2idParameters.decode(reader, reader.uint32()) };
+[0m
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/box.ts[90m [limit=100, offset=100][0m
+[0m→ [0mRead /tmp/opencode/threema-desktop-src/apps/desktop/src/common/crypto/tweetnacl.ts[90m [limit=60, offset=138][0m
+[0m
+[0m$ [0mgrep -n "LATEST_KEY_STORAGE_VERSION\|OuterKeyStorage_Version\|IntermediateKeyStorage_Version\|InnerKeyStorage_Version" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/common.ts | head -20; echo "==="; grep -n "V2_0\|V1_1\|V3_0\|outer\|intermediate\|inner" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/common.ts | head -20
+===
+[0m
+[0m$ [0mgrep -n "LATEST_KEY_STORAGE_VERSION" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/common.ts /tmp/opencode/threema-desktop-src/apps/desktop/src/common/internal-protobuf/key-storage-file.ts | head -10
+(no output)
+[0m
+[0m$ [0mgrep -rn "LATEST_KEY_STORAGE_VERSION\|OuterKeyStorage_Version\|InnerKeyStorage_Version\|IntermediateKeyStorage_Version" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/ --include="*.ts" | head -20
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/index.ts:5:    InnerKeyStorage_Version,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/index.ts:6:    IntermediateKeyStorage_Version,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/index.ts:7:    OuterKeyStorage_Version,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/index.ts:69:export const LATEST_KEY_STORAGE_VERSION = {
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/index.ts:70:    outer: OuterKeyStorage_Version.V2_0,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/index.ts:71:    intermediate: IntermediateKeyStorage_Version.V1_1,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/index.ts:72:    inner: InnerKeyStorage_Version.V3_0,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/outer/v2.ts:10:    OuterKeyStorage_Version,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/outer/v2.ts:83:            if (version !== OuterKeyStorage_Version.V2_0) {
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/outer/v2.ts:86:                    `OUTER_KEY_STORAGE_V2_ENCODING_HELPERS: Expected version ${OuterKeyStorage_Version.V2_0} (OuterKeyStorageV2_OuterVersion.V2_0), got ${version}`,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/outer/v2.ts:141:            u16ToBytesLe(OuterKeyStorage_Version.V2_0),
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/intermediate/v1.ts:7:    IntermediateKeyStorage_Version,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/intermediate/v1.ts:142:            if (version !== IntermediateKeyStorage_Version.V1_0) {
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/intermediate/v1.ts:145:                    `INTERMEDIATE_KEY_STORAGE_V1_ENCODING_HELPERS: Expected version ${IntermediateKeyStorage_Version.V1_0} (IntermediateKeyStorage_Version.V1_0), got ${version}`,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/intermediate/v1_1.ts:11:    IntermediateKeyStorage_Version,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/intermediate/v1_1.ts:151:            if (version !== IntermediateKeyStorage_Version.V1_1) {
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/intermediate/v1_1.ts:154:                    `INTERMEDIATE_KEY_STORAGE_V1_1_ENCODING_HELPERS: Expected version ${IntermediateKeyStorage_Version.V1_1} (IntermediateKeyStorage_Version.V1_1), got ${version}`,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/intermediate/v1_1.ts:245:            u16ToBytesLe(IntermediateKeyStorage_Version.V1_1),
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/inner/v3.ts:12:    InnerKeyStorage_Version,
+/tmp/opencode/threema-desktop-src/apps/desktop/src/common/key-storage/layers/inner/v3.ts:113:            if (version !== InnerKeyStorage_Version.V3_0) {
+[0m
+[0m$ [0mgrep -n "V2_0\|V1_0\|V1_1\|V2_0 =\|V1_0 =\|V1_1 =\|V3_0 =" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/internal-protobuf/key-storage-file.ts | head -20
+112:  /** V1_0 - Initial version */
+113:  V1_0: 0,
+115:   * V1_1 - Changes to the previous version:
+119:  V1_1: 1,
+121:   * V2_0 - Changes to the previous version:
+127:  V2_0: 2,
+140:  export type V1_0 = typeof InnerKeyStorage_Version.V1_0;
+141:  export type V1_1 = typeof InnerKeyStorage_Version.V1_1;
+142:  export type V2_0 = typeof InnerKeyStorage_Version.V2_0;
+143:  export type V3_0 = typeof InnerKeyStorage_Version.V3_0;
+151:  /** V1_0 - Initial version */
+152:  V1_0: 0,
+154:   * V1_1 - Changes to the previous version:
+158:  V1_1: 1,
+166:  export type V1_0 = typeof IntermediateKeyStorage_Version.V1_0;
+167:  export type V1_1 = typeof IntermediateKeyStorage_Version.V1_1;
+175:  /** V1_0 - Initial version */
+176:  V1_0: 0,
+178:   * V2_0 - Changes to the previous version:
+185:  V2_0: 1,
+[0m
+[0m$ [0mgrep -n "V3_0" /tmp/opencode/threema-desktop-src/apps/desktop/src/common/internal-protobuf/key-storage-file.ts | head -5
+129:   * V3_0 - Changes to the previous version:
+133:  V3_0: 3,
+143:  export type V3_0 = typeof InnerKeyStorage_Version.V3_0;
+[0m
+[0m$ [0mpython3 -c "from nacl.bindings import crypto_secretbox, crypto_secretbox_open; from argon2.low_level import hash_secret_raw, Type; print('APIs OK')"
+APIs OK
+[0m
+I now have all the source verified and the full binary format understood. Let me create the PoC with a self-test that proves the crypto pipeline (Argon2id → XSalsa20-Poly1305 → protobuf parse → ck + databaseKey extraction).
+[0m$ [0mmkdir -p /tmp/opencode/threema-desktop && python3 -c "print('dir ready')"
+dir ready
+[0m
