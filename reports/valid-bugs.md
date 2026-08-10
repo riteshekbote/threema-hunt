@@ -451,3 +451,7 @@
   - | **Q7 Triager accept?** | ⚠️ LOW severity; accepted as valid but low |
   - | **Q2 Reachable?** | ⚠️ PARTIAL — route presence confirmed via GET returning 200 JSON errors, but challenge-response still requires valid identity+secret |
   - | **Q5 Novel?** | ❌ **NO** — ACCEPTED in KB lines 100, 105, 110, 112, 165, 176; triaged in valid-bugs.md |
+
+- 2 lead(s) marked VALID at 2026-08-10 18:41:31 UTC
+  - - **Verdict: HOLD** — OpenAPI flags endpoint "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Cannot be proven via passive GET/HEAD only. Retain for program-provide
+  - | **VALID (new)** | **0** | No novel findings |
