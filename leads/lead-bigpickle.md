@@ -7514,3 +7514,32 @@ verify_steps: PASSIVE: from IPv6-capable host, `curl -6 -D - https://mediator-0.
 impact: Could reveal an IPv6-exposed management/deprecated tier; speculative. Severity: Info
 testability: PASSIVE
 [NEXT] PROBE: snapshot gateway version oracle — `curl -s https://gateway.threema.ch/v1` record `project_release` (=1.16.1) + `/cache/gateway.js?O5v86dAdwPboCbz` hash + SESSIONID semantics as baseline; re-diff next cycle to catch deployments/regressions of the redirect-guard bundle. (AUTH_HELPED fallback: ds-apip-work /identities test with authorized Work creds.)
+## 2026-08-10 21:00:00 UTC [chat] (model bigpickle)
+[HYP] ds-apip-work.threema.ch/identities cross-subscription contact leak (TWRK-1633)
+class: IDOR
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 55
+reasoning: directory.openapi.yml flags `/identities` "currently buggy" (TWRK-1633); endpoint filters contacts to "same Work subscription" + returns work properties (first/last name, jobTitle, department, availability). Host confirmed live, 401-gated (Basic Auth) with CORS `*` — route exists behind credential gate.
+evidence_needed: authenticated response including out-of-subscription contacts, or subscription-scoping parameter manipulation bypassing the membership filter
+verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities `{"contacts":[...]}` mixing own- and foreign-subscription IDs; diff membership + property leak; probe page/size bounds; compare against ds-apip.threema.ch/identities semantics
+impact: cross-subscription disclosure of work-directory metadata (names, titles, departments, availability) → targeted phishing of enterprise users. Severity: Medium (CVSS 3.1: 5.3 AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N)
+testability: AUTH_HELPED
+[HYP] gateway SPA release-fingerprint → deprecation/rollout-regression oracle
+class: MISCONFIG
+asset: https://gateway.threema.ch/ (404 shell + /cache/gateway.js?O5v86dAdwPboCbz)
+confidence: 45
+reasoning: bundle hash + `project_release=1.16.1` + `trusted_redirect_origins` meta captured as baseline this cycle; guard code (`TRUSTED_REDIRECT_PATTERNS`, `originMatchesPattern`, `validateSameOriginUrl`) extracted from bundle and verified sound against current build. Any silent downgrade/rollout (older bundle, removed guard, widened trusted-origin list) is passively detectable via hash drift.
+evidence_needed: observed asset-hash or trusted-origin drift across cycles correlated with behavior change on /v1 or redirect handling
+verify_steps: PASSIVE: weekly re-fetch `https://gateway.threema.ch/v1` + `/cache/gateway.js?{hash}`; diff bundle sha256 + trusted_redirect_origins + project_release; on change, re-run originMatchesPattern/validateSameOriginUrl review against the new bundle
+impact: early detection of regressions/deployments to the redirect-guard; informational, no direct compromise. Severity: Info
+testability: PASSIVE
+[HYP] work.test license-token route backend catch-up oracle
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 40
+reasoning: staging bundle v2.25.1 implements GET (returns license username/password/expired/hasEmail) + PUT for the route with 64-char zod validation, but staging backend returns method-agnostic 404/900B catch-all — frontend deployed ahead of backend (stable across cycles). Prod bundle has zero /public/* handlers.
+evidence_needed: backend deploys the route (returns ≠404 for a valid-format token) — would create an unauthenticated 64-hex token→credential oracle
+verify_steps: PASSIVE: single weekly GET `/api-app/public/license/token/{64zeros}`; record 404 vs non-404; ≤1 rps, GET only
+impact: if route lands: unauthenticated license-token→credentials oracle; tokens high-entropy so enumeration impractical, but staging/prod divergence signal. Severity: Info-Low
+testability: PASSIVE
+[NEXT] PROBE: weekly regression-diff pass — re-fetch `https://gateway.threema.ch/v1` (record project_release/trusted_redirect_origins + SESSIONID) and `/cache/gateway.js?O5v86dAdwPboCbz` (sha256 vs `594a27de…` baseline) and `https://work.test.threema.ch/api-app/public/license/token/{64zeros}` (404→non-404 catch-up); on any drift, re-review originMatchesPattern/validateSameOriginUrl guard against the new bundle. Chat in-band channel remains closed; gateway+staging-work fingerprinting is the live passive surface.
