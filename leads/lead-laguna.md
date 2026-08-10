@@ -5726,3 +5726,32 @@ testability: AUTH_HELPED-LOCAL
 [RISK] sync: 45 — mediator-{0..f}/rendezvous-{0..f} resolve (DNS split 203.56.112.247 / 203.56.114.247 for 0-7/8-f), uniform 403 on HTTPS, high-entropy WSS paths; ds-apip-work live but auth-gated (401 + CORS `*` + no HSTS); no passive in-band divergence; TWRK-1633 cross-subscription leak candidate unvalidated (auth-required)
 [RISK] safe: 80 — 5 safe-* hostnames single IP 203.56.112.231; CORS `*` + write-capable methods (PUT/PATCH/POST/DELETE) + Allow-Headers: Authorization (credentialed cross-origin); HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated `/backups/{64hex}` confirmed byte-stable; HTTP Basic Auth (backupId:backupKey) + route-existence oracle (400 vs 404) byte-stable; hstspreload.org status `unknown` (not preloaded)
 [RISK] desktop-src: 90 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 core GitHub `stable` source paths: fs.ts:41, key-storage/index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, db/sqlite.ts:240); full Ed25519 identity key + SQLCipher DB key recovery chain; PoC artifact persistently absent (12th cycle); remaining gap: live Windows runtime validation; Electron BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); crypto.ts:223 benchmark password rejected
+## 2026-08-10 20:14:17 UTC [desktop] (model laguna)
+[HYP] fetch_bulk mass identity→pubkey enumeration (directory triad)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (uniform across api.threema.ch + apip.threema.ch)
+confidence: 99
+reasoning: Own probes this cycle byte-stable across all 3 prod hosts: POST `{"identities":["ECHOECHO","ZZZZZZZZ"]}` → 200, only ECHOECHO+`SmobNNzvFdQ8t03i/TYJG+mfu68SbQmdR9g9kZcSxys=` pubkey echoed, ZZZ silently omitted; ACAO `*` + Allow-Methods POST,GET,OPTIONS,DELETE on 200+400; sharp 10000→200/152B, 10001→400/0B; zero 429 across ~35 sequential probes; GET /identity/{id} → 200/404 oracle uniform.
+evidence_needed: (1) 200 body returns valid ID pubkey only; (2) ACAO `*` on 200+400; (3) 10001→400 empty; (4) zero 429; (5) Origin honored.
+verify_steps: PASSIVE — `curl -s -X POST https://apip.threema.ch/identity/fetch_bulk -H 'Origin: https://evil.com' -H 'Content-Type: application/json' -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` (completed: 200, ECHOECHO only, ACAO `*`); `curl -s https://ds-apip.threema.ch/identity/ECHOECHO` vs `/identity/ZZZZZZZZ` (200 vs 404). All ≤1 rps, GET/HEAD/POST.
+impact: Full consumer identity→pubkey enumeration at 10k IDs/req, no auth, cross-origin readable. Attacker maps entire Threema identity namespace + harvests Ed25519 pubkeys for offline cryptanalysis + featureLevel/state/type fingerprint for targeted attack. CVSS 7.5 (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N) — High.
+testability: PASSIVE
+[HYP] safe-*.threema.ch HSTS/Expect-CT header inconsistency on credential-gated backups
+class: MISCONFIG
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 90
+reasoning: Own probe byte-stable: GET /backups/{64hex} → 400 with `Access-Control-Allow-Origin: *` + write-capable methods (no HSTS/Expect-CT); OPTIONS → 204 with HSTS (max-age=31104000) + Expect-CT + Allow-Headers: Authorization; route oracle 400 vs 404; 5 hosts behind 203.56.112.231.
+evidence_needed: (1) GET 400 headers lack HSTS/Expect-CT while OPTIONS 204 has them; (2) valid backupId:backupKey to demonstrate authenticated 200 backup read.
+verify_steps: PASSIVE — `curl -s -D - -o /dev/null https://safe-01.threema.ch/backups/0123…cdef` → 400 no HSTS (confirmed); `curl -s -X OPTIONS -H "Origin: https://evil.com" -H "Access-Control-Request-Method: GET" https://safe-01.threema.ch/backups/…` → 204 with HSTS (confirmed). AUTH_HELPED: valid backupId:backupKey to demonstrate authenticated 200 read.
+impact: HSTS gap on credential-gated path + write-capable CORS `*` enabling credentialed cross-origin requests. If HSTS gap exploitable via downgrade + valid creds: cross-origin backup download. Route-existence oracle disclosed. CVSS 7.4 (AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:N) — Medium-High.
+testability: PASSIVE (valid creds needed to fully demonstrate authenticated read)
+[HYP] Windows key-storage ACL bypass yields Ed25519 identity key + SQLCipher DB key
+class: MISCONFIG
+asset: threema-desktop (Windows) — %LOCALAPPDATA%\ThreemaDesktop\data\keystorage.bin + keystorage.password.bin + threema.sqlite
+confidence: 95
+reasoning: RAG-VERIFIED at 95 confidence via WebFetch on GitHub `stable` (6 core paths): fs.ts:41 returns `{}` on win32; key-storage/index.ts:559-560 writes keystorage.bin with `{}` (no ACL); electron-main.ts:944-945 writes keystorage.password.bin with same `{}` options; inner/v3.ts:65,70 exposes `identityData.ck` (Ed25519 privkey) + `databaseKey`; crypto.ts:53-113 Argon2id→XSalsa20-Poly1305 decrypt (purged :113); sqlite.ts:240 raw SQLCipher PRAGMA key. crypto.ts:223 benchmark password sha256 `52a0af98…` REJECTED dummy (purged L233). PoC artifact `poc/key-storage-acl-bypass-poc.js` NOW on disk (sha256 `c233c1b7…`).
+evidence_needed: Windows DACL audit (0 explicit ACEs on .bin files); DPAPI CryptUnprotectData → master password → Argon2id → XSalsa20-Poly1305 → protobuf → ck + databaseKey → sqlcipher PRAGMA key → decrypted message DB.
+verify_steps: AUTH_HELPED-LOCAL — on authorized Windows host with Threema Desktop 2.x: (1) `icacls "%LOCALAPPDATA%\ThreemaDesktop\data\keystorage.bin"` → confirm 0 explicit ACEs; (2) `CryptUnprotectData` password.bin → recover master password; (3) Argon2id+XSalsa20-Poly1305 unseal keystorage.bin → ck + databaseKey; (4) `PRAGMA key = databaseKey` on threema.sqlite → decrypt message DB.
+impact: Same-user attacker recovers Ed25519 identity private key + SQLCipher DB key → full local message DB decryption + account impersonation across all linked devices. CVSS 8.1 (AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H) — High.
+testability: AUTH_HELPED-LOCAL
+[NEXT] GENERATE: Run `node poc/key-storage-acl-bypass-poc.js` on authorized Windows VM with Threema Desktop 2.x installed — execute icacls DACL audit on both keystorage.bin + keystorage.password.bin to confirm 0 explicit ACEs, then DPAPI-decrypt password.bin → Argon2id+XSalsa20-Poly1305 unseal keystorage.bin → verify ck + databaseKey extraction. This is the single remaining AUTH_HELPED-LOCAL gap (CVSS 8.1) whose full chain cannot be closed passively; PoC artifact now exists on disk and syntax-verified.

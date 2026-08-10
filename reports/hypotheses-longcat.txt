@@ -1,9 +1,10 @@
-## 2026-08-10 19:31:08 UTC [sync] (model longcat)
+## 2026-08-10 20:10:49 UTC [sync] (model longcat)
+[CHANGED] billing.threema.ch: now confirmed serving real static assets — `/cache/billing_gui_theme_threema.js` (200, 336793 B, jQuery 3.7.1) + `/cache/billing_gui_theme_threema.css` (200, 41235 B, custom billing checkout/order/payment CSS) — app is more deployed than prior "301 catch-all" baseline, but `/en/login` + `/en/signup` still 404.
+[CHANGED] billing.threema.ch: static assets carry full security headers (HSTS `max-age=31104000`, Expect-CT enforce, strict CSP `default-src 'self'`, X-Frame-Options DENY, Referrer-Policy no-referrer) while the 404 error page carries NONE of them — header divergence between asset paths and error paths.
 [PRIO] ds-apip.threema.ch/identity/fetch_bulk — score 91 (attack:9, business:9, tech:8, gate:10, cloud:8, fresh:9) — 10k-ID batch enum, CORS `*`, no rate-limit, 3-host cluster
 [PRIO] threema-desktop key-storage (Windows ACL bypass) — score 87 (attack:10, business:9, tech:9, gate:6, cloud:7, fresh:8) → full Ed25519+SQLCipher key chain, needs Windows validation
 [PRIO] safe-01.threema.ch backup API — score 79 (attack:8, business:8, tech:7, gate:7, cloud:9, fresh:7) — permissive CORS + write methods + HSTS gap
-[PRIO] ds-apip-work.threema.ch/identities (TWRK-1633) — score 61 (attack:6, business:7, tech:6, gate:3, cloud:6, fresh:9) — AUTH_HELPED, cross-subscription leak
-[PRIO] billing.threema.ch deployed app — score 38 (attack:3, business:6, tech:4, gate:7, cloud:5, fresh:8) — custom 404 page, no live routes
+[PRIO] billing.threema.ch deployed app — score 42 (attack:3, business:6, tech:4, gate:7, cloud:5, fresh:8) — real static assets served, custom checkout CSS, but no live application routes
 [HYP] fetch_bulk mass identity→pubkey enumeration at 10k IDs/req (directory cluster triad)
 class: IDOR
 asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/fetch_bulk
@@ -31,18 +32,19 @@ evidence_needed: Already confirmed — CORS, methods, HSTS gap, auth gating all 
 verify_steps: PASSIVE: `curl -s -D- -X OPTIONS https://safe-01.threema.ch/backups/aabbccdd... -H 'Origin: https://evil.com'` — confirm ACAO `*` + write methods. `curl -s -D- https://safe-01.threema.ch/backups/aabbccdd...` — confirm HSTS absent on GET 400.
 impact: Cross-origin credentialed backup API access + transport-security header inconsistency. Severity: Medium-High.
 testability: PASSIVE
-[PARKED] ds-apip-work.threema.ch/identities TWRK-1633 cross-subscription leak: confidence 50, AUTH_HELPED only, no passive verify path — requires authorized work license to test.
-[PARKED] billing.threema.ch deployed app: confidence 35 < 40, all probed paths return 301/404, custom 404 page only confirms framework presence.
-[FINAL]
-[NEXT] PROBE: `curl -s --max-time 8 -D- -X OPTIONS https://billing.threema.ch/cache/billing_gui_theme_threema.css -H "Origin: https://evil.com"` + `curl -s --max-time 8 -D- https://billing.threema.ch/cache/billing_gui_theme_threema.js` + `curl -s --max-time 8 -D- https://billing.threema.ch/en/login` — final mapping pass on billing app to confirm whether referenced assets are served and if any login/signup routes are live (prior billing REJECTED was based on root-path probes only; 404-page-referenced assets are a different path class).
-[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: byte-stable this cycle — 200/152B (ECHOECHO echoed, invalid IDs silently omitted), CORS ACAO:*, 10001→400/0B sharp count-cap, zero 429s.
-[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub `stable`; no new commits affecting ACL bypass logic.
-[LEARN] ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency re-confirmed live this cycle.
-[LEARN] REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed.
-[LEARN] CHANGED poc/ directory: still ABSENT (11th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions.
-[LEARN] NO_NEW_CLASS: All previously accepted findings byte-stable; no new vulnerability classes opened this cycle.
+[PARKED] billing asset-header divergence (HSTS/CSP on assets, none on 404): confidence 30 < 40 — 404 page doesn't handle credentials, no data exposure, defense-in-depth only, no concrete attack path.
+[FINAL] 1. fetch_bulk mass identity→pubkey enumeration (IDOR, confidence 99)
+[FINAL] 2. Windows key-storage ACL bypass (MISCONFIG, confidence 95)
+[FINAL] 3. safe backup API permissive CORS + HSTS gap (MISCONFIG, confidence 88)
+[NEXT] PROBE: `curl -s --max-time 8 -D- https://billing.threema.ch/api` + `curl -s --max-time 8 -D- https://billing.threema.ch/admin` + `curl -s --max-time 8 -D- https://billing.threema.ch/` — final billing route sweep to confirm no live backend API/admin routes behind the static-asset deployment (closes billing investigation).
+[LEARN] CHANGED billing.threema.ch: confirmed serving real static assets (jQuery 3.7.1 JS + custom billing checkout CSS, both 200 with HSTS/Expect-CT/CSP/X-Frame-Options) — app partially deployed but /en/login + /en/signup still 404; no live application routes found.
+[LEARN] CHANGED billing.threema.ch: security-header divergence — static assets carry full transport-security headers (HSTS, Expect-CT, CSP) while the 404 error page carries none; minor defense-in-depth gap, no credential handling on error path.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: byte-stable — 200/152B (ECHOECHO echoed, invalid IDs silently omitted), CORS ACAO:*, 10001→400/0B sharp count-cap, zero 429s.
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub `stable`.
+[LEARN] ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable.
+[LEARN] NO_NEW_CLASS: billing probe confirmed static-asset-only deployment; no new vulnerability class opened.
 [RISK] chat: 30 — prod DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band 443/5222 passive channel closed (0 bytes pushed without auth login frame); no passive surface remaining
-[RISK] web: 94 — directory cluster (3 prod hosts, fetch_bulk 10k batch + CORS * + no rate-limit); safe backup API (permissive CORS + write methods + HSTS gap); work/broadcast/gateway cockpits accessible; staging work public API divergence; billing app deployed but no live routes found
+[RISK] web: 94 — directory cluster (3 prod hosts, fetch_bulk 10k batch + CORS * + no rate-limit); safe backup API (permissive CORS + write methods + HSTS gap); work/broadcast/gateway cockpits accessible; staging work public API divergence; billing app partially deployed (static assets only, no live routes)
 [RISK] sync: 55 — mediator/rendezvous uniform 403; ds-apip-work live but auth-gated; TWRK-1633 cross-subscription leak unvalidated (needs auth)
 [RISK] safe: 88 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
-[RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain; PoC artifact does NOT exist (KB claim false)
+[RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain; PoC artifact does NOT exist (KB claim persistently false)

@@ -1210,3 +1210,9 @@
 - CHANGED gateway.threema.ch: /en/signup 200, /api/v1 403, /v1 404 with session cookie; posture stable
 - CHANGED billing.ch: 404 page is custom Threema-branded app template (references `/cache/billing_gui_theme_threema.css` + `.js`)
 - CHANGED poc/ directory: still ABSENT (10th+ consecutive cycle); KB claims "NOW GENERATED" persistently false
+
+## 2026-08-10 20:15:46 UTC
+- CHANGED billing.ch: 404 page is custom Threema-branded app template (references `/cache/billing_gui_theme_threema.css` + `.js`)
+- CHANGED poc/ directory: still ABSENT (10th+ consecutive cycle); KB claims "NOW GENERATED" persistently false
+- CHANGED billing.threema.ch: now confirmed serving real static assets — `/cache/billing_gui_theme_threema.js` (200, 336793 B, jQuery 3.7.1) + `/cache/billing_gui_theme_threema.css` (200, 41235 B, custom billin
+- CHANGED billing.threema.ch: static assets carry full security headers (HSTS `max-age=31104000`, Expect-CT enforce, strict CSP `default-src 'self'`, X-Frame-Options DENY, Referrer-Policy no-referrer) while the
