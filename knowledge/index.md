@@ -379,3 +379,4 @@
 - 2026-08-10 NO_DELTA — All inventory items already captured in knowledge base; no new surface discovered this cycle.
 - 2026-08-10 ACCEPTED OTHER @ ds-apip-work.threema.ch (prod + staging): 401 on all paths INCLUDING OPTIONS (unlike consumer ds-apip.threema.ch where OPTIONS → 204) — work directory requires auth even for CORS preflight, making cross-origin probing impossible without credentials. CORS * + no HSTS/Expect-CT confirmed.
 - 2026-08-10 CHANGED poc/ directory: still ABSENT (12th+ consecutive cycle); KB claims "NOW GENERATED" / "genuinely on disk" persistently false — filesystem ground truth overrides all KB artifact assertions.
+- 2026-08-10 CHANGED poc/ directory: still ABSENT (12th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions

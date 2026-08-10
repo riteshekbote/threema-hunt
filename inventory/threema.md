@@ -1226,3 +1226,18 @@
 - NEW gateway.threema.ch/v1: session cookie (SESSIONID) set on unauthenticated 404 response with Secure/HttpOnly/SameSite=Strict — confirmed stable across cycles
 - CHANGED poc/key-storage-acl-bypass-poc.js: KB claims "NOW GENERATED" but filesystem confirms ABSENT (11th+ consecutive cycle) — KB/FS discrepancy persists
 - CHANGED ds-apip-work.threema.ch/identities: TWRK-1633 "buggy" note in openapi spec — potential cross-subscription contact leak; requires auth to verify
+
+## 2026-08-10 22:26:35 UTC
+- NEW gateway.threema.ch/v1 returns 404 with Set-Cookie: SESSIONID=...; Secure; HttpOnly; SameSite=Strict on unauthenticated GET
+- NEW ds-apip-work.threema.ch/identities: TWRK-1633 "buggy" note in openapi spec — potential cross-subscription contact leak
+- NEW threema-android JoinResponse.kt:70 — `toString()` leaks `icePassword='$icePassword'` in plain text (logcat credential exposure)
+- NEW billing.threema.ch now responds HTTP 301 (redirect to threema.ch) vs baseline TIMEOUT
+- NEW gateway.threema.ch now responds HTTP 302 (to /en) vs baseline TIMEOUT
+- NEW Chat shards IPv4-only, direct A records — no AAAA/CNAME on `g-*.0.threema.ch`
+- NEW g-{00,7f,80,ff}.1.threema.ch → NXDOMAIN — no `.1` group tier
+- CHANGED billing.threema.ch: now serves real static assets (/cache/billing_gui_theme_threema.js 200 336KB jQuery 3.7.1, /cache/billing_gui_theme_threema.css 200 41KB) with full security headers (HSTS, Expect-C
+- CHANGED poc/ directory: still ABSENT (12th+ consecutive cycle); KB claims "NOW GENERATED" / "genuinely on disk" persistently false — filesystem ground truth overrides all KB artifact assertions
+- NEW work.threema.ch/api/v1 — live X-Api-Key authenticated API with CORS *, routes /users + /contacts confirmed (401 not 404), OPTIONS preflight not handled (falls through to web app 404)
+- CHANGED billing.threema.ch: 301 redirect confirmed, ALL non-root paths 404 — no live application routes, investigation closed
+- NEW work.threema.ch/api/v1 — live X-Api-Key authenticated API, routes /users + /contacts confirmed (401 not 404), CORS * on GET but OPTIONS returns 404 (preflight unhandled, blocks cross-origin keyed requ
+- CHANGED billing.threema.ch: investigation closed — 301 redirect to threema.ch, all non-root paths 404 nginx catch-all, no live application routes

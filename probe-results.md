@@ -663,3 +663,14 @@ https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
 https://work.test.threema.ch/api-app/public/license/token/{64zeros -> HTTP 404
 https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
 https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+
+## 2026-08-10 22:26:39 UTC
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://ds-apip.threema.ch/api.threema.ch/apip.threema.ch -> HTTP 404
+https://$h.threema.ch/backups/{0000-0000-…-64hex -> ERR 'ascii' codec can't encode character '\u2026' in p
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` -> HTTP 400
+https://safe-01.threema.ch/backups/...` -> HTTP 403
+https://work.threema.ch/api/v1 -> HTTP 401

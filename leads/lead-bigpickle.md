@@ -7655,3 +7655,33 @@ verify_steps: PASSIVE: single weekly GET `/api-app/public/license/token/{64zeros
 impact: if route lands: unauthenticated license-token→credential oracle; tokens high-entropy so enumeration impractical. Severity: Info-Low
 testability: PASSIVE
 [NEXT] PROBE: regression-diff pass executed and byte-stable this cycle (gateway `594a27de…`/1.16.1, prod work bundle `96501e21…`, work.test 404/900B, fetch_bulk 200, safe-01 400 no-HSTS). Continue passive fingerprinting with the new probe the preflight study opened: enumerate the remaining Basic-auth-gated directory host's OPTIONS surface — `curl -X OPTIONS https://ds-apip-work.threema.ch/identities -H "Origin: https://evil.com" -H "Access-Control-Request-Method: POST"` (done: 401 + ACAO `*`, no `authorization` in Allow-Headers) and diff against prod directory hosts; then re-run the same on `ds-apip-work.test.threema.ch` staging to check header-parity with prod (staging work directory previously 401-uniform; parity here would strengthen the staging-mirror class).
+## 2026-08-10 22:19:24 UTC [chat] (model bigpickle)
+[HYP] safe-*.threema.ch backupId→host routing oracle
+class: MISCONFIG
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 45
+reasoning: safe hostnames are derived from backupId prefix (safe-{prefix8}); all 5 resolve to one IP 203.56.112.231 but server-side routing vs client-side selection is unverified; prior probes used safe-01 only.
+evidence_needed: a 64-hex id returning a different status/body on a "wrong-prefix" host than on its matching host → host routing enforced server-side (oracle of id↔host binding)
+verify_steps: PASSIVE: for a fixed 64-hex id, GET /backups/{64hex} on all 5 hosts sequentially (≤1 rps); diff status codes (400/401/404) and body lengths; repeat with 2nd id. Same response on all → no routing oracle; divergence → mapping leak
+impact: if oracle exists: unauthenticated verification that a backupId's prefix maps to a specific host; low-info alone but sharpens targeted brute-force of high-entropy ids. Severity: Info-Low (CVSS 3.1 2.5)
+testability: PASSIVE
+[HYP] ds-apip-work.threema.ch/identities cross-subscription contact leak (TWRK-1633)
+class: IDOR
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 50
+reasoning: directory.openapi.yml flags `/identities` "currently buggy" (TWRK-1633); filters contacts to "same Work subscription" + returns names/jobTitle/department/availability. Prod+staging OPTIONS now both 401 without `authorization` in Allow-Headers → browser-CORS vector closed; attack requires an authenticated Work context.
+evidence_needed: authenticated response mixing own- and foreign-subscription IDs; or scoping-param manipulation bypassing the membership filter
+verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities `{"contacts":[...]}` with own+foreign IDs; diff membership/property leak; probe page/size bounds vs ds-apip.threema.ch/identities semantics
+impact: cross-subscription work-directory metadata disclosure → targeted phishing of enterprise users. Severity: Medium (CVSS 3.1 5.3)
+testability: AUTH_HELPED
+[HYP] directory triad browser-driven identity enumeration (impact refinement)
+class: IDOR
+asset: https://ds-apip.threema.ch/api.threema.ch/apip.threema.ch /identity/fetch_bulk
+confidence: 80
+reasoning: ACAO `*` + no auth + no 429 + 10k-ID batches re-confirmed this cycle (200/echo, invalid omitted); any web page can POST fetch_bulk and read valid-ID pubkeys cross-origin client-side, no tooling.
+evidence_needed: none additional — cross-origin read already verified with Origin header; impact framing only
+verify_steps: PASSIVE: already done (Origin: https://evil.com → ACAO `*` on 200 body)
+impact: hostile page performs silent identity-graph harvesting + exact-match phishing targeting at ~10k ids/request; no CSRF-style constraints. Severity: High (CVSS 3.1 7.5)
+testability: PASSIVE
+[FINAL]
+[NEXT] PROBE: `for h in safe-01 safe-1a safe-1b safe-02 safe-00; do curl -s -o /dev/null -w "$h %{http_code} %{size_download}" https://$h.threema.ch/backups/{0000-0000-…-64hex}; sleep 1; done` with two distinct 64-hex ids — diff status/body across hosts to test server-side backupId→host routing vs client-side selection; then repeat OPTIONS on any divergent host.
