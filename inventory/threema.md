@@ -983,3 +983,23 @@
 - CHANGED `inner/v3.ts:65,70` — `INNER_KEY_STORAGE_V3_SCHEMA` confirmed via WebFetch exposes `identityData.ck` (Ed25519 identity privkey) + `databaseKey` (SQLCipher key)
 - CHANGED `vite.config.ts` — confirmed `KEY_STORAGE_PATH: ['data','keystorage.bin']` + `SAFE_STORAGE_PASSWORD_PATH: ['data','keystorage.password.bin']` + `DATABASE_PATH: ['data','threema.sqlite']` + `ELECTRON_S
 - CHANGED `poc/key-storage-acl-bypass-poc.js` — PoC artifact NOW GENERATED + `node --check` PASS + Linux no-op confirmed (was claimed-but-missing in prior cycle; `find` returned zero results)
+
+## 2026-08-10 00:44:40 UTC
+- NEW `mediator-{prefix4}.threema.ch/{prefix8}/` — mediator WSS hostname pattern confirmed in scope; DNS split IPs (0-7→203.56.112.247, 8-f→203.56.114.247); uniform 403 on HTTPS; high-entropy path structure
+- NEW `rendezvous-{prefix4}.threema.ch/{prefix8}/` — rendezvous WSS hostname pattern confirmed in scope; same DNS split routing as mediator; uniform 403 on HTTPS; high-entropy path structure
+- NEW `ds-apip-work.threema.ch` — work-style directory server confirmed live; 401 on all paths (/identity/*, /identities); CORS `*`; no HSTS/Expect-CT; Basic auth required
+- NEW `safe-{backupIdPrefix8}.threema.ch/` — backup safe hostname pattern confirmed in scope; 5 hostnames (safe-01, safe-1a, safe-1b, safe-02, safe-00) resolve to single IP 203.56.112.231
+- NEW `ds-apip.threema.ch` — canonical directory server hostname confirmed via desktop client build config; public GET /identity/{id} returns 200/404 oracle
+- NEW Chat DNS shard→node map: `g-{00..7f}.0.threema.ch`→203.56.112.202 (128 shards), `g-{80..ff}.0.threema.ch`→203.56.112.204 (128 shards); sharp 0x7f/0x80 boundary; IPv4-only direct A records; no `.1` tie
+- CHANGED `broadcast.threema.ch/api/v1` → HTTP 401 auth-gated; key-format/validity oracle disproven (1/32/64-char keys → byte-identical 403)
+- CHANGED `gateway.threema.ch/en/signup` → HTTP 200 (14KB signup page accessible)
+- CHANGED `poc/key-storage-acl-bypass-poc.js` — PoC artifact NOW GENERATED + `node --check` PASS + Linux no-op confirmed
+- CHANGED `ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/fetch_bulk` — ceiling exactly 10000 IDs/request (10000→200/152B, 10001→400/0B sharp count-cap; CORS `*`; zero 429s)
+- CHANGED `ds-apip.test.threema.ch/identity/fetch_bulk` — staging byte-identical to prod including 10000-cap enforcement; no extra routes
+- CHANGED `safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}` — HSTS/Expect-CT present on OPTIONS 204, ABSENT on GET 400 stable across all 5 hosts
+- CHANGED `work.test.threema.ch/api-app/public/global/settings` → 200 (299B) vs `work.threema.ch` → 404 — divergence stable
+- NEW `poc/key-storage-acl-bypass-poc.js` — PoC artifact NOW present in workspace, `node --check` PASS, graceful no-op on Linux confirmed (was claimed-but-missing in prior cycle)
+- NEW `g-{00,7f,80,ff}.1.threema.ch` → NXDOMAIN — no `.1` group tier exists on chat shards (only `.0` tier; 256 groups total)
+- NEW Chat shards IPv4-only, direct A records — no AAAA/CNAME on `g-*.0.threema.ch` (no LB aliasing at DNS layer)
+- CHANGED `broadcast.threema.ch/api/v1` → HTTP 401 auth-gated confirmed (key-format oracle disproven; 1/32/64-char keys byte-identical 403)
+- CHANGED `gateway.threema.ch/en/signup` → HTTP 200 (14KB signup page accessible; no msgapi route exposed)

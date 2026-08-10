@@ -6344,3 +6344,4 @@ evidence_needed: a path returning ≠404 on apip/api that differs from ds-apip h
 verify_steps: PASSIVE — GET /identity/{id} + /identity/fetch_bulk + 5 challenge endpoints on apip/api vs ds-apip (already 404 vs 200); extend to /v1, /api, /status at ≤1 rps; diff status/size.
 impact: potential forgotten-endpoint exposure; otherwise only archival note. Severity: Low.
 testability: PASSIVE
+## 2026-08-10 00:37:07 UTC [chat] (model bigpickle)

@@ -1,48 +1,53 @@
-## 2026-08-09 23:51:16 UTC [web] (model nemotron3)
-[NEW] `poc/key-storage-acl-bypass-poc.js` — PoC artifact NOW present in workspace, `node --check` PASS, graceful no-op on Linux confirmed (was claimed-but-missing in prior cycle)
-[NEW] `g-{00,7f,80,ff}.1.threema.ch` → NXDOMAIN — no `.1` group tier exists on chat shards (only `.0` tier; 256 groups total)
-[NEW] Chat shards IPv4-only, direct A records — no AAAA/CNAME on `g-*.0.threema.ch` (no LB aliasing at DNS layer)
-[CHANGED] `broadcast.threema.ch/api/v1` → HTTP 401 auth-gated confirmed (key-format oracle disproven; 1/32/64-char keys byte-identical 403)
-[CHANGED] `gateway.threema.ch/en/signup` → HTTP 200 (14KB signup page accessible; no msgapi route exposed)
-[PRIO] `ds-apip.threema.ch/identity/fetch_bulk` — 94 — attack=10 business=9 tech=8 gate=10 cloud=5 fresh=8 (public identity oracle + 10k-ID batch + 5 challenge param-oracles + CORS `*` + zero rate-limit across 3 prod hosts)
-[PRIO] `safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}` — 78 — attack=8 business=9 tech=7 gate=6 cloud=9 fresh=8 (credential-gated backup API; HTTP Basic Auth; HSTS/Expect-CT on OPTIONS 204 but ABSENT on GET 400; 5 hosts single IP; route-existence oracle)
-[PRIO] `work.test.threema.ch/api-app/public/global/settings` — 71 — attack=7 business=7 tech=6 gate=10 cloud=5 fresh=7 (staging-only public API; 299B with appLinkHost + 3 download URLs; prod 404; bundle divergence confirmed v2.25.1 sha256 diff)
-[PRIO] `ds-apip-work.threema.ch/identity/*` — 68 — attack=7 business=8 tech=7 gate=6 cloud=6 fresh=7 (work directory server; 401 on all paths + CORS `*` + Basic auth; separate identity namespace from consumer)
-[PRIO] `mediator-{prefix4}.threema.ch/{prefix8}/` — 65 — attack=7 business=7 tech=8 gate=3 cloud=8 fresh=8 (WSS sync endpoint pattern in scope; DNS split IPs; high-entropy paths; uniform 403 HTTPS but WSS auth unknown)
-[PRIO] `rendezvous-{prefix4}.threema.ch/{prefix8}/` — 65 — attack=7 business=7 tech=8 gate=3 cloud=8 fresh=8 (WSS linking endpoint pattern in scope; same DNS split; device-linking flow attack surface)
-[HYP] Directory bulk identity enumeration at scale via fetch_bulk
-class: IDOR
-asset: `https://ds-apip.threema.ch/identity/fetch_bulk` (also `api.threema.ch`, `apip.threema.ch`)
-confidence: 97
-reasoning: Three production hosts accept POST with 10000-ID batches (10000→200/152B, 10001→400/0B sharp count-cap); returns pubkeys for valid IDs only, silently omits invalid; CORS `*` with POST/GET/OPTIONS/DELETE; zero 429s across 35+ sequential probes; 5 challenge endpoints (sfu_cred, blob_cred, set_revocation_key, check_revocation_key, update_work_info) return 200 with JSON errors + parameter-validation-before-identity-lookup oracles
-evidence_needed: Cross-origin read confirmation with arbitrary Origin header; response-body differential as enumeration primitive (valid ID → larger response)
-verify_steps: PROBE: POST https://ds-apip.threema.ch/identity/fetch_bulk with JSON `{"ids":["ECHOECHO","ZZZZZZZZ",...]}` (≤1 rps); observe 200 with only ECHOECHO pubkey echoed, ACAO `*`; PROBE: 10001 IDs → 400 empty body; PROBE: GET https://ds-apip.threema.ch/identity/ECHOECHO → 200/404 oracle
-impact: Full consumer identity→pubkey enumeration at ~10k IDs/request, no rate limit → targeted attacks, contact discovery, correlation attacks. Severity: High (CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
-testability: PASSIVE
-[HYP] Safe backup API credentialed cross-origin read with transport-header gap
+## 2026-08-10 00:42:13 UTC [web] (model nemotron3)
+[NEW] `mediator-{prefix4}.threema.ch/{prefix8}/` — mediator WSS hostname pattern confirmed in scope; DNS split IPs (0-7→203.56.112.247, 8-f→203.56.114.247); uniform 403 on HTTPS; high-entropy path structure
+[NEW] `rendezvous-{prefix4}.threema.ch/{prefix8}/` — rendezvous WSS hostname pattern confirmed in scope; same DNS split routing as mediator; uniform 403 on HTTPS; high-entropy path structure
+[NEW] `ds-apip-work.threema.ch` — work-style directory server confirmed live; 401 on all paths (/identity/*, /identities); CORS `*`; no HSTS/Expect-CT; Basic auth required
+[NEW] `safe-{backupIdPrefix8}.threema.ch/` — backup safe hostname pattern confirmed in scope; 5 hostnames (safe-01, safe-1a, safe-1b, safe-02, safe-00) resolve to single IP 203.56.112.231
+[NEW] `ds-apip.threema.ch` — canonical directory server hostname confirmed via desktop client build config; public GET /identity/{id} returns 200/404 oracle
+[NEW] Chat DNS shard→node map: `g-{00..7f}.0.threema.ch`→203.56.112.202 (128 shards), `g-{80..ff}.0.threema.ch`→203.56.112.204 (128 shards); sharp 0x7f/0x80 boundary; IPv4-only direct A records; no `.1` tier
+[CHANGED] `broadcast.threema.ch/api/v1` → HTTP 401 auth-gated; key-format/validity oracle disproven (1/32/64-char keys → byte-identical 403)
+[CHANGED] `gateway.threema.ch/en/signup` → HTTP 200 (14KB signup page accessible)
+[CHANGED] `poc/key-storage-acl-bypass-poc.js` — PoC artifact NOW GENERATED + `node --check` PASS + Linux no-op confirmed
+[CHANGED] `ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/fetch_bulk` — ceiling exactly 10000 IDs/request (10000→200/152B, 10001→400/0B sharp count-cap; CORS `*`; zero 429s)
+[CHANGED] `ds-apip.test.threema.ch/identity/fetch_bulk` — staging byte-identical to prod including 10000-cap enforcement; no extra routes
+[CHANGED] `safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}` — HSTS/Expect-CT present on OPTIONS 204, ABSENT on GET 400 stable across all 5 hosts
+[CHANGED] `work.test.threema.ch/api-app/public/global/settings` → 200 (299B) vs `work.threema.ch` → 404 — divergence stable
+[PRIO] `mediator-{prefix4}.threema.ch/{prefix8}/` — 68 — attack=7 business=7 tech=8 gate=3 cloud=8 fresh=9 (WSS sync endpoint in scope; DNS split across 2 cloud IPs; high-entropy paths; uniform HTTPS 403 but WSS auth unknown)
+[PRIO] `rendezvous-{prefix4}.threema.ch/{prefix8}/` — 68 — attack=7 business=7 tech=8 gate=3 cloud=8 fresh=9 (WSS linking endpoint in scope; same DNS split; device-linking flow attack surface; uniform HTTPS 403)
+[PRIO] `ds-apip-work.threema.ch` — 57 — attack=6 business=6 tech=5 gate=4 cloud=5 fresh=8 (Work directory server; 401 on all identity endpoints; CORS `*` with POST/GET/OPTIONS/DELETE; Basic auth required; no HSTS/Expect-CT)
+[HYP] Mediator WSS authentication bypass via high-entropy path prediction
 class: AUTH
-asset: `https://safe-01.threema.ch/backups/{64hex}` (all 5 safe-* hosts)
-confidence: 62
-reasoning: GET /backups/{64hex} returns 400 (cred-gated) vs /backup/{x} → 404 (route oracle); OPTIONS preflight returns 204 with ACAO `*` + Allow-Methods GET/HEAD/PUT/PATCH/POST/DELETE + Allow-Headers: Authorization (enables credentialed cross-origin); HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 response — header inconsistency weakens transport-security enforcement; HTTP Basic Auth (backupId:backupKey) format confirmed
-evidence_needed: Valid backup credentials (program-issued) to test cross-origin authenticated read of backup metadata/contents; confirm Allow-Credentials absent (credentialed requests still possible via Authorization header)
-verify_steps: AUTH_HELPED: With program-issued backupId:backupKey, GET https://safe-01.threema.ch/backups/{valid64hex} with Origin: https://attacker.com + Authorization: Basic <creds>; observe 200/401/403 and ACAO response; PROBE: OPTIONS https://safe-01.threema.ch/backups/{64hex} → confirm Allow-Headers: Authorization + ACAO `*`; PROBE: GET https://safe-01.threema.ch/backup/x → 404 (route oracle)
-impact: If valid creds obtained (phishing, reuse, leak), cross-origin backup read → message history, contacts, media. Severity: High (CVSS 3.1: 7.1 AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N)
+asset: `wss://mediator-{0..f}.threema.ch/{prefix8}/`
+confidence: 45
+reasoning: 16 mediator hosts resolve via DNS split (2 IP blocks); HTTPS returns uniform 403 but WSS is the operational protocol for multi-device sync; high-entropy `{prefix8}` path component may be guessable or leakable; no passive in-band divergence observed on HTTPS
+evidence_needed: Valid WSS handshake authentication mechanism; path entropy analysis; whether path component is derived from user identity or random
+verify_steps: AUTH_HELPED: With program-issued test identity, establish WSS connection to mediator host; observe auth handshake; test path prediction with/without valid prefix; PROBE: HTTPS GET to mediator hosts with varying paths → confirm uniform 403
+impact: If path predictable or auth bypassable → unauthorized device sync, message interception, contact enumeration. Severity: High (CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
 testability: AUTH_HELPED
-[HYP] Staging-only public work API leaks configuration absent in production
-class: MISCONFIG
-asset: `https://work.test.threema.ch/api-app/public/global/settings`
-confidence: 85
-reasoning: Staging returns 200 (299B, appLinkHost + 3 app-download URLs) unauthenticated; production returns 404; work_public.js v2.25.1 bundles diverge (staging sha256 e48e18f7… 1,443,948B implements /public/* routes; prod sha256 96501e21… 1,400,541B has ZERO /public/* handlers); sole live public route in /api-app/public/* namespace; all other public routes (/, /global/, /license/token/{64hex}) return 404 catch-all on both hosts
-evidence_needed: Confirm no sensitive data in staging response (only appLinkHost + download URLs); verify prod bundle truly lacks /public/* handlers (no hidden routes)
-verify_steps: PROBE: GET https://work.test.threema.ch/api-app/public/global/settings → 200/299B (≤1 rps); PROBE: GET https://work.threema.ch/api-app/public/global/settings → 404; PROBE: Fetch both work_public.js bundles, verify sha256 divergence and route-handler presence/absence via static analysis
-impact: Staging environment exposes public API surface not present in prod → configuration drift, potential debug endpoints, inconsistent security posture. Severity: Medium (CVSS 3.1: 5.3 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
-testability: PASSIVE
-[PARKED] Work directory server identity enumeration behind Basic auth: confidence 55 below 60 threshold for AUTH class; verify_steps rely on credential guessing which violates passive-first (no account creation/modification); AUTH_HELPED would require program-issued test credentials
-[PARKED] Mediator WSS endpoint authentication bypass via high-entropy path prediction: confidence 50 below 60; verify_steps require WSS connection attempts which exceed passive GET/HEAD; path prediction is speculative without source evidence of weakness
-[PARKED] Rendezvous WSS device-linking flow manipulation: confidence 48 below 60; class BUSLOGIC not on REJECTED list but verify_steps require WSS active interaction; no concrete passive evidence of flaw; purely speculative
-[FINAL] 1. Directory bulk identity enumeration at scale via fetch_bulk (97, IDOR, PASSIVE)
-[FINAL] 2. Staging-only public work API leaks configuration absent in production (85, MISCONFIG, PASSIVE)
-[FINAL] 3. Safe backup API credentialed cross-origin read with transport-header gap (62, AUTH, AUTH_HELPED)
+[HYP] Rendezvous WSS device-linking flow manipulation
+class: BUSLOGIC
+asset: `wss://rendezvous-{0..f}.threema.ch/{prefix8}/`
+confidence: 42
+reasoning: 16 rendezvous hosts share DNS split with mediators; HTTPS uniform 403; WSS used for device-linking (QR code flow); high-entropy `{prefix8}` path; no passive evidence of flaw but linking flow is high-value target
+evidence_needed: Device-linking protocol specification; whether `{prefix8}` is user-controlled or server-generated; replay/relay attack surface on linking handshake
+verify_steps: AUTH_HELPED: With program-issued test identity, initiate device-linking flow; capture WSS handshake; test linking code reuse/replay; PROBE: HTTPS GET to rendezvous hosts → confirm uniform 403
+impact: If linking flow manipulable → unauthorized device registration, account takeover. Severity: Critical (CVSS 3.1: 9.1 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N)
+testability: AUTH_HELPED
+[HYP] Work directory server identity enumeration behind Basic auth
+class: IDOR
+asset: `https://ds-apip-work.threema.ch/identity/{id}` and `/identity/fetch_bulk`
+confidence: 50
+reasoning: Work-style directory server returns 401 on all paths with Basic auth; CORS `*` with POST/GET/OPTIONS/DELETE; identical endpoint structure to public directory servers (which allow unauthenticated enumeration); OPTIONS returns 401 but includes CORS headers
+evidence_needed: Valid Basic auth credentials (program-issued); whether identity endpoints behave like public servers (200/404 oracle + fetch_bulk pubkey return) when authenticated
+verify_steps: AUTH_HELPED: With program-issued Work test credentials, GET /identity/ECHOECHO and POST /identity/fetch_bulk with valid/invalid IDs; observe response codes, CORS, rate limits; PROBE: Unauthenticated GET/OPTIONS → confirm 401 + CORS headers
+impact: If authenticated enumeration works → work-identity→pubkey mapping, contact discovery in enterprise context. Severity: Medium (CVSS 3.1: 6.5 AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N)
+testability: AUTH_HELPED
+[PARKED] Mediator WSS authentication bypass via high-entropy path prediction: verify_steps require WSS connection attempts which exceed passive GET/HEAD; confidence 45 < 60; no passive in-band divergence to anchor hypothesis
+[PARKED] Rendezvous WSS device-linking flow manipulation: verify_steps require WSS active interaction; confidence 42 < 60; purely speculative without protocol evidence; class BUSLOGIC not rejected but no concrete passive vector
+[PARKED] Work directory server identity enumeration behind Basic auth: confidence 50 < 60; verify_steps rely on credential guessing which violates passive-first (no account creation/modification); AUTH_HELPED would require program-issued test credentials
+[FINAL] 1. Directory bulk identity enumeration at scale via fetch_bulk (97, IDOR, PASSIVE) — `https://ds-apip.threema.ch/identity/fetch_bulk` (also `api.threema.ch`, `apip.threema.ch`)
+[FINAL] 2. Staging-only public work API leaks configuration absent in production (85, MISCONFIG, PASSIVE) — `https://work.test.threema.ch/api-app/public/global/settings`
+[FINAL] 3. Safe backup API credentialed cross-origin read with transport-header gap (62, AUTH, AUTH_HELPED) — `https://safe-01.threema.ch/backups/{64hex}` (all 5 safe-* hosts)
 [NEXT] PROBE: `curl -s -H "Origin: https://example.com" -X POST -H "Content-Type: application/json" -d '{"ids":["ECHOECHO","ZZZZZZZZ"]}' https://ds-apip.threema.ch/identity/fetch_bulk` — confirm 200 with only ECHOECHO pubkey echoed, ACAO `*`, CORS methods POST/GET/OPTIONS/DELETE; parallel `curl -s https://ds-apip.threema.ch/identity/ECHOECHO` — confirm 200/404 oracle
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk hard ceiling exactly 10000 IDs/request (10000→200/152B, 10001→400/0B); sharp count-cap, overflow→400 empty body with NO partial/overshoot pubkey leak; CORS `*` + Allow-Methods POST,GET,OPTIONS,DELETE on both 200 and 400; zero 429s across ~35 sequential probes
 [LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk enforces identical 10000-cap (10001 → 400 byte-for-byte identical to prod) → validation-logic parity confirmed; mirror evidence strengthened
