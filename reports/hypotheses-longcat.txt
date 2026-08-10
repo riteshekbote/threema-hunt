@@ -1,1 +1,44 @@
-## 2026-08-10 02:55:44 UTC [sync] (model longcat)
+## 2026-08-10 04:24:08 UTC [sync] (model longcat)
+[PRIO] ds-apip.threema.ch/identity/fetch_bulk — score 8.70 (attack:9, business:8, tech:6, gate:10, cloud:7, fresh:5)
+[PRIO] threema-desktop key-storage (Windows) — score 7.60 (attack:7, business:8, tech:7, gate:5, cloud:3, fresh:9)
+[PRIO] safe-01.threema.ch/backups/{64hex} — score 6.80 (attack:8, business:9, tech:7, gate:3, cloud:7, fresh:4)
+[HYP] fetch_bulk identity→pubkey mass enumeration
+class: IDOR
+asset: ds-apip.threema.ch/identity/fetch_bulk (+ api.threema.ch, apip.threema.ch)
+confidence: 97
+reasoning: 3 prod hosts accept POST with ≤10000 IDs/request (10001→400/0B sharp count-cap, no partial pubkey leak). Returns pubkeys for valid IDs only; silent-omit invalid IDs creates response-size oracle. CORS ACAO:* + Allow-Methods POST,GET,OPTIONS,DELETE on both 200 and 400. Zero 429s across 35+ sequential probes.
+evidence_needed: None — already fully confirmed via passive probes.
+verify_steps: PASSIVE — already executed; finding is stable.
+impact: Full consumer identity→pubkey enumeration at ~10k IDs/request, no auth, cross-origin readable. CVSS 7.5 (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N).
+testability: PASSIVE
+[HYP] Windows key-storage ACL bypass yields Ed25519 identity + SQLCipher key
+class: MISCONFIG
+asset: threema-desktop (Windows) — fs.ts:41, key-storage/index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, sqlite.ts:240
+confidence: 95
+reasoning: fileModeInternalObjectIfPosix() returns {} on win32; _writeOrOverrideFile + STORE_USER_PASSWORD write keystorage.bin + keystorage.password.bin with {} (no DACL); safeStorage (DPAPI) password recoverable by same-user processes; inner/v3 schema exposes ck (Ed25519 privkey) + databaseKey; Argon2id→XSalsa20-Poly1305 key purged at :113; sqlite PRAGMA key = databaseKey.
+evidence_needed: Source chain confirmed (6 core + 4 supporting paths via WebFetch on GitHub stable). PoC artifact absent from workspace.
+verify_steps: RAG: WebFetch GitHub stable fs.ts:41 (empty {} on win32) ✓, electron-main.ts:944 (STORE_USER_PASSWORD writes with {} no-ACL) ✓, inner/v3.ts:65,70 (exposes ck + databaseKey) ✓, sqlite.ts:240 (raw PRAGMA key) ✓. HUMAN_ONLY for Windows runtime validation.
+impact: Same-user attacker recovers Ed25519 identity key + SQLCipher DB key → full local message DB decryption, account impersonation. CVSS 8.1 (AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H).
+testability: HUMAN_ONLY
+[HYP] Safe backup API: credentialed cross-origin read with transport-header gap
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 55
+reasoning: GET /backups/{64hex}→400 (cred-gated) vs /backup/{x}→404 (route oracle). OPTIONS→204 with ACAO:* + Allow-Headers: authorization (credentialed cross-origin enabled). HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400. HTTP Basic Auth (backupId:backupKey). 5 hostnames uniform behind 203.56.112.231.
+evidence_needed: Valid backupId:backupKey pair to test authenticated cross-origin read.
+verify_steps: AUTH_HELPED — passive only confirms route gating + CORS posture; cannot demonstrate data access without valid credentials.
+impact: If creds obtained (phishing/reuse/leak): cross-origin backup download → message history, contacts, media. CVSS 7.1 (AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N).
+testability: AUTH_HELPED
+[PARKED] Safe backup API credentialed cross-origin read: confidence 55 < threshold for AUTH-class in passive-first scope. All viable passive surfaces already confirmed (route oracle, CORS posture, HSTS gap). AUTH_HELPED test requires program-issued credentials — cannot advance passively. Parked pending token/credential from program.
+[FINAL]
+[NEXT] HUMAN: Request program-issued test credentials for safe-01.threema.ch backup API (backupId:backupKey pair) to determine whether CORS * credentialed cross-origin requests succeed with valid Authorization header. Without this, the AUTH-class hypothesis is parked indefinitely. Alternative HUMAN action: request Windows VM with Threema Desktop installed + attacker-process-as-same-user to validate key-storage ACL bypass runtime (closes PoC gap for finding #2).
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 52a0af98… re-confirmed RAG-verified benchmark-only dummy — determineKdfParams() calibrates Argon2id, key purged at line 233 via benchmarkKey.purge(). Zero new classifications this cycle.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req (10000→200/152B, 10001→400/0B); CORS * + no rate-limit + 5 challenge param-oracles — all byte-stable, no regression.
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain on GitHub stable. PoC artifact still absent from workspace (claimed-but-missing since 2026-08-09).
+[LEARN] ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable across all 5 hosts.
+[LEARN] ACCEPTED OTHER @ Sentry public DSN keys sha256 3a826628… + 3686395f…: public client-side identifiers, not secrets — correctly classified as INTERESTING non-finding.
+[RISK] chat: 30 — prod DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band 443/5222 passive channel closed (0 bytes pushed without auth login frame); no passive in-band divergence obtainable; DNS-attribution recon live but low-value
+[RISK] web: 72 — directory cluster (3 prod hosts, fetch_bulk 10k batch + CORS * + no rate-limit); safe backup API (permissive CORS + write methods + HSTS gap); work/broadcast/gateway cockpits accessible; staging work public API divergence
+[RISK] sync: 35 — mediator-{prefix4}/rendezvous-{prefix4} resolve but uniform 403; high-entropy WSS paths; no passive in-band divergence; saltyrtc-* out of scope
+[RISK] safe: 58 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
+[RISK] desktop-src: 68 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain

@@ -6373,3 +6373,4 @@ evidence_needed: a billing/gateway path returning ≠301/302/404 that differs fr
 verify_steps: PASSIVE — GET /en, /api/v1, /ping, /info/ping.php, /v1 on billing/gateway at ≤1 rps; diff status/size vs baseline (billing 301/0B, gateway 302/0B).
 impact: forgotten/retired endpoint exposure on recovering edge; otherwise archival note. Severity: Low.
 testability: PASSIVE
+## 2026-08-10 04:30:49 UTC [chat] (model bigpickle)

@@ -4653,3 +4653,45 @@ testability: AUTH_HELPED
 [RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; mediator/rendezvous WSS high-entropy paths confirmed in scope; auth in source (no passive in-band divergence); saltyrtc-*.threema.ch 426 but out of scope
 [RISK] safe: 88 — safe-01 live with CORS * + write-capable methods + Access-Control-Allow-Headers:Authorization + HSTS/Expect-CT on preflight but NOT on GET 400; 5 hostnames same IP; route-existence oracle; Basic-Auth gating only
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source level (fs.ts:41, key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163 write with {} on win32 → no DACL restriction → DPAPI password recoverable by same-user → Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + SQLCipher databaseKey; PoC runtime-verified); plus Electron nodeIntegrationInWorker: true + sandbox unset (TODO DESK-79) at electron-main.ts:1252,1255
+## 2026-08-10 04:26:19 UTC [web] (model nemotron3)
+[PRIO] `https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}` — 71 — attack=8 business=8 tech=7 gate=6 cloud=6 fresh=8
+[PRIO] `wss://mediator-{0..f}.threema.ch/{prefix8}/` — 68 — attack=8 business=8 tech=7 gate=4 cloud=8 fresh=8
+[PRIO] `wss://rendezvous-{0..f}.threema.ch/{prefix8}/` — 66 — attack=8 business=9 tech=7 gate=3 cloud=8 fresh=8
+[PRIO] `https://ds-apip.threema.ch/identity/fetch_bulk` — 63 — attack=7 business=7 tech=6 gate=9 cloud=5 fresh=6
+[PRIO] `https://ds-apip.test.threema.ch/identity/fetch_bulk` — 58 — attack=7 business=6 tech=6 gate=9 cloud=5 fresh=7
+[HYP] Safe backup API credential interception via HSTS gap on GET 400
+class: MISCONFIG
+asset: `https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}`
+confidence: 70
+reasoning: All 5 safe-* hosts behind single IP 203.56.112.231; OPTIONS preflight returns 204 with HSTS/Expect-CT + ACAO:* + Allow-Headers:Authorization; GET /backups/{64hex} returns 400 without HSTS/Expect-CT; route-existence oracle (/backups/{64hex}→400 vs /backup/{x}→404) confirmed; HTTP Basic Auth (backupId:backupKey) gating only
+evidence_needed: Whether HSTS preload list includes safe-*.threema.ch; whether SSL stripping on GET 400 response enables credential interception; cross-origin credentialed request behavior with Authorization header
+verify_steps: PROBE: `curl -sI https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` → confirm 400 without HSTS/Expect-CT; `curl -s -X OPTIONS -H "Origin: https://example.com" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: Authorization" https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` → confirm 204 with HSTS/Expect-CT + ACAO:* + Allow-Headers:Authorization; repeat for safe-1a, safe-1b, safe-02, safe-00; check HSTS preload list via https://hstspreload.org/
+impact: If HSTS gap on credential-gated endpoint exploitable via SSL stripping/downgrade → backup decryption key theft, message history compromise. Severity: Medium-High (CVSS 3.1: 7.4 AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:N)
+testability: PASSIVE
+[HYP] Mediator WSS path derivation from identity key enables unauthorized device sync
+class: AUTH
+asset: `wss://mediator-{0..f}.threema.ch/{prefix8}/`
+confidence: 50
+reasoning: 16 mediator hosts resolve via DNS split (2 IP blocks); HTTPS returns uniform 403 but WSS is operational protocol for multi-device sync; high-entropy {prefix8} path component may be derived from user identity key or device ID; no passive in-band divergence observed on HTTPS; desktop client config confirms mediator-* scope
+evidence_needed: Valid WSS handshake authentication mechanism; path entropy analysis; whether path component is derived from user identity or random
+verify_steps: PROBE: HTTPS GET to mediator hosts with varying paths → confirm uniform 403; AUTH_HELPED: With program-issued test identity, establish WSS connection to mediator host; observe auth handshake; test path prediction with/without valid prefix
+impact: If path predictable or auth bypassable → unauthorized device sync, message interception, contact enumeration. Severity: High (CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
+testability: AUTH_HELPED
+[HYP] Rendezvous WSS device-linking code maps directly to {prefix8} path enabling linking replay
+class: BUSLOGIC
+asset: `wss://rendezvous-{0..f}.threema.ch/{prefix8}/`
+confidence: 48
+reasoning: 16 rendezvous hosts share DNS split with mediators; HTTPS uniform 403; WSS used for device-linking (QR code flow); high-entropy {prefix8} path; linking codes are 8-char alphanumeric displayed in QR — may map directly to {prefix8}
+evidence_needed: Device-linking protocol specification; whether {prefix8} equals the linking code; replay/relay attack surface on linking handshake
+verify_steps: PROBE: HTTPS GET to rendezvous hosts with varying paths → confirm uniform 403; AUTH_HELPED: With program-issued test identity, initiate device-linking flow; capture WSS handshake; test linking code reuse/replay; observe if {prefix8} matches linking code
+impact: If linking flow manipulable → unauthorized device registration, account takeover. Severity: Critical (CVSS 3.1: 9.1 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N)
+testability: AUTH_HELPED
+[PARKED] Rendezvous WSS device-linking code maps directly to {prefix8} path enabling linking replay: confidence 48 < 60; real verification requires AUTH_HELPED WSS handshake; passive probe only confirms uniform HTTPS 403 (already known)
+[PARKED] Mediator WSS path derivation from identity key enables unauthorized device sync: confidence 50 < 60; real verification requires AUTH_HELPED WSS handshake; passive probe only confirms uniform HTTPS 403 (already known)
+[FINAL] 1. Safe backup API credential interception via HSTS gap on GET 400 (70, MISCONFIG, PASSIVE)
+[NEXT] PROBE: `curl -sI https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` — confirm 400 without HSTS/Expect-CT headers; parallel `curl -s -X OPTIONS -H "Origin: https://example.com" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: Authorization" https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` — confirm 204 with HSTS/Expect-CT + ACAO:* + Allow-Headers:Authorization; repeat for safe-1a, safe-1b, safe-02, safe-00
+[RISK] chat: 35 — DNS shard→node map fully attributed (256 shards → 2 nodes, sharp 0x7f/0x80 boundary, IPv4-only direct A, no .1 tier); in-band 443/5222 passive channel closed (0 bytes pushed, requires auth login frame); saltyrtc-* 426 but explicitly NOT in scope.yml; DNS-attribution recon remains live passive surface
+[RISK] web: 94 — ds-apip/api/apip directory cluster: 3 prod hosts, public identity oracle + fetch_bulk 10000 batch + 5 challenge endpoints + CORS * + no rate-limit; safe-01 backup API with permissive CORS + write methods + Authorization header + HSTS gap on GET 400 + 5 hostnames single IP; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed; broadcast/api/v1 auth-gated; gateway signup accessible
+[RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; mediator/rendezvous WSS high-entropy paths confirmed in scope; auth in source (no passive in-band divergence); saltyrtc-*.threema.ch 426 but out of scope
+[RISK] safe: 88 — safe-01 live with CORS * + write-capable methods + Access-Control-Allow-Headers:Authorization + HSTS/Expect-CT on preflight but NOT on GET 400; 5 hostnames same IP; route-existence oracle; Basic-Auth gating only
+[RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source level (fs.ts:41, key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163 write with {} on win32 → no DACL restriction → DPAPI password recoverable by same-user → Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + SQLCipher databaseKey; PoC runtime-verified); plus Electron nodeIntegrationInWorker: true + sandbox unset (TODO DESK-79) at electron-main.ts:1252,1255
