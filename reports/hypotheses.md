@@ -1964,3 +1964,22 @@
 - LEARN: ACCEPTED OTHER @ ds-apip.threema.ch: canonical directory server hostname confirmed via desktop client build config; public GET /identity/{id} returns 200/404 or
 - LEARN: ACCEPTED OTHER @ g-*.0.threema.ch: chat shard→node DNS split precisely mapped; g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204; sharp 0x7f/0x80 boundary; I
 - LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DESK-79) and nodeIntegrationInWorker: true (TODO DESK-79); L1240 c
+
+## RANKED HYPOTHESES 2026-08-10 04:31:00 UTC
+- [97] ds-apip.threema.ch/identity/fetch_bulk: fetch_bulk identity→pubkey mass enumeration (from reports/hypotheses-longcat.txt)
+- [70] `https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}`: Safe backup API credential interception via HSTS gap on GET 400 (from reports/hypotheses-nemotron3.txt)
+- [0] ?: Desktop key-storage Windows ACL bypass yields identity private key + SQLCipher key (from reports/hypotheses-laguna.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: `curl -sI https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` — confirm 400 without HSTS/Expect-CT heade
+- NEXT(hypotheses-laguna.txt): PRODUCE: `node --version && cat poc/key-storage-acl-bypass-poc.js | head -5` — confirm the PoC artifact is syntactically valid and document its purpose; then [R
+- NEXT(hypotheses-longcat.txt): HUMAN: Request program-issued test credentials for safe-01.threema.ch backup API (backupId:backupKey pair) to determine whether CORS * credentialed cross-origin
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact gap CLOSED — `poc/key-storage-acl-bypass-poc.js` now present, `node --check` PASS, `nod
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts:940-945: LOAD_USER_PASSWORD IPC handler confirmed reading `keystorage.password.bin` via `fs.readFileSync` 
+- LEARN: ACCEPTED OTHER @ safe-storage/helpers.ts: `getSafeStoragePasswordPath()` → `data/keystorage.password.bin` confirmed via WebFetch on stable — resolves to SAFE_ST
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c`) — re-confi
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk 10000-ID ceiling + 5 challenge param-oracles + CORS * + no rate-limit — byte-stabl
+- LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated `/backups/{64hex}` — hea
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 52a0af98… re-confirmed RAG-verified benchmark-only dummy — determineKdfParams() calibrates Argon2i
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req (10000→200/152B, 10001→400/0B); CORS * 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain on GitHub stable. PoC artifact still absent from workspace (claimed-b
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable across all 5 ho
+- LEARN: ACCEPTED OTHER @ Sentry public DSN keys sha256 3a826628… + 3686395f…: public client-side identifiers, not secrets — correctly classified as INTERESTING non-find

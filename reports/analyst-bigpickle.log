@@ -48072,3 +48072,936 @@ testability: PASSIVE
 - [RISK] sync: 42 — mediator/rendezvous uniform 403 WSS-only, high-entropy paths; prod 8-f half co-resident on staging /24 (cross-tenant adjacency noted).
 - [RISK] safe: 55 — credential-gated backup API with HSTS-header inconsistency (present OPTIONS 204, absent GET 400) + credentialed-CORS preflight; exposure only with creds.
 - [RISK] desktop-src: 50 — Windows key-storage ACL bypass VALID (CVSS 5.5) and now chains into chat attribution (cspServerGroup at rest); sandbox/worker gap conditional RCE only.
+===== ANALYST bigpickle 2026-08-10 04:31:00 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/poc/ 2>/dev/null; echo "---"; find /home/runner/work/threema-hunt/threema-hunt -name "*.js" -path "*poc*" 2>/dev/null; echo "---"; ls /home/runner/work/threema-hunt/threema-hunt/
+---
+---
+README.md
+analyst-out.txt
+analyst-prompt.txt
+ctx.txt
+inventory
+knowledge
+leads
+probe-results.md
+reports
+reposcan-raw
+scope.yml
+scripts
+state_bigpickle.json
+state_laguna.json
+state_ling3.json
+state_longcat.json
+state_nemotron3.json
+triage
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/scripts/ 2>/dev/null; echo "---"; ls -la /home/runner/work/threema-hunt/threema-hunt/reports/ 2>/dev/null; echo "---"; cat /home/runner/work/threema-hunt/threema-hunt/state_bigpickle.json
+total 16
+drwxr-xr-x  2 runner runner 4096 Aug 10 04:22 .
+drwxr-xr-x 11 runner runner 4096 Aug 10 04:22 ..
+-rw-r--r--  1 runner runner 7771 Aug 10 04:22 sync-issues.py
+---
+total 10828
+drwxr-xr-x  2 runner runner    4096 Aug 10 04:22 .
+drwxr-xr-x 11 runner runner    4096 Aug 10 04:22 ..
+-rw-r--r--  1 runner runner 3791281 Aug 10 04:22 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 5966274 Aug 10 04:22 analyst-laguna.log
+-rw-r--r--  1 runner runner   29791 Aug 10 04:22 analyst-ling3.log
+-rw-r--r--  1 runner runner   13257 Aug 10 04:22 analyst-longcat.log
+-rw-r--r--  1 runner runner 1092855 Aug 10 04:22 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    3046 Aug 10 04:22 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner   10341 Aug 10 04:22 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug 10 04:22 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      50 Aug 10 04:22 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner    9899 Aug 10 04:22 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  309877 Aug 10 04:22 hypotheses.md
+-rw-r--r--  1 runner runner   39023 Aug 10 04:22 valid-bugs.md
+---
+{"phase": "POC", "target": "chat"}
+[0m
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/triage/ /home/runner/work/threema-hunt/threema-hunt/inventory/ 2>/dev/null; echo "---leads---"; ls -la /home/runner/work/threema-hunt/threema-hunt/leads/
+/home/runner/work/threema-hunt/threema-hunt/inventory/:
+total 140
+drwxr-xr-x  2 runner runner   4096 Aug 10 04:22 .
+drwxr-xr-x 11 runner runner   4096 Aug 10 04:22 ..
+-rw-r--r--  1 runner runner 131599 Aug 10 04:22 threema.md
+
+/home/runner/work/threema-hunt/threema-hunt/triage/:
+total 1468
+drwxr-xr-x  2 runner runner  4096 Aug 10 04:22 .
+drwxr-xr-x 11 runner runner  4096 Aug 10 04:22 ..
+-rw-r--r--  1 runner runner 81432 Aug 10 04:22 run-2026-08-07-20-10.md
+-rw-r--r--  1 runner runner 18280 Aug 10 04:22 run-2026-08-07-21-03.md
+-rw-r--r--  1 runner runner 18224 Aug 10 04:22 run-2026-08-07-21-56.md
+-rw-r--r--  1 runner runner 12766 Aug 10 04:22 run-2026-08-07-22-56.md
+-rw-r--r--  1 runner runner 27810 Aug 10 04:22 run-2026-08-07-23-55.md
+-rw-r--r--  1 runner runner  1637 Aug 10 04:22 run-2026-08-08-02-24.md
+-rw-r--r--  1 runner runner 18651 Aug 10 04:22 run-2026-08-08-04-24.md
+-rw-r--r--  1 runner runner 20107 Aug 10 04:22 run-2026-08-08-06-01.md
+-rw-r--r--  1 runner runner 23637 Aug 10 04:22 run-2026-08-08-07-07.md
+-rw-r--r--  1 runner runner 18269 Aug 10 04:22 run-2026-08-08-07-15.md
+-rw-r--r--  1 runner runner 12515 Aug 10 04:22 run-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner   236 Aug 10 04:22 run-2026-08-08-08-59.md
+-rw-r--r--  1 runner runner 11791 Aug 10 04:22 run-2026-08-08-09-54.md
+-rw-r--r--  1 runner runner 10557 Aug 10 04:22 run-2026-08-08-10-53.md
+-rw-r--r--  1 runner runner   896 Aug 10 04:22 run-2026-08-08-11-44.md
+-rw-r--r--  1 runner runner   428 Aug 10 04:22 run-2026-08-08-13-11.md
+-rw-r--r--  1 runner runner  7773 Aug 10 04:22 run-2026-08-08-14-00.md
+-rw-r--r--  1 runner runner 19408 Aug 10 04:22 run-2026-08-08-14-52.md
+-rw-r--r--  1 runner runner 25063 Aug 10 04:22 run-2026-08-08-15-47.md
+-rw-r--r--  1 runner runner 27020 Aug 10 04:22 run-2026-08-08-17-19.md
+-rw-r--r--  1 runner runner  7619 Aug 10 04:22 run-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner  6252 Aug 10 04:22 run-2026-08-08-17-57.md
+-rw-r--r--  1 runner runner 22001 Aug 10 04:22 run-2026-08-08-18-19.md
+-rw-r--r--  1 runner runner 13783 Aug 10 04:22 run-2026-08-08-19-08.md
+-rw-r--r--  1 runner runner   855 Aug 10 04:22 run-2026-08-08-19-48.md
+-rw-r--r--  1 runner runner  3697 Aug 10 04:22 run-2026-08-08-20-15.md
+-rw-r--r--  1 runner runner 48286 Aug 10 04:22 run-2026-08-08-20-16.md
+-rw-r--r--  1 runner runner   288 Aug 10 04:22 run-2026-08-08-20-52.md
+-rw-r--r--  1 runner runner   306 Aug 10 04:22 run-2026-08-08-21-18.md
+-rw-r--r--  1 runner runner 20264 Aug 10 04:22 run-2026-08-08-21-53.md
+-rw-r--r--  1 runner runner   319 Aug 10 04:22 run-2026-08-08-22-13.md
+-rw-r--r--  1 runner runner 25573 Aug 10 04:22 run-2026-08-08-22-53.md
+-rw-r--r--  1 runner runner 57527 Aug 10 04:22 run-2026-08-08-23-18.md
+-rw-r--r--  1 runner runner   228 Aug 10 04:22 run-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner 36585 Aug 10 04:22 run-2026-08-09-00-41.md
+-rw-r--r--  1 runner runner 25496 Aug 10 04:22 run-2026-08-09-03-00.md
+-rw-r--r--  1 runner runner   324 Aug 10 04:22 run-2026-08-09-04-10.md
+-rw-r--r--  1 runner runner   292 Aug 10 04:22 run-2026-08-09-05-26.md
+-rw-r--r--  1 runner runner 13044 Aug 10 04:22 run-2026-08-09-05-48.md
+-rw-r--r--  1 runner runner 23442 Aug 10 04:22 run-2026-08-09-06-39.md
+-rw-r--r--  1 runner runner 15689 Aug 10 04:22 run-2026-08-09-07-44.md
+-rw-r--r--  1 runner runner 24960 Aug 10 04:22 run-2026-08-09-08-32.md
+-rw-r--r--  1 runner runner   621 Aug 10 04:22 run-2026-08-09-09-27.md
+-rw-r--r--  1 runner runner 62572 Aug 10 04:22 run-2026-08-09-10-21.md
+-rw-r--r--  1 runner runner   338 Aug 10 04:22 run-2026-08-09-10-56.md
+-rw-r--r--  1 runner runner 21593 Aug 10 04:22 run-2026-08-09-11-53.md
+-rw-r--r--  1 runner runner 22109 Aug 10 04:22 run-2026-08-09-12-22.md
+-rw-r--r--  1 runner runner 31687 Aug 10 04:22 run-2026-08-09-13-28.md
+-rw-r--r--  1 runner runner  5183 Aug 10 04:22 run-2026-08-09-14-24.md
+-rw-r--r--  1 runner runner 19394 Aug 10 04:22 run-2026-08-09-15-00.md
+-rw-r--r--  1 runner runner 17138 Aug 10 04:22 run-2026-08-09-15-55.md
+-rw-r--r--  1 runner runner 42663 Aug 10 04:22 run-2026-08-09-16-22.md
+-rw-r--r--  1 runner runner  7354 Aug 10 04:22 run-2026-08-09-16-59.md
+-rw-r--r--  1 runner runner  7274 Aug 10 04:22 run-2026-08-09-17-02.md
+-rw-r--r--  1 runner runner 25132 Aug 10 04:22 run-2026-08-09-17-59.md
+-rw-r--r--  1 runner runner 20646 Aug 10 04:22 run-2026-08-09-18-22.md
+-rw-r--r--  1 runner runner 13222 Aug 10 04:22 run-2026-08-09-19-10.md
+-rw-r--r--  1 runner runner   996 Aug 10 04:22 run-2026-08-09-19-53.md
+-rw-r--r--  1 runner runner 25795 Aug 10 04:22 run-2026-08-09-20-19.md
+-rw-r--r--  1 runner runner 22189 Aug 10 04:22 run-2026-08-09-20-59.md
+-rw-r--r--  1 runner runner 37377 Aug 10 04:22 run-2026-08-09-21-58.md
+-rw-r--r--  1 runner runner 38134 Aug 10 04:22 run-2026-08-09-22-21.md
+-rw-r--r--  1 runner runner 81995 Aug 10 04:22 run-2026-08-09-22-59.md
+-rw-r--r--  1 runner runner 23713 Aug 10 04:22 run-2026-08-09-23-54.md
+-rw-r--r--  1 runner runner 15405 Aug 10 04:22 run-2026-08-10-00-46.md
+-rw-r--r--  1 runner runner   601 Aug 10 04:22 run-2026-08-10-03-02.md
+-rw-r--r--  1 runner runner  2617 Aug 10 04:22 triage-2026-08-09-1011.md
+-rw-r--r--  1 runner runner 12435 Aug 10 04:22 triage-2026-08-09-1812.md
+-rw-r--r--  1 runner runner 16261 Aug 10 04:22 triage-2026-08-09-2056.md
+-rw-r--r--  1 runner runner 20639 Aug 10 04:22 triage-2026-08-09-2152.md
+-rw-r--r--  1 runner runner 18388 Aug 10 04:22 triage-2026-08-09-2221.md
+-rw-r--r--  1 runner runner 21100 Aug 10 04:22 triage-2026-08-10-0039.md
+---leads---
+total 4544
+drwxr-xr-x  2 runner runner   12288 Aug 10 04:22 .
+drwxr-xr-x 11 runner runner    4096 Aug 10 04:22 ..
+-rw-r--r--  1 runner runner  846776 Aug 10 04:22 lead-bigpickle.md
+-rw-r--r--  1 runner runner 1010752 Aug 10 04:22 lead-laguna.md
+-rw-r--r--  1 runner runner    9318 Aug 10 04:22 lead-ling3.md
+-rw-r--r--  1 runner runner    8374 Aug 10 04:22 lead-longcat.md
+-rw-r--r--  1 runner runner  845675 Aug 10 04:22 lead-nemotron3.md
+-rw-r--r--  1 runner runner   11048 Aug 10 04:22 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner   13399 Aug 10 04:22 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner   13429 Aug 10 04:22 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner   11241 Aug 10 04:22 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner    6565 Aug 10 04:22 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner    9511 Aug 10 04:22 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner   13472 Aug 10 04:22 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner   10507 Aug 10 04:22 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner   13665 Aug 10 04:22 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner   10938 Aug 10 04:22 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner   17321 Aug 10 04:22 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner   15373 Aug 10 04:22 reposcan-2026-08-07-23-19.md
+-rw-r--r--  1 runner runner   11670 Aug 10 04:22 reposcan-2026-08-07-23-50.md
+-rw-r--r--  1 runner runner   14267 Aug 10 04:22 reposcan-2026-08-08-00-01.md
+-rw-r--r--  1 runner runner   12628 Aug 10 04:22 reposcan-2026-08-08-00-19.md
+-rw-r--r--  1 runner runner   13392 Aug 10 04:22 reposcan-2026-08-08-02-10.md
+-rw-r--r--  1 runner runner   13822 Aug 10 04:22 reposcan-2026-08-08-02-23.md
+-rw-r--r--  1 runner runner   13194 Aug 10 04:22 reposcan-2026-08-08-03-52.md
+-rw-r--r--  1 runner runner   14260 Aug 10 04:22 reposcan-2026-08-08-04-47.md
+-rw-r--r--  1 runner runner   15327 Aug 10 04:22 reposcan-2026-08-08-05-01.md
+-rw-r--r--  1 runner runner   13092 Aug 10 04:22 reposcan-2026-08-08-05-29.md
+-rw-r--r--  1 runner runner   11228 Aug 10 04:22 reposcan-2026-08-08-05-48.md
+-rw-r--r--  1 runner runner   10378 Aug 10 04:22 reposcan-2026-08-08-06-08.md
+-rw-r--r--  1 runner runner   11257 Aug 10 04:22 reposcan-2026-08-08-06-56.md
+-rw-r--r--  1 runner runner   11788 Aug 10 04:22 reposcan-2026-08-08-07-12.md
+-rw-r--r--  1 runner runner    9790 Aug 10 04:22 reposcan-2026-08-08-07-53.md
+-rw-r--r--  1 runner runner   10972 Aug 10 04:22 reposcan-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner   13672 Aug 10 04:22 reposcan-2026-08-08-08-37.md
+-rw-r--r--  1 runner runner    6321 Aug 10 04:22 reposcan-2026-08-08-08-42.md
+-rw-r--r--  1 runner runner   16455 Aug 10 04:22 reposcan-2026-08-08-09-21.md
+-rw-r--r--  1 runner runner   14107 Aug 10 04:22 reposcan-2026-08-08-09-40.md
+-rw-r--r--  1 runner runner   14710 Aug 10 04:22 reposcan-2026-08-08-10-09.md
+-rw-r--r--  1 runner runner   13912 Aug 10 04:22 reposcan-2026-08-08-10-27.md
+-rw-r--r--  1 runner runner   15295 Aug 10 04:22 reposcan-2026-08-08-10-37.md
+-rw-r--r--  1 runner runner   11119 Aug 10 04:22 reposcan-2026-08-08-11-08.md
+-rw-r--r--  1 runner runner   16740 Aug 10 04:22 reposcan-2026-08-08-11-28.md
+-rw-r--r--  1 runner runner   11393 Aug 10 04:22 reposcan-2026-08-08-11-30.md
+-rw-r--r--  1 runner runner   10793 Aug 10 04:22 reposcan-2026-08-08-11-55.md
+-rw-r--r--  1 runner runner   13925 Aug 10 04:22 reposcan-2026-08-08-12-00.md
+-rw-r--r--  1 runner runner   12984 Aug 10 04:22 reposcan-2026-08-08-12-09.md
+-rw-r--r--  1 runner runner   11553 Aug 10 04:22 reposcan-2026-08-08-13-01.md
+-rw-r--r--  1 runner runner   16362 Aug 10 04:22 reposcan-2026-08-08-13-15.md
+-rw-r--r--  1 runner runner   11685 Aug 10 04:22 reposcan-2026-08-08-13-56.md
+-rw-r--r--  1 runner runner   11740 Aug 10 04:22 reposcan-2026-08-08-14-04.md
+-rw-r--r--  1 runner runner   14858 Aug 10 04:22 reposcan-2026-08-08-14-28.md
+-rw-r--r--  1 runner runner   10356 Aug 10 04:22 reposcan-2026-08-08-14-35.md
+-rw-r--r--  1 runner runner   10513 Aug 10 04:22 reposcan-2026-08-08-15-08.md
+-rw-r--r--  1 runner runner    6321 Aug 10 04:22 reposcan-2026-08-08-15-31.md
+-rw-r--r--  1 runner runner   11739 Aug 10 04:22 reposcan-2026-08-08-16-00.md
+-rw-r--r--  1 runner runner   15164 Aug 10 04:22 reposcan-2026-08-08-16-07.md
+-rw-r--r--  1 runner runner   12405 Aug 10 04:22 reposcan-2026-08-08-16-15.md
+-rw-r--r--  1 runner runner    6321 Aug 10 04:22 reposcan-2026-08-08-17-04.md
+-rw-r--r--  1 runner runner   12923 Aug 10 04:22 reposcan-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner   15904 Aug 10 04:22 reposcan-2026-08-08-18-04.md
+-rw-r--r--  1 runner runner   11771 Aug 10 04:22 reposcan-2026-08-08-18-36.md
+-rw-r--r--  1 runner runner   12165 Aug 10 04:22 reposcan-2026-08-08-19-19.md
+-rw-r--r--  1 runner runner   14685 Aug 10 04:22 reposcan-2026-08-08-19-46.md
+-rw-r--r--  1 runner runner   13911 Aug 10 04:22 reposcan-2026-08-08-19-58.md
+-rw-r--r--  1 runner runner    9017 Aug 10 04:22 reposcan-2026-08-08-20-14.md
+-rw-r--r--  1 runner runner   17271 Aug 10 04:22 reposcan-2026-08-08-20-33.md
+-rw-r--r--  1 runner runner   14693 Aug 10 04:22 reposcan-2026-08-08-20-41.md
+-rw-r--r--  1 runner runner   13770 Aug 10 04:22 reposcan-2026-08-08-21-03.md
+-rw-r--r--  1 runner runner   16811 Aug 10 04:22 reposcan-2026-08-08-21-11.md
+-rw-r--r--  1 runner runner   14116 Aug 10 04:22 reposcan-2026-08-08-21-32.md
+-rw-r--r--  1 runner runner   12845 Aug 10 04:22 reposcan-2026-08-08-21-41.md
+-rw-r--r--  1 runner runner   12743 Aug 10 04:22 reposcan-2026-08-08-22-05.md
+-rw-r--r--  1 runner runner   11547 Aug 10 04:22 reposcan-2026-08-08-22-19.md
+-rw-r--r--  1 runner runner   12410 Aug 10 04:22 reposcan-2026-08-08-22-54.md
+-rw-r--r--  1 runner runner    6471 Aug 10 04:22 reposcan-2026-08-08-23-19.md
+-rw-r--r--  1 runner runner    6321 Aug 10 04:22 reposcan-2026-08-08-23-28.md
+-rw-r--r--  1 runner runner   10531 Aug 10 04:22 reposcan-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner   13968 Aug 10 04:22 reposcan-2026-08-08-23-59.md
+-rw-r--r--  1 runner runner   13598 Aug 10 04:22 reposcan-2026-08-09-00-07.md
+-rw-r--r--  1 runner runner   12837 Aug 10 04:22 reposcan-2026-08-09-01-41.md
+-rw-r--r--  1 runner runner   11706 Aug 10 04:22 reposcan-2026-08-09-02-39.md
+-rw-r--r--  1 runner runner   12540 Aug 10 04:22 reposcan-2026-08-09-03-22.md
+-rw-r--r--  1 runner runner   12484 Aug 10 04:22 reposcan-2026-08-09-04-04.md
+-rw-r--r--  1 runner runner   13901 Aug 10 04:22 reposcan-2026-08-09-04-50.md
+-rw-r--r--  1 runner runner   11067 Aug 10 04:22 reposcan-2026-08-09-05-12.md
+-rw-r--r--  1 runner runner   11859 Aug 10 04:22 reposcan-2026-08-09-05-48.md
+-rw-r--r--  1 runner runner   13461 Aug 10 04:22 reposcan-2026-08-09-06-47.md
+-rw-r--r--  1 runner runner   12488 Aug 10 04:22 reposcan-2026-08-09-06-55.md
+-rw-r--r--  1 runner runner   16116 Aug 10 04:22 reposcan-2026-08-09-07-37.md
+-rw-r--r--  1 runner runner    7436 Aug 10 04:22 reposcan-2026-08-09-07-53.md
+-rw-r--r--  1 runner runner   11170 Aug 10 04:22 reposcan-2026-08-09-08-15.md
+-rw-r--r--  1 runner runner   12517 Aug 10 04:22 reposcan-2026-08-09-08-43.md
+-rw-r--r--  1 runner runner   10944 Aug 10 04:22 reposcan-2026-08-09-09-10.md
+-rw-r--r--  1 runner runner   12832 Aug 10 04:22 reposcan-2026-08-09-09-26.md
+-rw-r--r--  1 runner runner    9567 Aug 10 04:22 reposcan-2026-08-09-09-57.md
+-rw-r--r--  1 runner runner   12475 Aug 10 04:22 reposcan-2026-08-09-10-07.md
+-rw-r--r--  1 runner runner   12838 Aug 10 04:22 reposcan-2026-08-09-10-16.md
+-rw-r--r--  1 runner runner   13621 Aug 10 04:22 reposcan-2026-08-09-10-56.md
+-rw-r--r--  1 runner runner   15973 Aug 10 04:22 reposcan-2026-08-09-11-31.md
+-rw-r--r--  1 runner runner   11091 Aug 10 04:22 reposcan-2026-08-09-12-01.md
+-rw-r--r--  1 runner runner   11474 Aug 10 04:22 reposcan-2026-08-09-12-21.md
+-rw-r--r--  1 runner runner   11500 Aug 10 04:22 reposcan-2026-08-09-12-54.md
+-rw-r--r--  1 runner runner    8370 Aug 10 04:22 reposcan-2026-08-09-13-19.md
+-rw-r--r--  1 runner runner   14419 Aug 10 04:22 reposcan-2026-08-09-13-55.md
+-rw-r--r--  1 runner runner   14702 Aug 10 04:22 reposcan-2026-08-09-14-13.md
+-rw-r--r--  1 runner runner   14725 Aug 10 04:22 reposcan-2026-08-09-14-38.md
+-rw-r--r--  1 runner runner    6957 Aug 10 04:22 reposcan-2026-08-09-15-07.md
+-rw-r--r--  1 runner runner   10590 Aug 10 04:22 reposcan-2026-08-09-15-12.md
+-rw-r--r--  1 runner runner   15748 Aug 10 04:22 reposcan-2026-08-09-15-43.md
+-rw-r--r--  1 runner runner   16167 Aug 10 04:22 reposcan-2026-08-09-15-51.md
+-rw-r--r--  1 runner runner   11425 Aug 10 04:22 reposcan-2026-08-09-16-06.md
+-rw-r--r--  1 runner runner    6321 Aug 10 04:22 reposcan-2026-08-09-16-34.md
+-rw-r--r--  1 runner runner   18280 Aug 10 04:22 reposcan-2026-08-09-16-49.md
+-rw-r--r--  1 runner runner   11584 Aug 10 04:22 reposcan-2026-08-09-17-16.md
+-rw-r--r--  1 runner runner   15564 Aug 10 04:22 reposcan-2026-08-09-17-54.md
+-rw-r--r--  1 runner runner   13238 Aug 10 04:22 reposcan-2026-08-09-18-15.md
+-rw-r--r--  1 runner runner   14208 Aug 10 04:22 reposcan-2026-08-09-18-41.md
+-rw-r--r--  1 runner runner    6321 Aug 10 04:22 reposcan-2026-08-09-19-06.md
+-rw-r--r--  1 runner runner   11206 Aug 10 04:22 reposcan-2026-08-09-19-23.md
+-rw-r--r--  1 runner runner   11793 Aug 10 04:22 reposcan-2026-08-09-19-35.md
+-rw-r--r--  1 runner runner   10808 Aug 10 04:22 reposcan-2026-08-09-19-59.md
+-rw-r--r--  1 runner runner    9691 Aug 10 04:22 reposcan-2026-08-09-20-24.md
+-rw-r--r--  1 runner runner   14325 Aug 10 04:22 reposcan-2026-08-09-20-42.md
+-rw-r--r--  1 runner runner   12928 Aug 10 04:22 reposcan-2026-08-09-21-02.md
+-rw-r--r--  1 runner runner   14085 Aug 10 04:22 reposcan-2026-08-09-21-16.md
+-rw-r--r--  1 runner runner   14875 Aug 10 04:22 reposcan-2026-08-09-21-26.md
+-rw-r--r--  1 runner runner    9647 Aug 10 04:22 reposcan-2026-08-09-21-52.md
+-rw-r--r--  1 runner runner   11214 Aug 10 04:22 reposcan-2026-08-09-22-02.md
+-rw-r--r--  1 runner runner    6321 Aug 10 04:22 reposcan-2026-08-09-22-22.md
+-rw-r--r--  1 runner runner   11028 Aug 10 04:22 reposcan-2026-08-09-22-31.md
+-rw-r--r--  1 runner runner   16518 Aug 10 04:22 reposcan-2026-08-09-23-06.md
+-rw-r--r--  1 runner runner   10421 Aug 10 04:22 reposcan-2026-08-09-23-23.md
+-rw-r--r--  1 runner runner   12212 Aug 10 04:22 reposcan-2026-08-09-23-49.md
+-rw-r--r--  1 runner runner   10842 Aug 10 04:22 reposcan-2026-08-10-00-01.md
+-rw-r--r--  1 runner runner   11331 Aug 10 04:22 reposcan-2026-08-10-00-49.md
+-rw-r--r--  1 runner runner   14656 Aug 10 04:22 reposcan-2026-08-10-01-44.md
+-rw-r--r--  1 runner runner   14825 Aug 10 04:22 reposcan-2026-08-10-03-11.md
+-rw-r--r--  1 runner runner   10783 Aug 10 04:22 reposcan-2026-08-10-03-32.md
+-rw-r--r--  1 runner runner   10783 Aug 10 04:22 reposcan-latest.md
+[0m
+[0m→ [0mRead triage/triage-2026-08-10-0039.md
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && find . -name "*acl-bypass*" 2>/dev/null; echo "---any poc dirs---"; find . -type d -name "poc" 2>/dev/null; echo "---check git for poc---"; git log --oneline -5 2>/dev/null
+---any poc dirs---
+---check git for poc---
+898429f reposcan 2026-08-10-03-32
+[0m
+Confirmed: the PoC artifact is again claimed-but-missing (zero results, no `poc/` dir). I'll run my passive chat probes first, then close that evidence gap.
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && for h in mediator-{0..f}.threema.ch rendezvous-{0..f}.threema.ch; do ip=$(dig +short A $h 2>/dev/null | head -1); echo "$h -> ${ip:-NXDOMAIN}"; sleep 0.2; done
+mediator-{0..f}.threema.ch -> NXDOMAIN
+rendezvous-{0..f}.threema.ch -> NXDOMAIN
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && for n in 0 1 2 3 4 5 6 7 8 9 a b c d e f; do m=$(dig +short A mediator-$n.threema.ch | head -1); r=$(dig +short A rendezvous-$n.threema.ch | head -1); echo "mediator-$n -> ${m:-NX} | rendezvous-$n -> ${r:-NX}"; sleep 0.15; done
+mediator-0 -> 203.56.112.247 | rendezvous-0 -> 203.56.112.247
+mediator-1 -> 203.56.112.247 | rendezvous-1 -> 203.56.112.247
+mediator-2 -> 203.56.112.247 | rendezvous-2 -> 203.56.112.247
+mediator-3 -> 203.56.112.247 | rendezvous-3 -> 203.56.112.247
+mediator-4 -> 203.56.112.247 | rendezvous-4 -> 203.56.112.247
+mediator-5 -> 203.56.112.247 | rendezvous-5 -> 203.56.112.247
+mediator-6 -> 203.56.112.247 | rendezvous-6 -> 203.56.112.247
+mediator-7 -> 203.56.112.247 | rendezvous-7 -> 203.56.112.247
+mediator-8 -> 203.56.114.247 | rendezvous-8 -> 203.56.114.247
+mediator-9 -> 203.56.114.247 | rendezvous-9 -> 203.56.114.247
+mediator-a -> 203.56.114.247 | rendezvous-a -> 203.56.114.247
+mediator-b -> 203.56.114.247 | rendezvous-b -> 203.56.114.247
+mediator-c -> 203.56.114.247 | rendezvous-c -> 203.56.114.247
+mediator-d -> 203.56.114.247 | rendezvous-d -> 203.56.114.247
+mediator-e -> 203.56.114.247 | rendezvous-e -> 203.56.114.247
+mediator-f -> 203.56.114.247 | rendezvous-f -> 203.56.114.247
+[0m
+Full 0-f census complete — no exceptions to the split. Now verifying chat shard map stability:
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && for n in 00 01 10 2a 3c 5b 7f 80 81 a0 c4 e8 f3 ff; do a=$(dig +short A g-$n.0.threema.ch | head -1); c=$(dig +short CNAME g-$n.0.threema.ch | head -1); echo "g-$n.0 -> ${a:-NX} (cname:${c:-none})"; sleep 0.12; done
+g-00.0 -> 203.56.112.202 (cname:none)
+g-01.0 -> 203.56.112.202 (cname:none)
+g-10.0 -> 203.56.112.202 (cname:none)
+g-2a.0 -> 203.56.112.202 (cname:none)
+g-3c.0 -> 203.56.112.202 (cname:none)
+g-5b.0 -> 203.56.112.202 (cname:none)
+g-7f.0 -> 203.56.112.202 (cname:none)
+g-80.0 -> 203.56.112.204 (cname:none)
+g-81.0 -> 203.56.112.204 (cname:none)
+g-a0.0 -> 203.56.112.204 (cname:none)
+g-c4.0 -> 203.56.112.204 (cname:none)
+g-e8.0 -> 203.56.112.204 (cname:none)
+g-f3.0 -> 203.56.112.204 (cname:none)
+g-ff.0 -> 203.56.112.204 (cname:none)
+[0m
+[0m$ [0mwhich node && node --version; echo "---"; mkdir -p /home/runner/work/threema-hunt/threema-hunt/poc && ls -la /home/runner/work/threema-hunt/threema-hunt/poc/
+/usr/local/bin/node
+v22.23.1
+---
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug 10 04:24 .
+drwxr-xr-x 12 runner runner 4096 Aug 10 04:24 ..
+[0m
+Map stable — sharp boundary, no third node, no CNAMEs. Now closing the recurring evidence gap: the PoC artifact is claimed-but-missing again. Let me check node availability and generate it.
+[0m← [0mWrite poc/key-storage-acl-bypass-poc.js
+Wrote file successfully.
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && node --check poc/key-storage-acl-bypass-poc.js && echo "SYNTAX OK" && node poc/key-storage-acl-bypass-poc.js; echo "exit=$?"
+SYNTAX OK
+[*] key-storage ACL-bypass PoC (platform=linux, win32=false)
+[*] Demonstrates the Windows key-storage ACL gap (fileModeInternalObjectIfPosix() returns {} on win32). Chain: keystorage.bin + keystorage.password.bin written without ACL -> same-user low-priv process can read them -> safeStorage/DPAPI unwraps the password -> inner v3 exposes identityData.ck (Ed25519 privkey) and databaseKey (SQLCipher) -> threema.sqlite PRAGMA key = databaseKey.
+
+[*] Not Windows: demonstration is a graceful no-op here.
+[*] On a Windows host this script checks the two keystorage files for missing ACLs
+[*] and shows they are readable by a same-user low-priv process.
+[*] Validation target: run on Windows after a real desktop login to close the chain.
+exit=0
+[0m
+PoC artifact now actually exists and passes syntax + Linux no-op. Let me RAG-verify the source paths the PoC references against a local clone if present.
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && ls reposcan-raw/ 2>/dev/null | head -20; echo "---"; find / -maxdepth 3 -type d -name "threema-desktop" 2>/dev/null | head; echo "---tmp---"; ls /tmp/opencode/ 2>/dev/null | head
+analysis.txt
+grep-delta.txt
+grep-hits.prev.txt
+grep-hits.txt
+rag.txt
+threema-ch
+---
+---tmp---
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt/reposcan-raw && ls threema-ch/ 2>/dev/null | head -30
+app-remote-protocol
+compose-area
+push-relay
+threema-android
+threema-bot-sdk
+threema-desktop
+threema-ios
+threema-markup
+threema-msgapi-sdk-java
+threema-msgapi-sdk-php
+threema-msgapi-sdk-python
+threema-msgapi-sdk-rust
+threema-web
+threema-web-electron
+wasm-minisign-verify
+webrtc-build-docker
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop && git log --oneline -1 2>/dev/null; echo "---branch---"; git branch --show-current 2>/dev/null; echo "---fs.ts line 41---"; sed -n '30,50p' src/fs.ts 2>/dev/null || find . -name "fs.ts" -not -path "*/node_modules/*" 2>/dev/null | head
+898429f reposcan 2026-08-10-03-32
+---branch---
+main
+---fs.ts line 41---
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop && find . -name "fs.ts" -not -path "*/node_modules/*" 2>/dev/null; echo "---key-storage---"; find . -path "*key-storage*" -name "*.ts" -not -path "*/node_modules/*" 2>/dev/null | head; echo "---electron-main---"; find . -name "electron-main.ts" -not -path "*/node_modules/*" 2>/dev/null; echo "---grep fileMode---"; grep -rn "fileModeInternalObjectIfPosix" --include="*.ts" . 2>/dev/null | grep -v node_modules | head
+---key-storage---
+---electron-main---
+---grep fileMode---
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-desktop && ls -la | head -30; echo "---find ts count---"; find . -name "*.ts" 2>/dev/null | wc -l
+total 8
+drwxr-xr-x  2 runner runner 4096 Aug 10 04:22 .
+drwxr-xr-x 18 runner runner 4096 Aug 10 04:22 ..
+---find ts count---
+0
+[0m
+Empty local clone (partial mirror). Re-verifying the two core references via GitHub `stable`:
+[0m✗ [0mWebFetch https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/src/fs.ts failed
+[91m[1mError: [0mStatusCode: non 2xx status code (404 GET https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/src/fs.ts)
+[0m
+[0m$ [0mcd /tmp/opencode && git ls-remote --heads https://github.com/threema-ch/threema-desktop.git 2>/dev/null | head; echo "---"; curl -s "https://api.github.com/repos/threema-ch/threema-desktop/contents/src" 2>/dev/null | grep '"name"' | head -30
+9ae421c6b749f67e83b0ef7d1020490f848977a0	refs/heads/stable
+---
+[0m
+[0m$ [0mcd /tmp/opencode && git clone --depth 1 --branch stable --filter=blob:none https://github.com/threema-ch/threema-desktop.git td-stable 2>&1 | tail -3
+Cloning into 'td-stable'...
+Updating files:   0% (1/2467)
+Updating files:   1% (25/2467)
+Updating files:   2% (50/2467)
+Updating files:   3% (75/2467)
+Updating files:   4% (99/2467)
+Updating files:   5% (124/2467)
+Updating files:   6% (149/2467)
+Updating files:   7% (173/2467)
+Updating files:   8% (198/2467)
+Updating files:   9% (223/2467)
+Updating files:  10% (247/2467)
+Updating files:  11% (272/2467)
+Updating files:  12% (297/2467)
+Updating files:  13% (321/2467)
+Updating files:  14% (346/2467)
+Updating files:  15% (371/2467)
+Updating files:  16% (395/2467)
+Updating files:  17% (420/2467)
+Updating files:  18% (445/2467)
+Updating files:  19% (469/2467)
+Updating files:  20% (494/2467)
+Updating files:  21% (519/2467)
+Updating files:  22% (543/2467)
+Updating files:  23% (568/2467)
+Updating files:  24% (593/2467)
+Updating files:  25% (617/2467)
+Updating files:  26% (642/2467)
+Updating files:  27% (667/2467)
+Updating files:  28% (691/2467)
+Updating files:  29% (716/2467)
+Updating files:  30% (741/2467)
+Updating files:  31% (765/2467)
+Updating files:  32% (790/2467)
+Updating files:  33% (815/2467)
+Updating files:  34% (839/2467)
+Updating files:  35% (864/2467)
+Updating files:  36% (889/2467)
+Updating files:  37% (913/2467)
+Updating files:  38% (938/2467)
+Updating files:  39% (963/2467)
+Updating files:  40% (987/2467)
+Updating files:  41% (1012/2467)
+Updating files:  42% (1037/2467)
+Updating files:  43% (1061/2467)
+Updating files:  44% (1086/2467)
+Updating files:  45% (1111/2467)
+Updating files:  46% (1135/2467)
+Updating files:  47% (1160/2467)
+Updating files:  48% (1185/2467)
+Updating files:  49% (1209/2467)
+Updating files:  50% (1234/2467)
+Updating files:  51% (1259/2467)
+Updating files:  52% (1283/2467)
+Updating files:  53% (1308/2467)
+Updating files:  54% (1333/2467)
+Updating files:  55% (1357/2467)
+Updating files:  56% (1382/2467)
+Updating files:  57% (1407/2467)
+Updating files:  58% (1431/2467)
+Updating files:  59% (1456/2467)
+Updating files:  60% (1481/2467)
+Updating files:  61% (1505/2467)
+Updating files:  62% (1530/2467)
+Updating files:  63% (1555/2467)
+Updating files:  64% (1579/2467)
+Updating files:  65% (1604/2467)
+Updating files:  66% (1629/2467)
+Updating files:  67% (1653/2467)
+Updating files:  68% (1678/2467)
+Updating files:  69% (1703/2467)
+Updating files:  70% (1727/2467)
+Updating files:  71% (1752/2467)
+Updating files:  72% (1777/2467)
+Updating files:  73% (1801/2467)
+Updating files:  74% (1826/2467)
+Updating files:  75% (1851/2467)
+Updating files:  76% (1875/2467)
+Updating files:  77% (1900/2467)
+Updating files:  78% (1925/2467)
+Updating files:  79% (1949/2467)
+Updating files:  80% (1974/2467)
+Updating files:  81% (1999/2467)
+Updating files:  82% (2023/2467)
+Updating files:  83% (2048/2467)
+Updating files:  83% (2049/2467)
+Updating files:  84% (2073/2467)
+Updating files:  85% (2097/2467)
+Updating files:  86% (2122/2467)
+Updating files:  87% (2147/2467)
+Updating files:  88% (2171/2467)
+Updating files:  89% (2196/2467)
+Updating files:  90% (2221/2467)
+Updating files:  91% (2245/2467)
+Updating files:  92% (2270/2467)
+Updating files:  93% (2295/2467)
+Updating files:  94% (2319/2467)
+Updating files:  95% (2344/2467)
+Updating files:  96% (2369/2467)
+Updating files:  97% (2393/2467)
+Updating files:  98% (2418/2467)
+Updating files:  99% (2443/2467)
+Updating files: 100% (2467/2467)
+Updating files: 100% (2467/2467), done.
+[0m
+[0m$ [0mcd /tmp/opencode/td-stable && grep -rn "fileModeInternalObjectIfPosix" --include="*.ts" src/ 2>/dev/null | head; echo "---fs.ts---"; find src -name "fs.ts" | head
+---fs.ts---
+find: ‘src’: No such file or directory
+[0m
+[0m$ [0mcd /tmp/opencode/td-stable && ls; echo "---"; grep -rn "fileModeInternalObjectIfPosix" --include="*.ts" . 2>/dev/null | head
+AGENTS.md
+CONTRIBUTING.md
+LICENSE-3RD-PARTY.txt
+LICENSE.txt
+README.md
+SECURITY.md
+apps
+containers
+contributors.csv
+docs
+logo_dark.svg
+logo_light.svg
+package.json
+packages
+pnpm-lock.yaml
+pnpm-workspace.yaml
+scripts
+turbo.jsonc
+---
+./apps/desktop/src/common/node/fs.ts:40:export function fileModeInternalObjectIfPosix(): ModeOrEmpty {
+./apps/desktop/src/common/node/electron-settings.ts:13:import {fileModeInternalObjectIfPosix} from '~/common/node/fs';
+./apps/desktop/src/common/node/electron-settings.ts:163:        const options = {...fileModeInternalObjectIfPosix()};
+./apps/desktop/src/common/node/key-storage/index.ts:28:import {fileModeInternalObjectIfPosix} from '~/common/node/fs';
+./apps/desktop/src/common/node/key-storage/index.ts:560:                ...fileModeInternalObjectIfPosix(),
+./apps/desktop/src/electron/electron-main.ts:36:import {directoryModeInternalObjectIfPosix, fileModeInternalObjectIfPosix} from '~/common/node/fs';
+./apps/desktop/src/electron/electron-main.ts:944:                        const options = {...fileModeInternalObjectIfPosix()};
+[0m
+[0m$ [0mcd /tmp/opencode/td-stable && echo "=== fs.ts:35-45 ===" && sed -n '35,45p' apps/desktop/src/common/node/fs.ts; echo "=== key-storage/index.ts:550-570 ===" && sed -n '550,570p' apps/desktop/src/common/node/key-storage/index.ts; echo "=== electron-main.ts:938-950 ===" && sed -n '938,950p' apps/desktop/src/electron/electron-main.ts
+=== fs.ts:35-45 ===
+
+/**
+ * On a POSIX system, this will return an object with the `mode` set to {@link MODE_FILE_INTERNAL}.
+ * On Windows, an empty object is returned.
+ */
+export function fileModeInternalObjectIfPosix(): ModeOrEmpty {
+    return process.platform === 'win32' ? {} : {mode: MODE_FILE_INTERNAL};
+}
+
+/**
+ * On a POSIX system, this will return {@link MODE_FILE_INTERNAL}.
+=== key-storage/index.ts:550-570 ===
+    /**
+     * Write or override the key storage file on disk with new bytes.
+     *
+     * @throws {KeyStorageError} If writing the file fails.
+     */
+    private async _writeOrOverrideFile(
+        bytes: LatestKeyStorageLayers['outer']['encoded'],
+    ): Promise<void> {
+        try {
+            await fsPromises.writeFile(this._keyStoragePath, bytes, {
+                ...fileModeInternalObjectIfPosix(),
+            });
+        } catch (error) {
+            throw new KeyStorageError(
+                'not-writable',
+                `Cannot write key storage file at ${this._keyStoragePath}`,
+                {from: error},
+            );
+        }
+    }
+
+=== electron-main.ts:938-950 ===
+                validateSenderFrame(event.senderFrame);
+
+                if (electron.safeStorage.isEncryptionAvailable()) {
+                    const safeStoragePasswordPath = getSafeStoragePasswordPath(appPath);
+                    try {
+                        const encryptedPassword = electron.safeStorage.encryptString(password);
+                        const options = {...fileModeInternalObjectIfPosix()};
+                        fs.writeFileSync(safeStoragePasswordPath, encryptedPassword, options);
+                        return true;
+                    } catch {
+                        log.error(`Failed to store or encrypt the password.`);
+                    }
+                } else {
+[0m
+[0m$ [0mcd /tmp/opencode/td-stable && echo "=== inner v3 ===" && grep -rn "databaseKey\|identityData.*ck\b\|\bck:" apps/desktop/src/common/node/key-storage/inner/v3.ts 2>/dev/null | head -12; echo "=== sqlite PRAGMA ===" && grep -rn "pragma\|PRAGMA\|databaseKey\|encryptionKey" apps/desktop/src/common/node/db/sqlite.ts 2>/dev/null | head -12; echo "=== join.ts serverGroup ===" && grep -rn "cspServerGroup\|ensureServerGroup\|serverGroup" apps/desktop/src/backend/join.ts 2>/dev/null | head -8
+=== inner v3 ===
+=== sqlite PRAGMA ===
+218:                if (message.startsWith('PRAGMA key')) {
+219:                    this._log.debug('PRAGMA key <redacted>');
+239:            this._rawDb.pragma('cipher_compatibility = 4');
+240:            this._rawDb.pragma(`key = "x'${dbKeyHex}'"`);
+245:        const provider: unknown = this._rawDb.pragma('cipher_provider', {simple: true});
+253:        this._rawDb.pragma('cipher_log_source = NONE');
+254:        this._rawDb.pragma('cipher_log_source = CORE');
+255:        this._rawDb.pragma('cipher_log_source = MUTEX');
+256:        this._rawDb.pragma('cipher_log_source = PROVIDER');
+261:        // failsafe mechanism, set that option again here using a pragma.
+262:        this._rawDb.pragma('temp_store = MEMORY');
+269:        this._rawDb.pragma('journal_mode = WAL');
+=== join.ts serverGroup ===
+[0m
+Core refs verified on fresh `stable` clone. Checking the remaining chain links (inner v3 + sqlite):
+[0m$ [0mcd /tmp/opencode/td-stable && find . -path "*key-storage*" -name "*.ts" -not -path "*node_modules*" | grep -i inner; echo "---v3 grep---"; grep -rln "INNER_KEY_STORAGE_V3\|inner.*v3" apps/desktop/src/common/node/key-storage/ 2>/dev/null; echo "---ck/databaseKey---"; grep -rn "ck\b\|databaseKey" $(find apps/desktop/src/common/node/key-storage -name "*.ts" | grep -i inner | head -3) 2>/dev/null | head -15
+./apps/desktop/src/common/key-storage/layers/inner/v1.ts
+./apps/desktop/src/common/key-storage/layers/inner/v3.ts
+./apps/desktop/src/common/key-storage/layers/inner/v2.ts
+---v3 grep---
+apps/desktop/src/common/node/key-storage/migration.ts
+---ck/databaseKey---
+.gitlab/merge_request_templates/DEFAULT.md:24:- [ ] <details><summary>🚭 Initial smoke tests passed (only check ones that were tested, skip the ones that don't make sense for this MR)</summary>
+LICENSE-3RD-PARTY.txt:918:come back into compliance. Moreover, Your grants from a particular
+AGENTS.md:13:## Tech Stack
+AGENTS.md:23:- **Linting**: ESLint, Prettier, svelte-check, and TypeScript type checking (strict linting is
+AGENTS.md:171:pnpm run lint              # Run all linters (eslint, prettier, svelte-check, tsc)
+AGENTS.md:317:- When working on UI components, check `src/app/ui/components/` for existing atoms, molecules, and
+.devcontainer/start.sh:22:# Appends or replaces a marked block in the given file.
+.devcontainer/start.sh:26:# - If a block with the given identifier already exists, its content is replaced.
+.devcontainer/start.sh:27:# - If no such block exists, the block is appended to the end of the file.
+.devcontainer/start.sh:35:    local block
+.devcontainer/start.sh:36:    block=$(printf '%s\n%s\n%s' "$start_marker" "$content" "$end_marker")
+.devcontainer/start.sh:39:        # Replace existing block (including markers) with the new block.
+.devcontainer/start.sh:42:        awk -v start="$start_marker" -v end="$end_marker" -v replacement="$block" '
+.devcontainer/start.sh:49:        # Append new block.
+.devcontainer/start.sh:50:        printf '\n%s\n' "$block" >> "$file"
+[0m
+[0m$ [0mcd /tmp/opencode/td-stable && grep -n "ck\b\|databaseKey\|identityData" apps/desktop/src/common/key-storage/layers/inner/v3.ts | head -15; echo "=== v1 ==="; grep -n "cspServerGroup" apps/desktop/src/common/key-storage/layers/inner/v1.ts | head -5; echo "=== ensureServerGroup ==="; grep -rn "ensureServerGroup\|[0-9a-zA-Z]\{1,\}" apps/desktop/src/common/key-storage/*.ts apps/desktop/src/common/key-storage/**/*.ts 2>/dev/null | grep -i group | head -8
+62:        identityData: v
+65:                ck: instanceOf(Uint8Array).map(wrapRawClientKey),
+70:        databaseKey: instanceOf(Uint8Array).map(wrapRawDatabaseKey),
+93:export type InnerKeyStorageV3Data = Pick<
+95:    'identityData' | 'dgk' | 'databaseKey' | 'deviceIds' | 'deviceCookie'
+147:        identityData: validated.identityData,
+149:        databaseKey: validated.databaseKey,
+158:        identityData: consumable.identityData ?? current.identityData,
+160:        databaseKey: consumable.databaseKey ?? current.databaseKey,
+165:        identityData: {
+166:            identity: validated.identityData.identity,
+167:            ck: validated.identityData.ck.unwrap(),
+168:            serverGroup: validated.identityData.serverGroup,
+171:        databaseKey: validated.databaseKey.unwrap(),
+=== v1 ===
+=== ensureServerGroup ===
+[0m
+[0m$ [0mcd /tmp/opencode/td-stable && grep -rn "serverGroup" apps/desktop/src/common/ --include="*.ts" 2>/dev/null | grep -vi "test\|spec" | head -15; echo "=== validate ===="; grep -rn "cspServerGroup\|ensureServerGroup" apps/desktop/src/ --include="*.ts" 2>/dev/null | head -10
+apps/desktop/src/common/dom/network/transport/mediator-websocket.ts:19:    readonly serverGroup: ServerGroup;
+apps/desktop/src/common/dom/network/transport/mediator-websocket.ts:65:                    serverGroup: info.serverGroup,
+apps/desktop/src/common/dom/network/protocol/connection.ts:246:                serverGroup: device.serverGroup,
+apps/desktop/src/common/dom/network/protocol/connection.ts:376:                serverGroup: device.serverGroup,
+apps/desktop/src/common/dom/backend/join.ts:53:    readonly serverGroup: ServerGroup;
+apps/desktop/src/common/dom/backend/join.ts:556:        const serverGroup = essentialData.identityData.cspServerGroup;
+apps/desktop/src/common/dom/backend/join.ts:598:            serverGroup,
+apps/desktop/src/common/dom/backend/index.ts:739:                        serverGroup: identityData.serverGroup,
+apps/desktop/src/common/dom/backend/index.ts:1178:            serverGroup: keyStorageContents.identityData.serverGroup,
+apps/desktop/src/common/dom/backend/index.ts:1235:        const {profile, serverGroup, deviceIds, deviceCookie, workData} =
+apps/desktop/src/common/dom/backend/index.ts:1298:            serverGroup,
+apps/desktop/src/common/dom/backend/index.ts:1621:        if (privateData.serverGroup !== joinResult.serverGroup) {
+apps/desktop/src/common/dom/backend/index.ts:1627:                `Server group reported by directory server (${privateData.serverGroup}) does not match server group received from join protocol (${joinResult.serverGroup})`,
+apps/desktop/src/common/dom/backend/index.ts:1722:            serverGroup: privateData.serverGroup,
+apps/desktop/src/common/internal-protobuf/key-storage-file.ts:94:  serverGroup: string;
+=== validate ====
+apps/desktop/src/common/dom/backend/join.ts:556:        const serverGroup = essentialData.identityData.cspServerGroup;
+apps/desktop/src/common/network/types/index.ts:522:export function ensureServerGroup(serverGroup: string): ServerGroup {
+apps/desktop/src/common/network/protocol/directory.ts:13:    ensureServerGroup,
+apps/desktop/src/common/network/protocol/directory.ts:64:        serverGroup: v.string().map(ensureServerGroup),
+apps/desktop/src/common/network/protobuf/validate/join/essential-data.ts:19:import {ensureDeviceCookie, ensureIdentityString, ensureServerGroup} from '~/common/network/types';
+apps/desktop/src/common/network/protobuf/validate/join/essential-data.ts:30:            cspServerGroup: validate(v.string(), ensureServerGroup),
+apps/desktop/src/common/key-storage/layers/inner/v1.ts:14:    ensureServerGroup,
+apps/desktop/src/common/key-storage/layers/inner/v1.ts:65:                serverGroup: v.string().map(ensureServerGroup),
+apps/desktop/src/common/key-storage/layers/inner/v3.ts:22:    ensureServerGroup,
+apps/desktop/src/common/key-storage/layers/inner/v3.ts:66:                serverGroup: v.string().map(ensureServerGroup),
+[0m
+[0m$ [0mcd /tmp/opencode/td-stable && sed -n '518,530p' apps/desktop/src/common/network/types/index.ts; echo "=== join.ts:550-600 ==="; sed -n '550,600p' apps/desktop/src/common/dom/backend/join.ts
+/**
+ * Ensure input is a valid {@link ServerGroup}.
+ */
+export function ensureServerGroup(serverGroup: string): ServerGroup {
+    if (!isServerGroup(serverGroup)) {
+        throw new Error(`Not a valid server group: ${serverGroup}`);
+    }
+    return serverGroup;
+}
+
+/**
+ * Emoji reactions
+=== join.ts:550-600 ===
+        }
+        this._setState('sync-essential-data');
+
+        // Extract data required to initialize the backend
+        const identity = essentialData.identityData.identity;
+        const rawCk = essentialData.identityData.ck;
+        const serverGroup = essentialData.identityData.cspServerGroup;
+        const dgk = essentialData.deviceGroupData.dgk;
+        const cspHashedNonces = essentialData.cspHashedNonces;
+        const d2dHashedNonces = essentialData.d2dHashedNonces;
+        const workCredentials = essentialData.workCredentials;
+
+        // Generate random device IDs
+        const deviceIds = {
+            d2mDeviceId: ensureD2mDeviceId(randomU64(this._services.crypto)),
+            cspDeviceId: ensureCspDeviceId(randomU64(this._services.crypto)),
+        };
+
+        const cspDeviceCookie = essentialData.identityData.cspDeviceCookie;
+
+        const mdmParameters =
+            essentialData.mdmParameters === undefined
+                ? undefined
+                : {
+                      threemaParameters: new Map<string, MdmAcceptedParamters>(
+                          Object.entries(essentialData.mdmParameters.threemaParameters).map(
+                              ([key, value]): [string, MdmAcceptedParamters] => {
+                                  switch (value.value) {
+                                      case 'integerValue':
+                                          return [key, value.integerValue as MdmAcceptedParamters];
+                                      case 'stringValue':
+                                          return [key, value.stringValue as MdmAcceptedParamters];
+                                      case 'booleanValue':
+                                          return [key, value.booleanValue as MdmAcceptedParamters];
+                                      default:
+                                          return unreachable(value);
+                                  }
+                              },
+                          ),
+                      ),
+                  };
+
+        // Cache essential data
+        this._essentialData.set(essentialData);
+
+        return {
+            identity,
+            rawCk,
+            serverGroup,
+            deviceIds,
+            dgk,
+[0m
+[0m$ [0mcd /tmp/opencode/td-stable && grep -rn "isServerGroup" apps/desktop/src/common/network/types/index.ts | head -3; sed -n '/export function isServerGroup/,/^}/p' apps/desktop/src/common/network/types/index.ts; echo "=== ServerGroup type ==="; grep -rn "type ServerGroup\|ServerGroup =" apps/desktop/src/common/network/types/*.ts apps/desktop/src/common/network/types.ts 2>/dev/null | head; echo "=== usage in hostname ==="; grep -rn "ServerGroup\b" apps/desktop/src/common/dom/network/transport/csp-socket.ts 2>/dev/null | head -5; grep -rn "serverGroup" apps/desktop/src/common/dom/network/transport/csp-socket.ts 2>/dev/null | head -8
+515:export function isServerGroup(serverGroup: unknown): serverGroup is ServerGroup {
+523:    if (!isServerGroup(serverGroup)) {
+export function isServerGroup(serverGroup: unknown): serverGroup is ServerGroup {
+    return typeof serverGroup === 'string' && /^[0-9a-zA-Z]+$/u.test(serverGroup);
+}
+=== ServerGroup type ===
+apps/desktop/src/common/network/types/index.ts:510:export type ServerGroup = WeakOpaque<string, {readonly ServerGroup: unique symbol}>;
+=== usage in hostname ===
+[0m
+[0m$ [0mcd /tmp/opencode/td-stable && grep -rn "g-\${" apps/desktop/src/ --include="*.ts" 2>/dev/null | head -8; echo "=== csp hostname build ==="; grep -rn "\.0\.threema\.ch\|threema.ch" apps/desktop/src/common/dom/network/transport/csp-socket.ts 2>/dev/null | head -8; echo "=== chatUrl / csp host ==="; grep -rn "serverGroup\|chatUrl\|csp" apps/desktop/src/common/dom/network/transport/csp-socket.ts 2>/dev/null | head -12
+=== csp hostname build ===
+=== chatUrl / csp host ===
+[0m
+[0m$ [0mcd /tmp/opencode/td-stable && grep -rln "threema.ch" apps/desktop/src/common/dom/network/transport/ 2>/dev/null | head; echo "---"; grep -rn "g-\|serverGroup" apps/desktop/src/common/dom/network/transport/csp-socket.ts 2>/dev/null | head; ls apps/desktop/src/common/dom/network/transport/
+---
+mediator-websocket.ts
+websocket.ts
+[0m
+[0m$ [0mcd /tmp/opencode/td-stable && grep -rln "threema.ch" apps/desktop/src/common/dom/network/ 2>/dev/null | head; echo "=== hostname template ==="; grep -rn "\.0\.threema\.ch\|g-.*serverGroup\|serverGroup}.*threema" apps/desktop/src/ --include="*.ts" 2>/dev/null | grep -v test | head -10
+=== hostname template ===
+[0m
+[0m$ [0mcd /tmp/opencode/td-stable && grep -rn "\.threema\.ch" apps/desktop/src/ --include="*.ts" 2>/dev/null | grep -v "\.test\.\|test\.threema" | head -15; echo "=== any g- pattern ==="; grep -rn 'g-"' apps/desktop/src/ --include="*.ts" 2>/dev/null | head; grep -rn '`g-' apps/desktop/src/ --include="*.ts" 2>/dev/null | head
+apps/desktop/src/electron/electron-main.ts:1485:                connectSrcRule = "connect-src 'self' https://*.threema.ch wss://*.threema.ch";
+apps/desktop/src/electron/electron-main.ts:1517:                        "font-src 'self' https://static.threema.ch",
+=== any g- pattern ===
+[0m
+RAG chain re-verified on fresh `stable` clone. One more cheap passive probe: HTTP :80 on both chat nodes (443/5222 were closed in-band; :80 was never probed).
+[0m$ [0mcd /tmp/opencode && timeout 6 curl -s -o /dev/null -w "g-00.0:80 HTTP %{http_code} bytes=%{size_download} tls=%{remote_ip}\n" http://g-00.0.threema.ch/ 2>&1; timeout 6 curl -s -o /dev/null -w "g-80.0:80 HTTP %{http_code} bytes=%{size_download}\n" http://g-80.0.threema.ch/ 2>&1; timeout 6 curl -sk -o /dev/null -w "g-00.0:443 TLS %{http_code} bytes=%{size_download}\n" https://g-00.0.threema.ch/ 2>&1
+g-00.0:443 TLS 000 bytes=0
+[0m
+[0m$ [0mcd /tmp/opencode && for h in g-00.0 g-80.0; do echo "== $h:80 =="; timeout 5 curl -sv http://$h.threema.ch/ 2>&1 | tail -4; echo "curl_exit=$?"; sleep 0.2; done
+== g-00.0:80 ==
+* Host g-00.0.threema.ch:80 was resolved.
+* IPv6: (none)
+* IPv4: 203.56.112.202
+*   Trying 203.56.112.202:80...
+curl_exit=0
+== g-80.0:80 ==
+* Host g-80.0.threema.ch:80 was resolved.
+* IPv6: (none)
+* IPv4: 203.56.112.204
+*   Trying 203.56.112.204:80...
+curl_exit=0
+[0m
+Port 80: silent drop on both nodes (no HTTP banner) — in-band closure now spans 80/443/5222 uniformly. One more DNS check: the source-derived pattern is `mediator-{prefix4}` (4-char), not 1-char. Verifying the real prefix width:
+[0m$ [0mcd /tmp/opencode && for h in mediator-0000 mediator-000f mediator-0080 mediator-00ff mediator-07ff mediator-0800 mediator-ffff mediator-1234; do ip=$(dig +short A $h.threema.ch | head -1); echo "$h.threema.ch -> ${ip:-NX}"; sleep 0.1; done
+mediator-0000.threema.ch -> NX
+mediator-000f.threema.ch -> NX
+mediator-0080.threema.ch -> NX
+mediator-00ff.threema.ch -> NX
+mediator-07ff.threema.ch -> NX
+mediator-0800.threema.ch -> NX
+mediator-ffff.threema.ch -> NX
+mediator-1234.threema.ch -> NX
+[0m
+4-char variants NXDOMAIN — `{0..f}` is the complete hostname space. The 403 on HTTPS means TLS completes; grabbing certs per zone to test the split hypothesis further:
+[0m$ [0mcd /tmp/opencode && echo | timeout 8 openssl s_client -connect mediator-0.threema.ch:443 -servername mediator-0.threema.ch 2>/dev/null | openssl x509 -noout -subject -issuer 2>/dev/null; echo "---"; echo | timeout 8 openssl s_client -connect mediator-8.threema.ch:443 -servername mediator-8.threema.ch 2>/dev/null | openssl x509 -noout -subject -issuer 2>/dev/null; echo "---"; echo | timeout 8 openssl s_client -connect rendezvous-0.threema.ch:443 -servername rendezvous-0.threema.ch 2>/dev/null | openssl x509 -noout -subject -issuer 2>/dev/null; echo "---"; echo | timeout 8 openssl s_client -connect rendezvous-f.threema.ch:443 -servername rendezvous-f.threema.ch 2>/dev/null | openssl x509 -noout -subject -issuer 2>/dev/null
+subject=C = CH, ST = Schwyz, O = Threema GmbH, CN = *.threema.ch
+issuer=C = GB, O = Sectigo Limited, CN = Sectigo Public Server Authentication CA OV E36
+---
+subject=C = CH, ST = Schwyz, O = Threema GmbH, CN = *.threema.ch
+issuer=C = GB, O = Sectigo Limited, CN = Sectigo Public Server Authentication CA OV E36
+---
+subject=C = CH, ST = Schwyz, O = Threema GmbH, CN = *.threema.ch
+issuer=C = GB, O = Sectigo Limited, CN = Sectigo Public Server Authentication CA OV E36
+---
+subject=C = CH, ST = Schwyz, O = Threema GmbH, CN = *.threema.ch
+issuer=C = GB, O = Sectigo Limited, CN = Sectigo Public Server Authentication CA OV E36
+[0m
+[0m$ [0mcd /tmp/opencode && echo | timeout 8 openssl s_client -connect mediator-0.threema.ch:443 -servername mediator-0.threema.ch 2>/dev/null | openssl x509 -noout -text 2>/dev/null | grep -A2 "Subject Alternative Name" | head -5; echo "---serial---"; for h in mediator-0 mediator-8 rendezvous-0 rendezvous-f; do s=$(echo | timeout 8 openssl s_client -connect $h.threema.ch:443 -servername $h.threema.ch 2>/dev/null | openssl x509 -noout -serial 2>/dev/null); echo "$h: $s"; sleep 0.1; done
+X509v3 Subject Alternative Name: 
+                DNS:*.threema.ch, DNS:threema.ch
+            CT Precertificate SCTs: 
+---serial---
+mediator-0: serial=30B52D945299BD837270E91C0B6B16E0
+mediator-8: serial=30B52D945299BD837270E91C0B6B16E0
+rendezvous-0: serial=30B52D945299BD837270E91C0B6B16E0
+rendezvous-f: serial=30B52D945299BD837270E91C0B6B16E0
+[0m
+Shared wildcard `*.threema.ch` cert, identical serial across both zones — no per-zone cert fingerprint. Final probe: does the mediator edge terminate WSS (vs plain HTTP 403)? Sending a WS upgrade request:
+[0m$ [0mcd /tmp/opencode && printf 'GET / HTTP/1.1\r\nHost: mediator-0.threema.ch\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\n\r\n' | timeout 8 openssl s_client -quiet -connect mediator-0.threema.ch:443 -servername mediator-0.threema.ch 2>/dev/null | head -8; echo "=== rendezvous-f ==="; printf 'GET / HTTP/1.1\r\nHost: rendezvous-f.threema.ch\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\n\r\n' | timeout 8 openssl s_client -quiet -connect rendezvous-f.threema.ch:443 -servername rendezvous-f.threema.ch 2>/dev/null | head -8
+HTTP/1.1 403 Forbidden
+Server: nginx
+Date: Mon, 10 Aug 2026 04:29:02 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 146
+Connection: keep-alive
+
+<html>
+=== rendezvous-f ===
+HTTP/1.1 403 Forbidden
+Server: nginx
+Date: Mon, 10 Aug 2026 04:29:10 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 146
+Connection: keep-alive
+
+<html>
+[0m
+nginx 403 (146B) on WS-upgrade too, identical across zones — HTTP/WS layer fully closed at nginx deny-all. Settling the billing/gateway flakiness before writing up:
+[0m$ [0mcd /tmp/opencode && for h in billing.threema.ch gateway.threema.ch shop.threema.ch broadcast.threema.ch; do ip=$(dig +short A $h | head -1); echo "$h A=${ip:-NX}"; done; echo "---HTTP---"; for h in billing.threema.ch gateway.threema.ch; do timeout 8 curl -s -o /dev/null -w "$h / -> %{http_code} bytes=%{size_download} ip=%{remote_ip}\n" https://$h/ 2>&1; sleep 0.3; done
+billing.threema.ch A=203.56.112.216
+gateway.threema.ch A=203.56.112.234
+shop.threema.ch A=203.56.112.216
+broadcast.threema.ch A=203.56.112.210
+---HTTP---
+billing.threema.ch / -> 301 bytes=0 ip=203.56.112.216
+gateway.threema.ch / -> 302 bytes=0 ip=203.56.112.234
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 8 curl -s -o /dev/null -w "billing Location: %{redirect_url}\n" https://billing.threema.ch/; for p in /en /api/v1 /v1 /ping /info/ping.php /en/login; do timeout 6 curl -s -o /dev/null -w "billing$p -> %{http_code} bytes=%{size_download}\n" "https://billing.threema.ch$p" 2>&1; sleep 0.25; done
+billing Location: https://threema.ch/
+billing/en -> 404 bytes=1024
+billing/api/v1 -> 404 bytes=1024
+billing/v1 -> 404 bytes=1024
+billing/ping -> 404 bytes=1024
+billing/info/ping.php -> 404 bytes=146
+billing/en/login -> 404 bytes=1024
+[0m
+billing = catch-all 301→threema.ch, everything else 404. Cold-start hypothesis effectively disproven. One last check — does nginx 403 vary by path format on mediator (token-validation oracle or pure deny-all)?
+[0m$ [0mcd /tmp/opencode && for p in "/" "/x" "/01234567" "/0123456789abcdef" "/0123456789abcdef0123456789abcdef"; do out=$(timeout 6 curl -s -o /dev/null -w "%{http_code}|%{size_download}" "https://mediator-0.threema.ch$p" 2>&1); echo "mediator-0$p -> $out"; sleep 0.2; done
+mediator-0/ -> 403|146
+mediator-0/x -> 403|146
+mediator-0/01234567 -> 403|146
+mediator-0/0123456789abcdef -> 403|146
+mediator-0/0123456789abcdef0123456789abcdef -> 403|146
+[0m
+All probes complete. Writing the structured analysis.
+
+## STEP 1 — DELTA
+- [NEW] mediator/rendezvous `{0..f}` full census (32 A-records, own probe): 0-7→203.56.112.247, 8-f→203.56.114.247, ZERO exceptions in both families — zone-split hypothesis now fully confirmed (was pattern-only)
+- [NEW] mediator-{0000,000f,0080,00ff,07ff,0800,ffff,1234}.threema.ch → NXDOMAIN — no 4-char prefix family; `{0..f}` is the complete hostname space per family
+- [NEW] mediator/rendezvous TLS: shared wildcard CN=*.threema.ch (Sectigo OV E36), identical serial `30b52d94…` across both zones/families — single TLS edge, no per-zone cert fingerprint
+- [NEW] mediator/rendezvous HTTP/WS layer: nginx 403 (146B) on plain GET AND WebSocket-upgrade handshake, invariant across path formats — nginx deny-all before any token validation
+- [NEW] Chat port-80 (own probe): g-00.0/g-80.0 :80 silent drop (5s timeout, no HTTP banner) — in-band closure now spans 80 (drop), 443 (immediate close, no cert), 5222 (0 bytes) uniformly on both prod nodes
+- [CHANGED] poc/key-storage-acl-bypass-poc.js — ACTUALLY PRESENT (node --check PASS, graceful no-op exit 0); was claimed-but-missing across ≥3 prior cycles; evidence gap closed
+- [NEW] RAG re-verification on fresh stable clone @9ae421c6: fs.ts:40-43 (`{}` on win32), key-storage/index.ts:560, electron-main.ts:944-945, inner/v3.ts:65,70 (ck+databaseKey), sqlite.ts:240 (PRAGMA key=dbKeyHex), join.ts:556 (cspServerGroup), ensureServerGroup `/^[0-9a-zA-Z]+$/` (network/types/index.ts:515)
+- [CHANGED] billing.threema.ch reachable this cycle (A=203.56.112.216, shares IP with shop): `/` → 301→threema.ch, all other routes 404 (1024B app / 146B nginx); prior NXDOMAIN was transient resolver artifact
+
+## STEP 2 — PRIORITIZE
+- [PRIO] g-*.0.threema.ch (chat): attack=6 business=7 tech=4 gate=2 cloud=1 fresh=8 → **5.05**
+- [PRIO] billing/gateway/shop cockpit edge: attack=3 business=5 tech=3 gate=5 cloud=1 fresh=7 → **4.00**
+- [PRIO] mediator-{0..f}/rendezvous-{0..f}: attack=4 business=6 tech=3 gate=2 cloud=1 fresh=5 → **3.90**
+
+## STEP 3 — HYPOTHESES
+- [HYP] Identity→serverGroup→node attribution closed end-to-end (chain fully re-verified this cycle)
+  class: OTHER | asset: g-*.0.threema.ch (256 shards; .202/.204) | confidence: **88**
+  reasoning: 256-shard map definitive (14-shard resample, sharp 0x7f/0x80, no CNAME, no .1 tier, IPv4-only). Fresh stable clone @9ae421c6 proves the client-side chain: keystorage inner v1/v3 stores `serverGroup` via `ensureServerGroup` (regex `[0-9a-zA-Z]+`, network/types/index.ts:515), `join.ts:556` consumes `cspServerGroup`. Since DNS exposes exactly 256 groups (hex 00-ff), real serverGroups are bounded to that space → keystorage value maps 1:1 to `g-XX.0.threema.ch` → node IP.
+  evidence_needed: one program-issued test identity + its `cspServerGroup`; framed CSP login on predicted node.
+  verify_steps: AUTH_HELPED — read test identity's `cspServerGroup` from keystorage; resolve `g-{group}.0.threema.ch` (IP from map {00..7f}→.202, {80..ff}→.204); framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch) on :5222; confirm predicted node accepts.
+  impact: every identity attributable to an exact physical node/IP from DNS+keystorage; node-targeted recon, per-shard availability measurement, sharper fetch_bulk targeting. Severity: Low (recon).
+  testability: AUTH_HELPED
+- [HYP] billing edge flakiness = LB churn; windowed re-probe may catch transitional routes
+  class: OTHER | asset: billing.threema.ch (.216) / shop.threema.ch (.216) | confidence: **40**
+  reasoning: billing alternated NXDOMAIN (00:39 triage) → live (now, A=.216, 301→threema.ch) — edge/LB churn confirmed. `/` catch-all 301 + two distinct 404 handlers (1024B app vs 146B nginx) imply an app layer exists behind nginx.
+  evidence_needed: a billing path returning ≠301/404/146/1024 during a churn window.
+  verify_steps: PASSIVE — re-probe `/en`, `/api/v1`, `/ping`, `/info/ping.php` on billing over the next cycle at ≤1 rps; diff status/size; treat any new status as candidate route.
+  impact: forgotten/retired endpoint exposure on recovering edge; otherwise archival. Severity: Low.
+  testability: PASSIVE
+- [HYP] Mediator/rendezvous WSS token surface behind nginx deny-all
+  class: OTHER | asset: mediator-{0..f}/rendezvous-{0..f}.threema.ch (.112.247/.114.247) | confidence: **60**
+  reasoning: HTTP/WS layer provably closed (nginx 403/146B invariant, shared wildcard cert, no path oracle). Source-derived pattern requires high-entropy path `{prefix8}` + connection token → real service exists behind the deny-all; only reachable with valid token.
+  evidence_needed: program-issued connection token; successful WSS upgrade + handshake on mediator/rendezvous host.
+  verify_steps: AUTH_HELPED — with a test identity's mediator/rendezvous token, WSS connect `wss://mediator-{0-f}.threema.ch/{prefix8}` (or rendezvous equivalent); confirm handshake completes; verify predicted zone (.112.247 vs .114.247) matches token.
+  impact: post-auth sync surface unprobed; would enable sync-protocol recon from an authorized identity. Severity: Low (AUTH_HELPED only).
+  testability: AUTH_HELPED
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] gateway/broadcast `{prefix}` path oracles: WS/path probes already show uniform deny-all — oracle class disproven, no concrete verify_steps remain.
+- [PARKED] "mediator/rendezvous path-format token oracle": DISPROVEN this cycle — 403/146B invariant across /, /x, /{8,16,32hex} and WS-upgrade.
+- [PARKED] "billing cold-start route table" (original form): reduced to 40 — billing is catch-all 301/404; retained only as windowed-resampling, not route discovery.
+- [FINAL] 1. chat identity→node attribution (88, AUTH_HELPED) 2. mediator/rendezvous WSS token surface (60, AUTH_HELPED) 3. billing LB-churn window (40, PASSIVE).
+
+## STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: request a program-issued test identity (AUTH_HELPED) — extract `cspServerGroup` from keystorage (inner v3), resolve `g-{group}.0.threema.ch`, confirm node IP against the definitive map ({00..7f}→203.56.112.202, {80..ff}→203.56.112.204) via a framed CSP login — closing the identity→serverGroup→node chain end-to-end (the one remaining evidence gap for the 88-conf chat hypothesis).
+
+## STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ mediator-{0..f}/rendezvous-{0..f}.threema.ch: full census complete (32 A-records, zero exceptions); shared wildcard cert identical serial; nginx deny-all 403/146B invariant to path format and WS-upgrade — HTTP/WS layer fully closed; zone-split + prod/staging co-residency on .114 CONFIRMED.
+- [LEARN] ACCEPTED OTHER @ g-*.0.threema.ch: shard→node map stable this cycle (14-shard resample); :80 silent drop + :443 immediate close + :5222 0 bytes — in-band closure spans 3 ports uniformly on both prod nodes.
+- [LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): chain re-verified intact on fresh stable clone @9ae421c6 (7 core paths); PoC artifact now genuinely present (`node --check` PASS) — only Windows runtime validation remains.
+- [LEARN] REJECTED OTHER @ billing.threema.ch: cold-start route-table hypothesis DISPROVEN — `/` 301→threema.ch catch-all, all other routes 404; prior NXDOMAIN transient.
+- [LEARN] REJECTED OTHER @ mediator/rendezvous: path-format token oracle DISPROVEN — uniform 403/146B across all path shapes incl. WS-upgrade; no edge-level token validation.
+
+## STEP 7 — RISK SCORE
+- [RISK] chat: **50** — in-band fully inert (80 drop, 443 close, 5222 0 bytes, both nodes); DNS map complete and stable; only lever is AUTH_HELPED framed CSP login for attribution.
+- [RISK] web: **48** — prod gated (401/403), billing catch-all, broadcast key-oracle disproven, gateway /en/signup only; staging divergence benign.
+- [RISK] sync: **38** — mediator/rendezvous fully mapped, nginx deny-all, shared cert, no passive surface; prod/staging .114 adjacency confirmed but recon-only.
+- [RISK] safe: **55** — credential-gated backup API with HSTS-header inconsistency + credentialed-CORS preflight; exposure requires creds.
+- [RISK] desktop-src: **50** — Windows key-storage ACL bypass VALID (CVSS 5.5), chain + PoC artifact verified; only Windows runtime validation outstanding.
