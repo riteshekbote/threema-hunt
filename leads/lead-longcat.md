@@ -982,3 +982,4 @@ testability: PASSIVE
 [RISK] sync: 55 — mediator/rendezvous uniform 403; ds-apip-work live but auth-gated; TWRK-1633 cross-subscription leak unvalidated (needs auth)
 [RISK] safe: 88 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain; PoC artifact does NOT exist (KB claim persistently false)
+## 2026-08-10 20:58:52 UTC [sync] (model longcat)

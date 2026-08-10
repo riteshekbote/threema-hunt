@@ -635,3 +635,17 @@ https://ds-apip-work.threema.ch/identities` -> HTTP 401
 https://gateway.threema.ch/ -> 200 len=? type=text/html; charset=UTF-8
 https://mediator-0.threema.ch/` -> HTTP 403
 https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+
+## 2026-08-10 21:05:41 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/0123...cdef` -> HTTP 400
+https://safe-01.threema.ch/backups/...` -> HTTP 403
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://gateway.threema.ch/ -> 200 len=? type=text/html; charset=UTF-8
+https://gateway.threema.ch/v1` -> HTTP 404
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+https://work.test.threema.ch/api-app/public/license/token/{64zeros -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404

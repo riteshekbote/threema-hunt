@@ -1216,3 +1216,7 @@
 - CHANGED poc/ directory: still ABSENT (10th+ consecutive cycle); KB claims "NOW GENERATED" persistently false
 - CHANGED billing.threema.ch: now confirmed serving real static assets — `/cache/billing_gui_theme_threema.js` (200, 336793 B, jQuery 3.7.1) + `/cache/billing_gui_theme_threema.css` (200, 41235 B, custom billin
 - CHANGED billing.threema.ch: static assets carry full security headers (HSTS `max-age=31104000`, Expect-CT enforce, strict CSP `default-src 'self'`, X-Frame-Options DENY, Referrer-Policy no-referrer) while the
+
+## 2026-08-10 21:05:35 UTC
+- NEW billing.threema.ch: now serves real static assets (/cache/billing_gui_theme_threema.js 200 336KB jQuery 3.7.1, /cache/billing_gui_theme_threema.css 200 41KB) with full security headers (HSTS, Expect-C
+- NEW gateway.threema.ch/v1: session cookie (SESSIONID) set on unauthenticated 404 response with Secure/HttpOnly/SameSite=Strict — confirmed stable across cycles
