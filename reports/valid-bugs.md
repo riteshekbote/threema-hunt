@@ -394,3 +394,9 @@
   - | Q1 In scope? | **NO** — scope.yml lists `apip.threema.ch` and `safe-*.threema.ch` etc.; `.test` staging variants are **not** listed. Per valid-bugs.md precedent, staging variants treated as out-of-s
   - | Q1 In scope? | **NO** — scope.yml lists `work.threema.ch`, not `work.test.threema.ch`. Per valid-bugs.md precedent, staging treated as out-of-scope |
   - | Q1 | **NO** — scope.yml lists `g-*.0.threema.ch`, `mediator-*.threema.ch`, `rendezvous-*.threema.ch`; `.test` staging variants NOT listed. Per valid-bugs.md precedent, out of scope |
+
+- 4 lead(s) marked VALID at 2026-08-10 00:46:43 UTC
+  - | 1 | Directory cluster identity→pubkey bulk enumeration (fetch_bulk + CORS* + no rate limit) | **VALID (dup)** | Already reported. CVSS 5.3 |
+  - | 2 | Desktop Windows key-storage ACL bypass (keystorage.bin no ACL) | **VALID (dup)** | Already reported. CVSS 5.5 |
+  - | 4 | Safe backup HSTS/Expect-CT header inconsistency | **VALID (dup, low)** | Already reported. CVSS 3.1 |
+  - | 5 | Challenge-response parameter-validation oracles | **VALID (dup, low)** | Already reported. CVSS 3.7 |
