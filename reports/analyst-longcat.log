@@ -4104,3 +4104,98 @@ testability: PASSIVE
 [RISK] safe: 88 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain; PoC artifact does NOT exist (KB claim false)
 ```
+===== ANALYST longcat 2026-08-10 19:43:40 UTC =====
+[0m
+> build · longcat-2.0-free
+[0m
+**STEP 1 — DELTA**
+
+NO_DELTA — All items in the latest inventory (gateway session cookie, ds-apip-work TWRK-1633, android icePassword, billing/gateway recovery, chat DNS IPv4-only) are already captured in the KB as ACCEPTED/NEW/CHANGED. No genuinely new surface this cycle.
+
+---
+
+**STEP 2 — PRIORITIZE**
+
+[PRIO] ds-apip.threema.ch/identity/fetch_bulk — score 91 (attack:9, business:9, tech:8, gate:10, cloud:8, fresh:9) — 10k-ID batch enum, CORS `*`, no rate-limit, 3-host cluster
+[PRIO] threema-desktop key-storage (Windows ACL bypass) — score 87 (attack:10, business:9, tech:9, gate:6, cloud:7, fresh:8) → full Ed25519+SQLCipher key chain, needs Windows validation
+[PRIO] safe-01.threema.ch backup API — score 79 (attack:8, business:8, tech:7, gate:7, cloud:9, fresh:7) — permissive CORS + write methods + HSTS gap
+[PRIO] ds-apip-work.threema.ch/identities (TWRK-1633) — score 61 (attack:6, business:7, tech:6, gate:3, cloud:6, fresh:9) — AUTH_HELPED, cross-subscription leak
+[PRIO] billing.threema.ch deployed app — score 38 (attack:3, business:6, tech:4, gate:7, cloud:5, fresh:8) — custom 404 page, no live routes
+
+---
+
+**STEP 3 — HYPOTHESES**
+
+[HYP] fetch_bulk mass identity→pubkey enumeration at 10k IDs/req (directory cluster triad)
+class: IDOR
+asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/fetch_bulk
+confidence: 99
+reasoning: 3 prod hosts return identical pubkeys for valid IDs; 10k-ID batch cap confirmed (10000→200, 10001→400); CORS `*` on POST/GET/OPTIONS/DELETE; zero 429s across 35+ probes; invalid IDs silently omitted enabling enumeration.
+evidence_needed: Already fully confirmed — ceiling bounded, CORS verified, rate-limit absence proven.
+verify_steps: PASSIVE: `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Origin: https://evil.com' -H 'Content-Type: application/json' -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` — expect 200 with only ECHOECHO pubkey echoed.
+impact: Mass identity→pubkey mapping at 10k IDs/req, no auth, cross-origin readable → complete directory enumeration. Severity: High.
+testability: PASSIVE
+
+[HYP] Windows key-storage ACL bypass → full credential chain compromise
+class: MISCONFIG
+asset: threema-desktop (Windows) — data/keystorage.bin + data/keystorage.password.bin
+confidence: 95
+reasoning: Source-verified 6-path chain: fs.ts:41 returns `{}` on win32 (no DACL); index.ts:559+electron-main.ts:944 write keystorage files with `{}`; inner/v3.ts:65,70 exposes ck (Ed25519 privkey) + databaseKey; crypto.ts:53-113 Argon2id→XSalsa20-Poly1305; sqlite.ts:240 raw SQLCipher PRAGMA key. Same-user attacker reads files → DPAPI-decrypt password → derive key → decrypt identity + database.
+evidence_needed: Windows runtime validation — read files as same-user attacker process, DPAPI-decrypt, decrypt threema.sqlite.
+verify_steps: HUMAN: On Windows VM with Threema Desktop installed, run same-user process to read data/keystorage.bin + data/keystorage.password.bin, DPAPI-decrypt password, Argon2id-derive, decrypt identityData.ck + databaseKey, SQLCipher-decrypt threema.sqlite.
+impact: Full identity key + message database compromise for any same-user process. Severity: Critical.
+testability: HUMAN_ONLY
+
+[HYP] safe backup API permissive CORS + write methods + HSTS inconsistency
+class: MISCONFIG
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 88
+reasoning: 5 hostnames behind single IP 203.56.112.231; OPTIONS returns CORS `*` + Allow-Methods GET/HEAD/PUT/PATCH/POST/DELETE + Allow-Headers Authorization; HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400; HTTP Basic Auth (backupId:backupKey) gating confirmed; route-existence oracle (400 vs 404) stable.
+evidence_needed: Already confirmed — CORS, methods, HSTS gap, auth gating all verified.
+verify_steps: PASSIVE: `curl -s -D- -X OPTIONS https://safe-01.threema.ch/backups/aabbccdd... -H 'Origin: https://evil.com'` — confirm ACAO `*` + write methods. `curl -s -D- https://safe-01.threema.ch/backups/aabbccdd...` — confirm HSTS absent on GET 400.
+impact: Cross-origin credentialed backup API access + transport-security header inconsistency. Severity: Medium-High.
+testability: PASSIVE
+
+---
+
+**STEP 4 — SELF-CRITIQUE**
+
+All 3 hypotheses survive:
+- fetch_bulk: confidence 99, class ACCEPTED in KB, concrete verify steps ✓
+- key-storage: confidence 95, class ACCEPTED in KB, HUMAN verify path ✓
+- safe CORS: confidence 88, class ACCEPTED in KB, concrete verify steps ✓
+
+[PARKED] ds-apip-work.threema.ch/identities TWRK-1633 cross-subscription leak: confidence 50, AUTH_HELPED only, no passive verify path — requires authorized work license to test.
+[PARKED] billing.threema.ch deployed app: confidence 35 < 40, all probed paths return 301/404, custom 404 page only confirms framework presence.
+
+[FINAL]
+1. fetch_bulk mass enum (IDOR, 99) — fully confirmed, report-ready
+2. Windows key-storage ACL bypass (MISCONFIG, 95) — source-verified, needs Windows runtime
+3. safe backup API CORS+HSTS gap (MISCONFIG, 88) — fully confirmed, report-ready
+
+---
+
+**STEP 5 — NEXT ACTION**
+
+[NEXT] PROBE: `curl -s --max-time 8 -D- -X OPTIONS https://billing.threema.ch/cache/billing_gui_theme_threema.css -H "Origin: https://evil.com"` + `curl -s --max-time 8 -D- https://billing.threema.ch/cache/billing_gui_theme_threema.js` + `curl -s --max-time 8 -D- https://billing.threema.ch/en/login` — final mapping pass on billing app to confirm whether referenced assets are served and if any login/signup routes are live (prior billing REJECTED was based on root-path probes only; 404-page-referenced assets are a different path class).
+
+---
+
+**STEP 6 — LEARNING**
+
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: byte-stable this cycle — 200/152B (ECHOECHO echoed, invalid IDs silently omitted), CORS ACAO:*, 10001→400/0B sharp count-cap, zero 429s.
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub `stable`; no new commits affecting ACL bypass logic.
+[LEARN] ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency re-confirmed live this cycle.
+[LEARN] REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed.
+[LEARN] CHANGED poc/ directory: still ABSENT (11th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions.
+[LEARN] NO_NEW_CLASS: All previously accepted findings byte-stable; no new vulnerability classes opened this cycle.
+
+---
+
+**STEP 7 — RISK SCORE**
+
+[RISK] chat: 30 — prod DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band 443/5222 passive channel closed (0 bytes pushed without auth login frame); no passive surface remaining
+[RISK] web: 94 — directory cluster (3 prod hosts, fetch_bulk 10k batch + CORS * + no rate-limit); safe backup API (permissive CORS + write methods + HSTS gap); work/broadcast/gateway cockpits accessible; staging work public API divergence; billing app deployed but no live routes found
+[RISK] sync: 55 — mediator/rendezvous uniform 403; ds-apip-work live but auth-gated; TWRK-1633 cross-subscription leak unvalidated (needs auth)
+[RISK] safe: 88 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
+[RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain; PoC artifact does NOT exist (KB claim false)
