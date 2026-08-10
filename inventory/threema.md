@@ -1220,3 +1220,9 @@
 ## 2026-08-10 21:05:35 UTC
 - NEW billing.threema.ch: now serves real static assets (/cache/billing_gui_theme_threema.js 200 336KB jQuery 3.7.1, /cache/billing_gui_theme_threema.css 200 41KB) with full security headers (HSTS, Expect-C
 - NEW gateway.threema.ch/v1: session cookie (SESSIONID) set on unauthenticated 404 response with Secure/HttpOnly/SameSite=Strict — confirmed stable across cycles
+
+## 2026-08-10 21:45:46 UTC
+- NEW billing.threema.ch: now serves real static assets (/cache/billing_gui_theme_threema.js 200 336KB jQuery 3.7.1, /cache/billing_gui_theme_threema.css 200 41KB) with full security headers (HSTS, Expect-C
+- NEW gateway.threema.ch/v1: session cookie (SESSIONID) set on unauthenticated 404 response with Secure/HttpOnly/SameSite=Strict — confirmed stable across cycles
+- CHANGED poc/key-storage-acl-bypass-poc.js: KB claims "NOW GENERATED" but filesystem confirms ABSENT (11th+ consecutive cycle) — KB/FS discrepancy persists
+- CHANGED ds-apip-work.threema.ch/identities: TWRK-1633 "buggy" note in openapi spec — potential cross-subscription contact leak; requires auth to verify
