@@ -429,3 +429,25 @@
 
 - 1 lead(s) marked VALID at 2026-08-10 16:43:38 UTC
   - | **VALID** | 0 | All map to already-reported findings |
+
+- 31 lead(s) marked VALID at 2026-08-10 17:45:55 UTC
+  - | **Q3 Real impact?** | ✅ YES — mass valid-ID + pubkey harvesting at ~10k IDs/req, silent omission oracle, zero rate limit |
+  - | **Q4 Passive proof?** | ✅ YES — `POST /identity/fetch_bulk {"identities":["ECHOECHO","ZZZZZZZZ"]}` → 200 with only valid pubkey; 35× sequential POSTs all 200, zero 429; `GET /identity/ECHOECHO`→200,
+  - | **Q5 Novel?** | ❌ **NO** — ACCEPTED in KB lines 20-21, 27, 59, 67, 80, 82, 85-86, 94, 99, 104, 111, 124, 131, 134, 136, 142, 150, 158, 163, 167, 170, 172, 182, 189, 195, 199, 204, 220; triaged as VA
+  - | **Q7 Triager accept?** | ✅ YES — already accepted as finding #1 in valid-bugs.md |
+  - | **Q5 Novel?** | ❌ **NO** — ACCEPTED in KB lines 26, 74, 77-78, 92, 108, 121, 130, 133, 137, 143, 187, 192, 197, 203; triaged as VALID in `valid-bugs.md` (finding #3) |
+  - | **Q2 Reachable?** | ⚠️ Route reachable; data access requires valid `backupId:backupKey` (64-hex id + high-entropy key) |
+  - | **Q3 Real impact?** | ❌ NO without valid credentials — 400 vs 404 oracle reveals route existence only (already known from source/KB). CORS* lets an attacker page send credentialed cross-origin reque
+  - | **Q4 Passive proof?** | ⚠️ Can confirm CORS headers + 400 response; cannot confirm data access without valid credentials |
+  - | **Q5 Novel?** | ❌ **NO** — ACCEPTED in KB lines 30-31, 62, 79, 101, 106, 125, 128-129, 132, 135, 138; triaged in valid-bugs.md |
+  - | **Q6 Not always-rejected?** | ❌ **NO** — CORS `*` on a credential-gated endpoint (400) is best-practice/defense-in-depth only, per valid-bugs.md precedent (multiple cycles) |
+  - | **Q7 Triager accept?** | ❌ NO — no data access without valid credentials |
+  - | **Q3 Real impact?** | ⚠️ CONDITIONAL — valid hardening concern but constitutes a vulnerability ONLY when chained with a demonstrated RCE primitive |
+  - | **Q5 Novel?** | ❌ **NO** — ACCEPTED then formally REJECTED as standalone in KB lines 32, 63, 75, 81, 95, 115, 118, 123; triaged as HOLD/conditional in valid-bugs.md |
+  - | **Q6 Not always-rejected?** | ⚠️ Borderline — valid hardening concern, not a standalone vuln |
+  - | **Q1 In scope?** | ❌ **NO** — scope.yml lists `apip.threema.ch` (production); `.test` staging variants are **not** listed. Per valid-bugs.md precedent, staging variants treated as out-of-scope |
+  - | **Q5 Novel?** | ❌ **NO** — ACCEPTED in KB lines 28-29, 61, 68, 93; triaged in valid-bugs.md |
+  - | **Q5 Novel?** | ❌ **NO** — ACCEPTED in KB lines 30-31, 62, 79, 101, 106, 125, 128-129, 132, 135, 138, 144, 151, 177, 184, 190-191, 193, 201, 205, 221; triaged as VALID in valid-bugs.md |
+  - | **Q7 Triager accept?** | ⚠️ LOW severity; accepted as valid but low |
+  - | **Q2 Reachable?** | ⚠️ PARTIAL — route presence confirmed via GET returning 200 JSON errors, but challenge-response still requires valid identity+secret |
+  - | **Q5 Novel?** | ❌ **NO** — ACCEPTED in KB lines 100, 105, 110, 112, 165, 176; triaged in valid-bugs.md |
