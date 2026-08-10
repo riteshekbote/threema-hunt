@@ -1,44 +1,4 @@
-## 2026-08-10 07:17:14 UTC [chat] (model bigpickle)
-[FINAL] 1. Identity→server-group→node attribution (conf 55) — grounded in this cycle's own DNS probes + KB split patterns; RAG + AUTH_HELPED chain concrete. 2. Cross-family site A/B topology (conf 50) — fully PASSIVE DNS verification.
-[NEXT] PROBE: complete the definitive chat map — enumerate ALL 256 `g-{00..ff}.0.threema.ch` A records at 1/s (DNS-only, ~4.5 min), verifying the sharp 0x7f/0x80 boundary holds with no wildcard answer and no third node; write the full shard→node table to `probe-results.md`. Open HUMAN ask unchanged: program-issued test identity (+ Work test license + backupId:backupKey) to run the framed CSP login against the now-predicted chat node and close the only remaining in-band chat lever.
-[LEARN] ACCEPTED OTHER @ g-*.0.threema.ch: chat shard→node DNS split precisely mapped — `g-{00..7f}`→203.56.112.202, `g-{80..ff}`→203.56.112.204, sharp 0x7f/0x80 boundary, direct A records, IPv4-only, no `.1` tier (own probes this cycle).
-[LEARN] ACCEPTED OTHER @ g-80.0.threema.ch (203.56.112.204): TCP 5222/443 connect with 0 bytes pushed — posture parity with node .202; prior "chat passive channel formally closed" (in-band) now verified for both prod nodes.
-[LEARN] ACCEPTED class @ OTHER (DNS-attribution recon on chat): the prior in-band closure does NOT exhaust chat recon; DNS-level shard/node attribution is a live passive surface.
-[RISK] chat: 55 — 256-shard map now fully attributable to 2 prod nodes (new), but in-band 443/5222 data-closed on both nodes, no cert/SAN, staging out of scope; only remaining lever is the AUTH_HELPED framed CSP login. | web: 50 — prod gated (401/403), broadcast key-oracle disproven, staging divergence confined to benign 299B /global/settings. | sync: 40 — mediator/rendezvous uniform 403 WSS-only; staging variants out of scope. | safe: 55 — credential-gated backup API with HSTS-header inconsistency + credentialed-CORS preflight; exposure only with creds. | desktop-src: 50 — Windows key-storage ACL bypass VALID (CVSS 5.5), sandbox/worker gap conditional; public source.
-[HYP] serverGroup→node attribution closeable end-to-end via program test identity
-class: OTHER
-asset: g-*.0.threema.ch (256 shards; 203.56.112.202 / 203.56.112.204)
-confidence: 60
-reasoning: 256-shard→2-node map now definitive and deterministic (sharp 0x7f/0x80). Source proves serverGroup is server-assigned at identity creation and stored client-side, so a test identity's keystorage reveals its exact group → g-XX.0 → exact node. Only unknown is a real identity's group value.
-evidence_needed: one program-issued test identity + its serverGroup value (from keystorage); successful framed CSP login to the predicted g-XX.0 host.
-verify_steps: AUTH_HELPED — read test identity's serverGroup from keystorage; resolve `g-{serverGroup}.0.threema.ch` (map already proves the IP); connect g-XX.0.threema.ch:5222 with the documented framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch); confirm predicted node accepts.
-impact: every Threema identity attributable to an exact physical node/IP from public DNS once its group is known → node-targeted recon, per-shard availability measurement, sharper fetch_bulk IDOR targeting. Severity: Low (recon; no in-band data).
-testability: AUTH_HELPED
-[HYP] IPv6-only edge path on dual-stack prod backends diverges from v4 filtering
-class: OTHER
-asset: safe-{01,1a,1b,02,00}.threema.ch / work.threema.ch / broadcast.threema.ch (AAAA 2a14:3e40:112:312::*)
-confidence: 40
-reasoning: All non-chat backends publish AAAA; chat and apip/api are v4-only. If edge WAF/rate-limit policy binds to v4 egress, a v6 path could bypass controls on the credential-gated safe API (HSTS-header inconsistency already confirmed on v4).
-evidence_needed: v6 GET to safe-01 AAAA endpoint returns different status/CORS/HSTS than v4 baseline.
-verify_steps: PASSIVE — from a v6-capable host: `curl -6 https://safe-01.threema.ch/backups/{64hex}` vs v4 400/11B baseline; diff status/HSTS/ACAO. Not executable from this environment (no v6 egress confirmed this cycle).
-impact: if divergent, bypass of edge controls → amplification of accepted safe/IDOR surface. Severity: Low-Medium (unverified).
-testability: PASSIVE
-[HYP] Legacy vhosts on edge .214 expose forgotten route table distinct from ds-apip
-class: OTHER
-asset: apip.threema.ch / api.threema.ch (203.56.112.214, IPv4-only)
-confidence: 40
-reasoning: Same IP as ds-apip but 404 on identity routes, no AAAA → separate virtual hosts, likely older generation (v4-only like chat). Route-set difference is observable and may include retired/forgotten endpoints.
-evidence_needed: a path returning ≠404 on apip/api that differs from ds-apip handling.
-verify_steps: PASSIVE — GET /identity/{id} + /identity/fetch_bulk + 5 challenge endpoints on apip/api vs ds-apip (already 404 vs 200); extend to /v1, /api, /status at ≤1 rps; diff status/size.
-impact: potential forgotten-endpoint exposure; otherwise only archival note. Severity: Low.
-testability: PASSIVE
-[HYP] Identity→serverGroup→node attribution fully closed end-to-end (static)
-class: OTHER
-asset: g-*.0.threema.ch (256 shards; .202/.204)
-confidence: 85
-reasoning: Full 256-shard map definitive (own probe, no holes/wildcard/third node). RAG on `stable` clone: `identityData.cspServerGroup` in keystorage inner v1/v3, `ensureServerGroup` = `[0-9a-zA-Z]+`; group space exactly 256 = hex 00..ff per DNS. Desktop `backend/join.ts:556` consumes it. Attribution = keystorage value → `g-XX.0.threema.ch` → node IP.
-evidence_needed: one program-issued test identity + its `cspServerGroup`; successful framed CSP login on predicted node.
-verify_steps: PASSIVE — chain already RAG-proven + DNS-proven. AUTH_HELPED — read test identity's cspServerGroup from keystorage; resolve `g-{group}.0.threema.ch` (IP from map); framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch) on :5222; confirm predicted node accepts.
+## 2026-08-10 08:32:45 UTC [chat] (model bigpickle)
 impact: any identity attributable to an exact physical node/IP (from keystorage or DNS alone); node-targeted recon, per-shard availability measurement, sharper fetch_bulk targeting. Severity: Low (recon; no in-band data).
 testability: AUTH_HELPED
 [HYP] Prod mediator/rendezvous 8-f shards co-resident with staging on .114/24 — cross-tenant adjacency + zone split

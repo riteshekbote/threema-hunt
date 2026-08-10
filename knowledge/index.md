@@ -320,3 +320,7 @@
 - 2026-08-10 REJECTED MISCONFIG @ threema-android SfuToken.kt:49: `sfuToken='********'` is proper redaction in toString() — security-positive, not a leak.
 - 2026-08-10 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain on GitHub stable. PoC artifact still absent from workspace.
 - 2026-08-10 NEW @ threema-android JoinResponse.kt:70: `toString()` includes `icePassword='$icePassword'` in plain text — potential logcat credential leak if object logged. Low value (local-only, short-lived ICE creds), requires runtime validation.
+- 2026-08-10 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain on GitHub stable. PoC artifact still absent from workspace (5th cycle).
+- 2026-08-10 REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 52a0af98… re-confirmed benchmark-only dummy — determineKdfParams() calibrates Argon2id, key purged at line 233.
+- 2026-08-10 NEW @ threema-android JoinResponse.kt:70: toString() leaks icePassword='$icePassword' — low value (local-only, short-lived ICE creds, needs runtime validation).
+- 2026-08-10 INTERESTING @ threema-ios ManuallyTests: test-only credential "shootdeathstar" (sha256 8d969eef…) — TEST_ONLY fixture, not a secret leak.

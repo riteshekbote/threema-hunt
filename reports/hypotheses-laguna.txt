@@ -1,14 +1,1 @@
-## 2026-08-10 07:07:04 UTC [desktop] (model laguna)
-[NEW] `poc/` directory — PoC artifact `poc/key-storage-acl-bypass-poc.js` is **NOT present** despite KB claiming "NOW GENERATED" (2026-08-10 04:31:00 UTC inventory claim). `ls poc/` returns "No such file or directory". This is the third cycle the claim has been made and disproven. The gap is open.
-[CHANGED] Desktop key-storage source verification — I independently WebFetched 7 files on GitHub `stable` and confirmed:
-[NEW] My own passive probes (≤1 rps, GET/POST) confirm network claims:
-[PRIO] ds-apip.threema.ch/identity/fetch_bulk, score 97, axes: attack=10, business=10, tech=8 (API/JSON/CSRF-exploitable endpoint), gate=10 (no auth), cloud=7 (3 identical prod hosts + staging), freshness=10
-[PRIO] threema-desktop key-storage Windows ACL bypass, score 95, axes: attack=10, business=9, tech=7 (SQLite/SQLCipher/crypto), gate=8 (local same-user access), cloud=0 (local), freshness=10
-[PRIO] safe-01.threema.ch/backups/{64hex}, score 72, axes: attack=8, business=7, tech=5 (CORS+BasicAuth+PUT/PATCH/DELETE methods), gate=6 (credential-gated), cloud=7 (5 hostnames single IP), freshness=8
-[HYP] Desktop key-storage Windows ACL bypass → identity private key + SQLCipher key
-class: MISCONFIG
-asset: `C:\Users\*\AppData\Roaming\ThreemaDesktop\data\{keystorage.bin, keystorage.password.bin, threema.sqlite}` (threema-desktop)
-confidence: 95
-reasoning: Independently WebFetch-verified on GitHub `stable`: `fileModeInternalObjectIfPosix()` returns `{}` on win32 (fs.ts); `_writeOrOverrideFile()` spreads `{}` → no ACL on keystorage.bin (key-storage/index.ts); STORE_USER_PASSWORD writes keystorage.password.bin with `{...fileModeInternalObjectIfPosix()}` = `{}` on win32 (electron-main.ts:1288-1293); inner schema exposes `identityData.ck` (Ed25519 privkey) + `databaseKey` (SQLite/SQLCipher) (inner/v3.ts:65-70); sqlcipher uses raw PRAGMA key with databaseKey, key purged after use (sqlite.ts:240). `poc/` artifact is claimed-but-missing in workspace — PoC must be (re)generated.
-evidence_needed: (a) Windows DACL audit showing 0 explicit ACEs on both .bin files; (b) DPAPI CryptUnprotectData on password blob → master password; (c) Argon2id → XSalsa20-Poly1305 decrypt → protobuf decode → ck + databaseKey; (d) sqlcipher PRAGMA key → decrypt message DB.
-verify_steps: RAG DONE this cycle (7 files WebFetch-verified on stable). AUTH_HELPED-LOCAL: `node poc/key-storage-acl-bypass-poc.js` (artifact absent — must be generated) on authorized Windows host with Threema Desktop 2.x + real profile. PASSIVE evidence: POST /preloaded → `POST https://ds-apip.threema.ch/identity/fetch_bulk` → 200 returns ECHOECHO pubkey only (confirmed via
+## 2026-08-10 08:34:25 UTC [desktop] (model laguna)

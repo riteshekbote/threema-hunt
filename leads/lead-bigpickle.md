@@ -6573,3 +6573,64 @@ evidence_needed: a billing/gateway path returning ≠301/302/404 that differs fr
 verify_steps: PASSIVE — GET /en, /api/v1, /ping, /info/ping.php, /v1 on billing/gateway at ≤1 rps; diff status/size vs baseline (billing 301/0B, gateway 302/0B).
 impact: forgotten/retired endpoint exposure on recovering edge; otherwise archival note. Severity: Low.
 testability: PASSIVE
+## 2026-08-10 08:32:45 UTC [chat] (model bigpickle)
+impact: any identity attributable to an exact physical node/IP (from keystorage or DNS alone); node-targeted recon, per-shard availability measurement, sharper fetch_bulk targeting. Severity: Low (recon; no in-band data).
+testability: AUTH_HELPED
+[HYP] Prod mediator/rendezvous 8-f shards co-resident with staging on .114/24 — cross-tenant adjacency + zone split
+class: OTHER
+asset: mediator-{8..f}.threema.ch / rendezvous-{8..f}.threema.ch (.114.247) / staging .114.{13,34,43,45}
+confidence: 70
+reasoning: Own census: mediator/rendezvous 0-7 → .112.247 (site A), 8-f → .114.247 (site B); staging ds-apip.test/.13, work.test/.43, broadcast.test/.45, chat/.34 all on .114. Nibble MSB split mirrors chat's 0x7f/0x80 byte-MSB split.
+evidence_needed: full 0-f enumeration of mediator/rendezvous A-records to confirm no exceptions; confirm no OTHER prod family resolves into .114 beyond mediator/rendezvous 8-f.
+verify_steps: PASSIVE — `dig` mediator-{0..f}/rendezvous-{0..f} A at 1 rps (16+16 queries), group by /24; diff single-site vs split-site families.
+impact: site/zone attribution for every in-scope backend; prod shards adjacent to staging networks (cross-tenant recon note). Severity: Low (recon).
+testability: PASSIVE
+[HYP] billing/gateway edge cold-start exposes fresh route table distinct from baseline gating
+class: OTHER
+asset: billing.threema.ch (.216) / gateway.threema.ch (.234) / shop.threema.ch (.216)
+confidence: 45
+reasoning: Baseline (2026-08-07) billing/gateway TIMEOUT; this cycle both respond (301→threema.ch / 302). Edge either failover-recovered or newly provisioned; route surface may differ from the 403/404 gate of other cockpit hosts.
+evidence_needed: a billing/gateway path returning ≠301/302/404 that differs from baseline posture.
+verify_steps: PASSIVE — GET /en, /api/v1, /ping, /info/ping.php, /v1 on billing/gateway at ≤1 rps; diff status/size vs baseline (billing 301/0B, gateway 302/0B).
+impact: forgotten/retired endpoint exposure on recovering edge; otherwise archival note. Severity: Low.
+testability: PASSIVE
+evidence_needed: v6 GET to safe-01 AAAA endpoint returns different status/CORS/HSTS than v4 baseline.
+verify_steps: PASSIVE — from a v6-capable host: `curl -6 https://safe-01.threema.ch/backups/{64hex}` vs v4 400/11B baseline; diff status/HSTS/ACAO. Not executable from this environment (no v6 egress confirmed this cycle).
+impact: if divergent, bypass of edge controls → amplification of accepted safe/IDOR surface. Severity: Low-Medium (unverified).
+testability: PASSIVE
+[HYP] Legacy vhosts on edge .214 expose forgotten route table distinct from ds-apip
+class: OTHER
+asset: apip.threema.ch / api.threema.ch (203.56.112.214, IPv4-only)
+confidence: 40
+reasoning: Same IP as ds-apip but 404 on identity routes, no AAAA → separate virtual hosts, likely older generation (v4-only like chat). Route-set difference is observable and may include retired/forgotten endpoints.
+evidence_needed: a path returning ≠404 on apip/api that differs from ds-apip handling.
+verify_steps: PASSIVE — GET /identity/{id} + /identity/fetch_bulk + 5 challenge endpoints on apip/api vs ds-apip (already 404 vs 200); extend to /v1, /api, /status at ≤1 rps; diff status/size.
+impact: potential forgotten-endpoint exposure; otherwise only archival note. Severity: Low.
+testability: PASSIVE
+[HYP] Identity→serverGroup→node attribution fully closed end-to-end (static)
+class: OTHER
+asset: g-*.0.threema.ch (256 shards; .202/.204)
+confidence: 85
+reasoning: Full 256-shard map definitive (own probe, no holes/wildcard/third node). RAG on `stable` clone: `identityData.cspServerGroup` in keystorage inner v1/v3, `ensureServerGroup` = `[0-9a-zA-Z]+`; group space exactly 256 = hex 00..ff per DNS. Desktop `backend/join.ts:556` consumes it. Attribution = keystorage value → `g-XX.0.threema.ch` → node IP.
+evidence_needed: one program-issued test identity + its `cspServerGroup`; successful framed CSP login on predicted node.
+verify_steps: PASSIVE — chain already RAG-proven + DNS-proven. AUTH_HELPED — read test identity's cspServerGroup from keystorage; resolve `g-{group}.0.threema.ch` (IP from map); framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch) on :5222; confirm predicted node accepts.
+impact: any identity attributable to an exact physical node/IP (from keystorage or DNS alone); node-targeted recon, per-shard availability measurement, sharper fetch_bulk targeting. Severity: Low (recon; no in-band data).
+testability: AUTH_HELPED
+[HYP] Prod mediator/rendezvous 8-f shards co-resident with staging on .114/24 — cross-tenant adjacency + zone split
+class: OTHER
+asset: mediator-{8..f}.threema.ch / rendezvous-{8..f}.threema.ch (.114.247) / staging .114.{13,34,43,45}
+confidence: 70
+reasoning: Own census: mediator/rendezvous 0-7 → .112.247 (site A), 8-f → .114.247 (site B); staging ds-apip.test/.13, work.test/.43, broadcast.test/.45, chat/.34 all on .114. Nibble MSB split mirrors chat's 0x7f/0x80 byte-MSB split.
+evidence_needed: full 0-f enumeration of mediator/rendezvous A-records to confirm no exceptions; confirm no OTHER prod family resolves into .114 beyond mediator/rendezvous 8-f.
+verify_steps: PASSIVE — `dig` mediator-{0..f}/rendezvous-{0..f} A at 1 rps (16+16 queries), group by /24; diff single-site vs split-site families.
+impact: site/zone attribution for every in-scope backend; prod shards adjacent to staging networks (cross-tenant recon note). Severity: Low (recon).
+testability: PASSIVE
+[HYP] billing/gateway edge cold-start exposes fresh route table distinct from baseline gating
+class: OTHER
+asset: billing.threema.ch (.216) / gateway.threema.ch (.234) / shop.threema.ch (.216)
+confidence: 45
+reasoning: Baseline (2026-08-07) billing/gateway TIMEOUT; this cycle both respond (301→threema.ch / 302). Edge either failover-recovered or newly provisioned; route surface may differ from the 403/404 gate of other cockpit hosts.
+evidence_needed: a billing/gateway path returning ≠301/302/404 that differs from baseline posture.
+verify_steps: PASSIVE — GET /en, /api/v1, /ping, /info/ping.php, /v1 on billing/gateway at ≤1 rps; diff status/size vs baseline (billing 301/0B, gateway 302/0B).
+impact: forgotten/retired endpoint exposure on recovering edge; otherwise archival note. Severity: Low.
+testability: PASSIVE
