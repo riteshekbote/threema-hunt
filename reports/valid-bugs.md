@@ -485,3 +485,25 @@
   - | Q2 Attacker-reachable | **PARTIAL** — CORS enables credentialed cross-origin requests, but attacker still needs valid backupId:backupKey |
   - | 1 | Identity→pubkey mass enumeration (fetch_bulk, no rate limit, CORS *) | IDOR | **VALID** | 5.3 MED |
   - | 2 | Desktop Windows key-storage ACL bypass | MISCONFIG | **VALID** (HUMAN_ONLY PoC) | 8.1 HIGH |
+
+- 21 lead(s) marked VALID at 2026-08-10 22:26:04 UTC
+  - | Q3 Real impact? | **YES** — mass valid-ID + pubkey harvesting at ~10k IDs/request, no rate limit, cross-origin readable |
+  - | Q4 Passive proof? | **YES** — `GET /identity/ECHOECHO`→200, `/identity/ZZZZZZZZ`→404; `POST /identity/fetch_bulk`→200 with only valid pubkey; 35× sequential POSTs all 200, zero 429 |
+  - | Q5 Novel? | **NO** — already ACCEPTED as Finding #1 in `valid-bugs.md` since 2026-08-07; triaged in every prior cycle |
+  - ### Verdict: **VALID (duplicate)**
+  - | Q5 Novel? | **NO** — already ACCEPTED as Finding #2 in `valid-bugs.md` |
+  - ### Verdict: **VALID (duplicate)**
+  - | Q3 Real impact? | **NO** — credential-gated (400, not 200). No unauthenticated data access demonstrated. CORS `*` + Allow-Headers: Authorization only matters if attacker already has valid `backupId:
+  - | Q4 Passive proof? | **PARTIAL** — can confirm CORS headers + 400; cannot confirm data access without valid creds |
+  - | Q7 Triager accept? | **NO** — no data access without valid credentials |
+  - | Q5 Novel? | **NO** — already ACCEPTED as Finding #4 in `valid-bugs.md` |
+  - ### Verdict: **VALID (duplicate, low severity)**
+  - | Q3 Real impact? | **LOW** — route-presence + parameter-validation oracle only; challenge-response still requires valid identity+secret |
+  - | Q5 Novel? | **NO** — already ACCEPTED as Finding #5 in `valid-bugs.md` |
+  - ### Verdict: **VALID (duplicate, low severity)**
+  - | Q2 Reachable? | **AUTH_HELPED** — returns 401 on all paths; requires valid Work license |
+  - | Q4 Passive proof? | **NO** — requires AUTH_HELPED with valid Work credentials |
+  - | Q5 Novel? | **YES** — not previously triaged as valid vuln; only hypothesized (TWRK-1633) |
+  - ### Verdict: **HOLD** — OpenAPI flags endpoint "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Retain for program-provided test credentials.
+  - | Q2 Reachable? | **AUTH_HELPED** — passive only confirms CORS posture; data access requires valid `backupId:backupKey` |
+  - | Q4 Passive proof? | **NO** — requires valid credentials |
