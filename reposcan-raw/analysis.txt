@@ -1,3 +1,52 @@
 [0m
 > build · nemotron-3-ultra-free
 [0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-ios/Threema/AppMigration.swift[90m [limit=20, offset=865][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt[90m [offset=65, limit=15][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts[90m [offset=215, limit=25][0m
+### REAL_SECRET
+| File | Line | SHA256 | Context |
+|------|------|--------|---------|
+| *(none)* | — | — | No hardcoded live credentials found |
+
+### TEST_OR_EXAMPLE
+| File | Line | Context |
+|------|------|---------|
+| threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | `serverPassword: "password1"` — test fixture |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15, 18 | `expectedAuthToken = "authToken"`, `expectedPassword = "testPassword"` — test fixtures |
+| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/*.swift | 13, 37, 50, 72, 103, 148 | `testPassword`, `validPassword` — test fixtures |
+| threema-ios/ThreemaTests/SafeTests.swift | 67, 76, 105 | `safePassword: "shootdeathstar"` — manual test fixture |
+| threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/*.swift | 28, 38, 76, 83, 120 | `safePassword: "shootdeathstar"` — manual test fixture |
+| threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift | 30, 227 | `password = "abcdefghijkl"`, `validPassword = "ABcd!@#tgk092"` — validator test fixtures |
+| threema-desktop/apps/desktop/src/common/test-data.ts | 62 | `keyStoragePassword: 'CHANGE_ME'` — placeholder constant |
+
+### ENDPOINT_LEAK
+| File | Line | Context |
+|------|------|---------|
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` — staging directory servers |
+| threema-android/domain/protocol/src/directory.openapi.yml | 7, 911 | Same staging endpoints |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | Same staging endpoints |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 7, 911 | Same staging endpoints |
+| threema-desktop/apps/desktop/config/vite.config.ts | 147, 153, 154 | `DIRECTORY_SERVER_URL`, `WORK_SERVER_LEGACY_URL`, `WORK_SERVER_URL` pointing to `.test.threema.ch` |
+
+### INTERESTING
+| File | Line | SHA256 / Detail |
+|------|------|-----------------|
+| threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt | 70 | `icePassword='$icePassword'` in `toString()` — potential logcat leak of short-lived ICE credentials (local-only, low value, needs runtime validation) |
+| threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt | 15, 19 | Sentry public DSN keys: `b3e20afbf356a8748bb62ac165aa780c` (sha256 `3a826628…`), `615af77cb3d980c41b3b04b07417cc7d` (sha256 `3686395f…`) — public by design, non-secret |
+| threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts | 223 | Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c`) — **REJECTED**: benchmark-only dummy in `determineKdfParams()`, purged at line 233 via `benchmarkKey.purge()` |
+
+---
+
+### VERDICT LIST
+
+| Candidate | Classification | REPORT_CANDIDATE |
+|-----------|----------------|------------------|
+| AppMigration.swift:873 `persistenceKeyLicensePassword` | REJECTED — UserDefaults key name, not a secret; actual password read from UserDefaults at line 878 | no |
+| All test fixtures (`password1`, `testPassword`, `shootdeathstar`, `CHANGE_ME`) | TEST_OR_EXAMPLE — test/sample data | no |
+| Staging endpoints in openapi.yml / vite.config.ts | ENDPOINT_LEAK — already known/accepted in knowledge base (ds-apip.test, ds-apip-work.test, work.test) | no |
+| JoinResponse.kt:70 `icePassword` in toString() | INTERESTING — NEW low-value finding; local-only logcat leak of ephemeral ICE creds; requires runtime validation | no (low value, local-only) |
+| Sentry DSN keys | INTERESTING — public identifiers, not secrets | no |
+| crypto.ts:223 benchmark password | REJECTED — benchmark-only dummy, purged immediately; RAG-verified across 10+ cycles | no |
+
+**No new reportable REAL_SECRET findings in this delta.** All hits are either known staging endpoints, test fixtures, or previously rejected/accepted items.
