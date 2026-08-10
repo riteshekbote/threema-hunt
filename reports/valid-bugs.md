@@ -400,3 +400,6 @@
   - | 2 | Desktop Windows key-storage ACL bypass (keystorage.bin no ACL) | **VALID (dup)** | Already reported. CVSS 5.5 |
   - | 4 | Safe backup HSTS/Expect-CT header inconsistency | **VALID (dup, low)** | Already reported. CVSS 3.1 |
   - | 5 | Challenge-response parameter-validation oracles | **VALID (dup, low)** | Already reported. CVSS 3.7 |
+
+- 1 lead(s) marked VALID at 2026-08-10 05:03:45 UTC
+  - | **VALID** | 4 | All duplicates of previously reported findings |
