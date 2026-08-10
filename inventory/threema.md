@@ -1044,3 +1044,13 @@
 - NEW No `.1` group tier: `g-{00,7f,80,ff}.1.threema.ch` → NXDOMAIN (only `.0` tier exists; 256 groups total).
 - NEW No AAAA/CNAME on chat shards — IPv4-only, direct-A mapping (no LB aliasing at DNS layer).
 - CHANGED Prior "chat passive channel formally closed" now bounded to in-band 443/5222 data only; DNS-attribution recon on chat was NOT exhausted (this cycle proves a new surface).
+
+## 2026-08-10 07:17:31 UTC
+- NEW `g-{00,7f,80,ff}.1.threema.ch` → NXDOMAIN — no `.1` group tier exists on chat shards (only `.0` tier; 256 groups total)
+- NEW Chat shards IPv4-only, direct A records — no AAAA/CNAME on `g-*.0.threema.ch` (no LB aliasing at DNS layer)
+- CHANGED `poc/key-storage-acl-bypass-poc.js` — PoC artifact status contradictory: KB claims present, last leads report `ls poc/` returns "POC_DIR_ABSENT", inventory claims NOW GENERATED then gap REOPENS
+- NEW `poc/` directory — PoC artifact `poc/key-storage-acl-bypass-poc.js` is **NOT present** despite KB claiming "NOW GENERATED" (2026-08-10 04:31:00 UTC inventory claim). `ls poc/` returns "No such file or
+- CHANGED Desktop key-storage source verification — I independently WebFetched 7 files on GitHub `stable` and confirmed:
+- NEW My own passive probes (≤1 rps, GET/POST) confirm network claims:
+- CHANGED poc/ directory: confirmed STILL ABSENT via `ls` — KB claim "NOW GENERATED" is false; PoC artifact gap persists
+- NEW threema-android JoinResponse.kt:70 — `toString()` leaks `icePassword='$icePassword'` in plain text (potential logcat credential leak)

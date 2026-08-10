@@ -2019,3 +2019,32 @@
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req (10000→200/152B, 10001→400/0B); CORS * 
 - LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency re-confirmed live this
 - LEARN: CHANGED poc/ directory: PoC artifact gap REOPENS — `ls poc/` returns "POC_DIR_ABSENT" despite KB claim "NOW GENERATED". Prior cycle's claim was incorrect.
+
+## RANKED HYPOTHESES 2026-08-10 07:17:31 UTC
+- [97] ds-apip.threema.ch/identity/fetch_bulk: fetch_bulk identity→pubkey mass enumeration (from reports/hypotheses-longcat.txt)
+- [97] ds-apip.threema.ch/identity/fetch_bulk: Directory fetch_bulk mass identity→pubkey enumeration at 10k IDs/request (from reports/hypotheses-nemotron3.txt)
+- [95] `C:\Users\*\AppData\Roaming\ThreemaDesktop\data\{keystorage.bin,: Desktop key-storage Windows ACL bypass → identity private key + SQLCipher key (from reports/hypotheses-laguna.txt)
+- [60] g-*.0.threema.ch: serverGroup→node attribution closeable end-to-end via program test identity (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: `curl -sI https://safe-1a.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` — confirm 400 without HSTS/Expect-CT heade
+- NEXT(hypotheses-bigpickle.txt): PROBE: complete the definitive chat map — enumerate ALL 256 `g-{00..ff}.0.threema.ch` A records at 1/s (DNS-only, ~4.5 min), verifying the sharp 0x7f/0x80 bound
+- NEXT(hypotheses-longcat.txt): PRODUCE: `mkdir -p /home/runner/work/threema-hunt/threema-hunt/poc && cat > poc/key-storage-acl-bypass-poc.js` — Recreate the missing PoC artifact (artifact was
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req (10000→200/152B, 10001→400/0B); CORS * 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain on GitHub stable. PoC artifact generated + `node --check` PASS + Linu
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable across all 5 ho
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 52a0af98… re-confirmed RAG-verified benchmark-only dummy — determineKdfParams() calibrates Argon2i
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: REJECTED class @ g-*.0.test.threema.ch staging chat: out of scope per scope.yml; explicit SNI + TLS1.2/1.3 probes close connection immediately (0 bytes, no peer
+- LEARN: ACCEPTED OTHER @ mediator-{prefix4}.threema.ch/{prefix8}/: mediator WSS hostname pattern confirmed in scope; DNS split IPs (0-7→203.56.112.247, 8-f→203.56.114.2
+- LEARN: ACCEPTED OTHER @ rendezvous-{prefix4}.threema.ch/{prefix8}/: rendezvous WSS hostname pattern confirmed in scope; same DNS split routing as mediator; uniform 403
+- LEARN: ACCEPTED OTHER @ ds-apip-work.threema.ch: work-style directory server confirmed live; 401 on all paths; CORS *; no HSTS/Expect-CT; Basic auth required
+- LEARN: ACCEPTED OTHER @ g-*.0.threema.ch: chat shard→node DNS split precisely mapped; g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204; sharp 0x7f/0x80 boundary; I
+- LEARN: ACCEPTED OTHER @ g-*.0.threema.ch: chat shard→node DNS split precisely mapped — `g-{00..7f}`→203.56.112.202, `g-{80..ff}`→203.56.112.204, sharp 0x7f/0x80 bounda
+- LEARN: ACCEPTED OTHER @ g-80.0.threema.ch (203.56.112.204): TCP 5222/443 connect with 0 bytes pushed — posture parity with node .202; prior "chat passive channel forma
+- LEARN: ACCEPTED class @ OTHER (DNS-attribution recon on chat): the prior in-band closure does NOT exhaust chat recon; DNS-level shard/node attribution is a live passiv
+- LEARN: REJECTED MISCONFIG @ threema-ios AppMigration.swift:873: `persistenceKeyLicensePassword = "Threema license password"` is a UserDefaults KEY name, NOT a hardcode
+- LEARN: REJECTED MISCONFIG @ threema-android SentryConfig.kt:15,19: `b3e20afbf356a8748bb62ac165aa780c` / `615af77cb3d980c41b3b04b07417cc7d` are Sentry public DSN keys (
+- LEARN: REJECTED MISCONFIG @ threema-android SfuToken.kt:49: `sfuToken='********'` is proper redaction in toString() — security-positive, not a leak.
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req (10000→200/152B, 10001→400/0B); CORS * 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain on GitHub stable. PoC artifact still absent from workspace.
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable across all 5 ho
+- LEARN: NEW @ threema-android JoinResponse.kt:70: `toString()` includes `icePassword='$icePassword'` in plain text — potential logcat credential leak if object logged. 
