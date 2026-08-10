@@ -569,3 +569,9 @@ https://work.test.threema.ch/cache/work_public.js` -> HTTP 404
 https://ds-apip-work.threema.ch/identities -> HTTP 401
 https://ds-apip-work.threema.ch/identities` -> HTTP 401
 https://safe-1a.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` -> HTTP 400
+
+## 2026-08-10 15:58:39 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-1a.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` -> HTTP 400
+https://hstspreload.org/?domain=safe-1a.threema.ch -> 200 len=15809 type=text/html; charset=utf-8

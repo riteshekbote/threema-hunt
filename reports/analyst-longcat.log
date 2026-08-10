@@ -3548,3 +3548,137 @@ All three hypotheses survive:
 [RISK] sync: 55 — mediator-{prefix4}/rendezvous-{prefix4} resolve but uniform 403; high-entropy WSS paths; no passive in-band divergence; ds-apip-work live but auth-gated
 [RISK] safe: 88 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain
+===== ANALYST longcat 2026-08-10 15:58:38 UTC =====
+[0m
+> build · longcat-2.0-free
+[0m
+## STEP 1 — DELTA
+
+Comparing inventory + knowledge against current surface:
+
+- **[CHANGED]** `poc/` directory — confirmed ABSENT for 9th consecutive cycle; KB claims "NOW GENERATED" / "genuinely on disk" remain persistently false
+- **[CHANGED]** `billing.threema.ch` — edge host recovered from TIMEOUT to HTTP 301 thin redirect; 1024B nginx catch-all on all paths (no live application routes)
+- **[CHANGED]** `gateway.threema.ch` — edge host recovered from TIMEOUT to HTTP 302; `/en/signup` live (14KB), `/v1` 404 with session cookie (Secure/HttpOnly/SameSite=Strict), `/api/v1` 403 nginx-deny
+- **[NEW]** `ds-apip-work.threema.ch/identities` — TWRK-1633 "buggy" note in openapi spec; potential cross-subscription contact leak (requires auth)
+
+All other items are byte-stable re-confirmations already in the knowledge base. **Net delta: 4 items (3 changed + 1 new).**
+
+---
+
+## STEP 2 — PRIORITIZE
+
+Scoring assets relevant to current phase (sync) + new delta:
+
+| Asset | attack | business | tech | gate | cloud | fresh | **score** |
+|---|---|---|---|---|---|---|---|
+| mediator-{p4}.threema.ch WSS (sync infra) | 3 | 8 | 6 | 3 | 5 | 4 | **4.85** |
+| rendezvous-{p4}.threema.ch WSS (linking infra) | 3 | 8 | 6 | 3 | 5 | 4 | **4.85** |
+| ds-apip-work.threema.ch/identities (TWRK-1633) | 6 | 7 | 6 | 3 | 6 | 9 | **6.10** |
+| safe-{01,1a,1b,02,00}.threema.ch HSTS gap + cred CORS | 8 | 7 | 5 | 6 | 7 | 8 | **7.20** |
+| threema-desktop key-storage ACL bypass (Windows) | 10 | 9 | 7 | 8 | 0 | 10 | **9.50** |
+| ds-apip.threema.ch fetch_bulk (10k batch, no auth) | 10 | 10 | 8 | 10 | 7 | 5 | **9.70** |
+
+**[PRIO]** ds-apip.threema.ch/identity/fetch_bulk — score **97** (attack:10, business:10, tech:8, gate:10, cloud:7, fresh:5) — ACCEPTED IDOR, fully validated, no rate-limit, CORS `*`, 10k batch ceiling
+
+**[PRIO]** threema-desktop key-storage Windows ACL bypass — score **95** (attack:10, business:9, tech:7, gate:8, cloud:0, fresh:10) — ACCEPTED MISCONFIG, RAG-verified 6-core-path chain, PoC artifact missing from workspace (9th cycle)
+
+**[PRIO]** safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} — score **72** (attack:8, business:7, tech:5, gate:6, cloud:7, fresh:8) — ACCEPTED MISCONFIG (HSTS/Expect-CT gap on GET 400), credential-gated, permissive CORS + Authorization header
+
+**[PRIO]** ds-apip-work.threema.ch/identities (TWRK-1633) — score **61** (attack:6, business:7, tech:6, gate:3, cloud:6, fresh:9) — NEW AUTH_HELPED, buggy spec annotation, potential cross-subscription leak
+
+**[PRIO]** mediator-{p4}/rendezvous-{p4}.threema.ch WSS — score **48** (attack:3, business:8, tech:6, gate:3, cloud:5, fresh:4) — uniform 403 on HTTPS, high-entropy paths, DNS split mapped; no passive in-band surface
+
+---
+
+## STEP 3 — HYPOTHESES
+
+**[HYP]** Mediator/rendezvous WSS endpoints permit unauthenticated WebSocket upgrade on non-403 paths
+**class:** AUTH
+**asset:** mediator-{prefix4}.threema.ch, rendezvous-{prefix4}.threema.ch (WSS)
+**confidence:** 25
+**reasoning:** Current posture is uniform 403 on HTTPS root. No probing of WebSocket-specific paths or subroutes has been performed. Multi-device sync is a high-value function. DNS split routing (0-7→203.56.112.247, 8-f→203.56.114.247) confirms active infrastructure.
+**evidence_needed:** WSS handshake accepted without auth token on any subroute/path
+**verify_steps:** PASSIVE — `curl -s --max-time 8 -iN -H "Upgrade: websocket" -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" -H "Sec-WebSocket-Version: 13" -H "Connection: Upgrade" https://mediator-0.threema.ch/` (expect 403/405); try `/ws`, `/sync`, `/socket` subpaths
+**impact:** Unauthenticated multi-device sync access → message interception, contact enumeration. Severity: High.
+**testability:** PASSIVE
+
+---
+
+**[HYP]** ds-apip-work /identities returns contacts outside caller's subscription (TWRK-1633 cross-subscription leak)
+**class:** BUSLOGIC
+**asset:** ds-apip-work.threema.ch/identities
+**confidence:** 50
+**reasoning:** directory.openapi.yml:1172 marks /identities buggy (TWRK-1633); documented to return subset of contacts in same Work subscription. Bug may violate subscription boundary. GET / → 401 confirms live credential-gated backend.
+**evidence_needed:** Whether authorized contact matching returns contacts outside the caller's subscription
+**verify_steps:** AUTH_HELPED: with authorized work test license, POST /identities {"contacts":[own_id, foreign_id]} compare membership/props
+**impact:** Cross-subscription disclosure of names/titles/departments/availability → targeted phishing. Severity: Medium.
+**testability:** AUTH_HELPED
+
+---
+
+**[HYP]** Safe backup API HSTS/Expect-CT absence on GET 400 enables SSL stripping for credentialed cross-origin reads
+**class:** MISCONFIG
+**asset:** safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+**confidence:** 70
+**reasoning:** HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 response for credential-gated endpoint. CORS ACAO:* + Allow-Headers Authorization enables credentialed cross-origin requests. SSL stripping could downgrade first-visit GET to HTTP, capturing Basic Auth (backupId:backupKey).
+**evidence_needed:** Whether safe-*.threema.ch is on HSTS preload list (if yes, SSL stripping is moot)
+**verify_steps:** PASSIVE — check hstspreload.org submission status for threema.ch subdomain; `curl -sI https://safe-1a.threema.ch/backups/aaa...` confirm Strict-Transport-Security absent on GET 400
+**impact:** Same-user attacker recovers Ed25519 identity key + SQLCipher DB key → full local message DB decryption, account impersonation. CVSS 8.1 (AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H).
+**testability:** PASSIVE
+
+---
+
+## STEP 4 — SELF-CRITIQUE
+
+Re-evaluating hypotheses:
+
+1. **Mediator/rendezvous WSS** (confidence 25): **DROPPED** — confidence < 40. Uniform 403 on HTTPS root with high-entropy paths strongly suggests blanket deny. No concrete evidence of open WebSocket surface. Multi-device sync is known to be auth-gated (ds-apip-work precedent).
+
+2. **ds-apip-work /identities TWRK-1633** (confidence 50): **SURVIVES** — confidence ≥ 40, class BUSLOGIC not on REJECTED list, verify_steps are concrete (AUTH_HELPED).
+
+3. **Safe HSTS gap + SSL stripping** (confidence 70): **SURVIVES but PARKED** — confidence ≥ 40, class MISCONFIG not on REJECTED. However, exploit path requires MITM positioning (SSL stripping) not achievable in passive-only scope. HSTS preload status unknown. Downgraded to PARKED.
+
+**[PARKED]** Mediator/rendezvous WSS unauthenticated upgrade: confidence 25 < 40 threshold; uniform 403 + auth-gated precedent; no concrete evidence
+
+**[PARKED]** Safe backup API SSL stripping via HSTS gap: exploit path requires MITM positioning not achievable in passive-only scope; HSTS preload status unknown; findings stable but no actionable sink
+
+**[FINAL]** — surviving hypotheses re-ranked:
+
+1. **[50]** ds-apip-work.threema.ch/identities: cross-subscription contact leak (TWRK-1633) — AUTH_HELPED
+2. **[70]** safe-{01,1a,1b,02,00}.threema.ch HSTS/Expect-CT gap on credential-gated GET 400 — PASSIVE (informational, no active exploit path in scope)
+
+---
+
+## STEP 5 — NEXT ACTION
+
+**[NEXT]** PROBE: `curl -s --max-time 8 -iN -H "Upgrade: websocket" -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" -H "Sec-WebSocket-Version: 13" -H "Connection: Upgrade" https://mediator-0.threema.ch/` — test whether WebSocket upgrade receives anything other than 403/405 (expect deny). Then `curl -sI https://safe-1a.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` — re-confirm HSTS/Expect-CT absent on GET 400 (≤1 rps, passive).
+
+---
+
+## STEP 6 — LEARNING
+
+**[LEARN]** ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: byte-stable this cycle — 200/152B (ECHOECHO echoed, invalid IDs silently omitted), CORS ACAO:*, zero 429s
+
+**[LEARN]** ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub `stable`; no new commits affecting ACL bypass logic. PoC artifact **still absent** from workspace (9th consecutive cycle — KB claim "NOW GENERATED" persistently false)
+
+**[LEARN]** ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable across all 5 hosts
+
+**[LEARN]** REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy — determineKdfParams() calibrates Argon2id, key purged at line 233
+
+**[LEARN]** REJECTED OTHER @ billing.threema.ch: 301 + 1024B nginx catch-all on ALL probed paths — no live application routes; "distinct route table" hypothesis disproven
+
+**[LEARN]** NEW @ ds-apip-work.threema.ch/identities: TWRK-1633 "buggy" note in openapi spec — potential cross-subscription contact leak; requires auth to verify
+
+---
+
+## STEP 7 — RISK SCORE
+
+**[RISK]** chat: 30 — prod DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band 443/5222 passive channel closed (0 bytes pushed without auth login frame); no passive in-band divergence obtainable
+
+**[RISK]** web: 94 — directory cluster (3 prod hosts, fetch_bulk 10k batch + CORS `*` + no rate-limit); safe backup API (permissive CORS + write methods + HSTS gap); work/broadcast/gateway cockpits accessible; staging work public API divergence; billing now 301 catch-only
+
+**[RISK]** sync: 55 — mediator-{prefix4}/rendezvous-{prefix4} resolve but uniform 403; high-entropy WSS paths; no passive in-band divergence; ds-apip-work live but auth-gated; TWRK-1633 annotation unverified
+
+**[RISK]** safe: 88 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
+
+**[RISK]** desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain

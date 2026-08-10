@@ -2248,3 +2248,8 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 52a0af98… re-confirmed benchmark-only dummy — determineKdfParams() calibrates Argon2id, key purged
 - LEARN: REJECTED OTHER @ billing.threema.ch: 301 + 1024B nginx catch-all on ALL probed paths — no live application routes; "distinct route table" hypothesis disproven.
 - LEARN: NEW @ ds-apip-work.threema.ch/identities: TWRK-1633 "buggy" note in openapi spec — potential cross-subscription contact leak; requires auth to verify.
+
+## RANKED HYPOTHESES 2026-08-10 15:58:38 UTC
+- [98] ds-apip.threema.ch/identity/fetch_bulk: fetch_bulk mass identity→pubkey enumeration (10000 IDs/req, no auth, cross-origin readable) (from reports/hypotheses-laguna.txt)
+- [50] ds-apip-work.threema.ch/identities: /identities (TWRK-1633 "buggy") leaks work-directory metadata cross-subscription (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-laguna.txt): PROBE: `find . -name "key-storage-acl-bypass-poc*" 2>/dev/null` + `ls -la poc/ 2>&1` (confirm artifact genuinely absent, resolving KB false-positive) — simultan
