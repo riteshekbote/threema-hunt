@@ -6722,3 +6722,32 @@ testability: PASSIVE
 [HYP] threema-desktop key-storage KDF parameter weakness
 class: OTHER
 asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/key-storage/crypto.ts)
+## 2026-08-10 11:48:35 UTC [chat] (model bigpickle)
+[HYP] Recovered billing edge serves a route table distinct from baseline gating
+class: OTHER
+asset: billing.threema.ch
+confidence: 55
+reasoning: Baseline 08-07 TIMEOUT; this cycle GET / → 301 (0B), all probed paths → 404 (1024B catch-all) except /info/ping.php → 404 (146B). Edge up behind thin nginx catch-all; full route table unknown.
+evidence_needed: any billing path returning ≠301/404 or differing from the 1024B catch-all (200/401/redirect to real app).
+verify_steps: PASSIVE — GET /en/login, /signup, /admin, /api/health, /healthz, /status at ≤1 rps; diff status/size vs 1024B catch-all baseline.
+impact: forgotten/retired endpoint exposure on recovering billing backend; archival otherwise. Severity: Low.
+testability: PASSIVE
+[HYP] /identities (TWRK-1633 "buggy") leaks work-directory metadata cross-subscription
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 50
+reasoning: directory.openapi.yml:1172 marks /identities buggy (TWRK-1633); returns "subset of provided contacts in same Work subscription" + work props (first/last name, jobTitle, department, availability). GET / → 401 confirms live credential-gated backend (own probe).
+evidence_needed: whether contact matching returns contacts outside the caller's subscription once authorized.
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities {contacts:[own+foreign IDs]} compare membership/props; probe /directory pagination bounds (page/size, wildcards).
+impact: cross-subscription disclosure of names/titles/departments/availability → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[HYP] gateway app catch-all (2628B 404) exposes distinct route surface from nginx-deny tier
+class: OTHER
+asset: gateway.threema.ch
+confidence: 45
+reasoning: /en/signup → 200 (14333B live app) recorded 08-09 and re-confirmed; /api/v1 → 403 (146B nginx deny) vs /v1,/ping → 404 (2628B) vs /info/ping.php → 404 (146B) — three distinct fingerprints. msgapi not exposed on host per prior cycles.
+evidence_needed: an endpoint under the app catch-all returning ≠404/403 (trailing-slash, casing, or /api/v1/* variants).
+verify_steps: PASSIVE — GET /en/signup body for JS bundle/stack fingerprints; GET /api/v1/, /v1/, /v1/send, /api/v1/send at ≤1 rps.
+impact: stack/route disclosure enabling targeted probing of msgapi backend. Severity: Low.
+testability: PASSIVE
+[NEXT] PROBE: `curl -s -o /dev/null -w "%{http_code} size=%{size_download}" --max-time 8 -k https://billing.threema.ch/{en/login,en/signup,admin,api/health,healthz,status}` at ≤1 rps — first response diverging from the 1024B 404 catch-all or 301 marks a live route on the recovered billing edge.

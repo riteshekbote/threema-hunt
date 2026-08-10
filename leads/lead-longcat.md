@@ -638,3 +638,4 @@ testability: AUTH_HELPED
 [PRIO] threema-desktop key-storage (Windows ACL bypass) — score 7.60 (attack:7, business:8, tech:7, gate:5, cloud:3, fresh:9) — ALREADY VALIDATED + REPORTED
 [PRIO] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} — score 6.80 (attack:8, business:9, tech:7, gate:3, cloud:7, fresh:4) — PARKED (needs creds)
 [PRIO] billing.threema.ch / gateway.threema.ch (edge recovery) — score 3.80 (attack:2, business:
+## 2026-08-10 11:46:04 UTC [sync] (model longcat)
