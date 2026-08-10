@@ -1109,3 +1109,16 @@
 - CHANGED billing.threema.ch: 301 + 1024B nginx catch-all on ALL probed paths (/en/login, /en/signup, /admin, /api/health, /healthz, /status → 404/1024B; /info/ping.php → 404/146B) — no live application routes;
 - CHANGED gateway.threema.ch: posture unchanged from 08-09 — /en/signup 200/14333B, /api/v1 403/146B nginx-deny, /v1 404/2628B app catch-all; no new routes
 - CHANGED poc/ directory: still ABSENT (8th consecutive cycle); KB claims "NOW GENERATED" persistently false
+
+## 2026-08-10 14:05:18 UTC
+- NEW billing.threema.ch now responds HTTP 301 (redirect to threema.ch) vs baseline TIMEOUT — edge host posture changed
+- NEW gateway.threema.ch now responds HTTP 302 (to /en) vs baseline TIMEOUT — edge host posture changed; `/v1` returns 404 with session cookie set
+- NEW gateway.threema.ch/v1 returns 404 with Set-Cookie: SESSIONID=...; Secure; HttpOnly; SameSite=Strict on unauthenticated GET
+- NEW threema-android JoinResponse.kt:70 — `toString()` leaks `icePassword='$icePassword'` in plain text (potential logcat credential leak, short-lived ICE creds)
+- NEW threema-ios ManuallyTests — test-only credential "shootdeathstar" (sha256 `8d969eef...`) in safe upload/download fixtures — TEST_ONLY, INTERESTING non-finding
+- NEW threema-android SentryConfig.kt:15,19 — Sentry public DSN keys (sha256 `3a826628...` + `3686395f...`) — public by design, INTERESTING non-finding
+- NEW g-{00,7f,80,ff}.1.threema.ch → NXDOMAIN — no `.1` group tier exists on chat shards (only `.0` tier; 256 groups total)
+- NEW Chat shards IPv4-only, direct A records — no AAAA/CNAME on `g-*.0.threema.ch` (no LB aliasing at DNS layer)
+- CHANGED billing.threema.ch: 301 + 1024B nginx catch-all on ALL probed paths (/en/login, /en/signup, /admin, /api/health, /healthz, /status, /metrics, /actuator/health → 404/1024B; /info/ping.php → 404/146B) —
+- CHANGED gateway.threema.ch: posture unchanged from 08-09 — /en/signup 200/14KB, /api/v1 403/146B nginx-deny, /v1 404/2.6KB app catch-all with session cookie; no new routes
+- CHANGED poc/ directory: still ABSENT (8th consecutive cycle); KB claims "NOW GENERATED" persistently false
