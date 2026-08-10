@@ -1096,3 +1096,16 @@
 - NEW `threema-ios ManuallyTests` — test-only credential "shootdeathstar" (sha256 `8d969eef...`) in safe upload/download fixtures — TEST_ONLY, INTERESTING non-finding
 - NEW `threema-android SentryConfig.kt:15,19` — Sentry public DSN keys (`b3e20afbf356a8748bb62ac165aa780c` / `615af77cb3d980c41b3b04b07417cc7d`) — public by design, INTERESTING non-finding
 - NEW `threema-android SfuToken.kt:49` — `sfuToken='********'` proper redaction in `toString()` — security-positive, not a leak
+
+## 2026-08-10 12:40:26 UTC
+- NEW `billing.threema.ch` now responds HTTP 301 (redirect to threema.ch) vs baseline TIMEOUT — edge host posture changed
+- NEW `gateway.threema.ch` now responds HTTP 302 (to /en) vs baseline TIMEOUT — edge host posture changed; `/v1` returns 404 with session cookie set
+- NEW `threema-android JoinResponse.kt:70` — `toString()` leaks `icePassword='$icePassword'` in plain text (potential logcat credential leak, short-lived ICE creds, confidence 45)
+- NEW `threema-ios ManuallyTests` — test-only credential "shootdeathstar" (sha256 `8d969eef...`) in safe upload/download fixtures — TEST_ONLY, INTERESTING non-finding
+- NEW `threema-android SentryConfig.kt:15,19` — Sentry public DSN keys (`b3e20afbf356a8748bb62ac165aa780c` / `615af77cb3d980c41b3b04b07417cc7d`) — public by design, INTERESTING non-finding
+- NEW `g-{00,7f,80,ff}.1.threema.ch` → NXDOMAIN — no `.1` group tier exists on chat shards (only `.0` tier; 256 groups total)
+- NEW Chat shards IPv4-only, direct A records — no AAAA/CNAME on `g-*.0.threema.ch` (no LB aliasing at DNS layer)
+- CHANGED `poc/key-storage-acl-bypass-poc.js` — PoC artifact **still absent** from workspace despite KB claims "NOW GENERATED" (7th consecutive cycle `ls poc/` returns "POC_DIR_ABSENT")
+- CHANGED billing.threema.ch: 301 + 1024B nginx catch-all on ALL probed paths (/en/login, /en/signup, /admin, /api/health, /healthz, /status → 404/1024B; /info/ping.php → 404/146B) — no live application routes;
+- CHANGED gateway.threema.ch: posture unchanged from 08-09 — /en/signup 200/14333B, /api/v1 403/146B nginx-deny, /v1 404/2628B app catch-all; no new routes
+- CHANGED poc/ directory: still ABSENT (8th consecutive cycle); KB claims "NOW GENERATED" persistently false
