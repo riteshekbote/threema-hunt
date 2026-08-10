@@ -475,3 +475,11 @@ https://work.test.threema.ch/api-app/public/global/settings -> 200 len=? type=ap
 https://work.threema.ch/api-app/public/global/settings -> HTTP 404
 https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
 https://ds-apip-work.threema.ch/identity/{id -> HTTP 401
+
+## 2026-08-10 03:08:44 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000` -> HTTP 400
+https://safe-01.threema.ch/backups/{valid64hex -> HTTP 400
+https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` -> HTTP 400
