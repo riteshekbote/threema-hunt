@@ -49005,3 +49005,482 @@ All probes complete. Writing the structured analysis.
 - [RISK] sync: **38** — mediator/rendezvous fully mapped, nginx deny-all, shared cert, no passive surface; prod/staging .114 adjacency confirmed but recon-only.
 - [RISK] safe: **55** — credential-gated backup API with HSTS-header inconsistency + credentialed-CORS preflight; exposure requires creds.
 - [RISK] desktop-src: **50** — Windows key-storage ACL bypass VALID (CVSS 5.5), chain + PoC artifact verified; only Windows runtime validation outstanding.
+===== ANALYST bigpickle 2026-08-10 06:02:00 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/ 2>/dev/null && echo "---" && ls -la /home/runner/work/threema-hunt/threema-hunt/poc/ 2>/dev/null && echo "---" && ls -la /home/runner/work/threema-hunt/threema-hunt/reports/ 2>/dev/null
+total 304
+drwxr-xr-x 11 runner runner  4096 Aug 10 05:50 .
+drwxr-xr-x  3 runner runner  4096 Aug 10 05:50 ..
+drwxr-xr-x  7 runner runner  4096 Aug 10 05:50 .git
+drwxr-xr-x  3 runner runner  4096 Aug 10 05:50 .github
+-rw-r--r--  1 runner runner  1049 Aug 10 05:50 README.md
+-rw-r--r--  1 runner runner    32 Aug 10 05:50 analyst-out.txt
+-rw-r--r--  1 runner runner 96257 Aug 10 05:50 analyst-prompt.txt
+-rw-r--r--  1 runner runner 93193 Aug 10 05:50 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Aug 10 05:50 inventory
+drwxr-xr-x  2 runner runner  4096 Aug 10 05:50 knowledge
+drwxr-xr-x  2 runner runner 12288 Aug 10 05:50 leads
+-rw-r--r--  1 runner runner 28675 Aug 10 05:50 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Aug 10 05:50 reports
+drwxr-xr-x  3 runner runner  4096 Aug 10 05:50 reposcan-raw
+-rw-r--r--  1 runner runner  2188 Aug 10 05:50 scope.yml
+drwxr-xr-x  2 runner runner  4096 Aug 10 05:50 scripts
+-rw-r--r--  1 runner runner    34 Aug 10 05:50 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Aug 10 05:50 state_laguna.json
+-rw-r--r--  1 runner runner    34 Aug 10 05:50 state_ling3.json
+-rw-r--r--  1 runner runner    34 Aug 10 05:50 state_longcat.json
+-rw-r--r--  1 runner runner    33 Aug 10 05:50 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Aug 10 05:50 triage
+---
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && git log --oneline -10 2>/dev/null; echo "---STATUS---"; git status --short 2>/dev/null | head -30
+a0d87cb reposcan 2026-08-10-05-10
+---STATUS---
+?? analyst-out.txt
+?? analyst-prompt.txt
+?? ctx.txt
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat state_bigpickle.json && echo "---" && ls -la reports/ && echo "---LEADS---" && ls -la leads/ | head -20
+{"phase": "POC", "target": "chat"}---
+total 10972
+drwxr-xr-x  2 runner runner    4096 Aug 10 05:50 .
+drwxr-xr-x 11 runner runner    4096 Aug 10 05:50 ..
+-rw-r--r--  1 runner runner 3853899 Aug 10 05:50 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 6019484 Aug 10 05:50 analyst-laguna.log
+-rw-r--r--  1 runner runner   30007 Aug 10 05:50 analyst-ling3.log
+-rw-r--r--  1 runner runner   33024 Aug 10 05:50 analyst-longcat.log
+-rw-r--r--  1 runner runner 1104315 Aug 10 05:50 analyst-nemotron3.log
+-rw-r--r--  1 runner runner      52 Aug 10 05:50 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner    6424 Aug 10 05:50 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug 10 05:50 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner    6388 Aug 10 05:50 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner    7216 Aug 10 05:50 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  312836 Aug 10 05:50 hypotheses.md
+-rw-r--r--  1 runner runner   39147 Aug 10 05:50 valid-bugs.md
+---LEADS---
+total 4600
+drwxr-xr-x  2 runner runner   12288 Aug 10 05:50 .
+drwxr-xr-x 11 runner runner    4096 Aug 10 05:50 ..
+-rw-r--r--  1 runner runner  846828 Aug 10 05:50 lead-bigpickle.md
+-rw-r--r--  1 runner runner 1017176 Aug 10 05:50 lead-laguna.md
+-rw-r--r--  1 runner runner    9366 Aug 10 05:50 lead-ling3.md
+-rw-r--r--  1 runner runner   14762 Aug 10 05:50 lead-longcat.md
+-rw-r--r--  1 runner runner  852891 Aug 10 05:50 lead-nemotron3.md
+-rw-r--r--  1 runner runner   11048 Aug 10 05:50 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner   13399 Aug 10 05:50 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner   13429 Aug 10 05:50 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner   11241 Aug 10 05:50 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner    6565 Aug 10 05:50 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner    9511 Aug 10 05:50 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner   13472 Aug 10 05:50 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner   10507 Aug 10 05:50 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner   13665 Aug 10 05:50 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner   10938 Aug 10 05:50 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner   17321 Aug 10 05:50 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner   15373 Aug 10 05:50 reposcan-2026-08-07-23-19.md
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && cat reports/hypotheses-bigpickle.txt 2>/dev/null | head -80
+## 2026-08-10 04:30:49 UTC [chat] (model bigpickle)
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && tail -100 leads/lead-bigpickle.md
+reasoning: directory.openapi.yml:1172 flags "/identities ... currently buggy. See TWRK-1633"; endpoint returns a subset of provided contacts in the same Work subscription plus work properties (first/last name, jobTitle, department, availability). Host now confirmed live returning 401 with permissive CORS.
+evidence_needed: whether the membership filter can be induced to return out-of-subscription contacts.
+verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities mixing own- and other-subscription IDs and compare membership + property leak; probe pagination bounds (page/size, wildcard).
+impact: cross-subscription disclosure of work-directory metadata → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[NEXT] PROBE: GET https://ds-apip-work.threema.ch/identity/lookup and /directory (401 vs 404 distinguishes route-existence behind the auth gate), then GET https://ds-apip.threema.ch/identity/lookup + /directory at ≤1 rps to fingerprint the directory host independently of apip.
+[HYP] ds-apip.test.threema.ch staging directory server publicly exposed
+class: MISCONFIG
+asset: ds-apip.test.threema.ch
+[NEW] `g-*.0.threema.ch` prod chat DNS shard→node map (own probe, 21 shards + 0x7f/0x80 bisect): `g-{00..7f}` → 203.56.112.202 (128 shards), `g-{80..ff}` → 203.56.112.204 (128 shards); sharp deterministic split at high-bit 0x80, direct A records.
+[NEW] Second prod chat node 203.56.112.204 (`g-80.0.threema.ch`): TCP 5222 AND 443 connect but push 0 bytes — byte-parity with node .202; node-level uniform posture now confirmed across both prod chat nodes.
+[NEW] No `.1` group tier: `g-{00,7f,80,ff}.1.threema.ch` → NXDOMAIN (only `.0` tier exists; 256 groups total).
+[NEW] No AAAA/CNAME on chat shards — IPv4-only, direct-A mapping (no LB aliasing at DNS layer).
+[CHANGED] Prior "chat passive channel formally closed" now bounded to in-band 443/5222 data only; DNS-attribution recon on chat was NOT exhausted (this cycle proves a new surface).
+[PRIO] g-*.0.threema.ch (chat cluster shard→node map) — score 4.95 — attack_surface 4, business_value 5, tech_exposure 2, gate_ease 10 (public DNS), cloud_surface 1, freshness 8
+[PRIO] Cross-family prefix-MSB split topology (.112 vs .114 /24; chat/mediator/rendezvous vs staging) — score 4.60 — attack_surface 3, business_value 4, tech_exposure 3, gate_ease 10 (public DNS), cloud_surface 2, freshness 7
+[PRIO] 203.56.112.204 (g-{80..ff} chat node, newly attributed) — score 4.45 — attack_surface 3, business_value 4, tech_exposure 2, gate_ease 10, cloud_surface 1, freshness 8
+[HYP] Identity→server-group→physical-node attribution fully deterministic on chat
+class: OTHER
+asset: g-*.0.threema.ch (256 shards; 203.56.112.202 / 203.56.112.204)
+confidence: 55
+reasoning: Own probes: 21 shards sampled + 0x7f/0x80 bisect give a clean 128/128 split on two direct-A nodes (no CNAME/AAAA, no .1 tier). libthreema derives the chat server group from the identity prefix, so identity-first-byte → exact `g-XX.0.threema.ch` → exact physical node.
+evidence_needed: (a) source confirmation of the identity→group algorithm; (b) one program-issued test identity whose predicted node accepts the framed CSP login.
+verify_steps: PASSIVE — RAG read of threema-desktop/libthreema ServerAddressProvider to pin the group-derivation formula; cross-check group space (base32 first char) vs the 256 DNS names. AUTH_HELPED — `g-00.0.threema.ch:5222` framed login (16B cookie+64B box+32B ext+24B reserved+32B vouch) against the test identity; compare predicted vs actual node.
+impact: any Threema identity is attributable to an exact physical node/IP from public DNS alone → node-targeted recon, per-shard availability measurement, sharper targeting for the accepted fetch_bulk IDOR. Severity: Low (recon refinement; no in-band data).
+testability: PASSIVE (map) + AUTH_HELPED (predictive login)
+[HYP] Prefix-MSB split reveals site A/B topology across in-scope families, with prod mediator 8-f co-resident on the staging-adjacent .114 /24
+class: OTHER
+asset: mediator-*.threema.ch / rendezvous-*.threema.ch / g-*.0.threema.ch DNS
+confidence: 50
+reasoning: Own probe: chat splits .112.202/.112.204 at 0x80. KB: mediator/rendezvous split at index 7/8 → .112.247 vs .114.247. Staging chat .114.34 sits on the same .114 /24 as prod mediator 8-f — a second site/zone hosting both staging and a prod shard half.
+evidence_needed: full .112/.114 host-to-family census; confirmation no OTHER prod in-scope family resolves into .114 except mediator/rendezvous 8-f.
+verify_steps: PASSIVE — `getent ahosts` over sampled prefixes (g-*, mediator-*, rendezvous-*, safe-*, ds-apip*, work*) at 1/s; group by /24; diff single-site vs split-site families; confirm staging-only presence in .114 beyond mediator 8-f.
+impact: site/zone attribution for every in-scope backend + shard→node→site map; operational recon and cross-tenant adjacency note (prod mediator on same /24 as staging chat). Severity: Low (recon).
+testability: PASSIVE
+[PARKED] Node FIN-vs-RST close-behavior fingerprint (conf 40, OTHER): requires raw-socket close-frame observation beyond the GET/HEAD spirit, and adds no attacker capability beyond the map already delivered — low yield, dropped.
+[PARKED] Shard A-record TTL / failover-remap stability (conf 35): speculative, requires longitudinal polling, no_doom-adjacent — below 40, dropped.
+[FINAL] 1. Identity→server-group→node attribution (conf 55) — grounded in this cycle's own DNS probes + KB split patterns; RAG + AUTH_HELPED chain concrete. 2. Cross-family site A/B topology (conf 50) — fully PASSIVE DNS verification.
+[NEXT] PROBE: complete the definitive chat map — enumerate ALL 256 `g-{00..ff}.0.threema.ch` A records at 1/s (DNS-only, ~4.5 min), verifying the sharp 0x7f/0x80 boundary holds with no wildcard answer and no third node; write the full shard→node table to `probe-results.md`. Open HUMAN ask unchanged: program-issued test identity (+ Work test license + backupId:backupKey) to run the framed CSP login against the now-predicted chat node and close the only remaining in-band chat lever.
+[LEARN] ACCEPTED OTHER @ g-*.0.threema.ch: chat shard→node DNS split precisely mapped — `g-{00..7f}`→203.56.112.202, `g-{80..ff}`→203.56.112.204, sharp 0x7f/0x80 boundary, direct A records, IPv4-only, no `.1` tier (own probes this cycle).
+[LEARN] ACCEPTED OTHER @ g-80.0.threema.ch (203.56.112.204): TCP 5222/443 connect with 0 bytes pushed — posture parity with node .202; prior "chat passive channel formally closed" (in-band) now verified for both prod nodes.
+[LEARN] ACCEPTED class @ OTHER (DNS-attribution recon on chat): the prior in-band closure does NOT exhaust chat recon; DNS-level shard/node attribution is a live passive surface.
+[RISK] chat: 55 — 256-shard map now fully attributable to 2 prod nodes (new), but in-band 443/5222 data-closed on both nodes, no cert/SAN, staging out of scope; only remaining lever is the AUTH_HELPED framed CSP login. | web: 50 — prod gated (401/403), broadcast key-oracle disproven, staging divergence confined to benign 299B /global/settings. | sync: 40 — mediator/rendezvous uniform 403 WSS-only; staging variants out of scope. | safe: 55 — credential-gated backup API with HSTS-header inconsistency + credentialed-CORS preflight; exposure only with creds. | desktop-src: 50 — Windows key-storage ACL bypass VALID (CVSS 5.5), sandbox/worker gap conditional; public source.
+[HYP] serverGroup→node attribution closeable end-to-end via program test identity
+class: OTHER
+asset: g-*.0.threema.ch (256 shards; 203.56.112.202 / 203.56.112.204)
+confidence: 60
+reasoning: 256-shard→2-node map now definitive and deterministic (sharp 0x7f/0x80). Source proves serverGroup is server-assigned at identity creation and stored client-side, so a test identity's keystorage reveals its exact group → g-XX.0 → exact node. Only unknown is a real identity's group value.
+evidence_needed: one program-issued test identity + its serverGroup value (from keystorage); successful framed CSP login to the predicted g-XX.0 host.
+verify_steps: AUTH_HELPED — read test identity's serverGroup from keystorage; resolve `g-{serverGroup}.0.threema.ch` (map already proves the IP); connect g-XX.0.threema.ch:5222 with the documented framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch); confirm predicted node accepts.
+impact: every Threema identity attributable to an exact physical node/IP from public DNS once its group is known → node-targeted recon, per-shard availability measurement, sharper fetch_bulk IDOR targeting. Severity: Low (recon; no in-band data).
+testability: AUTH_HELPED
+[HYP] IPv6-only edge path on dual-stack prod backends diverges from v4 filtering
+class: OTHER
+asset: safe-{01,1a,1b,02,00}.threema.ch / work.threema.ch / broadcast.threema.ch (AAAA 2a14:3e40:112:312::*)
+confidence: 40
+reasoning: All non-chat backends publish AAAA; chat and apip/api are v4-only. If edge WAF/rate-limit policy binds to v4 egress, a v6 path could bypass controls on the credential-gated safe API (HSTS-header inconsistency already confirmed on v4).
+evidence_needed: v6 GET to safe-01 AAAA endpoint returns different status/CORS/HSTS than v4 baseline.
+verify_steps: PASSIVE — from a v6-capable host: `curl -6 https://safe-01.threema.ch/backups/{64hex}` vs v4 400/11B baseline; diff status/HSTS/ACAO. Not executable from this environment (no v6 egress confirmed this cycle).
+impact: if divergent, bypass of edge controls → amplification of accepted safe/IDOR surface. Severity: Low-Medium (unverified).
+testability: PASSIVE
+[HYP] Legacy vhosts on edge .214 expose forgotten route table distinct from ds-apip
+class: OTHER
+asset: apip.threema.ch / api.threema.ch (203.56.112.214, IPv4-only)
+confidence: 40
+reasoning: Same IP as ds-apip but 404 on identity routes, no AAAA → separate virtual hosts, likely older generation (v4-only like chat). Route-set difference is observable and may include retired/forgotten endpoints.
+evidence_needed: a path returning ≠404 on apip/api that differs from ds-apip handling.
+verify_steps: PASSIVE — GET /identity/{id} + /identity/fetch_bulk + 5 challenge endpoints on apip/api vs ds-apip (already 404 vs 200); extend to /v1, /api, /status at ≤1 rps; diff status/size.
+impact: potential forgotten-endpoint exposure; otherwise only archival note. Severity: Low.
+testability: PASSIVE
+## 2026-08-10 00:37:07 UTC [chat] (model bigpickle)
+## 2026-08-10 03:08:33 UTC [chat] (model bigpickle)
+[HYP] Identity→serverGroup→node attribution fully closed end-to-end (static)
+class: OTHER
+asset: g-*.0.threema.ch (256 shards; .202/.204)
+confidence: 85
+reasoning: Full 256-shard map definitive (own probe, no holes/wildcard/third node). RAG on `stable` clone: `identityData.cspServerGroup` in keystorage inner v1/v3, `ensureServerGroup` = `[0-9a-zA-Z]+`; group space exactly 256 = hex 00..ff per DNS. Desktop `backend/join.ts:556` consumes it. Attribution = keystorage value → `g-XX.0.threema.ch` → node IP.
+evidence_needed: one program-issued test identity + its `cspServerGroup`; successful framed CSP login on predicted node.
+verify_steps: PASSIVE — chain already RAG-proven + DNS-proven. AUTH_HELPED — read test identity's cspServerGroup from keystorage; resolve `g-{group}.0.threema.ch` (IP from map); framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch) on :5222; confirm predicted node accepts.
+impact: any identity attributable to an exact physical node/IP (from keystorage or DNS alone); node-targeted recon, per-shard availability measurement, sharper fetch_bulk targeting. Severity: Low (recon; no in-band data).
+testability: AUTH_HELPED
+[HYP] Prod mediator/rendezvous 8-f shards co-resident with staging on .114/24 — cross-tenant adjacency + zone split
+class: OTHER
+asset: mediator-{8..f}.threema.ch / rendezvous-{8..f}.threema.ch (.114.247) / staging .114.{13,34,43,45}
+confidence: 70
+reasoning: Own census: mediator/rendezvous 0-7 → .112.247 (site A), 8-f → .114.247 (site B); staging ds-apip.test/.13, work.test/.43, broadcast.test/.45, chat/.34 all on .114. Nibble MSB split mirrors chat's 0x7f/0x80 byte-MSB split.
+evidence_needed: full 0-f enumeration of mediator/rendezvous A-records to confirm no exceptions; confirm no OTHER prod family resolves into .114 beyond mediator/rendezvous 8-f.
+verify_steps: PASSIVE — `dig` mediator-{0..f}/rendezvous-{0..f} A at 1 rps (16+16 queries), group by /24; diff single-site vs split-site families.
+impact: site/zone attribution for every in-scope backend; prod shards adjacent to staging networks (cross-tenant recon note). Severity: Low (recon).
+testability: PASSIVE
+[HYP] billing/gateway edge cold-start exposes fresh route table distinct from baseline gating
+class: OTHER
+asset: billing.threema.ch (.216) / gateway.threema.ch (.234) / shop.threema.ch (.216)
+confidence: 45
+reasoning: Baseline (2026-08-07) billing/gateway TIMEOUT; this cycle both respond (301→threema.ch / 302). Edge either failover-recovered or newly provisioned; route surface may differ from the 403/404 gate of other cockpit hosts.
+evidence_needed: a billing/gateway path returning ≠301/302/404 that differs from baseline posture.
+verify_steps: PASSIVE — GET /en, /api/v1, /ping, /info/ping.php, /v1 on billing/gateway at ≤1 rps; diff status/size vs baseline (billing 301/0B, gateway 302/0B).
+impact: forgotten/retired endpoint exposure on recovering edge; otherwise archival note. Severity: Low.
+testability: PASSIVE
+## 2026-08-10 04:30:49 UTC [chat] (model bigpickle)
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && tail -60 probe-results.md
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+https://work.test.threema.ch/cache/work_public.js?v=2.25.1` -> 200 len=1443948 type=application/javascript; charset=utf-8
+https://ds-apip-work.threema.ch/identity/{id -> HTTP 401
+https://ds-apip-work.threema.ch/identity/ECHOECHO -> HTTP 401
+https://work.test.threema.ch/api-app/public/global/settings` -> HTTP 404
+https://work.threema.ch/api-app/public/global/settings` -> HTTP 404
+
+## 2026-08-09 23:20:03 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://ds-apip.threema.ch/identity/lookup -> HTTP 404
+https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
+https://work.test.threema.ch/api-app/public/global/settings` -> HTTP 404
+https://work.threema.ch/api-app/public/global/settings` -> HTTP 404
+https://ds-apip-work.threema.ch/identity/{id -> HTTP 401
+https://ds-apip-work.threema.ch/identity/ECHOECHO -> HTTP 401
+https://work.test.threema.ch/cache/work_public.js?v=2.25.1` -> 200 len=1443948 type=application/javascript; charset=utf-8
+
+## 2026-08-09 23:58:11 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/<backupId -> HTTP 400
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://work.test.threema.ch/cache/work_public.js?v=2.25.1` -> 200 len=1443948 type=application/javascript; charset=utf-8
+https://ds-apip.threema.ch/identity/lookup -> HTTP 404
+https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
+https://ds-apip.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{valid64hex -> HTTP 400
+https://safe-01.threema.ch/backup/x -> HTTP 404
+https://work.test.threema.ch/api-app/public/global/settings` -> HTTP 404
+
+## 2026-08-10 00:44:45 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://safe-01.threema.ch/backups/{valid64hex -> HTTP 400
+https://safe-01.threema.ch/backup/x -> HTTP 404
+https://work.test.threema.ch/api-app/public/global/settings` -> HTTP 404
+https://work.test.threema.ch/api-app/public/global/settings -> 200 len=? type=application/json
+https://work.threema.ch/api-app/public/global/settings -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://ds-apip-work.threema.ch/identity/{id -> HTTP 401
+
+## 2026-08-10 03:08:44 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000` -> HTTP 400
+https://safe-01.threema.ch/backups/{valid64hex -> HTTP 400
+https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` -> HTTP 400
+
+## 2026-08-10 04:31:02 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.test.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` -> HTTP 400
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && for s in 00 7f 80 ff; do timeout 5 python3 -c "
+import socket,struct,time
+host='g-$s.0.threema.ch'
+for p in (5222,443):
+    try:
+        ip=socket.gethostbyname(host)
+        s=socket.create_connection((host,p),timeout=3)
+        s.settimeout(2.5)
+        t0=time.time(); data=b''
+        try:
+            while time.time()-t0<2.2:
+                r=s.recv(4096)
+                if not r: break
+                data+=r
+        except socket.timeout: pass
+        s.close()
+        print(f'{host}:{p} ip={ip} rx={len(data)}B')
+    except Exception as e:
+        print(f'{host}:{p} ERR {e}')
+"; sleep 1; done
+(no output)
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && python3 -c "
+import socket,time
+for h in ('g-00.0.threema.ch','g-7f.0.threema.ch','g-80.0.threema.ch','g-ff.0.threema.ch'):
+    ip=socket.gethostbyname(h)
+    print(h,'->',ip)
+"
+g-00.0.threema.ch -> 203.56.112.202
+g-7f.0.threema.ch -> 203.56.112.202
+g-80.0.threema.ch -> 203.56.112.204
+g-ff.0.threema.ch -> 203.56.112.204
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && python3 -c "
+import socket,time
+for host in ('g-00.0.threema.ch','g-80.0.threema.ch'):
+    for port in (5222,443):
+        try:
+            s=socket.create_connection((host,port),timeout=3)
+            s.settimeout(2)
+            t0=time.time(); total=0
+            while time.time()-t0<1.8:
+                try:
+                    r=s.recv(4096)
+                    if not r: break
+                    total+=len(r)
+                except socket.timeout: break
+            s.close()
+            print(f'{host}:{port} rx={total}B')
+        except Exception as e:
+            print(f'{host}:{port} ERR {e}')
+    time.sleep(1.2)
+"
+g-00.0.threema.ch:5222 rx=0B
+g-00.0.threema.ch:443 rx=0B
+g-80.0.threema.ch:5222 rx=0B
+g-80.0.threema.ch:443 rx=0B
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && python3 -c "
+import socket,time
+for host in ('g-00.0.threema.ch','g-80.0.threema.ch'):
+    for port in (80,443,5222,8080,8443):
+        try:
+            s=socket.create_connection((host,port),timeout=2.5)
+            s.settimeout(1.2)
+            try:
+                r=s.recv(256); rx=len(r)
+            except socket.timeout: rx=0
+            s.close()
+            print(f'{host}:{port} OPEN rx={rx}B')
+        except Exception as e:
+            print(f'{host}:{port} closed/err {type(e).__name__}')
+        time.sleep(1)
+"
+g-00.0.threema.ch:80 closed/err TimeoutError
+g-00.0.threema.ch:443 OPEN rx=0B
+g-00.0.threema.ch:5222 OPEN rx=0B
+g-00.0.threema.ch:8080 closed/err TimeoutError
+g-00.0.threema.ch:8443 closed/err TimeoutError
+g-80.0.threema.ch:80 closed/err TimeoutError
+g-80.0.threema.ch:443 OPEN rx=0B
+g-80.0.threema.ch:5222 OPEN rx=0B
+g-80.0.threema.ch:8080 closed/err TimeoutError
+g-80.0.threema.ch:8443 closed/err TimeoutError
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && python3 -c "
+import socket,time
+import string
+results={}
+for fam in ('mediator','rendezvous'):
+    for i in range(16):
+        h=f'{fam}-{i:x}.threema.ch'
+        try:
+            ip=socket.gethostbyname(h)
+            results.setdefault(ip,[]).append(h)
+        except Exception as e:
+            results.setdefault('NXDOMAIN/ERR',[]).append(h)
+        time.sleep(1)
+for ip,hosts in sorted(results.items()):
+    print(ip, len(hosts), ','.join(sorted(hosts)))
+"
+203.56.112.247 16 mediator-0.threema.ch,mediator-1.threema.ch,mediator-2.threema.ch,mediator-3.threema.ch,mediator-4.threema.ch,mediator-5.threema.ch,mediator-6.threema.ch,mediator-7.threema.ch,rendezvous-0.threema.ch,rendezvous-1.threema.ch,rendezvous-2.threema.ch,rendezvous-3.threema.ch,rendezvous-4.threema.ch,rendezvous-5.threema.ch,rendezvous-6.threema.ch,rendezvous-7.threema.ch
+203.56.114.247 16 mediator-8.threema.ch,mediator-9.threema.ch,mediator-a.threema.ch,mediator-b.threema.ch,mediator-c.threema.ch,mediator-d.threema.ch,mediator-e.threema.ch,mediator-f.threema.ch,rendezvous-8.threema.ch,rendezvous-9.threema.ch,rendezvous-a.threema.ch,rendezvous-b.threema.ch,rendezvous-c.threema.ch,rendezvous-d.threema.ch,rendezvous-e.threema.ch,rendezvous-f.threema.ch
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && python3 -c "
+import socket,time
+for h in ('ds-apip.threema.ch','api.threema.ch','apip.threema.ch','ds-apip-work.threema.ch','safe-01.threema.ch','work.threema.ch','broadcast.threema.ch','gateway.threema.ch','shop.threema.ch','billing.threema.ch','mediator-0.threema.ch','mediator-8.threema.ch'):
+    try:
+        ip=socket.gethostbyname(h)
+        print(h,'->',ip)
+    except Exception as e:
+        print(h,'ERR',type(e).__name__)
+    time.sleep(1)
+"
+ds-apip.threema.ch -> 203.56.112.214
+api.threema.ch -> 203.56.112.214
+apip.threema.ch -> 203.56.112.214
+ds-apip-work.threema.ch -> 203.56.112.209
+safe-01.threema.ch -> 203.56.112.231
+work.threema.ch -> 203.56.112.209
+broadcast.threema.ch -> 203.56.112.210
+gateway.threema.ch -> 203.56.112.234
+shop.threema.ch -> 203.56.112.216
+billing.threema.ch -> 203.56.112.216
+mediator-0.threema.ch -> 203.56.112.247
+mediator-8.threema.ch -> 203.56.114.247
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && python3 -c "
+import urllib.request,ssl,time
+ctx=ssl.create_default_context()
+for host in ('billing.threema.ch','gateway.threema.ch','shop.threema.ch'):
+    for path in ('/','/en','/api/v1','/ping'):
+        url=f'https://{host}{path}'
+        try:
+            req=urllib.request.Request(url,method='GET',headers={'User-Agent':'curl/8'})
+            r=urllib.request.urlopen(req,timeout=6,context=ctx)
+            body=r.read(200)
+            print(f'{host}{path} -> {r.status} len={r.headers.get(\"Content-Length\")} loc={r.headers.get(\"Location\")}')
+        except urllib.error.HTTPError as e:
+            print(f'{host}{path} -> HTTP {e.code} len={e.headers.get(\"Content-Length\")} loc={e.headers.get(\"Location\")}')
+        except Exception as e:
+            print(f'{host}{path} -> ERR {type(e).__name__}')
+        time.sleep(1)
+"
+billing.threema.ch/ -> 200 len=None loc=None
+billing.threema.ch/en -> HTTP 404 len=None loc=None
+billing.threema.ch/api/v1 -> HTTP 404 len=None loc=None
+billing.threema.ch/ping -> HTTP 404 len=None loc=None
+gateway.threema.ch/ -> 200 len=None loc=None
+gateway.threema.ch/en -> 200 len=None loc=None
+gateway.threema.ch/api/v1 -> HTTP 403 len=None loc=None
+gateway.threema.ch/ping -> HTTP 404 len=None loc=None
+shop.threema.ch/ -> 200 len=None loc=None
+shop.threema.ch/en -> 200 len=None loc=None
+shop.threema.ch/api/v1 -> HTTP 403 len=146 loc=None
+shop.threema.ch/ping -> HTTP 404 len=None loc=None
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && python3 -c "
+import urllib.request,ssl,time,re
+ctx=ssl.create_default_context()
+for host in ('billing.threema.ch','gateway.threema.ch','shop.threema.ch'):
+    url=f'https://{host}/'
+    req=urllib.request.Request(url,method='GET',headers={'User-Agent':'curl/8'})
+    r=urllib.request.urlopen(req,timeout=8,context=ctx)
+    body=r.read(3000).decode('utf-8','replace')
+    title=re.search(r'<title[^>]*>(.*?)</title>',body,re.I|re.S)
+    print(f'== {host} status={r.status} server={r.headers.get(\"Server\")} ct={r.headers.get(\"Content-Type\")}')
+    print('   title:', (title.group(1).strip()[:80] if title else 'NONE'))
+    print('   first200:', re.sub(r'\s+',' ',body[:220]))
+    print('   hsts:', r.headers.get('Strict-Transport-Security'))
+    time.sleep(1)
+"
+== billing.threema.ch status=200 server=nginx ct=text/html; charset=utf-8
+   title: Threema &ndash; Secure Communication For Individuals and Companies
+   first200: <!doctype html> <html lang="en" dir="ltr" class="scroll-pt-(--menu-height)"> <head> <meta charset="utf-8"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <meta name="viewport" content="width=device-wid
+   hsts: max-age=31104000; includeSubdomains
+== gateway.threema.ch status=200 server=nginx ct=text/html; charset=UTF-8
+   title: Threema Gateway - Send and receive Threema messages with your own software.
+   first200: <!DOCTYPE html> <html lang="en"><head><title>Threema Gateway - Send and receive Threema messages with your own software.</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, min
+   hsts: max-age=31104000; includeSubdomains
+== shop.threema.ch status=200 server=nginx ct=text/html; charset=UTF-8
+   title: Buy Threema for Android – Threema Shop
+   first200: <!DOCTYPE html> <html lang="en"><head><title>Buy Threema for Android – Threema Shop</title><meta name="description" content="Purchase Threema for Android here without using the Google Play store."/> <link rel="stylesheet
+   hsts: max-age=31104000; includeSubdomains
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && python3 -c "
+import urllib.request,ssl,time,hashlib
+ctx=ssl.create_default_context()
+def get(host,path='/'):
+    req=urllib.request.Request(f'https://{host}{path}',method='GET',headers={'User-Agent':'curl/8'})
+    r=urllib.request.urlopen(req,timeout=10,context=ctx)
+    b=r.read()
+    return r.status,len(b),hashlib.sha256(b).hexdigest()[:16],r.headers.get('Server'),b[:120].decode('utf-8','replace').replace('\n',' ')
+for h in ('threema.ch','billing.threema.ch','billing.test.threema.ch'):
+    try:
+        s,l,hsh,srv,snip=get(h)
+        print(f'{h} status={s} len={l} sha256={hsh} server={srv}')
+        print(f'   snip: {snip}')
+    except Exception as e:
+        print(f'{h} ERR {type(e).__name__}')
+    time.sleep(1)
+"
+threema.ch status=200 len=598658 sha256=9858bea726ee301f server=nginx
+   snip: <!doctype html> <html lang="en" dir="ltr" class="scroll-pt-(--menu-height)"> <head>     <meta charset="utf-8">     <meta
+billing.threema.ch status=200 len=598658 sha256=0aa5fce23d212696 server=nginx
+   snip: <!doctype html> <html lang="en" dir="ltr" class="scroll-pt-(--menu-height)"> <head>     <meta charset="utf-8">     <meta
+billing.test.threema.ch ERR URLError
+[0m
+[0m$ [0mcd /home/runner/work/threema-hunt/threema-hunt && python3 -c "
+import urllib.request,ssl,time
+ctx=ssl.create_default_context()
+for path in ('/login','/admin','/api','/v1','/app','/oauth','/graphql','/billing','/api/v1','/api/health','/health','/status'):
+    url=f'https://billing.threema.ch{path}'
+    try:
+        req=urllib.request.Request(url,method='GET',headers={'User-Agent':'curl/8'})
+        r=urllib.request.urlopen(req,timeout=6,context=ctx)
+        print(f'{path} -> {r.status} len={r.headers.get(\"Content-Length\")} ct={r.headers.get(\"Content-Type\")}')
+    except urllib.error.HTTPError as e:
+        print(f'{path} -> HTTP {e.code} len={e.headers.get(\"Content-Length\")}')
+    except Exception as e:
+        print(f'{path} -> ERR {type(e).__name__}')
+    time.sleep(1)
+"
+/login -> HTTP 404 len=None
+/admin -> HTTP 404 len=None
+/api -> HTTP 404 len=None
+/v1 -> HTTP 404 len=None
+/app -> HTTP 404 len=None
+/oauth -> HTTP 404 len=None
+/graphql -> HTTP 404 len=None
+/billing -> HTTP 404 len=None
+/api/v1 -> HTTP 404 len=None
+/api/health -> HTTP 404 len=None
+/health -> HTTP 404 len=None
+/status -> HTTP 404 len=None
+[0m

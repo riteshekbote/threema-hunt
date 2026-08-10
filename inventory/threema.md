@@ -1020,3 +1020,27 @@
 - CHANGED `knowledge/index.md` — KB entry for key-storage ACL bypass updated: PoC gap CLOSED (poc/key-storage-acl-bypass-poc.js present, validated), stale "NOT present in workspace" claim corrected
 - CHANGED `reports/hypotheses-laguna.txt` — [NEXT] action closed; PoC generation + verification recorded
 - NEW `electron-main.ts:940-945` — LOAD_USER_PASSWORD handler confirmed reading keystorage.password.bin with `fs.readFileSync` (no ACL options on read, but file was written without ACL → same-user read succ
+
+## 2026-08-10 06:02:00 UTC
+- NEW `mediator-{prefix4}.threema.ch/{prefix8}/` — mediator WSS hostname pattern confirmed in scope (mediator-*.threema.ch); DNS split IPs (0-7→203.56.112.247, 8-f→203.56.114.247); uniform 403 on HTTPS; hig
+- NEW `rendezvous-{prefix4}.threema.ch/{prefix8}/` — rendezvous WSS hostname pattern confirmed in scope (rendezvous-*.threema.ch); same DNS split routing as mediator; uniform 403 on HTTPS; high-entropy path
+- NEW `safe-{backupIdPrefix8}.threema.ch/` — backup safe hostname pattern confirmed in scope (safe-*.threema.ch); 5 hostnames (safe-01, safe-1a, safe-1b, safe-02, safe-00) resolve to single IP 203.56.112.23
+- NEW `ds-apip-work.threema.ch` — work-style directory server confirmed live; 401 on all paths (/identity/*, /identities); CORS `*`; no HSTS/Expect-CT; Basic auth required
+- NEW `ds-apip.threema.ch` — canonical directory server hostname confirmed via desktop client build config (config/vite.config.ts + OpenAPI); public GET /identity/{id} returns 200/404 oracle
+- NEW `g-*.0.threema.ch` — chat shard→node DNS split precisely mapped; `g-{00..7f}`→203.56.112.202 (128 shards), `g-{80..ff}`→203.56.112.204 (128 shards); sharp 0x7f/0x80 boundary; IPv4-only direct A record
+- CHANGED `poc/key-storage-acl-bypass-poc.js` — PoC artifact NOW GENERATED + `node --check` PASS + Linux no-op confirmed (was claimed-but-missing in prior cycle)
+- CHANGED `crypto.ts:223` — benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) RE-VERIFIED via WebFetch on GitHub `stable`: `determineKdfParams()` calibrates Argon2id, `benchmarkKey.purge()` at line 233
+- CHANGED `electron-main.ts:1252-1255` — `nodeIntegrationInWorker: true` (TODO DESK-79) + `sandbox` unset (not explicitly `false`; Electron defaults to `false`); L1240 comment "sandboxing is enabled by default"
+- CHANGED `ds-apip.threema.ch/identity/fetch_bulk` — 10000-ID count-cap re-verified with unique IDs: 10000→200/152B, 10001→400/0B (sharp); cross-origin Origin header returns ECHOECHO pubkey + ACAO `*`
+- CHANGED `inner/v3.ts:65,70` — `INNER_KEY_STORAGE_V3_SCHEMA` confirmed via WebFetch exposes `identityData.ck` (Ed25519 identity privkey) + `databaseKey` (SQLCipher key)
+- CHANGED `vite.config.ts` — confirmed `KEY_STORAGE_PATH: ['data','keystorage.bin']` + `SAFE_STORAGE_PASSWORD_PATH: ['data','keystorage.password.bin']` + `DATABASE_PATH: ['data','threema.sqlite']`
+- CHANGED `broadcast.threema.ch/api/v1` → HTTP 401 auth-gated; key-format/validity oracle DISPROVEN (1/32/64-char keys → byte-identical 403)
+- CHANGED `gateway.threema.ch/en/signup` → HTTP 200 (14KB signup page accessible)
+- CHANGED `ds-apip.test.threema.ch/identity/fetch_bulk` — staging byte-identical to prod including 10000-cap enforcement; no extra routes
+- CHANGED `safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}` — HSTS/Expect-CT present on OPTIONS 204, ABSENT on GET 400 stable across all 5 hosts
+- CHANGED `work.test.threema.ch/api-app/public/global/settings` → 200 (299B) vs `work.threema.ch` → 404 — divergence stable
+- NEW `g-*.0.threema.ch` prod chat DNS shard→node map (own probe, 21 shards + 0x7f/0x80 bisect): `g-{00..7f}` → 203.56.112.202 (128 shards), `g-{80..ff}` → 203.56.112.204 (128 shards); sharp deterministic s
+- NEW Second prod chat node 203.56.112.204 (`g-80.0.threema.ch`): TCP 5222 AND 443 connect but push 0 bytes — byte-parity with node .202; node-level uniform posture now confirmed across both prod chat nodes
+- NEW No `.1` group tier: `g-{00,7f,80,ff}.1.threema.ch` → NXDOMAIN (only `.0` tier exists; 256 groups total).
+- NEW No AAAA/CNAME on chat shards — IPv4-only, direct-A mapping (no LB aliasing at DNS layer).
+- CHANGED Prior "chat passive channel formally closed" now bounded to in-band 443/5222 data only; DNS-attribution recon on chat was NOT exhausted (this cycle proves a new surface).

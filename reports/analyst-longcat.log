@@ -697,3 +697,185 @@ testability: AUTH_HELPED
 [RISK] safe: 58 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
 [RISK] desktop-src: 68 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain
 ```
+===== ANALYST longcat 2026-08-10 06:02:00 UTC =====
+[0m
+> build · longcat-2.0-free
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/poc/ 2>/dev/null && echo "---" && cat /home/runner/work/threema-hunt/threema-hunt/poc/key-storage-acl-bypass-poc.js 2>/dev/null | head -30 || echo "POC_DIR_ABSENT"
+POC_DIR_ABSENT
+[0m
+[0m$ [0mcurl -sI -m 10 https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef 2>&1 | head -20
+HTTP/1.1 400 Bad Request
+Server: nginx
+Date: Mon, 10 Aug 2026 05:50:58 GMT
+Content-Type: text/plain; charset=utf-8
+Content-Length: 11
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+ETag: W/"b-EFiDB1U+dmqzx9Mo2UjcZ1SJPO8"
+[0m
+Looking at the state, I'm in POC phase targeting sync. The inventory shows most surfaces are byte-stable across cycles. Let me verify the current state of key assets.
+[0m$ [0mcurl -sI -m 10 -X OPTIONS https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef 2>&1 | head -20
+HTTP/1.1 204 No Content
+Server: nginx
+Date: Mon, 10 Aug 2026 05:51:00 GMT
+Content-Length: 0
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE
+Vary: Access-Control-Request-Headers
+Strict-Transport-Security: max-age=31104000; includeSubdomains
+Expect-CT: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+[0m
+[0m$ [0mcurl -s -m 10 -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -H "Origin: https://evil.example.com" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' 2>&1 | head -5
+{"identities":[{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}]}
+[0m
+[0m$ [0mcurl -sI -m 10 https://safe-01.threema.ch/ 2>&1 | head -15
+HTTP/1.1 404 Not Found
+Server: nginx
+Date: Mon, 10 Aug 2026 05:51:11 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 140
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Content-Security-Policy: default-src 'none'
+X-Content-Type-Options: nosniff
+[0m
+[0m$ [0mcurl -s -m 10 -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -H "Origin: https://evil.example.com" -d '{"identities":["ECHOECHO"]}' 2>&1 && echo "---HEADERS---" && curl -sI -m 10 -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -H "Origin: https://evil.example.com" -d '{"identities":["ECHOECHO"]}' 2>&1 | head -15
+{"identities":[{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}]}---HEADERS---
+[0m
+[0m$ [0mcurl -sI -m 10 https://mediator-0.threema.ch/ 2>&1 | head -10 && echo "---" && curl -sI -m 10 https://rendezvous-0.threema.ch/ 2>&1 | head -10
+HTTP/1.1 403 Forbidden
+Server: nginx
+Date: Mon, 10 Aug 2026 05:51:44 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 146
+Connection: keep-alive
+
+---
+HTTP/1.1 403 Forbidden
+Server: nginx
+Date: Mon, 10 Aug 2026 05:51:45 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 146
+Connection: keep-alive
+[0m
+[0m$ [0mcurl -s -m 10 -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -H "Origin: https://evil.example.com" -d '{"identities":["ECHOECHO","ZZZZZZZZ","AAAAAAAA","TESTTEST"]}' 2>&1
+{"identities":[{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}]}
+[0m
+[0m$ [0mcurl -sI -m 10 -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -H "Origin: https://evil.example.com" -d '{"identities":["ECHOECHO"]}' 2>&1
+(no output)
+[0m
+[0m$ [0mcurl -s -m 10 -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -H "Origin: https://evil.example.com" -d '{"identities":["ECHOECHO"]}' -D - 2>&1 | head -20
+HTTP/1.1 200 OK
+Server: nginx
+Date: Mon, 10 Aug 2026 05:52:14 GMT
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+Access-Control-Allow-Headers: Content-Type, User-Agent
+
+{"identities":[{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}]}
+[0m
+[0m$ [0mcurl -sI -m 10 https://work.test.threema.ch/api-app/public/global/settings 2>&1 | head -15 && echo "---" && curl -s -m 10 https://work.test.threema.ch/api-app/public/global/settings 2>&1
+HTTP/2 404 
+server: nginx
+date: Mon, 10 Aug 2026 05:52:16 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: __HOST-HTTP-SESSIONID=hqeodicpurnhv85l1uectop3ue; path=/; secure; HttpOnly; SameSite=Strict
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+
+---
+{"appLinkHost":"threemablue://","appDownloadAndroidGooglePlay":"https://play.google.com/store/apps/details?id=ch.threema.app.work","appDownloadIos":"https://itunes.apple.com/app/threema-work/id1105927783?mt=8\u0026uo=4\u0026at=10lJMu","appDownloadDesktop":"https://threema.ch/work/download#desktop"}
+[0m
+[0m$ [0mcurl -sI -m 10 https://broadcast.threema.ch/api/v1 2>&1 | head -10
+HTTP/2 301 
+server: nginx
+date: Mon, 10 Aug 2026 05:52:17 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: SESSIONID=lojkflbct4omj8hl7lbrnkbjsu; path=/; secure; HttpOnly; SameSite=Strict
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+location: /api/v1/
+strict-transport-security: max-age=31104000; includeSubdomains
+[0m
+All surfaces byte-stable across probes. Producing structured output.
+
+---
+
+## 2026-08-10 05:52:17 UTC [sync]
+
+STEP 1 — DELTA: NO_DELTA
+All probed endpoints return byte-identical results to prior cycles:
+- safe-01 GET /backups/{64hex} → 400, ACAO `*`, NO HSTS/Expect-CT ✓
+- safe-01 OPTIONS → 204, ACAO `*`, HSTS+Expect-CT ✓
+- ds-apip fetch_bulk POST → 200, ACAO `*` + Allow-Methods POST,GET,OPTIONS/DELETE ✓
+- work.test /api-app/public/global/settings → 200/299B ✓
+- broadcast /api/v1 → 301 → /api/v1/ ✓
+- mediator-0/rendezvous-0 → uniform 403 ✓
+
+One correction: `poc/` directory is ABSENT on filesystem (despite KB claim "NOW GENERATED"). PoC artifact gap reopens.
+
+STEP 2 — PRIORITIZE
+[PRIO] ds-apip.threema.ch/identity/fetch_bulk — score 8.70 (attack:9, business:8, tech:6, gate:10, cloud:7, fresh:5)
+[PRIO] threema-desktop key-storage (Windows) — score 7.60 (attack:7, business:8, tech:7, gate:5, cloud:3, fresh:9)
+[PRIO] safe-01.threema.ch/backups/{64hex} — score 6.80 (attack:8, business:9, tech:7, gate:3, cloud:7, fresh:4)
+
+STEP 3 — HYPOTHESES
+
+[HYP] fetch_bulk identity→pubkey mass enumeration
+class: IDOR
+asset: ds-apip.threema.ch/identity/fetch_bulk (+ api.threema.ch, apip.threema.ch)
+confidence: 97
+reasoning: 3 prod hosts accept POST ≤10000 IDs/req (10001→400/0B sharp count-cap). Returns only valid IDs' pubkeys; silent-omit creates response-size oracle. ACAO:* + Allow-Methods POST,GET,OPTIONS,DELETE on both 200 and 400. Zero 429s across 35+ sequential probes.
+evidence_needed: None — fully confirmed via passive probes.
+verify_steps: PASSIVE — already executed; byte-stable this cycle (ECHOECHO echoed, ZZZZZZZZ omitted).
+impact: Full consumer identity→pubkey enumeration at ~10k IDs/req, no auth, cross-origin readable. CVSS 7.5.
+testability: PASSIVE
+
+[HYP] Windows key-storage ACL bypass yields Ed25519 identity + SQLCipher key
+class: MISCONFIG
+asset: threema-desktop (Windows) — fs.ts:41, key-storage/index.ts:559, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, sqlite.ts:240
+confidence: 95
+reasoning: fileModeInternalObjectIfPosix() returns {} on win32; _writeOrOverrideFile + STORE_USER_PASSWORD write keystorage.bin + keystorage.password.bin with {} (no DACL); safeStorage (DPAPI) password recoverable by same-user processes; inner/v3 schema exposes ck (Ed25519 privkey) + databaseKey; Argon2id→XSalsa20-Poly1305 key purged at :113; sqlite PRAGMA key = databaseKey.
+evidence_needed: Source chain confirmed (6 core paths via WebFetch on GitHub stable). PoC artifact absent from workspace (reopened gap).
+verify_steps: RAG: WebFetch GitHub stable ✓ (all 6 paths). HUMAN_ONLY for Windows runtime validation.
+impact: Same-user attacker recovers Ed25519 identity key + SQLCipher DB key → full local message DB decryption, account impersonation. CVSS 8.1.
+testability: HUMAN_ONLY
+
+[HYP] Safe backup API: credentialed cross-origin read with transport-header gap
+class: AUTH
+asset: safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 55
+reasoning: GET /backups/{64hex}→400 (cred-gated) vs /backup/{x}→404 (route oracle). OPTIONS→204 with ACAO:* + Allow-Headers: authorization (credentialed cross-origin enabled). HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400. HTTP Basic Auth (backupId:backupKey). 5 hostnames uniform behind 203.56.112.231.
+evidence_needed: Valid backupId:backupKey pair to test authenticated cross-origin read.
+verify_steps: AUTH_HELPED — passive only confirms route gating + CORS posture; cannot demonstrate data access without valid credentials.
+impact: If creds obtained: cross-origin backup download → message history, contacts, media. CVSS 7.1.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] Safe backup API credentialed cross-origin read: confidence 55 < threshold for AUTH-class in passive-first scope. All viable passive surfaces confirmed (route oracle, CORS posture, HSTS gap). AUTH_HELPED test requires program-issued credentials — cannot advance passively.
+[FINAL]
+1. [97] fetch_bulk identity→pubkey mass enumeration (IDOR, PASSIVE, fully confirmed)
+2. [95] Windows key-storage ACL bypass (MISCONFIG, HUMAN_ONLY, source chain confirmed, PoC gap open)
+
+STEP 5 — NEXT ACTION
+[NEXT] PRODUCE: `mkdir -p /home/runner/work/threema-hunt/threema-hunt/poc && cat > poc/key-storage-acl-bypass-poc.js` — Recreate the missing PoC artifact (artifact was claimed-generated in prior cycle but `find` returns zero results on filesystem). The 6-path RAG source chain is already verified on GitHub stable; artifact documents the chain and runs graceful no-op on Linux. After generation: `node --check poc/key-storage-acl-bypass-poc.js` for syntax validation.
+
+STEP 6 — LEARNING
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 52a0af98… re-confirmed RAG-verified benchmark-only dummy — determineKdfParams() calibrates Argon2id, key purged at line 233 via benchmarkKey.purge(). Zero new classifications this cycle.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req (10000→200/152B, 10001→400/0B); CORS * + no rate-limit + 5 challenge param-oracles — all byte-stable this cycle.
+[LEARN] ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency re-confirmed live this cycle.
+[LEARN] CHANGED poc/ directory: PoC artifact gap REOPENS — `ls poc/` returns "POC_DIR_ABSENT" despite KB claim "NOW GENERATED". Prior cycle's claim was incorrect.
+
+STEP 7 — RISK SCORE
+[RISK] chat: 30 — prod DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band 443/5222 passive channel closed (0 bytes pushed without auth login frame); no passive in-band divergence obtainable
+[RISK] web: 72 — directory cluster (3 prod hosts, fetch_bulk 10k batch + CORS * + no rate-limit); safe backup API (permissive CORS + write methods + HSTS gap); work/broadcast/gateway cockpits accessible; staging work public API divergence
+[RISK] sync: 35 — mediator-{prefix4}/rendezvous-{prefix4} resolve but uniform 403; high-entropy WSS paths; no passive in-band divergence; saltyrtc-* out of scope
+[RISK] safe: 58 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
+[RISK] desktop-src: 68 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain
