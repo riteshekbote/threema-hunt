@@ -1003,3 +1003,14 @@
 - NEW Chat shards IPv4-only, direct A records — no AAAA/CNAME on `g-*.0.threema.ch` (no LB aliasing at DNS layer)
 - CHANGED `broadcast.threema.ch/api/v1` → HTTP 401 auth-gated confirmed (key-format oracle disproven; 1/32/64-char keys byte-identical 403)
 - CHANGED `gateway.threema.ch/en/signup` → HTTP 200 (14KB signup page accessible; no msgapi route exposed)
+
+## 2026-08-10 03:08:42 UTC
+- NEW `mediator-{prefix4}.threema.ch/{prefix8}/` — mediator WSS hostname pattern confirmed in scope; DNS split IPs (0-7→203.56.112.247, 8-f→203.56.114.247); uniform 403 on HTTPS; high-entropy path structure
+- NEW `rendezvous-{prefix4}.threema.ch/{prefix8}/` — rendezvous WSS hostname pattern confirmed in scope; same DNS split routing as mediator; uniform 403 on HTTPS; high-entropy path structure
+- NEW `ds-apip-work.threema.ch` — work-style directory server confirmed live; 401 on all paths (/identity/*, /identities); CORS `*`; no HSTS/Expect-CT; Basic auth required
+- NEW `safe-{backupIdPrefix8}.threema.ch/` — backup safe hostname pattern confirmed in scope; 5 hostnames (safe-01, safe-1a, safe-1b, safe-02, safe-00) resolve to single IP 203.56.112.231
+- NEW `ds-apip.threema.ch` — canonical directory server hostname confirmed via desktop client build config (config/vite.config.ts + OpenAPI); public GET /identity/{id} returns 200/404 oracle
+- NEW `g-*.0.threema.ch` — chat shard→node DNS split precisely mapped; `g-{00..7f}`→203.56.112.202 (128 shards), `g-{80..ff}`→203.56.112.204 (128 shards); sharp 0x7f/0x80 boundary; IPv4-only direct A record
+- CHANGED `poc/key-storage-acl-bypass-poc.js` — PoC artifact NOW GENERATED + `node --check` PASS + Linux no-op confirmed (was claimed-but-missing)
+- CHANGED `broadcast.threema.ch/api/v1` → HTTP 401 auth-gated; key-format/validity oracle disproven (1/32/64-char keys → byte-identical 403)
+- CHANGED `gateway.threema.ch/en/signup` → HTTP 200 (14KB signup page accessible)

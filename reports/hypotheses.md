@@ -1950,3 +1950,17 @@
 - LEARN: ACCEPTED OTHER @ g-80.0.threema.ch (203.56.112.204): TCP 5222/443 connect with 0 bytes pushed — posture parity with node .202; prior "chat passive channel forma
 - LEARN: ACCEPTED class @ OTHER (DNS-attribution recon on chat): the prior in-band closure does NOT exhaust chat recon; DNS-level shard/node attribution is a live passiv
 - LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DESK-79) and nodeIntegrationInWorker: true (TODO DESK-79) — L1240 
+
+## RANKED HYPOTHESES 2026-08-10 03:08:42 UTC
+- [95] `threema-desktop`: Desktop key-storage Windows ACL bypass yields identity private key + SQLCipher key (from reports/hypotheses-laguna.txt)
+- [85] g-*.0.threema.ch: Identity→serverGroup→node attribution fully closed end-to-end (static) (from reports/hypotheses-bigpickle.txt)
+- [65] `https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}`: Safe backup API transport header inconsistency on credential-gated endpoint (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: `curl -sI https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` — confirm 400 without HSTS/Expect-CT heade
+- NEXT(hypotheses-laguna.txt): PRODUCE: `mkdir -p /home/runner/work/threema-hunt/threema-hunt/poc && cat > poc/key-storage-acl-bypass-poc.js` — Create the PoC artifact for the Windows key-sto
+- LEARN: ACCEPTED OTHER @ mediator-{prefix4}.threema.ch/{prefix8}/: mediator WSS hostname pattern confirmed in scope; DNS split IPs (0-7→203.56.112.247, 8-f→203.56.114.2
+- LEARN: ACCEPTED OTHER @ rendezvous-{prefix4}.threema.ch/{prefix8}/: rendezvous WSS hostname pattern confirmed in scope; same DNS split routing as mediator; uniform 403
+- LEARN: ACCEPTED OTHER @ safe-{backupIdPrefix8}.threema.ch/: backup safe hostname pattern confirmed in scope; 5 hostnames resolve to single IP 203.56.112.231
+- LEARN: ACCEPTED OTHER @ ds-apip-work.threema.ch: work-style directory server confirmed live; 401 on all paths; CORS *; no HSTS/Expect-CT; Basic auth required
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch: canonical directory server hostname confirmed via desktop client build config; public GET /identity/{id} returns 200/404 or
+- LEARN: ACCEPTED OTHER @ g-*.0.threema.ch: chat shard→node DNS split precisely mapped; g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204; sharp 0x7f/0x80 boundary; I
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DESK-79) and nodeIntegrationInWorker: true (TODO DESK-79); L1240 c
