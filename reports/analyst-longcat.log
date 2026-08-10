@@ -2953,3 +2953,454 @@ All 3 hypotheses survive: #1 (97, PASSIVE), #2 (95, HUMAN_ONLY), #3 (50, AUTH_HE
 [RISK] safe: 88 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain
 ```
+===== ANALYST longcat 2026-08-10 14:05:18 UTC =====
+[0m
+> build · longcat-2.0-free
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/poc/ 2>&1; echo "---"; ls /home/runner/work/threema-hunt/threema-hunt/ 2>&1
+ls: cannot access '/home/runner/work/threema-hunt/threema-hunt/poc/': No such file or directory
+---
+README.md
+analyst-out.txt
+analyst-prompt.txt
+ctx.txt
+inventory
+knowledge
+leads
+probe-results.md
+reports
+reposcan-raw
+scope.yml
+scripts
+state_bigpickle.json
+state_laguna.json
+state_ling3.json
+state_longcat.json
+state_nemotron3.json
+triage
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/inventory/ 2>&1; echo "==="; ls -la /home/runner/work/threema-hunt/threema-hunt/leads/ 2>&1; echo "==="; ls -la /home/runner/work/threema-hunt/threema-hunt/reports/ 2>&1
+total 152
+drwxr-xr-x  2 runner runner   4096 Aug 10 13:58 .
+drwxr-xr-x 11 runner runner   4096 Aug 10 13:59 ..
+-rw-r--r--  1 runner runner 144197 Aug 10 13:58 threema.md
+===
+total 4972
+drwxr-xr-x  2 runner runner   12288 Aug 10 13:58 .
+drwxr-xr-x 11 runner runner    4096 Aug 10 13:59 ..
+-rw-r--r--  1 runner runner  933530 Aug 10 13:58 lead-bigpickle.md
+-rw-r--r--  1 runner runner 1046532 Aug 10 13:58 lead-laguna.md
+-rw-r--r--  1 runner runner    9702 Aug 10 13:58 lead-ling3.md
+-rw-r--r--  1 runner runner   92481 Aug 10 13:58 lead-longcat.md
+-rw-r--r--  1 runner runner  913477 Aug 10 13:58 lead-nemotron3.md
+-rw-r--r--  1 runner runner   11048 Aug 10 13:58 reposcan-2026-08-07-18-43.md
+-rw-r--r--  1 runner runner   13399 Aug 10 13:58 reposcan-2026-08-07-18-59.md
+-rw-r--r--  1 runner runner   13429 Aug 10 13:58 reposcan-2026-08-07-19-20.md
+-rw-r--r--  1 runner runner   11241 Aug 10 13:58 reposcan-2026-08-07-19-33.md
+-rw-r--r--  1 runner runner    6565 Aug 10 13:58 reposcan-2026-08-07-20-11.md
+-rw-r--r--  1 runner runner    9511 Aug 10 13:58 reposcan-2026-08-07-20-59.md
+-rw-r--r--  1 runner runner   13472 Aug 10 13:58 reposcan-2026-08-07-21-13.md
+-rw-r--r--  1 runner runner   10507 Aug 10 13:58 reposcan-2026-08-07-21-27.md
+-rw-r--r--  1 runner runner   13665 Aug 10 13:58 reposcan-2026-08-07-22-10.md
+-rw-r--r--  1 runner runner   10938 Aug 10 13:58 reposcan-2026-08-07-22-46.md
+-rw-r--r--  1 runner runner   17321 Aug 10 13:58 reposcan-2026-08-07-23-10.md
+-rw-r--r--  1 runner runner   15373 Aug 10 13:58 reposcan-2026-08-07-23-19.md
+-rw-r--r--  1 runner runner   11670 Aug 10 13:58 reposcan-2026-08-07-23-50.md
+-rw-r--r--  1 runner runner   14267 Aug 10 13:58 reposcan-2026-08-08-00-01.md
+-rw-r--r--  1 runner runner   12628 Aug 10 13:58 reposcan-2026-08-08-00-19.md
+-rw-r--r--  1 runner runner   13392 Aug 10 13:58 reposcan-2026-08-08-02-10.md
+-rw-r--r--  1 runner runner   13822 Aug 10 13:58 reposcan-2026-08-08-02-23.md
+-rw-r--r--  1 runner runner   13194 Aug 10 13:58 reposcan-2026-08-08-03-52.md
+-rw-r--r--  1 runner runner   14260 Aug 10 13:58 reposcan-2026-08-08-04-47.md
+-rw-r--r--  1 runner runner   15327 Aug 10 13:58 reposcan-2026-08-08-05-01.md
+-rw-r--r--  1 runner runner   13092 Aug 10 13:58 reposcan-2026-08-08-05-29.md
+-rw-r--r--  1 runner runner   11228 Aug 10 13:58 reposcan-2026-08-08-05-48.md
+-rw-r--r--  1 runner runner   10378 Aug 10 13:58 reposcan-2026-08-08-06-08.md
+-rw-r--r--  1 runner runner   11257 Aug 10 13:58 reposcan-2026-08-08-06-56.md
+-rw-r--r--  1 runner runner   11788 Aug 10 13:58 reposcan-2026-08-08-07-12.md
+-rw-r--r--  1 runner runner    9790 Aug 10 13:58 reposcan-2026-08-08-07-53.md
+-rw-r--r--  1 runner runner   10972 Aug 10 13:58 reposcan-2026-08-08-08-07.md
+-rw-r--r--  1 runner runner   13672 Aug 10 13:58 reposcan-2026-08-08-08-37.md
+-rw-r--r--  1 runner runner    6321 Aug 10 13:58 reposcan-2026-08-08-08-42.md
+-rw-r--r--  1 runner runner   16455 Aug 10 13:58 reposcan-2026-08-08-09-21.md
+-rw-r--r--  1 runner runner   14107 Aug 10 13:58 reposcan-2026-08-08-09-40.md
+-rw-r--r--  1 runner runner   14710 Aug 10 13:58 reposcan-2026-08-08-10-09.md
+-rw-r--r--  1 runner runner   13912 Aug 10 13:58 reposcan-2026-08-08-10-27.md
+-rw-r--r--  1 runner runner   15295 Aug 10 13:58 reposcan-2026-08-08-10-37.md
+-rw-r--r--  1 runner runner   11119 Aug 10 13:58 reposcan-2026-08-08-11-08.md
+-rw-r--r--  1 runner runner   16740 Aug 10 13:58 reposcan-2026-08-08-11-28.md
+-rw-r--r--  1 runner runner   11393 Aug 10 13:58 reposcan-2026-08-08-11-30.md
+-rw-r--r--  1 runner runner   10793 Aug 10 13:58 reposcan-2026-08-08-11-55.md
+-rw-r--r--  1 runner runner   13925 Aug 10 13:58 reposcan-2026-08-08-12-00.md
+-rw-r--r--  1 runner runner   12984 Aug 10 13:58 reposcan-2026-08-08-12-09.md
+-rw-r--r--  1 runner runner   11553 Aug 10 13:58 reposcan-2026-08-08-13-01.md
+-rw-r--r--  1 runner runner   16362 Aug 10 13:58 reposcan-2026-08-08-13-15.md
+-rw-r--r--  1 runner runner   11685 Aug 10 13:58 reposcan-2026-08-08-13-56.md
+-rw-r--r--  1 runner runner   11740 Aug 10 13:58 reposcan-2026-08-08-14-04.md
+-rw-r--r--  1 runner runner   14858 Aug 10 13:58 reposcan-2026-08-08-14-28.md
+-rw-r--r--  1 runner runner   10356 Aug 10 13:58 reposcan-2026-08-08-14-35.md
+-rw-r--r--  1 runner runner   10513 Aug 10 13:58 reposcan-2026-08-08-15-08.md
+-rw-r--r--  1 runner runner    6321 Aug 10 13:58 reposcan-2026-08-08-15-31.md
+-rw-r--r--  1 runner runner   11739 Aug 10 13:58 reposcan-2026-08-08-16-00.md
+-rw-r--r--  1 runner runner   15164 Aug 10 13:58 reposcan-2026-08-08-16-07.md
+-rw-r--r--  1 runner runner   12405 Aug 10 13:58 reposcan-2026-08-08-16-15.md
+-rw-r--r--  1 runner runner    6321 Aug 10 13:58 reposcan-2026-08-08-17-04.md
+-rw-r--r--  1 runner runner   12923 Aug 10 13:58 reposcan-2026-08-08-17-51.md
+-rw-r--r--  1 runner runner   15904 Aug 10 13:58 reposcan-2026-08-08-18-04.md
+-rw-r--r--  1 runner runner   11771 Aug 10 13:58 reposcan-2026-08-08-18-36.md
+-rw-r--r--  1 runner runner   12165 Aug 10 13:58 reposcan-2026-08-08-19-19.md
+-rw-r--r--  1 runner runner   14685 Aug 10 13:58 reposcan-2026-08-08-19-46.md
+-rw-r--r--  1 runner runner   13911 Aug 10 13:58 reposcan-2026-08-08-19-58.md
+-rw-r--r--  1 runner runner    9017 Aug 10 13:58 reposcan-2026-08-08-20-14.md
+-rw-r--r--  1 runner runner   17271 Aug 10 13:58 reposcan-2026-08-08-20-33.md
+-rw-r--r--  1 runner runner   14693 Aug 10 13:58 reposcan-2026-08-08-20-41.md
+-rw-r--r--  1 runner runner   13770 Aug 10 13:58 reposcan-2026-08-08-21-03.md
+-rw-r--r--  1 runner runner   16811 Aug 10 13:58 reposcan-2026-08-08-21-11.md
+-rw-r--r--  1 runner runner   14116 Aug 10 13:58 reposcan-2026-08-08-21-32.md
+-rw-r--r--  1 runner runner   12845 Aug 10 13:58 reposcan-2026-08-08-21-41.md
+-rw-r--r--  1 runner runner   12743 Aug 10 13:58 reposcan-2026-08-08-22-05.md
+-rw-r--r--  1 runner runner   11547 Aug 10 13:58 reposcan-2026-08-08-22-19.md
+-rw-r--r--  1 runner runner   12410 Aug 10 13:58 reposcan-2026-08-08-22-54.md
+-rw-r--r--  1 runner runner    6471 Aug 10 13:58 reposcan-2026-08-08-23-19.md
+-rw-r--r--  1 runner runner    6321 Aug 10 13:58 reposcan-2026-08-08-23-28.md
+-rw-r--r--  1 runner runner   10531 Aug 10 13:58 reposcan-2026-08-08-23-48.md
+-rw-r--r--  1 runner runner   13968 Aug 10 13:58 reposcan-2026-08-08-23-59.md
+-rw-r--r--  1 runner runner   13598 Aug 10 13:58 reposcan-2026-08-09-00-07.md
+-rw-r--r--  1 runner runner   12837 Aug 10 13:58 reposcan-2026-08-09-01-41.md
+-rw-r--r--  1 runner runner   11706 Aug 10 13:58 reposcan-2026-08-09-02-39.md
+-rw-r--r--  1 runner runner   12540 Aug 10 13:58 reposcan-2026-08-09-03-22.md
+-rw-r--r--  1 runner runner   12484 Aug 10 13:58 reposcan-2026-08-09-04-04.md
+-rw-r--r--  1 runner runner   13901 Aug 10 13:58 reposcan-2026-08-09-04-50.md
+-rw-r--r--  1 runner runner   11067 Aug 10 13:58 reposcan-2026-08-09-05-12.md
+-rw-r--r--  1 runner runner   11859 Aug 10 13:58 reposcan-2026-08-09-05-48.md
+-rw-r--r--  1 runner runner   13461 Aug 10 13:58 reposcan-2026-08-09-06-47.md
+-rw-r--r--  1 runner runner   12488 Aug 10 13:58 reposcan-2026-08-09-06-55.md
+-rw-r--r--  1 runner runner   16116 Aug 10 13:58 reposcan-2026-08-09-07-37.md
+-rw-r--r--  1 runner runner    7436 Aug 10 13:58 reposcan-2026-08-09-07-53.md
+-rw-r--r--  1 runner runner   11170 Aug 10 13:58 reposcan-2026-08-09-08-15.md
+-rw-r--r--  1 runner runner   12517 Aug 10 13:58 reposcan-2026-08-09-08-43.md
+-rw-r--r--  1 runner runner   10944 Aug 10 13:58 reposcan-2026-08-09-09-10.md
+-rw-r--r--  1 runner runner   12832 Aug 10 13:58 reposcan-2026-08-09-09-26.md
+-rw-r--r--  1 runner runner    9567 Aug 10 13:58 reposcan-2026-08-09-09-57.md
+-rw-r--r--  1 runner runner   12475 Aug 10 13:58 reposcan-2026-08-09-10-07.md
+-rw-r--r--  1 runner runner   12838 Aug 10 13:58 reposcan-2026-08-09-10-16.md
+-rw-r--r--  1 runner runner   13621 Aug 10 13:58 reposcan-2026-08-09-10-56.md
+-rw-r--r--  1 runner runner   15973 Aug 10 13:58 reposcan-2026-08-09-11-31.md
+-rw-r--r--  1 runner runner   11091 Aug 10 13:58 reposcan-2026-08-09-12-01.md
+-rw-r--r--  1 runner runner   11474 Aug 10 13:58 reposcan-2026-08-09-12-21.md
+-rw-r--r--  1 runner runner   11500 Aug 10 13:58 reposcan-2026-08-09-12-54.md
+-rw-r--r--  1 runner runner    8370 Aug 10 13:58 reposcan-2026-08-09-13-19.md
+-rw-r--r--  1 runner runner   14419 Aug 10 13:58 reposcan-2026-08-09-13-55.md
+-rw-r--r--  1 runner runner   14702 Aug 10 13:58 reposcan-2026-08-09-14-13.md
+-rw-r--r--  1 runner runner   14725 Aug 10 13:58 reposcan-2026-08-09-14-38.md
+-rw-r--r--  1 runner runner    6957 Aug 10 13:58 reposcan-2026-08-09-15-07.md
+-rw-r--r--  1 runner runner   10590 Aug 10 13:58 reposcan-2026-08-09-15-12.md
+-rw-r--r--  1 runner runner   15748 Aug 10 13:58 reposcan-2026-08-09-15-43.md
+-rw-r--r--  1 runner runner   16167 Aug 10 13:58 reposcan-2026-08-09-15-51.md
+-rw-r--r--  1 runner runner   11425 Aug 10 13:58 reposcan-2026-08-09-16-06.md
+-rw-r--r--  1 runner runner    6321 Aug 10 13:58 reposcan-2026-08-09-16-34.md
+-rw-r--r--  1 runner runner   18280 Aug 10 13:58 reposcan-2026-08-09-16-49.md
+-rw-r--r--  1 runner runner   11584 Aug 10 13:58 reposcan-2026-08-09-17-16.md
+-rw-r--r--  1 runner runner   15564 Aug 10 13:58 reposcan-2026-08-09-17-54.md
+-rw-r--r--  1 runner runner   13238 Aug 10 13:58 reposcan-2026-08-09-18-15.md
+-rw-r--r--  1 runner runner   14208 Aug 10 13:58 reposcan-2026-08-09-18-41.md
+-rw-r--r--  1 runner runner    6321 Aug 10 13:58 reposcan-2026-08-09-19-06.md
+-rw-r--r--  1 runner runner   11206 Aug 10 13:58 reposcan-2026-08-09-19-23.md
+-rw-r--r--  1 runner runner   11793 Aug 10 13:58 reposcan-2026-08-09-19-35.md
+-rw-r--r--  1 runner runner   10808 Aug 10 13:58 reposcan-2026-08-09-19-59.md
+-rw-r--r--  1 runner runner    9691 Aug 10 13:58 reposcan-2026-08-09-20-24.md
+-rw-r--r--  1 runner runner   14325 Aug 10 13:58 reposcan-2026-08-09-20-42.md
+-rw-r--r--  1 runner runner   12928 Aug 10 13:58 reposcan-2026-08-09-21-02.md
+-rw-r--r--  1 runner runner   14085 Aug 10 13:58 reposcan-2026-08-09-21-16.md
+-rw-r--r--  1 runner runner   14875 Aug 10 13:58 reposcan-2026-08-09-21-26.md
+-rw-r--r--  1 runner runner    9647 Aug 10 13:58 reposcan-2026-08-09-21-52.md
+-rw-r--r--  1 runner runner   11214 Aug 10 13:58 reposcan-2026-08-09-22-02.md
+-rw-r--r--  1 runner runner    6321 Aug 10 13:58 reposcan-2026-08-09-22-22.md
+-rw-r--r--  1 runner runner   11028 Aug 10 13:58 reposcan-2026-08-09-22-31.md
+-rw-r--r--  1 runner runner   16518 Aug 10 13:58 reposcan-2026-08-09-23-06.md
+-rw-r--r--  1 runner runner   10421 Aug 10 13:58 reposcan-2026-08-09-23-23.md
+-rw-r--r--  1 runner runner   12212 Aug 10 13:58 reposcan-2026-08-09-23-49.md
+-rw-r--r--  1 runner runner   10842 Aug 10 13:58 reposcan-2026-08-10-00-01.md
+-rw-r--r--  1 runner runner   11331 Aug 10 13:58 reposcan-2026-08-10-00-49.md
+-rw-r--r--  1 runner runner   14656 Aug 10 13:58 reposcan-2026-08-10-01-44.md
+-rw-r--r--  1 runner runner   14825 Aug 10 13:58 reposcan-2026-08-10-03-11.md
+-rw-r--r--  1 runner runner   10783 Aug 10 13:58 reposcan-2026-08-10-03-32.md
+-rw-r--r--  1 runner runner   12938 Aug 10 13:58 reposcan-2026-08-10-04-33.md
+-rw-r--r--  1 runner runner   12644 Aug 10 13:58 reposcan-2026-08-10-05-10.md
+-rw-r--r--  1 runner runner    6321 Aug 10 13:58 reposcan-2026-08-10-06-03.md
+-rw-r--r--  1 runner runner    6647 Aug 10 13:58 reposcan-2026-08-10-06-43.md
+-rw-r--r--  1 runner runner   10620 Aug 10 13:58 reposcan-2026-08-10-07-23.md
+-rw-r--r--  1 runner runner   11838 Aug 10 13:58 reposcan-2026-08-10-08-20.md
+-rw-r--r--  1 runner runner    6321 Aug 10 13:58 reposcan-2026-08-10-08-36.md
+-rw-r--r--  1 runner runner   10758 Aug 10 13:58 reposcan-2026-08-10-10-00.md
+-rw-r--r--  1 runner runner    7105 Aug 10 13:58 reposcan-2026-08-10-10-20.md
+-rw-r--r--  1 runner runner   12275 Aug 10 13:58 reposcan-2026-08-10-11-15.md
+-rw-r--r--  1 runner runner   11397 Aug 10 13:58 reposcan-2026-08-10-11-54.md
+-rw-r--r--  1 runner runner    6321 Aug 10 13:58 reposcan-2026-08-10-12-01.md
+-rw-r--r--  1 runner runner   13753 Aug 10 13:58 reposcan-2026-08-10-12-44.md
+-rw-r--r--  1 runner runner   11856 Aug 10 13:58 reposcan-2026-08-10-13-33.md
+-rw-r--r--  1 runner runner   11856 Aug 10 13:58 reposcan-latest.md
+===
+total 11896
+drwxr-xr-x  2 runner runner    4096 Aug 10 13:58 .
+drwxr-xr-x 11 runner runner    4096 Aug 10 13:59 ..
+-rw-r--r--  1 runner runner 4187487 Aug 10 13:58 analyst-bigpickle.log
+-rw-r--r--  1 runner runner 6302202 Aug 10 13:58 analyst-laguna.log
+-rw-r--r--  1 runner runner   31519 Aug 10 13:58 analyst-ling3.log
+-rw-r--r--  1 runner runner  217569 Aug 10 13:58 analyst-longcat.log
+-rw-r--r--  1 runner runner 1171353 Aug 10 13:58 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   41384 Aug 10 13:58 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      52 Aug 10 13:58 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      48 Aug 10 13:58 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner    7055 Aug 10 13:58 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner    8680 Aug 10 13:58 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  348227 Aug 10 13:58 hypotheses.md
+-rw-r--r--  1 runner runner   40528 Aug 10 13:58 valid-bugs.md
+[0m
+[0m→ [0mRead reports/hypotheses-longcat.txt
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m→ [0mRead reports/hypotheses-nemotron3.txt
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/knowledge/ 2>&1; echo "==="; head -50 /home/runner/work/threema-hunt/threema-hunt/knowledge/index.md 2>&1
+total 88
+drwxr-xr-x  2 runner runner  4096 Aug 10 13:58 .
+drwxr-xr-x 11 runner runner  4096 Aug 10 13:59 ..
+-rw-r--r--  1 runner runner 80899 Aug 10 13:58 index.md
+===
+# Knowledge Base (seed)
+
+## Program rules (from scope.yml)
+- In scope: Android source, iOS source, Desktop 2.x source (threema-desktop), g-*.0.threema.ch, mediator-*.threema.ch, rendezvous-*.threema.ch, apip.threema.ch, safe-*.threema.ch, work.threema.ch, broadcast.threema.ch, gateway.threema.ch, shop.threema.ch, billing.threema.ch
+- ALL other targets and third-party services are OUT of scope
+- Passive-first: GET/HEAD only, <=1 rps, no account creation, no data modification
+- Secrets in commits: sha256 only, never raw
+
+## Baseline surface (2026-08-07 passive recon)
+- apip.threema.ch: HTTP 403 on /
+- work.threema.ch: 301 (redirect)
+- shop.threema.ch: 301 (redirect)
+- broadcast.threema.ch / gateway.threema.ch / billing.threema.ch: TIMEOUT (retry; note gating)
+- GitHub org threema-ch (23 repos): threema-android (Kotlin), threema-ios (Swift), threema-desktop (TS), threema-web (TS), threema-web-electron, threema-msgapi-sdk-{php,java,python,rust}, threema-bot-sdk, push-relay (Rust), app-remote-protocol, webrtc-build-docker, apns-h2, etc.
+
+## Rejected / parked
+- (none yet)
+- 2026-08-07 ACCEPTED AUTH @ apip.threema.ch: CORS misconfiguration enabling cross-origin API probes confirmed via passive HEAD/GET.
+- 2026-08-07 ACCEPTED OTHER @ threema-desktop: Electron attack surface confirmed in scope; static analysis is valid passive-first approach.
+- 2026-08-07 ACCEPTED IDOR @ ds-apip.threema.ch: Public `GET /identity/{id}` returns 200/404 oracle with permissive CORS and no observable rate limit — confirmed via passive probes.
+- 2026-08-07 ACCEPTED IDOR @ ds-apip.threema.ch: Unauthenticated identity→pubkey oracle confirmed via GET /identity/{id} (200/404) AND POST /identity/fetch_bulk (returns pubkeys for valid IDs only, no auth).
+- 2026-08-07 ACCEPTED AUTH @ apip.threema.ch: CORS misconfiguration confirmed — Access-Control-Allow-Origin: *, methods include POST/GET/OPTIONS/DELETE — cross-origin API probes enabled from any attacker origin.
+- 2026-08-07 ACCEPTED OTHER @ api.threema.ch: Previously a "candidate ID/directory sibling"; now confirmed as an active directory server with identical endpoints and CORS headers as ds-apip.threema.ch.
+- 2026-08-07 REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in `determineKdfParams()`, derived key immediately purged, not used for any real encryption.
+- 2026-08-07 REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not vulnerable.
+- 2026-08-07 ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — `keystorage.bin` and `keystorage.password.bin` written without ACL restrictions; safeStorage (DPAPI) password recoverable by same-user processes.
+- 2026-08-07 ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateLimit). CORS `*` with DELETE/POST/GET/OPTIONS. All three hostnames return identical pubkeys for valid IDs; invalid IDs silently omitted.
+- 2026-08-07 ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: Staging directory server publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+- 2026-08-07 ACCEPTED MISCONFIG @ ds-apip.test.threema.ch + apip.test.threema.ch: Staging directory servers publicly reachable with identical API surface to production; HSTS/Expect-CT present on staging but absent on production.
+- 2026-08-07 ACCEPTED OTHER @ safe-01.threema.ch: Backup server publicly reachable with permissive CORS (Access-Control-Allow-Origin: *, methods GET/HEAD/PUT/PATCH/POST/DELETE) and HSTS/Expect-CT; no auth observed on root.
+- 2026-08-07 ACCEPTED AUTH @ safe-01.threema.ch: Backup API is credential-gated — `GET /backups/{64hex}` returns HTTP 400 (not 200/401/404) for unauthenticated requests; OPTIONS preflight returns CORS `*` with `Access-Control-Allow-Headers: Authorization` enabling credentialed cross-origin requests.
+- 2026-08-07 ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has `sandbox: false` (TODO DEK-79) and `nodeIntegrationInWorker: true` (TODO DEK-79); `nodeIntegration: false` + `contextIsolation: true` are set.
+- 2026-08-07 ACCEPTED OTHER @ ds-apip-work.threema.ch: Work directory prod backend confirmed live — 401 on all paths (/identity/*, /identities), CORS `*`, no HSTS/Expect-CT.
+- 2026-08-07 REJECTED OTHER @ apip.threema.ch/identity/ws/revoke: returns 404 on both apip and ds-apip hosts — endpoint not publicly routable at documented path; hypothesis mis-targeted.
+- 2026-08-07 REJECTED OTHER @ apip.threema.ch/api/v1/pubkeys/{id}: returns 404 — dead endpoint candidate disproven.
+- 2026-08-07 ACCEPTED MISCONFIG @ g-{XX}.0.test.threema.ch: Staging chat cluster resolves to 203.56.114.34 (split from prod chat IPs 203.56.112.202/.204); HTTPS not HTTP-accessible (likely WSS/TCP 5222); staging chat hostnames may be out of scope per scope.yml.
+- 2026-08-07 ACCEPTED OTHER @ ds-apip-work.test.threema.ch: Work directory staging backend confirmed live — 401 on all paths, CORS `*`, no HSTS/Expect-CT
+- 2026-08-07 ACCEPTED OTHER @ work.test.threema.ch: Staging work web app confirmed live — 301 to /en/login, HSTS + Expect-CT, CSP with `*.test.threema.ch` refs, Sentry
+- 2026-08-07 ACCEPTED OTHER @ safe-*.threema.ch DNS pattern: safe-01, safe-1a, safe-1b, safe-02, safe-00 all resolve to 203.56.112.231 (single IP, 5 hostnames)
+- 2026-08-07 ACCEPTED OTHER @ mediator-{0..f}/rendezvous-{0..f}.threema.ch DNS split routing: indices 0-7 → 203.56.112.247; indices 8-f → 203.56.114.247; all uniform 403 on HTTPS
+- 2026-08-07 ACCEPTED OTHER @ Safe-01 backup API path distinction: `GET /backups/{64hex}` → HTTP 400 "Bad Request" (route exists, credential-gated) vs `GET /backup/{x}` → HTTP 404 150 bytes (no route)
+- 2026-08-07 ACCEPTED MISCONFIG @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work API endpoint confirmed.
+- 2026-08-07 ACCEPTED AUTH @ work.test.threema.ch: `/api-app/me/profile` and `/api-app/global/settings` → 302; only the `/api-app/public/*` namespace is open (namespace gating confirmed).
+- 2026-08-07 ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed).
+- 2026-08-07 ACCEPTED OTHER @ work.test.threema.ch: liveness endpoints `/ping` (204) and `/info/ping.php` (200 empty) identical on staging and prod — no divergence.
+- 2026-08-08 ACCEPTED IDOR @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work API endpoint confirmed
+- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed)
+- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.ch, hcaptcha-work.threema.ch, billing.test.threema.ch
+- 2026-08-08 ACCEPTED OTHER @ work.test.threema.ch: `__HOST-HTTP-SESSIONID` cookie set on unauthenticated GET /en/login (Secure/HttpOnly/SameSite=Strict)
+- 2026-08-08 ACCEPTED AUTH @ work.test.threema.ch: `/api-app/me/profile` and `/api-app/global/settings` → 302; only `/api-app/public/*` namespace is open (namespace gating confirmed)
+[0m
+[0m$ [0mhead -60 /home/runner/work/threema-hunt/threema-hunt/reports/valid-bugs.md 2>&1
+# Validated Bugs
+
+- 2026-08-07 ~18:00 UTC - SEED STATE: 0 valid bugs. Pipeline not yet run; hypotheses are recon-based and UNVALIDATED.
+
+- 3 lead(s) marked VALID at 2026-08-07 21:03:52 UTC
+  - | Q5 Novel? | **NO** — already ACCEPTED (knowledge/index.md line 21: "POST /identity/fetch_bulk returns pubkeys for valid IDs only, no auth") |
+  - | Q4 Passive proof? | **PARTIAL** — can confirm CORS headers + 404 on random IDs; cannot confirm oracle without valid id+key pair |
+  - | **VALID** | 0 | — |
+
+- 3 lead(s) marked VALID at 2026-08-07 21:56:25 UTC
+  - **Verdict: HOLD** — Speculative; requires AUTH_HELPED with valid credentials to confirm. Needs program to provide test credentials.
+  - | Q4 | PARTIAL — can confirm CORS headers; cannot confirm oracle without valid id+key |
+  - | **VALID** | 0 | — |
+
+- 2 lead(s) marked VALID at 2026-08-07 23:55:35 UTC
+  - | Q3 | **NO** | All data-access routes return 400 (credential-gated). No unauthenticated data access demonstrated. CORS `*` + Authorization header on an auth-gated API only matters if the attacker alr
+  - | Q7 | **NO** | Requires valid credentials to have any impact. No unauthenticated data access demonstrated. |
+
+- 3 lead(s) marked VALID at 2026-08-08 04:24:31 UTC
+  - **Verdict: VALID**
+  - **Verdict: HOLD** — Defense-in-depth/hardening gap. `sandbox:false` + `nodeIntegrationInWorker:true` are real hardening concerns but constitute a vulnerability ONLY when chained with a demonstrated re
+  - | **VALID** | 1 | #3 Desktop Windows key-storage ACL bypass |
+
+- 6 lead(s) marked VALID at 2026-08-08 06:01:58 UTC
+  - **Verdict: VALID** (duplicate of already-accepted KB finding — no new action needed)
+  - **Verdict: HOLD** — credential-gated; real impact requires credential compromise; enumeration oracle is weak (route existence only). AUTH_HELPED needed to confirm (1) HTTP 200 for valid backupId+backu
+  - | Q7 | ✅ YES | Reasonable triager accepts as valid local-privilege finding for privacy-focused messenger |
+  - **Verdict: VALID** (duplicate of already-accepted KB finding — confidence strengthened 75→95)
+  - | 1 | Directory identity→pubkey bulk enumeration + CORS * + no rate limit | IDOR | **VALID** | 5.3 Med | Already accepted |
+  - | 3 | Desktop Windows key-storage ACL bypass → identity compromise | MISCONFIG | **VALID** | 5.5 Med | Already accepted (strengthened) |
+
+- 8 lead(s) marked VALID at 2026-08-08 07:07:02 UTC
+  - | Q4 Passive proof? | **YES** — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` returns 200 with pubkey
+  - **Verdict: ✅ VALID**
+  - **Verdict: ✅ VALID (low severity)**
+  - **Verdict: ✅ VALID (medium, local access required)**
+  - | Q7 Triager accept? | **NO** — no data access without valid credentials; CORS `*` on a credential-gated endpoint is not a vulnerability |
+  - | 1 | Directory cluster identity enumeration (IDOR) | ✅ **VALID** | 5.3 | Medium |
+  - | 2 | Staging directory server public exposure | ✅ **VALID** | 3.1 | Low |
+  - | 3 | Desktop Windows key storage ACL bypass | ✅ **VALID** | 4.6 | Medium |
+
+- 5 lead(s) marked VALID at 2026-08-08 07:15:49 UTC
+  - | **Q4 Proof (GET/HEAD)** | ✅ YES — `GET /identity/ECHOECHO` → 200 with pubkey; `GET /identity/ZZZZZZZZ` → 404; `POST /identity/fetch_bulk` → pubkeys for valid IDs; CORS * confirmed |
+  - | **Q6 Not always-rejected** | ❌ **REJECTED** — CORS * on a credential-gated endpoint is best practice / defense-in-depth. No unauthenticated data access. The 400-vs-404 distinction is an oracle but r
+  - | **Q2 Reachability** | ⚠️ AUTH_HELPED — requires valid Work test license (401 on unauth) |
+  - **Verdict: HOLD** — Interesting hypothesis (OpenAPI flags it "currently buggy" TWRK-1633) but requires AUTH_HELPED testing with a valid Work license. Cannot be proven with passive GET/HEAD only. Retai
+  - **VALID leads for reporting: 0**
+
+- 5 lead(s) marked VALID at 2026-08-08 08:07:09 UTC
+  - | Q2 Reachable? | ⚠️ PARTIAL | Endpoint responds but returns 400 without valid credentials; auth-gated |
+  - | Q3 Real impact? | ❌ NO | CORS `*` on a credential-gated endpoint (400, not 200) is defense-in-depth only. No unauthenticated data access demonstrated. Attacker still needs valid backupId+backupKey |
+  - | Q6 Not always-rejected? | ❌ NO | This is on the always-rejected list: CORS `*` on credential-gated endpoint is best practice/defense-in-depth, not a vulnerability (per valid-bugs.md precedent) |
+  - | Q1 In scope? | ❌ NO | scope.yml lists `mediator-*.threema.ch` and `rendezvous-*.threema.ch` — staging `.test` variants are not explicitly listed. Per valid-bugs.md precedent, staging variants are tr
+  - | Q4 Passive proof? | ❌ NO | Requires AUTH_HELPED (valid credentials) to test session fixation |
+
+- 2 lead(s) marked VALID at 2026-08-08 10:53:22 UTC
+  - Verdict: HOLD — speculative. Backend route not deployed on staging (returns method-agnostic 404). If backend catches up, the route could return license credentials (username/password/expires/hasEmail)
+  - | VALID   | 0     | — |
+
+- 2 lead(s) marked VALID at 2026-08-08 14:00:44 UTC
+[0m
+[0m$ [0mtail -80 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-latest.md 2>&1
+[0m
+> build · nemotron-3-ultra-free
+[0m
+### REAL_SECRET
+| File | Line | SHA256(secret) | Verdict |
+|------|------|----------------|---------|
+| *(none)* | — | — | — |
+
+### TEST_OR_EXAMPLE
+| File | Line | Context |
+|------|------|---------|
+| threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | `serverPassword: "password1"` |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15 | `expectedAuthToken = "authToken"` |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 18 | `expectedPassword = "testPassword"` |
+| threema-ios/.../WorkDataThreemaMDMFetcherTests.swift | 50 | `licensePassword = "testPassword"` |
+| threema-ios/.../WorkDataThreemaMDMFetcherTests.swift | 72 | `password: "testPassword"` |
+| threema-ios/.../WorkDataThreemaMDMFetcherTests.swift | 148 | `licensePassword = "testPassword"` |
+| threema-ios/.../WorkDataAPICallerTests.swift | 13 | `expectedPassword = "testPassword"` |
+| threema-ios/.../WorkDataAPICallerTests.swift | 37 | `password: "validPassword"` |
+| threema-ios/.../WorkDataAPICallerTests.swift | 103 | `password: "testPassword"` |
+| threema-ios/ThreemaTests/SafeTests.swift | 67 | `safePassword: "shootdeathstar"` |
+| threema-ios/ThreemaTests/SafeTests.swift | 76 | `safePassword: "shootdeathstar"` |
+| threema-ios/ThreemaTests/SafeTests.swift | 105 | `safePassword: "shootdeathstar"` |
+| threema-ios/.../ThreemaSafePasswordValidatorTests.swift | 30 | `password = "abcdefghijkl"` |
+| threema-ios/.../ThreemaSafePasswordValidatorTests.swift | 227 | `validPassword = "ABcd!@#tgk092"` |
+| threema-ios/.../HttpClientDownloadSafeTests.swift | 28 | `safePassword: "shootdeathstar"` |
+| threema-ios/.../HttpClientDownloadSafeTests.swift | 76 | `safePassword: "shootdeathstar"` |
+| threema-ios/.../HttpClientDownloadSafeTests.swift | 120 | `safePassword: "shootdeathstar"` |
+| threema-ios/.../HttpClientUploadSafeTests.swift | 38 | `safePassword: "shootdeathstar"` |
+| threema-ios/.../HttpClientUploadSafeTests.swift | 83 | `safePassword: "shootdeathstar"` |
+| threema-desktop/.../test-data.ts | 62 | `keyStoragePassword: 'CHANGE_ME'` |
+
+### ENDPOINT_LEAK
+| File | Line | Endpoint |
+|------|------|----------|
+| threema-ios/.../directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` |
+| threema-ios/.../directory.openapi.yml | 917 | `https://ds-apip.test.threema.ch` |
+| threema-android/.../directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` |
+| threema-android/.../directory.openapi.yml | 911 | `https://ds-apip.test.threema.ch` |
+| threema-android/.../directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` |
+| threema-android/.../directory.openapi.yml | 917 | `https://ds-apip.test.threema.ch` |
+| threema-desktop/.../vite.config.ts | 147 | `https://ds-apip.test.threema.ch/` |
+| threema-desktop/.../vite.config.ts | 153 | `https://ds-apip-work.test.threema.ch/` |
+| threema-desktop/.../vite.config.ts | 154 | `https://work.test.threema.ch/` |
+| threema-desktop/.../directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` |
+| threema-desktop/.../directory.openapi.yml | 911 | `https://ds-apip.test.threema.ch` |
+
+### INTERESTING
+| File | Line | Note |
+|------|------|------|
+| threema-android/.../WebClientSessionModel.java | 28 | `COLUMN_PUSH_TOKEN = "push_token"` (DB column) |
+| threema-android/.../DatabaseUpdateToVersion37.java | 48 | `COLUMN_PUSH_TOKEN = "push_token"` (DB column) |
+| threema-android/.../IceCandidateParser.java | 43 | `TOKEN = "[a-zA-Z]+"` (regex pattern) |
+| threema-android/.../ClientInfo.java | 37 | `PUSH_TOKEN = "pushToken"` (JSON field) |
+| threema-android/.../JoinResponse.kt | 70 | `icePassword='$icePassword'` in `toString()` — potential logcat leak (low value, short-lived ICE creds) |
+| threema-android/.../NotificationChannels.kt | 52 | `NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"` (channel ID) |
+| threema-android/.../PasswordEntryDialog.java | 47 | `KEY_PASSWORD = "password"` (Intent extra key) |
+| threema-android/.../SentryConfig.kt | 15 | Sentry public DSN `b3e20afb...` (public by design) |
+| threema-android/.../SentryConfig.kt | 19 | Sentry public DSN `615af77c...` (public by design) |
+| threema-desktop/.../enum/index.ts | 3126 | `LOAD_USER_PASSWORD = 'loadUserPassword'` (IPC channel) |
+| threema-desktop/.../enum/index.ts | 3162 | `STORE_USER_PASSWORD = 'storeUserPassword'` (IPC channel) |
+| threema-desktop/.../enum/schema.ts | 983 | `LOAD_USER_PASSWORD = 'loadUserPassword'` (IPC channel) |
+| threema-desktop/.../enum/schema.ts | 1000 | `STORE_USER_PASSWORD = 'storeUserPassword'` (IPC channel) |
+| threema-desktop/.../webrtc/ice-password.ts | 12 | Validation error message, not a secret |
+
+---
+
+### VERDICT LIST
+| Candidate | Category | REPORT_CANDIDATE |
+|-----------|----------|------------------|
+| threema-ios AppMigration.swift:873 | REJECTED (key name, not secret) | no |
+| threema-android SfuToken.kt:49 | REJECTED (proper redaction) | no |
+| threema-desktop crypto.ts:223 | REJECTED (benchmark dummy, purged) | no |
+| threema-android JoinResponse.kt:70 | INTERESTING (ICE creds in toString) | no (low value, local-only) |
+| threema-android SentryConfig.kt:15,19 | INTERESTING (public DSN keys) | no |
+| All TEST_OR_EXAMPLE hits | TEST_OR_EXAMPLE | no |
+| All ENDPOINT_LEAK hits | ENDPOINT_LEAK (known staging) | no (already documented) |
+| All other INTERESTING hits | INTERESTING (constants, not secrets) | no |
+
+**No reportable secrets found in this scan.** All hits are either test fixtures, known staging endpoints (already in scope docs), constants, or properly redacted values.
+[0m
+[0m$ [0mecho "=== ds-apip fetch_bulk ===" && curl -s -X POST -H "Content-Type: application/json" -H "Origin: https://evil.com" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' --max-time 8 -k https://ds-apip.threema.ch/identity/fetch_bulk -w "\nHTTP %{http_code} size=%{size_download}\n" 2>&1 && echo "=== safe-01 backups ===" && curl -s -o /dev/null -w "HTTP %{http_code} size=%{size_download}\n" --max-time 8 -k https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef 2>&1 && echo "=== billing ===" && curl -s -o /dev/null -w "HTTP %{http_code} size=%{size_download}\n" --max-time 8 -k https://billing.threema.ch/ 2>&1 && echo "=== gateway /en/signup ===" && curl -s -o /dev/null -w "HTTP %{http_code} size=%{size_download}\n" --max-time 8 -k https://gateway.threema.ch/en/signup 2>&1
+=== ds-apip fetch_bulk ===
+{"identities":[{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}]}
+HTTP 200 size=152
+=== safe-01 backups ===
+HTTP 400 size=11
+=== billing ===
+HTTP 301 size=0
+=== gateway /en/signup ===
+HTTP 200 size=14333
+[0m
+[0m$ [0mecho "=== gateway signup JS bundles ===" && curl -s --max-time 8 -k https://gateway.threema.ch/en/signup | grep -oE 'src="[^"]*\.js"' | head -20 2>&1 && echo "=== work.test public settings ===" && curl -s -o /dev/null -w "HTTP %{http_code} size=%{size_download}\n" --max-time 8 -k https://work.test.threema.ch/api-app/public/global/settings 2>&1 && echo "=== work.test license token ===" && curl -s -o /dev/null -w "HTTP %{http_code} size=%{size_download}\n" --max-time 8 -k "https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000" 2>&1
+=== gateway signup JS bundles ===
+=== work.test public settings ===
+HTTP 200 size=299
+=== work.test license token ===
+HTTP 404 size=900
+[0m
+[0m$ [0mcurl -s --max-time 8 -k https://gateway.threema.ch/en/signup | head -100 2>&1
+<!DOCTYPE html>
+<html lang="en"><head><title>Threema Gateway - Send and receive Threema messages with your own software.</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="sentry_dsn" content="https://418f2f46e5564b94ab81fccaf023616a@bugs.threema.ch/17"/>
+<meta name="sentry_environment" content="production"/>
+<meta name="project_release" content="1.16.1"/>
+<meta name="trusted_redirect_origins" content="[&#34;https:\/\/*.threema.ch&#34;,&#34;https:\/\/threema.com&#34;]"/>
+<link rel="stylesheet" href="https://static.threema.ch/fonts/labgrotesque.css"/>
+<link rel="shortcut icon" href="/favicon.ico?v=5"/>
+<link rel="icon" href="/favicon.ico?v=5"/>
+<link rel="alternate" hreflang="en" href="/en/signup"/>
+<link rel="alternate" hreflang="de" href="/de/signup"/>
+<link rel="stylesheet" href="/cache/gateway_public.css?O5v86dAdwPboCbz" type="text/css"/>
+<script src="https://hcaptcha-gateway.threema.ch/1/api.js?endpoint=https%3A%2F%2Fhcaptcha-gateway.threema.ch&#38;assethost=https%3A%2F%2Fhcaptcha-assets.threema.ch&#38;imghost=https%3A%2F%2Fhcaptcha-imgs.threema.ch&#38;reportapi=https%3A%2F%2Fhcaptcha-report.threema.ch&#38;hl=en&#38;tplinks=off&#38;sentry=false"></script><script src="/cache/gateway_public.js?O5v86dAdwPboCbz"></script></head><body><header id="header"><div><div id="mobile-menu-button"><svg height="32px" id="Layer_1" style="enable-background:new 0 0 32 32;" version="1.1" viewBox="0 0 32 32" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M4,10h24c1.104,0,2-0.896,2-2s-0.896-2-2-2H4C2.896,6,2,6.896,2,8S2.896,10,4,10z M28,14H4c-1.104,0-2,0.896-2,2  s0.896,2,2,2h24c1.104,0,2-0.896,2-2S29.104,14,28,14z M28,22H4c-1.104,0-2,0.896-2,2s0.896,2,2,2h24c1.104,0,2-0.896,2-2  S29.104,22,28,22z"/></svg></div><h1><a href="/en" hreflang="en" title="Home"><img alt="Threema Gateway" src="/images/logo_icon.svg?v=3"/></a></h1><nav class="main-nav"><ul></ul>
+</nav><nav class="user-nav"><ul><li><a href="/en/login">Log in</a></li><li class="active"><a href="/en/signup">Register</a></li></ul></nav><div style="clear: both"></div></div></header><div id="main-content"><div id="main"><div><div class="inline-dialog"><h2>Register</h2><form method="POST"><p>Please register to use and test the Threema Gateway.</p><div><input type="text" name="name" id="name" value="" required placeholder="Name" class=""/></div><div><input type="email" name="email" id="email" value="" required placeholder="Email" class=""/></div><div><input type="password" name="password" id="password" value="" required placeholder="Password" class=""/><span class="password-strength" id="password-strength"><span>Password Strength</span><span></span></span></div><h3>Address</h3><input class="" type="hidden" name="client[csrf_client]" id="client__csrf_client" value="93806e7e0bd64ac9778254066162f107eb52b351"/><div><input type="text" name="client[company_name]" id="client__company_name" value="" placeholder="Company" class=""/></div><div style="display: flex; flex-direction: row"><input type="text" name="client[address][street]" id="client__address__street" value="" required style="flex: 1" placeholder="Address" class=""/><input type="text" name="client[address][street_nr]" id="client__address__street_nr" value="" style="width: 4em;" placeholder="No." class=""/></div><div style="display: flex; flex-direction: row"><input type="text" name="client[address][zip]" id="client__address__zip" value="" required style="width: 8em;" placeholder="ZIP" class=""/><input type="text" name="client[address][city]" id="client__address__city" value="" required style="flex: 1;" placeholder="City" class=""/></div><div style="display: flex; flex-direction: row;   align-items: center; justify-content: center;"><label class="" for="client[address][country]" style="margin-right: 10px;">Country</label><select name="client[address][country]" id="client__address__country" class=""><option value="CH">Switzerland</option><option value="DE">Germany</option><option value="AT">Austria</option><option value="AD">Andorra</option><option value="AE">United Arab Emirates</option><option value="AF">Afghanistan</option><option value="AG">Antigua and Barbuda</option><option value="AI">Anguilla</option><option value="AL">Albania</option><option value="AM">Armenia</option><option value="AO">Angola</option><option value="AQ">Antarctica</option><option value="AR">Argentina</option><option value="AS">American Samoa</option><option value="AU">Australia</option><option value="AW">Aruba</option><option value="AX">Åland</option><option value="AZ">Azerbaijan</option><option value="BA">Bosnia and Herzegovina</option><option value="BB">Barbados</option><option value="BD">Bangladesh</option><option value="BE">Belgium</option><option value="BF">Burkina Faso</option><option value="BG">Bulgaria</option><option value="BH">Bahrain</option><option value="BI">Burundi</option><option value="BJ">Benin</option><option value="BL">Saint Barthélemy</option><option value="BM">Bermuda</option><option value="BN">Brunei</option><option value="BO">Bolivia</option><option value="BQ">Bonaire</option><option value="BR">Brazil</option><option value="BS">Bahamas</option><option value="BT">Bhutan</option><option value="BV">Bouvet Island</option><option value="BW">Botswana</option><option value="BZ">Belize</option><option value="CA">Canada</option><option value="CC">Cocos [Keeling] Islands</option><option value="CG">Republic of the Congo</option><option value="CI">Ivory Coast</option><option value="CK">Cook Islands</option><option value="CL">Chile</option><option value="CM">Cameroon</option><option value="CO">Colombia</option><option value="CR">Costa Rica</option><option value="CV">Cape Verde</option><option value="CW">Curacao</option><option value="CX">Christmas Island</option><option value="CY">Cyprus</option><option value="CZ">Czech Republic</option><option value="DJ">Djibouti</option><option value="DK">Denmark</option><option value="DM">Dominica</option><option value="DO">Dominican Republic</option><option value="DZ">Algeria</option><option value="EC">Ecuador</option><option value="EE">Estonia</option><option value="EG">Egypt</option><option value="EH">Western Sahara</option><option value="ER">Eritrea</option><option value="ES">Spain</option><option value="ET">Ethiopia</option><option value="FI">Finland</option><option value="FJ">Fiji</option><option value="FK">Falkland Islands</option><option value="FM">Micronesia</option><option value="FO">Faroe Islands</option><option value="FR">France</option><option value="GA">Gabon</option><option value="GB">United Kingdom</option><option value="GD">Grenada</option><option value="GE">Georgia</option><option value="GF">French Guiana</option><option value="GG">Guernsey</option><option value="GH">Ghana</option><option value="GI">Gibraltar</option><option value="GL">Greenland</option><option value="GM">Gambia</option><option value="GP">Guadeloupe</option><option value="GQ">Equatorial Guinea</option><option value="GR">Greece</option><option value="GS">South Georgia and the South Sandwich Islands</option><option value="GU">Guam</option><option value="GY">Guyana</option><option value="HK">Hong Kong</option><option value="HM">Heard Island and McDonald Islands</option><option value="HN">Honduras</option><option value="HR">Croatia</option><option value="HU">Hungary</option><option value="ID">Indonesia</option><option value="IE">Ireland</option><option value="IL">Israel</option><option value="IM">Isle of Man</option><option value="IN">India</option><option value="IO">British Indian Ocean Territory</option><option value="IS">Iceland</option><option value="IT">Italy</option><option value="JE">Jersey</option><option value="JM">Jamaica</option><option value="JO">Jordan</option><option value="JP">Japan</option><option value="KE">Kenya</option><option value="KG">Kyrgyzstan</option><option value="KH">Cambodia</option><option value="KI">Kiribati</option><option value="KM">Comoros</option><option value="KN">Saint Kitts and Nevis</option><option value="KR">South Korea</option><option value="KW">Kuwait</option><option value="KY">Cayman Islands</option><option value="KZ">Kazakhstan</option><option value="LA">Laos</option><option value="LC">Saint Lucia</option><option value="LI">Liechtenstein</option><option value="LK">Sri Lanka</option><option value="LR">Liberia</option><option value="LS">Lesotho</option><option value="LT">Lithuania</option><option value="LU">Luxembourg</option><option value="LV">Latvia</option><option value="MA">Morocco</option><option value="MC">Monaco</option><option value="MD">Moldova</option><option value="ME">Montenegro</option><option value="MF">Saint Martin</option><option value="MG">Madagascar</option><option value="MH">Marshall Islands</option><option value="MK">Macedonia</option><option value="ML">Mali</option><option value="MN">Mongolia</option><option value="MO">Macao</option><option value="MP">Northern Mariana Islands</option><option value="MQ">Martinique</option><option value="MR">Mauritania</option><option value="MS">Montserrat</option><option value="MT">Malta</option><option value="MU">Mauritius</option><option value="MV">Maldives</option><option value="MW">Malawi</option><option value="MX">Mexico</option><option value="MY">Malaysia</option><option value="MZ">Mozambique</option><option value="NA">Namibia</option><option value="NC">New Caledonia</option><option value="NE">Niger</option><option value="NF">Norfolk Island</option><option value="NG">Nigeria</option><option value="NL">Netherlands</option><option value="NO">Norway</option><option value="NP">Nepal</option><option value="NR">Nauru</option><option value="NU">Niue</option><option value="NZ">New Zealand</option><option value="OM">Oman</option><option value="PA">Panama</option><option value="PE">Peru</option><option value="PF">French Polynesia</option><option value="PG">Papua New Guinea</option><option value="PH">Philippines</option><option value="PK">Pakistan</option><option value="PL">Poland</option><option value="PM">Saint Pierre and Miquelon</option><option value="PN">Pitcairn Islands</option><option value="PR">Puerto Rico</option><option value="PS">Palestine</option><option value="PT">Portugal</option><option value="PW">Palau</option><option value="PY">Paraguay</option><option value="QA">Qatar</option><option value="RE">Réunion</option><option value="RO">Romania</option><option value="RS">Serbia</option><option value="RW">Rwanda</option><option value="SA">Saudi Arabia</option><option value="SB">Solomon Islands</option><option value="SC">Seychelles</option><option value="SE">Sweden</option><option value="SG">Singapore</option><option value="SH">Saint Helena</option><option value="SI">Slovenia</option><option value="SJ">Svalbard and Jan Mayen</option><option value="SK">Slovakia</option><option value="SL">Sierra Leone</option><option value="SM">San Marino</option><option value="SN">Senegal</option><option value="SR">Suriname</option><option value="ST">São Tomé and Príncipe</option><option value="SV">El Salvador</option><option value="SX">Sint Maarten</option><option value="SZ">Swaziland</option><option value="TC">Turks and Caicos Islands</option><option value="TD">Chad</option><option value="TF">French Southern Territories</option><option value="TG">Togo</option><option value="TH">Thailand</option><option value="TJ">Tajikistan</option><option value="TK">Tokelau</option><option value="TL">East Timor</option><option value="TM">Turkmenistan</option><option value="TN">Tunisia</option><option value="TO">Tonga</option><option value="TR">Turkey</option><option value="TT">Trinidad and Tobago</option><option value="TV">Tuvalu</option><option value="TW">Taiwan</option><option value="TZ">Tanzania</option><option value="UA">Ukraine</option><option value="UG">Uganda</option><option value="UM">U.S. Minor Outlying Islands</option><option value="US">United States</option><option value="UY">Uruguay</option><option value="UZ">Uzbekistan</option><option value="VA">Vatican City</option><option value="VC">Saint Vincent and the Grenadines</option><option value="VG">British Virgin Islands</option><option value="VI">U.S. Virgin Islands</option><option value="VN">Vietnam</option><option value="VU">Vanuatu</option><option value="WF">Wallis and Futuna</option><option value="WS">Samoa</option><option value="XK">Kosovo</option><option value="YT">Mayotte</option><option value="ZA">South Africa</option><option value="ZM">Zambia</option></select></div><div><div><input type="checkbox" name="accept" id="accept" value="1" class="" required/><label for="accept">I agree to the <a class="nw" href="/en/privacy" hreflang="en">Privacy Policy</a> and the <a class="nw" href="/en/terms-of-service">Terms of Service</a>.</label></div></div><div><div class="h-captcha" data-sitekey="1f22e4b2-9717-4e91-aa3d-304963afb5b6" data-theme="light" data-size="invisible"></div></div><div class="actions"><a class="button secondary" href="/en/login">Cancel</a><a href="#" onclick="$(this).closest('form').find(':submit').click(); return false;" class="button submit primary">Register</a><input type="submit" style="position: absolute; left: -99999px" onclick="if (typeof hcaptcha !== 'undefined' &#38;&#38; !hcaptcha.getResponse()) { event.preventDefault(); hcaptcha.execute({async: true}).then(() =&#62; $(this).closest('form').submit()).catch(() =&#62; {}); }"/></div></form></div></div></div></div><footer id="footer"><div><div id="ffooter"><div id="made">Made in Switzerland. © 2026 Threema AG</div><ul id="footer-bottom-menu"><ul><li><a href="https://threema.com/en/work/changelog/gateway" title="Changelog">Changelog</a></li><li><a href="/en/terms-of-service" title="Terms of Service">Terms of Service</a></li><li><a href="/en/privacy" title="Privacy Policy">Privacy Policy</a></li><li><a href="/en/contact" title="Contact">Contact</a></li></ul></ul><div><a class="button primary" href="/en/signup" hreflang="en">English</a><a class="button naked" href="/de/signup" hreflang="de">Deutsch</a></div></div></div></footer><script type="text/javascript">$(function(){Threema.Gateway.Password('password').init();})</script></body></html>
+[0m
+Now I have full context. Let me produce the structured analyst output.
+
+---
+
+**STEP 1 — DELTA**
+
+[

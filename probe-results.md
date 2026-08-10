@@ -552,3 +552,7 @@ https://billing.threema.ch/` -> HTTP 404
 https://gateway.threema.ch/v1 -> HTTP 404
 https://gateway.threema.ch/v1` -> HTTP 404
 https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-10 14:05:19 UTC
+https://gateway.threema.ch/v1 -> HTTP 404
+https://gateway.threema.ch/v1` -> HTTP 404

@@ -7121,3 +7121,4 @@ verify_steps: AUTH_HELPED: on program-provided test ID, POST /identity/ws/revoke
 impact: if unrate-limited, 2^32 brute-force → permanent identity destruction/DoS. Severity: medium-high.
 testability: AUTH_HELPED
 [NEXT] PROBE: weekly staging catch-up — single `GET https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000`, single `GET https://work.test.threema.ch/api-app/public/global/settings`, re-hash `GET https://work.test.threema.ch/cache/work_public.js`; escalate if license-token ≠404 (never real tokens). ≤1 rps, GET only. Chat CSP handshake + /identities tests remain AUTH_HELPED (blocked on authorized staging test identity).
+## 2026-08-10 14:05:04 UTC [chat] (model bigpickle)

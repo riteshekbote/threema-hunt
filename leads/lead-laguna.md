@@ -5547,3 +5547,4 @@ testability: PASSIVE
 [RISK] safe: 72 — 5 safe-* hostnames single IP 203.56.112.231; CORS `*` + write-capable methods + Allow-Headers: Authorization; HSTS/Expect-CT on OPTIONS 204 but ABSENT on GET 400; HTTP Basic Auth (backupId:backupKey) + route-existence oracle (400 vs 404); credentialed cross-origin read gated only by Basic auth
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-VERIFIED at 95 confidence (6 core paths + 9 supporting paths on GitHub stable); PoC artifact NOW genuinely on disk + syntax-verified + Linux no-op; remaining gap: Windows runtime validation (DPAPI CryptUnprotectData → Argon2id → XSalsa20-Poly1305 → protobuf → ck + databaseKey → SQLCipher PRAGMA key); Electron sandbox unset + nodeIntegrationInWorker: true (TODO DESK-79, conditional RCE); crypto.ts:223 benchmark password REJECTED (dummy, purged)
 ## 2026-08-10 12:37:35 UTC [desktop] (model laguna)
+## 2026-08-10 14:03:45 UTC [desktop] (model laguna)
