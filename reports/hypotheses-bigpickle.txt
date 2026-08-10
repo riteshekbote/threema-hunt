@@ -1,13 +1,22 @@
-## 2026-08-10 15:01:00 UTC [chat] (model bigpickle)
+## 2026-08-10 15:57:30 UTC [chat] (model bigpickle)
 [HYP] /identities (TWRK-1633 "buggy") leaks work-directory metadata cross-subscription
 class: BUSLOGIC
 asset: ds-apip-work.threema.ch/identities
 confidence: 50
-reasoning: directory.openapi.yml:1172 flags `/identities` "currently buggy"; returns same-subscription contacts + work props (name/jobTitle/department/availability); host 401s all paths (route behind credential gate, CORS `*`); work bundle actively iterating.
+reasoning: directory.openapi.yml:1172 flags `/identities` "currently buggy"; returns same-subscription contacts + work props (name/jobTitle/department/availability); host 401s all paths (route behind credential gate, CORS `*`); own probe confirms 401 stable this cycle.
 evidence_needed: contact matching induced to return out-of-subscription contacts or work properties.
 verify_steps: AUTH_HELPED: with authorized work test license, POST /identities {contacts:[own+foreign IDs]} compare membership/props; probe /directory page/size bounds.
 impact: cross-subscription work-directory PII disclosure → targeted phishing. Severity: medium.
 testability: AUTH_HELPED
+[HYP] Staging work license-token backend ships after frontend → unauth credential oracle
+class: OTHER
+asset: work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 45
+reasoning: staging bundle v2.25.1 implements GET ({username?,password?,expired,hasEmail}) + PUT; backend still method-agnostic 404/900B (own probe this cycle); prod bundle zero /public/* handlers.
+evidence_needed: backend deploys the route (≠404 for a valid-format token).
+verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64zeros}` + re-hash `/cache/work_public.js` weekly; escalate if ≠404.
+impact: if enabled: unauth 64-hex token→license-credential oracle. Severity: low (high-entropy tokens).
+testability: PASSIVE
 [HYP] ws/revoke single-step 32-bit revocationKey unrate-limited → identity-destruction brute-force
 class: BUSLOGIC
 asset: apip.threema.ch/identity/ws/revoke
@@ -15,16 +24,4 @@ confidence: 45
 reasoning: only identity endpoint with single-step request (identity + SHA256(revocation-password)[:4]); spec documents no 429 unlike sfu_cred/blob_cred/work; 5 challenge endpoints confirmed param-validation-first.
 evidence_needed: server rate-limits ws/revoke or not; error/timing shape per wrong key on program-provided test ID.
 verify_steps: AUTH_HELPED: on program test ID, POST /identity/ws/revoke wrong revocationKey small count for 429; never third-party IDs.
-impact: if unrate-limited, 2^32 brute-force → permanent identity destruction/DoS. Severity: medium-high.
-testability: AUTH_HELPED
-[HYP] Staging work license-token backend ships after frontend → unauth credential oracle
-class: OTHER
-asset: work.test.threema.ch/api-app/public/license/token/{64hex}
-confidence: 45
-reasoning: staging bundle v2.25.1 implements GET (returns {username?,password?,expired,hasEmail}) + PUT; backend still method-agnostic 404 catch-all; prod bundle has zero /public/* handlers.
-evidence_needed: backend deploys the route (≠404 for a valid-format token).
-verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64zeros}` + re-hash `/cache/work_public.js` weekly; escalate if ≠404.
-impact: if enabled: unauth 64-hex token→license-credential oracle. Severity: low (high-entropy tokens).
-testability: PASSIVE
-[FINAL] 1) /identities TWRK-1633 (50, AUTH_HELPED, medium impact) 2) ws/revoke 32-bit (45, AUTH_HELPED, medium-high) 3) license-token backend (45, PASSIVE, low)
-[NEXT] PROBE: weekly staging catch-up — single `GET https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000`, single `GET https://work.test.threema.ch/api-app/public/global/settings`, re-hash `GET https://work.test.threema.ch/cache/work_public.js`; escalate if license-token ≠404 (never real tokens). ≤1 rps, GET only. Chat AUTH_HELPED tests remain blocked on authorized staging test identity.
+impact: if unrate-limited, 2^32 brute-force → permanent identity destruction/DoS. Sever

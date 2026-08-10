@@ -1141,3 +1141,5 @@
 - CHANGED gateway.threema.ch — edge host recovered from TIMEOUT to HTTP 302; /en/signup live (14KB), /v1 404 with session cookie, /api/v1 403 nginx-deny
 - NEW ds-apip-work.threema.ch/identities — TWRK-1633 "buggy" note in openapi spec; potential cross-subscription contact leak (needs auth)
 - NEW threema-android JoinResponse.kt:70 — toString() leaks icePassword='$icePassword' plain text (low-value logcat lead)
+
+## 2026-08-10 15:58:38 UTC
