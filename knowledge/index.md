@@ -350,3 +350,4 @@
 - 2026-08-10 ACCEPTED MISCONFIG @ gateway.threema.ch/v1: Session cookie (SESSIONID) set on unauthenticated 404 response — confirmed stable across cycles, low severity but valid defense-in-depth gap.
 - 2026-08-10 CHANGED poc/ directory: still ABSENT (11th consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides all KB assertions.
 - 2026-08-10 NO_NEW_CLASS: All previously accepted findings byte-stable; no new vulnerability classes opened this cycle.
+- 2026-08-10 CHANGED poc/ directory: still ABSENT (11th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions.
