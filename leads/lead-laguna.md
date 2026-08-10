@@ -5652,3 +5652,38 @@ testability: AUTH_HELPED-LOCAL
 [RISK] sync: 30 — mediator-{0..f}/rendezvous-{0..f} resolve (DNS split 203.56.112.247 / 203.56.114.247 for 0-7/8-f), uniform 403 on HTTPS, high-entropy WSS paths; no passive in-band divergence; auth in source
 [RISK] safe: 77 — 5 safe-* hostnames single IP 203.56.112.231; CORS `*` + write-capable methods + Allow-Headers: Authorization; HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated /backups/{64hex}; HTTP Basic Auth (backupId:backupKey) + route-existence oracle (400 vs 404); hstspreload.org status `unknown` (not preloaded) — credentialed read blocked (no ACAC) but HSTS gap + permissive write-CORS persist
 [RISK] desktop-src: 83 — Windows key-storage ACL bypass RAG-verified at 85 confidence (6 core source paths on GitHub stable: fs.ts:41, key-storage/index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, db/sqlite.ts:240); PoC artifact persistently absent from workspace (10th cycle); remaining gap: live Windows runtime validation; Electron BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); crypto.ts:223 benchmark password rejected
+## 2026-08-10 18:31:46 UTC [desktop] (model laguna)
+[HYP] fetch_bulk mass identity→pubkey enumeration at 10k IDs/req (directory cluster triad)
+class: IDOR
+asset: ds-apip.threema.ch/identity/fetch_bulk (+ api.threema.ch, apip.threema.ch)
+confidence: 99
+reasoning: Own probe this cycle (byte-stable): POST `{"identities":["ECHOECHO","ZZZZZZZZ"]}` → 200, only ECHOECHO+pubkey echoed (ZZZZZZZZ silently omitted); `GET /identity/ECHOECHO`→200, `/identity/ZZZZZZZZ`→404. ACAO `*` on both 200 and 400 responses; Allow-Methods POST,GET,OPTIONS,DELETE. Sharp count-cap: 10000→200, 10001→400-empty. Zero 429 across 35+ sequential probes. No Access-Control-Expose-Headers → body directly cross-origin readable. All 3 prod hosts return byte-identical pubkey for ECHOECHO (`SmobNNzvFdQ8t03i/TYJG+mfu68SbQmdR9g9kZcSxys=`).
+evidence_needed: (1) 200 body contains pubkey for valid ID only; (2) ACAO `*` on 200+400; (3) 10001→400 empty body; (4) zero 429; (5) cross-origin Origin header honored (ACAO `*` on response).
+verify_steps: PASSIVE — `curl -s --max-time 8 -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Origin: https://evil.com' -H 'Content-Type: application/json' -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'`; repeat on api.threema.ch + apip.threema.ch; compare `curl -s https://ds-apip.threema.ch/identity/ECHOECHO` vs `/identity/ZZZZZZZZ` (200 vs 404).
+impact: Full consumer identity→pubkey enumeration at 10k IDs/req, no auth, cross-origin readable. Attacker maps entire Threema identity namespace + harvests Ed25519 pubkeys for offline cryptanalysis. CVSS 7.5 (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N) — High.
+testability: PASSIVE
+[HYP] gateway.threema.ch/v1 session-cookie set on unauthenticated 404 (error-path cookie leakage)
+class: MISCONFIG
+asset: https://gateway.threema.ch/v1
+confidence: 70
+reasoning: Own probe: `GET /v1` → 404 with `Set-Cookie: SESSIONID=9c19t8o32fajcn9mviaid7bk1u; path=/; Secure; HttpOnly; SameSite=Strict`. Host was TIMEOUT at baseline (2026-08-07), now live (302→/en, /en/signup 200). Cookie set on error path indicates session fixation surface if cookie is accepted by authenticated context; SameSite=Strict limits CSRF but cookie-on-404 may indicate unnecessary session scope.
+evidence_needed: Cookie persistence across requests; whether SESSIONID is honored on authenticated paths; whether cookie from 404 enables fixation.
+verify_steps: PROBE: `curl -s -D - -o /dev/null --max-time 8 https://gateway.threema.ch/v1` (capture Set-Cookie); `curl -s -D - -o /dev/null --max-time 8 -b "SESSIONID=9c19t8o32fajcn9mviaid7bk1u" https://gateway.threema.ch/v1` (test cookie reflection on 404).
+impact: Session cookie on public error path may enable session fixation; low direct exploitability (Secure/HttpOnly/SameSite=Strict). CVSS 3.7 (AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N) — Low.
+testability: PASSIVE
+[HYP] Windows key-storage ACL bypass yields Ed25519 identity key + SQLCipher DB key
+class: MISCONFIG
+asset: threema-desktop (Windows) — data/keystorage.bin + data/keystorage.password.bin + data/threema.sqlite
+confidence: 92
+reasoning: RAG-VERIFIED at 95 confidence via WebFetch on GitHub stable (6 core paths): fs.ts:41 `fileModeInternalObjectIfPosix()` returns `{}` on win32; key-storage/index.ts:559-560 writes keystorage.bin with `{}` (no ACL); electron-main.ts:944-945 writes keystorage.password.bin with same `{}` options; inner/v3.ts:65,70 exposes `identityData.ck` (Ed25519 private key) + `databaseKey`; crypto.ts:53-113 Argon2id→XSalsa20-Poly1305 decrypt (key purged at :113); sqlite.ts:240 raw SQLCipher PRAGMA key. crypto.ts:223 benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) REJECTED as dummy (purged at L233). PoC artifact `poc/key-storage-acl-bypass-poc.js` claimed-but-absent (12th cycle).
+evidence_needed: Windows DACL audit (0 explicit ACEs on .bin files); DPAPI CryptUnprotectData → master password → Argon2id → XSalsa20-Poly1305 → protobuf → ck + databaseKey → sqlcipher PRAGMA key → decrypted message DB.
+verify_steps: AUTH_HELPED-LOCAL — on authorized Windows host with Threema Desktop 2.x: (1) `icacls "%LOCALAPPDATA%\ThreemaDesktop\data\keystorage.bin"` → confirm no ACL; (2) DPAPI decrypts password.bin → master password; (3) Argon2id+XSalsa20-Poly1305 unseal → ck + databaseKey; (4) `PRAGMA key = databaseKey` on threema.sqlite → decrypt message DB.
+impact: Same-user attacker recovers Ed25519 identity private key + SQLCipher DB key → full local message DB decryption, account impersonation. CVSS 8.1 (AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H) — High.
+testability: AUTH_HELPED-LOCAL
+[FINAL] Ranked surviving hypotheses:
+[NEXT] PROBE: `curl -s --max-time 8 -X POST https://api.threema.ch/identity/fetch_bulk -H 'Origin: https://evil.com' -H 'Content-Type: application/json' -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` → confirm api.threema.ch returns byte-identical result to ds-apip (same pubkey for ECHOECHO, ACAO `*`, silent omit of ZZZ) — this fully closes the fetch_bulk IDOR verification for the 3-host directory triad and confirms the enumeration surface is uniform across all production directory hosts. ≤1 rps.
+[RISK] chat: 25 — prod DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band 443/5222 passive channel closed; DNS-attribution low-value
+[RISK] web: 96 — directory triad (ds-apip+api+apip) fetch_bulk 10k ID enumeration + CORS `*` + no auth + cross-origin readable + zero 429 confirmed uniform; broadcast/gateway/shop/work reachable; staging work public-API divergence stable
+[RISK] sync: 45 — mediator-{0..f}/rendezvous-{0..f} resolve (DNS split, uniform 403); high-entropy WSS paths; no passive in-band divergence; ds-apip-work live but auth-gated; TWRK-1633 cross-subscription leak candidate unvalidated
+[RISK] safe: 77 — 5 safe-* hostnames single IP 203.56.112.231; CORS `*` + write-capable methods + Allow-Headers: Authorization; HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated `/backups/{64hex}`; HTTP Basic Auth + route-existence oracle (400 vs 404) confirmed byte-stable
+[RISK] desktop-src: 88 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 source paths on GitHub stable); PoC artifact persistently absent (12th cycle); remaining gap: live Windows runtime validation; Electron sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); crypto.ts:223 benchmark password rejected

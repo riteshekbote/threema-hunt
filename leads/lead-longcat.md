@@ -839,3 +839,48 @@ testability: AUTH_HELPED
 [RISK] sync: 55 — mediator-{prefix4}/rendezvous-{prefix4} resolve but uniform 403; high-entropy WSS paths; no passive in-band divergence; ds-apip-work live but auth-gated; TWRK-1633 cross-subscription leak candidate unvalidated
 [RISK] safe: 88 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain; PoC artifact status unresolved
+## 2026-08-10 18:29:53 UTC [sync] (model longcat)
+[CHANGED] poc/ directory: confirmed ABSENT (11th consecutive cycle); KB claims "NOW GENERATED" / "genuinely on disk" remain persistently false — filesystem ground truth overrides KB assertions
+[PRIO] ds-apip-work.threema.ch/identities (TWRK-1633 "buggy") — score 61 (attack:6, business:7, tech:6, gate:3, cloud:6, fresh:9) — AUTH_HELPED, cross-subscription leak candidate on sync surface
+[PRIO] gateway.threema.ch/v1 session-cookie on 404 — score 52 (attack:4, business:5, tech:6, gate:8, cloud:5, fresh:7) — ACCEPTED MISCONFIG, low severity but confirmed
+[PRIO] billing.threema.ch recovered-from-timeout — score 38 (attack:3, business:6, tech:4, gate:7, cloud:5, fresh:8) — custom 404 page confirms app deployed, no live routes yet
+[HYP] Work directory /identities (TWRK-1633 "buggy") leaks contact metadata cross-subscription
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 50
+reasoning: directory.openapi.yml:1172 marks /identities buggy (TWRK-1633); documented to return subset of contacts in same Work subscription; GET / → 401 confirms live backend. Bug may return contacts outside caller's subscription.
+evidence_needed: Whether authorized contact matching returns contacts outside caller's subscription
+verify_steps: AUTH_HELPED: with authorized work license, POST /identities {"contacts":[own_id, foreign_id]} compare membership/props
+impact: Cross-subscription disclosure of names/titles/departments/availability → targeted phishing. Severity: Medium.
+testability: AUTH_HELPED
+[HYP] billing.threema.ch deployed app exposes unauthenticated routes or framework info
+class: OTHER
+asset: billing.threema.ch
+confidence: 35
+reasoning: 404 page is custom Threema-branded app template referencing /cache/billing_gui_theme_threema.css + .js. App framework deployed but all probed paths return 301/404. JS bundle may leak routes/endpoints.
+evidence_needed: Whether referenced JS/CSS assets are served and reveal framework version or route table
+verify_steps: PASSIVE: GET /cache/billing_gui_theme_threema.css, /cache/billing_gui_theme_threema.js, /en/login, /en/signup — map live routes from deployed app
+impact: Framework fingerprinting → targeted exploitation of known vulns in billing stack. Severity: Low-Medium.
+testability: PASSIVE
+[HYP] gateway.threema.ch/v1 session cookie fixation enables cross-origin session binding
+class: MISCONFIG
+asset: gateway.threema.ch/v1
+confidence: 42
+reasoning: Set-Cookie: SESSIONID on unauthenticated 404 with Secure/HttpOnly/SameSite=Strict. Cookie set on error path before auth. If SameSite=Strict is the only binding, cookie may be usable in cross-origin credentialed requests to same host.
+evidence_needed: Whether SESSIONID is accepted as auth token post-login, and whether CORS allows credentialed cross-origin requests
+verify_steps: PASSIVE: OPTIONS with Origin header on /v1 — check ACAO + ACAC. Check if /v1 routes differ from /en/signup auth flow.
+impact: Session fixation or cross-origin session riding on gateway cockpit. Severity: Medium.
+testability: PASSIVE
+[PARKED] billing.threema.ch deployed app hypothesis: confidence 35 < 40; all prior billing probes returned 301/404 nginx catch-all; custom 404 page only confirms framework presence, not exploitable surface. Weak signal.
+[PARKED] gateway session cookie fixation: confidence 42 but hypothesis is speculative — cookie on error path is common and SameSite=Strict already mitigates cross-origin riding. No evidence cookie is accepted as auth. Low incremental value beyond already-ACCEPTED MISCONFIG.
+[FINAL]
+[NEXT] PROBE: `curl -s --max-time 8 -D- -X OPTIONS https://billing.threema.ch/cache/billing_gui_theme_threema.css -H "Origin: https://evil.com"` + `curl -s --max-time 8 -D- https://billing.threema.ch/cache/billing_gui_theme_threema.js` + `curl -s --max-time 8 -D- https://billing.threema.ch/en/login` — final mapping pass on billing app to confirm whether referenced assets are served and if any login/signup routes are live (prior billing REJECTED was based on root-path probes only; 404-page-referenced assets are a different path class).
+[LEARN] REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed for passive recon.
+[LEARN] ACCEPTED MISCONFIG @ gateway.threema.ch/v1: Session cookie (SESSIONID) set on unauthenticated 404 response — confirmed stable across cycles, low severity but valid defense-in-depth gap.
+[LEARN] CHANGED poc/ directory: still ABSENT (11th consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides all KB assertions.
+[LEARN] NO_NEW_CLASS: All previously accepted findings byte-stable; no new vulnerability classes opened this cycle.
+[RISK] chat: 30 — prod DNS shard→node map fully attributed; in-band passive channel closed (0 bytes without auth frame); no passive surface remaining
+[RISK] web: 94 — directory cluster (10k batch enum + CORS * + no rate-limit); safe backup API (permissive CORS + HSTS gap); work/broadcast/gateway cockpits accessible; staging work public API divergence; billing app deployed but no live routes found
+[RISK] sync: 55 — mediator/rendezvous uniform 403; ds-apip-work live but auth-gated; TWRK-1633 cross-subscription leak unvalidated (needs auth)
+[RISK] safe: 88 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
+[RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain; PoC artifact does NOT exist (KB claim false)

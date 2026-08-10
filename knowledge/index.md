@@ -345,3 +345,8 @@
 - 2026-08-10 REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy — determineKdfParams() calibrates Argon2id, key purged at line 233.
 - 2026-08-10 REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed.
 - 2026-08-10 CHANGED poc/ directory: still ABSENT (10th+ consecutive cycle); KB claims "NOW GENERATED" persistently false — do not trust KB artifact claims without filesystem verification.
+- 2026-08-10 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree); not standalone. `sandbox` unset (TODO DESK-79), L1240 comment incorrect per Electron docs
+- 2026-08-10 REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed for passive recon.
+- 2026-08-10 ACCEPTED MISCONFIG @ gateway.threema.ch/v1: Session cookie (SESSIONID) set on unauthenticated 404 response — confirmed stable across cycles, low severity but valid defense-in-depth gap.
+- 2026-08-10 CHANGED poc/ directory: still ABSENT (11th consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides all KB assertions.
+- 2026-08-10 NO_NEW_CLASS: All previously accepted findings byte-stable; no new vulnerability classes opened this cycle.

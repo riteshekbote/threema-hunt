@@ -1171,3 +1171,17 @@
 - CHANGED gateway.threema.ch: posture unchanged from 08-09 — /en/signup 200, /api/v1 403, /v1 404 with session cookie
 - CHANGED billing.ch: 404 page is custom Threema-branded app template (references `/cache/billing_gui_theme_threema.css` + `.js`)
 - CHANGED poc/ directory: still ABSENT (10th consecutive cycle); KB claims "NOW GENERATED" persistently false
+
+## 2026-08-10 18:39:13 UTC
+- NEW gateway.threema.ch/v1 returns 404 with Set-Cookie: SESSIONID=...; Secure; HttpOnly; SameSite=Strict on unauthenticated GET
+- NEW ds-apip-work.threema.ch/identities: TWRK-1633 "buggy" note in openapi spec — potential cross-subscription contact leak; requires auth
+- NEW threema-android JoinResponse.kt:70 — `toString()` leaks `icePassword='$icePassword'` in plain text (logcat credential exposure)
+- NEW billing.threema.ch now responds HTTP 301 (redirect to threema.ch) vs baseline TIMEOUT
+- NEW gateway.threema.ch now responds HTTP 302 (to /en) vs baseline TIMEOUT
+- NEW Chat shards IPv4-only, direct A records — no AAAA/CNAME on `g-*.0.threema.ch`
+- NEW g-{00,7f,80,ff}.1.threema.ch → NXDOMAIN — no `.1` group tier
+- CHANGED billing.threema.ch: 301 + 1024B nginx catch-all on ALL probed paths — no live application routes
+- CHANGED gateway.threema.ch: /en/signup 200, /api/v1 403, /v1 404 with session cookie; posture stable
+- CHANGED billing.ch: 404 page is custom Threema-branded app template (references `/cache/billing_gui_theme_threema.css` + `.js`)
+- CHANGED poc/ directory: still ABSENT (10th+ consecutive cycle); KB claims "NOW GENERATED" persistently false
+- CHANGED poc/ directory: confirmed ABSENT (11th consecutive cycle); KB claims "NOW GENERATED" / "genuinely on disk" remain persistently false — filesystem ground truth overrides KB assertions
