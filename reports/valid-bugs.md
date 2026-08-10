@@ -420,3 +420,9 @@
   - | 2 | Desktop Windows key-storage ACL bypass | **VALID** — Already reported | 5.5 Medium |
   - | 3 | Safe backup HSTS/Expect-CT header inconsistency | **VALID** — Already reported | 3.1 Low |
   - | 4 | Challenge-response parameter-validation oracles | **VALID** — Already reported | 3.7 Low |
+
+- 4 lead(s) marked VALID at 2026-08-10 15:47:25 UTC
+  - | Q3 | Real impact? | **NO** — 400 = route exists but requires valid `backupId:backupKey`. No unauthenticated data access. Consistent with Finding #3 family (safe-01 400 behavior) |
+  - | Q2 | Reachable? | **YES** — but input is malformed (`...64hex` is not valid hex) |
+  - | Q1 | In scope? | **NO** — scope.yml lists `work.threema.ch`, NOT `work.test.threema.ch`. Staging variants are out of scope per valid-bugs.md precedent |
+  - | **VALID (new)** | **0** | All map to already-reported finding families or are expected behavior |
