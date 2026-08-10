@@ -477,3 +477,11 @@
   - **Verdict: VALID (duplicate, low severity)** — Already reported. CVSS 3.1: **3.1 (AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:N/A:N)**
   - | Q2 Reachable? | ⚠️ AUTH_HELPED — 401 on all paths; requires valid Work test license |
   - | Q4 Passive proof? | ❌ NO — requires AUTH_HELPED with valid Work credentials + cross-subscription contact probes |
+
+- 6 lead(s) marked VALID at 2026-08-10 21:30:20 UTC
+  - | Q6 Not always-rejected | **YES** — this is not info disclosure of already-public data in the trivial sense; the *scale* (10k batch, no rate limit, cross-origin exfiltration) turns a public directory
+  - ### Verdict: **VALID**
+  - ### Verdict: **VALID** (with HUMAN_ONLY PoC gap)
+  - | Q2 Attacker-reachable | **PARTIAL** — CORS enables credentialed cross-origin requests, but attacker still needs valid backupId:backupKey |
+  - | 1 | Identity→pubkey mass enumeration (fetch_bulk, no rate limit, CORS *) | IDOR | **VALID** | 5.3 MED |
+  - | 2 | Desktop Windows key-storage ACL bypass | MISCONFIG | **VALID** (HUMAN_ONLY PoC) | 8.1 HIGH |
