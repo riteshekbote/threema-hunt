@@ -621,3 +621,17 @@ https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/jso
 https://safe-01.threema.ch/backups/aabbccdd -> HTTP 400
 https://safe-01.threema.ch/backups/aabbccdd...` -> HTTP 400
 https://billing.threema.ch/cache/billing_gui_theme_threema.css -> 200 len=41235 type=text/css
+
+## 2026-08-10 20:15:50 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/0123…cdef` -> ERR 'ascii' codec can't encode character '\u2026' in p
+https://safe-01.threema.ch/backups/…` -> ERR 'ascii' codec can't encode character '\u2026' in p
+https://gateway.threema.ch/v1 -> HTTP 404
+https://gateway.threema.ch/v1` -> HTTP 404
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://ds-apip-work.threema.ch/identities` -> HTTP 401
+https://gateway.threema.ch/ -> 200 len=? type=text/html; charset=UTF-8
+https://mediator-0.threema.ch/` -> HTTP 403
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
