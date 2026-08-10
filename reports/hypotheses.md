@@ -2560,3 +2560,35 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 52a0af98… re-confirmed benchmark-only dummy
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain, not standalone
 - LEARN: REJECTED class @ g-*.0.test.threema.ch staging chat: out of scope per scope.yml
+
+## RANKED HYPOTHESES 2026-08-10 23:38:03 UTC
+- [50] https://work.threema.ch/api/v1: work.threema.ch/api/v1 X-Api-Key leak from mobile/desktop client enables unauthorized contact enumeration (from reports/hypotheses-nemotron3.txt)
+- [50] https://ds-apip-work.threema.ch/identities: ds-apip-work.threema.ch/identities cross-subscription contact leak (TWRK-1633) (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): RAG: Search threema-android, threema-ios, and threema-desktop source code on GitHub for X-Api-Key values, work API authentication headers ("X-Api-Key", "ApiKey"
+- NEXT(hypotheses-bigpickle.txt): PROBE: `curl -s -o /dev/null -w "%{http_code} %{size_download}" "https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000
+- NEXT(hypotheses-longcat.txt): RAG: Search threema-android, threema-ios, and threema-desktop source code on GitHub `stable` for X-Api-Key values, work API authentication headers ("X-Api-Key",
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req (10000→200/152B, 10001→400/0B); CORS * 
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable across all 5 ho
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain on GitHub stable; PoC artifact on disk (sha256 094f1487…), node --che
+- LEARN: NEW @ threema-android JoinResponse.kt:70: `toString()` includes `icePassword='$icePassword'` in plain text — potential logcat credential leak if object logged. 
+- LEARN: INTERESTING @ threema-ios ManuallyTests: test-only credential "shootdeathstar" (sha256 8d969eef…) — TEST_ONLY fixture, not a secret leak
+- LEARN: REJECTED MISCONFIG @ threema-android SentryConfig.kt:15,19: Sentry public DSN keys (sha256 `3a826628...` + `3686395f...`) — public by design, INTERESTING non-fi
+- LEARN: REJECTED MISCONFIG @ threema-android SfuToken.kt:49: `sfuToken='********'` is proper redaction in toString() — security-positive, not a leak
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy — determineKdfParams() calibrates Argon2id, key purg
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: REJECTED class @ g-*.0.test.threema.ch staging chat: out of scope per scope.yml; explicit SNI + TLS1.2/1.3 probes close connection immediately (0 bytes, no peer
+- LEARN: REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
+- LEARN: ACCEPTED MISCONFIG @ gateway.threema.ch/v1: Session cookie (SESSIONID) set on unauthenticated 404 response — confirmed stable across cycles, low severity but va
+- LEARN: CHANGED poc/ directory: still ABSENT (13th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions
+- LEARN: NO_NEW_CLASS: All previously accepted findings byte-stable; no new vulnerability classes opened this cycle
+- LEARN: NEW @ ds-apip-work.threema.ch/identities: TWRK-1633 "buggy" note in openapi spec — potential cross-subscription contact leak; requires auth to verify
+- LEARN: CHANGED billing.threema.ch: now serves real static assets (jQuery 3.7.1 + custom CSS) with full security headers on assets, but 404 error page lacks these heade
+- LEARN: CHANGED work.threema.ch/api/v1: CORS posture refined — ACAO:* on 401 response BUT OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-ori
+- LEARN: CHANGED work.threema.ch/api/v1: CORS posture refined — ACAO:* on 401 response BUT OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-ori
+- LEARN: NO_DELTA — All inventory items already captured in knowledge base; no new surface discovered this cycle
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req (10000→200/152B, 10001→400/0B); CORS * 
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable across all 5 ho
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub stable; PoC artifact still absent from workspace
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 52a0af98… re-confirmed benchmark-only dummy
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain, not standalone
+- LEARN: REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed

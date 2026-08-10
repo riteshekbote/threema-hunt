@@ -5374,3 +5374,110 @@ testability: PASSIVE
 [RISK] safe: 80 — 5 safe-* hostnames single IP 203.56.112.231; CORS * + write-capable methods on GET 400 + Allow-Headers Authorization on OPTIONS 204 (credentialed cross-origin); HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 (CVSS 7.4 Med-High); HTTP Basic Auth + route-existence oracle (400 vs 404) byte-stable
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub stable source paths: fs.ts:41 returns {} on win32; key-storage/index.ts _writeOrOverrideFile + electron-main.ts STORE_USER_PASSWORD write with {} no-ACL; inner/v3.ts schema exposes identityData.ck + databaseKey; crypto.ts Argon2id→XSalsa20-Poly1305; sqlite.ts:240 raw PRAGMA key); PoC artifact still absent from workspace despite 13 cycles of KB claims; BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); remaining gap: live Windows runtime validation (CVSS 8.1 High)
 ```
+===== ANALYST longcat 2026-08-10 23:38:03 UTC =====
+[0m
+> build · longcat-2.0-free
+[0m
+Running all 8 steps for the sync phase.
+
+---
+
+**STEP 1 — DELTA**
+
+Comparing current inventory + leads against the KB:
+
+- `work.threema.ch/api/v1` X-Api-Key API — already captured in leads (2026-08-10), CORS posture refined. Not new to this cycle.
+- `ds-apip-work.threema.ch/identities` TWRK-1633 — already in inventory, auth-gated, unchanged.
+- billing.threema.ch — investigation closed per prior cycles.
+- poc/ directory — still absent (filesystem ground truth).
+- Chat DNS — fully attributed, in-band closed.
+- All accepted findings byte-stable across 35+ cycles.
+
+**NO_DELTA** — no new surface discovered this cycle. All inventory items already captured.
+
+---
+
+**STEP 2 — PRIORITIZE**
+
+[PRIO] ds-apip.threema.ch/identity/fetch_bulk — 9.1 (attack:9, business:9, tech:8, gate:10, cloud:8, fresh:9) — ACCEPTED IDOR, 10k-ID batch enum, CORS *, no rate-limit, CVSS 7.5
+[PRIO] threema-desktop key-storage (Windows ACL bypass) — 8.7 (attack:10, business:9, tech:9, gate:6, cloud:7, fresh:8) — RAG-verified 6-path chain, CVSS 8.1, needs Windows validation
+[PRIO] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} — 7.9 (attack:8, business:8, tech:7, gate:7, cloud:9, fresh:7) — ACCEPTED MISCONFIG, CORS * + write methods + HSTS gap, CVSS 7.4
+[PRIO] work.threema.ch/api/v1 (X-Api-Key API) — 6.1 (attack:6, business:8, tech:6, gate:3, cloud:7, fresh:9) — AUTH hypothesis, CORS * on 401 but OPTIONS 404 blocks browser cross-origin; key source RAG pending
+[PRIO] ds-apip-work.threema.ch/identities (TWRK-1633) — 6.6 (attack:7, business:8, tech:6, gate:3, cloud:7, fresh:8) — OpenAPI "buggy" note, auth-gated, cannot validate passively
+
+---
+
+**STEP 3 — HYPOTHESES**
+
+[HYP] work.threema.ch/api/v1 X-Api-Key leak from mobile/desktop client enables unauthorized contact enumeration
+class: AUTH
+asset: https://work.threema.ch/api/v1
+confidence: 50
+reasoning: work.threema.ch/api/v1 is a live, undocumented API using X-Api-Key header auth. Routes /users and /contacts return 401 (not 404), confirming real endpoints. CORS * on GET 401 responses BUT OPTIONS preflight returns 404 without CORS headers — browser-based cross-origin keyed requests are blocked. Non-browser attack path (server-side, curl) still viable if key is known.
+evidence_needed: X-Api-Key value from mobile/desktop client source code, or evidence of weak key generation
+verify_steps: RAG: Search threema-android, threema-ios, threema-desktop for "X-Api-Key", "apiKey", "ApiToken", work API auth headers, or key generation logic. Focus: (1) WorkDataAPICaller / WorkDataThreemaMDMFetcher in threema-ios, (2) WorkApiClient or similar in threema-android, (3) work API config in threema-desktop.
+impact: Unauthorized access to Threema Work contact/user data. Severity: Medium-High (depends on key scope — per-user vs global).
+testability: PASSIVE
+
+[HYP] TWRK-1633 cross-subscription contact leak on ds-apip-work.threema.ch/identities
+class: IDOR
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 55
+reasoning: OpenAPI spec notes "buggy" behavior for TWRK-1633 on /identities endpoint. Work directory returns 401 on all paths including OPTIONS (unlike consumer ds-apip where OPTIONS → 204), with CORS * + no HSTS/Expect-CT. Cross-subscription leak would allow one work account to enumerate contacts from a different licensed organization.
+evidence_needed: Valid work credentials to test cross-subscription /identities access; compare contact lists across two different organization subscriptions
+verify_steps: AUTH_HELPED: Authenticate to ds-apip-work.threema.ch with work account A (subscription X), GET /identities, check if contacts from subscription Y appear. Repeat with account B to confirm bidirectional leak.
+impact: Cross-subscription contact enumeration in Threema Work — one licensed organization could discover contacts belonging to a different organization, violating tenant isolation. Severity: Medium-High (CVSS ~6.5).
+testability: AUTH_HELPED
+
+[HYP] Mediator/rendezvous WSS error-path divergence reveals internal sync state
+class: OTHER
+asset: mediator-{prefix4}.threema.ch, rendezvous-{prefix4}.threema.ch
+confidence: 25
+reasoning: Mediator and rendezvous servers handle multi-device sync/linking via WSS. DNS split routing confirmed (0-7 → 203.56.112.247, 8-f → 203.56.114.247). Uniform 403 on HTTPS. WSS probing is active (not passive) and requires authenticated handshake frames.
+evidence_needed: Differential error responses from WSS endpoints under various input conditions
+verify_steps: RAG: Search threema-desktop for mediator/rendezvous protocol implementation, pairing code validation, and rate-limiting on the client side; client-side validation logic may reveal server expectations without active probing.
+impact: Potential for unauthorized device pairing or sync state manipulation. Severity: Unknown (requires active WSS probing, beyond passive scope).
+testability: HUMAN_ONLY
+
+---
+
+**STEP 4 — SELF-CRITIQUE**
+
+[PARKED] Mediator/rendezvous WSS error-path divergence reveals internal sync state: confidence 25 below threshold; requires active WSS probing (not passive); no passive verify path; sync surface closed per prior KB entries.
+
+[FINAL] 1. work.threema.ch/api/v1 X-Api-Key leak (AUTH, confidence 50) — survives: confidence ≥ 40, concrete RAG verify_steps, new finding with refined CORS posture (OPTIONS 404 blocks browser cross-origin, but server-side attack path remains)
+[FINAL] 2. TWRK-1633 cross-subscription contact leak (IDOR, confidence 55) — survives: confidence ≥ 40, concrete AUTH_HELPED verify_steps, OpenAPI "buggy" note grounds the hypothesis
+
+---
+
+**STEP 5 — NEXT ACTION**
+
+[NEXT] RAG: Search threema-android, threema-ios, and threema-desktop source code on GitHub `stable` for X-Api-Key values, work API authentication headers ("X-Api-Key", "ApiKey", "ApiToken", "workApiToken"), or key generation logic related to work.threema.ch/api/v1. Specifically:
+- `threema-ios`: Search for `WorkDataAPICaller`, `WorkDataThreemaMDMFetcher`, `apiKey`, `X-Api-Key`, `workApiToken`
+- `threema-android`: Search for `WorkApiClient`, `apiKey`, `X-Api-Key`, work-related network interceptors
+- `threema-desktop`: Search for work API configuration, any work-related IPC handlers or fetch wrappers
+
+If a hardcoded or weakly-derived key is found, this proves the AUTH hypothesis and opens a server-side attack path against Threema Work user/contact data.
+
+---
+
+**STEP 6 — LEARNING**
+
+[LEARN] CHANGED work.threema.ch/api/v1: CORS posture refined — ACAO:* on 401 response BUT OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-origin keyed requests; server-side/non-browser attack path only
+[LEARN] NO_DELTA — All inventory items already captured in knowledge base; no new surface discovered this cycle
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req (10000→200/152B, 10001→400/0B); CORS * + no rate-limit + 5 challenge param-oracles — all byte-stable
+[LEARN] ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable across all 5 hosts
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub stable; PoC artifact still absent from workspace
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 52a0af98… re-confirmed benchmark-only dummy
+[LEARN] REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain, not standalone
+[LEARN] REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
+
+---
+
+**STEP 7 — RISK SCORE**
+
+[RISK] chat: 25 — prod DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band 443/5222 passive channel closed (0 bytes without authenticated login frame, no cert/SAN leak); no passive surface remaining
+[RISK] web: 95 — directory triad (ds-apip+api+apip) fetch_bulk 10k ID enumeration + CORS * + no auth + cross-origin readable + zero 429 byte-stable (CVSS 7.5 High); GET /identity/{id} → 200/404 oracle uniform; 5 challenge param-validation oracles confirmed; work.threema.ch/api/v1 X-Api-Key API adds new attack surface but browser cross-origin blocked by OPTIONS 404; safe backup CORS* + HSTS gap (CVSS 7.4)
+[RISK] sync: 50 — mediator-{0..f}/rendezvous-{0..f} resolve (DNS split 203.56.112.247 / 203.56.114.247 for 0-7/8-f), uniform 403 on HTTPS, no CORS; ds-apip-work auth-gated (401 + CORS * + no HSTS, OPTIONS also 401); TWRK-1633 cross-subscription leak candidate unvalidated (auth-required); work.threema.ch/api/v1 X-Api-Key API is the only new sync lead but key source unknown
+[RISK] safe: 80 — 5 safe-* hostnames single IP 203.56.112.231; CORS * + write-capable methods on GET 400 + Allow-Headers Authorization on OPTIONS 204 (credentialed cross-origin); HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 (CVSS 7.4 Med-High); HTTP Basic Auth + route-existence oracle (400 vs 404) byte-stable
+[RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub stable source paths: fs.ts:41 returns {} on win32; key-storage/index.ts _writeOrOverrideFile + electron-main.ts STORE_USER_PASSWORD write with {} no-ACL; inner/v3.ts schema exposes identityData.ck + databaseKey; crypto.ts Argon2id→XSalsa20-Poly1305; sqlite.ts:240 raw PRAGMA key); PoC artifact still absent from workspace despite 13+ cycles of KB claims; BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); remaining gap: live Windows runtime validation (CVSS 8.1 High)
