@@ -2277,3 +2277,17 @@
 - LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency re-confirmed live this
 - LEARN: CHANGED billing.ch: 404 page is custom Threema-branded app template (references `/cache/billing_gui_theme_threema.css` + `.js`) — confirms billing GUI framework
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy — determineKdfParams() calibrates Argon2id, key purg
+
+## RANKED HYPOTHESES 2026-08-10 17:43:05 UTC
+- [98] ds-apip.threema.ch/identity/fetch_bulk: fetch_bulk mass identity→pubkey enumeration (10k IDs/req, no auth, cross-origin readable) (from reports/hypotheses-laguna.txt)
+- [65] https://gateway.threema.ch/v1: gateway.threema.ch/v1 session-cookie leakage on unauthenticated 404 (from reports/hypotheses-nemotron3.txt)
+- [50] ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/fetch_bulk: fetch_bulk returns identity state/type fingerprint usable for targeted enumeration (from reports/hypotheses-bigpickle.txt)
+- [50] ds-apip-work.threema.ch/identities: Work directory /identities (TWRK-1633 "buggy") leaks contact metadata cross-subscription (from reports/hypotheses-longcat.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: weekly staging catch-up (executed this cycle): staging settings 200/299B sha256 `52621822…`, license-token 404/900B, bundle `96501e21…` (now prod-identic
+- NEXT(hypotheses-laguna.txt): PROBE: `curl -s -D - -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Origin: https://evil.com' -H 'Content-Type: application/json' -d '{"identities":
+- NEXT(hypotheses-longcat.txt): HUMAN: Validate Windows key-storage ACL bypass chain on a Windows VM with Threema Desktop installed — run same-user attacker process to read data/keystorage.bin
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: byte-stable this cycle — 200/152B (ECHOECHO echoed, invalid IDs silently omitted), CORS ACAO:*, 10001→40
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub `stable`; no new commits affecting ACL bypass logic.
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency re-confirmed live this
+- LEARN: REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed.
+- LEARN: CHANGED poc/ directory: still ABSENT (10th+ consecutive cycle); KB claims "NOW GENERATED" persistently false — do not trust KB artifact claims without filesyste
