@@ -1241,3 +1241,7 @@
 - CHANGED billing.threema.ch: 301 redirect confirmed, ALL non-root paths 404 — no live application routes, investigation closed
 - NEW work.threema.ch/api/v1 — live X-Api-Key authenticated API, routes /users + /contacts confirmed (401 not 404), CORS * on GET but OPTIONS returns 404 (preflight unhandled, blocks cross-origin keyed requ
 - CHANGED billing.threema.ch: investigation closed — 301 redirect to threema.ch, all non-root paths 404 nginx catch-all, no live application routes
+
+## 2026-08-10 23:17:11 UTC
+- CHANGED poc/ directory: still ABSENT (13th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB
+- CHANGED work.threema.ch/api/v1: CORS posture refined — ACAO:* on 401 response BUT OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-origin keyed requests (server-side/non-browser atta
