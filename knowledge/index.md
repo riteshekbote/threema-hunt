@@ -340,3 +340,6 @@
 - 2026-08-10 ACCEPTED MISCONFIG @ gateway.threema.ch/v1: Session cookie (SESSIONID) set on unauthenticated 404 response with Secure/HttpOnly/SameSite=Strict — cookie-on-error-path confirmed
 - 2026-08-10 REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98...`) re-confirmed benchmark-only dummy in `determineKdfParams()`, derived key purged at line 233 — not used for real encryption
 - 2026-08-10 REJECTED OTHER @ billing.threema.ch: 301 + 1024B nginx catch-all on ALL probed paths — no live application routes; "distinct route table" hypothesis disproven.
+- 2026-08-10 ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: byte-stable this cycle — 200/152B (ECHOECHO echoed, invalid IDs silently omitted), CORS ACAO:*, 10001→400/0B sharp count-cap, zero 429s.
+- 2026-08-10 CHANGED billing.ch: 404 page is custom Threema-branded app template (references `/cache/billing_gui_theme_threema.css` + `.js`) — confirms billing GUI framework deployed, but all non-root paths still 404; no live public routes.
+- 2026-08-10 REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy — determineKdfParams() calibrates Argon2id, key purged at line 233.

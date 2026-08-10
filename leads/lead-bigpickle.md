@@ -7179,3 +7179,28 @@ reasoning: only identity endpoint with single-step request (identity + SHA256(re
 evidence_needed: server rate-limits ws/revoke or not; error/timing shape per wrong key on program-provided test ID.
 verify_steps: AUTH_HELPED: on program test ID, POST /identity/ws/revoke wrong revocationKey small count for 429; never third-party IDs.
 impact: if unrate-limited, 2^32 brute-force → permanent identity destruction/DoS. Sever
+## 2026-08-10 16:44:42 UTC [chat] (model bigpickle)
+class: IDOR
+asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/{id}
+confidence: 60
+reasoning: own GET /identity/ECHOECHO → 200 JSON `{identity,publicKey,featureLevel:3,featureMask:9,state:0,type:0}`; same body echoed via fetch_bulk; no auth, CORS `*`, no rate limit (established). `state`/`type` semantics unverified beyond single test ID.
+evidence_needed: second data point showing state or type variance (e.g., reserved/zero patterns) or documented field enum confirming state distinguishes active/revoked/restricted.
+verify_steps: PASSIVE: single POST fetch_bulk `{"identities":["AAAAAAAA","00000000","ZZZZZZZZ"]}` — check for any nonzero state/type; then parity GET /identity/ECHOECHO on api.threema.ch + apip.threema.ch for byte-identical metadata. ≤1 rps.
+impact: enumeration amplifies from pubkey-oracle to identity-state/type fingerprint (targeted phishing of work vs consumer, restricted/revoked accounts). Severity: medium (metadata), layered on accepted pubkey IDOR.
+testability: PASSIVE
+class: OTHER
+asset: work.threema.ch /api-app/public/*
+confidence: 45
+reasoning: served bundle now prod-identical (own sha256), yet staging backend still returns 200/299B on /global/settings while prod 404s — public-namespace divergence is now backend-only. license-token route still 404/900B on staging.
+evidence_needed: staging or prod /api-app/public/* returns ≠404 for any path beyond settings (esp. license/token → credential oracle).
+verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64zeros}` + single GET `/api-app/public/global/settings` on BOTH hosts weekly; re-hash `/cache/work_public.js` both hosts; escalate on any ≠404/≠prod-hash.
+impact: if /public/* activates on prod: unauth 64-hex token→license-credential oracle. Severity: low (high-entropy token) while settings stays metadata-only.
+testability: PASSIVE
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 50
+reasoning: directory.openapi.yml:1172 flags route "currently buggy"; returns contacts + work props (name/jobTitle/department/availability); host 401s all paths (credential gate, CORS `*`); own probe confirms 401 stable this cycle.
+evidence_needed: induced out-of-subscription contact/property return with authorized work test license.
+verify_steps: AUTH_HELPED: POST /identities {contacts:[own+foreign IDs]} compare membership/props; probe page/size bounds.
+impact: cross-subscription work-directory PII → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
