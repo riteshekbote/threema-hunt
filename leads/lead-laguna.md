@@ -5548,3 +5548,32 @@ testability: PASSIVE
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-VERIFIED at 95 confidence (6 core paths + 9 supporting paths on GitHub stable); PoC artifact NOW genuinely on disk + syntax-verified + Linux no-op; remaining gap: Windows runtime validation (DPAPI CryptUnprotectData → Argon2id → XSalsa20-Poly1305 → protobuf → ck + databaseKey → SQLCipher PRAGMA key); Electron sandbox unset + nodeIntegrationInWorker: true (TODO DESK-79, conditional RCE); crypto.ts:223 benchmark password REJECTED (dummy, purged)
 ## 2026-08-10 12:37:35 UTC [desktop] (model laguna)
 ## 2026-08-10 14:03:45 UTC [desktop] (model laguna)
+## 2026-08-10 14:59:27 UTC [desktop] (model laguna)
+[HYP] fetch_bulk mass identity→pubkey enumeration (10000 IDs/req, no auth, cross-origin readable)
+class: IDOR
+asset: ds-apip.threema.ch/identity/fetch_bulk (+ api.threema.ch, apip.threema.ch)
+confidence: 97
+reasoning: Own probe 2026-08-10 15:00: POST {"ECHOECHO","ZZZZZZZZ"} → 200, only ECHOECHO echoed (ZZZZ omitted), ACAO `*`; prior 10000→200/152B, 10001→400/0B (sharp count-cap); GET /identity/ECHOECHO → 200, /identity/ZZZZZZZZ → 404; zero 429 across 35+ probes; no Access-Control-Expose-Headers so body is directly cross-origin readable.
+evidence_needed: (1) 200 body contains pubkey for valid ID, omits invalid; (2) ACAO `*` on 200; (3) 400 body empty at 10001 IDs; (4) no 429.
+verify_steps: PASSIVE — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H 'Content-Type: application/json' -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` → confirm 200, only ECHOECHO+pubkey; `curl -s -o /dev/null -w '%{http_code}\n' https://ds-apip.threema.ch/identity/ZZZZZZZZ` → 404 vs ECHOECHO → 200.
+impact: Full consumer identity→pubkey enumeration at 10k IDs/request, no auth, cross-origin readable. CVSS 7.5 (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N) — High.
+testability: PASSIVE
+[HYP] Windows key-storage ACL bypass yields Ed25519 identity key + SQLCipher DB key
+class: MISCONFIG
+asset: threema-desktop (Windows) — data/keystorage.bin + data/keystorage.password.bin + data/threema.sqlite
+confidence: 95
+reasoning: RAG-VERIFIED via prior WebFetch on GitHub stable (6 core paths: fs.ts:41 → {} on win32; key-storage/index.ts:559-560 writes keystorage.bin with {}; electron-main.ts:944-945 writes keystorage.password.bin with {}); inner/v3.ts:65,70 exposes identityData.ck (Ed25519 privkey) + databaseKey; crypto.ts:53-113 Argon2id→XSalsa20-Poly1305 decrypt (key purged :113); sqlite.ts:240 raw SQLCipher PRAGMA key = databaseKey. crypto.ts:223 benchmark password `r3gGN9GDQ5NF6tM6` REJECTED as dummy.
+evidence_needed: Windows DACL audit (0 explicit ACEs on .bin files); DPAPI CryptUnprotectData → master password → Argon2id → XSalsa20-Poly1305 → protobuf → ck + databaseKey → sqlcipher PRAGMA key.
+verify_steps: RAG DONE (6 core paths WebFetch on stable). AUTH_HELPED-LOCAL: on authorized Windows host with Threema Desktop 2.x real profile, run `icacls "%LOCALAPPDATA%\ThreemaDesktop\data\keystorage.bin" "%LOCALAPPDATA%\ThreemaDesktop\data\keystorage.password.bin"` to confirm no ACL; then execute DPAPI+XSalsa20-Poly1305+SQLCipher unseal chain. NOTE: PoC artifact `poc/key-storage-acl-bypass-poc.js` claimed by KB "NOW GENUINELY ON DISK" since 2026-08-09 — find ./  returns ZERO results; artifact ABSENT; gap persists.
+impact: Same-user attacker recovers Ed25519 identity key + SQLCipher DB key → full local message DB decryption + account impersonation. CVSS 8.1 (AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H) — High.
+testability: AUTH_HELPED-LOCAL
+[HYP] gateway.threema.ch/v1 session-cookie set on unauthenticated 404
+class: MISCONFIG
+asset: https://gateway.threema.ch/v1
+confidence: 72
+reasoning: Own probe 2026-08-10 15:00: unauthenticated GET /v1 → HTTP 404 (app catch-all, 2.6KB) WITH `Set-Cookie: SESSIONID=b4qpig0osfk0viq88pkv3qnk8j; Secure; HttpOnly; SameSite=Strict`. Cookie issuance on an error/unauthenticated path is unexpected; server-side session created without auth.
+evidence_needed: Confirm SESSIONID is server-side persisted (post-back reveals session state); confirm cookie issued on other unauthenticated 404 paths; confirm HttpOnly/Secure attributes prevent exfiltration (low direct impact but confirms session-fixation surface).
+verify_steps: PASSIVE — `curl -s -D - -o /dev/null https://gateway.threema.ch/v1` → confirm Set-Cookie; `curl -s -D - -o /dev/null https://gateway.threema.ch/does-not-exist` → check if SESSIONID also set on other 404s.
+impact: Low direct exploitability (Secure/HttpOnly/SameSite=Strict). Potential session-creation-without-auth if server-side state can be pre-populated. CVSS 4.3 (AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:N/A:N) — Medium.
+testability: PASSIVE
+[NEXT] PROBE: Re-confirm fetch_bulk no-regression with cross-origin Origin header + single valid ID batch, AND simultaneously audit the `poc/` directory claim: `find . -name "key-storage-acl-bypass-poc*" 2>/dev/null` (expected: absent) + `ls -la poc/ 2>&1` — this resolves the 9-cycle KB false-positive on artifact presence before any Windows validation.

@@ -339,3 +339,4 @@
 - 2026-08-10 NEW @ ds-apip-work.threema.ch/identities: TWRK-1633 "buggy" note in openapi spec — potential cross-subscription contact leak; requires auth to verify.
 - 2026-08-10 ACCEPTED MISCONFIG @ gateway.threema.ch/v1: Session cookie (SESSIONID) set on unauthenticated 404 response with Secure/HttpOnly/SameSite=Strict — cookie-on-error-path confirmed
 - 2026-08-10 REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98...`) re-confirmed benchmark-only dummy in `determineKdfParams()`, derived key purged at line 233 — not used for real encryption
+- 2026-08-10 REJECTED OTHER @ billing.threema.ch: 301 + 1024B nginx catch-all on ALL probed paths — no live application routes; "distinct route table" hypothesis disproven.
