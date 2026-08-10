@@ -7714,3 +7714,60 @@ verify_steps: PASSIVE: single weekly GET `/api-app/public/license/token/{64zeros
 impact: if route lands: unauthenticated license-token→credential oracle; tokens high-entropy so enumeration impractical. Severity: Info-Low
 testability: PASSIVE
 [NEXT] PROBE: `curl -s -o /dev/null -w "%{http_code} %{size_download}" "https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000"` — single GET weekly; 404/900B = no backend route yet (current), any other status = catch-up event triggering full /public/* re-enumeration; add parallel `curl -s "https://work.test.threema.ch/api/v1/contacts" | sha256sum` to keep the byte-parity `707fe8f5…` watch.
+## 2026-08-10 23:37:06 UTC [chat] (model bigpickle)
+[HYP] ds-apip-work.threema.ch/identities cross-subscription contact leak (TWRK-1633)
+class: IDOR
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 50
+reasoning: directory.openapi.yml flags `/identities` "currently buggy" (TWRK-1633); returns names/jobTitle/department/availability filtered to "same Work subscription". Prod+staging OPTIONS both 401 without `authorization` in Allow-Headers → browser-CORS vector closed; attack needs authenticated Work context.
+evidence_needed: authenticated response mixing own- and foreign-subscription IDs; or scoping-param manipulation bypassing the membership filter
+verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities `{"contacts":[...]}` with own+foreign IDs; diff membership/property leak; probe page/size bounds vs ds-apip.threema.ch/identities semantics
+impact: cross-subscription work-directory metadata disclosure → targeted phishing of enterprise users. Severity: Medium (CVSS 3.1 5.3)
+testability: AUTH_HELPED
+[HYP] directory triad browser-driven identity enumeration (impact refinement)
+class: IDOR
+asset: https://ds-apip.threema.ch/api.threema.ch/apip.threema.ch /identity/fetch_bulk
+confidence: 80
+reasoning: ACAO `*` + no auth + no 429 + 10k-ID batches re-confirmed (200/echo, invalid silently omitted); any web page can POST fetch_bulk and read valid-ID pubkeys cross-origin client-side, no tooling. Byte-stable across all prior cycles.
+evidence_needed: none additional — cross-origin read already verified with Origin header
+verify_steps: PASSIVE: already done (Origin header → ACAO `*` on 200 body)
+impact: hostile page performs silent identity-graph harvesting + exact-match phishing at ~10k ids/request. Severity: High (CVSS 3.1 7.5)
+testability: PASSIVE
+[HYP] work.test license-token route backend catch-up oracle
+class: MISCONFIG
+asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
+confidence: 40
+reasoning: staging bundle v2.25.1 implements GET (license username/password/expired/hasEmail) + PUT; staging backend returns method-agnostic 404/900B (re-verified this cycle, unchanged); prod bundle has zero /public/* handlers. Frontend ahead of backend.
+evidence_needed: backend deploys route → ≠404 for valid-format token → unauthenticated 64-hex token→credential oracle
+verify_steps: PASSIVE: single weekly GET `/api-app/public/license/token/{64zeros}`; record 404 vs non-404; ≤1 rps, GET only
+impact: if route lands: unauthenticated license-token→credential oracle; tokens high-entropy so enumeration impractical. Severity: Info-Low
+testability: PASSIVE
+[NEXT] PROBE: `curl -s -o /dev/null -w "%{http_code} %{size_download}" "https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000"` — single GET weekly; 404/900B = no backend route yet (current), any other status = catch-up event triggering full /public/* re-enumeration; add parallel `curl -s "https://work.test.threema.ch/api/v1/contacts" | sha256sum` to keep the byte-parity `707fe8f5…` watch.
+[HYP] directory triad browser-driven identity enumeration (impact refinement)
+class: IDOR
+asset: https://ds-apip.threema.ch/api.threema.ch/apip.threema.ch /identity/fetch_bulk
+confidence: 80
+reasoning: ACAO `*` + no auth + zero 429s + 10k-ID batches re-confirmed this cycle (200/152B, invalid silently omitted); cross-origin body read already verified with Origin header.
+evidence_needed: none additional — impact framing only
+verify_steps: PASSIVE: done (Origin header → ACAO `*` on 200 body); maintain weekly byte-parity sha256 watch
+impact: hostile page performs silent identity-graph harvesting + exact-match phishing at ~10k ids/request, no CSRF constraints. Severity: High (CVSS 3.1 7.5)
+testability: PASSIVE
+[HYP] ds-apip-work `/identities` cross-subscription contact leak (TWRK-1633)
+class: IDOR
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 50
+reasoning: openapi flags `/identities` "currently buggy"; returns names/jobTitle/department/availability filtered to "same Work subscription". Prod+staging OPTIONS both 401 with no `authorization` in Allow-Headers → browser vector closed; needs authenticated Work context.
+evidence_needed: authenticated response mixing own- and foreign-subscription IDs; or scoping-param bypass of the membership filter
+verify_steps: AUTH_HELPED: with authorized Work test license, POST `/identities` `{"contacts":[ownId,foreignId]}`; diff membership/property leak vs same-subscription control; probe page/size bounds
+impact: cross-subscription work-directory metadata disclosure → targeted phishing of enterprise users. Severity: Medium (CVSS 3.1 5.3)
+testability: AUTH_HELPED
+[HYP] desktop key-storage Windows runtime validation
+class: MISCONFIG
+asset: threema-desktop data/keystorage.bin + keystorage.password.bin (Windows)
+confidence: 90
+reasoning: RAG chain complete (fs.ts:41 `{}` on win32; index.ts/electron-main.ts write with no ACL; inner/v3.ts exposes ck + databaseKey; sqlite.ts:240 raw PRAGMA key). PoC artifact still absent on disk; only gap is Windows runtime proof.
+evidence_needed: Windows run of PoC showing keystorage files readable by same-user process without ACL
+verify_steps: HUMAN_ONLY: run `poc/key-storage-acl-bypass-poc.js` on Windows host; first recreate the artifact (workspace FS shows poc/ ABSENT)
+impact: same-user credential disclosure of Ed25519 identity key + SQLCipher DB key. Severity: Medium (CVSS 3.1 5.5)
+testability: HUMAN_ONLY
+[NEXT] HUMAN: with an authorized Work test license, POST `https://ds-apip-work.threema.ch/identities` body `{"contacts":["<own-subscription-workId>","<foreign-consumerId>"]}` (≤1 rps) and diff membership/property leakage against a same-subscription control — validates the TWRK-1633 cross-subscription contact leak, the top open hypothesis (all passive surface byte-stable this cycle; safe routing closed).
