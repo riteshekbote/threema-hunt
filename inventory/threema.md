@@ -1066,3 +1066,8 @@
 - CHANGED poc/ directory: confirmed STILL ABSENT — KB claim "NOW GENERATED" is false across 4+ cycles; PoC artifact gap persists
 - NEW threema-android JoinResponse.kt:70 — toString() leaks icePassword='$icePassword' in plain text (potential logcat credential leak)
 - NEW reposcan-latest: test-only credential "shootdeathstar" (sha256 8d969eef...) found in iOS ManuallyTests safe upload/download fixtures — TEST_ONLY, INTERESTING non-finding
+
+## 2026-08-10 10:14:12 UTC
+- NEW threema-android JoinResponse.kt:70 — `toString()` leaks `icePassword='$icePassword'` in plain text (potential logcat credential leak, short-lived ICE creds)
+- CHANGED poc/ directory — confirmed STILL ABSENT via `ls` (6th consecutive cycle; KB claims "NOW GENERATED" are false)
+- CHANGED knowledge/index.md — lines 292-308 added contradictory "PoC NOW on disk" claims that don't match filesystem reality

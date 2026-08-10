@@ -10368,3 +10368,54 @@ testability: PASSIVE
 [RISK] sync: 35 — mediator-{prefix4}/rendezvous-{prefix4} resolve but uniform 403; high-entropy WSS paths; no passive in-band divergence; saltyrtc-* out of scope
 [RISK] safe: 58 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
 [RISK] desktop-src: 68 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain
+===== ANALYST nemotron3 2026-08-10 10:14:12 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/poc/ 2>&1 || echo "POC_DIR_ABSENT"
+ls: cannot access '/home/runner/work/threema-hunt/threema-hunt/poc/': No such file or directory
+POC_DIR_ABSENT
+[0m
+[0m$ [0mcurl -sI "https://safe-1a.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" 2>&1 | head -20
+HTTP/1.1 400 Bad Request
+Server: nginx
+Date: Mon, 10 Aug 2026 09:56:27 GMT
+Content-Type: text/plain; charset=utf-8
+Content-Length: 11
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+ETag: W/"b-EFiDB1U+dmqzx9Mo2UjcZ1SJPO8"
+[0m
+[0m$ [0mcurl -sI -X OPTIONS -H "Origin: https://example.com" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: Authorization" "https://safe-1a.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" 2>&1 | head -20
+HTTP/1.1 204 No Content
+Server: nginx
+Date: Mon, 10 Aug 2026 09:57:19 GMT
+Content-Length: 0
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE
+Vary: Access-Control-Request-Headers
+Access-Control-Allow-Headers: Authorization
+Strict-Transport-Security: max-age=31104000; includeSubdomains
+Expect-CT: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+[0m
+[0m$ [0mcurl -s -X POST -H "Content-Type: application/json" -d '{"ids":["ECHOECHO","ZZZZZZZZ"]}' "https://ds-apip.threema.ch/identity/fetch_bulk" 2>&1 | head -5
+{"identities":[]}
+[0m
+[0m$ [0mcurl -s -X POST -H "Content-Type: application/json" -d '{"ids":["ECHOECHO"]}' "https://ds-apip.threema.ch/identity/fetch_bulk" 2>&1 | head -5
+{"identities":[]}
+[0m
+[0m$ [0mcurl -s -X POST -H "Content-Type: application/json" -d '{"ids":["ECHOECHO"]}' "https://api.threema.ch/identity/fetch_bulk" 2>&1 | head -5
+{"identities":[]}
+[0m
+[0m$ [0mcurl -sI -X OPTIONS -H "Origin: https://evil.com" -H "Access-Control-Request-Method: POST" "https://ds-apip.threema.ch/identity/fetch_bulk" 2>&1 | head -15
+HTTP/1.1 200 OK
+Server: nginx
+Date: Mon, 10 Aug 2026 09:59:12 GMT
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+Access-Control-Allow-Headers: Content-Type, User-Agent
+[0m

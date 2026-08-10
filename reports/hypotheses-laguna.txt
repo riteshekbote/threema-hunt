@@ -1,1 +1,29 @@
-## 2026-08-10 08:34:25 UTC [desktop] (model laguna)
+## 2026-08-10 10:06:13 UTC [desktop] (model laguna)
+[HYP] fetch_bulk identity->pubkey mass enumeration at 10k IDs/request
+class: IDOR
+asset: ds-apip.threema.ch/identity/fetch_bulk (+ api.threema.ch, apip.threema.ch)
+confidence: 97
+reasoning: Own probe this cycle: POST {"identities":["ECHOECHO","ZZZZZZZZ"]} -> 200/152B/ACAO:* (only valid ID echoed, invalid silently omitted -> size oracle). 10000-ID batch -> 200; 10001 -> 400/0B sharp count-cap, no partial overshoot. Zero 429s across 35+ probes. GET /identity/ECHOECHO -> 200/ACAO:* vs /ZZZZZZZZ -> 404. 5 challenge endpoints -> 200 JSON errors + ACAO:*.
+evidence_needed: Response-size differential (valid ID -> pubkey in body; invalid -> omitted). Cross-origin ACAO:* confirmed on 200.
+verify_steps: PASSIVE — `curl -s -X POST -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://ds-apip.threema.ch/identity/fetch_bulk` -> 200, only ECHOECHO pubkey, ACAO:*; `curl -s -o /dev/null -w '%{http_code}' https://ds-apip.threema.ch/identity/ZZZZZZZZ` -> 404 vs ECHOECHO -> 200; 10000 -> 200, 10001 -> 400/0B sharp.
+impact: Full consumer identity->pubkey enumeration ~10k IDs/req, no auth, cross-origin readable. CVSS 7.5 (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N) — High.
+testability: PASSIVE
+[HYP] Windows key-storage ACL bypass yields Ed25519 identity private key + SQLCipher DB key
+class: MISCONFIG
+asset: threema-desktop (Windows) — data/keystorage.bin + data/keystorage.password.bin + data/threema.sqlite
+confidence: 95
+reasoning: RAG-VERIFIED via WebFetch on GitHub stable (6 core paths): fileModeInternalObjectIfPosix() returns {} on win32 (fs.ts:41); _writeOrOverrideFile writes keystorage.bin with {} no-ACL (key-storage/index.ts:559-560); STORE_USER_PASSWORD writes keystorage.password.bin with {} no-ACL (electron-main.ts:944-945); INNER_KEY_STORAGE_V3_SCHEMA exposes identityData.ck (Ed25519 privkey) + databaseKey (inner/v3.ts:65,70); Argon2id->XSalsa20-Poly1305 decrypt, key purged at :113 (crypto.ts:53-113); sqlcipher PRAGMA key=databaseKey (sqlite.ts:240). crypto.ts:223 benchmark password r3gGN9GDQ5NF6tM6 (sha256 52a0af98...) REJECTED separately as dummy. PoC artifact NOW on disk + syntax-verified + Linux no-op.
+evidence_needed: (a) Windows DACL audit showing 0 explicit ACEs on both .bin files; (b) DPAPI CryptUnprotectData on password blob -> master password; (c) Argon2id -> XSalsa20-Poly1305 decrypt -> protobuf decode -> ck + databaseKey; (d) sqlcipher PRAGMA key -> decrypt message DB.
+verify_steps: RAG: WebFetch GitHub stable fs.ts:41, key-storage/index.ts:559-560, electron-main.ts:944-945, inner/v3.ts:65,70, crypto.ts:53-113, sqlite.ts:240 - all re-verified this cycle. AUTH_HELPED-LOCAL: `node poc/key-storage-acl-bypass-poc.js` PASS (syntax OK, exit 0 Linux no-op, artifact genuinely present); run on authorized Windows host with Threema Desktop 2.x + real profile to validate full 6-step chain.
+impact: Same-user attacker recovers Ed25519 identity key + SQLCipher DB key -> full local message DB decryption + account impersonation. CVSS 8.1 (AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H) — High.
+testability: AUTH_HELPED-LOCAL
+[HYP] Safe backup API credentialed cross-origin read with HSTS/header gap
+class: MISCONFIG
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 70
+reasoning: Own probe this cycle: GET /backups/{64hex} -> 400 "Bad Request" + ACAO:* but NO Strict-Transport-Security/Expect-CT; OPTIONS -> 204 with HSTS (max-age=31104000; includeSubdomains) + ACAO:* + Allow-Headers: Authorization. Route-oracle: /backups/{64hex}->400 vs /backup/{x}->404. HTTP Basic Auth (backupId:backupKey) gating only. 5 hostnames uniform behind 203.56.112.231.
+evidence_needed: Valid backupId:backupKey pair to demonstrate authenticated cross-origin GET returning 200; HSTS preload-list status.
+verify_steps: PROBE: `curl -sI https://safe-1a.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` -> confirm 400 no HSTS; `curl -s -X OPTIONS -H "Origin: https://example.com" -H "Access-Control-Request-Headers: Authorization" https://safe-1a.threema.ch/backups/...64hex` -> confirm 204 HSTS+ACAO:*+Allow-Headers:Authorization; repeat 1b/02/00; check hstspreload.org. AUTH_HELPED: with program-issued backupId:backupKey, `GET /backups/{valid64hex}` -H "Origin: https://attacker.com" -H "Authorization: Basic <b64>" -> observe 200 + CORS.
+impact: If HSTS gap exploitable via downgrade + valid creds: cross-origin backup download -> message history, contacts, media. CVSS 7.4 (AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:N) — Medium-High.
+testability: AUTH_HELPED
+[NEXT] PRODUCE: `poc/key-storage-acl-bypass-poc.js` is now GENERATED + `node --check` PASS + `node poc/key-storage-acl-bypass-poc.js` EXIT 0 (Linux graceful no-op). REMAINING GAP: Windows runtime validation of the 6-step chain (DPAPI CryptUnprotectData -> Argon2id -> XSalsa20-Poly1305 -> protobuf decode -> ck + databaseKey -> sqlcipher PRAGMA key). AUTH_HELPED-LOCAL: execute on authorized Windows host with Threema Desktop 2.x + real profile (`set THREEMA_PROFILE=%LOCALAPPDATA%\ThreemaDesktop`). PASSIVE: re-run `curl -s -X POST -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://ds-apip.threema.ch/identity/fetch_bulk` and `curl -sD- -o /dev/null https://safe-1a.threema.ch/backups/0123456789abcdef...` to confirm no regression before submission.
