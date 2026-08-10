@@ -7204,3 +7204,32 @@ evidence_needed: induced out-of-subscription contact/property return with author
 verify_steps: AUTH_HELPED: POST /identities {contacts:[own+foreign IDs]} compare membership/props; probe page/size bounds.
 impact: cross-subscription work-directory PII → targeted phishing. Severity: medium.
 testability: AUTH_HELPED
+## 2026-08-10 17:38:03 UTC [chat] (model bigpickle)
+[HYP] fetch_bulk returns identity state/type fingerprint usable for targeted enumeration
+class: IDOR
+asset: ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/fetch_bulk
+confidence: 50
+reasoning: own probe: ECHOECHO → `{state:0,type:0,featureLevel:3,featureMask:9}`; response 200/152B, invalid IDs silently omitted; no auth, CORS `*`, zero 429s (established). Field semantics (state distinguishes active/restricted/revoked, type distinguishes consumer/work/gateway) unverified — single data point.
+evidence_needed: a second valid ID of differing type/state to show field variance; or spec/OpenAPI confirming enum meaning.
+verify_steps: PASSIVE: single POST fetch_bulk `{"identities":["ECHOECHO","AAAAAAAA","00000000"]}` per host, compare state/type across any valid hits; parity GET /identity/ECHOECHO on api + apip hosts. ≤1 rps.
+impact: enumeration amplifies pubkey-oracle into work-vs-consumer / revoked-vs-active fingerprinting → targeted phishing. Severity: medium (metadata).
+testability: PASSIVE
+[HYP] Staging work backend deploys /api-app/public/* to prod after frontend rollback → unauth credential oracle
+class: OTHER
+asset: work.threema.ch/api-app/public/*
+confidence: 40
+reasoning: staging backend still returns 200/299B on /global/settings while prod 404s (own probe, byte-stable); staging bundle now prod-identical (own sha256 `96501e21…`), so the /public/* client-side feature was rolled back but the backend route persists — divergence is backend-only.
+evidence_needed: prod /api-app/public/* returns ≠404 on any path (esp. license/token/{64hex} → {username,password,expired} response).
+verify_steps: PASSIVE: single GET `/api-app/public/license/token/{64zeros}` + `/api-app/public/global/settings` on BOTH hosts weekly; re-hash `/cache/work_public.js` both hosts; escalate on any ≠404/≠299B/≠hash.
+impact: if enabled: unauth 64-hex token→license-credential oracle. Severity: low (high-entropy token) while settings stays metadata-only.
+testability: PASSIVE
+[HYP] /identities (TWRK-1633 "buggy") returns work-directory metadata cross-subscription
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 50
+reasoning: directory.openapi.yml:1172 flags route "currently buggy"; returns same-subscription contacts + work props (name/jobTitle/department/availability); host 401s all paths (credential gate, CORS `*`); own probe confirms 401 stable this cycle.
+evidence_needed: with authorized work test license, contact matching induced to return out-of-subscription contacts or properties.
+verify_steps: AUTH_HELPED: POST /identities {contacts:[own+foreign IDs]} compare membership/props; probe page/size bounds.
+impact: cross-subscription work-directory PII → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[NEXT] PROBE: weekly staging catch-up (executed this cycle): staging settings 200/299B sha256 `52621822…`, license-token 404/900B, bundle `96501e21…` (now prod-identical). Re-run in ~1 week with escalation criteria: license-token ≠404 (credential oracle), settings ≠299B/≠`52621822…`, bundle ≠`96501e21…` (divergence reopens). PASSIVE, ≤1 rps. /identities TWRK-1633 stays blocked awaiting authorized staging test identity.

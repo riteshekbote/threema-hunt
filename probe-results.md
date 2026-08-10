@@ -585,3 +585,13 @@ https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/jso
 https://billing.threema.ch/cache/billing_gui_theme_threema.css` -> HTTP 404
 https://billing.threema.ch/cache/billing_gui_theme_threema.js` -> HTTP 404
 https://billing.threema.ch/en/login` -> HTTP 404
+
+## 2026-08-10 17:43:10 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://safe-01.threema.ch/backups/0123...cdef` -> HTTP 400
+https://hstspreload.org/api/v2/status?domain=safe-01.threema.ch -> 200 len=100 type=application/json; charset=utf-8
+https://gateway.threema.ch/v1 -> HTTP 404
+https://gateway.threema.ch/v1` -> HTTP 404
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://ds-apip-work.threema.ch/identities` -> HTTP 401
