@@ -11600,3 +11600,346 @@ testability: AUTH_HELPED
 [RISK] sync: 45 — mediator-{0..f}/rendezvous-{0..f} resolve (DNS split 203.56.112.247 / 203.56.114.247 for 0-7/8-f), uniform 403 on HTTPS; ds-apip-work live but auth-gated (401 + CORS `*` + no HSTS); TWRK-1633 cross-subscription leak candidate unvalidated (auth-required)
 [RISK] safe: 80 — 5 safe-* hostnames single IP 203.56.112.231; CORS `*` + write-capable methods on GET 400 + Allow-Headers Authorization on OPTIONS 204 (credentialed cross-origin); HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency byte-stable (CVSS 7.4 Med-High); HTTP Basic Auth + route-existence oracle (400 vs 404) byte-stable
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub `stable` source paths: fs.ts:41 returns `{}` on win32; key-storage/index.ts _writeOrOverrideFile + electron-main.ts STORE_USER_PASSWORD write with `{}` no-ACL; inner/v3.ts schema exposes identityData.ck (Ed25519 privkey) + databaseKey (SQLCipher); crypto.ts Argon2id→XSalsa20-Poly1305; sqlite.ts:240 raw PRAGMA key); PoC artifact now on disk; crypto.ts:223 benchmark password rejected (dummy, purged); BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); remaining gap: live Windows runtime validation (AUTH_HELPED-LOCAL) — CVSS 8.1 High
+===== ANALYST nemotron3 2026-08-10 23:17:11 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mls -la poc/ 2>&1 || echo "POC_DIR_ABSENT"
+ls: cannot access 'poc/': No such file or directory
+POC_DIR_ABSENT
+[0m
+[0m$ [0mcurl -sI -X OPTIONS -H "Origin: https://evil.com" -H "Access-Control-Request-Method: POST" https://ds-apip.threema.ch/identity/fetch_bulk 2>&1 | head -20
+HTTP/1.1 200 OK
+Server: nginx
+Date: Mon, 10 Aug 2026 23:00:25 GMT
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+Access-Control-Allow-Headers: Content-Type, User-Agent
+[0m
+[0m$ [0mcurl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://ds-apip.threema.ch/identity/fetch_bulk 2>&1
+{"identities":[{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}]}
+[0m
+[0m$ [0mcurl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":'"$(printf '["ECHOECHO"]%.0s' {1..10001} | sed 's/\]\[/,/g')"}' https://ds-apip.threema.ch/identity/fetch_bulk 2>&1
+/bin/bash: -c: line 1: unexpected EOF while looking for matching `''
+[0m
+[0m$ [0mpython3 -c "
+import json, sys
+ids = ['ECHOECHO'] * 10001
+print(json.dumps({'identities': ids}))
+" | curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d @- https://ds-apip.threema.ch/identity/fetch_bulk 2>&1
+(no output)
+[0m
+[0m$ [0mpython3 -c "
+import json, sys
+ids = ['ECHOECHO'] * 10001
+print(json.dumps({'identities': ids}))
+" | curl -s -v -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d @- https://ds-apip.threema.ch/identity/fetch_bulk 2>&1
+* Host ds-apip.threema.ch:443 was resolved.
+* IPv6: 2a14:3e40:112:312::214
+* IPv4: 203.56.112.214
+*   Trying 203.56.112.214:443...
+* Connected to ds-apip.threema.ch (203.56.112.214) port 443
+* ALPN: curl offers h2,http/1.1
+} [5 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+} [512 bytes data]
+*  CAfile: /etc/ssl/certs/ca-certificates.crt
+*  CApath: /etc/ssl/certs
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+{ [25 bytes data]
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+{ [4004 bytes data]
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+{ [79 bytes data]
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+{ [52 bytes data]
+* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+} [1 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+} [52 bytes data]
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / X25519 / id-ecPublicKey
+* ALPN: server accepted http/1.1
+* Server certificate:
+*  subject: C=CH; ST=Schwyz; O=Threema GmbH; CN=*.threema.ch
+*  start date: Aug 25 00:00:00 2025 GMT
+*  expire date: Sep 25 23:59:59 2026 GMT
+*  subjectAltName: host "ds-apip.threema.ch" matched cert's "*.threema.ch"
+*  issuer: C=GB; O=Sectigo Limited; CN=Sectigo Public Server Authentication CA OV E36
+*  SSL certificate verify ok.
+*   Certificate level 0: Public key type EC/prime256v1 (256/128 Bits/secBits), signed using ecdsa-with-SHA256
+*   Certificate level 1: Public key type EC/prime256v1 (256/128 Bits/secBits), signed using ecdsa-with-SHA384
+*   Certificate level 2: Public key type EC/secp384r1 (384/192 Bits/secBits), signed using ecdsa-with-SHA384
+* using HTTP/1.x
+} [5 bytes data]
+> POST /identity/fetch_bulk HTTP/1.1
+> Host: ds-apip.threema.ch
+> User-Agent: curl/8.5.0
+> Accept: */*
+> Origin: https://evil.com
+> Content-Type: application/json
+> Content-Length: 120028
+> 
+} [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+{ [281 bytes data]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+{ [281 bytes data]
+* old SSL session ID is stale, removing
+} [5 bytes data]
+* We are completely uploaded and fine
+{ [5 bytes data]
+< HTTP/1.1 400 Bad Request
+< Server: nginx
+< Date: Mon, 10 Aug 2026 23:03:16 GMT
+< Content-Type: text/html; charset=UTF-8
+< Transfer-Encoding: chunked
+< Connection: keep-alive
+< Access-Control-Allow-Origin: *
+< Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+< Access-Control-Allow-Headers: Content-Type, User-Agent
+< 
+* Connection #0 to host ds-apip.threema.ch left intact
+[0m
+[0m$ [0mcurl -sI "https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" 2>&1 | head -30
+HTTP/1.1 400 Bad Request
+Server: nginx
+Date: Mon, 10 Aug 2026 23:03:46 GMT
+Content-Type: text/plain; charset=utf-8
+Content-Length: 11
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+ETag: W/"b-EFiDB1U+dmqzx9Mo2UjcZ1SJPO8"
+[0m
+[0m$ [0mcurl -sI -X OPTIONS -H "Origin: https://evil.com" -H "Access-Control-Request-Method: GET" "https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" 2>&1
+HTTP/1.1 204 No Content
+Server: nginx
+Date: Mon, 10 Aug 2026 23:04:17 GMT
+Content-Length: 0
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE
+Vary: Access-Control-Request-Headers
+Strict-Transport-Security: max-age=31104000; includeSubdomains
+Expect-CT: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+[0m
+[0m$ [0mcurl -sI "https://work.threema.ch/api/v1" 2>&1 | head -20
+HTTP/1.1 404 Not Found
+Server: nginx
+Date: Mon, 10 Aug 2026 23:04:46 GMT
+Content-Type: text/html; charset=UTF-8
+Connection: keep-alive
+Set-Cookie: __HOST-HTTP-SESSIONID=ncjstck8ovhpig8cl8lijcfai1; path=/; secure; HttpOnly; SameSite=Strict
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+[0m
+[0m$ [0mcurl -sI "https://work.threema.ch/api/v1/" 2>&1 | head -20
+HTTP/1.1 404 Not Found
+Server: nginx
+Date: Mon, 10 Aug 2026 23:05:16 GMT
+Content-Type: text/html; charset=UTF-8
+Connection: keep-alive
+Set-Cookie: __HOST-HTTP-SESSIONID=jtm8b1op95bpdos88ki6105qnb; path=/; secure; HttpOnly; SameSite=Strict
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+[0m
+[0m$ [0mcurl -sI "https://work.threema.ch/api/v1/users" 2>&1 | head -20
+HTTP/1.1 404 Not Found
+Server: nginx
+Date: Mon, 10 Aug 2026 23:06:05 GMT
+Content-Type: text/html; charset=UTF-8
+Connection: keep-alive
+Set-Cookie: __HOST-HTTP-SESSIONID=abg75gc7doq7dp5soi7jal74o0; path=/; secure; HttpOnly; SameSite=Strict
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+[0m
+[0m$ [0mcurl -sI "https://work.threema.ch/api/v1/contacts" 2>&1 | head -20
+HTTP/1.1 404 Not Found
+Server: nginx
+Date: Mon, 10 Aug 2026 23:06:55 GMT
+Content-Type: text/html; charset=UTF-8
+Connection: keep-alive
+Set-Cookie: __HOST-HTTP-SESSIONID=2jph1se02r3kpkvdf88plvtja3; path=/; secure; HttpOnly; SameSite=Strict
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+[0m
+[0m$ [0mcurl -sI "https://work.threema.ch" 2>&1 | head -10
+HTTP/1.1 301 Moved Permanently
+Server: nginx
+Date: Mon, 10 Aug 2026 23:07:18 GMT
+Content-Type: text/html; charset=UTF-8
+Connection: keep-alive
+Set-Cookie: __HOST-HTTP-SESSIONID=l63u1ntgol9v2kll6g91k70rho; path=/; secure; HttpOnly; SameSite=Strict
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Location: /en/login
+[0m
+[0m$ [0mcurl -sI "https://work.test.threema.ch/api/v1/users" 2>&1 | head -20
+HTTP/2 404 
+server: nginx
+date: Mon, 10 Aug 2026 23:07:43 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: __HOST-HTTP-SESSIONID=ck8plgio9rtl99gnnreub1d2na; path=/; secure; HttpOnly; SameSite=Strict
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+[0m
+[0m$ [0mcurl -s "https://work.test.threema.ch/api-app/public/global/settings" 2>&1
+{"appLinkHost":"threemablue://","appDownloadAndroidGooglePlay":"https://play.google.com/store/apps/details?id=ch.threema.app.work","appDownloadIos":"https://itunes.apple.com/app/threema-work/id1105927783?mt=8\u0026uo=4\u0026at=10lJMu","appDownloadDesktop":"https://threema.ch/work/download#desktop"}
+[0m
+[0m$ [0mcurl -s "https://work.threema.ch/api-app/public/global/settings" 2>&1
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+	<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/>
+	<link rel="stylesheet" href="/cache/work.css" type="text/css"/>
+	<script type="text/javascript" src="/cache/work.js"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>Threema Work</title>
+</head>
+<body>
+<div id="main-content">
+	<div id="main">
+		<div style="text-align: center">
+			<img style="max-width: 250px;" src="/images/logo_icon.svg" title="Threema" />
+			<h1>404: Not Found</h1>
+			<p>This is not the web page you are looking for.</p>
+		</div>
+	</div>
+</div>
+</body>
+</html>
+[0m
+[0m$ [0mcurl -s "https://ds-apip-work.threema.ch/identities" 2>&1 | head -20
+(no output)
+[0m
+[0m$ [0mcurl -sI "https://ds-apip-work.threema.ch/identities" 2>&1 | head -20
+HTTP/1.1 401 Unauthorized
+Server: nginx
+Date: Mon, 10 Aug 2026 23:09:36 GMT
+Content-Type: text/html; charset=UTF-8
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+Access-Control-Allow-Headers: Content-Type, User-Agent
+[0m
+[0m$ [0mcurl -sI -X OPTIONS -H "Origin: https://evil.com" -H "Access-Control-Request-Method: GET" "https://ds-apip-work.threema.ch/identities" 2>&1
+HTTP/1.1 401 Unauthorized
+Server: nginx
+Date: Mon, 10 Aug 2026 23:10:16 GMT
+Content-Type: text/html; charset=UTF-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+Access-Control-Allow-Headers: Content-Type, User-Agent
+[0m
+[0m$ [0mcurl -sI "https://gateway.threema.ch/v1" 2>&1 | head -20
+HTTP/2 404 
+server: nginx
+date: Mon, 10 Aug 2026 23:10:38 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: SESSIONID=ejsvaver3c17gdu04t7ihtqdta; path=/; secure; HttpOnly; SameSite=Strict
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+[0m
+[0m$ [0mcurl -sI "https://billing.threema.ch/cache/billing_gui_theme_threema.js" 2>&1 | head -20
+HTTP/2 200 
+server: nginx
+date: Mon, 10 Aug 2026 23:11:22 GMT
+content-type: application/javascript; charset=utf-8
+content-length: 336793
+last-modified: Thu, 09 Jul 2026 11:26:30 GMT
+etag: "6a4f8566-52399"
+strict-transport-security: max-age=31104000; includeSubdomains
+expect-ct: report-uri="https://3ma.ch/ctreport", max-age=31536000, enforce
+x-frame-options: DENY
+report-to: {"group": "default","max_age": 10886400,"endpoints": [{"url": "https://bugs.threema.ch/api/3/security/?sentry_key=bbea9d5453f7418593b0bc451d8e5e68"}]}
+reporting-endpoints: default="https://bugs.threema.ch/api/3/security/?sentry_key=bbea9d5453f7418593b0bc451d8e5e68"
+content-security-policy: default-src 'self'; style-src 'self' https://static.threema.ch 'unsafe-inline'; font-src 'self' https://static.threema.ch; script-src 'self' 'unsafe-eval' 'unsafe-inline'; img-src 'self' https://static.threema.ch data:; media-src 'self' data:; connect-src 'self' https://bugs.threema.ch; object-src 'none'; worker-src 'self' blob:; frame-ancestors 'none'; upgrade-insecure-requests; base-uri https://billing.threema.ch; report-uri https://bugs.threema.ch/api/3/security/?sentry_key=bbea9d5453f7418593b0bc451d8e5e68; report-to default
+referrer-policy: no-referrer
+accept-ranges: bytes
+[0m
+[0m$ [0mcurl -sI "https://billing.threema.ch/nonexistent" 2>&1 | head -20
+HTTP/2 404 
+server: nginx
+date: Mon, 10 Aug 2026 23:11:48 GMT
+content-type: text/html; charset=UTF-8
+[0m
+[0m$ [0mdig +short g-00.0.threema.ch g-7f.0.threema.ch g-80.0.threema.ch g-ff.0.threema.ch 2>&1
+203.56.112.202
+203.56.112.202
+203.56.112.204
+203.56.112.204
+[0m
+[0m$ [0mdig +short AAAA g-00.0.threema.ch g-80.0.threema.ch 2>&1
+(no output)
+[0m
+[0m$ [0mdig +short g-00.1.threema.ch g-7f.1.threema.ch g-80.1.threema.ch g-ff.1.threema.ch 2>&1
+(no output)
+[0m
+[0m$ [0mcurl -sI "https://gateway.threema.ch/en/signup" 2>&1 | head -10
+HTTP/2 404 
+server: nginx
+date: Mon, 10 Aug 2026 23:15:03 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: SESSIONID=sptjbvi135hp7b0qemn75klio8; path=/; secure; HttpOnly; SameSite=Strict
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+[0m
+[0m$ [0mcurl -sI "https://gateway.threema.ch" 2>&1 | head -10
+HTTP/2 302 
+server: nginx
+date: Mon, 10 Aug 2026 23:15:25 GMT
+content-type: text/html; charset=UTF-8
+location: https://gateway.threema.ch/en
+set-cookie: SESSIONID=qmfkbie483vpfveei5vso5m0ee; path=/; secure; HttpOnly; SameSite=Strict
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+method: GET
+[0m
+[0m$ [0mcurl -sI "https://gateway.threema.ch/en" 2>&1 | head -10
+HTTP/2 302 
+server: nginx
+date: Mon, 10 Aug 2026 23:16:00 GMT
+content-type: text/html; charset=UTF-8
+location: https://gateway.threema.ch/en/login
+set-cookie: SESSIONID=6oo9uj85k6oe3q213vo10or1n0; path=/; secure; HttpOnly; SameSite=Strict
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+method: GET
+[0m
+[0m$ [0mcurl -sI "https://gateway.threema.ch/en/login" 2>&1 | head -10
+HTTP/2 404 
+server: nginx
+date: Mon, 10 Aug 2026 23:16:25 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: SESSIONID=d73gvkfjksnb8fsi637gmj6gga; path=/; secure; HttpOnly; SameSite=Strict
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+[0m
+[0m$ [0mcurl -sI "https://gateway.threema.ch/api/v1" 2>&1 | head -10
+HTTP/2 403 
+server: nginx
+date: Mon, 10 Aug 2026 23:16:48 GMT
+content-type: text/html; charset=utf-8
+[0m

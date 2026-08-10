@@ -674,3 +674,11 @@ https://safe-01.threema.ch/backups/{64hex -> HTTP 400
 https://safe-01.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` -> HTTP 400
 https://safe-01.threema.ch/backups/...` -> HTTP 403
 https://work.threema.ch/api/v1 -> HTTP 401
+
+## 2026-08-10 23:17:14 UTC
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://ds-apip.threema.ch/api.threema.ch/apip.threema.ch -> HTTP 404
+https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
+https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000 -> HTTP 404
+https://work.test.threema.ch/api/v1/contacts -> HTTP 401
+https://work.threema.ch/api/v1 -> HTTP 401

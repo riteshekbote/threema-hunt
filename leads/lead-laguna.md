@@ -5883,3 +5883,4 @@ testability: AUTH_HELPED
 [RISK] safe: 80 — 5 safe-* hostnames single IP 203.56.112.231; CORS `*` + write-capable methods on GET 400; HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 (byte-stable); HTTP Basic Auth + route-existence oracle confirmed
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub `stable` source paths: fs.ts:41 returns `{}` on win32; key-storage/index.ts _writeOrOverrideFile + electron-main.ts STORE_USER_PASSWORD write with `{}` no-ACL; inner/v3.ts exposes identityData.ck + databaseKey; crypto.ts Argon2id→XSalsa20-Poly1305; sqlite.ts:240 raw PRAGMA key). PoC artifact KB-claims-present but filesystem ABSENT. BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE). Remaining gap: live Windows runtime validation (AUTH_HELPED-LOCAL) — CVSS 8.1 High
 ## 2026-08-10 22:20:59 UTC [desktop] (model laguna)
+## 2026-08-10 23:00:37 UTC [desktop] (model laguna)
