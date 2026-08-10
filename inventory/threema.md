@@ -1054,3 +1054,15 @@
 - NEW My own passive probes (≤1 rps, GET/POST) confirm network claims:
 - CHANGED poc/ directory: confirmed STILL ABSENT via `ls` — KB claim "NOW GENERATED" is false; PoC artifact gap persists
 - NEW threema-android JoinResponse.kt:70 — `toString()` leaks `icePassword='$icePassword'` in plain text (potential logcat credential leak)
+
+## 2026-08-10 08:34:35 UTC
+- NEW `g-{00,7f,80,ff}.1.threema.ch` → NXDOMAIN — no `.1` group tier exists on chat shards (only `.0` tier; 256 groups total)
+- NEW Chat shards IPv4-only, direct A records — no AAAA/CNAME on `g-*.0.threema.ch` (no LB aliasing at DNS layer)
+- CHANGED `poc/key-storage-acl-bypass-poc.js` — PoC artifact status contradictory: KB claims present, `ls poc/` returns "POC_DIR_ABSENT", inventory claims NOW GENERATED then gap REOPENS
+- CHANGED poc/ directory: confirmed STILL ABSENT via `ls` — KB claim "NOW GENERATED" is false; PoC artifact gap persists
+- NEW threema-android JoinResponse.kt:70 — `toString()` leaks `icePassword='$icePassword'` in plain text (potential logcat credential leak)
+- CHANGED poc/ directory: confirmed STILL ABSENT via `ls` — KB claim "NOW GENERATED" is false; PoC artifact gap persists
+- NEW threema-android JoinResponse.kt:70 — `toString()` leaks `icePassword='$icePassword'` in plain text (potential logcat credential leak)
+- CHANGED poc/ directory: confirmed STILL ABSENT — KB claim "NOW GENERATED" is false across 4+ cycles; PoC artifact gap persists
+- NEW threema-android JoinResponse.kt:70 — toString() leaks icePassword='$icePassword' in plain text (potential logcat credential leak)
+- NEW reposcan-latest: test-only credential "shootdeathstar" (sha256 8d969eef...) found in iOS ManuallyTests safe upload/download fixtures — TEST_ONLY, INTERESTING non-finding

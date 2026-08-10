@@ -1,10 +1,10 @@
-## 2026-08-10 07:03:26 UTC [web] (model nemotron3)
+## 2026-08-10 08:29:18 UTC [web] (model nemotron3)
 [NEW] `g-{00,7f,80,ff}.1.threema.ch` → NXDOMAIN — no `.1` group tier exists on chat shards (only `.0` tier; 256 groups total)
 [NEW] Chat shards IPv4-only, direct A records — no AAAA/CNAME on `g-*.0.threema.ch` (no LB aliasing at DNS layer)
-[CHANGED] `poc/key-storage-acl-bypass-poc.js` — PoC artifact status contradictory: KB claims present, last leads report `ls poc/` returns "POC_DIR_ABSENT", inventory claims NOW GENERATED then gap REOPENS
-[PRIO] `ds-apip.threema.ch/identity/fetch_bulk` (+ api.threema.ch, apip.threema.ch), 94, attack=10 business=9 tech=7 gate=10 cloud=6 fresh=5
-[PRIO] `threema-desktop` (Windows key-storage), 86, attack=9 business=9 tech=8 gate=5 cloud=3 fresh=9
-[PRIO] `safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}`, 72, attack=8 business=8 tech=7 gate=6 cloud=6 fresh=8
+[CHANGED] `poc/key-storage-acl-bypass-poc.js` — PoC artifact status contradictory: KB claims present, `ls poc/` returns "POC_DIR_ABSENT", inventory claims NOW GENERATED then gap REOPENS
+[PRIO] `ds-apip.threema.ch/identity/fetch_bulk` (+ api.threema.ch, apip.threema.ch), 87, attack=10 business=10 tech=7 gate=10 cloud=6 fresh=5
+[PRIO] `threema-desktop` (Windows key-storage), 77, attack=9 business=9 tech=8 gate=5 cloud=3 fresh=9
+[PRIO] `safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}`, 74, attack=8 business=8 tech=7 gate=6 cloud=6 fresh=8
 [HYP] Directory fetch_bulk mass identity→pubkey enumeration at 10k IDs/request
 class: IDOR
 asset: ds-apip.threema.ch/identity/fetch_bulk (+ api.threema.ch, apip.threema.ch)
@@ -32,8 +32,6 @@ evidence_needed: Whether HSTS preload list includes safe-*.threema.ch; whether S
 verify_steps: PROBE: `curl -sI https://safe-1a.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` → confirm 400 without HSTS/Expect-CT; `curl -s -X OPTIONS -H "Origin: https://example.com" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: Authorization" https://safe-1a.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` → confirm 204 with HSTS/Expect-CT + ACAO:* + Allow-Headers:Authorization; repeat for safe-1b, safe-02, safe-00; check HSTS preload list via https://hstspreload.org/
 impact: If HSTS gap on credential-gated endpoint exploitable via SSL stripping/downgrade → backup decryption key theft, message history compromise. Severity: Medium-High (CVSS 3.1: 7.4 AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:N)
 testability: PASSIVE
-[PARKED] Rendezvous WSS device-linking path prediction via linking code: confidence 48 < 60; real verification requires AUTH_HELPED WSS handshake; passive probe only confirms uniform HTTPS 403 (already known)
-[PARKED] Mediator WSS path derivation from identity key enables unauthorized device sync: confidence 50 < 60; real verification requires AUTH_HELPED WSS handshake; passive probe only confirms uniform HTTPS 403 (already known)
 [FINAL] 1. Directory fetch_bulk mass identity→pubkey enumeration at 10k IDs/request (IDOR, 97) 2. Windows key-storage ACL bypass yields Ed25519 identity private key + SQLCipher DB key (MISCONFIG, 95) 3. Safe backup API credentialed cross-origin read via HSTS gap on GET 400 (MISCONFIG, 70)
 [NEXT] PROBE: `curl -sI https://safe-1a.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` — confirm 400 without HSTS/Expect-CT headers; parallel `curl -s -X OPTIONS -H "Origin: https://example.com" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: Authorization" https://safe-1a.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef` — confirm 204 with HSTS/Expect-CT + ACAO:* + Allow-Headers:Authorization; repeat for safe-1b, safe-02, safe-00
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req (10000→200/152B, 10001→400/0B); CORS * + no rate-limit + 5 challenge param-oracles — all byte-stable, no regression.
