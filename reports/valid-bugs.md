@@ -507,3 +507,25 @@
   - ### Verdict: **HOLD** — OpenAPI flags endpoint "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Retain for program-provided test credentials.
   - | Q2 Reachable? | **AUTH_HELPED** — passive only confirms CORS posture; data access requires valid `backupId:backupKey` |
   - | Q4 Passive proof? | **NO** — requires valid credentials |
+
+- 34 lead(s) marked VALID at 2026-08-10 23:05:47 UTC
+  - | Q3 | ✅ YES | Mass valid-ID + pubkey harvesting at ~10k IDs/req, silent-omission oracle, zero rate limit → targeted phishing/recon at scale |
+  - | Q4 | ✅ YES | `POST /identity/fetch_bulk {"identities":["ECHOECHO","ZZZZZZZZ"]}` → 200 with only valid pubkey; 35+ sequential POSTs all 200, zero 429 |
+  - | Q5 | ❌ NO | ACCEPTED in KB lines 20-21, 27, 59, 67, 80+; triaged as VALID in `valid-bugs.md` since 2026-08-07 (Finding #1) |
+  - | Q7 | ✅ YES | Already accepted as Finding #1 in valid-bugs.md |
+  - | Q5 | ❌ NO | ACCEPTED in KB lines 26, 74, 77-78, 92+; triaged as VALID in `valid-bugs.md` (Finding #3) |
+  - | Q7 | ✅ YES | Already accepted as Finding #3 in valid-bugs.md |
+  - | Q2 | ⚠️ PARTIAL | Route reachable but data access requires valid `backupId:backupKey` (64-hex + high-entropy key) |
+  - | Q3 | ❌ NO | CORS* on a credential-gated endpoint (400, not 200) is defense-in-depth only. No unauthenticated data access demonstrated. Attacker still need valid credentials |
+  - | Q4 | ⚠️ PARTIAL | Can confirm CORS headers + 400 response; cannot confirm data access without valid credentials |
+  - | Q5 | ❌ NO | ACCEPTED in KB lines 30-31, 62, 79, 101+; triaged in `valid-bugs.md` multiple times |
+  - | Q6 | ❌ NO | CORS* on credential-gated endpoint is best-practice/defense-in-depth per `valid-bugs.md` precedent (multiple cycles) |
+  - | Q7 | ❌ NO | No data access without valid credentials; CORS* alone is not a vulnerability |
+  - | Q5 | ❌ NO | ACCEPTED in KB lines 101, 106, 125+; triaged as VALID (low severity) in `valid-bugs.md` |
+  - | Q7 | ⚠️ LOW | Accepted as valid but low severity |
+  - | Q3 | ⚠️ LOW | Route-presence + parameter-validation oracle only; challenge-response still requires valid identity+secret. No auth bypass |
+  - | Q5 | ❌ NO | ACCEPTED in KB lines 100, 105, 110+; triaged as VALID (low severity) in `valid-bugs.md` |
+  - | Q7 | ⚠️ LOW | Accepted as valid but low severity |
+  - | Q5 | ❌ NO | ACCEPTED then formally REJECTED as standalone in KB lines 32, 63, 75+; triaged as HOLD/conditional in `valid-bugs.md` |
+  - | Q1 | ❌ NO | scope.yml lists `apip.threema.ch` (production); `.test` staging variants are **NOT** listed. Per `valid-bugs.md` precedent, staging variants treated as out-of-scope |
+  - | Q5 | ❌ NO | ACCEPTED in KB lines 28-29, 61, 68+; triaged in `valid-bugs.md` then deemed OUT OF SCOPE |
