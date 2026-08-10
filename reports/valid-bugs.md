@@ -426,3 +426,6 @@
   - | Q2 | Reachable? | **YES** — but input is malformed (`...64hex` is not valid hex) |
   - | Q1 | In scope? | **NO** — scope.yml lists `work.threema.ch`, NOT `work.test.threema.ch`. Staging variants are out of scope per valid-bugs.md precedent |
   - | **VALID (new)** | **0** | All map to already-reported finding families or are expected behavior |
+
+- 1 lead(s) marked VALID at 2026-08-10 16:43:38 UTC
+  - | **VALID** | 0 | All map to already-reported findings |
