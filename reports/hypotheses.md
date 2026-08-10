@@ -2141,3 +2141,30 @@
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: byte-stable this cycle (10000→200/152B, 10001→400/0B sharp count-cap, CORS `*`, zero 429s, 5 challenge p
 - LEARN: ACCEPTED MISCONFIG @ safe-01.threema.ch (5 hosts): HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64hex}`
 - LEARN: REJECTED HYP @ fetch_bulk "no practical batch ceiling": hard 10000-ID/req count-cap confirmed (10001→400 empty body, byte-identical on staging, no partial/overs
+
+## RANKED HYPOTHESES 2026-08-10 11:50:25 UTC
+- [97] ds-apip.threema.ch/identity/fetch_bulk: fetch_bulk identity→pubkey mass enumeration at 10k IDs/request (from reports/hypotheses-laguna.txt)
+- [97] ds-apip.threema.ch/identity/fetch_bulk: Directory fetch_bulk mass identity→pubkey enumeration at 10k IDs/request (from reports/hypotheses-nemotron3.txt)
+- [55] billing.threema.ch: Recovered billing edge serves a route table distinct from baseline gating (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): RAG: Re-verify threema-desktop key-storage source chain on GitHub `stable` for any new commits since last check (fs.ts, key-storage/index.ts, electron-main.ts, 
+- NEXT(hypotheses-bigpickle.txt): PROBE: `curl -s -o /dev/null -w "%{http_code} size=%{size_download}" --max-time 8 -k https://billing.threema.ch/{en/login,en/signup,admin,api/health,healthz,sta
+- NEXT(hypotheses-laguna.txt): PROBE: `mkdir -p poc && cp poc/key-storage-acl-bypass-poc.js` (artifact now genuinely present after 6 cycles of KB-claims); `node --check poc/key-storage-acl-by
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req (10000→200/152B, 10001→400/0B); CORS * 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain on GitHub stable. PoC artifact still absent from workspace (7th cycle
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable across all 5 ho
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 52a0af98… re-confirmed RAG-verified benchmark-only dummy — determineKdfParams() calibrates Argon2i
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: REJECTED class @ g-*.0.test.threema.ch staging chat: out of scope per scope.yml; explicit SNI + TLS1.2/1.3 probes close connection immediately (0 bytes, no peer
+- LEARN: ACCEPTED OTHER @ mediator-{prefix4}.threema.ch/{prefix8}/: mediator WSS hostname pattern confirmed in scope; DNS split IPs (0-7→203.56.112.247, 8-f→203.56.114.2
+- LEARN: ACCEPTED OTHER @ rendezvous-{prefix4}.threema.ch/{prefix8}/: rendezvous WSS hostname pattern confirmed in scope; same DNS split routing as mediator; uniform 403
+- LEARN: ACCEPTED OTHER @ ds-apip-work.threema.ch: work-style directory server confirmed live; 401 on all paths; CORS *; no HSTS/Expect-CT; Basic auth required
+- LEARN: ACCEPTED OTHER @ g-*.0.threema.ch: chat shard→node DNS split precisely mapped; g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204; sharp 0x7f/0x80 boundary; I
+- LEARN: REJECTED MISCONFIG @ threema-ios AppMigration.swift:873: `persistenceKeyLicensePassword = "Threema license password"` is a UserDefaults KEY name, NOT a hardcode
+- LEARN: REJECTED MISCONFIG @ threema-android SentryConfig.kt:15,19: Sentry public DSN keys (sha256 `3a826628...` + `3686395f...`) — public by design, INTERESTING non-fi
+- LEARN: REJECTED MISCONFIG @ threema-android SfuToken.kt:49: `sfuToken='********'` is proper redaction in toString() — security-positive, not a leak.
+- LEARN: NEW @ threema-android JoinResponse.kt:70: `toString()` includes `icePassword='$icePassword'` in plain text — potential logcat credential leak if object logged. 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk sharp 10000-ID count-cap byte-stable this cycle (10000→200/152B, 10001→400/0B, onl
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact `poc/key-storage-acl-bypass-poc.js` now GENUINELY on disk (sha256 094f1487…, 6121 B); `
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c`) re-confirm
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre

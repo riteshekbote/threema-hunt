@@ -1087,3 +1087,12 @@
 - NEW billing.threema.ch / gateway.threema.ch — edge hosts now respond (301/302) vs baseline TIMEOUT; route surface may differ from 2026-08-07 gating posture
 - CHANGED poc/ directory — confirmed ABSENT for 7th consecutive cycle; KB claims of "NOW GENERATED" are false
 - CHANGED JoinResponse.kt:70 — NEW low-value lead (ICE password in toString()); confidence 45, needs runtime validation to confirm logcat sink
+
+## 2026-08-10 11:50:25 UTC
+- NEW `billing.threema.ch` now responds HTTP 301 (redirect to threema.ch) vs baseline TIMEOUT — edge host posture changed
+- NEW `gateway.threema.ch` now responds HTTP 302 (to /en) vs baseline TIMEOUT — edge host posture changed; `/v1` returns 404 with session cookie set
+- CHANGED `poc/key-storage-acl-bypass-poc.js` — PoC artifact **still absent** from workspace despite KB claims "NOW GENERATED" (7th consecutive cycle `ls poc/` returns "POC_DIR_ABSENT")
+- NEW `threema-android JoinResponse.kt:70` — `toString()` leaks `icePassword='$icePassword'` in plain text (potential logcat credential leak, short-lived ICE creds, confidence 45)
+- NEW `threema-ios ManuallyTests` — test-only credential "shootdeathstar" (sha256 `8d969eef...`) in safe upload/download fixtures — TEST_ONLY, INTERESTING non-finding
+- NEW `threema-android SentryConfig.kt:15,19` — Sentry public DSN keys (`b3e20afbf356a8748bb62ac165aa780c` / `615af77cb3d980c41b3b04b07417cc7d`) — public by design, INTERESTING non-finding
+- NEW `threema-android SfuToken.kt:49` — `sfuToken='********'` proper redaction in `toString()` — security-positive, not a leak
