@@ -414,3 +414,9 @@
 
 - 1 lead(s) marked VALID at 2026-08-10 11:00:50 UTC
   - | VALID (new) | 0 |
+
+- 4 lead(s) marked VALID at 2026-08-10 13:54:42 UTC
+  - | 1 | Directory cluster identity→pubkey bulk enumeration (fetch_bulk + CORS*) | **VALID** — Already reported | 5.3 Medium |
+  - | 2 | Desktop Windows key-storage ACL bypass | **VALID** — Already reported | 5.5 Medium |
+  - | 3 | Safe backup HSTS/Expect-CT header inconsistency | **VALID** — Already reported | 3.1 Low |
+  - | 4 | Challenge-response parameter-validation oracles | **VALID** — Already reported | 3.7 Low |
