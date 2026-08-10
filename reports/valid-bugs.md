@@ -411,3 +411,6 @@
   - **Verdict: HOLD** — OpenAPI flags endpoint "currently buggy" (TWRK-1633) but requires AUTH_HELPED with valid Work test license. Cannot be proven via passive GET/HEAD only. Retain for program-provided 
   - | **VALID (new)** | 0 | No new valid findings this cycle |
   - | **VALID (dup)** | 4 | #1 Directory IDOR, #2 Desktop key-storage ACL, #4 HSTS inconsistency, #5 Challenge oracles — all previously reported |
+
+- 1 lead(s) marked VALID at 2026-08-10 11:00:50 UTC
+  - | VALID (new) | 0 |
