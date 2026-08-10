@@ -538,3 +538,17 @@ https://safe-1a.threema.ch/backups/0123456789abcdef0123456789abcdef0123456789abc
 https://hstspreload.org/?domain=safe-1a.threema.ch -> 200 len=15809 type=text/html; charset=utf-8
 https://safe-1a.threema.ch/backups/{valid64hex -> HTTP 400
 https://billing.threema.ch/{en/login,en/signup,admin,api/health,healthz,status -> HTTP 404
+
+## 2026-08-10 12:40:35 UTC
+https://ds-apip.threema.ch/identity/lookup -> HTTP 404
+https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
+https://billing.threema.ch/{en/login,en/signup,admin,api/health,healthz,status -> HTTP 404
+https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000` -> HTTP 404
+https://work.test.threema.ch/api-app/public/global/settings` -> HTTP 404
+https://work.test.threema.ch/cache/work_public.js` -> HTTP 404
+https://billing.threema.ch -> 200 len=? type=text/html; charset=utf-8
+https://billing.threema.ch/{en/login,en/signup,admin,api/health,healthz,status,metrics,actuator/health -> HTTP 404
+https://billing.threema.ch/` -> HTTP 404
+https://gateway.threema.ch/v1 -> HTTP 404
+https://gateway.threema.ch/v1` -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8

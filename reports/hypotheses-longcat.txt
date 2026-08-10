@@ -1,1 +1,48 @@
-## 2026-08-10 11:46:04 UTC [sync] (model longcat)
+## 2026-08-10 12:37:46 UTC [sync] (model longcat)
+[CHANGED] billing.threema.ch: 301 + 1024B nginx catch-all on ALL probed paths (/en/login, /en/signup, /admin, /api/health, /healthz, /status → 404/1024B; /info/ping.php → 404/146B) — no live application routes; bigpickle "distinct route table" hypothesis DISPROVEN
+[CHANGED] gateway.threema.ch: posture unchanged from 08-09 — /en/signup 200/14333B, /api/v1 403/146B nginx-deny, /v1 404/2628B app catch-all; no new routes
+[CHANGED] poc/ directory: still ABSENT (8th consecutive cycle); KB claims "NOW GENERATED" persistently false
+[PRIO] ds-apip.threema.ch/identity/fetch_bulk — score 97 (attack:10, business:10, tech:8, gate:10, cloud:7, fresh:5) — ACCEPTED IDOR
+[PRIO] threema-desktop key-storage (Windows ACL bypass) — score 95 (attack:10, business:9, tech:7, gate:8, cloud:0, fresh:10) — ACCEPTED MISCONFIG
+[PRIO] ds-apip-work.threema.ch/identities (TWRK-1633 buggy) — score 61 (attack:6, business:7, tech:6, gate:3, cloud:6, fresh:9) — NEW AUTH_HELPED
+[PRIO] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} — score 72 (attack:8, business:7, tech:5, gate:6, cloud:7, fresh:8) — PARKED (needs creds)
+[HYP] Directory fetch_bulk mass identity→pubkey enumeration at 10k IDs/request
+class: IDOR
+asset: ds-apip.threema.ch/identity/fetch_bulk (+ api.threema.ch, apip.threema.ch)
+confidence: 97
+reasoning: Own probe: POST {"identities":["ECHOECHO","ZZZZZZZZ"]} → 200/152B, only valid ID echoed, invalid silently omitted (size oracle). 10000-ID batch → 200; 10001 → 400/0B sharp count-cap, no partial pubkey leak. CORS ACAO:* + Allow-Methods POST,GET,OPTIONS,DELETE on both 200 and 400. Zero 429s across 35+ sequential probes.
+evidence_needed: None — fully confirmed via passive probes.
+verify_steps: PASSIVE — `curl -s -X POST -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://ds-apip.threema.ch/identity/fetch_bulk -H "Origin: https://evil.com"` → 200, only ECHOECHO pubkey, ACAO:*.
+impact: Full consumer identity→pubkey enumeration ~10k IDs/req, no auth, cross-origin readable. CVSS 7.5 (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N).
+testability: PASSIVE
+[HYP] Windows key-storage ACL bypass yields Ed25519 identity private key + SQLCipher DB key
+class: MISCONFIG
+asset: threema-desktop (Windows) — data/keystorage.bin + data/keystorage.password.bin + data/threema.sqlite
+confidence: 95
+reasoning: RAG-verified 6-core-path chain on GitHub stable: fileModeInternalObjectIfPosix() returns {} on win32 (fs.ts:41); _writeOrOverrideFile writes keystorage.bin with {} no-ACL (key-storage/index.ts:559-560); STORE_USER_PASSWORD writes keystorage.password.bin with {} no-ACL (electron-main.ts:944-945); inner/v3 schema exposes identityData.ck (Ed25519 privkey) + databaseKey (inner/v3.ts:65,70); Argon2id→XSalsa20-Poly1305 decrypt, key purged at :113 (crypto.ts:53-113); sqlcipher PRAGMA key=databaseKey (sqlite.ts:240).
+evidence_needed: Windows runtime validation — same-user process reads keystorage files → DPAPI decrypts password → Argon2id derives key → decrypts ck + databaseKey → full local message DB decryption.
+verify_steps: RAG: WebFetch GitHub stable — all 6 core paths re-verified. HUMAN_ONLY: Windows VM with Threema Desktop installed + attacker-process-as-same-user to validate runtime chain.
+impact: Same-user attacker recovers Ed25519 identity key + SQLCipher DB key → full local message DB decryption, account impersonation. CVSS 8.1 (AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H).
+testability: HUMAN_ONLY
+[HYP] Work directory /identities (TWRK-1633 "buggy") leaks contact metadata cross-subscription
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 50
+reasoning: directory.openapi.yml:1172 marks /identities buggy (TWRK-1633); documented to return "subset of provided contacts in same Work subscription" + work props (first/last name, jobTitle, department, availability). GET / → 401 confirms live credential-gated backend. Bug may return contacts outside caller's subscription.
+evidence_needed: Whether authorized contact matching returns contacts outside the caller's subscription (cross-subscription data leak).
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities {"contacts":[own_id, foreign_id]} compare membership/props; probe /directory pagination bounds (page/size, wildcards).
+impact: Cross-subscription disclosure of names/titles/departments/availability → targeted phishing. Severity: Medium.
+testability: AUTH_HELPED
+[PARKED] Safe backup API credentialed cross-origin read via HSTS gap on GET 400: confidence 70 but exploit path requires MITM positioning (SSL stripping) not achievable in passive-only scope; HSTS preload status unknown.
+[FINAL]
+[NEXT] PROBE: `curl -s --max-time 8 -k https://gateway.threema.ch/en/signup | grep -oE 'src="[^"]*\.js"' | head -20` at ≤1 rps — extract JS bundle filenames/routes from the live gateway signup app to map its API surface and stack fingerprints.
+[LEARN] REJECTED OTHER @ billing.threema.ch: 301 + 1024B nginx catch-all on ALL probed paths — no live application routes; "distinct route table" hypothesis disproven; edge host is thin redirect, not recovered backend.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: byte-stable this cycle — 200/152B (ECHOECHO echoed, invalid IDs silently omitted), CORS ACAO:*, zero 429s.
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub `stable`; no new commits affecting ACL bypass logic.
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 52a0af98… re-confirmed benchmark-only dummy — determineKdfParams() calibrates Argon2id, key purged at line 233.
+[LEARN] NEW @ ds-apip-work.threema.ch/identities: TWRK-1633 "buggy" note in openapi spec — potential cross-subscription contact leak; requires auth to verify.
+[RISK] chat: 30 — prod DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band 443/5222 passive channel closed (0 bytes pushed without auth login frame); no passive in-band divergence obtainable
+[RISK] web: 94 — directory cluster (3 prod hosts, fetch_bulk 10k batch + CORS * + no rate-limit); safe backup API (permissive CORS + write methods + HSTS gap); work/broadcast/gateway cockpits accessible; staging work public API divergence; billing now 301 catch-only
+[RISK] sync: 55 — mediator-{prefix4}/rendezvous-{prefix4} resolve but uniform 403; high-entropy WSS paths; no passive in-band divergence; ds-apip-work live but auth-gated
+[RISK] safe: 88 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
+[RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain
