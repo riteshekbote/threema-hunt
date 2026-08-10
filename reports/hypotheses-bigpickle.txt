@@ -1,41 +1,4 @@
-## 2026-08-10 05:56:10 UTC [chat] (model bigpickle)
-reasoning: directory.openapi.yml:1172 flags "/identities ... currently buggy. See TWRK-1633"; endpoint returns a subset of provided contacts in the same Work subscription plus work properties (first/last name, jobTitle, department, availability). Host now confirmed live returning 401 with permissive CORS.
-evidence_needed: whether the membership filter can be induced to return out-of-subscription contacts.
-verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities mixing own- and other-subscription IDs and compare membership + property leak; probe pagination bounds (page/size, wildcard).
-impact: cross-subscription disclosure of work-directory metadata → targeted phishing. Severity: medium.
-testability: AUTH_HELPED
-[NEXT] PROBE: GET https://ds-apip-work.threema.ch/identity/lookup and /directory (401 vs 404 distinguishes route-existence behind the auth gate), then GET https://ds-apip.threema.ch/identity/lookup + /directory at ≤1 rps to fingerprint the directory host independently of apip.
-[HYP] ds-apip.test.threema.ch staging directory server publicly exposed
-class: MISCONFIG
-asset: ds-apip.test.threema.ch
-[NEW] `g-*.0.threema.ch` prod chat DNS shard→node map (own probe, 21 shards + 0x7f/0x80 bisect): `g-{00..7f}` → 203.56.112.202 (128 shards), `g-{80..ff}` → 203.56.112.204 (128 shards); sharp deterministic split at high-bit 0x80, direct A records.
-[NEW] Second prod chat node 203.56.112.204 (`g-80.0.threema.ch`): TCP 5222 AND 443 connect but push 0 bytes — byte-parity with node .202; node-level uniform posture now confirmed across both prod chat nodes.
-[NEW] No `.1` group tier: `g-{00,7f,80,ff}.1.threema.ch` → NXDOMAIN (only `.0` tier exists; 256 groups total).
-[NEW] No AAAA/CNAME on chat shards — IPv4-only, direct-A mapping (no LB aliasing at DNS layer).
-[CHANGED] Prior "chat passive channel formally closed" now bounded to in-band 443/5222 data only; DNS-attribution recon on chat was NOT exhausted (this cycle proves a new surface).
-[PRIO] g-*.0.threema.ch (chat cluster shard→node map) — score 4.95 — attack_surface 4, business_value 5, tech_exposure 2, gate_ease 10 (public DNS), cloud_surface 1, freshness 8
-[PRIO] Cross-family prefix-MSB split topology (.112 vs .114 /24; chat/mediator/rendezvous vs staging) — score 4.60 — attack_surface 3, business_value 4, tech_exposure 3, gate_ease 10 (public DNS), cloud_surface 2, freshness 7
-[PRIO] 203.56.112.204 (g-{80..ff} chat node, newly attributed) — score 4.45 — attack_surface 3, business_value 4, tech_exposure 2, gate_ease 10, cloud_surface 1, freshness 8
-[HYP] Identity→server-group→physical-node attribution fully deterministic on chat
-class: OTHER
-asset: g-*.0.threema.ch (256 shards; 203.56.112.202 / 203.56.112.204)
-confidence: 55
-reasoning: Own probes: 21 shards sampled + 0x7f/0x80 bisect give a clean 128/128 split on two direct-A nodes (no CNAME/AAAA, no .1 tier). libthreema derives the chat server group from the identity prefix, so identity-first-byte → exact `g-XX.0.threema.ch` → exact physical node.
-evidence_needed: (a) source confirmation of the identity→group algorithm; (b) one program-issued test identity whose predicted node accepts the framed CSP login.
-verify_steps: PASSIVE — RAG read of threema-desktop/libthreema ServerAddressProvider to pin the group-derivation formula; cross-check group space (base32 first char) vs the 256 DNS names. AUTH_HELPED — `g-00.0.threema.ch:5222` framed login (16B cookie+64B box+32B ext+24B reserved+32B vouch) against the test identity; compare predicted vs actual node.
-impact: any Threema identity is attributable to an exact physical node/IP from public DNS alone → node-targeted recon, per-shard availability measurement, sharper targeting for the accepted fetch_bulk IDOR. Severity: Low (recon refinement; no in-band data).
-testability: PASSIVE (map) + AUTH_HELPED (predictive login)
-[HYP] Prefix-MSB split reveals site A/B topology across in-scope families, with prod mediator 8-f co-resident on the staging-adjacent .114 /24
-class: OTHER
-asset: mediator-*.threema.ch / rendezvous-*.threema.ch / g-*.0.threema.ch DNS
-confidence: 50
-reasoning: Own probe: chat splits .112.202/.112.204 at 0x80. KB: mediator/rendezvous split at index 7/8 → .112.247 vs .114.247. Staging chat .114.34 sits on the same .114 /24 as prod mediator 8-f — a second site/zone hosting both staging and a prod shard half.
-evidence_needed: full .112/.114 host-to-family census; confirmation no OTHER prod in-scope family resolves into .114 except mediator/rendezvous 8-f.
-verify_steps: PASSIVE — `getent ahosts` over sampled prefixes (g-*, mediator-*, rendezvous-*, safe-*, ds-apip*, work*) at 1/s; group by /24; diff single-site vs split-site families; confirm staging-only presence in .114 beyond mediator 8-f.
-impact: site/zone attribution for every in-scope backend + shard→node→site map; operational recon and cross-tenant adjacency note (prod mediator on same /24 as staging chat). Severity: Low (recon).
-testability: PASSIVE
-[PARKED] Node FIN-vs-RST close-behavior fingerprint (conf 40, OTHER): requires raw-socket close-frame observation beyond the GET/HEAD spirit, and adds no attacker capability beyond the map already delivered — low yield, dropped.
-[PARKED] Shard A-record TTL / failover-remap stability (conf 35): speculative, requires longitudinal polling, no_doom-adjacent — below 40, dropped.
+## 2026-08-10 07:17:14 UTC [chat] (model bigpickle)
 [FINAL] 1. Identity→server-group→node attribution (conf 55) — grounded in this cycle's own DNS probes + KB split patterns; RAG + AUTH_HELPED chain concrete. 2. Cross-family site A/B topology (conf 50) — fully PASSIVE DNS verification.
 [NEXT] PROBE: complete the definitive chat map — enumerate ALL 256 `g-{00..ff}.0.threema.ch` A records at 1/s (DNS-only, ~4.5 min), verifying the sharp 0x7f/0x80 boundary holds with no wildcard answer and no third node; write the full shard→node table to `probe-results.md`. Open HUMAN ask unchanged: program-issued test identity (+ Work test license + backupId:backupKey) to run the framed CSP login against the now-predicted chat node and close the only remaining in-band chat lever.
 [LEARN] ACCEPTED OTHER @ g-*.0.threema.ch: chat shard→node DNS split precisely mapped — `g-{00..7f}`→203.56.112.202, `g-{80..ff}`→203.56.112.204, sharp 0x7f/0x80 boundary, direct A records, IPv4-only, no `.1` tier (own probes this cycle).
@@ -56,6 +19,46 @@ class: OTHER
 asset: safe-{01,1a,1b,02,00}.threema.ch / work.threema.ch / broadcast.threema.ch (AAAA 2a14:3e40:112:312::*)
 confidence: 40
 reasoning: All non-chat backends publish AAAA; chat and apip/api are v4-only. If edge WAF/rate-limit policy binds to v4 egress, a v6 path could bypass controls on the credential-gated safe API (HSTS-header inconsistency already confirmed on v4).
+evidence_needed: v6 GET to safe-01 AAAA endpoint returns different status/CORS/HSTS than v4 baseline.
+verify_steps: PASSIVE — from a v6-capable host: `curl -6 https://safe-01.threema.ch/backups/{64hex}` vs v4 400/11B baseline; diff status/HSTS/ACAO. Not executable from this environment (no v6 egress confirmed this cycle).
+impact: if divergent, bypass of edge controls → amplification of accepted safe/IDOR surface. Severity: Low-Medium (unverified).
+testability: PASSIVE
+[HYP] Legacy vhosts on edge .214 expose forgotten route table distinct from ds-apip
+class: OTHER
+asset: apip.threema.ch / api.threema.ch (203.56.112.214, IPv4-only)
+confidence: 40
+reasoning: Same IP as ds-apip but 404 on identity routes, no AAAA → separate virtual hosts, likely older generation (v4-only like chat). Route-set difference is observable and may include retired/forgotten endpoints.
+evidence_needed: a path returning ≠404 on apip/api that differs from ds-apip handling.
+verify_steps: PASSIVE — GET /identity/{id} + /identity/fetch_bulk + 5 challenge endpoints on apip/api vs ds-apip (already 404 vs 200); extend to /v1, /api, /status at ≤1 rps; diff status/size.
+impact: potential forgotten-endpoint exposure; otherwise only archival note. Severity: Low.
+testability: PASSIVE
+[HYP] Identity→serverGroup→node attribution fully closed end-to-end (static)
+class: OTHER
+asset: g-*.0.threema.ch (256 shards; .202/.204)
+confidence: 85
+reasoning: Full 256-shard map definitive (own probe, no holes/wildcard/third node). RAG on `stable` clone: `identityData.cspServerGroup` in keystorage inner v1/v3, `ensureServerGroup` = `[0-9a-zA-Z]+`; group space exactly 256 = hex 00..ff per DNS. Desktop `backend/join.ts:556` consumes it. Attribution = keystorage value → `g-XX.0.threema.ch` → node IP.
+evidence_needed: one program-issued test identity + its `cspServerGroup`; successful framed CSP login on predicted node.
+verify_steps: PASSIVE — chain already RAG-proven + DNS-proven. AUTH_HELPED — read test identity's cspServerGroup from keystorage; resolve `g-{group}.0.threema.ch` (IP from map); framed CSP login (16B cookie+64B box+32B ext+24B reserved+32B vouch) on :5222; confirm predicted node accepts.
+impact: any identity attributable to an exact physical node/IP (from keystorage or DNS alone); node-targeted recon, per-shard availability measurement, sharper fetch_bulk targeting. Severity: Low (recon; no in-band data).
+testability: AUTH_HELPED
+[HYP] Prod mediator/rendezvous 8-f shards co-resident with staging on .114/24 — cross-tenant adjacency + zone split
+class: OTHER
+asset: mediator-{8..f}.threema.ch / rendezvous-{8..f}.threema.ch (.114.247) / staging .114.{13,34,43,45}
+confidence: 70
+reasoning: Own census: mediator/rendezvous 0-7 → .112.247 (site A), 8-f → .114.247 (site B); staging ds-apip.test/.13, work.test/.43, broadcast.test/.45, chat/.34 all on .114. Nibble MSB split mirrors chat's 0x7f/0x80 byte-MSB split.
+evidence_needed: full 0-f enumeration of mediator/rendezvous A-records to confirm no exceptions; confirm no OTHER prod family resolves into .114 beyond mediator/rendezvous 8-f.
+verify_steps: PASSIVE — `dig` mediator-{0..f}/rendezvous-{0..f} A at 1 rps (16+16 queries), group by /24; diff single-site vs split-site families.
+impact: site/zone attribution for every in-scope backend; prod shards adjacent to staging networks (cross-tenant recon note). Severity: Low (recon).
+testability: PASSIVE
+[HYP] billing/gateway edge cold-start exposes fresh route table distinct from baseline gating
+class: OTHER
+asset: billing.threema.ch (.216) / gateway.threema.ch (.234) / shop.threema.ch (.216)
+confidence: 45
+reasoning: Baseline (2026-08-07) billing/gateway TIMEOUT; this cycle both respond (301→threema.ch / 302). Edge either failover-recovered or newly provisioned; route surface may differ from the 403/404 gate of other cockpit hosts.
+evidence_needed: a billing/gateway path returning ≠301/302/404 that differs from baseline posture.
+verify_steps: PASSIVE — GET /en, /api/v1, /ping, /info/ping.php, /v1 on billing/gateway at ≤1 rps; diff status/size vs baseline (billing 301/0B, gateway 302/0B).
+impact: forgotten/retired endpoint exposure on recovering edge; otherwise archival note. Severity: Low.
+testability: PASSIVE
 evidence_needed: v6 GET to safe-01 AAAA endpoint returns different status/CORS/HSTS than v4 baseline.
 verify_steps: PASSIVE — from a v6-capable host: `curl -6 https://safe-01.threema.ch/backups/{64hex}` vs v4 400/11B baseline; diff status/HSTS/ACAO. Not executable from this environment (no v6 egress confirmed this cycle).
 impact: if divergent, bypass of edge controls → amplification of accepted safe/IDOR surface. Severity: Low-Medium (unverified).

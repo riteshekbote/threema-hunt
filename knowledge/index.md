@@ -315,3 +315,8 @@
 - 2026-08-10 ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req (10000→200/152B, 10001→400/0B); CORS * + no rate-limit + 5 challenge param-oracles — all byte-stable this cycle.
 - 2026-08-10 ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency re-confirmed live this cycle.
 - 2026-08-10 CHANGED poc/ directory: PoC artifact gap REOPENS — `ls poc/` returns "POC_DIR_ABSENT" despite KB claim "NOW GENERATED". Prior cycle's claim was incorrect.
+- 2026-08-10 REJECTED MISCONFIG @ threema-ios AppMigration.swift:873: `persistenceKeyLicensePassword = "Threema license password"` is a UserDefaults KEY name, NOT a hardcoded password — actual secret read via `AppGroup.userDefaults().string(forKey:)` then migrated to Keychain. False positive from grep.
+- 2026-08-10 REJECTED MISCONFIG @ threema-android SentryConfig.kt:15,19: `b3e20afbf356a8748bb62ac165aa780c` / `615af77cb3d980c41b3b04b07417cc7d` are Sentry public DSN keys (public by design) — INTERESTING non-finding.
+- 2026-08-10 REJECTED MISCONFIG @ threema-android SfuToken.kt:49: `sfuToken='********'` is proper redaction in toString() — security-positive, not a leak.
+- 2026-08-10 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain on GitHub stable. PoC artifact still absent from workspace.
+- 2026-08-10 NEW @ threema-android JoinResponse.kt:70: `toString()` includes `icePassword='$icePassword'` in plain text — potential logcat credential leak if object logged. Low value (local-only, short-lived ICE creds), requires runtime validation.
