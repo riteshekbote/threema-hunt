@@ -399,3 +399,18 @@ testability: AUTH_HELPED
 [RISK] sync: 35 — mediator-{prefix4}/rendezvous-{prefix4} resolve but uniform 403; high-entropy WSS paths; no passive in-band divergence; saltyrtc-* out of scope
 [RISK] safe: 58 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
 [RISK] desktop-src: 68 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); JoinResponse.kt logcat leak low-value addition
+## 2026-08-10 09:57:40 UTC [sync] (model longcat)
+[NEW] threema-android JoinResponse.kt:70 — `toString()` leaks `icePassword='$icePassword'` in plain text (potential logcat credential leak, short-lived ICE creds)
+[CHANGED] poc/ directory — confirmed STILL ABSENT via `ls` (6th consecutive cycle; KB claims "NOW GENERATED" are false)
+[CHANGED] knowledge/index.md — lines 292-308 added contradictory "PoC NOW on disk" claims that don't match filesystem reality
+[PRIO] threema-android JoinResponse.kt:70 icePassword logcat leak — score 3.20 (attack:2, business:3, tech:2, gate:8, cloud:1, fresh:7)
+[PRIO] ds-apip.threema.ch/identity/fetch_bulk — score 8.70 (attack:9, business:8, tech:6, gate:10, cloud:7, fresh:5) — already VALIDATED+REPORTED
+[PRIO] threema-desktop key-storage Windows ACL bypass — score 7.60 (attack:7, business:8, tech:7, gate:5, cloud:3, fresh:9) — already VALIDATED+REPORTED
+[PRIO] safe-01.threema.ch/backups/{64hex} — score 6.80 (attack:8, business:9, tech:7, gate:3, cloud:7, fresh:4) — PARKED (needs creds)
+[HYP] JoinResponse.toString() logcat credential leak exposes ICE password
+class: MISCONFIG
+asset: threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt:70
+confidence: 45
+reasoning: `toString()` includes `icePassword='$icePassword'` in plain text. If the object is logged (Log.d/w/e) during group-call setup, the ICE credential appears in logcat. ICE passwords are short-lived (session-scoped) and local-only — impact is bounded to same-device readers (ADB, malware with READ_LOGS, attacker with physical access).
+evidence_needed: Runtime validation — confirm whether JoinResponse objects are ever passed to Android Log.* or toString()'d in production code paths (not just tests).
+verify_steps: RAG: grep threema-android for `Log.*[Jj]oinResponse`, `joinResponse.toString()`, `String.format.*joinResponse`. Check if Pro
