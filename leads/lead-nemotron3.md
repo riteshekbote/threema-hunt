@@ -4520,3 +4520,78 @@ testability: PASSIVE
 [RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; mediator/rendezvous WSS high-entropy paths; auth in source (no passive in-band divergence); saltyrtc-*.threema.ch 426 but out of scope
 [RISK] safe: 88 — safe-01.live with CORS `*` + write-capable methods + Access-Control-Allow-Headers: Authorization + HSTS/Expect-CT on preflight but NOT on GET 400; 5 hostnames same IP; route-existence oracle; Basic-Auth gating only
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source level (fs.ts:41, key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163 write with {} on win32 → no DACL restriction → DPAPI password recoverable by same-user → Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + SQLCipher databaseKey; PoC runtime-verified); plus Electron nodeIntegrationInWorker: true + sandbox unset (TODO DESK-79) at electron-main.ts:1252,1255
+## 2026-08-10 00:42:13 UTC [web] (model nemotron3)
+[NEW] `mediator-{prefix4}.threema.ch/{prefix8}/` — mediator WSS hostname pattern confirmed in scope; DNS split IPs (0-7→203.56.112.247, 8-f→203.56.114.247); uniform 403 on HTTPS; high-entropy path structure
+[NEW] `rendezvous-{prefix4}.threema.ch/{prefix8}/` — rendezvous WSS hostname pattern confirmed in scope; same DNS split routing as mediator; uniform 403 on HTTPS; high-entropy path structure
+[NEW] `ds-apip-work.threema.ch` — work-style directory server confirmed live; 401 on all paths (/identity/*, /identities); CORS `*`; no HSTS/Expect-CT; Basic auth required
+[NEW] `safe-{backupIdPrefix8}.threema.ch/` — backup safe hostname pattern confirmed in scope; 5 hostnames (safe-01, safe-1a, safe-1b, safe-02, safe-00) resolve to single IP 203.56.112.231
+[NEW] `ds-apip.threema.ch` — canonical directory server hostname confirmed via desktop client build config; public GET /identity/{id} returns 200/404 oracle
+[NEW] Chat DNS shard→node map: `g-{00..7f}.0.threema.ch`→203.56.112.202 (128 shards), `g-{80..ff}.0.threema.ch`→203.56.112.204 (128 shards); sharp 0x7f/0x80 boundary; IPv4-only direct A records; no `.1` tier
+[CHANGED] `broadcast.threema.ch/api/v1` → HTTP 401 auth-gated; key-format/validity oracle disproven (1/32/64-char keys → byte-identical 403)
+[CHANGED] `gateway.threema.ch/en/signup` → HTTP 200 (14KB signup page accessible)
+[CHANGED] `poc/key-storage-acl-bypass-poc.js` — PoC artifact NOW GENERATED + `node --check` PASS + Linux no-op confirmed
+[CHANGED] `ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/fetch_bulk` — ceiling exactly 10000 IDs/request (10000→200/152B, 10001→400/0B sharp count-cap; CORS `*`; zero 429s)
+[CHANGED] `ds-apip.test.threema.ch/identity/fetch_bulk` — staging byte-identical to prod including 10000-cap enforcement; no extra routes
+[CHANGED] `safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}` — HSTS/Expect-CT present on OPTIONS 204, ABSENT on GET 400 stable across all 5 hosts
+[CHANGED] `work.test.threema.ch/api-app/public/global/settings` → 200 (299B) vs `work.threema.ch` → 404 — divergence stable
+[PRIO] `mediator-{prefix4}.threema.ch/{prefix8}/` — 68 — attack=7 business=7 tech=8 gate=3 cloud=8 fresh=9 (WSS sync endpoint in scope; DNS split across 2 cloud IPs; high-entropy paths; uniform HTTPS 403 but WSS auth unknown)
+[PRIO] `rendezvous-{prefix4}.threema.ch/{prefix8}/` — 68 — attack=7 business=7 tech=8 gate=3 cloud=8 fresh=9 (WSS linking endpoint in scope; same DNS split; device-linking flow attack surface; uniform HTTPS 403)
+[PRIO] `ds-apip-work.threema.ch` — 57 — attack=6 business=6 tech=5 gate=4 cloud=5 fresh=8 (Work directory server; 401 on all identity endpoints; CORS `*` with POST/GET/OPTIONS/DELETE; Basic auth required; no HSTS/Expect-CT)
+[HYP] Mediator WSS authentication bypass via high-entropy path prediction
+class: AUTH
+asset: `wss://mediator-{0..f}.threema.ch/{prefix8}/`
+confidence: 45
+reasoning: 16 mediator hosts resolve via DNS split (2 IP blocks); HTTPS returns uniform 403 but WSS is the operational protocol for multi-device sync; high-entropy `{prefix8}` path component may be guessable or leakable; no passive in-band divergence observed on HTTPS
+evidence_needed: Valid WSS handshake authentication mechanism; path entropy analysis; whether path component is derived from user identity or random
+verify_steps: AUTH_HELPED: With program-issued test identity, establish WSS connection to mediator host; observe auth handshake; test path prediction with/without valid prefix; PROBE: HTTPS GET to mediator hosts with varying paths → confirm uniform 403
+impact: If path predictable or auth bypassable → unauthorized device sync, message interception, contact enumeration. Severity: High (CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
+testability: AUTH_HELPED
+[HYP] Rendezvous WSS device-linking flow manipulation
+class: BUSLOGIC
+asset: `wss://rendezvous-{0..f}.threema.ch/{prefix8}/`
+confidence: 42
+reasoning: 16 rendezvous hosts share DNS split with mediators; HTTPS uniform 403; WSS used for device-linking (QR code flow); high-entropy `{prefix8}` path; no passive evidence of flaw but linking flow is high-value target
+evidence_needed: Device-linking protocol specification; whether `{prefix8}` is user-controlled or server-generated; replay/relay attack surface on linking handshake
+verify_steps: AUTH_HELPED: With program-issued test identity, initiate device-linking flow; capture WSS handshake; test linking code reuse/replay; PROBE: HTTPS GET to rendezvous hosts → confirm uniform 403
+impact: If linking flow manipulable → unauthorized device registration, account takeover. Severity: Critical (CVSS 3.1: 9.1 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N)
+testability: AUTH_HELPED
+[HYP] Work directory server identity enumeration behind Basic auth
+class: IDOR
+asset: `https://ds-apip-work.threema.ch/identity/{id}` and `/identity/fetch_bulk`
+confidence: 50
+reasoning: Work-style directory server returns 401 on all paths with Basic auth; CORS `*` with POST/GET/OPTIONS/DELETE; identical endpoint structure to public directory servers (which allow unauthenticated enumeration); OPTIONS returns 401 but includes CORS headers
+evidence_needed: Valid Basic auth credentials (program-issued); whether identity endpoints behave like public servers (200/404 oracle + fetch_bulk pubkey return) when authenticated
+verify_steps: AUTH_HELPED: With program-issued Work test credentials, GET /identity/ECHOECHO and POST /identity/fetch_bulk with valid/invalid IDs; observe response codes, CORS, rate limits; PROBE: Unauthenticated GET/OPTIONS → confirm 401 + CORS headers
+impact: If authenticated enumeration works → work-identity→pubkey mapping, contact discovery in enterprise context. Severity: Medium (CVSS 3.1: 6.5 AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N)
+testability: AUTH_HELPED
+[PARKED] Mediator WSS authentication bypass via high-entropy path prediction: verify_steps require WSS connection attempts which exceed passive GET/HEAD; confidence 45 < 60; no passive in-band divergence to anchor hypothesis
+[PARKED] Rendezvous WSS device-linking flow manipulation: verify_steps require WSS active interaction; confidence 42 < 60; purely speculative without protocol evidence; class BUSLOGIC not rejected but no concrete passive vector
+[PARKED] Work directory server identity enumeration behind Basic auth: confidence 50 < 60; verify_steps rely on credential guessing which violates passive-first (no account creation/modification); AUTH_HELPED would require program-issued test credentials
+[FINAL] 1. Directory bulk identity enumeration at scale via fetch_bulk (97, IDOR, PASSIVE) — `https://ds-apip.threema.ch/identity/fetch_bulk` (also `api.threema.ch`, `apip.threema.ch`)
+[FINAL] 2. Staging-only public work API leaks configuration absent in production (85, MISCONFIG, PASSIVE) — `https://work.test.threema.ch/api-app/public/global/settings`
+[FINAL] 3. Safe backup API credentialed cross-origin read with transport-header gap (62, AUTH, AUTH_HELPED) — `https://safe-01.threema.ch/backups/{64hex}` (all 5 safe-* hosts)
+[NEXT] PROBE: `curl -s -H "Origin: https://example.com" -X POST -H "Content-Type: application/json" -d '{"ids":["ECHOECHO","ZZZZZZZZ"]}' https://ds-apip.threema.ch/identity/fetch_bulk` — confirm 200 with only ECHOECHO pubkey echoed, ACAO `*`, CORS methods POST/GET/OPTIONS/DELETE; parallel `curl -s https://ds-apip.threema.ch/identity/ECHOECHO` — confirm 200/404 oracle
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk hard ceiling exactly 10000 IDs/request (10000→200/152B, 10001→400/0B); sharp count-cap, overflow→400 empty body with NO partial/overshoot pubkey leak; CORS `*` + Allow-Methods POST,GET,OPTIONS,DELETE on both 200 and 400; zero 429s across ~35 sequential probes
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging fetch_bulk enforces identical 10000-cap (10001 → 400 byte-for-byte identical to prod) → validation-logic parity confirmed; mirror evidence strengthened
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-VERIFIED at 95 confidence — 15 source-path chain re-verified; PoC artifact poc/key-storage-acl-bypass-poc.js generated (node --check PASS, graceful no-op on Linux); needs Windows validation
+[LEARN] ACCEPTED MISCONFIG @ safe-01.threema.ch (all 5 hosts): HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64hex}`; HTTP Basic Auth `backupId:backupKey` + route-existence oracle confirmed; 5 hostnames uniform behind 203.56.112.231
+[LEARN] REJECTED AUTH @ broadcast.threema.ch/api/v1/: key-format/validity oracle DISPROVEN — 1/32/64-char keys produce byte-identical 403; only key-PRESENCE observable; no CORS preflight (OPTIONS 404)
+[LEARN] REJECTED OTHER @ g-*.0.{test.,}threema.ch:443/5222: explicit SNI + TLS1.2/1.3 probes all close immediately (0 bytes, no peer cert); no cert/SAN leak; handshake requires authenticated login frame — chat passive channel formally closed
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af98…`) confirmed benchmark-only dummy in determineKdfParams(), derived key immediately purged — not used for real encryption
+[LEARN] REJECTED class @ lead: Desktop BrowserWindow sandbox+worker gap — conditional RCE requires separate renderer exploit chain, not standalone; no dynamic sinks (require/import/eval/child_process/new Function) found in worker/ tree (reposcan confirms 0 matches)
+[LEARN] REJECTED class @ lead: g-*.0.test.threema.ch staging chat cluster — out of scope per scope.yml; explicit SNI + TLS1.2/1.3 probes all close connection immediately (0 bytes, no peer cert) on both 443 and 5222
+[LEARN] ACCEPTED OTHER @ mediator-{prefix4}.threema.ch/{prefix8}/: mediator WSS hostname pattern confirmed in scope (mediator-*.threema.ch); DNS resolves to split IPs (0-7→203.56.112.247, 8-f→203.56.114.247); uniform 403 on HTTPS; high-entropy path structure observed
+[LEARN] ACCEPTED OTHER @ rendezvous-{prefix4}.threema.ch/{prefix8}/: rendezvous WSS hostname pattern confirmed in scope (rendezvous-*.threema.ch); same DNS split routing as mediator; uniform 403 on HTTPS; high-entropy path structure observed
+[LEARN] ACCEPTED OTHER @ safe-{backupIdPrefix8}.threema.ch/: backup safe hostname pattern confirmed in scope (safe-*.threema.ch); 5 hostnames (safe-01, safe-1a, safe-1b, safe-02, safe-00) resolve to single IP 203.56.112.231
+[LEARN] ACCEPTED OTHER @ ds-apip-work.threema.ch: work-style directory server confirmed live — 401 on all paths (/identity/*, /identities), CORS `*`, no HSTS/Expect-CT, Basic auth required
+[LEARN] ACCEPTED OTHER @ ds-apip.threema.ch: canonical directory server hostname confirmed via desktop client build config (config/vite.config.ts + OpenAPI); public GET /identity/{id} returns 200/404 oracle
+[LEARN] REJECTED OTHER @ blob-mirror-{prefix4}.threema.ch/{prefix8}/: blob server hostname pattern discovered in desktop source config.ts — NOT in scope per scope.yml
+[LEARN] ACCEPTED OTHER @ g-*.0.threema.ch: chat shard→node DNS split precisely mapped — `g-{00..7f}`→203.56.112.202, `g-{80..ff}`→203.56.112.204, sharp 0x7f/0x80 boundary, direct A records, IPv4-only, no `.1` tier (own probes this cycle)
+[LEARN] ACCEPTED OTHER @ g-80.0.threema.ch (203.56.112.204): TCP 5222/443 connect with 0 bytes pushed — posture parity with node .202; prior "chat passive channel formally closed" (in-band) now verified for both prod nodes
+[LEARN] ACCEPTED class @ OTHER (DNS-attribution recon on chat): the prior in-band closure does NOT exhaust chat recon; DNS-level shard/node attribution is a live passive surface
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DESK-79) and nodeIntegrationInWorker: true (TODO DESK-79) — L1240 comment "sandboxing is enabled by default" incorrect per Electron docs; conditional RCE requires separate renderer exploit chain
+[RISK] chat: 35 — g-*.0.threema.ch prod DNS shard→node map fully attributed (256 shards → 2 nodes, sharp 0x7f/0x80 boundary, IPv4-only direct A, no .1 tier); in-band 443/5222 passive channel closed (0 bytes pushed, requires auth login frame); saltyrtc-* 426 but explicitly NOT in scope.yml; DNS-attribution recon remains live passive surface
+[RISK] web: 94 — ds-apip/api/apip directory cluster: 3 prod hosts, public identity oracle + fetch_bulk 10000 batch + 5 challenge endpoints + CORS `*` + no rate-limit; safe-01 backup API with permissive CORS + write methods + Authorization header + HSTS gap on GET 400 + 5 hostnames single IP; work/broadcast/gateway/shop cockpits accessible with PHP sessions/CSP/Sentry; staging work public API divergence confirmed; broadcast/api/v1 auth-gated; gateway signup accessible
+[RISK] sync: 55 — mediator-{0..f}/rendezvous-{0..f} resolve but uniform 403 on HTTPS; mediator/rendezvous WSS high-entropy paths; auth in source (no passive in-band divergence); saltyrtc-*.threema.ch 426 but out of scope
+[RISK] safe: 88 — safe-01.live with CORS `*` + write-capable methods + Access-Control-Allow-Headers: Authorization + HSTS/Expect-CT on preflight but NOT on GET 400; 5 hostnames same IP; route-existence oracle; Basic-Auth gating only
+[RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source level (fs.ts:41, key-storage/index.ts:560, electron-main.ts:944, electron-settings.ts:163 write with {} on win32 → no DACL restriction → DPAPI password recoverable by same-user → Argon2id+XSalsa20-Poly1305 → ck (Ed25519 identity privkey) + SQLCipher databaseKey; PoC runtime-verified); plus Electron nodeIntegrationInWorker: true + sandbox unset (TODO DESK-79) at electron-main.ts:1252,1255
