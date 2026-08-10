@@ -744,3 +744,53 @@ testability: AUTH_HELPED
 [RISK] safe: 88 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain
 ## 2026-08-10 15:57:42 UTC [sync] (model longcat)
+## 2026-08-10 16:46:03 UTC [sync] (model longcat)
+[CHANGED] billing.ch — 404 page is now a **custom Threema-branded application page** (references `/cache/billing_gui_theme_threema.css` + `.js`, "404: Not Found" template) rather than a generic nginx error; confirms the billing GUI framework is deployed behind the edge host, but all non-root paths still return 404 — no live public routes found.
+[CHANGED] poc/ directory — confirmed ABSENT for 10th consecutive cycle; KB claims "NOW GENERATED" / "genuinely on disk" remain persistently false.
+[NEW] No genuinely new in-scope assets this cycle. All previously accepted surfaces byte-stable.
+[PRIO] ds-apip.threema.ch/identity/fetch_bulk — score 97 (attack:10, business:10, tech:8, gate:10, cloud:7, fresh:5) — ACCEPTED IDOR, fully validated, 10k-ID batch enum
+[PRIO] threema-desktop key-storage (Windows ACL bypass) — score 95 (attack:10, business:9, tech:7, gate:8, cloud:0, fresh:10) — ACCEPTED MISCONFIG, RAG-verified 6-core-path chain
+[PRIO] ds-apip-work.threema.ch/identities (TWRK-1633) — score 61 (attack:6, business:7, tech:6, gate:3, cloud:6, fresh:9) — NEW AUTH_HELPED, cross-subscription leak candidate
+[PRIO] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} — score 72 (attack:8, business:7, tech:5, gate:6, cloud:7, fresh:8) — PARKED (needs creds)
+[PRIO] billing.ch deployed-app confirmation — score 25 (attack:1, business:2, tech:3, gate:5, cloud:2, fresh:8) — CHANGED, no live routes, low value
+[HYP] Directory fetch_bulk mass identity→pubkey enumeration at 10k IDs/request
+class: IDOR
+asset: ds-apip.threema.ch/identity/fetch_bulk (+ api.threema.ch, apip.threema.ch)
+confidence: 97
+reasoning: Own probe: POST {"identities":["ECHOECHO","ZZZZZZZZ"]} → 200/152B, only valid ID echoed, invalid silently omitted (size oracle). 10000-ID batch → 200; 10001 → 400/0B sharp count-cap, no partial pubkey leak. CORS ACAO:* + Allow-Methods POST,GET,OPTIONS,DELETE on both 200 and 400. Zero 429s across 35+ sequential probes.
+evidence_needed: None — fully confirmed via passive probes.
+verify_steps: PASSIVE — `curl -s -X POST -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://ds-apip.threema.ch/identity/fetch_bulk -H "Origin: https://evil.com"` → 200, only ECHOECHO pubkey, ACAO:*.
+impact: Full consumer identity→pubkey enumeration ~10k IDs/req, no auth, cross-origin readable. CVSS 7.5 (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N).
+testability: PASSIVE
+[HYP] Windows key-storage ACL bypass yields Ed25519 identity private key + SQLCipher DB key
+class: MISCONFIG
+asset: threema-desktop (Windows) — data/keystorage.bin + data/keystorage.password.bin + data/threema.sqlite
+confidence: 95
+reasoning: RAG-verified 6-core-path chain on GitHub stable: fileModeInternalObjectIfPosix() returns {} on win32 (fs.ts:41); _writeOrOverrideFile writes keystorage.bin with {} no-ACL (key-storage/index.ts:559-560); STORE_USER_PASSWORD writes keystorage.password.bin with {} no-ACL (electron-main.ts:944-945); inner/v3 schema exposes identityData.ck (Ed25519 privkey) + databaseKey (inner/v3.ts:65,70); Argon2id→XSalsa20-Poly1305 decrypt, key purged at :113 (crypto.ts:53-113); sqlcipher PRAGMA key=databaseKey (sqlite.ts:240).
+evidence_needed: Windows runtime validation — same-user process reads keystorage files → DPAPI decrypts password → Argon2id derives key → decrypts ck + databaseKey → full local message DB decryption.
+verify_steps: RAG: WebFetch GitHub stable — all 6 core paths re-verified. HUMAN_ONLY: Windows VM with Threema Desktop installed + attacker-process-as-same-user to validate runtime chain.
+impact: Same-user attacker recovers Ed25519 identity key + SQLCipher DB key → full local message DB decryption, account impersonation. CVSS 8.1 (AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H).
+testability: HUMAN_ONLY
+[HYP] Work directory /identities (TWRK-1633 "buggy") leaks contact metadata cross-subscription
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 50
+reasoning: directory.openapi.yml:1172 marks /identities buggy (TWRK-1633); documented to return "subset of provided contacts in same Work subscription" + work props (first/last name, jobTitle, department, availability). GET / → 401 confirms live credential-gated backend. Bug may return contacts outside caller's subscription.
+evidence_needed: Whether authorized contact matching returns contacts outside the caller's subscription (cross-subscription data leak).
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities {"contacts":[own_id, foreign_id]} compare membership/props; probe /directory pagination bounds (page/size, wildcards).
+impact: Cross-subscription disclosure of names/titles/departments/availability → targeted phishing. Severity: Medium.
+testability: AUTH_HELPED
+[PARKED] Safe backup API credentialed cross-origin read via HSTS gap on GET 400: confidence 70 but exploit path requires MITM positioning (SSL stripping) not achievable in passive-only scope; HSTS preload status unknown.
+[PARKED] billing.ch deployed-app confirmation: confidence 25, no live routes found, custom 404 page only confirms framework presence — no exploitable surface.
+[FINAL]
+[NEXT] PROBE: `curl -s --max-time 8 -D- https://billing.threema.ch/cache/billing_gui_theme_threema.css` + `curl -s --max-time 8 -D- https://billing.threema.ch/cache/billing_gui_theme_threema.js` — confirm whether the referenced CSS/JS assets are served (would confirm the billing app is fully deployed and may reveal framework version/route hints in JS), and `curl -s --max-time 8 -D- https://billing.threema.ch/en/login` vs `/en/signup` vs `/en/reset` to map any additional live routes on the now-confirmed deployed app.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: byte-stable this cycle — 200/152B (ECHOECHO echoed, invalid IDs silently omitted), CORS ACAO:*, 10001→400/0B sharp count-cap, zero 429s.
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub `stable`; no new commits affecting ACL bypass logic.
+[LEARN] ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency re-confirmed live this cycle.
+[LEARN] CHANGED billing.ch: 404 page is custom Threema-branded app template (references `/cache/billing_gui_theme_threema.css` + `.js`) — confirms billing GUI framework deployed, but all non-root paths still 404; no live public routes.
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy — determineKdfParams() calibrates Argon2id, key purged at line 233.
+[RISK] chat: 30 — prod DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band 443/5222 passive channel closed (0 bytes pushed without auth login frame); no passive in-band divergence obtainable
+[RISK] web: 94 — directory cluster (3 prod hosts, fetch_bulk 10k batch + CORS * + no rate-limit); safe backup API (permissive CORS + write methods + HSTS gap); work/broadcast/gateway cockpits accessible; staging work public API divergence; billing app confirmed deployed but no live routes
+[RISK] sync: 55 — mediator-{prefix4}/rendezvous-{prefix4} resolve but uniform 403; high-entropy WSS paths; no passive in-band divergence; ds-apip-work live but auth-gated
+[RISK] safe: 88 — 5 safe-* hostnames single IP, permissive CORS + Authorization header allowed, HSTS inconsistency on credential-gated endpoint, Basic-Auth gating only, no unauth data demonstrated
+[RISK] desktop-src: 95 — Windows key-storage ACL bypass CONFIRMED at source (no DACL → DPAPI → Argon2id → Ed25519+SQLCipher keys); Electron nodeIntegrationInWorker + sandbox unset (TODO DESK-79); conditional RCE requires separate renderer exploit chain
