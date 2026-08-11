@@ -741,3 +741,17 @@ https://safe-01.threema.ch/backup/ -> HTTP 404
 https://ds-apip.threema.ch/check_license` -> HTTP 404
 https://ds-apip-work.threema.ch/identities -> HTTP 401
 https://ds-apip-work.threema.ch/identities` -> HTTP 401
+
+## 2026-08-11 07:05:51 UTC
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/lookup -> HTTP 404
+https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
+https://ds-apip.threema.ch/check_license` -> HTTP 404
+https://ds-apip-work.threema.ch/identities` -> HTTP 401
+https://work.threema.ch/api/v1 -> HTTP 401
+https://work.threema.ch/api/v1/users` -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://apip.threema.ch/check_license` -> HTTP 404
+https://ds-apip.threema.ch/identity/match -> HTTP 400
