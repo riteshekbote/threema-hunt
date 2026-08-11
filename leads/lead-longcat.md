@@ -1673,3 +1673,17 @@ testability: HUMAN
 [RISK] sync: 50 — mediator-{0..f}/rendezvous-{0..f} resolve (DNS split 203.56.112.247 / 203.56.114.247 for 0-7/8-f), uniform 403 on HTTPS, no CORS; ds-apip-work auth-gated (401 + CORS * + no HSTS, OPTIONS also 401); TWRK-1633 cross-subscription leak candidate unvalidated (auth-required); work.threema.ch/api/v1 X-Api-Key API key source unknown
 [RISK] safe: 80 — 5 safe-* hostnames single IP 203.56.112.231; CORS * + write-capable methods on GET 400 + Allow-Headers Authorization on OPTIONS 204 (credentialed cross-origin); HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 (CVSS 7.4 Med-High); HTTP Basic Auth + route-existence oracle (400 vs 404) byte-stable
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub stable source paths); PoC artifact still absent from workspace despite 17 cycles of KB claims; BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); remaining gap: live Windows runtime validation (CVSS 8.1 High)
+## 2026-08-11 11:26:20 UTC [sync] (model longcat)
+[PRIO] ds-apip.threema.ch/identity/match — 6.90 (attack:8, business:8, tech:7, gate:9, cloud:6, fresh:10) — NEW endpoint, unauthenticated, CORS *, email→identity membership oracle candidate, rate-limiter unmapped
+[PRIO] ds-apip.threema.ch/check_license — 8.25 (attack:8, business:8, tech:7, gate:10, cloud:8, fresh:9) — ACCEPTED AUTH, cross-origin credential oracle, CORS *, no rate-limit, CVSS 6.5
+[PRIO] ds-apip.threema.ch/identity/fetch_bulk — 8.50 (attack:9, business:9, tech:8, gate:10, cloud:8, fresh:5) — ACCEPTED IDOR, 10k-ID batch enum, CORS *, no rate-limit, CVSS 7.5
+[PRIO] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} — 7.50 (attack:8, business:8, tech:7, gate:7, cloud:9, fresh:5) — ACCEPTED MISCONFIG, CORS * + write methods + HSTS gap, CVSS 7.4
+[PRIO] threema-desktop key-storage (Windows ACL bypass) — 8.20 (attack:10, business:9, tech:9, gate:6, cloud:7, fresh:5) — RAG-verified 6-path chain, CVSS 8.1, needs Windows validation
+[HYP] Email→identity membership oracle via /identity/match
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 50
+reasoning: Endpoint confirmed live — POST `{}` → 200 `{"checkInterval":86400,"identities":[]}` with CORS `*` + Allow-Methods POST,GET,OPTIONS,DELETE. Accepts `emailHashes` parameter (base64-encoded 32B hashes). Per-IP burst rate-limiter triggers 429 after ~2 POSTs. If response `identities` array is non-empty for valid email hashes, this is a cross-origin email→Threema-identity membership oracle.
+evidence_needed: (a) CORS `*` confirmed on this endpoint; (b) rate-limiter ceiling (burst vs sustained); (c) response differential for valid vs invalid email hashes; (d) whether HMAC key is server-secret or client-computable
+verify_steps: PASSIVE: 1) `curl -s -I -H "Origin: https://evil.com" https://ds-apip.threema.ch/identity/match` → confirm ACAO:*; 2) `curl -s -X POST -H "Content-Type: application/json" -H "Origin: https://evil.com" -d '{}' https://ds-apip.threema.ch/identity/match` → baseline; 3) POST `{"emailHashes":["<base64-sha256-of-test-email>"]}` → compare; 4) wait 15s then repeat → test burst-vs-sustained. 1 rps, no real victim emails.
+impact: cross-origin email→Threema-identity membership oracle enables targeted phishing + de

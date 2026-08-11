@@ -8298,3 +8298,4 @@ evidence_needed: success:true shape (needs valid pair).
 verify_steps: AUTH_HELPED: POST `{licenseUsername,licensePassword,"version":"4.7.6","arch":"x64"}` → expect `{"success":true}` (~18B).
 impact: unauthenticated browser-driveable Work-license credential validator, zero rate limit → offline guessing before directory/login abuse. Severity: Medium (CVSS 3.1 6.5)
 testability: PASSIVE→AUTH_HELPED
+## 2026-08-11 11:29:13 UTC [chat] (model bigpickle)
