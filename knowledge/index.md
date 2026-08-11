@@ -434,3 +434,4 @@
 - 2026-08-11 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub `stable`; PoC artifact still absent from workspace
 - 2026-08-11 ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle confirmed via RAG (fetch-work.ts:112-124) + probe (fake creds → 200 {"success":false,"error":"This username or password is invalid."}, CORS *, no 429 on 3 POSTs)
 - 2026-08-11 ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req; CORS * + no rate-limit + 5 challenge param-oracles — all byte-stable
+- 2026-08-11 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub stable; PoC artifact now genuinely on disk (sha256 950b24f5...)

@@ -1,10 +1,20 @@
-## 2026-08-11 08:00:45 UTC [sync] (model longcat)
+## 2026-08-11 08:57:17 UTC [sync] (model longcat)
 [PRIO] ds-apip.threema.ch/identity/fetch_bulk — 8.5 (attack:9, business:9, tech:8, gate:10, cloud:8, fresh:5) — ACCEPTED IDOR, 10k-ID batch enum, CORS *, no rate-limit, CVSS 7.5
 [PRIO] ds-apip.threema.ch/check_license — 8.25 (attack:8, business:8, tech:7, gate:10, cloud:8, fresh:9) — ACCEPTED AUTH, cross-origin credential oracle, CORS *, no rate-limit, CVSS 6.5
 [PRIO] threema-desktop key-storage (Windows ACL bypass) — 8.2 (attack:10, business:9, tech:9, gate:6, cloud:7, fresh:5) — RAG-verified 6-path chain, CVSS 8.1, needs Windows validation
 [PRIO] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} — 7.5 (attack:8, business:8, tech:7, gate:7, cloud:9, fresh:5) — ACCEPTED MISCONFIG, CORS * + write methods + HSTS gap, CVSS 7.4
 [PRIO] work.threema.ch/api/v1 (X-Api-Key API) — 6.3 (attack:6, business:8, tech:6, gate:2, cloud:7, fresh:9) — WEAKENED: X-Api-Key NOT in desktop source; key source unknown
 [PRIO] ds-apip-work.threema.ch/identities (TWRK-1633) — 6.6 (attack:7, business:8, tech:6, gate:3, cloud:7, fresh:8) — IDOR candidate, auth-gated, cannot validate passively
+[HYP] Cross-origin credential validation oracle on check_license
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 60
+reasoning: RAG-confirmed (fetch-work.ts:112-124): desktop client POSTs `{licenseUsername, licensePassword, version, arch}` to DIRECTORY_SERVER_URL + `/check_license`. Response schema (work.ts:163-172): `{success:true}` or `{success:false, error?:string}`. Probe: fake creds → 200 `{"success":false,"error":"This username or password is invalid."}`; CORS `*` + Allow-Headers Content-Type; no 429 on 3 sequential POSTs. Any attacker origin can POST and read the success oracle cross-origin.
+evidence_needed: (a) zero 429s across ≥10 sequential POSTs → no rate limit on credential validator; (b) confirm success:true response shape differs (valid-pair oracle distinctness)
+verify_steps: PASSIVE: 10x sequential POST `/check_license` at 1 rps with fake creds `{"licenseUsername":"nobody@example.invalid","licensePassword":"invalidpw","version":"4.1.0;Q;en/??;Electron;31.0.0.0;Linux;x64","arch":"x64"}` on ds-apip.threema.ch; OPTIONS preflight with Origin on api/apip siblings for CORS parity. Do NOT attempt real credential guessing.
+impact: unauthenticated cross-origin-driveable Work license credential validator; valid creds gate ds-apip-work `/identities`+`/fetch2` (names/jobTitle/department + pubkeys) and work.threema.ch login. Severity: Medium (CVSS 3.1 6.5).
+testability: PASSIVE
+[HYP] Unauthenticated identity→pubkey enumeration via fetch_bulk
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/fetch_bulk
 confidence: 95
@@ -13,14 +23,7 @@ evidence_needed: (a) confirm 10000-cap holds on api/apip siblings with unique (n
 verify_steps: PASSIVE: POST `/identity/fetch_bulk` with `{"ids":["ECHOECHO","ZZZ"+...9999 more invalid...]}` at 1 rps on ds-apip.threema.ch, api.threema.ch, apip.threema.ch; compare response body sizes (valid-only echo = smaller, all-invalid = 17B empty identities). Confirm CORS `*` on 200 and 400.
 impact: unauthenticated cross-origin identity→pubkey enumeration at 10k IDs/request, no rate limit, no auth → full directory harvest enabling targeted phishing + de-anonymization. Severity: High (CVSS 3.1 7.5).
 testability: PASSIVE
-class: AUTH
-asset: https://ds-apip.threema.ch/check_license
-confidence: 60
-reasoning: RAG-confirmed (fetch-work.ts:112-124): desktop client POSTs `{licenseUsername, licensePassword, version, arch}` to `DIRECTORY_SERVER_URL` + `/check_license`. Response schema (work.ts:163-172): `{success: true}` or `{success: false, error?: string}`. Probe: fake creds → 200 `{"success":false,"error":"This username or password is invalid."}`; CORS `*` + Allow-Headers Content-Type; no 429 on 3 sequential POSTs. Any attacker origin can POST and read the success oracle cross-origin.
-evidence_needed: (a) zero 429s across ≥10 sequential POSTs → no rate limit on credential validator; (b) confirm success:true response shape differs (valid-pair oracle distinctness)
-verify_steps: PASSIVE: 10x sequential POST `/check_license` at 1 rps with fake creds `{"licenseUsername":"nobody@example.invalid","licensePassword":"invalidpw","version":"4.1.0;Q;en/??;Electron;31.0.0.0;Linux;x64","arch":"x64"}` on ds-apip.threema.ch; OPTIONS preflight with Origin on api/apip siblings for CORS parity. Do NOT attempt real credential guessing.
-impact: unauthenticated cross-origin-driveable Work license credential validator; valid creds gate ds-apip-work `/identities`+`/fetch2` (names/jobTitle/department + pubkeys) and work.threema.ch login. Severity: Medium (CVSS 3.1 6.5).
-testability: PASSIVE
+[HYP] Windows key-storage ACL bypass exposes Ed25519 privkey + SQLCipher key
 class: MISCONFIG
 asset: threema-desktop `data/keystorage.bin` + `data/keystorage.password.bin` on Windows
 confidence: 95

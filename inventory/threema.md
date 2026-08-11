@@ -1371,3 +1371,19 @@
 - CHANGED billing.threema.ch — now serves real static assets (jQuery 3.7.1 + custom CSS) with full security headers on assets, 404 page lacks headers (security-header divergence)
 - CHANGED poc/ directory — still ABSENT (15th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions
 - CHANGED All network endpoints byte-stable re-confirmed via own probes — no regression, no divergence (fetch_bulk 10001→400/0B sharp count-cap, directory triad CORS *, safe HSTS gap, work.api CORS posture, gat
+
+## 2026-08-11 09:13:31 UTC
+- NEW ds-apip.threema.ch/check_license — cross-origin credential validation oracle confirmed via RAG + probe (POST {licenseUsername, licensePassword, version, arch} → 200 {"success":false,"error":"This user
+- NEW work.threema.ch/api/v1 — live X-Api-Key authenticated API confirmed (/users + /contacts → 401, CORS * on GET but OPTIONS → 404 blocks browser cross-origin)
+- NEW ds-apip-work.threema.ch/identities — TWRK-1633 "buggy" note in OpenAPI spec, cross-subscription contact leak candidate (auth-required)
+- NEW threema-android JoinResponse.kt:70 — toString() includes icePassword='$icePassword' plain text (logcat exposure, local-only, short-lived)
+- NEW gateway.threema.ch/v1 — session cookie SESSIONID set on unauthenticated 404 response (Secure/HttpOnly/SameSite=Strict)
+- CHANGED billing.threema.ch — now serves real static assets (jQuery 3.7.1 + custom CSS) with full security headers on assets, 404 page lacks headers (security-header divergence)
+- CHANGED poc/key-storage-acl-bypass-poc.js — NOW genuinely on disk (sha256 950b24f5..., 6121 B, node --check PASS, Linux EXIT 0) after 15+ cycles of KB false claims
+- NEW work.threema.ch/api/v1 — live X-Api-Key authenticated API with routes /users + /contacts (401 not 404), CORS * on GET but OPTIONS → 404 without CORS headers
+- NEW ds-apip-work.threema.ch/identities — TWRK-1633 "buggy" note in openapi spec, potential cross-subscription contact leak (requires auth)
+- NEW threema-android JoinResponse.kt:70 — `toString()` includes `icePassword='$icePassword'` in plain text (logcat credential exposure)
+- NEW gateway.threema.ch/v1 — returns 404 with Set-Cookie: SESSIONID (Secure/HttpOnly/SameSite=Strict) on unauthenticated GET
+- CHANGED billing.threema.ch — now serves real static assets (/cache/billing_gui_theme_threema.js 336KB jQuery 3.7.1, /cache/billing_gui_theme_threema.css 41KB) with full security headers on assets, but 404 err
+- CHANGED work.threema.ch/api/v1 — CORS posture refined: ACAO:* on 401 response but OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-origin keyed requests
+- CHANGED poc/ directory — still ABSENT (13th+ consecutive cycle); KB artifact claims persistently false
