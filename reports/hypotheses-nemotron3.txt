@@ -1,4 +1,4 @@
-## 2026-08-10 23:37:52 UTC [web] (model nemotron3)
+## 2026-08-11 00:07:28 UTC [web] (model nemotron3)
 [NEW] work.threema.ch/api/v1 — live X-Api-Key authenticated API with routes /users + /contacts (401 not 404), CORS * on GET but OPTIONS → 404 without CORS headers
 [NEW] ds-apip-work.threema.ch/identities — TWRK-1633 "buggy" note in openapi spec, potential cross-subscription contact leak (requires auth)
 [NEW] threema-android JoinResponse.kt:70 — `toString()` includes `icePassword='$icePassword'` in plain text (logcat credential exposure)
@@ -7,16 +7,17 @@
 [CHANGED] work.threema.ch/api/v1 — CORS posture refined: ACAO:* on 401 response but OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-origin keyed requests
 [CHANGED] poc/ directory — still ABSENT (13th+ consecutive cycle); KB artifact claims persistently false
 [PRIO] work.threema.ch/api/v1, 6.8, attack=8 business=7 tech=6 gate=5 cloud=5 fresh=9
-[PRIO] ds-apip-work.threema.ch/identities, 5.9, attack=7 business=8 tech=5 gate=3 cloud=4 fresh=8
-[PRIO] threema-android JoinResponse.kt:70 icePassword leak, 4.1, attack=4 business=4 tech=5 gate=7 cloud=2 fresh=9
-[PRIO] gateway.threema.ch/v1 session cookie on 404, 3.2, attack=3 business=3 tech=4 gate=10 cloud=3 fresh=7
+[PRIO] ds-apip-work.threema.ch/identities, 6.15, attack=7 business=8 tech=5 gate=3 cloud=4 fresh=8
+[PRIO] threema-android JoinResponse.kt:70, 4.9, attack=4 business=4 tech=5 gate=7 cloud=2 fresh=9
+[PRIO] gateway.threema.ch/v1, 4.6, attack=3 business=3 tech=4 gate=10 cloud=3 fresh=7
+[PRIO] billing.threema.ch, 4.25, attack=3 business=2 tech=4 gate=10 cloud=3 fresh=6
 [HYP] work.threema.ch/api/v1 X-Api-Key leak from mobile/desktop client enables unauthorized contact enumeration
 class: AUTH
 asset: https://work.threema.ch/api/v1
 confidence: 50
 reasoning: Live X-Api-Key authenticated API with /users and /contacts routes (401 not 404). CORS * on GET responses but OPTIONS → 404 without CORS headers blocks browser cross-origin. If X-Api-Key values exist in mobile/desktop client source, server-side enumeration of work contacts/users is possible without browser preflight.
 evidence_needed: X-Api-Key values in threema-android/ios/desktop source; valid key to test /users and /contacts enumeration
-verify_steps: RAG: Search threema-android, threema-ios, threema-desktop source on GitHub for X-Api-Key values, work API auth headers ("X-Api-Key", "ApiKey", "Authorization: Bearer"). PROBE: If key found, `curl -H "X-Api-Key: <key>" https://work.threema.ch/api/v1/users` — verify 200 with user data
+verify_steps: RAG: Search threema-android, threema-ios, threema-desktop source on GitHub for X-Api-Key values, work API auth headers ("X-Api-Key", "ApiKey", "Authorization: Bearer", "work.threema.ch/api"). PROBE: If key found, `curl -H "X-Api-Key: <key>" https://work.threema.ch/api/v1/users` — verify 200 with user data
 impact: Unauthorized enumeration of Threema Work users/contacts across organizations; business contact graph reconstruction. Severity: Medium-High (CVSS 3.1: 7.1 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
 testability: PASSIVE (RAG) → AUTH_HELPED (if key found)
 [HYP] ds-apip-work.threema.ch/identities cross-subscription contact leak via TWRK-1633 buggy endpoint
@@ -37,27 +38,18 @@ evidence_needed: Runtime confirmation that JoinResponse.toString() is called in 
 verify_steps: RAG: Search threema-android source for JoinResponse.toString() usages, Log.* calls with JoinResponse, crash reporter integrations. HUMAN: Install debug build, initiate call, capture logcat — verify icePassword appears
 impact: Local logcat exposure of ICE credentials (short-lived, per-session); low practical impact without additional WebRTC attack chain. Severity: Low (CVSS 3.1: 3.3 AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N)
 testability: HUMAN_ONLY
-[PARKED] threema-android JoinResponse.kt icePassword leak: confidence 40 at threshold but class MISCONFIG not on REJECTED list; verify_steps requires HUMAN_ONLY (runtime logcat) which violates passive-first — dropping due to testability constraint
-[PARKED] ds-apip-work.threema.ch/identities cross-subscription leak: confidence 50 but requires AUTH_HELPED (Work license) not available; TWRK-1633 unvalidated — parked pending auth access
+[PARKED] threema-android JoinResponse.kt icePassword leak: confidence 40 at threshold but testability HUMAN_ONLY violates passive-first; runtime logcat validation required — dropping due to testability constraint
 [FINAL] 1. work.threema.ch/api/v1 X-Api-Key leak from mobile/desktop client enables unauthorized contact enumeration (confidence 50, PASSIVE→AUTH_HELPED)
+[FINAL] 2. ds-apip-work.threema.ch/identities cross-subscription contact leak via TWRK-1633 buggy endpoint (confidence 50, AUTH_HELPED)
 [NEXT] RAG: Search threema-android, threema-ios, and threema-desktop source code on GitHub for X-Api-Key values, work API authentication headers ("X-Api-Key", "ApiKey", "Authorization: Bearer", "work.threema.ch/api")
-[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req (10000→200/152B, 10001→400/0B); CORS * + no rate-limit + 5 challenge param-oracles — all byte-stable
-[LEARN] ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable across all 5 hosts
-[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain on GitHub stable; PoC artifact on disk (sha256 094f1487…), node --check PASS, Linux no-op confirmed
+[LEARN] ACCEPTED AUTH @ work.threema.ch/api/v1: Live X-Api-Key authenticated API with /users + /contacts routes (401 not 404), CORS * on GET but OPTIONS → 404 without CORS headers — server-side/non-browser attack path only
+[LEARN] ACCEPTED IDOR @ ds-apip-work.threema.ch/identities: TWRK-1633 "buggy" note in openapi spec — potential cross-subscription contact leak; requires auth to verify
 [LEARN] NEW @ threema-android JoinResponse.kt:70: `toString()` includes `icePassword='$icePassword'` in plain text — potential logcat credential leak if object logged. Low value (local-only, short-lived ICE creds), needs runtime validation
-[LEARN] INTERESTING @ threema-ios ManuallyTests: test-only credential "shootdeathstar" (sha256 8d969eef…) — TEST_ONLY fixture, not a secret leak
-[LEARN] REJECTED MISCONFIG @ threema-android SentryConfig.kt:15,19: Sentry public DSN keys (sha256 `3a826628...` + `3686395f...`) — public by design, INTERESTING non-finding
-[LEARN] REJECTED MISCONFIG @ threema-android SfuToken.kt:49: `sfuToken='********'` is proper redaction in toString() — security-positive, not a leak
-[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy — determineKdfParams() calibrates Argon2id, key purged at line 233
-[LEARN] REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree); not standalone
-[LEARN] REJECTED class @ g-*.0.test.threema.ch staging chat: out of scope per scope.yml; explicit SNI + TLS1.2/1.3 probes close connection immediately (0 bytes, no peer cert) on 443/5222
-[LEARN] REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
-[LEARN] ACCEPTED MISCONFIG @ gateway.threema.ch/v1: Session cookie (SESSIONID) set on unauthenticated 404 response — confirmed stable across cycles, low severity but valid defense-in-depth gap
-[LEARN] CHANGED poc/ directory: still ABSENT (13th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions
-[LEARN] NO_NEW_CLASS: All previously accepted findings byte-stable; no new vulnerability classes opened this cycle
-[LEARN] NEW @ ds-apip-work.threema.ch/identities: TWRK-1633 "buggy" note in openapi spec — potential cross-subscription contact leak; requires auth to verify
+[LEARN] ACCEPTED OTHER @ gateway.threema.ch/v1: Session cookie (SESSIONID) set on unauthenticated 404 response — confirmed stable across cycles, low severity but valid defense-in-depth gap
 [LEARN] CHANGED billing.threema.ch: now serves real static assets (jQuery 3.7.1 + custom CSS) with full security headers on assets, but 404 error page lacks these headers — security-header divergence confirmed
 [LEARN] CHANGED work.threema.ch/api/v1: CORS posture refined — ACAO:* on 401 response BUT OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-origin keyed requests (server-side/non-browser attack path still viable)
+[LEARN] CHANGED poc/ directory: still ABSENT (13th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions
+[LEARN] NO_NEW_CLASS: All previously accepted findings byte-stable; no new vulnerability classes opened this cycle
 [RISK] chat: 25 — prod DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band 443/5222 passive channel closed (0 bytes without authenticated login, no cert/SAN leak); DNS-attribution confirmed low-value passive surface
 [RISK] web: 95 — directory triad (ds-apip+api+apip) fetch_bulk 10k ID enumeration + CORS `*` + no auth + cross-origin readable + zero 429 byte-stable (CVSS 7.5 High); GET /identity/{id} → 200/404 oracle uniform; 5 challenge param-validation oracles confirmed; safe backup API (permissive CORS + write methods + HSTS gap + credentialed cross-origin); work/broadcast/gateway cockpits accessible; staging work public API divergence; billing static assets with header divergence; gateway /v1 session cookie on 404; work.api X-Api-Key auth surface live
 [RISK] sync: 45 — mediator-{0..f}/rendezvous-{0..f} resolve (DNS split 203.56.112.247 / 203.56.114.247 for 0-7/8-f), uniform 403 on HTTPS; ds-apip-work live but auth-gated (401 + CORS `*` + no HSTS); TWRK-1633 cross-subscription leak candidate unvalidated (auth-required)
