@@ -551,3 +551,25 @@
   - | Q2 Reachable? | AUTH_HELPED | Returns 401 on all paths; requires valid Work test license |
   - | Q4 Passive proof? | NO | Requires AUTH_HELPED with valid Work license + cross-subscription contact probes |
   - | Q5 Novel? | Not triaged as valid | Only hypothesized; OpenAPI flags it "currently buggy" (TWRK-1633) |
+
+- 48 lead(s) marked VALID at 2026-08-11 04:12:21 UTC
+  - | Q3 Real impact? | ✅ YES — mass valid-ID + pubkey harvesting at ~10k IDs/req, silent-omission oracle, CORS* makes it cross-origin readable, zero rate limit → targeted phishing/recon at scale |
+  - | Q4 Passive proof? | ✅ YES — `POST /identity/fetch_bulk {"identities":["ECHOECHO","ZZZZZZZZ"]}` → 200 with only valid pubkey; 35+ sequential POSTs all 200, zero 429; `GET /identity/ECHOECHO`→200, `/i
+  - | Q5 Novel? | ❌ **NO** — ACCEPTed in KB lines 20-21, 27, 59, 67, 80, 82, 85-86, 94, 99, 104+; triaged as VALID in valid-bugs.md since 2026-08-07 (Finding #1) |
+  - | Q7 Triager accept? | ✅ YES — already accepted as Finding #1 in valid-bugs.md |
+  - **Verdict: VALID (duplicate)** — Confidence 95-97. Already reported.
+  - | Q5 Novel? | ❌ **NO** — ACCEPTED in KB lines 26, 74, 77-78, 92, 108, 121, 130, 133, 137, 143, 187, 192, 197, 203; triaged as VALID in valid-bugs.md (Finding #3) |
+  - | Q7 Triager accept? | ✅ YES — already accepted as Finding #3 in valid-bugs.md |
+  - **Verdict: VALID (duplicate)** — Confidence 95. Already reported.
+  - | Q5 Novel? | ❌ **NO** — ACCEPTED in KB lines 101, 106, 125, 128-129, 132, 135, 138, 144, 151, 177, 184, 190-191, 193, 201, 205, 221, 242, 250, 297, 301, 313, 316, 331, 358, 361, 376, 402, 408; triage
+  - | Q6 Not always-rejected? | Borderline — defense-in-depth gap; accepted per precedent as low-severity valid finding |
+  - | Q7 Triager accept? | ✅ YES — already accepted as Finding #4 in valid-bugs.md |
+  - **Verdict: VALID (duplicate, low severity)** — Already reported.
+  - | Q3 Real impact? | ⚠️ LOW — route-presence + parameter-validation oracle only; challenge-response still requires valid identity+secret |
+  - | Q5 Novel? | ❌ **NO** — ACCEPTED in KB lines 100, 105, 110, 112, 165, 176; triaged as VALID in valid-bugs.md (Finding #5) |
+  - | Q7 Triager accept? | ✅ YES — already accepted as Finding #5 in valid-bugs.md |
+  - **Verdict: VALID (duplicate, low severity)** — Already reported.
+  - | Q1 In scope? | ❌ **NO** — scope.yml lists `apip.threema.ch` (production); `.test` staging variants are **not** listed. Per valid-bugs.md precedent, staging variants treated as out-of-scope |
+  - | Q5 Novel? | ❌ **NO** — ACCEPTED then deemed OUT OF SCOPE in KB lines 28-29, 36, 56, 61, 68, 93; triaged in valid-bugs.md |
+  - | Q2 Reachable? | ⚠️ PARTIAL — route reachable; data access requires valid `backupId:backupKey` (64-hex + high-entropy key) |
+  - | Q3 Real impact? | ❌ NO — 400 = credential-gated; no unauthenticated data access demonstrated. CORS* + Allow-Headers: Authorization only matters if attacker already has valid credentials |
