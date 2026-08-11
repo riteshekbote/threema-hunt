@@ -573,3 +573,7 @@
   - | Q5 Novel? | ❌ **NO** — ACCEPTED then deemed OUT OF SCOPE in KB lines 28-29, 36, 56, 61, 68, 93; triaged in valid-bugs.md |
   - | Q2 Reachable? | ⚠️ PARTIAL — route reachable; data access requires valid `backupId:backupKey` (64-hex + high-entropy key) |
   - | Q3 Real impact? | ❌ NO — 400 = credential-gated; no unauthenticated data access demonstrated. CORS* + Allow-Headers: Authorization only matters if attacker already has valid credentials |
+
+- 2 lead(s) marked VALID at 2026-08-11 08:06:52 UTC
+  - | Q4 Proof | ❌ Cannot prove without valid backupId:backupKey |
+  - | **VALID** | 0 | No new, non-duplicate, provable vulnerabilities |
