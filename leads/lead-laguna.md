@@ -6994,3 +6994,4 @@ testability: RAG→AUTH_HELPED
 [RISK] sync: 20 — TWRK-1633 AUTH-gated (OpenAPI "currently buggy"), mediator/rendezvous uniform 403 + CORS, ds-apip-work OPTIONS→401 (browser probing blocked); blob-mirror out of scope; work.threema.ch/api/v1 X-Api-Key source unknown
 [RISK] safe: 80 — 5 safe-* hostnames single IP 203.56.112.231; CORS `*` + write methods on GET 400 + Allow-Headers Authorization on OPTIONS 204; HSTS/Expect-CT header inconsistency (present OPTIONS, absent GET 400) byte-stable
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95% confidence (6 GitHub `stable` source paths: fs.ts:41, index.ts:559, electron-main.ts:944, inner/v3.ts:62-70, crypto.ts:53-113, sqlite.ts:240); PoC artifact absent (17+ cycles false KB claims, filesystem-confirmed); BrowserWindow sandbox unset + nodeIntegrationInWorker:true (conditional RCE, REJECTED standalone)
+## 2026-08-11 14:38:17 UTC [desktop] (model laguna)
