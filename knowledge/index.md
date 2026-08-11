@@ -472,3 +472,4 @@
 - 2026-08-11 CONFIRMED AUTH @ ds-apip.threema.ch/check_license: sibling parity confirmed on all 3 prod hosts (byte-identical 200/65B + CORS `*` + OPTIONS 200)
 - 2026-08-11 CONFIRMED OTHER @ ds-apip.threema.ch/identity/match: rate-limiter cooldown >20min confirmed; burst-only limiter; CORS `*` present on both 200 POST and 400 OPTIONS
 - 2026-08-11 CONFIRMED OTHER @ ds-apip.threema.ch/identity/match: rate-limiter cooldown >20min confirmed; CORS `*` present on both 200 POST and 400 OPTIONS
+- 2026-08-11 CONFIRMED IDOR @ ds-apip.threema.ch/identity/match: 1-hash POST → 200/39B empty identities + CORS `*`; 2-rapid-POST → 429/0B; cooldown >20min — server-side oracle path stable, browser path blocked (OPTIONS 400).

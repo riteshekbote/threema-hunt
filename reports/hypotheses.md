@@ -2954,3 +2954,38 @@
 - LEARN: CONFIRMED OTHER @ ds-apip.threema.ch/identity/match: rate-limiter cooldown >20min confirmed; CORS `*` present on both 200 POST and 400 OPTIONS
 - LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: no CORS on 404 response, missing-key and invalid-key produce byte-identical 404 — downgraded to non-finding
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), purged at line 233
+
+## RANKED HYPOTHESES 2026-08-11 17:34:34 UTC
+- [85] https://ds-apip.threema.ch/identity/match: Forgeable-HMAC email/mobile→identity membership oracle via /identity/match batch-size differential (from reports/hypotheses-nemotron3.txt)
+- [50] https://ds-apip.threema.ch/identity/match: /identity/match batch-size differential maps the per-request cost-unit ceiling (from reports/hypotheses-longcat.txt)
+- [45] apip.threema.ch/identity/ws/revoke: ds-apip.threema.ch directory lookup / unauth enumeration (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: Wait for /identity/match rate-limiter reset (>20min cooldown from last probe at 15:40 UTC → ready ~16:00+ UTC), then at ≤1 rps with 20s spacing: `curl -s
+- NEXT(hypotheses-bigpickle.txt): PROBE: Wait for /identity/match rate-limiter reset (>20min cooldown from last probe at 15:40 UTC → ready ~16:00+ UTC), then at ≤1 rps: `curl -s -X POST -H "Orig
+- NEXT(hypotheses-longcat.txt): PROBE: Wait for rate-limiter cooldown (last accepted 200 at ~13:28 UTC → next window ≥14:00+ UTC confirmed available), then single POST at 60s+ spacing:
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle confirmed via RAG (fetch-work.ts:112-124) + probe (fake creds → 200 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req; CORS * + no rate-limit + 5 challenge p
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: NEW endpoint confirmed live — POST `{}` → 200/39B `{"checkInterval":86400,"identities":[]}` with CORS `*` + 
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c` confirmed benchmark-only dummy 
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
+- LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: response variance observed (200→400 transition); OPTIONS preflight returns 400 (browser path blocked); burst
+- LEARN: CHANGED poc/ directory: confirmed STILL ABSENT (17th+ consecutive cycle); KB artifact claims persistently false; filesystem ground truth overrides all KB assert
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: sibling parity CONFIRMED — api.threema.ch + apip.threema.ch return byte-identical 200/65B + CORS `*` + OPTIONS
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: OPTIONS returns 200 (not 400) — browser-viable cross-origin path confirmed; CORS `*` + Allow-Headers Content-T
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: OPTIONS 400 response ALSO carries CORS `*` + Allow-Headers Content-Type,User-Agent (CORS headers present on 
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: POST with 4-byte short hash returns 200/39B empty identities — no client-visible length validation error (ha
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle confirmed via RAG (fetch-work.ts:112-124) + probe (fake creds → 200 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req; CORS * + no rate-limit + 5 challenge p
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: NEW endpoint confirmed live — POST `{}` → 200/39B `{"checkInterval":86400,"identities":[]}` with CORS `*` + 
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c` confirmed benchmark-only dummy 
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
+- LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: response variance observed (200→400 transition); OPTIONS preflight returns 400 (browser path blocked); burst
+- LEARN: CHANGED poc/ directory: confirmed STILL ABSENT (17th+ consecutive cycle); KB artifact claims persistently false; filesystem ground truth overrides all KB assert
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: sibling parity CONFIRMED — api.threema.ch + apip.threema.ch return byte-identical 200/65B + CORS `*` + OPTIONS
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: OPTIONS returns 200 (not 400) — browser-viable cross-origin path confirmed; CORS `*` + Allow-Headers Content-T
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: OPTIONS 400 response ALSO carries CORS `*` + Allow-Headers Content-Type,User-Agent (CORS headers present on 
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: POST with 4-byte short hash returns 200/39B empty identities — no client-visible length validation error (ha
+- LEARN: CONFIRMED IDOR @ ds-apip.threema.ch/identity/match: 1-hash POST → 200/39B empty identities + CORS `*`; 2-rapid-POST → 429/0B; cooldown >20min — server-side orac

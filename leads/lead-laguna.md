@@ -7217,3 +7217,4 @@ evidence_needed: OpenAPI schema for fetch_bulk params; POST differential with `t
 verify_steps: RAG directory OpenAPI in desktop build config, then single PASSIVE POST `{"identities":[...],"type":1}` vs baseline at ≤1 rps.
 impact: targeted Work-identity harvest feeding check_license/ds-apip-work attacks.
 testability: PASSIVE
+## 2026-08-11 17:34:24 UTC [desktop] (model laguna)
