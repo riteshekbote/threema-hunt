@@ -588,3 +588,25 @@
   - | Q4 | ✅ Provable passively: response shape/schema oracle, CORS `*`, 429-absence all confirmed via GET/HEAD + read-only POST. `success:true` shape needs valid pair (AUTH_HELPED) but the *oracle gap* i
   - | Q7 | ⚠️ Parked/AUTH_HELPED — passive-only cannot demonstrate data access without valid credentials. |
   - | 2 | `/identity/match` email→identity membership oracle | IDOR | **VALID** | Novel endpoint, CORS `*` + forgeable keys; evidence gap (positive differential needs AUTH_HELPED) |
+
+- 27 lead(s) marked VALID at 2026-08-11 14:57:59 UTC
+  - ### Verdict: ✅ **VALID**
+  - | **Q5 Novel?** | ✅ YES | New endpoint (first seen 2026-08-11 06:07 UTC). Not previously triaged as valid vuln. KB line 438: "Not in seed KB — genuinely new passive surface." |
+  - | **Q3 Real impact?** | ✅ YES | Mass valid-ID + pubkey harvesting at ~10k IDs/req, silent-omission oracle, zero 429s |
+  - | **Q4 Passive proof?** | ✅ YES | `POST {"identities":["ECHOECHO","ZZZZZZZZ"]}` → 200, only valid pubkey echoed; 35+ sequential POSTs all 200, zero 429 |
+  - | **Q5 Novel?** | ❌ **NO** | ACCEPTED finding #1 — `valid-bugs.md` line 27, 59, 67, 80+; triaged as VALID since 2026-08-07 |
+  - ### Verdict: **VALID (duplicate)** — Already reported. CVSS 5.3 Medium.
+  - | **Q5 Novel?** | ❌ **NO** | ACCEPTED finding #3 — `valid-bugs.md` line 26, 74, 77+; triaged VALID since 2026-08-07 |
+  - ### Verdict: **VALID (duplicate)** — Already reported. CVSS 8.1 (HUMAN_ONLY PoC gap remains).
+  - | **Q2 Reachable?** | ⚠️ AUTH_HELPED | GET returns 400 (credential-gated); data access requires valid `backupId:backupKey` |
+  - | **Q3 Real impact?** | ❌ NO | CORS `*` + Allow-Headers: Authorization on a credential-gated endpoint is defense-in-depth only (per `valid-bugs.md` precedent — multiple cycles). No unauthenticated dat
+  - | **Q4 Passive proof?** | ⚠️ PARTIAL | Can confirm CORS headers + 400 response; cannot confirm data access without valid credentials |
+  - | **Q5 Novel?** | ❌ NO | Already ACCEPTED in KB (lines 30-31, 62, 79+); triaged as VALID/HOLD in `valid-bugs.md` |
+  - | **Q6 Not always-rejected?** | ❌ **NO** | On the always-rejected list: CORS `*` on credential-gated endpoint is best-practice/defense-in-depth, not a vulnerability (per `valid-bugs.md` precedent — 20
+  - | **Q7 Triager accept?** | ❌ NO | No data access without valid credentials; CORS `*` alone is not a vulnerability on an auth-gated API |
+  - | **Q6 Not always-rejected?** | ✅ Borderline | Accepted as valid but low severity per precedent |
+  - | **Q7 Triager accept?** | ✅ YES | Already accepted as low-severity valid |
+  - ### Verdict: **VALID (duplicate, low severity)** — Already reported. CVSS 3.1 Low.
+  - | **Q3 Real impact?** | ⚠️ LOW | Route-presence + parameter-validation oracle only; challenge-response still requires valid identity+secret |
+  - | **Q6 Not always-rejected?** | ✅ Borderline | Accepted as valid but low severity |
+  - ### Verdict: **VALID (duplicate, low severity)** — Already reported. CVSS 3.7 Low.
