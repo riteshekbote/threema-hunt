@@ -2832,3 +2832,14 @@
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
 - LEARN: REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
 - LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls
+
+## RANKED HYPOTHESES 2026-08-11 12:22:54 UTC
+- [50] https://ds-apip.threema.ch/identity/match: Email→identity membership oracle via /identity/match (from reports/hypotheses-longcat.txt)
+- [45] apip.threema.ch/identity/ws/revoke: ds-apip.threema.ch directory lookup / unauth enumeration (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://ds-apip-work.threema.ch/identity/lookup and /directory (401 vs 404 distinguishes route-existence behind the auth gate), then GET https://ds-a
+- NEXT(hypotheses-longcat.txt): PROBE: `curl -s -I -H "Origin: https://evil.com" https://ds-apip.threema.ch/identity/match` followed by `curl -s -X POST -H "Content-Type: application/json" -H 
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: NEW endpoint confirmed live — POST `{}` → 200/39B `{"checkInterval":86400,"identities":[]}` with CORS `*` + 
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential oracle confirmed via RAG (fetch-work.ts:112-124) + probe (fake creds → 200 `{"success"
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-path chain stable on GitHub `stable`; PoC artifact still ABSENT from workspace (files
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), purged at line 233
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre

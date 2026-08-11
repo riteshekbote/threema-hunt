@@ -797,3 +797,12 @@ https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; cha
 https://ds-apip.threema.ch/check_license` -> HTTP 404
 https://ds-apip.threema.ch/identity/match -> HTTP 400
 https://ds-apip.threema.ch/identity/match` -> HTTP 404
+
+## 2026-08-11 12:22:57 UTC
+https://ds-apip.threema.ch/identity/lookup -> HTTP 404
+https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/match -> HTTP 400
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://ds-apip.threema.ch/identity/match` -> HTTP 404

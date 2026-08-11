@@ -1427,3 +1427,10 @@
 - CHANGED work.threema.ch/api/v1 — CORS posture refined: ACAO:* on 401 response but OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-origin keyed requests
 - CHANGED All network endpoints byte-stable re-confirmed via own probes — fetch_bulk 10001→400/0B sharp count-cap stable, directory triad CORS *, safe HSTS gap, work.api CORS posture
 - CHANGED poc/ directory — STILL ABSENT (17th+ consecutive cycle); KB artifact claims persistently false; filesystem ground truth overrides all KB assertions
+
+## 2026-08-11 12:22:54 UTC
+- NEW ds-apip.threema.ch/identity/match — email→identity membership oracle candidate, CORS `*`, burst rate-limiter unmapped
+- NEW work.threema.ch/api/v1 — X-Api-Key authenticated API, CORS `*` on GET but OPTIONS 404 blocks browser cross-origin
+- CHANGED poc/ directory — confirmed STILL ABSENT (17th+ cycle); KB artifact claims persistently false
+- CHANGED work.threema.ch/api/v1 — CORS posture refined (ACAO:* on 401, but OPTIONS → 404 no CORS)
+- CHANGED billing.threema.ch — now serves static assets (jQuery 3.7.1 + CSS), 404 page lacks security headers
