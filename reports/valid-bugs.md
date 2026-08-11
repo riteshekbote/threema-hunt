@@ -654,3 +654,10 @@
   - | Q5 Novel? | Not triaged as valid | Only hypothesized (TWRK-1633) |
   - **Verdict: HOLD** — Requires AUTH_HELPED with valid Work test license. Cannot be proven with passive GET/HEAD only. Retain for program-issued credentials.
   - | Q5 Novel? | **YES** | Not previously triaged as valid vuln |
+
+- 5 lead(s) marked VALID at 2026-08-11 21:34:53 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - **Verdict: HOLD** — Passive probes confirm credential-gating (400) and CORS* posture, but no unauthenticated data access. Cannot demonstrate impact without valid `backupId:backupKey`. AUTH_HELPED only
+  - | 1 | Directory cluster identity→pubkey mass enumeration | **VALID** (CVSS 5.3) |
+  - | 2 | Desktop Windows key-storage ACL bypass | **VALID** (CVSS 8.1) |
