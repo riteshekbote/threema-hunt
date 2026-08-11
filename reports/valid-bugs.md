@@ -661,3 +661,20 @@
   - **Verdict: HOLD** — Passive probes confirm credential-gating (400) and CORS* posture, but no unauthenticated data access. Cannot demonstrate impact without valid `backupId:backupKey`. AUTH_HELPED only
   - | 1 | Directory cluster identity→pubkey mass enumeration | **VALID** (CVSS 5.3) |
   - | 2 | Desktop Windows key-storage ACL bypass | **VALID** (CVSS 8.1) |
+
+- 15 lead(s) marked VALID at 2026-08-11 22:31:21 UTC
+  - | Q5 Novel? | **YES** | Not previously triaged in triage-2026-08-11-1950.md, not in knowledge/index.md, not in valid-bugs.md as a finding |
+  - | Q6 Not always-rejected? | Borderline | Accepted as valid low-severity |
+  - | Q3 Impact? | YES | Mass valid-ID + pubkey harvesting at ~10k/req, no rate limit, CORS* |
+  - | Q4 Passive proof? | YES | `POST {"identities":["ECHOECHO","ZZZZZZZZ"]}` → 200, only valid pubkey |
+  - | Q5 Novel? | **NO** | ACCEPTED KB lines 30-31, 62+; triaged in valid-bugs.md |
+  - | Q7 Triager accept? | NO | No data access without valid credentials |
+  - | Q6 Not always-rejected? | Borderline | Valid hardening concern, not standalone |
+  - **Verdict: HOLD (conditional)** — Valid defense-in-depth gap, not standalone reportable. Re-open if worker exploit primitive found.
+  - | Q2 Reachable? | AUTH_HELPED | 401 on all paths; needs valid Work license |
+  - | Q4 Passive proof? | **NO** | Requires AUTH_HELPED with valid Work license |
+  - | Q5 Novel? | Not triaged as valid | Only hypothesized (TWRK-1633) |
+  - **Verdict: HOLD** — Requires AUTH_HELPED with valid Work test license. Cannot be proven with passive GET/HEAD only.
+  - | **VALID (new, reportable)** | **0** | No novel findings |
+  - | **H1** | `ds-apip.threema.ch/identity/match_token` — novel endpoint, 200 unauthenticated | Passive characterization of response semantics | OPTIONS preflight + GET with query params to determine if 
+  - | H3 | ds-apip-work /identities cross-subscription leak (TWRK-1633) | AUTH_HELPED (valid Work test license) | Retain for program-issued credentials |
