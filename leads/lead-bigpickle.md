@@ -7987,3 +7987,33 @@ impact: anonymous identity-graph harvesting at 10k IDs/request for phishing/dean
 testability: PASSIVE
 [NEXT] HUMAN: Request a program-issued authorized Threema Work test license (licenseUsername/licensePassword pair) to close the single remaining evidence gap on both top hypotheses: (a) POST `{licenseUsername,licensePassword,"version":"4.7.6","arch":"x64"}` → ds-apip.threema.ch/check_license expecting `{"success":true}` distinct from the 30B/65B failure shapes confirmed this cycle; (b) POST `{"username","password","contacts":[ownId,foreignId]}` → ds-apip-work.threema.ch/identities to test TWRK-1633 cross-subscription scoping. (Fallback if not feasible: RAG threema-android/threema-ios for X-Api-Key source of work.threema.ch/api/v1.)
 [RISK] chat: 25 — DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band 443/5222 passive channel closed (0 bytes, no cert leak, authenticated login frame required) | web: 60 — check_license 30B/65B cross-origin credential validator + staging parity (CVSS 6.5) added to the accepted fetch_bulk 10k-ID CORS-`*` no-rate-limit enumeration (CVSS 7.5); browser-driveable credential validation now confirmed with simple body-size signal | sync: 20 — apip-work/ds-apip-work byte-identical (401/0B); TWRK-1633 AUTH-gated; mediator/rendezvous 403, WSS surface closed | safe: 40 — backup API credential-gated; only HSTS/Expect-CT absent-on-400 header inconsistency (CVSS 7.4) | desktop-src: 35 — key-storage ACL bypass RAG-verified 95% but PoC artifact absent (15+ cycles), Windows runtime validation pending.
+## 2026-08-11 07:05:35 UTC [chat] (model bigpickle)
+[HYP] `/identity/match` rate-limit differential: fetch_bulk/check_license unlimited, match limited
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 72
+reasoning: First 429 on the directory API observed exactly here (nginx, empty-body `{}` → 200 then hash-POST → 429 persisting ≥60s), while fetch_bulk (35+ probes) and check_license (6+ probes) never 429. Client source (APIConnector.java:638) shows matchToken optional, emailHashes accepted unauthenticated; HMAC keys public in client → hashes forgeable by any attacker.
+evidence_needed: (a) 429 persistence window (cooldown reset time); (b) whether 429 is per-IP or per-hash-batch; (c) whether staging mirrors the limiter
+verify_steps: PROBE at ≥120s spacing: single POST `{"emailHashes":["<b64hmac>"]}` → observe 200 vs 429 and repeat to measure cooldown; OPTIONS preflight check; byte-diff against ds-apip.test.threema.ch. PASSIVE only, ≤1 rps.
+impact: If the limiter is trivially bypassable (per-hash-batch, not per-IP) it becomes an email→identity membership oracle matching the fetch_bulk class; if robust, it confirms Threema DOES rate-limit sensitive endpoints, sharpening the accepted fetch_bulk no-rate-limit finding. Severity: Low-Medium (CVSS 3.1 3.7-5.3)
+testability: PASSIVE
+[HYP] Work license credential brute via check_license (persisting; now with cross-client auth-model closure)
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 70
+reasoning: 30B/65B two-state error map, CORS `*` + Allow-Headers Content-Type,User-Agent (browser-driveable), zero 429 across 6+ POSTs this cycle. Desktop fetch-work.ts:112-124 + Android/iOS all use licenseUsername/licensePassword against this exact endpoint. No account lockout observed.
+evidence_needed: success:true shape (needs valid pair); 429 absence over 15 sequential POSTs
+verify_steps: PASSIVE done (error map + CORS + no-429); AUTH_HELPED: with program-issued Work license POST `{licenseUsername,licensePassword,"version":"4.7.6","arch":"x64"}` → expect `{"success":true}`
+impact: unauthenticated cross-origin Work credential validator → targeted offline-ish guessing before directory/login abuse. Severity: Medium (CVSS 3.1 6.5)
+testability: PASSIVE→AUTH_HELPED
+[HYP] TWRK-1633 cross-subscription work-directory scope check
+class: IDOR
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 55
+reasoning: OpenAPI "currently buggy" (TWRK-1633) on identities; body-auth 3-state oracle (401/200-empty/200-contacts) fail-closed; Android APIConnector.java:1325 POSTs `{username,password,contacts}` to exactly this path.
+evidence_needed: authenticated response mixing own+foreign-subscription IDs
+verify_steps: AUTH_HELPED: authorized Work license POST `{"username","password","contacts":[ownId,foreignId]}`; diff vs same-subscription control
+impact: cross-subscription enterprise PII+pubkey disclosure → targeted phishing. Severity: Medium (CVSS 3.1 5.3)
+testability: AUTH_HELPED
+[NEXT] PROBE: map the `/identity/match` rate limiter — single POST `{"emailHashes":["<b64-hmac-of-arbitrary-email>"]}` to https://ds-apip.threema.ch/identity/match at 120s+ spacing to measure cooldown window (reset time), then OPTIONS preflight + identical probe against ds-apip.test.threema.ch to test staging parity of the 429; if the limiter is per-hash-batch rather than per-IP, escalate to email→identity membership oracle characterization. (≤1 rps, passive.)
+[RISK] chat: 25 — DNS shard map stable, in-band 443/5222 closed (0 bytes, no cert) | web: 65 — accepted fetch_bulk 10k-ID enumeration (CVSS 7.5) + check_license cross-origin credential validator (CVSS 6.5); NEW `/identity/match` rate-limit differential confirms selective limiter coverage | sync: 20 — TWRK-1633 AUTH-gated, mediator/rendezvous 403 | safe: 40 — credential-gated backup API; only HSTS-absent-on-400 header gap | desktop-src: 35 — key-storage ACL bypass RAG-verified 95%, PoC absent (15+ cycles), Windows validation pending
