@@ -838,3 +838,15 @@ https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/jso
 https://ds-apip.threema.ch/check_license` -> HTTP 404
 https://work.threema.ch/api/v1 -> HTTP 401
 https://ds-apip.threema.ch/identity/match` -> HTTP 404
+
+## 2026-08-11 17:36:40 UTC
+https://ds-apip.threema.ch/identity/lookup -> ERR <urlopen error [Errno 101] Network is unreachable>
+https://ds-apip-work.threema.ch/identity/lookup -> ERR <urlopen error [Errno 101] Network is unreachable>
+https://ds-apip.threema.ch/identity/fetch_bulk -> ERR <urlopen error [Errno 101] Network is unreachable>
+https://ds-apip.threema.ch/identity/match` -> ERR <urlopen error [Errno 101] Network is unreachable>
+https://ds-apip.threema.ch/check_license -> ERR <urlopen error [Errno 101] Network is unreachable>
+https://ds-apip.threema.ch/identity/match -> ERR <urlopen error [Errno 101] Network is unreachable>
+https://ds-apip.threema.ch/identity/match_token -> ERR <urlopen error [Errno 101] Network is unreachable>
+https://ds-apip.threema.ch/identity/match_token` -> ERR <urlopen error [Errno 101] Network is unreachable>
+https://ds-apip.threema.ch/check_license` -> ERR <urlopen error [Errno 101] Network is unreachable>
+https://ds-apip.threema.ch/identity/fetch_bulk` -> ERR <urlopen error [Errno 101] Network is unreachable>
