@@ -7831,3 +7831,99 @@ impact: cross-subscription work-directory PII + pubkey disclosure → targeted p
 testability: AUTH_HELPED
 [NEXT] PROBE: 10x sequential `curl -s -o /dev/null -w "%{http_code}" -X POST "https://ds-apip.threema.ch/check_license" -H "Content-Type: application/json" -d '{"licenseUsername":"nobody@example.invalid","licensePassword":"invalidpw","version":"4.1.0;Q;en/??;Electron;31.0.0.0;Linux;x64","arch":"x64"}'` at 1 rps — zero 429s bounds the brute-force severity of the new credential-validation oracle; parallel `curl -s -o /dev/null -D - -X OPTIONS "https://api.threema.ch/check_license" -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type" | grep -i access-control` for triad preflight parity.
 ## 2026-08-11 02:21:32 UTC [chat] (model bigpickle)
+## 2026-08-11 04:00:53 UTC [chat] (model bigpickle)
+[NEW] ds-apip.threema.ch/check_license — RAG-confirmed credential validation oracle: POST `{licenseUsername, licensePassword, version, arch}` → `{success: false, error: "This username or password is invalid."}` for invalid creds (fetch-work.ts:112-124); CORS `*` + Allow-Headers Content-Type (bigpickle probe); no rate limit on 3 sequential POSTs. Cross-origin driveable from any attacker origin.
+[NEW] X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls — checkLicense→ds-apip.threema.ch/check_license, contacts→ds-apip-work.threema.ch/identities, sync→ds-apip-work.threema.ch/fetch2) — X-Api-Key hypothesis WEAKENED.
+[CHANGED] poc/ directory: still ABSENT (14th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions.
+[PRIO] ds-apip.threema.ch/identity/fetch_bulk — 8.4 (attack:9, business:9, tech:8, gate:10, cloud:8, fresh:5) — ACCEPTED IDOR, 10k-ID batch enum, CORS *, no rate-limit, CVSS 7.5
+[PRIO] ds-apip.threema.ch/check_license — 8.25 (attack:8, business:8, tech:7, gate:10, cloud:8, fresh:9) — NEW credential validation oracle, CORS *, no rate-limit, CVSS 6.5
+[PRIO] threema-desktop key-storage (Windows ACL bypass) — 8.0 (attack:10, business:9, tech:9, gate:6, cloud:7, fresh:5) — RAG-verified 6-path chain, CVSS 8.1, needs Windows validation
+[PRIO] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} — 7.5 (attack:8, business:8, tech:7, gate:7, cloud:9, fresh:5) — ACCEPTED MISCONFIG, CORS * + write methods + HSTS gap, CVSS 7.4
+[PRIO] ds-apip-work.threema.ch/identities (TWRK-1633) — 6.6 (attack:7, business:8, tech:6, gate:3, cloud:7, fresh:8) — IDOR candidate, auth-gated, cannot validate passively
+[PRIO] work.threema.ch/api/v1 (X-Api-Key API) — 5.1 (attack:6, business:8, tech:6, gate:2, cloud:7, fresh:9) — WEAKENED: X-Api-Key NOT in desktop source; key source unknown
+[HYP] check_license cross-origin credential validation oracle on ds-apip.threema.ch
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 60
+reasoning: RAG-confirmed (fetch-work.ts:112-124): desktop client POSTs `{licenseUsername, licensePassword, version, arch}` to `DIRECTORY_SERVER_URL` + `/check_license` (= ds-apip.threema.ch). Response schema (work.ts:163-172): `{success: true}` or `{success: false, error?: string}`. Bigpickle probe: fake creds → 200 `{"success":false,"error":"This username or password is invalid."}`; CORS `*` + Allow-Headers Content-Type on both 200 and OPTIONS preflight; no 429 on 3 sequential POSTs. Any attacker origin can POST and read the success oracle cross-origin.
+evidence_needed: (a) zero 429s across ≥10 sequential POSTs → no rate limit on credential validator; (b) confirm success:true response shape differs (valid-pair oracle distinctness)
+verify_steps: PASSIVE: 10x sequential POST `/check_license` at 1 rps with fake creds `{"licenseUsername":"nobody@example.invalid","licensePassword":"invalidpw","version":"4.1.0;Q;en/??;Electron;31.0.0.0;Linux;x64","arch":"x64"}` on ds-apip.threema.ch; OPTIONS preflight with Origin on api/apip siblings for CORS parity. Do NOT attempt real credential guessing.
+impact: unauthenticated cross-origin-driveable Work license credential validator; valid creds gate ds-apip-work `/identities`+`/fetch2` (names/jobTitle/department + pubkeys) and work.threema.ch login. Severity: Medium (CVSS 3.1 6.5).
+testability: PASSIVE
+[HYP] X-Api-Key leak from mobile clients enables unauthorized work.threema.ch/api/v1 access
+class: AUTH
+asset: https://work.threema.ch/api/v1
+confidence: 35
+reasoning: work.threema.ch/api/v1 uses X-Api-Key header auth (confirmed: /users + /contacts → 401). Desktop source (fetch-work.ts) does NOT contain X-Api-Key — all work API calls use username/password on ds-apip-work.threema.ch. Key may exist in Android/iOS source instead. Confidence lowered because desktop client doesn't use this API at all; key source remains unconfirmed across all three client repos.
+evidence_needed: X-Api-Key value or generation logic from threema-android or threema-ios source on GitHub stable
+verify_steps: RAG: Search threema-android, threema-ios for "X-Api-Key", "apiKey", "ApiToken", "workApiToken", WorkDataAPICaller, WorkDataThreemaMDMFetcher, WorkApiClient, "work.threema.ch/api". Focus on hardcoded secrets or weak key derivation.
+impact: Unauthorized access to Threema Work contact/user data. Severity: Medium-High (depends on key scope).
+testability: PASSIVE
+[HYP] TWRK-1633 cross-subscription contact leak on ds-apip-work.threema.ch/identities
+class: IDOR
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 55
+reasoning: OpenAPI spec notes "buggy" behavior for TWRK-1633 on /identities endpoint. RAG-confirmed (fetch-work.ts:42-53): desktop posts `{username,password,contacts}` to `/identities`; response schema exposes id+pk+first+last+jobTitle+department (work.ts:99-117). Work directory returns 401 on all paths including OPTIONS (unlike consumer ds-apip where OPTIONS → 204), with CORS * + no HSTS/Expect-CT.
+evidence_needed: authenticated response mixing own- and foreign-subscription IDs; or scoping-param bypass of membership filter
+verify_steps: AUTH_HELPED: with authorized Work test license, POST `/identities` `{"username","password","contacts":[ownId,foreignId]}`; diff returned fields vs same-subscription control
+impact: cross-subscription work-directory PII + pubkey disclosure → targeted phishing of enterprise users. Severity: Medium (CVSS 3.1 5.3)
+testability: AUTH_HELPED
+[PARKED] X-Api-Key leak from mobile clients enables unauthorized work.threema.ch/api/v1 access: confidence 35 below threshold 40; desktop source RAG-verified clean (fetch-work.ts uses username/password, not API keys); key source remains unconfirmed across all three client repos — dropping due to low confidence.
+[FINAL] 1. check_license cross-origin credential validation oracle (AUTH, confidence 60) — top priority: RAG-confirmed source path (fetch-work.ts:112-124), concrete passive probe, new finding this cycle
+[FINAL] 2. TWRK-1633 cross-subscription contact leak (IDOR, confidence 55) — OpenAPI "buggy" note grounds it; requires auth to verify
+[NEW] work.threema.ch/api/v1 — live X-Api-Key authenticated API with routes /users + /contacts (401 not 404), CORS * on GET but OPTIONS → 404 without CORS headers
+[NEW] ds-apip-work.threema.ch/identities — TWRK-1633 "buggy" note in openapi spec, potential cross-subscription contact leak (requires auth)
+[NEW] threema-android JoinResponse.kt:70 — `toString()` includes `icePassword='$icePassword'` in plain text (logcat credential exposure)
+[NEW] gateway.threema.ch/v1 — returns 404 with Set-Cookie: SESSIONID (Secure/HttpOnly/SameSite=Strict) on unauthenticated GET
+[CHANGED] billing.threema.ch — now serves real static assets (/cache/billing_gui_theme_threema.js 336KB jQuery 3.7.1, /cache/billing_gui_theme_threema.css 41KB) with full security headers on assets, but 404 error page lacks these headers
+[CHANGED] work.threema.ch/api/v1 — CORS posture refined: ACAO:* on 401 response but OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-origin keyed requests
+[CHANGED] poc/ directory — still ABSENT (13th+ consecutive cycle); KB artifact claims persistently false
+[PRIO] work.threema.ch/api/v1, 6.8, attack=8 business=7 tech=6 gate=5 cloud=5 fresh=9
+[PRIO] ds-apip-work.threema.ch/identities, 6.15, attack=7 business=8 tech=5 gate=3 cloud=4 fresh=8
+[PRIO] threema-android JoinResponse.kt:70, 4.9, attack=4 business=4 tech=5 gate=7 cloud=2 fresh=9
+[PRIO] gateway.threema.ch/v1, 4.6, attack=3 business=3 tech=4 gate=10 cloud=3 fresh=7
+[PRIO] billing.threema.ch, 4.25, attack=3 business=2 tech=4 gate=10 cloud=3 fresh=6
+[HYP] work.threema.ch/api/v1 X-Api-Key leak from mobile/desktop client enables unauthorized contact enumeration
+class: AUTH
+asset: https://work.threema.ch/api/v1
+confidence: 50
+reasoning: Live X-Api-Key authenticated API with /users and /contacts routes (401 not 404). CORS * on GET responses but OPTIONS → 404 without CORS headers blocks browser cross-origin. If X-Api-Key values exist in mobile/desktop client source, server-side enumeration of work contacts/users is possible without browser preflight.
+evidence_needed: X-Api-Key values in threema-android/ios/desktop source; valid key to test /users and /contacts enumeration
+verify_steps: RAG: Search threema-android, threema-ios, threema-desktop source on GitHub for X-Api-Key values, work API auth headers ("X-Api-Key", "ApiKey", "Authorization: Bearer", "work.threema.ch/api"). PROBE: If key found, `curl -H "X-Api-Key: <key>" https://work.threema.ch/api/v1/users` — verify 200 with user data
+impact: Unauthorized enumeration of Threema Work users/contacts across organizations; business contact graph reconstruction. Severity: Medium-High (CVSS 3.1: 7.1 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
+testability: PASSIVE (RAG) → AUTH_HELPED (if key found)
+[HYP] ds-apip-work.threema.ch/identities cross-subscription contact leak via TWRK-1633 buggy endpoint
+class: IDOR
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 50
+reasoning: Work directory server confirmed live (401 on all paths, CORS *, no HSTS). OpenAPI spec contains TWRK-1633 "buggy" note on /identities endpoint. If bug allows cross-subscription contact access, authenticated Work users could enumerate contacts outside their subscription.
+evidence_needed: Valid Work license/credentials to authenticate; confirmation of TWRK-1633 bug behavior
+verify_steps: AUTH_HELPED: With valid Work credentials, `curl -u <backupId:backupKey> https://ds-apip-work.threema.ch/identities` — verify if response includes contacts from other subscriptions. PROBE: `curl -sI https://ds-apip-work.threema.ch/identities` — confirm 401 + CORS *
+impact: Cross-organization contact enumeration in Threema Work; business relationship mapping. Severity: Medium (CVSS 3.1: 6.5 AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N)
+[HYP] check_license cross-origin credential validation oracle — rate-limit absence confirmed
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license (api/apip siblings)
+confidence: 70
+reasoning: 10x sequential POSTs all 200/65B zero 429s; OPTIONS preflight 200 with ACAO `*` + Allow-Methods POST,GET,OPTIONS,DELETE + Allow-Headers Content-Type,User-Agent on all 3 consumer hosts → any website POSTs + reads the success oracle cross-origin; empty creds → `error:null` vs wrong pair → `"invalid"` (uniform, no username enumeration). Desktop posts `{licenseUsername, licensePassword, version, arch}` (fetch-work.ts:112-124).
+evidence_needed: (a) success:true response shape distinct from failure (needs valid creds); (b) whether error string is stable across a broader fake set
+verify_steps: PASSIVE: done — 10-POST rate-limit + triad preflight parity confirmed; remaining success:true distinctness requires authorized license creds
+impact: unauthenticated cross-origin-driveable Work license credential validator; valid creds gate ds-apip-work `/identities`+`/fetch2` (names/jobTitle/department + pubkeys) and work.threema.ch login. Severity: Medium (CVSS 3.1 6.5)
+testability: PASSIVE (rate-limit + CORS closed); success-shape = AUTH_HELPED
+[HYP] directory triad browser-driven identity enumeration (impact refinement)
+class: IDOR
+asset: https://ds-apip.threema.ch/api.threema.ch/apip.threema.ch /identity/fetch_bulk
+confidence: 80
+reasoning: byte-stable this cycle (sha256 `ab5b49b5…`, 200/152B, ECHOECHO echoed, invalid silently omitted); 10000→200 / 10001→400/0B sharp count-cap; ACAO `*` on 200 and 400; cross-origin read verified with Origin header.
+evidence_needed: none additional — impact framing only
+verify_steps: PASSIVE: done — weekly byte-parity sha256 watch maintained
+impact: hostile page performs silent identity-graph harvesting + exact-match phishing at ~10k ids/request. Severity: High (CVSS 3.1 7.5)
+testability: PASSIVE
+[HYP] ds-apip-work `/identities` cross-subscription contact leak (TWRK-1633)
+class: IDOR
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 55
+reasoning: openapi flags `/identities` "currently buggy" (TWRK-1633); response schema exposes id+pk+first+last+jobTitle+department (work.ts:99-117); desktop posts `{username,password,contacts}` (fetch-work.ts:42-53); prod+staging OPTIONS both 401 → browser vector closed; needs authenticated Work context.
+evidence_needed: authenticated response mixing own- and foreign-subscription IDs; or scoping-param bypass of membership filter
+verify_steps: AUTH_HELPED: with authorized Work test license, POST `/identities` `{"username","password","contacts":[ownId,foreignId]}`; diff returned fields vs same-subscription control
+impact: cross-subscription work-directory PII + pubkey disclosure → targeted phishing of enterprise users. Severity: Medium (CVSS 3.1 5.3)
+testability: AUTH_HELPED
