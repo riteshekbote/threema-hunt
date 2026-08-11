@@ -1360,3 +1360,14 @@
 - NEW X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls — checkLicense→ds-apip.threema.ch/check_license, contacts→ds-apip-work.threema.
 - CHANGED poc/ directory: still ABSENT (16th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions
 - CHANGED reposcan-raw/threema-ch/* directories exist but are EMPTY — source NOT checked out locally; RAG verification remains via WebFetch on GitHub `stable`
+
+## 2026-08-11 08:02:34 UTC
+- NEW ds-apip.threema.ch/check_license — cross-origin credential validation oracle confirmed via RAG + probe (POST {licenseUsername, licensePassword, version, arch} → 200 {"success":false,"error":"This user
+- NEW X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password only for work API calls)
+- NEW work.threema.ch/api/v1 — live X-Api-Key authenticated API confirmed (/users + /contacts → 401, CORS * on GET but OPTIONS → 404 blocks browser cross-origin)
+- NEW ds-apip-work.threema.ch/identities — TWRK-1633 "buggy" note in OpenAPI spec, cross-subscription contact leak candidate (auth-required)
+- NEW threema-android JoinResponse.kt:70 — toString() includes icePassword='$icePassword' plain text (logcat exposure, local-only, short-lived)
+- NEW gateway.threema.ch/v1 — session cookie SESSIONID set on unauthenticated 404 response (Secure/HttpOnly/SameSite=Strict)
+- CHANGED billing.threema.ch — now serves real static assets (jQuery 3.7.1 + custom CSS) with full security headers on assets, 404 page lacks headers (security-header divergence)
+- CHANGED poc/ directory — still ABSENT (15th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions
+- CHANGED All network endpoints byte-stable re-confirmed via own probes — no regression, no divergence (fetch_bulk 10001→400/0B sharp count-cap, directory triad CORS *, safe HSTS gap, work.api CORS posture, gat
