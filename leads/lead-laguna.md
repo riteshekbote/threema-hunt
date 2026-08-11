@@ -6656,3 +6656,4 @@ evidence_needed: (a) confirm `identities[]` populates for a valid email hash (re
 verify_steps: PASSIVE: `curl -s -X POST -H "Origin: https://evil.example" -H "Content-Type: application/json" -d '{}' https://ds-apip.threema.ch/identity/match` → 200/39B; `curl -s -X POST -H "Origin: https://evil.example" -H "Content-Type: application/json" -d '{"emailHashes":["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="]}' https://ds-apip.threema.ch/identity/match` → 200/39B. RAG: WebFetch threema-android `main` for `emailHashes` + HMAC key.
 impact: If HMAC key is weak or forgeable AND identities[] populates: cross-origin email→Threema-identity membership enabling targeted phishing and social-graph enumeration via distributed browser probes (CORS `*` defeats single-origin limiter). Currently bounded by per-IP limiter + unknown key. Severity: Medium (CVSS 3.1 5.3)
 testability: PASSIVE
+## 2026-08-11 12:22:43 UTC [desktop] (model laguna)
