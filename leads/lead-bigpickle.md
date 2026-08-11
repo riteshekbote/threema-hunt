@@ -9320,3 +9320,31 @@ impact: quantifies email→identity de-anonymization sweep rate per IP despite l
 testability: PASSIVE
 [NEXT] RAG: WebFetch threema-ios source on GitHub `main` (DirectoryService / contact-matching files) for `match_token`/`matchToken` construction and whether `/identity/match` consumes the minted token — determines if the minted token grants per-identity request budget that defeats the per-IP burst limiter (highest-impact branch; zero rate-limiter risk).
 [RISK] chat: 25 reason: in-band channel formally closed (SNI+TLS 0 bytes, no cert); DNS shard→node map fully attributed (g-{00..7f}→.202, g-{80..ff}→.204); handshake requires authenticated frame; no new passive surface. | web: 88 reason: directory oracle stack strengthened this cycle — /identity/match email→identity oracle now fully precomputable off-line (public HMAC key verified) with limiter as sole mitigation (window >>100min, batch ceiling unmapped); NEW unlimited unauthenticated match_token identity→token minting oracle (CORS `*`, api parity); fetch_bulk 10k/req CORS `*` zero 429; check_license cross-origin Work credential validator (OPTIONS 200, browser-viable). | sync: 35 reason: mediator/rendezvous WSS uniform 403, DNS split routing mapped, error-path hypothesis rejected; no passive divergence obtainable. | safe: 65 reason: 5 hosts behind 203.56.112.231; HSTS/Expect-CT on OPTIONS 204 but absent on GET 400 for credential-gated /backups/{64hex}; Basic-auth gating + route-existence oracle stable. | desktop-src: 70 reason: Windows key-storage ACL chain RAG-stable at 95 confidence (6 core paths); PoC artifact STILL absent on filesystem (18th cycle — ground truth overrides KB claims); sandbox unset + nodeIntegrationInWorker true (rejected standalone).
+## 2026-08-11 23:15:59 UTC [chat] (model bigpickle)
+[HYP] match_token phase-1 liveness oracle may attribute non-default identity states (revoked/inactive) via a third response shape
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 45
+reasoning: phase-1 mints a challenge for any valid identity (133B) vs 46B "Identity not found"; no limiter across 5+ probes; case-insensitive; client code has includeInactive flag implying inactive/revoked states exist that phase-1 might render distinctly.
+evidence_needed: an identity in a known non-default state to compare phase-1 shape (133B/46B/other).
+verify_steps: AUTH_HELPED — revoke a test identity via app, re-POST `{"identity":"<identity>"}` to /identity/match_token phase-1, compare response size/body vs pre-revocation; repeat for an expired identity if obtainable.
+impact: state attribution enriches the accepted existence oracle for target selection in enumeration. Severity: low-medium.
+testability: AUTH_HELPED
+[HYP] valid matchToken (mintable by any registered identity) grants a sweep whose throughput is bounded only by per-IP limiter × unmapped batch ceiling
+class: AUTH
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 50
+reasoning: invalid matchToken → 401/0B strict gate; tokenless → 200/39B empty; minting requires identity privkey (server-verified). Whether one minted token authorizes arbitrarily many match requests, and whether the burst limiter is per-IP or per-token, is unverified — this sets the real email→identity de-anonymization rate.
+evidence_needed: one valid token minted from any registered identity; (a) N-hash batch → 200-with-matches vs 400/429, (b) cross-IP token reuse.
+verify_steps: AUTH_HELPED — mint via two-phase match_token with own identity; POST `{"matchToken":"<token>","emailHashes":["<N up to 10000>"]}` at 60s spacing; classify; repeat from 2nd IP.
+impact: if per-token budget and no batch cap → unbounded email→identity de-anonymization by any registered user. Severity: high.
+testability: AUTH_HELPED
+[HYP] fetch_bulk response type/state/featureMask fields expose Work-vs-consumer classification at 10k/req
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk
+confidence: 40
+reasoning: response schema includes type/state/featureLevel/featureMask (ECHOECHO → type:0,state:0,featureLevel:3,featureMask:9); client sends only `identities`; Work identities otherwise unobtainable (ds-apip-work 401-gated).
+evidence_needed: any known Work identity sample; otherwise confirm consumer set is uniformly type:0.
+verify_steps: PROBE (≤1rps): POST `{"identities":["ECHOECHO","<other known-valid>"]}` over 2 cycles; record type/state/featureMask distribution; if uniform type:0 → mark untestable passively.
+impact: targeted Work-identity targeting for credential-stuffing on work.threema.ch. Severity: medium.
+testability: PASSIVE

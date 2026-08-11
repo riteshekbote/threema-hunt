@@ -1622,3 +1622,16 @@
 - CHANGED billing.threema.ch — confirmed serving real static assets (jQuery 3.7.1 + custom CSS) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options) on assets; 404 error page lacks these headers (hea
 - CHANGED ds-apip.threema.ch/identity/match — rate-limiter cooldown remeasured: 60s spacing still triggers 429 (true cooldown appears significantly longer than 20min window)
 - CHANGED ds-apip.threema.ch/identity/match — response variance 200→400 confirmed this cycle (previously stable 200/39B on single-hash POST)
+
+## 2026-08-11 23:16:11 UTC
+- NEW ds-apip.threema.ch/identity/match → HTTP 400 on latest probe (previously 200/39B) — response variance confirmed
+- NEW /identity/match `emailHashes` batch-size cost-unit boundary (1/2/5/10/20/50 hashes) — unmapped
+- NEW /identity/match GET → 400 response body fingerprint — unmapped
+- NEW ds-apip.threema.ch/identity/match_token — fully verified live (positive: ECHOECHO→200/133B token + constant tokenRespKeyPub; negative: ZZZZZZZZ→200/46B "Identity not found")
+- CHANGED /identity/match rate-limiter cooldown remeasured — >20min confirmed (>100min per bigpickle); 60s+ spacing still triggers 429
+- CHANGED work.threema.ch/api/v1 — downgraded to non-finding: no CORS on 404, missing-key/invalid-key byte-identical 404, X-Api-Key not in desktop source
+- CHANGED poc/ directory — confirmed STILL ABSENT (18th+ cycle); KB artifact claims persistently false
+- CHANGED billing.threema.ch — serves static assets (jQuery 3.7.1 + CSS) with full headers; 404 page lacks headers
+- CHANGED ds-apip.threema.ch/check_license — sibling parity CONFIRMED across all 3 prod hosts (byte-identical 200/65B + CORS * + OPTIONS 200)
+- CHANGED ds-apip.threema.ch/identity/fetch_bulk — byte-stable (10000→200/152B, 10001→400/0B sharp count-cap)
+- CHANGED safe-{01,1a,1b,02,00}.threema.ch — HSTS/Expect-CT on OPTIONS 204 but ABSENT on GET 400 — byte-stable
