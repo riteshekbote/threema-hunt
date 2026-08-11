@@ -529,3 +529,25 @@
   - | Q5 | ❌ NO | ACCEPTED then formally REJECTED as standalone in KB lines 32, 63, 75+; triaged as HOLD/conditional in `valid-bugs.md` |
   - | Q1 | ❌ NO | scope.yml lists `apip.threema.ch` (production); `.test` staging variants are **NOT** listed. Per `valid-bugs.md` precedent, staging variants treated as out-of-scope |
   - | Q5 | ❌ NO | ACCEPTED in KB lines 28-29, 61, 68+; triaged in `valid-bugs.md` then deemed OUT OF SCOPE |
+
+- 28 lead(s) marked VALID at 2026-08-11 02:35:01 UTC
+  - | Q2 Reachable? | YES | Unauthenticated POST returns 200 with pubkeys for valid IDs |
+  - | Q3 Real impact? | YES | Mass valid-ID + pubkey harvesting at ~10k IDs/req, silent-omission oracle, cross-origin readable → targeted phishing/recon at scale |
+  - | Q4 Passive proof? | YES | `POST /identity/fetch_bulk {"identities":["ECHOECHO","ZZZZZZZZ"]}` → 200 with only valid pubkey; 35+ sequential POSTs all 200, zero 429; CORS ACAO:* confirmed |
+  - | Q5 Novel? | **NO** | ACCEPTED in KB lines 20-21, 27, 59+; triaged as VALID in valid-bugs.md since 2026-08-07 (Finding #1) |
+  - | Q6 Not always-rejected? | Borderline | The *scale* (10k batch, no rate limit, cross-origin) turns a public directory into mass enumeration; accepted as valid |
+  - | Q5 Novel? | **NO** | ACCEPTED in KB; triaged as VALID in valid-bugs.md since 2026-08-07 (Finding #3) |
+  - | Q2 Reachable? | Partial | Route reachable but data access requires valid `backupId:backupKey` (64-hex + high-entropy key) |
+  - | Q3 Real impact? | NO without valid creds | 400 = credential-gated; CORS * + Allow-Headers: Authorization only matters if attacker already has valid credentials. 400-vs-404 oracle reveals route exist
+  - | Q4 Passive proof? | Partial | Can confirm CORS headers + 400 response; cannot confirm data access without valid credentials |
+  - | Q5 Novel? | NO | ACCEPTED in KB; triaged in valid-bugs.md multiple times |
+  - | Q6 Not always-rejected? | **NO** | CORS * on a credential-gated endpoint (400) is best-practice/defense-in-depth only, per valid-bugs.md precedent |
+  - | Q7 Triager accept? | NO | No data access without valid credentials |
+  - | Q5 Novel? | NO | ACCEPTED in KB; triaged as VALID (low severity) in valid-bugs.md |
+  - | Q6 Not always-rejected? | Borderline | Accepted as valid but low severity |
+  - | Q2 Reachable? | Partial | Route presence confirmed (200 JSON errors), but challenge-response still requires valid identity+secret |
+  - | Q5 Novel? | NO | ACCEPTED in KB; triaged as VALID (low severity) in valid-bugs.md |
+  - | Q6 Not always-rejected? | Borderline | Accepted as valid but low severity |
+  - | Q2 Reachable? | AUTH_HELPED | Returns 401 on all paths; requires valid Work test license |
+  - | Q4 Passive proof? | NO | Requires AUTH_HELPED with valid Work license + cross-subscription contact probes |
+  - | Q5 Novel? | Not triaged as valid | Only hypothesized; OpenAPI flags it "currently buggy" (TWRK-1633) |
