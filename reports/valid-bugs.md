@@ -610,3 +610,25 @@
   - | **Q3 Real impact?** | ⚠️ LOW | Route-presence + parameter-validation oracle only; challenge-response still requires valid identity+secret |
   - | **Q6 Not always-rejected?** | ✅ Borderline | Accepted as valid but low severity |
   - ### Verdict: **VALID (duplicate, low severity)** — Already reported. CVSS 3.7 Low.
+
+- 37 lead(s) marked VALID at 2026-08-11 17:48:18 UTC
+  - valid-bugs.md
+  - | Q3 Real impact? | ✅ YES — mass valid-ID + pubkey harvesting at ~10k IDs/req, silent-omission oracle, cross-origin readable → targeted phishing/recon at scale |
+  - | Q4 Passive proof? | ✅ YES — `POST /identity/fetch_bulk {"identities":["ECHOECHO","ZZZZZZZZ"]}` → 200 with only valid pubkey; 35+ sequential POSTs all 200, zero 429; CORS ACAO:* confirmed |
+  - | Q5 Novel? | ❌ **NO** — ACCEPTED in knowledge/index.md; VALID in `valid-bugs.md` since 2026-08-07 (Finding #1, CVSS 5.3) |
+  - | Q5 Novel? | ❌ **NO** — ACCEPTED in knowledge/index.md; VALID in `valid-bugs.md` (Finding #3, CVSS 5.5) |
+  - | Q2 Reachable? | ⚠️ PARTIAL — CORS enables credentialed cross-origin requests, but attacker still needs valid `backupId:backupKey` |
+  - | Q3 Real impact? | ❌ NO without valid credentials — 400 vs 404 oracle reveals route existence only (already known). CORS* on credential-gated endpoint is defense-in-depth only |
+  - | Q4 Passive proof? | ⚠️ Can confirm CORS headers + 400 response; cannot confirm data access without valid credentials |
+  - | Q5 Novel? | ❌ NO — triaged in `valid-bugs.md` as HOLD/duplicate |
+  - | Q6 Not always-rejected? | ❌ **NO** — CORS* on credential-gated endpoint is defense-in-depth only per `valid-bugs.md` precedent (multiple cycles) |
+  - | Q7 Triager accept? | ❌ NO — no data access without valid credentials |
+  - | Q5 Novel? | ❌ **NO** — ACCEPTED in knowledge/index.md; VALID (low severity) in `valid-bugs.md` (Finding #4, CVSS 3.1) |
+  - | Q6 Not always-rejected? | Borderline — defense-in-depth gap, accepted as valid but low |
+  - | Q2 Reachable? | ⚠️ PARTIAL — route presence confirmed via GET returning 200 JSON errors, but challenge-response still requires valid identity+secret |
+  - | Q5 Novel? | ❌ **NO** — ACCEPTED in knowledge/index.md; VALID (low severity) in `valid-bugs.md` (Finding #5, CVSS 3.7) |
+  - | Q1 In scope? | ❌ **NO** — scope.yml lists `apip.threema.ch`; `.test` staging variants NOT listed. Per `valid-bugs.md` precedent, staging treated as out-of-scope |
+  - | Q5 Novel? | ❌ NO — ACCEPTED in knowledge/index.md; VALID (low) in `valid-bugs.md` |
+  - | Q3 Real impact? | ⚠️ CONDITIONAL — valid hardening concern but constitutes a vulnerability ONLY when chained with a demonstrated RCE primitive |
+  - | Q5 Novel? | ❌ NO — ACCEPTED in knowledge/index.md; triaged as HOLD/conditional in `valid-bugs.md` |
+  - **Verdict: HOLD (conditional)** — Valid defense-in-depth gap but not a standalone reportable vuln. Re-open only if a secondary worker exploit primitive is found.
