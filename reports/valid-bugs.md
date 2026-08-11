@@ -632,3 +632,25 @@
   - | Q3 Real impact? | ⚠️ CONDITIONAL — valid hardening concern but constitutes a vulnerability ONLY when chained with a demonstrated RCE primitive |
   - | Q5 Novel? | ❌ NO — ACCEPTED in knowledge/index.md; triaged as HOLD/conditional in `valid-bugs.md` |
   - **Verdict: HOLD (conditional)** — Valid defense-in-depth gap but not a standalone reportable vuln. Re-open only if a secondary worker exploit primitive is found.
+
+- 23 lead(s) marked VALID at 2026-08-11 20:32:36 UTC
+  - | Q3 Impact? | YES | Mass valid-ID + pubkey harvesting at ~10k/req, no rate limit |
+  - | Q4 Passive proof? | YES | `POST {"identities":["ECHOECHO","ZZZZZZZZ"]}` → 200, only valid pubkey |
+  - | Q5 Novel? | **NO** | ACCEPTED KB lines 20-21, 27, 59+, valid-bugs.md Finding #1 since 2026-08-07 |
+  - | Q2 Reachable? | Partial | GET → 400 (credential-gated); data needs valid backupId:backupKey |
+  - | Q5 Novel? | **NO** | ACCEPTED KB lines 30-31, 62+; triaged in valid-bugs.md |
+  - | Q7 Triager accept? | NO | No data access without valid credentials |
+  - | Q6 Not always-rejected? | Borderline | Accepted as valid low-severity |
+  - | Q5 Novel? | **YES** | Not previously triaged in valid-bugs.md or KB |
+  - **Verdict: HOLD (novel but unproven)** — New endpoint returning 200, but impact and oracle differential cannot be confirmed with passive GET/HEAD only. Requires AUTH_HELPED with valid credentials to d
+  - | Q5 Novel? | **NO** | ACCEPTED KB lines 26, 74+; valid-bugs.md Finding #3 since 2026-08-07 |
+  - | Q5 Novel? | **NO** | ACCEPTED KB lines 32, 63+; triaged as HOLD/conditional in valid-bugs.md |
+  - | Q6 Not always-rejected? | Borderline | Valid hardening concern, not standalone |
+  - **Verdict: HOLD (conditional)** — Valid defense-in-depth gap, not standalone. Re-open if worker exploit primitive found.
+  - | Q5 Novel? | **NO** | ACCEPTED KB lines 101, 106, 125+; valid-bugs.md Finding #4 |
+  - | Q5 Novel? | **NO** | ACCEPTED KB lines 100, 105, 110+; valid-bugs.md Finding #5 |
+  - | Q2 Reachable? | AUTH_HELPED | 401 on all paths; needs valid Work license |
+  - | Q4 Passive proof? | **NO** | Requires AUTH_HELPED with valid Work license + cross-subscription probes |
+  - | Q5 Novel? | Not triaged as valid | Only hypothesized (TWRK-1633) |
+  - **Verdict: HOLD** — Requires AUTH_HELPED with valid Work test license. Cannot be proven with passive GET/HEAD only. Retain for program-issued credentials.
+  - | Q5 Novel? | **YES** | Not previously triaged as valid vuln |
