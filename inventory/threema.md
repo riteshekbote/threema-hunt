@@ -1486,3 +1486,8 @@
 - CHANGED ds-apip.threema.ch/check_license — sibling parity CONFIRMED this cycle: api.threema.ch + apip.threema.ch both return byte-identical 200/65B `{"success":false,"error":"This username or password is inva
 - CHANGED ds-apip.threema.ch/identity/match — POST with 4-byte short hash (dGVzdA==) returns 200/39B empty identities (no length-validation error); 32-byte hash probe blocked by rate-limiter (429)
 - CHANGED ds-apip.threema.ch/identity/match — rate-limiter still active >20 min after last probe (429/0B); cooldown window longer than prior >180s estimate
+
+## 2026-08-11 15:40:55 UTC
+- CHANGED ds-apip.threema.ch/identity/match — latest probe returns HTTP 400 (previously 200/39B empty identities); response variance confirmed this cycle
+- CHANGED ds-apip.threema.ch/identity/match rate-limiter — cooldown window >20min confirmed (429/0B on probe >20min after last 200)
+- CHANGED work.threema.ch/api/v1 — downgraded to non-finding: no CORS on 404, no key-validation oracle

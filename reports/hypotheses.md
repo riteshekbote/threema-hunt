@@ -2906,3 +2906,13 @@
 - LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-path chain stable on GitHub `stable`; PoC artifact still ABSENT from workspace (files
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), purged at line 233
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+
+## RANKED HYPOTHESES 2026-08-11 15:40:55 UTC
+- [90] https://ds-apip.threema.ch/check_license: Cross-origin credential validation oracle on check_license (sibling parity) (from reports/hypotheses-laguna.txt)
+- [85] https://ds-apip.threema.ch/identity/match: Forgeable-HMAC email→identity membership oracle — rate-limit cost-unit is the last control (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-laguna.txt): PROBE: Wait for /identity/match rate-limiter reset (>20min cooldown from last probe at 14:40 UTC → ready ~15:00+ UTC), then at ≤1 rps:
+- NEXT(hypotheses-longcat.txt): PROBE: Wait for /identity/match rate-limiter reset (>20min cooldown), then `curl -s -X POST -H "Content-Type: application/json" -H "Origin: https://evil.com" -d
+- LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: no CORS on 404 response, missing-key and invalid-key produce byte-identical 404 — downgraded to non-finding
+- LEARN: CONFIRMED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 10000-ID ceiling + CORS `*` + zero 429s — byte-stable this cycle
+- LEARN: CONFIRMED AUTH @ ds-apip.threema.ch/check_license: sibling parity confirmed on all 3 prod hosts (byte-identical 200/65B + CORS `*` + OPTIONS 200)
+- LEARN: CONFIRMED OTHER @ ds-apip.threema.ch/identity/match: rate-limiter cooldown >20min confirmed; burst-only limiter; CORS `*` present on both 200 POST and 400 OPTIO

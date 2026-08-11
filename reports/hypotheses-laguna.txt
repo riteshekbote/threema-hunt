@@ -1,1 +1,30 @@
-## 2026-08-11 14:38:17 UTC [desktop] (model laguna)
+## 2026-08-11 15:35:37 UTC [desktop] (model laguna)
+[HYP] Cross-origin credential validation oracle on check_license (sibling parity)
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license (+ api.threema.ch + apip.threema.ch)
+confidence: 90
+reasoning: Own probe this cycle: POST → 200/65B `{"success":false,"error":"This username or password is invalid."}`. CORS `*` + Allow-Headers Content-Type,User-Agent on BOTH POST and OPTIONS 200. Zero 429 across 7+ sequential POSTs at ≤1rps. Sibling parity confirmed (byte-identical on api + apip). RAG source: fetch-work.ts:47-59. OPTIONS → 200 (browser-viable preflight, unlike /identity/match's 400).
+evidence_needed: (a) confirm `success:true` response differs from `success:false` (shape-only, no real creds needed); (b) zero 429s across ≥15 sequential POSTs
+verify_steps: PASSIVE: `curl -s -X POST -H "Origin: https://evil.example" -H "Content-Type: application/json" -d '{"licenseUsername":"test","licensePassword":"test","version":"4.7.6","arch":"x64"}' https://ds-apip.threema.ch/check_license -D -` → expect 200/65B + ACAO:* + Allow-Headers Content-Type,User-Agent on response.
+impact: Unauthenticated, cross-origin-driveable Work-license credential oracle with zero rate limit → credential guessing before login. Browser-viable (OPTIONS 2xx, ACAO:*). CVSS 6.5.
+testability: PASSIVE
+[HYP] Email→identity membership oracle via /identity/match (server-side path only)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 45
+reasoning: POST `{}` → 200 `{"checkInterval":86400,"identities":[]}` with CORS `*` (confirmed earlier). Accepts `emailHashes` (base64). OPTIONS → 400 (browser path blocked) but POST response + 400-OPTIONS both carry `ACAO: *`. Rate-limiter cooldown >20min (extremely restrictive, ~288 guesses/day/IP). Short-hash probe (4-byte) returned empty identities (no validation error). HMAC key source: client-side in APIConnector.java (RAG). Cannot verify positive differential without known-registered email.
+evidence_needed: (a) differential response for valid vs invalid email hash; (b) batch-size behavior (1 vs N hashes per request); (c) HMAC key server-side vs client-computable
+verify_steps: PASSIVE: 1) Wait for rate-limiter reset (>20min); 2) POST single known-registered-email hash → check if `identities` non-empty; 3) POST invalid-hash baseline; 4) 30s+ spacing; 5) Batch sweep 1/2/5/10/20 hashes at ≥20min spacing. Use only own test emails.
+impact: Server-side email→Threema-identity membership oracle enables targeted phishing + de-anonymization. Browser blocked; server-side only. CVSS ~5.3.
+testability: PASSIVE→AUTH_HELPED (needs known test email)
+[HYP] Windows keystorage.bin ACL bypass → identity key + SQLCipher key extraction
+class: MISCONFIG
+asset: threema-desktop (Windows) — data/keystorage.bin + data/keystorage.password.bin
+confidence: 95
+reasoning: RAG-verified 6-path chain on GitHub `stable` via WebFetch: (1) fs.ts:41 returns `{}` on win32; (2) key-storage/index.ts:559-560 `_writeOrOverrideFile` spreads `{...fileModeInternalObjectIfPosix()}` = `{}` (no ACL); (3) electron-main.ts:944-945 STORE_USER_PASSWORD writes keystorage.password.bin with `{}`; (4) inner/v3.ts:62-70 INNER_KEY_STORAGE_V3_SCHEMA exposes `identityData.ck` (Ed25519 32-byte privkey) + `databaseKey` (SQLCipher 32-byte key); (5) crypto.ts:53-113 Argon2id→XSalsa20-Poly1305 decrypt (key purged at :113); (6) db/sqlite.ts:240 raw SQLCipher PRAGMA key. `poc/` confirmed ABSENT from filesystem (17+ cycles of false KB claims).
+evidence_needed: (a) live Windows: `icacls` shows Users:(R) on keystorage.bin; (b) safeStorage.decryptString() succeeds for same-user process; (c) decryptAndDecodeLatestIntermediateKeyStorage yields identity key + databaseKey
+verify_steps: HUMAN: On Windows with threema-desktop installed: `icacls "%LOCALAPPDATA%\ThreemaDesktop\data\keystorage.bin"` → confirm ACL gap; `icacls "%LOCALAPPDATA%\ThreemaDesktop\data\keystorage.password.bin"` → confirm ACL gap. Run extraction under different same-user process.
+impact: Full Ed25519 identity key + SQLCipher key extraction → decrypt all local messages + impersonate identity. Requires local access. CVSS 8.1.
+testability: HUMAN
+[PARKED] work.threema.ch/api/v1 X-Api-Key authenticated surface — downgraded: 404 response has NO CORS headers at all (browser cross-origin fully blocked); missing/invalid keys produce byte-identical response (no key-validation oracle); key source unknown across all repos; server-side viable only, low value. Confidence 25.
+[NEXT] PROBE: Wait for /identity/match rate-limiter reset (>20min cooldown from last probe at 14:40 UTC → ready ~15:00+ UTC), then at ≤1 rps:
