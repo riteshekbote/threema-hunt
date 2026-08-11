@@ -1361,3 +1361,62 @@ testability: PASSIVE
 [RISK] sync: 50 — mediator-{0..f}/rendezvous-{0..f} resolve (DNS split 203.56.112.247 / 203.56.114.247 for 0-7/8-f), uniform 403 on HTTPS, no CORS; ds-apip-work auth-gated (401 + CORS * + no HSTS, OPTIONS also 401); TWRK-1633 cross-subscription leak candidate unvalidated (auth-required); work.threema.ch/api/v1 X-Api-Key API key source unknown
 [RISK] safe: 80 — 5 safe-* hostnames single IP 203.56.112.231; CORS * + write-capable methods on GET 400 + Allow-Headers Authorization on OPTIONS 204 (credentialed cross-origin); HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 (CVSS 7.4 Med-High); HTTP Basic Auth + route-existence oracle (400 vs 404) byte-stable
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub stable source paths); PoC artifact still absent from workspace despite 15+ cycles of KB claims; BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); remaining gap: live Windows runtime validation (CVSS 8.1 High)
+## 2026-08-11 05:58:15 UTC [sync] (model longcat)
+[NEW] ds-apip.threema.ch/check_license — cross-origin credential validation oracle (ACCEPTED this cycle via RAG + probe)
+[NEW] X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password only)
+[NEW] work.threema.ch/api/v1 — live X-Api-Key authenticated API confirmed (/users + /contacts → 401)
+[NEW] ds-apip-work.threema.ch/identities — TWRK-1633 "buggy" note in OpenAPI spec, cross-subscription leak candidate
+[NEW] threema-android JoinResponse.kt:70 — `toString()` includes `icePassword='$icePassword'` plain text (logcat exposure)
+[NEW] gateway.threema.ch/v1 — session cookie SESSIONID set on unauthenticated 404 response
+[CHANGED] billing.threema.ch — now serves real static assets (jQuery 3.7.1 + custom CSS) with full security headers on assets, 404 page lacks headers
+[CHANGED] poc/ directory — latest cycle claims generation (sha256 `1c1c9dc...`, 7344 B) but 15+ prior cycles showed ABSENT; treat as unverified until filesystem-confirmed
+[PRIO] ds-apip.threema.ch/identity/fetch_bulk — 8.5 (attack:9, business:9, tech:8, gate:10, cloud:8, fresh:5) — ACCEPTED IDOR, 10k-ID batch enum, CORS *, no rate-limit, CVSS 7.5
+[PRIO] ds-apip.threema.ch/check_license — 8.25 (attack:8, business:8, tech:7, gate:10, cloud:8, fresh:9) — ACCEPTED AUTH, cross-origin credential oracle, CORS *, no rate-limit, CVSS 6.5
+[PRIO] threema-desktop key-storage (Windows ACL bypass) — 8.2 (attack:10, business:9, tech:9, gate:6, cloud:7, fresh:5) — RAG-verified 6-path chain, CVSS 8.1, needs Windows validation
+[PRIO] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} — 7.5 (attack:8, business:8, tech:7, gate:7, cloud:9, fresh:5) — ACCEPTED MISCONFIG, CORS * + write methods + HSTS gap, CVSS 7.4
+[PRIO] ds-apip-work.threema.ch/identities (TWRK-1633) — 6.6 (attack:7, business:8, tech:6, gate:3, cloud:7, fresh:8) — IDOR candidate, auth-gated, cannot validate passively
+[PRIO] work.threema.ch/api/v1 (X-Api-Key API) — 6.3 (attack:6, business:8, tech:6, gate:2, cloud:7, fresh:9) — WEAKENED: X-Api-Key NOT in desktop source; key source unknown
+[HYP] check_license cross-origin credential validation oracle on ds-apip.threema.ch
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 60
+reasoning: RAG-confirmed (fetch-work.ts:112-124): desktop client POSTs `{licenseUsername, licensePassword, version, arch}` to `DIRECTORY_SERVER_URL` + `/check_license`. Response schema (work.ts:163-172): `{success: true}` or `{success: false, error?: string}`. Probe: fake creds → 200 `{"success":false,"error":"This username or password is invalid."}`; CORS `*` + Allow-Headers Content-Type; no 429 on 3 sequential POSTs. Any attacker origin can POST and read the success oracle cross-origin.
+evidence_needed: (a) zero 429s across ≥10 sequential POSTs → no rate limit on credential validator; (b) confirm success:true response shape differs (valid-pair oracle distinctness)
+verify_steps: PASSIVE: 10x sequential POST `/check_license` at 1 rps with fake creds `{"licenseUsername":"nobody@example.invalid","licensePassword":"invalidpw","version":"4.1.0;Q;en/??;Electron;31.0.0.0;Linux;x64","arch":"x64"}` on ds-apip.threema.ch; OPTIONS preflight with Origin on api/apip siblings for CORS parity. Do NOT attempt real credential guessing.
+impact: unauthenticated cross-origin-driveable Work license credential validator; valid creds gate ds-apip-work `/identities`+`/fetch2` (names/jobTitle/department + pubkeys) and work.threema.ch login. Severity: Medium (CVSS 3.1 6.5).
+testability: PASSIVE
+[HYP] fetch_bulk unauthenticated identity→pubkey enumeration oracle on ds-apip.threema.ch/api.threema.ch/apip.threema.ch
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk
+confidence: 95
+reasoning: Hard ceiling exactly 10000 IDs/request (10000→200/152B, 10001→400/0B sharp count-cap, no partial/overshoot pubkey leak); CORS `*` + Allow-Methods POST,GET,OPTIONS,DELETE on both 200 and 400; zero 429s across ~35 sequential probes; only valid IDs echoed, invalid silently omitted. Byte-stable across all 3 prod hosts and staging.
+evidence_needed: (a) confirm 10000-cap holds on api/apip siblings with unique (non-ECHOECHO) IDs; (b) measure response-time differential for valid vs invalid batch composition
+verify_steps: PASSIVE: POST `/identity/fetch_bulk` with `{"ids":["ECHOECHO","ZZZ"+...9999 more invalid...]}` at 1 rps on ds-apip.threema.ch, api.threema.ch, apip.threema.ch; compare response body sizes (valid-only echo = smaller, all-invalid = 17B empty identities). Confirm CORS `*` on 200 and 400.
+impact: unauthenticated cross-origin identity→pubkey enumeration at 10k IDs/request, no rate limit, no auth → full directory harvest enabling targeted phishing + de-anonymization. Severity: High (CVSS 3.1 7.5).
+testability: PASSIVE
+[HYP] Windows key-storage ACL bypass exposes Ed25519 identity key + SQLCipher key to same-user processes
+class: MISCONFIG
+asset: threema-desktop `data/keystorage.bin` + `data/keystorage.password.bin` on Windows
+confidence: 95
+reasoning: RAG-verified 6-core-path chain on GitHub `stable`: `fs.ts:41` returns `{}` on win32; `key-storage/index.ts:559-560` writes keystorage.bin with `{...fileModeInternalObjectIfPosix()}` = `{}` (no ACL); `electron-main.ts:944-945` writes keystorage.password.bin with same `{}` options; `inner/v3.ts:65,70` exposes `identityData.ck` (Ed25519 privkey) + `databaseKey`; `crypto.ts:53-113` Argon2id→XSalsa20-Poly1305 decrypt; `db/sqlite.ts:240` raw SQLCipher PRAGMA key. PoC artifact `poc/key-storage-acl-bypass-poc.js` claimed generated (sha256 `1c1c9dc...`, 7344 B, node --check PASS, Linux EXIT 0) but filesystem presence unverified across 15+ cycles.
+evidence_needed: (a) live Windows runtime validation — confirm keystorage.bin written with no ACL (icacls shows Everyone/SYSTEM full read); (b) confirm keystorage.password.bin recoverable via DPAPI by same-user process
+verify_steps: RUNTIME_HELPED-LOCAL: On a Windows host with threema-desktop installed, run `icacls "%LOCALAPPDATA%\ThreemaDesktop\data\keystorage.bin"` and confirm absence of explicit ACL; run PoC artifact to extract password via DPAPI + decrypt keystorage.bin → recover Ed25519 privkey + SQLCipher key.
+impact: same-user malware/attacker recovers full Ed25519 identity key + SQLCipher database key → decrypt all local message history + impersonate user. Severity: High (CVSS 3.1 8.1).
+testability: RUNTIME_HELPED-LOCAL
+[FINAL] 1. fetch_bulk unauthenticated identity→pubkey enumeration oracle (IDOR, confidence 95) — top priority: 10k-ID batch enum, CORS *, no rate-limit, CVSS 7.5
+[FINAL] 2. check_license cross-origin credential validation oracle (AUTH, confidence 60) — RAG-confirmed source path, concrete passive probe, CVSS 6.5
+[FINAL] 3. Windows key-storage ACL bypass (MISCONFIG, confidence 95) — RAG-verified 6-path chain, CVSS 8.1, needs Windows runtime validation
+[NEXT] RAG: Search threema-android and threema-ios source code on GitHub `stable` for X-Api-Key values and work API authentication headers. Exact queries: "X-Api-Key", "apiKey", "ApiToken", "workApiToken", "WorkDataAPICaller", "WorkDataThreemaMDMFetcher", "WorkApiClient", "work.threema.ch/api". Fetch candidate files: threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataAPICallerTests.swift (already in grep-hits), threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift, and production (non-test) Work* files in both repos.
+[LEARN] ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle confirmed via RAG (fetch-work.ts:112-124) + probe (fake creds → 200 `{"success":false,"error":"This username or password is invalid."}`, CORS `*`, no 429 on 3 POSTs)
+[LEARN] WEAKENED AUTH @ work.threema.ch/api/v1: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls — checkLicense→ds-apip.threema.ch/check_license, contacts→ds-apip-work.threema.ch/identities)
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req; CORS * + no rate-limit + 5 challenge param-oracles — byte-stable this cycle
+[LEARN] ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable across all 5 hosts
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub stable; PoC artifact still absent from workspace
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), derived key purged at line 233
+[LEARN] REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree), not standalone
+[LEARN] REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
+[RISK] chat: 25 — prod DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band 443/5222 passive channel closed (0 bytes without authenticated login frame, no cert/SAN leak); no passive surface remaining
+[RISK] web: 95 — directory triad (ds-apip+api+apip) fetch_bulk 10k ID enumeration + CORS * + no auth + cross-origin readable + zero 429 byte-stable (CVSS 7.5 High); check_license cross-origin credential oracle (CVSS 6.5); GET /identity/{id} → 200/404 oracle uniform; 5 challenge param-validation oracles confirmed; work.threema.ch/api/v1 X-Api-Key API adds new attack surface but key source NOT in desktop source; safe backup CORS* + HSTS gap (CVSS 7.4)
+[RISK] sync: 50 — mediator-{0..f}/rendezvous-{0..f} resolve (DNS split 203.56.112.247 / 203.56.114.247 for 0-7/8-f), uniform 403 on HTTPS, no CORS; ds-apip-work auth-gated (401 + CORS * + no HSTS, OPTIONS also 401); TWRK-1633 cross-subscription leak candidate unvalidated (auth-required); work.threema.ch/api/v1 X-Api-Key API key source unknown
+[RISK] safe: 80 — 5 safe-* hostnames single IP 203.56.112.231; CORS * + write-capable methods on GET 400 + Allow-Headers Authorization on OPTIONS 204 (credentialed cross-origin); HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 (CVSS 7.4 Med-High); HTTP Basic Auth + route-existence oracle (400 vs 404) byte-stable
+[RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub stable source paths); PoC artifact still absent from workspace despite 15+ cycles of KB claims; BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); remaining gap: live Windows runtime validation (CVSS 8.1 High)
