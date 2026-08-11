@@ -2809,3 +2809,13 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), derived key purged at line 
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
 - LEARN: REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
+
+## RANKED HYPOTHESES 2026-08-11 10:55:39 UTC
+- [90] https://ds-apip.threema.ch/check_license: ds-apip.threema.ch/check_license cross-origin credential validation oracle (from reports/hypotheses-nemotron3.txt)
+- [50] https://ds-apip.threema.ch/identity/match: Email→identity membership oracle via /identity/match (from reports/hypotheses-longcat.txt)
+- NEXT(hypotheses-longcat.txt): PROBE: `curl -s -I -H "Origin: https://evil.com" https://ds-apip.threema.ch/identity/match` followed by `curl -s -X POST -H "Content-Type: application/json" -H 
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: NEW endpoint confirmed live — POST `{}` → 200/39B `{"checkInterval":86400,"identities":[]}` with CORS `*` + 
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle confirmed via RAG (fetch-work.ts:112-124) + probe (fake creds → 200 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub `stable`; PoC artifact still absent from workspace (
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c` re-confirmed benchmark-only dum
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
