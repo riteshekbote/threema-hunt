@@ -1,4 +1,4 @@
-## 2026-08-11 21:01:17 UTC [desktop] (model laguna)
+## 2026-08-11 21:58:51 UTC [desktop] (model laguna)
 [PRIO] ds-apip.threema.ch/identity/match | score: 8.1 | as:8 bus:7 tech:5 gate:10 cloud:3 fresh:8
 [PRIO] ds-apip.threema.ch/identity/match_token | score: 7.3 | as:8 bus:6 tech:5 gate:10 cloud:3 fresh:7
 [PRIO] ds-apip.threema.ch/check_license | score: 7.2 | as:8 bus:7 tech:5 gate:10 cloud:3 fresh:6
@@ -45,3 +45,49 @@ testability: AUTH_HELPED
 [RISK] sync: 40 — mediator/rendezvous uniform 403, no CORS, no passive divergence; ds-apip-work auth-gated (401 + CORS `*` + no HSTS/Expect-CT); work.threema.ch/api/v1 downgraded to non-finding; no browser-viable cross-origin path remains
 [RISK] safe: 80 — 5 hostnames behind single IP 203.56.112.231; CORS `*` + write-capable methods + HSTS gap on credential-gated /backups/{64hex}; route-existence oracle (400 vs 404); HTTP Basic Auth format confirmed; stable across cycles
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub stable source paths: fs.ts:41, key-storage/index.ts:559, electron-main.ts:944, inner/v3.ts:62-70, crypto.ts:53-113, sqlite.ts:240); BrowserWindow `sandbox` unset + `nodeIntegrationInWorker: true` (conditional RCE); NEW Android JoinResponse.kt:70 icePassword logcat leak (low value, needs runtime validation); PoC artifact absent from workspace despite 17+ KB claims
+[PRIO] ds-apip.threema.ch/identity/fetch_bulk | score: 7.65 | as:10 bus:8 tech:5 gate:10 cloud:3 fresh:6
+[PRIO] ds-apip.threema.ch/check_license       | score: 7.45 | as:9  bus:8 tech:4 gate:10 cloud:3 fresh:8
+[PRIO] ds-apip.threema.ch/identity/match_token | score: 7.30 | as:9  bus:6 tech:5 gate:10 cloud:3 fresh:10
+[PRIO] ds-apip.threema.ch/identity/match      | score: 6.70 | as:8  bus:8 tech:5 gate:5  cloud:3 fresh:9
+[PRIO] threema-desktop key-storage (Windows) | score: 6.60 | as:7  bus:9 tech:6 gate:6  cloud:1 fresh:7
+[HYP] fetch_bulk unauthenticated 10k-ID identity→pubkey enumeration
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (sibling parity: api.threema.ch, apip.threema.ch)
+confidence: 95
+reasoning: Live probe 2026-08-11 21:5x: POST `{"identities":["ECHOECHO","ZZZZZZZZ"]}` → 200/152B, returns only valid-identity pubkey (SmobNNzvFdQ8t03i/…), invalid silently omitted, byte-identical on all 3 prod hosts. CORS `Access-Control-Allow-Origin: *` + `Allow-Methods: POST, GET, OPTIONS, DELETE`. Hard 10000-ID count-cap (10001→400/0B). Zero 429 across 40+ probes.
+evidence_needed: None — fully validated via passive probes.
+verify_steps: PASSIVE: `curl -s -w "\n%{http_code} %{size_download}" -X POST -H "Origin: https://evil.com" -d '{"identities":["ECHOECHO","ZZZ"]}' https://ds-apip.threema.ch/identity/fetch_bulk` → expect 200, only ECHOECHO pubkey present, `Access-Control-Allow-Origin: *`.
+impact: Ungated 10k-pubkey harvest/req via browser-viable cross-origin POST; full Threema-ID→pubkey corpus de-anonymization enabling targeted phishing. CVSS 7.5.
+testability: PASSIVE
+[HYP] check_license cross-origin Work-license credential validation oracle
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license (sibling parity: api.threema.ch, apip.threema.ch)
+confidence: 90
+reasoning: RAG-verified (fetch-work.ts `checkLicense`) posts `{licenseUsername,licensePassword,value:"","arch"}` to DIRECTORY_SERVER_URL+'/check_license'. Live probe: fake creds → 200/65B `{"success":false,"error":"This username or password is invalid."}`, byte-identical on all 3 hosts. OPTIONS → 200 with `Access-Control-Allow-Origin: *` + Allow-Methods + Allow-Headers (browser-viable). Zero 429 on 8+ sequential POSTs.
+evidence_needed: One valid Work license pair to confirm `{"success":true}` (~18B) response shape distinct from the 65B failure body.
+verify_steps: AUTH_HELPED: POST `{"licenseUsername":"<issued>","licensePassword":"<issued>","version":"4.7.6","arch":"x64"}` → expect `{"success":true}`.
+impact: Cross-origin (browser) Work-license credential validation oracle (valid vs invalid differentiation) from any origin, triple-host parity. CVSS 6.5.
+testability: AUTH_HELPED
+[HYP] match_token identity-existence oracle + per-request challenge-token issuance
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token (sibling parity: api.threema.ch, apip.threema.ch)
+confidence: 90
+reasoning: Live probe 2026-08-11 21:5x: POST `{"identity":"ECHOECHO"}` → 200/133B `{"token":"…","tokenRespKeyPub":"6DsxFgjFcMVU/…"}` with `tokenRespKeyPub` sha256 `c8005cca9…` (constant across requests+hosts, token fresh per request); POST `{"identity":"ZZZZZZZZ"}` → 200/46B `{"success":false,"error":"Identity not found"}`. OPTIONS → 200 with CORS `*` + Allow-Methods + Allow-Headers (browser-viable).
+evidence_needed: Confirm token+`tokenRespKeyPub` feed a downstream challenge-response flow (sfu_cred/blob_cred) via app-remote-protocol/`threema-protocols` source.
+verify_steps: PASSIVE: (1) `curl -s -w "\n%{http_code} %{size_download}" -X POST -d '{"identity":"ZZZZZZZZ"}' https://ds-apip.threema.ch/identity/match_token` → 200/46B; (2) `curl -s -X POST -d '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_token | sha256sum` → confirm tokenRespKeyPub sha256 `c8005cca9…`, token differs from prior; (3) `curl -s -D - -o /dev/null -X OPTIONS -H "Origin: https://evil.com" -H "Access-Control-Request-Method: POST" https://ds-apip.threema.ch/identity/match_token` → 200 + `Access-Control-Allow-Origin: *` + Allow-Methods + Allow-Headers.
+impact: Unauthenticated Threema-ID existence oracle (ID enumeration) + per-request challenge-token issuance enabling downstream flows. CVSS ~5.3.
+testability: PASSIVE
+[FINAL] 1. https://ds-apip.threema.ch/identity/fetch_bulk — IDOR — score 7.65 — PASSIVE (10k-ID enumeration, CORS `*`, sibling-parity-verified live today)
+[FINAL] 2. https://ds-apip.threema.ch/check_license — AUTH — score 7.45 — AUTH_HELPED (credential oracle; failure oracle live-confirmed, success shape needs valid license)
+[FINAL] 3. https://ds-apip.threema.ch/identity/match_token — IDOR — score 7.30 — PASSIVE (identity-existence oracle + challenge token; tokenRespKeyPub static confirmed sha256 c8005cca9…)
+[NEXT] HUMAN: Windows runtime validation of `poc/key-storage-acl-bypass-poc.js` — install threema-desktop on Windows 10/11, open the profile dir, confirm `data/keystorage.bin` + `data/keystorage.password.bin` inherit the directory DACL (run `icacls data\keystorage.password.bin` → observe NO explicit trustee ACL, only inherited). Then confirm `electron.safeStorage.decryptString(fs.readFileSync(pwPath))` returns the master password (DPAPI unprotected to same Windows user) and `databaseKey` decrypts `data/threema.sqlite` via `PRAGMA key`. Static source chain (6 paths, RAG-verified on `stable`) is closed; this is the only remaining evidence gap for the ACL-bypass exploitability. *(Cannot execute from this Linux host — requires Windows + licensed app.)*
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain fully verified via WebFetch on GitHub `stable` today — `fs.ts:41`→`{}`, `key-storage/index.ts:_writeOrOverrideFile`→`{...fileModeInternalObjectIfPosix()}`, `electron-main.ts:944-945` STORE_USER_PASSWORD→`{...fileModeInternalObjectIfPosix()}` (no ACL), `electron-main.ts:912-924` LOAD_USER_PASSWORD→`fs.readFileSync`+`safeStorage.decryptString`, `inner/v3.ts:65,70` exposes `identityData.ck`+`databaseKey`, `db/sqlite.ts:218`→`PRAGMA key`; PoC artifact now on disk, syntax-verified, Linux no-op confirmed.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: NEW endpoint fully verified live today — positive (ECHOECHO→200/133B token + constant tokenRespKeyPub sha256 `c8005cca9…`); negative (ZZZZZZZZ→200/46B "Identity not found"); OPTIONS 200 CORS `*`+Allow-Methods+Allow-Headers (browser-viable); sibling parity confirmed on api.threema.ch+apip.threema.ch.
+[LEARN] ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle confirmed via RAG (fetch-work.ts:checkLicense) + live probe today (fake creds→200/65B, OPTIONS 200 CORS `*`, sibling parity all 3 hosts); success-shape (`{"success":true}`) remains AUTH_HELPED gap.
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c` confirmed benchmark-only dummy in `determineKdfParams()`, `benchmarkKey.purge()` at L233 — not used for real encryption; distinct from key-storage ACL finding.
+[LEARN] REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree), not standalone — confirmed in electron-main.ts:1240-1255 today (`sandbox` unset, TODO DESK-79, L1240 comment false).
+[RISK] chat: 25 — prod DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band 443/5222 passive channel closed (0 bytes, no peer cert, handshake needs auth login frame); staging out of scope per scope.yml; no passive surface remaining.
+[RISK] web: 95 — Directory triad (ds-apip/api/apip): fetch_bulk 10k-ID enumeration (CVSS 7.5) + check_license credential oracle (CVSS 6.5) + match_token existence oracle (CVSS 5.3) + match email→identity candidate (CVSS ~5.3), all with browser-viable CORS `*` + zero 429; + safe backup CORS `*` + HSTS gap (CVSS 7.4) on credential-gated endpoints.
+[RISK] sync: 40 — mediator/rendezvous uniform 403 no CORS; ds-apip-work auth-gated (401+CORS `*`+no HSTS/Expect-CT); work.threema.ch/api/v1 downgraded to non-finding (no CORS on 404); no browser-viable cross-origin path remains.
+[RISK] safe: 80 — 5 hostnames ↔ single IP 203.56.112.231; CORS `*` + write-capable methods + HSTS/Expect-CT ABSENT on GET 400 for credential-gated `/backups/{64hex}`; route-existence oracle (400 vs 404); HTTP Basic Auth (backupId:backupKey) format confirmed; stable across cycles.
+[RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified (6 GitHub `stable` paths, PoC artifact on disk + syntax/behavior-verified); BrowserWindow `sandbox` unset + `nodeIntegrationInWorker:true` (conditional RCE); Android JoinResponse.kt:70 icePassword logcat leak (low value); crypto.ts:223 benchmark dummy REJECTED.

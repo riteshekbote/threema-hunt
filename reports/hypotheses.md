@@ -3094,3 +3094,35 @@
 - LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), purged at line 233
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+
+## RANKED HYPOTHESES 2026-08-11 21:59:04 UTC
+- [90] https://ds-apip.threema.ch/identity/match: Forgeable-HMAC email→identity membership oracle via /identity/match (from reports/hypotheses-laguna.txt)
+- [90] https://ds-apip.threema.ch/identity/match: Forgeable-HMAC email/mobile→identity membership oracle via /identity/match (from reports/hypotheses-nemotron3.txt)
+- [50] https://ds-apip.threema.ch/identity/match_token: match_token minted-for-any-identity may carry request budget that bypasses the /identity/match burst limiter (from reports/hypotheses-bigpickle.txt)
+- [45] https://ds-apip.threema.ch/identity/match: Email→identity membership oracle via /identity/match positive case (from reports/hypotheses-longcat.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: Wait for /identity/match rate-limiter reset (>20min cooldown from last probe), then at ≤1 rps with 60s spacing: `curl -s -X POST -H "Origin: https://evil
+- NEXT(hypotheses-bigpickle.txt): RAG: WebFetch threema-ios source on GitHub `main` (DirectoryService / contact-matching files) for `match_token`/`matchToken` construction and whether `/identity
+- NEXT(hypotheses-laguna.txt): PROBE: Confirm /identity/match_token negative oracle + sibling parity + CORS preflight (all PASSIVE, no rate-limiter):
+- NEXT(hypotheses-longcat.txt): PROBE (deferred ≥20:30 UTC — burst 429 triggered at 20:07:15, cooldown >20min): single POST `curl -s -w "\n%{http_code} %{size_download}" -X POST -H "Content-Ty
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle confirmed via RAG (fetch-work.ts:112-124) + probe (fake creds → 200 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req; CORS * + no rate-limit + 5 challenge p
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: NEW endpoint confirmed live — POST `{}` → 200/39B `{"checkInterval":86400,"identities":[]}` with CORS `*` + 
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c` confirmed benchmark-only dummy 
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
+- LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: New endpoint confirmed live — returns identity-existence oracle (valid→200/134B with token+constant tok
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: Response variance confirmed (200→400 on latest probe); OPTIONS 400 also carries CORS `*` + Allow-Headers Cont
+- LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: Downgraded to non-finding — 404 response has NO CORS headers, missing-key and invalid-key produce byte-identical 404, br
+- LEARN: ACCEPTED MISCONFIG @ billing.threema.ch: Confirmed serving real static assets (jQuery 3.7.1 + custom CSS) with full security headers (HSTS/Expect-CT/CSP/X-Frame
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/match batch-size ceiling: Not proven dead or alive — unmapped cost-unit boundary (N=emailHashes per POST→200 vs
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain fully verified via WebFetch on GitHub `stable` today — `fs.ts:41`→`{}`, `key-storag
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: NEW endpoint fully verified live today — positive (ECHOECHO→200/133B token + constant tokenRespKeyPub s
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle confirmed via RAG (fetch-work.ts:checkLicense) + live probe today (f
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c` confirmed benchmark-only dummy 
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: 404 response has NO CORS headers (neither GET nor OPTIONS); missing-key and invalid-key produce byte-identical `{"error"
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: sibling parity CONFIRMED — api.threema.ch + apip.threema.ch return byte-identical 200/65B + CORS `*` + OPTIONS
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: response variance 200→400 confirmed on latest probe; OPTIONS 400 also carries CORS `*` + Allow-Headers Conte
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), derived key purged at line 
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
