@@ -7830,3 +7830,4 @@ verify_steps: AUTH_HELPED: with authorized Work test license, POST `https://ds-a
 impact: cross-subscription work-directory PII + pubkey disclosure → targeted phishing of enterprise users. Severity: Medium (CVSS 3.1 5.3)
 testability: AUTH_HELPED
 [NEXT] PROBE: 10x sequential `curl -s -o /dev/null -w "%{http_code}" -X POST "https://ds-apip.threema.ch/check_license" -H "Content-Type: application/json" -d '{"licenseUsername":"nobody@example.invalid","licensePassword":"invalidpw","version":"4.1.0;Q;en/??;Electron;31.0.0.0;Linux;x64","arch":"x64"}'` at 1 rps — zero 429s bounds the brute-force severity of the new credential-validation oracle; parallel `curl -s -o /dev/null -D - -X OPTIONS "https://api.threema.ch/check_license" -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type" | grep -i access-control` for triad preflight parity.
+## 2026-08-11 02:21:32 UTC [chat] (model bigpickle)

@@ -1263,3 +1263,15 @@
 - CHANGED billing.threema.ch — now serves real static assets (/cache/billing_gui_theme_threema.js 336KB jQuery 3.7.1, /cache/billing_gui_theme_threema.css 41KB) with full security headers on assets, but 404 err
 - CHANGED work.threema.ch/api/v1 — CORS posture refined: ACAO:* on 401 response but OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-origin keyed requests
 - CHANGED poc/ directory — still ABSENT (13th+ consecutive cycle); KB artifact claims persistently false
+
+## 2026-08-11 02:33:09 UTC
+- NEW work.threema.ch/api/v1 — live X-Api-Key authenticated API with routes /users + /contacts (401 not 404), CORS * on GET but OPTIONS → 404 without CORS headers
+- NEW ds-apip-work.threema.ch/identities — TWRK-1633 "buggy" note in openapi spec, potential cross-subscription contact leak (requires auth)
+- NEW threema-android JoinResponse.kt:70 — `toString()` includes `icePassword='$icePassword'` in plain text (logcat credential exposure)
+- NEW gateway.threema.ch/v1 — returns 404 with Set-Cookie: SESSIONID (Secure/HttpOnly/SameSite=Strict) on unauthenticated GET
+- CHANGED billing.threema.ch — now serves real static assets (/cache/billing_gui_theme_threema.js 336KB jQuery 3.7.1, /cache/billing_gui_theme_threema.css 41KB) with full security headers on assets, but 404 err
+- CHANGED work.threema.ch/api/v1 — CORS posture refined: ACAO:* on 401 response but OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-origin keyed requests
+- CHANGED poc/ directory — still ABSENT (13th+ consecutive cycle); KB artifact claims persistently false
+- NEW ds-apip.threema.ch/check_license — RAG-confirmed credential validation oracle: POST `{licenseUsername, licensePassword, version, arch}` → `{success: false, error: "This username or password is invalid
+- NEW X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls — checkLicense→ds-apip.threema.ch/check_license, contacts→ds-apip-work.threema.
+- CHANGED poc/ directory: still ABSENT (14th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions.
