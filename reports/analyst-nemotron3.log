@@ -12666,3 +12666,32 @@ confidence: 55
 reasoning: Work directory server live (401 on all paths, CORS *, no HSTS/Expect-CT). OpenAPI spec contains TWRK-1633 "buggy" note on /identities endpoint. If bug allows cross-subscription contact access, authenticated Work users could enumerate contacts outside their subscription.
 evidence_needed: Valid Work license/credentials to authenticate; confirmation of TWRK-1633 bug behavior in response body
 verify_steps: AUTH_HE
+===== ANALYST nemotron3 2026-08-11 10:55:39 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[NEW] ds-apip.threema.ch/check_license — cross-origin credential validation oracle confirmed via RAG + probe (POST {licenseUsername, licensePassword, version, arch} → 200 {"success":false,"error":"This username or password is invalid."}, CORS *, no 429)
+[NEW] work.threema.ch/api/v1 — live X-Api-Key authenticated API with /users + /contacts routes (401 not 404), CORS * on GET but OPTIONS → 404 without CORS headers
+[NEW] ds-apip-work.threema.ch/identities — TWRK-1633 "buggy" note in OpenAPI spec, cross-subscription contact leak candidate (auth-required)
+[NEW] gateway.threema.ch/v1 — session cookie SESSIONID set on unauthenticated 404 response (Secure/HttpOnly/SameSite=Strict)
+[NEW] billing.threema.ch — now serves real static assets (jQuery 3.7.1 + custom CSS) with full security headers on assets, 404 page lacks headers (security-header divergence)
+[NEW] ds-apip.threema.ch/identity/match — POST `{}` → 200/39B `{"checkInterval":86400,"identities":[]}` with CORS `*` + Allow-Methods POST,GET,OPTIONS,DELETE; accepts `emailHashes` parameter; per-IP burst rate-limiter (429 after ~2 POSTs)
+[NEW] threema-android JoinResponse.kt:70 — `toString()` includes `icePassword='$icePassword'` in plain text (logcat credential exposure, local-only, short-lived)
+[CHANGED] poc/key-storage-acl-bypass-poc.js — NOW genuinely on disk (sha256 950b24f5..., 6121 B, node --check PASS, Linux EXIT 0) after 15+ cycles of KB false claims
+[CHANGED] work.threema.ch/api/v1 — CORS posture refined: ACAO:* on 401 response but OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-origin keyed requests
+[CHANGED] All network endpoints byte-stable re-confirmed via own probes — fetch_bulk 10001→400/0B sharp count-cap stable, directory triad CORS *, safe HSTS gap, work.api CORS posture
+
+[PRIO] ds-apip.threema.ch/check_license, 7.85, attack=9 business=8 tech=7 gate=10 cloud=5 fresh=9
+[PRIO] ds-apip.threema.ch/identity/fetch_bulk, 7.45, attack=9 business=7 tech=8 gate=10 cloud=4 fresh=7
+[PRIO] ds-apip.threema.ch/identity/match, 6.85, attack=8 business=7 tech=7 gate=10 cloud=4 fresh=9
+[PRIO] ds-apip-work.threema.ch/identities, 6.35, attack=7 business=8 tech=5 gate=3 cloud=4 fresh=8
+[PRIO] work.threema.ch/api/v1, 6.05, attack=7 business=7 tech=6 gate=5 cloud=5 fresh=7
+[PRIO] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}, 5.95, attack=6 business=8 tech=7 gate=8 cloud=6 fresh=7
+[PRIO] threema-desktop key-storage (Windows), 5.95, attack=6 business=9 tech=8 gate=2 cloud=3 fresh=7
+
+[HYP] ds-apip.threema.ch/check_license cross-origin credential validation oracle
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 90
+reasoning: Desktop client (fetch-work.ts:47-59) POSTs {licenseUsername, licensePassword, version, arch} to DIRECTORY_SERVER_URL + /check_license. Probe confirmed: 200 with {"success":false,"error":"This username or password is invalid."}, CORS *, no 429 on 3 sequential POSTs. Cross-origin credential validation oracle confirmed.
+evidence_needed: Valid license credentials to test success response; confirmation that endpoint accepts
