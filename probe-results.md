@@ -692,3 +692,14 @@ https://work.test.threema.ch/api/v1/contacts -> HTTP 401
 https://ds-apip-work.threema.ch/identities` -> HTTP 401
 https://work.threema.ch/api/v1 -> HTTP 401
 https://work.threema.ch/api/v1/users` -> HTTP 404
+
+## 2026-08-11 00:09:29 UTC
+https://work.threema.ch/api/v1 -> HTTP 401
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000 -> HTTP 404
+https://work.test.threema.ch/api/v1/contacts -> HTTP 401
+https://ds-apip.threema.ch/api.threema.ch/apip.threema.ch -> HTTP 404
+https://ds-apip-work.threema.ch/identities` -> HTTP 401
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://work.threema.ch/api/v1/users` -> HTTP 404

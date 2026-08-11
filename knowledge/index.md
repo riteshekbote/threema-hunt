@@ -388,3 +388,25 @@
 - 2026-08-10 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain, not standalone
 - 2026-08-10 CHANGED work.threema.ch/api/v1: CORS posture refined — ACAO:* on 401 response BUT OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-origin keyed requests (server-side/non-browser attack path still viable)
 - 2026-08-10 CHANGED work.threema.ch/api/v1: CORS posture refined — ACAO:* on 401 response BUT OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-origin keyed requests; server-side/non-browser attack path only
+- 2026-08-11 ACCEPTED AUTH @ work.threema.ch/api/v1: Live X-Api-Key authenticated API with /users + /contacts routes (401 not 404), CORS * on GET but OPTIONS → 404 without CORS headers — server-side/non-browser attack path only
+- 2026-08-11 ACCEPTED IDOR @ ds-apip-work.threema.ch/identities: TWRK-1633 "buggy" note in openapi spec — potential cross-subscription contact leak; requires auth to verify
+- 2026-08-11 NEW @ threema-android JoinResponse.kt:70: `toString()` includes `icePassword='$icePassword'` in plain text — potential logcat credential leak if object logged. Low value (local-only, short-lived ICE creds), needs runtime validation
+- 2026-08-11 ACCEPTED OTHER @ gateway.threema.ch/v1: Session cookie (SESSIONID) set on unauthenticated 404 response — confirmed stable across cycles, low severity but valid defense-in-depth gap
+- 2026-08-11 CHANGED billing.threema.ch: now serves real static assets (jQuery 3.7.1 + custom CSS) with full security headers on assets, but 404 error page lacks these headers — security-header divergence confirmed
+- 2026-08-11 CHANGED work.threema.ch/api/v1: CORS posture refined — ACAO:* on 401 response BUT OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-origin keyed requests (server-side/non-browser attack path still viable)
+- 2026-08-11 CHANGED poc/ directory: still ABSENT (13th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions
+- 2026-08-11 NO_NEW_CLASS: All previously accepted findings byte-stable; no new vulnerability classes opened this cycle
+- 2026-08-11 CHANGED work.threema.ch/api/v1: CORS posture refined — ACAO:* on 401 response BUT OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-origin keyed requests; server-side/non-browser attack path only
+- 2026-08-11 NO_DELTA — All inventory items already captured in knowledge base; no new surface discovered this cycle
+- 2026-08-11 ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req (10000→200/152B, 10001→400/0B); CORS * + no rate-limit + 5 challenge param-oracles — all byte-stable
+- 2026-08-11 ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable across all 5 hosts
+- 2026-08-11 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub stable; PoC artifact still absent from workspace
+- 2026-08-11 REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 52a0af98… re-confirmed benchmark-only dummy
+- 2026-08-11 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain, not standalone
+- 2026-08-11 REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
+- 2026-08-11 ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req; CORS * + no rate-limit + 5 challenge param-oracles — byte-stable this cycle
+- 2026-08-11 ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable
+- 2026-08-11 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub stable; PoC artifact still absent from workspace
+- 2026-08-11 ACCEPTED OTHER @ work.threema.ch/api/v1: live X-Api-Key authenticated API confirmed; CORS * on GET 401 but OPTIONS 404 blocks browser cross-origin; server-side attack path remains
+- 2026-08-11 CHANGED poc/ directory: still ABSENT (13th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions
+- 2026-08-11 NO_DELTA — all previously accepted findings byte-stable; no new surface beyond what's captured above

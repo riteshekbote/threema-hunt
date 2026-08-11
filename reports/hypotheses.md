@@ -2592,3 +2592,33 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 52a0af98… re-confirmed benchmark-only dummy
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain, not standalone
 - LEARN: REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
+
+## RANKED HYPOTHESES 2026-08-11 00:09:23 UTC
+- [80] https://ds-apip.threema.ch/api.threema.ch/apip.threema.ch: directory triad browser-driven identity enumeration (impact refinement) (from reports/hypotheses-bigpickle.txt)
+- [50] https://work.threema.ch/api/v1: work.threema.ch/api/v1 X-Api-Key leak from mobile/desktop client enables unauthorized contact enumeration (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): RAG: Search threema-android, threema-ios, and threema-desktop source code on GitHub for X-Api-Key values, work API authentication headers ("X-Api-Key", "ApiKey"
+- NEXT(hypotheses-bigpickle.txt): PROBE: `curl -s -o /dev/null -w "%{http_code} %{size_download}" "https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000
+- NEXT(hypotheses-laguna.txt): RAG: Search threema-android, threema-ios, and threema-desktop source code on GitHub `stable` for X-Api-Key values, work API authentication headers ("X-Api-Key",
+- NEXT(hypotheses-longcat.txt): RAG: Search threema-android, threema-ios, and threema-desktop source code on GitHub `stable` for work API authentication secrets. Exact queries:
+- LEARN: ACCEPTED AUTH @ work.threema.ch/api/v1: Live X-Api-Key authenticated API with /users + /contacts routes (401 not 404), CORS * on GET but OPTIONS → 404 without C
+- LEARN: ACCEPTED IDOR @ ds-apip-work.threema.ch/identities: TWRK-1633 "buggy" note in openapi spec — potential cross-subscription contact leak; requires auth to verify
+- LEARN: NEW @ threema-android JoinResponse.kt:70: `toString()` includes `icePassword='$icePassword'` in plain text — potential logcat credential leak if object logged. 
+- LEARN: ACCEPTED OTHER @ gateway.threema.ch/v1: Session cookie (SESSIONID) set on unauthenticated 404 response — confirmed stable across cycles, low severity but valid 
+- LEARN: CHANGED billing.threema.ch: now serves real static assets (jQuery 3.7.1 + custom CSS) with full security headers on assets, but 404 error page lacks these heade
+- LEARN: CHANGED work.threema.ch/api/v1: CORS posture refined — ACAO:* on 401 response BUT OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-ori
+- LEARN: CHANGED poc/ directory: still ABSENT (13th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions
+- LEARN: NO_NEW_CLASS: All previously accepted findings byte-stable; no new vulnerability classes opened this cycle
+- LEARN: CHANGED work.threema.ch/api/v1: CORS posture refined — ACAO:* on 401 response BUT OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-ori
+- LEARN: NO_DELTA — All inventory items already captured in knowledge base; no new surface discovered this cycle
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req (10000→200/152B, 10001→400/0B); CORS * 
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable across all 5 ho
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub stable; PoC artifact still absent from workspace
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 52a0af98… re-confirmed benchmark-only dummy
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain, not standalone
+- LEARN: REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req; CORS * + no rate-limit + 5 challenge p
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub stable; PoC artifact still absent from workspace
+- LEARN: ACCEPTED OTHER @ work.threema.ch/api/v1: live X-Api-Key authenticated API confirmed; CORS * on GET 401 but OPTIONS 404 blocks browser cross-origin; server-side 
+- LEARN: CHANGED poc/ directory: still ABSENT (13th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions
+- LEARN: NO_DELTA — all previously accepted findings byte-stable; no new surface beyond what's captured above
