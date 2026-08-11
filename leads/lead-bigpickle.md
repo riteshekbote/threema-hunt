@@ -9290,3 +9290,33 @@ impact: quantifies email→identity de-anonymization sweep rate per IP despite l
 testability: PASSIVE
 [NEXT] RAG: WebFetch threema-ios source on GitHub `main` (DirectoryService / contact-matching files) for `match_token`/`matchToken` construction and whether `/identity/match` consumes the minted token — determines if the minted token grants per-identity request budget that defeats the per-IP burst limiter (highest-impact branch; zero rate-limiter risk).
 [RISK] chat: 25 reason: in-band channel formally closed (SNI+TLS 0 bytes, no cert); DNS shard→node map fully attributed (g-{00..7f}→.202, g-{80..ff}→.204); handshake requires authenticated frame; no new passive surface. | web: 88 reason: directory oracle stack strengthened this cycle — /identity/match email→identity oracle now fully precomputable off-line (public HMAC key verified) with limiter as sole mitigation (window >>100min, batch ceiling unmapped); NEW unlimited unauthenticated match_token identity→token minting oracle (CORS `*`, api parity); fetch_bulk 10k/req CORS `*` zero 429; check_license cross-origin Work credential validator (OPTIONS 200, browser-viable). | sync: 35 reason: mediator/rendezvous WSS uniform 403, DNS split routing mapped, error-path hypothesis rejected; no passive divergence obtainable. | safe: 65 reason: 5 hosts behind 203.56.112.231; HSTS/Expect-CT on OPTIONS 204 but absent on GET 400 for credential-gated /backups/{64hex}; Basic-auth gating + route-existence oracle stable. | desktop-src: 70 reason: Windows key-storage ACL chain RAG-stable at 95 confidence (6 core paths); PoC artifact STILL absent on filesystem (18th cycle — ground truth overrides KB claims); sandbox unset + nodeIntegrationInWorker true (rejected standalone).
+## 2026-08-11 22:26:33 UTC [chat] (model bigpickle)
+[HYP] match_token minted-for-any-identity may carry request budget that bypasses the /identity/match burst limiter
+class: AUTH
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 50
+reasoning: match_token mints a token for ANY supplied identity without proving ownership (ECHOECHO→133B token, invalid→46B, no auth, unlimited, CORS `*`, byte-identical on api.threema.ch). Token is 4B constant prefix + 33B random, tokenRespKeyPub constant. If /identity/match consumes this token and grants per-identity budget, the per-IP limiter (429 engaged >100min) is defeated for sweep purposes.
+evidence_needed: client-source confirmation of match_token construction/use in the match flow; a single POST /identity/match carrying the minted token vs baseline under the same window.
+verify_steps: RAG — WebFetch threema-ios `DirectoryService`/contact-matching source on GitHub `main` for "match_token"/"matchToken"; then after limiter reset, ONE POST `{"emailHashes":["<HMAC>"],"matchToken":"<token>"}` at ≥60s spacing, classify 200 vs 429 vs baseline.
+impact: if token bypasses limiter → unlimited email→identity sweep (forgeable-HMAC, public key) → widespread de-anonymization. Severity: high.
+testability: PASSIVE
+[HYP] fetch_bulk accepts a type/state filter discriminating Work vs consumer identities
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk
+confidence: 40
+reasoning: own probe shows full schema `{identity,publicKey,featureLevel:3,featureMask:9,state:0,type:0}`; 5 challenge endpoints prove validation-before-identity-lookup, so a `type`/`state` param may be accepted pre-validation. Endpoint unlimited (zero 429, hard 10000-cap). No filter param proven — speculative.
+evidence_needed: OpenAPI fetch_bulk schema (directory.openapi.yml); POST differential with `type` filter vs baseline.
+verify_steps: ONE POST `{"identities":["ECHOECHO"],"type":1}` vs baseline `{"identities":["ECHOECHO"]}` at ≤1 rps (no rate limiter on this route).
+impact: targeted Work-identity harvest feeding credential-stuffing on the accepted Work directory surface. Severity: medium.
+testability: PASSIVE
+[HYP] /identity/match batch-size cost-unit ceiling bounds per-window sweep throughput
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 55
+reasoning: 1-hash POST → 200/39B baseline; N hashes/POST would return up to N matches in one window; the sharp 10000/10001 fetch_bulk cap precedent suggests a count-cap exists here too (413/400 boundary) but it is unmapped — current 429-block from our IP prevents measurement this cycle.
+evidence_needed: one clean POST with N=20 forgeable emailHashes (public HMAC key) after limiter reset → 200 with identities vs 400/429; response-size delta vs N.
+verify_steps: deferred PROBE (limiter reset unknown, >100min window) — single POST of 20-HMAC batch, ≥60s spacing, capture full body+headers; then N=50 once more after ≥2h.
+impact: quantifies email→identity de-anonymization sweep rate per IP despite limiter. Severity: medium.
+testability: PASSIVE
+[NEXT] RAG: WebFetch threema-ios source on GitHub `main` (DirectoryService / contact-matching files) for `match_token`/`matchToken` construction and whether `/identity/match` consumes the minted token — determines if the minted token grants per-identity request budget that defeats the per-IP burst limiter (highest-impact branch; zero rate-limiter risk).
+[RISK] chat: 25 reason: in-band channel formally closed (SNI+TLS 0 bytes, no cert); DNS shard→node map fully attributed (g-{00..7f}→.202, g-{80..ff}→.204); handshake requires authenticated frame; no new passive surface. | web: 88 reason: directory oracle stack strengthened this cycle — /identity/match email→identity oracle now fully precomputable off-line (public HMAC key verified) with limiter as sole mitigation (window >>100min, batch ceiling unmapped); NEW unlimited unauthenticated match_token identity→token minting oracle (CORS `*`, api parity); fetch_bulk 10k/req CORS `*` zero 429; check_license cross-origin Work credential validator (OPTIONS 200, browser-viable). | sync: 35 reason: mediator/rendezvous WSS uniform 403, DNS split routing mapped, error-path hypothesis rejected; no passive divergence obtainable. | safe: 65 reason: 5 hosts behind 203.56.112.231; HSTS/Expect-CT on OPTIONS 204 but absent on GET 400 for credential-gated /backups/{64hex}; Basic-auth gating + route-existence oracle stable. | desktop-src: 70 reason: Windows key-storage ACL chain RAG-stable at 95 confidence (6 core paths); PoC artifact STILL absent on filesystem (18th cycle — ground truth overrides KB claims); sandbox unset + nodeIntegrationInWorker true (rejected standalone).
