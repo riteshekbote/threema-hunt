@@ -1,3 +1,16 @@
 [0m
 > build · nemotron-3-ultra-free
 [0m
+[0m← [0mWrite triage-output.md
+Wrote file successfully.
+[0m
+Done. Wrote triage results to `triage-output.md`.
+
+**Key findings:**
+- **0 REAL_SECRET** — no hardcoded live credentials
+- **1 NEW INTERESTING** — `threema-android JoinResponse.kt:70` leaks `icePassword` in `toString()` (potential logcat leak, low value, short-lived ICE creds)
+- **11 ENDPOINT_LEAK** — staging URLs (`ds-apip.test.threema.ch`, `ds-apip-work.test.threema.ch`, `work.test.threema.ch`) in OpenAPI specs and desktop config — already tracked in KB
+- **20 TEST_OR_EXAMPLE** — all test/fixture data in test directories
+- Benchmark password in `crypto.ts:223` (sha256 `52a0af98...`) re-confirmed as dummy, purged at L233
+
+No reportable secrets this scan.
