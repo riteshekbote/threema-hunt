@@ -1,28 +1,29 @@
-## 2026-08-11 15:35:28 UTC [chat] (model bigpickle)
-[HYP] Forgeable-HMAC email→identity membership oracle — rate-limit cost-unit is the last control
+## 2026-08-11 16:31:50 UTC [chat] (model bigpickle)
+[HYP] Forgeable-HMAC email/mobile→identity membership oracle — keys source-verified, cost-unit is the last control
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/match
-confidence: 85
-reasoning: RAG this cycle — `APIConnector.java:82-83` embeds STATIC HMAC-SHA256 keys (sha256 `76f8d6e3…`/`1b4c7efe…`); `matchIdentities` normalizes (lower/trim, gmail⇄googlemail dual, E164 phone) then HMACs. Server necessarily uses identical keys or matching fails → attacker computes hashes for arbitrary victim emails. Own probe: correctly-keyed dummy hash → 200/39B empty, no 429.
-evidence_needed: (a) positive-match differential on a registered email; (b) per-hash vs per-request limiter cost-unit (enumeration bound).
-verify_steps: PASSIVE: batch sweep N=2/5/10/20/50 correctly-keyed dummy hashes at ≥20-30s spacing → record 200/429 + body size (baseline: 0-hash & 1-hash 25s apart both 200 this cycle). AUTH_HELPED: one registered-email hash → expect non-empty `identities:[{identity,publicKey,emailHash}]`.
-impact: cross-origin email/phone→Threema-identity de-anonymization + targeted phishing from any origin; rate-bounded per IP (burst limiter, cooldown >180s) → CVSS ~5.3-6.5, rises with IP rotation.
+confidence: 88
+reasoning: RAG-verified this cycle: static EMAIL_HMAC_KEY (sha256 `76f8d6e3…`) + MOBILENO_HMAC_KEY (sha256 `1b4c7efe…`) hardcoded in APIConnector.java; normalization lower/trim + gmail⇄googlemail dual + libphonenumber E164; `matchToken` optional (anonymous 200). Own probe: correctly-keyed dummy hash → 200/39B empty, limiter reset confirmed.
+evidence_needed: (a) positive-match differential on a registered email (`identities:[{identity,publicKey,emailHash}]` echo); (b) per-hash vs per-request limiter cost-unit; (c) `mobileNoHashes`/`includeInactive` param acceptance.
+verify_steps: PASSIVE: after >20min cooldown, single POST `{"mobileNoHashes":["<b64-HMAC-of-dummy-E164>"],"includeInactive":true}` → map 200/400/429 (untested request surface). AUTH_HELPED: one registered-email hash → expect non-empty `identities`.
+impact: cross-origin/server-side email+phone→Threema-identity de-anonymization + targeted phishing from any origin; static keys embedded in public APK; bounded only by per-IP burst limiter (~1/20min, ~70-140/day/IP, N× with IP rotation). CVSS ~5.3-6.5.
 testability: PASSIVE→AUTH_HELPED
 [HYP] check_license success-oracle shape gap-closure
 class: AUTH
 asset: https://ds-apip.threema.ch/check_license
 confidence: 95
-reasoning: accepted oracle (fetch-work.ts + probes: 200/65B, CORS `*`, OPTIONS 200, zero 429). Sole unproven byte = valid-pair `{"success":true}` shape.
-evidence_needed: one valid Work license pair.
-verify_steps: AUTH_HELPED: POST `{"licenseUsername":"<issued>","licensePassword":"<issued>","version":"4.7.6","arch":"x64"}` → expect `{"success":true}` (~18B) distinctness; then same pair → ds-apip-work.threema.ch/identities for TWRK-1633 scoping.
+reasoning: accepted oracle (RAG fetch-work.ts + probes: 200/65B invalid-creds, CORS `*`, OPTIONS 200, zero 429, sibling parity all 3 hosts). Sole unproven byte = valid-pair `{"success":true}` shape.
+evidence_needed: one valid Work license pair → `{"success":true}` (~18B) distinctness.
+verify_steps: AUTH_HELPED: POST `{"licenseUsername":"<issued>","licensePassword":"<issued>","version":"4.7.6","arch":"x64"}` → expect `{"success":true}`; then same pair → ds-apip-work.threema.ch/identities for TWRK-1633 scoping.
 impact: closes last evidence gap on accepted cross-origin Work credential validator (CVSS 6.5) gating Work directory.
 testability: AUTH_HELPED
-[HYP] fetch_bulk type-filter → scoped Work-identity harvest
+[HYP] fetch_bulk state/type/featureMask attribute surface → scoped work-identity harvest
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/fetch_bulk
-confidence: 45
-reasoning: own probe: `"type":0` in ECHOECHO response; lenient parser ignored unknown params; speculative that a type/feature filter param exists.
-evidence_needed: OpenAPI schema for fetch_bulk params; POST differential with `type` filter.
-verify_steps: RAG directory OpenAPI in desktop build config, then single PASSIVE POST `{"identities":[...],"type":1}` vs baseline at ≤1 rps.
-impact: targeted Work-identity harvest feeding check_license/ds-apip-work attacks.
+confidence: 50
+reasoning: own probe this cycle confirms full response schema `{identity,publicKey,featureLevel:3,featureMask:9,state:0,type:0}` — richer per-ID attributes than KB captured; `state`/`type` may discriminate active/work identities enabling targeted harvest to feed check_license/ds-apip-work. No filter param proven — speculative.
+evidence_needed: OpenAPI fetch_bulk schema (RAG desktop build config); POST differential with `type` filter vs baseline.
+verify_steps: RAG directory OpenAPI, then single PASSIVE POST `{"identities":["ECHOECHO"],"type":1}` vs baseline at ≤1 rps (endpoint unlimited, zero 429).
+impact: targeted work-identity harvest amplifying credential-stuffing against accepted CVSS 7.5 surface.
 testability: PASSIVE
+[NEXT] PROBE: `/identity/match` untested request surface — single POST after limiter cooldown (next ≥20min window) `curl -s -w "\n%{http_code} %{size_download}" -X POST -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"mobileNoHashes":["<b64-HMAC-SHA256(E164-dummy) w/ MOBILENO_HMAC_KEY>"],"includeInactive":true}' https://ds-apip.threema.ch/identity/match` → map 200-vs-400 (param acceptance) and body size; one request only (limiter budget ~1-2/cooldown). Records the mobileNoHashes+includeInactive surface never exercised in prior cycles.

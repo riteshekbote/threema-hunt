@@ -1491,3 +1491,19 @@
 - CHANGED ds-apip.threema.ch/identity/match — latest probe returns HTTP 400 (previously 200/39B empty identities); response variance confirmed this cycle
 - CHANGED ds-apip.threema.ch/identity/match rate-limiter — cooldown window >20min confirmed (429/0B on probe >20min after last 200)
 - CHANGED work.threema.ch/api/v1 — downgraded to non-finding: no CORS on 404, no key-validation oracle
+
+## 2026-08-11 16:44:31 UTC
+- NEW ds-apip.threema.ch/identity/match → HTTP 400 on latest probe (previously 200/39B empty identities) — response variance confirmed this cycle
+- NEW /identity/match `emailHashes` batch-size cost-unit boundary (1/2/5/10/20/50 hashes) — not previously mapped
+- NEW /identity/match GET → 400 body content — probe-results.md shows HTTP 400 but KB did not capture response body fingerprint for GET vs POST
+- CHANGED ds-apip.threema.ch/identity/match rate-limiter — cooldown window >20min confirmed (429/0B on probe >20min after last 200)
+- CHANGED work.threema.ch/api/v1 — downgraded to non-finding: no CORS on 404, no key-validation oracle
+- CHANGED poc/ directory — confirmed STILL ABSENT (17th+ consecutive cycle); KB artifact claims persistently false
+- NEW /identity/match `emailHashes` batch-size cost-unit boundary (1/2/5/10/20/50 hashes) — not previously mapped (KB only confirmed 1-hash→200, 2-POST→429)
+- NEW /identity/match GET → 400 body content (probe-results.md line 806 shows `HTTP 400` but KB did not capture response body fingerprint for GET vs POST)
+- CHANGED KB claims (lines 422, 437) "PoC artifact `poc/key-storage-acl-bypass-poc.js` NOW genuinely on disk" — filesystem `ls` confirms `POC_DIR_ABSENT` for 17th+ cycle; ground truth overrides KB (consistent f
+- CHANGED work.threema.ch/api/v1 confirmed live this cycle: GET /api/v1 → 401 `{"error":"Invalid X-Api-Key"}`, GET /api/v1/users → 401, OPTIONS /api/v1 → 404 — X-Api-Key auth confirmed, source unknown (RAG-veri
+- CHANGED /identity/match cooldown confirmed >180s between probes (POST at 12:22 → 200; POST at 13:28 → 200, not 429) — limiter allows ~1 hash per 2-3 min
+- CHANGED ds-apip.threema.ch/identity/match — latest probe returns HTTP 400 (previously 200/39B empty identities); response variance confirmed this cycle
+- CHANGED ds-apip.threema.ch/identity/match rate-limiter — cooldown window >20min confirmed (429/0B on probe >20min after last 200)
+- CHANGED work.threema.ch/api/v1 — downgraded to non-finding: no CORS on 404, no key-validation oracle

@@ -2916,3 +2916,41 @@
 - LEARN: CONFIRMED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 10000-ID ceiling + CORS `*` + zero 429s — byte-stable this cycle
 - LEARN: CONFIRMED AUTH @ ds-apip.threema.ch/check_license: sibling parity confirmed on all 3 prod hosts (byte-identical 200/65B + CORS `*` + OPTIONS 200)
 - LEARN: CONFIRMED OTHER @ ds-apip.threema.ch/identity/match: rate-limiter cooldown >20min confirmed; burst-only limiter; CORS `*` present on both 200 POST and 400 OPTIO
+
+## RANKED HYPOTHESES 2026-08-11 16:44:31 UTC
+- [88] https://ds-apip.threema.ch/identity/match: Forgeable-HMAC email/mobile→identity membership oracle — keys source-verified, cost-unit is the last control (from reports/hypotheses-bigpickle.txt)
+- [80] https://ds-apip.threema.ch/identity/match: ds-apip.threema.ch/identity/match email→identity membership oracle with batch-size differential (from reports/hypotheses-nemotron3.txt)
+- [75] https://ds-apip.threema.ch/check_license: check_license cross-origin credential-validator (accepted) — 429-absence re-confirmed (from reports/hypotheses-laguna.txt)
+- [75] https://ds-apip.threema.ch/check_license: Cross-origin credential validation oracle on check_license (sibling parity) (from reports/hypotheses-longcat.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: Wait for /identity/match rate-limiter reset (>20min cooldown from last probe at 15:40 UTC → ready ~16:00+ UTC), then at ≤1 rps: `curl -s -X POST -H "Orig
+- NEXT(hypotheses-bigpickle.txt): PROBE: `/identity/match` untested request surface — single POST after limiter cooldown (next ≥20min window) `curl -s -w "\n%{http_code} %{size_download}" -X POS
+- NEXT(hypotheses-laguna.txt): PROBE: map the `/identity/match` rate-limiter cooldown + hash-format differential — wait ≥120s (limiter tripped this cycle), then a single POST `{"emailHashes":
+- NEXT(hypotheses-longcat.txt): PROBE: Wait for /identity/match rate-limiter reset (>20min cooldown), then `curl -s -X POST -H "Content-Type: application/json" -H "Origin: https://evil.com" -d
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle confirmed via RAG (fetch-work.ts:112-124) + probe (fake creds → 200 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req; CORS * + no rate-limit + 5 challenge p
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: NEW endpoint confirmed live — POST `{}` → 200/39B `{"checkInterval":86400,"identities":[]}` with CORS `*` + 
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c` confirmed benchmark-only dummy 
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
+- LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: response variance observed (200→400 transition); OPTIONS preflight returns 400 (browser path blocked); burst
+- LEARN: CHANGED poc/ directory: confirmed STILL ABSENT (17th+ consecutive cycle); KB artifact claims persistently false; filesystem ground truth overrides all KB assert
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: sibling parity CONFIRMED — api.threema.ch + apip.threema.ch return byte-identical 200/65B + CORS `*` + OPTIONS
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: OPTIONS returns 200 (not 400) — browser-viable cross-origin path confirmed; CORS `*` + Allow-Headers Content-T
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: OPTIONS 400 response ALSO carries CORS `*` + Allow-Headers Content-Type,User-Agent (CORS headers present on 
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: POST with 4-byte short hash returns 200/39B empty identities — no client-visible length validation error (ha
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: byte-stable this cycle — POST → 200/65B `{"success":false,"error":"..."}`, CORS `*` + Allow-Headers Content-Ty
+- LEARN: CONFIRMED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: byte-stable — 200/152B (ECHOECHO+pubkey only, invalid silently omitted), 10001→400/0B sharp count-cap, 
+- LEARN: CONFIRMED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — byte-stable across all 5 hosts behind 203.
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password (sha256 `52a0af98…`) re-confirmed this cycle as benchmark-only dummy in `determineKdfParams()`, purged at
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/), n
+- LEARN: CONFIRMED OTHER @ ds-apip.threema.ch/identity/match: per-IP burst limiter confirmed (>180s cooldown between allowed requests; staging has no limiter); 5 hostnam
+- LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: no CORS on 404 response, missing-key and invalid-key produce byte-identical 404 — downgraded to non-finding
+- LEARN: CONFIRMED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 10000-ID ceiling + CORS `*` + zero 429s — byte-stable this cycle
+- LEARN: CONFIRMED AUTH @ ds-apip.threema.ch/check_license: sibling parity confirmed on all 3 prod hosts (byte-identical 200/65B + CORS `*` + OPTIONS 200)
+- LEARN: CONFIRMED OTHER @ ds-apip.threema.ch/identity/match: rate-limiter cooldown >20min confirmed; burst-only limiter; CORS `*` present on both 200 POST and 400 OPTIO
+- LEARN: CONFIRMED AUTH @ ds-apip.threema.ch/check_license: sibling parity confirmed on all 3 prod hosts (byte-identical 200/65B + CORS `*` + OPTIONS 200)
+- LEARN: CONFIRMED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 10000-ID ceiling + CORS `*` + zero 429s — byte-stable this cycle
+- LEARN: CONFIRMED OTHER @ ds-apip.threema.ch/identity/match: rate-limiter cooldown >20min confirmed; CORS `*` present on both 200 POST and 400 OPTIONS
+- LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: no CORS on 404 response, missing-key and invalid-key produce byte-identical 404 — downgraded to non-finding
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), purged at line 233
