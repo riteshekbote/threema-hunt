@@ -850,3 +850,13 @@ https://ds-apip.threema.ch/identity/match_token -> ERR <urlopen error [Errno 101
 https://ds-apip.threema.ch/identity/match_token` -> ERR <urlopen error [Errno 101] Network is unreachable>
 https://ds-apip.threema.ch/check_license` -> ERR <urlopen error [Errno 101] Network is unreachable>
 https://ds-apip.threema.ch/identity/fetch_bulk` -> ERR <urlopen error [Errno 101] Network is unreachable>
+
+## 2026-08-11 18:17:31 UTC
+https://ds-apip.threema.ch/identity/match -> ERR The read operation timed out
+https://ds-apip.threema.ch/identity/match` -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk -> ERR The read operation timed out
+https://ds-apip.threema.ch/check_license -> ERR The read operation timed out
+https://ds-apip.threema.ch/identity/match_token -> ERR The read operation timed out
+https://ds-apip.threema.ch/identity/match_token` -> HTTP 404
+https://ds-apip.threema.ch/check_license` -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404

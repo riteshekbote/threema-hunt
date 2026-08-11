@@ -473,3 +473,5 @@
 - 2026-08-11 CONFIRMED OTHER @ ds-apip.threema.ch/identity/match: rate-limiter cooldown >20min confirmed; burst-only limiter; CORS `*` present on both 200 POST and 400 OPTIONS
 - 2026-08-11 CONFIRMED OTHER @ ds-apip.threema.ch/identity/match: rate-limiter cooldown >20min confirmed; CORS `*` present on both 200 POST and 400 OPTIONS
 - 2026-08-11 CONFIRMED IDOR @ ds-apip.threema.ch/identity/match: 1-hash POST → 200/39B empty identities + CORS `*`; 2-rapid-POST → 429/0B; cooldown >20min — server-side oracle path stable, browser path blocked (OPTIONS 400).
+- 2026-08-11 ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: OPTIONS 400 carries CORS `*` + Allow-Headers Content-Type,User-Agent — CORS headers present on BOTH 200 POST and 400 OPTIONS (confirms CORS applied at route level, not method level)
+- 2026-08-11 CONFIRMED IDOR @ ds-apip.threema.ch/identity/match: rate-limiter cooldown >20min (remeasured this cycle); burst-only limiter; 20s spacing insufficient; 60s+ spacing required between allowed POSTs
