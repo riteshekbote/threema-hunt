@@ -8833,3 +8833,31 @@ impact: if filter exists, targeted Work-identity harvest enabling credential-stu
 testability: PASSIVE
 [NEXT] PROBE: run the /identity/match cost-unit sweep on https://ds-apip.threema.ch/identity/match — sequential single-request POSTs at ≥90s spacing with random format-valid b64 32B hashes, N=1/2/5/10/20/50: `curl -s -w "\n%{http_code} %{size_download}" -X POST -H "Content-Type: application/json" -d '{"emailHashes":["<b64>"×N]}' https://ds-apip.threema.ch/identity/match`, recording 200-vs-429 and body size per N to bound per-hash-per-IP budget and per-request batch ceiling (≤1 rps; no real emails). Re-run same sweep on api.threema.ch sibling for parity.
 [RISK] chat: 25 — DNS shard→node map fully attributed; in-band 443/5222 passive channel closed (0 bytes, no cert); staging out of scope | web: 68 — accepted fetch_bulk 10k-ID CORS-`*` no-429 enumeration (CVSS 7.5) + check_license cross-origin credential validator (CVSS 6.5) both byte-stable; match membership oracle bounded by per-IP burst limiter with unmapped per-hash cost-unit (amplifier pending) | sync: 20 — TWRK-1633 AUTH-gated; mediator/rendezvous 403, WSS surface closed | safe: 40 — backup API credential-gated; HSTS/Expect-CT absent-on-400 header inconsistency only | desktop-src: 35 — key-storage ACL bypass RAG-verified 95%, PoC artifact absent 17th+ cycle (filesystem-confirmed), Windows validation pending
+## 2026-08-11 15:35:28 UTC [chat] (model bigpickle)
+[HYP] Forgeable-HMAC email→identity membership oracle — rate-limit cost-unit is the last control
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 85
+reasoning: RAG this cycle — `APIConnector.java:82-83` embeds STATIC HMAC-SHA256 keys (sha256 `76f8d6e3…`/`1b4c7efe…`); `matchIdentities` normalizes (lower/trim, gmail⇄googlemail dual, E164 phone) then HMACs. Server necessarily uses identical keys or matching fails → attacker computes hashes for arbitrary victim emails. Own probe: correctly-keyed dummy hash → 200/39B empty, no 429.
+evidence_needed: (a) positive-match differential on a registered email; (b) per-hash vs per-request limiter cost-unit (enumeration bound).
+verify_steps: PASSIVE: batch sweep N=2/5/10/20/50 correctly-keyed dummy hashes at ≥20-30s spacing → record 200/429 + body size (baseline: 0-hash & 1-hash 25s apart both 200 this cycle). AUTH_HELPED: one registered-email hash → expect non-empty `identities:[{identity,publicKey,emailHash}]`.
+impact: cross-origin email/phone→Threema-identity de-anonymization + targeted phishing from any origin; rate-bounded per IP (burst limiter, cooldown >180s) → CVSS ~5.3-6.5, rises with IP rotation.
+testability: PASSIVE→AUTH_HELPED
+[HYP] check_license success-oracle shape gap-closure
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 95
+reasoning: accepted oracle (fetch-work.ts + probes: 200/65B, CORS `*`, OPTIONS 200, zero 429). Sole unproven byte = valid-pair `{"success":true}` shape.
+evidence_needed: one valid Work license pair.
+verify_steps: AUTH_HELPED: POST `{"licenseUsername":"<issued>","licensePassword":"<issued>","version":"4.7.6","arch":"x64"}` → expect `{"success":true}` (~18B) distinctness; then same pair → ds-apip-work.threema.ch/identities for TWRK-1633 scoping.
+impact: closes last evidence gap on accepted cross-origin Work credential validator (CVSS 6.5) gating Work directory.
+testability: AUTH_HELPED
+[HYP] fetch_bulk type-filter → scoped Work-identity harvest
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk
+confidence: 45
+reasoning: own probe: `"type":0` in ECHOECHO response; lenient parser ignored unknown params; speculative that a type/feature filter param exists.
+evidence_needed: OpenAPI schema for fetch_bulk params; POST differential with `type` filter.
+verify_steps: RAG directory OpenAPI in desktop build config, then single PASSIVE POST `{"identities":[...],"type":1}` vs baseline at ≤1 rps.
+impact: targeted Work-identity harvest feeding check_license/ds-apip-work attacks.
+testability: PASSIVE
