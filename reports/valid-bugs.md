@@ -678,3 +678,18 @@
   - | **VALID (new, reportable)** | **0** | No novel findings |
   - | **H1** | `ds-apip.threema.ch/identity/match_token` — novel endpoint, 200 unauthenticated | Passive characterization of response semantics | OPTIONS preflight + GET with query params to determine if 
   - | H3 | ds-apip-work /identities cross-subscription leak (TWRK-1633) | AUTH_HELPED (valid Work test license) | Retain for program-issued credentials |
+
+- 13 lead(s) marked VALID at 2026-08-11 23:32:05 UTC
+  - | Q3 Impact? | **YES** | Mass valid-ID + pubkey harvesting at ~10k/req, no rate limit, cross-origin readable |
+  - | Q4 Passive proof? | **YES** | `POST {"identities":["ECHOECHO","ZZZZZZZZ"]}` → 200, only valid pubkey returned |
+  - | Q2 Reachable? | Partial | GET → 400 (auth required); data needs valid backupId:backupKey |
+  - | Q5 Novel? | **NO** | ACCEPTED KB lines 30-31, 62+, 101, 106, 125+; triaged in valid-bugs.md |
+  - | Q7 Triager accept? | NO | No data access without valid credentials |
+  - | Q6 Not always-rejected? | Borderline | Valid hardening concern, not standalone |
+  - **Verdict: HOLD (conditional)** — Valid defense-in-depth gap, not standalone. Re-open if worker exploit primitive found.
+  - | Q2 Reachable? | AUTH_HELPED | 401 on all paths; needs valid Work license |
+  - | Q4 Passive proof? | **NO** | Requires AUTH_HELPED with valid Work license + cross-subscription probes |
+  - | Q5 Novel? | Not triaged as valid | Only hypothesized (TWRK-1633) |
+  - **Verdict: HOLD** — Requires AUTH_HELPED with valid Work test license. Cannot be proven with passive GET/HEAD only.
+  - | **VALID (new, reportable)** | **0** | No novel findings |
+  - | H2 | ds-apip-work `/identities` cross-subscription leak (TWRK-1633) | AUTH_HELPED (valid Work test license) | Retain for program-issued credentials |
