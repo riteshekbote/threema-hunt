@@ -2671,3 +2671,34 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 52a0af98… re-confirmed benchmark-only dummy
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain, not standalone
 - LEARN: REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
+
+## RANKED HYPOTHESES 2026-08-11 06:06:55 UTC
+- [95] https://ds-apip.threema.ch/identity/fetch_bulk: fetch_bulk unauthenticated identity→pubkey enumeration oracle on ds-apip.threema.ch/api.threema.ch/apip.threema.ch (from reports/hypotheses-laguna.txt)
+- [90] https://ds-apip.threema.ch/check_license: ds-apip.threema.ch/check_license cross-origin credential validation oracle (from reports/hypotheses-nemotron3.txt)
+- [70] https://ds-apip.threema.ch/check_license: check_license 30B/65B cross-origin credential-validator oracle (refinement + staging parity) (from reports/hypotheses-bigpickle.txt)
+- [60] https://ds-apip.threema.ch/check_license: check_license cross-origin credential validation oracle on ds-apip.threema.ch (from reports/hypotheses-longcat.txt)
+- NEXT(hypotheses-nemotron3.txt): RAG: Search threema-android and threema-ios source code on GitHub `stable` for X-Api-Key values and work API authentication headers. Exact queries: "X-Api-Key",
+- NEXT(hypotheses-bigpickle.txt): HUMAN: Request a program-issued authorized Threema Work test license (licenseUsername/licensePassword pair) to close the single remaining evidence gap on both t
+- NEXT(hypotheses-laguna.txt): PROBE: GET https://ds-apip-work.threema.ch/identity/lookup and /directory (401 vs 404 distinguishes route-existence behind the auth gate), then GET https://ds-a
+- NEXT(hypotheses-longcat.txt): RAG: Search threema-android and threema-ios source code on GitHub `stable` for X-Api-Key values and work API authentication headers. Exact queries: "X-Api-Key",
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle confirmed via RAG (fetch-work.ts:112-124) + probe (bigpickle: 200 `{
+- LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req; CORS `*` + no rate-limit + 5 challenge
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable across all 5 ho
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub stable; PoC artifact still absent from workspace
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 52a0af98… re-confirmed benchmark-only dummy
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain, not standalone
+- LEARN: REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
+- LEARN: RAG-VERIFIED @ threema-desktop key-storage (Windows): Full 6-path chain confirmed live on GitHub `stable` via WebFetch this cycle — (1) fs.ts:41 returns `{}` on
+- LEARN: RAG-VERIFIED @ threema-desktop fetch-work.ts: Correct path is `apps/desktop/src/common/dom/network/protocol/fetch-work.ts` (not `apps/desktop/src/common/work/fe
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c`) — re-confi
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts:1251-1255: BrowserWindow `sandbox` property is UNSET (not `false`), with `// TODO(DESK-79): Enable sandbox
+- LEARN: PoC artifact `poc/key-storage-acl-bypass-poc.js` NOW genuinely on disk — `node --check` PASSES, `node poc/key-storage-acl-bypass-poc.js` EXIT 0 on Linux (gracef
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle confirmed via RAG (fetch-work.ts:112-124) + probe (fake creds → 200 
+- LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req; CORS * + no rate-limit + 5 challenge p
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable across all 5 ho
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub stable; PoC artifact still absent from workspace
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), derived key purged at line 
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
