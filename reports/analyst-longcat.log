@@ -6418,3 +6418,578 @@ All 3 hypotheses survive:
 [RISK] sync: 50 — mediator-{0..f}/rendezvous-{0..f} resolve (DNS split 203.56.112.247 / 203.56.114.247 for 0-7/8-f), uniform 403 on HTTPS, no CORS; ds-apip-work auth-gated (401 + CORS * + no HSTS, OPTIONS also 401); TWRK-1633 cross-subscription leak candidate unvalidated (auth-required); work.threema.ch/api/v1 X-Api-Key API key source unknown
 [RISK] safe: 80 — 5 safe-* hostnames single IP 203.56.112.231; CORS * + write-capable methods on GET 400 + Allow-Headers Authorization on OPTIONS 204 (credentialed cross-origin); HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 (CVSS 7.4 Med-High); HTTP Basic Auth + route-existence oracle (400 vs 404) byte-stable
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub stable source paths); PoC artifact still absent from workspace despite 17 cycles of KB claims; BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); remaining gap: live Windows runtime validation (CVSS 8.1 High)
+===== ANALYST longcat 2026-08-11 10:04:49 UTC =====
+[0m
+> build · longcat-2.0-free
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/poc/ 2>&1; echo "---"; ls /home/runner/work/threema-hunt/threema-hunt/ 2>&1
+ls: cannot access '/home/runner/work/threema-hunt/threema-hunt/poc/': No such file or directory
+---
+README.md
+analyst-out.txt
+analyst-prompt.txt
+ctx.txt
+inventory
+knowledge
+leads
+probe-results.md
+reports
+reposcan-raw
+scope.yml
+scripts
+state_bigpickle.json
+state_laguna.json
+state_ling3.json
+state_longcat.json
+state_nemotron3.json
+triage
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/ 2>&1; echo "---REPORTS---"; ls /home/runner/work/threema-hunt/threema-hunt/reports/ 2>&1; echo "---LEADS---"; ls /home/runner/work/threema-hunt/threema-hunt/leads/ 2>&1
+analysis.txt
+grep-delta.txt
+grep-hits.prev.txt
+grep-hits.txt
+rag.txt
+threema-ch
+---REPORTS---
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+---LEADS---
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-nemotron3.md
+reposcan-2026-08-07-18-43.md
+reposcan-2026-08-07-18-59.md
+reposcan-2026-08-07-19-20.md
+reposcan-2026-08-07-19-33.md
+reposcan-2026-08-07-20-11.md
+reposcan-2026-08-07-20-59.md
+reposcan-2026-08-07-21-13.md
+reposcan-2026-08-07-21-27.md
+reposcan-2026-08-07-22-10.md
+reposcan-2026-08-07-22-46.md
+reposcan-2026-08-07-23-10.md
+reposcan-2026-08-07-23-19.md
+reposcan-2026-08-07-23-50.md
+reposcan-2026-08-08-00-01.md
+reposcan-2026-08-08-00-19.md
+reposcan-2026-08-08-02-10.md
+reposcan-2026-08-08-02-23.md
+reposcan-2026-08-08-03-52.md
+reposcan-2026-08-08-04-47.md
+reposcan-2026-08-08-05-01.md
+reposcan-2026-08-08-05-29.md
+reposcan-2026-08-08-05-48.md
+reposcan-2026-08-08-06-08.md
+reposcan-2026-08-08-06-56.md
+reposcan-2026-08-08-07-12.md
+reposcan-2026-08-08-07-53.md
+reposcan-2026-08-08-08-07.md
+reposcan-2026-08-08-08-37.md
+reposcan-2026-08-08-08-42.md
+reposcan-2026-08-08-09-21.md
+reposcan-2026-08-08-09-40.md
+reposcan-2026-08-08-10-09.md
+reposcan-2026-08-08-10-27.md
+reposcan-2026-08-08-10-37.md
+reposcan-2026-08-08-11-08.md
+reposcan-2026-08-08-11-28.md
+reposcan-2026-08-08-11-30.md
+reposcan-2026-08-08-11-55.md
+reposcan-2026-08-08-12-00.md
+reposcan-2026-08-08-12-09.md
+reposcan-2026-08-08-13-01.md
+reposcan-2026-08-08-13-15.md
+reposcan-2026-08-08-13-56.md
+reposcan-2026-08-08-14-04.md
+reposcan-2026-08-08-14-28.md
+reposcan-2026-08-08-14-35.md
+reposcan-2026-08-08-15-08.md
+reposcan-2026-08-08-15-31.md
+reposcan-2026-08-08-16-00.md
+reposcan-2026-08-08-16-07.md
+reposcan-2026-08-08-16-15.md
+reposcan-2026-08-08-17-04.md
+reposcan-2026-08-08-17-51.md
+reposcan-2026-08-08-18-04.md
+reposcan-2026-08-08-18-36.md
+reposcan-2026-08-08-19-19.md
+reposcan-2026-08-08-19-46.md
+reposcan-2026-08-08-19-58.md
+reposcan-2026-08-08-20-14.md
+reposcan-2026-08-08-20-33.md
+reposcan-2026-08-08-20-41.md
+reposcan-2026-08-08-21-03.md
+reposcan-2026-08-08-21-11.md
+reposcan-2026-08-08-21-32.md
+reposcan-2026-08-08-21-41.md
+reposcan-2026-08-08-22-05.md
+reposcan-2026-08-08-22-19.md
+reposcan-2026-08-08-22-54.md
+reposcan-2026-08-08-23-19.md
+reposcan-2026-08-08-23-28.md
+reposcan-2026-08-08-23-48.md
+reposcan-2026-08-08-23-59.md
+reposcan-2026-08-09-00-07.md
+reposcan-2026-08-09-01-41.md
+reposcan-2026-08-09-02-39.md
+reposcan-2026-08-09-03-22.md
+reposcan-2026-08-09-04-04.md
+reposcan-2026-08-09-04-50.md
+reposcan-2026-08-09-05-12.md
+reposcan-2026-08-09-05-48.md
+reposcan-2026-08-09-06-47.md
+reposcan-2026-08-09-06-55.md
+reposcan-2026-08-09-07-37.md
+reposcan-2026-08-09-07-53.md
+reposcan-2026-08-09-08-15.md
+reposcan-2026-08-09-08-43.md
+reposcan-2026-08-09-09-10.md
+reposcan-2026-08-09-09-26.md
+reposcan-2026-08-09-09-57.md
+reposcan-2026-08-09-10-07.md
+reposcan-2026-08-09-10-16.md
+reposcan-2026-08-09-10-56.md
+reposcan-2026-08-09-11-31.md
+reposcan-2026-08-09-12-01.md
+reposcan-2026-08-09-12-21.md
+reposcan-2026-08-09-12-54.md
+reposcan-2026-08-09-13-19.md
+reposcan-2026-08-09-13-55.md
+reposcan-2026-08-09-14-13.md
+reposcan-2026-08-09-14-38.md
+reposcan-2026-08-09-15-07.md
+reposcan-2026-08-09-15-12.md
+reposcan-2026-08-09-15-43.md
+reposcan-2026-08-09-15-51.md
+reposcan-2026-08-09-16-06.md
+reposcan-2026-08-09-16-34.md
+reposcan-2026-08-09-16-49.md
+reposcan-2026-08-09-17-16.md
+reposcan-2026-08-09-17-54.md
+reposcan-2026-08-09-18-15.md
+reposcan-2026-08-09-18-41.md
+reposcan-2026-08-09-19-06.md
+reposcan-2026-08-09-19-23.md
+reposcan-2026-08-09-19-35.md
+reposcan-2026-08-09-19-59.md
+reposcan-2026-08-09-20-24.md
+reposcan-2026-08-09-20-42.md
+reposcan-2026-08-09-21-02.md
+reposcan-2026-08-09-21-16.md
+reposcan-2026-08-09-21-26.md
+reposcan-2026-08-09-21-52.md
+reposcan-2026-08-09-22-02.md
+reposcan-2026-08-09-22-22.md
+reposcan-2026-08-09-22-31.md
+reposcan-2026-08-09-23-06.md
+reposcan-2026-08-09-23-23.md
+reposcan-2026-08-09-23-49.md
+reposcan-2026-08-10-00-01.md
+reposcan-2026-08-10-00-49.md
+reposcan-2026-08-10-01-44.md
+reposcan-2026-08-10-03-11.md
+reposcan-2026-08-10-03-32.md
+reposcan-2026-08-10-04-33.md
+reposcan-2026-08-10-05-10.md
+reposcan-2026-08-10-06-03.md
+reposcan-2026-08-10-06-43.md
+reposcan-2026-08-10-07-23.md
+reposcan-2026-08-10-08-20.md
+reposcan-2026-08-10-08-36.md
+reposcan-2026-08-10-10-00.md
+reposcan-2026-08-10-10-20.md
+reposcan-2026-08-10-11-15.md
+reposcan-2026-08-10-11-54.md
+reposcan-2026-08-10-12-01.md
+reposcan-2026-08-10-12-44.md
+reposcan-2026-08-10-13-33.md
+reposcan-2026-08-10-14-09.md
+reposcan-2026-08-10-14-42.md
+reposcan-2026-08-10-15-10.md
+reposcan-2026-08-10-15-42.md
+reposcan-2026-08-10-16-00.md
+reposcan-2026-08-10-16-35.md
+reposcan-2026-08-10-16-51.md
+reposcan-2026-08-10-17-41.md
+reposcan-2026-08-10-17-49.md
+reposcan-2026-08-10-18-37.md
+reposcan-2026-08-10-18-43.md
+reposcan-2026-08-10-19-49.md
+reposcan-2026-08-10-20-19.md
+reposcan-2026-08-10-20-27.md
+reposcan-2026-08-10-21-19.md
+reposcan-2026-08-10-21-50.md
+reposcan-2026-08-10-22-07.md
+reposcan-2026-08-10-22-31.md
+reposcan-2026-08-10-22-54.md
+reposcan-2026-08-10-23-21.md
+reposcan-2026-08-10-23-36.md
+reposcan-2026-08-10-23-42.md
+reposcan-2026-08-11-00-15.md
+reposcan-2026-08-11-02-30.md
+reposcan-2026-08-11-02-35.md
+reposcan-2026-08-11-04-30.md
+reposcan-2026-08-11-05-44.md
+reposcan-2026-08-11-06-10.md
+reposcan-2026-08-11-06-32.md
+reposcan-2026-08-11-07-07.md
+reposcan-2026-08-11-07-52.md
+reposcan-2026-08-11-08-04.md
+reposcan-2026-08-11-08-55.md
+reposcan-2026-08-11-09-17.md
+reposcan-latest.md
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/grep-delta.txt 2>&1; echo "===ANALYSIS==="; cat /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/analysis.txt 2>&1 | tail -50
+DELTA: 0 new hit lines vs previous scan
+===ANALYSIS===
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt
+total 392
+drwxr-xr-x 11 runner runner   4096 Aug 11 09:14 .
+drwxr-xr-x  3 runner runner   4096 Aug 11 09:13 ..
+drwxr-xr-x  7 runner runner   4096 Aug 11 09:14 .git
+drwxr-xr-x  3 runner runner   4096 Aug 11 09:13 .github
+-rw-r--r--  1 runner runner   1049 Aug 11 09:13 README.md
+-rw-r--r--  1 runner runner    834 Aug 11 09:14 cands-threema-ch.txt
+drwxr-xr-x  2 runner runner   4096 Aug 11 09:13 inventory
+drwxr-xr-x  2 runner runner   4096 Aug 11 09:13 knowledge
+drwxr-xr-x  2 runner runner  12288 Aug 11 09:13 leads
+-rw-r--r--  1 runner runner  45042 Aug 11 09:13 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Aug 11 09:13 reports
+-rw-r--r--  1 runner runner 149216 Aug 11 09:14 repos-threema-ch.json
+drwxr-xr-x  3 runner runner   4096 Aug 11 09:13 reposcan-raw
+-rw-r--r--  1 runner runner 115413 Aug 11 09:14 scan-prompt.txt
+-rw-r--r--  1 runner runner   2188 Aug 11 09:13 scope.yml
+drwxr-xr-x  2 runner runner   4096 Aug 11 09:13 scripts
+-rw-r--r--  1 runner runner     34 Aug 11 09:13 state_bigpickle.json
+-rw-r--r--  1 runner runner     37 Aug 11 09:13 state_laguna.json
+-rw-r--r--  1 runner runner     34 Aug 11 09:13 state_ling3.json
+-rw-r--r--  1 runner runner     34 Aug 11 09:13 state_longcat.json
+-rw-r--r--  1 runner runner     33 Aug 11 09:13 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Aug 11 09:13 triage
+[0m
+[0m→ [0mRead scan-prompt.txt
+[0m→ [0mRead cands-threema-ch.txt
+Based on the knowledge base and scan results, here's the triage classification:
+
+---
+
+### **REAL_SECRET** (hardcoded credentials with signs of life)
+| File | Line | Classification | sha256(secret) | Verdict |
+|------|------|----------------|----------------|---------|
+| *(none)* | — | — | — | **No real secrets found** |
+
+---
+
+### **TEST_OR_EXAMPLE** (sample/test/fixture data)
+| File | Line | Context | Verdict |
+|------|------|---------|---------|
+| threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | `serverPassword: "password1"` | TEST_FIXTURE |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15 | `expectedAuthToken = "authToken"` | TEST_FIXTURE |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 18 | `expectedPassword = "testPassword"` | TEST_FIXTURE |
+| threema-ios/.../WorkDataThreemaMDMFetcherTests.swift | 50,72,148 | `licensePassword = "testPassword"` | TEST_FIXTURE |
+| threema-ios/.../WorkDataAPICallerTests.swift | 13,37,103 | `expectedPassword = "testPassword"` | TEST_FIXTURE |
+| threema-ios/ThreemaTests/SafeTests.swift | 67,76,105 | `safePassword: "shootdeathstar"` | TEST_FIXTURE |
+| threema-ios/.../ThreemaSafePasswordValidatorTests.swift | 30,
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/reposcan-latest.md 2>&1 | tail -80
+cat: /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/reposcan-latest.md: No such file or directory
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/reposcan-2026-08-11-09-17.md 2>&1 | tail -60
+cat: /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/reposcan-2026-08-11-09-17.md: No such file or directory
+[0m
+[0m$ [0mls -lt /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/reposcan-*.md | head -3
+ls: cannot access '/home/runner/work/threema-hunt/threema-hunt/reposcan-raw/reposcan-*.md': No such file or directory
+[0m
+[0m$ [0mls -lt /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-*.md | head -3
+-rw-r--r-- 1 runner runner 11447 Aug 11 09:49 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-11-02-30.md
+-rw-r--r-- 1 runner runner  6321 Aug 11 09:49 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-11-02-35.md
+-rw-r--r-- 1 runner runner  6321 Aug 11 09:49 /home/runner/work/threema-hunt/threema-hunt/leads/reposcan-2026-08-11-04-30.md
+[0m
+[0m→ [0mRead leads/reposcan-2026-08-11-02-30.md[90m [limit=100, offset=0][0m
+[0m
+[0m$ [0mcat /home/runner/work/threema-hunt/threema-hunt/reports/valid-bugs.md 2>&1 | head -100
+# Validated Bugs
+
+- 2026-08-07 ~18:00 UTC - SEED STATE: 0 valid bugs. Pipeline not yet run; hypotheses are recon-based and UNVALIDATED.
+
+- 3 lead(s) marked VALID at 2026-08-07 21:03:52 UTC
+  - | Q5 Novel? | **NO** — already ACCEPTED (knowledge/index.md line 21: "POST /identity/fetch_bulk returns pubkeys for valid IDs only, no auth") |
+  - | Q4 Passive proof? | **PARTIAL** — can confirm CORS headers + 404 on random IDs; cannot confirm oracle without valid id+key pair |
+  - | **VALID** | 0 | — |
+
+- 3 lead(s) marked VALID at 2026-08-07 21:56:25 UTC
+  - **Verdict: HOLD** — Speculative; requires AUTH_HELPED with valid credentials to confirm. Needs program to provide test credentials.
+  - | Q4 | PARTIAL — can confirm CORS headers; cannot confirm oracle without valid id+key |
+  - | **VALID** | 0 | — |
+
+- 2 lead(s) marked VALID at 2026-08-07 23:55:35 UTC
+  - | Q3 | **NO** | All data-access routes return 400 (credential-gated). No unauthenticated data access demonstrated. CORS `*` + Authorization header on an auth-gated API only matters if the attacker alr
+  - | Q7 | **NO** | Requires valid credentials to have any impact. No unauthenticated data access demonstrated. |
+
+- 3 lead(s) marked VALID at 2026-08-08 04:24:31 UTC
+  - **Verdict: VALID**
+  - **Verdict: HOLD** — Defense-in-depth/hardening gap. `sandbox:false` + `nodeIntegrationInWorker:true` are real hardening concerns but constitute a vulnerability ONLY when chained with a demonstrated re
+  - | **VALID** | 1 | #3 Desktop Windows key-storage ACL bypass |
+
+- 6 lead(s) marked VALID at 2026-08-08 06:01:58 UTC
+  - **Verdict: VALID** (duplicate of already-accepted KB finding — no new action needed)
+  - **Verdict: HOLD** — credential-gated; real impact requires credential compromise; enumeration oracle is weak (route existence only). AUTH_HELPED needed to confirm (1) HTTP 200 for valid backupId+backu
+  - | Q7 | ✅ YES | Reasonable triager accepts as valid local-privilege finding for privacy-focused messenger |
+  - **Verdict: VALID** (duplicate of already-accepted KB finding — confidence strengthened 75→95)
+  - | 1 | Directory identity→pubkey bulk enumeration + CORS * + no rate limit | IDOR | **VALID** | 5.3 Med | Already accepted |
+  - | 3 | Desktop Windows key-storage ACL bypass → identity compromise | MISCONFIG | **VALID** | 5.5 Med | Already accepted (strengthened) |
+
+- 8 lead(s) marked VALID at 2026-08-08 07:07:02 UTC
+  - | Q4 Passive proof? | **YES** — `curl -s -X POST https://ds-apip.threema.ch/identity/fetch_bulk -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` returns 200 with pubkey
+  - **Verdict: ✅ VALID**
+  - **Verdict: ✅ VALID (low severity)**
+  - **Verdict: ✅ VALID (medium, local access required)**
+  - | Q7 Triager accept? | **NO** — no data access without valid credentials; CORS `*` on a credential-gated endpoint is not a vulnerability |
+  - | 1 | Directory cluster identity enumeration (IDOR) | ✅ **VALID** | 5.3 | Medium |
+  - | 2 | Staging directory server public exposure | ✅ **VALID** | 3.1 | Low |
+  - | 3 | Desktop Windows key storage ACL bypass | ✅ **VALID** | 4.6 | Medium |
+
+- 5 lead(s) marked VALID at 2026-08-08 07:15:49 UTC
+  - | **Q4 Proof (GET/HEAD)** | ✅ YES — `GET /identity/ECHOECHO` → 200 with pubkey; `GET /identity/ZZZZZZZZ` → 404; `POST /identity/fetch_bulk` → pubkeys for valid IDs; CORS * confirmed |
+  - | **Q6 Not always-rejected** | ❌ **REJECTED** — CORS * on a credential-gated endpoint is best practice / defense-in-depth. No unauthenticated data access. The 400-vs-404 distinction is an oracle but r
+  - | **Q2 Reachability** | ⚠️ AUTH_HELPED — requires valid Work test license (401 on unauth) |
+  - **Verdict: HOLD** — Interesting hypothesis (OpenAPI flags it "currently buggy" TWRK-1633) but requires AUTH_HELPED testing with a valid Work license. Cannot be proven with passive GET/HEAD only. Retai
+  - **VALID leads for reporting: 0**
+
+- 5 lead(s) marked VALID at 2026-08-08 08:07:09 UTC
+  - | Q2 Reachable? | ⚠️ PARTIAL | Endpoint responds but returns 400 without valid credentials; auth-gated |
+  - | Q3 Real impact? | ❌ NO | CORS `*` on a credential-gated endpoint (400, not 200) is defense-in-depth only. No unauthenticated data access demonstrated. Attacker still needs valid backupId+backupKey |
+  - | Q6 Not always-rejected? | ❌ NO | This is on the always-rejected list: CORS `*` on credential-gated endpoint is best practice/defense-in-depth, not a vulnerability (per valid-bugs.md precedent) |
+  - | Q1 In scope? | ❌ NO | scope.yml lists `mediator-*.threema.ch` and `rendezvous-*.threema.ch` — staging `.test` variants are not explicitly listed. Per valid-bugs.md precedent, staging variants are tr
+  - | Q4 Passive proof? | ❌ NO | Requires AUTH_HELPED (valid credentials) to test session fixation |
+
+- 2 lead(s) marked VALID at 2026-08-08 10:53:22 UTC
+  - Verdict: HOLD — speculative. Backend route not deployed on staging (returns method-agnostic 404). If backend catches up, the route could return license credentials (username/password/expires/hasEmail)
+  - | VALID   | 0     | — |
+
+- 2 lead(s) marked VALID at 2026-08-08 14:00:44 UTC
+  - | Q3 | NO — impact is "valid-ID enumeration at scale; low-medium (pubkeys public by design)" |
+  - | **VALID** | 0 | No new, novel, reportable findings |
+
+- 5 lead(s) marked VALID at 2026-08-08 14:52:12 UTC
+  - **Verdict: VALID — Medium**
+  - **Verdict: VALID — Medium**
+  - **Verdict: HOLD** — valid RAG target to unlock chat surface; no vuln to report yet. Action: grep client source for `ServerConfig`/`g-*.0.threema.ch`/`wss://` chat URL.
+  - | 1 | Directory cluster identity→pubkey enumeration (fetch_bulk + GET /identity/{id}, CORS*, no rate-limit) | **VALID** (Medium) | Mass enumeration of valid IDs+pubkeys at scale; CVSS 4.3 |
+  - | 4 | Desktop Windows key storage: no ACL on keystorage.bin + keystorage.password.bin | **VALID** (Medium) | Same-user process reads DPAPI password + encrypted keystore; CVSS 5.5 |
+
+- 14 lead(s) marked VALID at 2026-08-08 15:47:00 UTC
+  - | Q5 Novel? | ❌ **NO** — already ACCEPTED in KB (lines 20-21, 27, 59, 67, 80, 82, 85-86, 94, 99, 104); triaged as VALID in valid-bugs.md multiple times |
+  - | Q5 Novel? | ❌ **NO** — already ACCEPTED in KB (lines 26, 74, 77-78, 92, 108); triaged as VALID in valid-bugs.md |
+  - | Q5 Novel? | ❌ **NO** — already ACCEPTED in KB (lines 28-29, 61, 68, 93); triaged as VALID in valid-bugs.md |
+  - | Q3 Real impact? | ❌ NO — `GET /backups/{64hex}` returns 400 (not 200/401/404); requires valid backupId+backupKey; CORS* on credential-gated endpoint only matters if attacker already has credentials 
+  - | Q4 Passive proof? | ⚠️ Can confirm CORS headers + 400 response; cannot confirm data access without valid credentials |
+  - | Q6 Not always-rejected? | ❌ **NO** — CORS* on a credential-gated endpoint is best-practice/defense-in-depth, not a vulnerability (per valid-bugs.md precedent) |
+  - | Q7 Triager accept? | ❌ NO — no data access demonstrated; requires valid credentials |
+  - | Q2 Reachable? | ⚠️ AUTH_HELPED — requires valid credentials to test login flow |
+  - | Q5 Novel? | ⚠️ Not previously triaged in valid-bugs.md, but low confidence |
+  - | Q2 Reachable? | ⚠️ AUTH_HELPED — 401 on unauth; requires valid Work license |
+  - | Q5 Novel? | ⚠️ Not previously triaged in valid-bugs.md |
+  - **Verdict: HOLD.** OpenAPI flags it "currently buggy" but requires AUTH_HELPED with valid Work license. Retain for program-provided test credentials.
+  - | Q3 Real impact? | ⚠️ LOW — route presence + parameter-validation oracle; challenge-response still requires valid identity+secret |
+  - | **VALID (new)** | **0** | No novel, reportable findings |
+
+- 5 lead(s) marked VALID at 2026-08-08 17:51:00 UTC
+   - | Q5 Novel? | ❌ **NO** — all 5 leads are duplicates of already-ACCEPTED KB findings |
+   - | Q6 Not always-rejected? | ❌ **NO** — safe-01 CORS* on credential-gated endpoint is defense-in-depth (per precedent) |
+   - | **VALID (new)** | **0** | No novel, reportable findings |
+   - DISCREPANCY: Challenge endpoints probed as 404 vs KB-documented 200 — needs re-probe |
+
+- 8 lead(s) marked VALID at 2026-08-08 17:19:51 UTC
+  - VERDICT: VALID
+  - | **VALID** | 6 | Directory cluster IDOR, Desktop Windows key-storage ACL bypass, Safe backup CORS, Safe HSTS inconsistency, Challenge-parameter-oracle, work.test bundle divergence |
+  - VERDICT: VALID
+  - VERDICT: VALID
+  - VERDICT: VALID (low severity)
+  - VERDICT: VALID (low severity)
+  - VERDICT: VALID (low severity)
+[0m
+[0m$ [0mtail -80 /home/runner/work/threema-hunt/threema-hunt/probe-results.md
+## 2026-08-11 00:09:29 UTC
+https://work.threema.ch/api/v1 -> HTTP 401
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://work.test.threema.ch/api-app/public/license/token/0000000000000000000000000000000000000000000000000000000000000000 -> HTTP 404
+https://work.test.threema.ch/api/v1/contacts -> HTTP 401
+https://ds-apip.threema.ch/api.threema.ch/apip.threema.ch -> HTTP 404
+https://ds-apip-work.threema.ch/identities` -> HTTP 401
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://work.threema.ch/api/v1/users` -> HTTP 404
+
+## 2026-08-11 02:33:11 UTC
+https://work.threema.ch/api/v1 -> HTTP 401
+https://work.threema.ch/api/v1/users` -> HTTP 404
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://ds-apip-work.threema.ch/identities` -> HTTP 401
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-11 04:15:13 UTC
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://work.threema.ch/api/v1 -> HTTP 401
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://work.threema.ch/api/v1/users` -> HTTP 404
+https://ds-apip-work.threema.ch/identities` -> HTTP 401
+https://ds-apip.threema.ch/api.threema.ch/apip.threema.ch -> HTTP 404
+
+## 2026-08-11 05:19:20 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://apip.threema.ch/check_license` -> HTTP 404
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://apip-work.threema.ch -> HTTP 401
+https://work.threema.ch/api/v1 -> HTTP 401
+
+## 2026-08-11 06:07:00 UTC
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://apip.threema.ch/check_license` -> HTTP 404
+https://ds-apip.threema.ch/identity/lookup -> HTTP 404
+https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
+https://ds-apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backup/{random16 -> HTTP 404
+https://safe-01.threema.ch/backup/ -> HTTP 404
+https://ds-apip.threema.ch/check_license` -> HTTP 404
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://ds-apip-work.threema.ch/identities` -> HTTP 401
+
+## 2026-08-11 07:05:51 UTC
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/lookup -> HTTP 404
+https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
+https://ds-apip.threema.ch/check_license` -> HTTP 404
+https://ds-apip-work.threema.ch/identities` -> HTTP 401
+https://work.threema.ch/api/v1 -> HTTP 401
+https://work.threema.ch/api/v1/users` -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://apip.threema.ch/check_license` -> HTTP 404
+https://ds-apip.threema.ch/identity/match -> HTTP 400
+
+## 2026-08-11 08:02:36 UTC
+https://ds-apip.threema.ch/identity/match -> HTTP 400
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+
+## 2026-08-11 09:13:35 UTC
+https://work.threema.ch/api/v1 -> HTTP 401
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://work.threema.ch/api/v1/users` -> HTTP 404
+https://ds-apip-work.threema.ch/identities` -> HTTP 401
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/api.threema.ch/apip.threema.ch -> HTTP 404
+https://apip-work.threema.ch -> HTTP 401
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/match -> HTTP 400
+[0m
+[0m$ [0mgrep -i "identity/match" /home/runner/work/threema-hunt/threema-hunt/probe-results.md | head -5; echo "---KB---"; grep -i "identity/match" /home/runner/work/threema-hunt/threema-hunt/knowledge/index.md 2>/dev/null | head -5
+https://ds-apip.threema.ch/identity/match -> HTTP 400
+https://ds-apip.threema.ch/identity/match -> HTTP 400
+https://ds-apip.threema.ch/identity/match -> HTTP 400
+---KB---
+[0m
+[0m$ [0mls /home/runner/work/threema-hunt/threema-hunt/knowledge/ 2>&1
+index.md
+[0m
+[0m$ [0mgrep -c "ACCEPTED\|REJECTED\|NEW\|WEAKENED\|CONFIRMED\|PENDING\|CHANGED\|INTERESTING" /home/runner/work/threema-hunt/threema-hunt/knowledge/index.md
+410
+[0m
+## STEP 1 — DELTA
+
+[NEW] ds-apip.threema.ch/identity/match → HTTP 400 (new endpoint observed in 2026-08-11 probes, not previously documented in KB)
+[CHANGED] poc/ directory — confirmed STILL ABSENT via `ls` (16th+ consecutive cycle); KB artifact claims persistently false; filesystem ground truth overrides all KB assertions
+NO_DELTA — all other inventory items already captured in knowledge base; grep-delta 0 new hit lines; reposcan analysis confirms no real secrets (all test fixtures); all network endpoints byte-stable
+
+## STEP 2 — PRIORITIZE
+
+[PRIO] ds-apip.threema.ch/identity/fetch_bulk — 8.5 (attack:9, business:9, tech:8, gate:10, cloud:8, fresh:5) — ACCEPTED IDOR, 10k-ID batch enum, CORS *, no rate-limit, CVSS 7.5
+[PRIO] ds-apip.threema.ch/check_license — 8.25 (attack:8, business:8, tech:7, gate:10, cloud:8, fresh:9) — ACCEPTED AUTH, cross-origin credential oracle, CORS *, no rate-limit, CVSS 6.5
+[PRIO] threema-desktop key-storage (Windows ACL bypass) — 8.2 (attack:10, business:9, tech:9, gate:6, cloud:7, fresh:5) — RAG-verified 6-path chain, CVSS 8.1, needs Windows validation
+[PRIO] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} — 7.5 (attack:8, business:8, tech:7, gate:7, cloud:9, fresh:5) — ACCEPTED MISCONFIG, CORS * + write methods + HSTS gap, CVSS 7.4
+[PRIO] ds-apip.threema.ch/identity/match — 6.35 (attack:7, business:7, tech:6, gate:10, cloud:6, fresh:10) — NEW endpoint, HTTP 400, likely parameter-validation oracle (analogous to challenge endpoints), unauthenticated, CORS *
+
+## STEP 3 — HYPOTHESES
+
+[HYP] Cross-origin credential validation oracle on check_license
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 60
+reasoning: RAG-confirmed (fetch-work.ts:112-124): desktop client POSTs `{licenseUsername, licensePassword, version, arch}` to DIRECTORY_SERVER_URL + `/check_license`. Response schema (work.ts:163-172): `{success:true}` or `{success:false, error?:string}`. Probe: fake creds → 200 `{"success":false,"error":"This username or password is invalid."}`; CORS `*` + Allow-Headers Content-Type; no 429 on 3 sequential POSTs. Any attacker origin can POST and read the success oracle cross-origin.
+evidence_needed: (a) zero 429s across ≥10 sequential POSTs → no rate limit on credential validator; (b) confirm success:true response shape differs (valid-pair oracle distinctness)
+verify_steps: PASSIVE: 10x sequential POST `/check_license` at 1 rps with fake creds `{"licenseUsername":"nobody@example.invalid","licensePassword":"invalidpw","version":"4.1.0;Q;en/??;Electron;31.0.0.0;Linux;x64","arch":"x64"}` on ds-apip.threema.ch; OPTIONS preflight with Origin on api/apip siblings for CORS parity. Do NOT attempt real credential guessing.
+impact: unauthenticated cross-origin-driveable Work license credential validator; valid creds gate ds-apip-work `/identities`+`/fetch2` (names/jobTitle/department + pubkeys) and work.threema.ch login. Severity: Medium (CVSS 3.1 6.5).
+testability: PASSIVE
+
+[HYP] Unauthenticated identity→pubkey enumeration via fetch_bulk
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk
+confidence: 95
+reasoning: Hard ceiling exactly 10000 IDs/request (10000→200/152B, 10001→400/0B sharp count-cap, no partial/overshoot pubkey leak); CORS `*` + Allow-Methods POST,GET,OPTIONS,DELETE on both 200 and 400; zero 429s across ~35 sequential probes; only valid IDs echoed, invalid silently omitted. Byte-stable across all 3 prod hosts and staging.
+evidence_needed: (a) confirm 10000-cap holds on api/apip siblings with unique (non-ECHOECHO) IDs; (b) measure response-time differential for valid vs invalid batch composition
+verify_steps: PASSIVE: POST `/identity/fetch_bulk` with `{"ids":["ECHOECHO","ZZZ"+...9999 more invalid...]}` at 1 rps on ds-apip.threema.ch, api.threema.ch, apip.threema.ch; compare response body sizes (valid-only echo = smaller, all-invalid = 17B empty identities). Confirm CORS `*` on 200 and 400.
+impact: unauthenticated cross-origin identity→pubkey enumeration at 10k IDs/request, no rate limit, no auth → full directory harvest enabling targeted phishing + de-anonymization. Severity: High (CVSS 3.1 7.5).
+testability: PASSIVE
+
+[HYP] Parameter-validation oracle on identity/match endpoint
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 45
+reasoning: New endpoint observed 2026-08-11 returning HTTP 400 on GET (analogous to 5 known challenge endpoints that return 200 JSON errors with parameter-validation-before-identity-lookup orables like "Bad revocation key length" and "Missing parameters"). HTTP 400 suggests parameter validation runs before identity lookup. If POST with different parameter combinations produces distinct error messages (e.g., "Missing parameters" vs "Invalid identity"), this is a new unauthenticated oracle. CORS `*` likely (all directory endpoints return ACAO:*).
+evidence_needed: (a) confirm CORS `*` on this endpoint; (b) POST with varying params to map error-message differential; (c) confirm validation-order (param-check before identity-check)
+verify_steps: PASSIVE: 1) `curl -I -H "Origin: https://evil.com" https://ds-apip.threema.ch/identity/match` → confirm ACAO:*; 2) `curl -X POST -H "Content-Type: application/json" -H "Origin: https://evil.com" -d '{}' https://ds-apip.threema.ch/identity/match` → observe error; 3) POST with `{"identity":"ECHOECHO"}`, `{"identity":"ECHOECHO","token":"x"}`, `{"token":"x"}` → compare error messages. 1 rps, no real data.
+impact: new unauthenticated parameter-validation oracle on directory server; low-medium severity alone but amplifies existing directory enumeration surface. Severity: Low-Medium (CVSS 3.1 ~4.3).
+testability: PASSIVE
+
+## STEP 4 — SELF-CRITIQUE
+
+[PARKED] Parameter-validation oracle on identity/match endpoint: confidence 45 (below threshold for reporting; needs PROBE phase first to confirm CORS + error differential; retain as candidate for next cycle after probe data collected)
+
+[FINAL] 1. fetch_bulk unauthenticated identity→pubkey enumeration oracle (IDOR, confidence 95) — top priority: 10k-ID batch enum, CORS *, no rate-limit, CVSS 7.5
+[FINAL] 2. check_license cross-origin credential validation oracle (AUTH, confidence 60) — RAG-confirmed source path, concrete passive probe, CVSS 6.5
+[FINAL] 3. Windows key-storage ACL bypass (MISCONFIG, confidence 95) — RAG-verified 6-path chain, CVSS 8.1, needs Windows runtime validation
+
+## STEP 5 — NEXT ACTION
+
+[NEXT] PROBE: `curl -s -I -H "Origin: https://evil.com" https://ds-apip.threema.ch/identity/match` followed by `curl -s -X POST -H "Content-Type: application/json" -H "Origin: https://evil.com" -d '{}' https://ds-apip.threema.ch/identity/match` and `curl -s -X POST -H "Content-Type: application/json" -H "Origin: https://evil.com" -d '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/match` — map CORS headers + error-message differential on the new identity/match endpoint to confirm/deny parameter-validation oracle hypothesis. 1 rps, GET/HEAD only for CORS check, POST for param mapping.
+
+## STEP 6 — LEARNING
+
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req; CORS * + no rate-limit + 5 challenge param-oracles — byte-stable this cycle
+[LEARN] ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle confirmed via RAG (fetch-work.ts:112-124) + probe (fake creds → 200 `{"success":false,"error":"This username or password is invalid."}`, CORS *, no 429 on 3 POSTs)
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub `stable`; PoC artifact still absent from workspace (filesystem-verified)
+[LEARN] ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 — header inconsistency stable across all 5 hosts
+[LEARN] WEAKENED AUTH @ work.threema.ch/api/v1: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls)
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), derived key purged at line 233
+[LEARN] REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree), not standalone
+[LEARN] REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
+
+## STEP 7 — RISK SCORE
+
+[RISK] chat: 25 — prod DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band 443/5222 passive channel closed (0 bytes without authenticated login frame, no cert/SAN leak); no passive surface remaining
+[RISK] web: 95 — directory triad (ds-apip+api+apip) fetch_bulk 10k ID enumeration + CORS * + no auth + cross-origin readable + zero 429 byte-stable (CVSS 7.5 High); check_license cross-origin credential oracle (CVSS 6.5); GET /identity/{id} → 200/404 oracle uniform; 5 challenge param-validation oracles confirmed; work.threema.ch/api/v1 X-Api-Key API adds new attack surface but key source NOT in desktop source; safe backup CORS* + HSTS gap (CVSS 7.4)
+[RISK] sync: 50 — mediator-{0..f}/rendezvous-{0..f} resolve (DNS split 203.56.112.247 / 203.56.114.247 for 0-7/8-f), uniform 403 on HTTPS, no CORS; ds-apip-work auth-gated (401 + CORS * + no HSTS, OPTIONS also 401); TWRK-1633 cross-subscription leak candidate unvalidated (auth-required); work.threema.ch/api/v1 X-Api-Key API key source unknown
+[RISK] safe: 80 — 5 safe-* hostnames single IP 203.56.112.231; CORS * + write-capable methods on GET 400 + Allow-Headers Authorization on OPTIONS 204 (credentialed cross-origin); HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 (CVSS 7.4 Med-High); HTTP Basic Auth + route-existence oracle (400 vs 404) byte-stable
+[RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub stable source paths); PoC artifact still absent from workspace despite 17 cycles of KB claims; BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); remaining gap: live Windows runtime validation (CVSS 8.1 High)

@@ -8244,3 +8244,32 @@ impact: unauthenticated browser-driveable Work-license credential validator at z
 testability: PASSIVE→AUTH_HELPED
 [NEXT] PROBE: map the `/identity/match` rate-limiter cooldown + hash-format differential — wait ≥120s (limiter tripped this cycle), then a single POST `{"emailHashes":["<b64-32B-HMAC-SHA256-of-a-valid-Threema-account-email>"]}` to https://ds-apip.threema.ch/identity/match and read the `identities[]` array for membership differential vs 200-empty; repeat at ≥120s spacing to bound cooldown window; then OPTIONS + same POST against ds-apip.test.threema.ch for staging limiter parity. (≤1 rps, passive.)
 [RISK] chat: 25 — DNS shard→node map fully attributed, in-band 443/5222 passive channel closed (0 bytes, no cert) | web: 68 — accepted fetch_bulk 10k-ID CORS-`*` no-429 enumeration (CVSS 7.5) + check_license cross-origin credential validator (CVSS 6.5); NEW `/identity/match` per-IP limiter confirms selective coverage — membership oracle bounded per-origin, distributed-bypass open | sync: 20 — TWRK-1633 AUTH-gated, mediator/rendezvous 403, WSS surface closed | safe: 40 — backup API credential-gated; HSTS/Expect-CT absent-on-400 header inconsistency only | desktop-src: 35 — key-storage ACL bypass RAG-verified 95%, PoC artifact absent 16+ cycles (filesystem-confirmed), Windows validation pending
+## 2026-08-11 10:03:11 UTC [chat] (model bigpickle)
+[HYP] /identity/match email→identity membership oracle (selective limiter; keys forgeable; positive differential unproven)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 78
+reasoning: Public client HMAC keys (APIConnector.java:78-89) + unauth endpoint (matchToken optional, L642-645) + CORS `*` → any attacker forges hashes for arbitrary emails. Own probes: {}→200/39B, 1-hash→200, 2-hash→429; cooldown <~90s; 100-hash batch→429 (cost-proportional, no batch amplification); staging has NO limiter. Server echoes matched emailHash → membership differential by design.
+evidence_needed: (a) a real Threema-user email (or program test identity+email) → hash → non-empty `identities[]`; (b) boundary of batch-size cost unit; (c) whether staging mirrors prod dataset (no-limiter staging oracle)
+verify_steps: AUTH_HELPED: POST `{"emailHashes":["<b64-HMAC-SHA256(lowercased-email, public-key)>"]}` with program-issued test email tied to known identity → expect `{"checkInterval":86400,"identities":[{identity,emailHash,...}]}`; PROBE-only fallback: single-request batch-size sweep 1/2/5/10/20/50 hashes at ≥90s spacing to map cost-unit boundary (≤1 rps).
+impact: email→identity membership oracle at ~1-2 req/min/IP (distributed CORS-`*` multi-origin probing defeats per-IP bound) → targeted phishing/deanonymization. Severity: Medium (CVSS 3.1 5.3), bounded by limiter
+testability: PASSIVE→AUTH_HELPED
+[HYP] fetch_bulk no-rate-limit enumeration oracle — parity watch (accepted finding)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (api.threema.ch/apip.threema.ch siblings)
+confidence: 95
+reasoning: Own probe byte-stable 200/152B (ECHOECHO echoed with pubkey, invalid IDs silently omitted); hard 10000-ID count-cap (10001→400/0B); CORS `*`; zero 429s across ~35+ probes. Contrast: match limiter now fully characterized → coverage is endpoint-selective.
+evidence_needed: none — impact framing + weekly parity only
+verify_steps: PASSIVE done — weekly re-probe for 429 regression / cap drift
+impact: anonymous identity→pubkey graph harvest at 10k IDs/request → deanonymization/phishing. Severity: High (CVSS 3.1 7.5)
+testability: PASSIVE
+[HYP] check_license cross-origin credential validator — 429-absence re-confirmed
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 75
+reasoning: Own probe 200/65B `{"success":false,"error":"This username or password is invalid."}`, CORS `*` + Allow-Headers, zero 429 across 6+ POSTs; desktop/Android/iOS all use licenseUsername/licensePassword against this exact endpoint. Same hostname as fetch_bulk (no limiter) but match (limiter) → selective coverage.
+evidence_needed: success:true shape (needs valid pair); 429-absence over ≥15 sequential POSTs
+verify_steps: PASSIVE done; AUTH_HELPED: with program-issued Work license POST `{licenseUsername,licensePassword,"version":"4.7.6","arch":"x64"}` → expect `{"success":true}`
+impact: unauthenticated browser-driveable Work-license credential validator, zero rate limit → offline guessing before directory/login abuse. Severity: Medium (CVSS 3.1 6.5)
+testability: PASSIVE→AUTH_HELPED
+[NEXT] HUMAN: Request program-issued authorized test artifacts to close the two remaining evidence gaps in parallel: (a) a test email bound to a known Threema identity → POST `{"emailHashes":["<b64-HMAC-SHA256(lowercased-email, public-key)>"]}` to https://ds-apip.threema.ch/identity/match expecting non-empty `identities[]` (closes match membership differential); (b) a Work license pair → POST to https://ds-apip.threema.ch/check_license expecting `{"success":true}` and to https://ds-apip-work.threema.ch/identities for TWRK-1633 cross-subscription scoping. Passive fallback: single-request batch-size sweep (1/2/5/10/20/50 hashes, ≥90s spacing) to map the cost-unit boundary of the match limiter.
