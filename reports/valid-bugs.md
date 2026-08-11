@@ -581,3 +581,10 @@
 - 2 lead(s) marked VALID at 2026-08-11 11:15:23 UTC
   - | Q4 Proof | ❌ Cannot prove without valid backupId:backupKey |
   - | **VALID** | 0 | No new, non-duplicate, provable vulnerabilities |
+
+- 5 lead(s) marked VALID at 2026-08-11 13:55:14 UTC
+  - | Q3 | ✅ Real impact — unauthenticated, cross-origin-readable, rate-limit-free mass enumeration of every valid Threema identity + public key. Deanonymization / targeted-phishing at global scale. |
+  - **Verdict: VALID** (with evidence gap — positive differential unproven passively).
+  - | Q4 | ✅ Provable passively: response shape/schema oracle, CORS `*`, 429-absence all confirmed via GET/HEAD + read-only POST. `success:true` shape needs valid pair (AUTH_HELPED) but the *oracle gap* i
+  - | Q7 | ⚠️ Parked/AUTH_HELPED — passive-only cannot demonstrate data access without valid credentials. |
+  - | 2 | `/identity/match` email→identity membership oracle | IDOR | **VALID** | Novel endpoint, CORS `*` + forgeable keys; evidence gap (positive differential needs AUTH_HELPED) |
