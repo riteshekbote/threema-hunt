@@ -1,8 +1,9 @@
-## 2026-08-11 20:09:02 UTC [web] (model nemotron3)
+## 2026-08-11 21:02:23 UTC [web] (model nemotron3)
 [NEW] ds-apip.threema.ch/identity/match → HTTP 400 on latest probe (previously 200/39B empty identities) — response variance confirmed
 [NEW] /identity/match `emailHashes` batch-size cost-unit boundary (1/2/5/10/20/50 hashes) — not previously mapped
 [NEW] /identity/match GET → 400 body content — probe-results.md shows HTTP 400 but KB did not capture response body fingerprint for GET vs POST
 [CHANGED] ds-apip.threema.ch/identity/match rate-limiter — cooldown window >20min confirmed (429/0B on probe >20min after last 200)
+[CHANGED] ds-apip.threema.ch/identity/match — OPTIONS 400 confirmed carrying CORS `*` + Allow-Headers Content-Type,User-Agent (CORS headers on both 200 POST and 400 OPTIONS)
 [CHANGED] work.threema.ch/api/v1 — downgraded to non-finding: no CORS on 404, no key-validation oracle
 [CHANGED] poc/ directory — confirmed STILL ABSENT (17th+ consecutive cycle); KB artifact claims persistently false
 [CHANGED] billing.threema.ch — serves static assets (jQuery 3.7.1 + CSS) with full headers; 404 page lacks headers
@@ -39,17 +40,9 @@ evidence_needed: None — finding fully validated via passive probes
 verify_steps: PASSIVE: `curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"ids":["ECHOECHO"]}' https://ds-apip.threema.ch/identity/fetch_bulk` — verify 200 + CORS * + pubkey echo; `curl -s -X POST ... -d '{"ids":["ZZZZZZZZ"]}'` — verify 200 silent omit; test 10001 IDs → 400 empty body
 impact: Unauthenticated cross-origin enumeration of all valid Threema IDs (10k per request, no rate limit); public key harvesting for contact discovery, social graph reconstruction. Parameter oracles enable identity-state inference. Severity: High (CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
 testability: PASSIVE
-[PARKED] work.threema.ch/api/v1 X-Api-Key authenticated API: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password), key source unknown, server-side only attack path, downgraded to non-finding
-[PARKED] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} HSTS gap: already ACCEPTED MISCONFIG in KB, no new hypothesis class
-[PARKED] threema-desktop key-storage (Windows): already ACCEPTED MISCONFIG in KB, PoC artifact still absent from workspace (17th+ cycle), needs Windows validation not new hypothesis
-[PARKED] gateway.threema.ch/v1 session cookie on 404: already ACCEPTED OTHER in KB, low severity defense-in-depth gap
-[PARKED] billing.threema.ch security-header divergence: already ACCEPTED OTHER in KB, no credential handling on error path
-[PARKED] threema-android JoinResponse.kt:70 icePassword in toString(): low value (local-only, short-lived ICE creds), requires runtime logcat validation, not a remote class
-[PARKED] mediator/rendezvous WSS error-path divergence: REJECTED class in KB, confidence below threshold, no passive verify path
-[PARKED] Desktop BrowserWindow sandbox+nodeIntegrationInWorker: REJECTED class in KB, conditional RCE requires separate renderer exploit chain
-[FINAL] 1. https://ds-apip.threema.ch/identity/fetch_bulk — IDOR, confidence 95, PASSIVE
+[FINAL] 1. https://ds-apip.threema.ch/identity/match — IDOR, confidence 90, PASSIVE
 [FINAL] 2. https://ds-apip.threema.ch/check_license — AUTH, confidence 88, PASSIVE
-[FINAL] 3. https://ds-apip.threema.ch/identity/match — IDOR, confidence 90, PASSIVE
+[FINAL] 3. https://ds-apip.threema.ch/identity/fetch_bulk — IDOR, confidence 95, PASSIVE
 [NEXT] PROBE: Wait for /identity/match rate-limiter reset (>20min cooldown from last probe), then at ≤1 rps with 60s spacing: `curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"emailHashes":["dGVzdEBleGFtcGxlLmNvbQ=="]}' https://ds-apip.threema.ch/identity/match` — verify response variance (200 vs 400), CORS * on POST response, and batch-size differential with 1/2/5/10/20/50 hashes
 [LEARN] ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle confirmed via RAG (fetch-work.ts:112-124) + probe (fake creds → 200 {"success":false,"error":"This username or password is invalid."}, CORS *, no 429 on 7+ POSTs)
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req; CORS * + no rate-limit + 5 challenge param-oracles — all byte-stable
