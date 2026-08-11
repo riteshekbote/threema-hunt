@@ -860,3 +860,16 @@ https://ds-apip.threema.ch/identity/match_token -> ERR The read operation timed 
 https://ds-apip.threema.ch/identity/match_token` -> HTTP 404
 https://ds-apip.threema.ch/check_license` -> HTTP 404
 https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+
+## 2026-08-11 19:23:27 UTC
+https://ds-apip.threema.ch/identity/match -> HTTP 502
+https://ds-apip.threema.ch/identity/match` -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk -> ERR The read operation timed out
+https://ds-apip.threema.ch/check_license -> ERR The read operation timed out
+https://ds-apip.threema.ch/identity/match_token -> HTTP 502
+https://ds-apip.threema.ch/identity/match_token` -> HTTP 404
+https://ds-apip.threema.ch/identity/lookup -> HTTP 404
+https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
+https://ds-apip-work.threema.ch/identities -> HTTP 401
+https://ds-apip.threema.ch/check_license` -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
