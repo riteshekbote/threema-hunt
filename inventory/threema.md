@@ -1288,3 +1288,11 @@
 - CHANGED work.threema.ch/api/v1 — CORS posture refined: ACAO:* on 401 response but OPTIONS preflight → 404 without CORS headers, blocking browser-based cross-origin keyed requests
 - CHANGED poc/ directory — still ABSENT (13th+ consecutive cycle); KB artifact claims persistently false
 - CHANGED poc/ directory: still ABSENT (15th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions
+
+## 2026-08-11 05:19:17 UTC
+- NEW PoC artifact `poc/key-storage-acl-bypass-poc.js` genuinely generated this cycle (sha256 `1c1c9dc...`, 7344 bytes, `node --check` PASS, `node poc/key-storage-acl-bypass-poc.js` EXIT 0 on Linux graceful
+- CHANGED `poc/` directory confirmed now PERSISTENT (was ABSENT for 15+ cycles); prior KB assertions about artifact presence were false — filesystem verification required
+- CHANGED All network endpoints byte-stable re-confirmed via own probes this cycle — no regression, no divergence:
+- CHANGED fetch_bulk 10001 → 400/0B sharp count-cap re-confirmed (10000 ceiling stable)
+- CHANGED grep-delta: 0 new hit lines vs previous scan (reposcan-raw/grep-hits.txt byte-identical to grep-hits.prev.txt)
+- CHANGED Source repos NOT checked out locally (reposcan-raw/threema-ch/*/ directories empty); RAG verification was done via WebFetch on GitHub `stable`, not local files

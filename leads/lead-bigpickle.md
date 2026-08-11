@@ -7927,3 +7927,33 @@ evidence_needed: authenticated response mixing own- and foreign-subscription IDs
 verify_steps: AUTH_HELPED: with authorized Work test license, POST `/identities` `{"username","password","contacts":[ownId,foreignId]}`; diff returned fields vs same-subscription control
 impact: cross-subscription work-directory PII + pubkey disclosure → targeted phishing of enterprise users. Severity: Medium (CVSS 3.1 5.3)
 testability: AUTH_HELPED
+## 2026-08-11 05:05:59 UTC [chat] (model bigpickle)
+[HYP] Work directory `/identities` body-auth state oracle enables credential guessing + TWRK-1633 scope check
+class: AUTH
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 58
+reasoning: POST `{username,password,contacts}` → 401 (missing/invalid-shape) vs 200 empty (creds present but invalid) vs 200 contacts (creds valid) — clean 3-state validation oracle, no 429 observed this cycle. Matches client auth model exactly (APIConnector.java:1316-1323). TWRK-1633 "buggy" note in OpenAPI suggests scoping flaw on the same endpoint.
+evidence_needed: (a) 429 absence over 10+ POSTs; (b) success shape with authorized Work account
+verify_steps: AUTH_HELPED: with program-issued Work test license, POST `{"username","password","contacts":[ownId,foreignId]}` and diff returned fields vs same-subscription control; PASSIVE done — 401/200-empty oracle + fail-closed + shape-validation-before-credential confirmed via 9 probes this cycle
+impact: unauthenticated credential-presence/validation oracle (server-side only, OPTIONS→401 blocks browser); with valid creds, cross-subscription work-directory PII+pubkey disclosure → targeted phishing. Severity: Medium (CVSS 3.1 6.5)
+testability: PASSIVE (oracle closed) → AUTH_HELPED (TWRK-1633)
+[HYP] `apip-work.threema.ch` IPv4 backend diverges from ds-apip-work IPv6 in gating
+class: AUTH
+asset: https://apip-work.threema.ch
+confidence: 45
+reasoning: IPv4 alias (A=203.56.112.209) shares backend IP with ds-apip-work but is the hostname Android's Work flavor actually dials; IPv4/IPv6 paths may traverse different LB/WAF layers. All probed paths 401 identical to ds-apip-work so far; check_license 404 (route absent here — check_license lives on consumer directory hosts).
+evidence_needed: any path/method where IPv4 and IPv6 responses diverge
+verify_steps: PASSIVE: byte-diff GET/POST on `/identities`, `/directory`, `/fetch2`, `/check_license`, `/` across apip-work.threema.ch (IPv4) vs ds-apip-work.threema.ch (IPv6) — this cycle all byte-identical 401/404
+impact: low unless divergence exposes an endpoint; discovery value is the hostname attribution itself. Severity: Low
+testability: PASSIVE
+[HYP] check_license cross-origin credential-validation oracle (success-shape distinctness)
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 60
+reasoning: 2-state error map confirmed this cycle — `error:null` (missing params) vs `"invalid."` (both creds supplied, wrong) across all 3 hosts, byte-identical, zero 429s on 6 POSTs. Preflight 200 ACAO `*` + Allow-Headers Content-Type,User-Agent → any website POSTs + reads the oracle. Desktop posts `{licenseUsername, licensePassword, version, arch}` (fetch-work.ts:112-124). No email-format oracle (a@b.c vs notanemail byte-identical).
+evidence_needed: success:true response shape distinct from failure
+verify_steps: AUTH_HELPED: with program-issued Work license, POST `{licenseUsername,licensePassword,"version":"4.7.6","arch":"x64"}` → expect `{"success":true}` distinct from the 65B failure body
+impact: unauthenticated cross-origin-driveable Work license credential validator (browser + server-side); enables targeted guess-validation before login/directory attacks. Severity: Medium (CVSS 3.1 6.5)
+testability: PASSIVE (error-map + CORS + rate-limit closed) → AUTH_HELPED (success shape)
+[NEXT] HUMAN: Request a program-issued authorized Threema Work test license (licenseUsername/licensePassword pair) to close the single remaining evidence gap on both top hypotheses: (a) POST `{licenseUsername,licensePassword,"version":"4.7.6","arch":"x64"}` → ds-apip.threema.ch/check_license expecting `{"success":true}` distinct from the 65B failure body; (b) POST `{"username","password","contacts":[ownId,foreignId]}` → ds-apip-work.threema.ch/identities to test TWRK-1633 cross-subscription scoping.
+[RISK] chat: 25 — DNS shard attribution stable, in-band channel closed (0 bytes both nodes); w-* tier exists but out of scope | web: 55 — browser-driveable check_license credential validator + work-directory body-auth oracle; X-Api-Key API key source unknown | sync: 20 — mediator/rendezvous 403, WSS error-path surface closed | safe: 40 — backup API credential-gated, only header inconsistency (HSTS absent on 400) | desktop-src: 35 — key-storage ACL bypass RAG-verified (Windows runtime validation still pending).
