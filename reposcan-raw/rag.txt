@@ -468,6 +468,10 @@
 - 2026-08-11 ACCEPTED AUTH @ ds-apip.threema.ch/check_license: OPTIONS returns 200 (not 400) — browser-viable cross-origin path confirmed; CORS `*` + Allow-Headers Content-Type,User-Agent on both POST and OPTIONS
 - 2026-08-11 ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: OPTIONS 400 response ALSO carries CORS `*` + Allow-Headers Content-Type,User-Agent (CORS headers present on both 200 POST and 400 OPTIONS)
 - 2026-08-11 ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: POST with 4-byte short hash returns 200/39B empty identities — no client-visible length validation error (hash format validation unclear)
+- 2026-08-11 WEAKENED AUTH @ work.threema.ch/api/v1: no CORS on 404 response, missing-key and invalid-key produce byte-identical 404 — downgraded to non-finding
+- 2026-08-11 CONFIRMED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 10000-ID ceiling + CORS `*` + zero 429s — byte-stable this cycle
+- 2026-08-11 CONFIRMED AUTH @ ds-apip.threema.ch/check_license: sibling parity confirmed on all 3 prod hosts (byte-identical 200/65B + CORS `*` + OPTIONS 200)
+- 2026-08-11 CONFIRMED OTHER @ ds-apip.threema.ch/identity/match: rate-limiter cooldown >20min confirmed; burst-only limiter; CORS `*` present on both 200 POST and 400 OPTIONS
 === INVENTORY gladia ===
 # Inventory: threema
 
