@@ -410,3 +410,5 @@
 - 2026-08-11 ACCEPTED OTHER @ work.threema.ch/api/v1: live X-Api-Key authenticated API confirmed; CORS * on GET 401 but OPTIONS 404 blocks browser cross-origin; server-side attack path remains
 - 2026-08-11 CHANGED poc/ directory: still ABSENT (13th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides KB assertions
 - 2026-08-11 NO_DELTA — all previously accepted findings byte-stable; no new surface beyond what's captured above
+- 2026-08-11 ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle confirmed via RAG (fetch-work.ts:112-124) + probe (bigpickle: 200 `{"success":false,"error":"This username or password is invalid."}`, CORS `*`, no 429 on 3 POSTs). Desktop client posts `{licenseUsername, licensePassword, version, arch}` to `DIRECTORY_SERVER_URL` + `/check_license`. Response schema: `{success: true}` or `{success: false, error?: string}`.
+- 2026-08-11 WEAKENED AUTH @ work.threema.ch/api/v1: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls). Key source remains unknown across desktop client.
