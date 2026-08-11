@@ -479,6 +479,11 @@
 - 2026-08-11 WEAKENED AUTH @ work.threema.ch/api/v1: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls); 404 response has NO CORS headers — downgraded to non-finding
 - 2026-08-11 ACCEPTED AUTH @ ds-apip.threema.ch/check_license: sibling parity confirmed — api.threema.ch + apip.threema.ch return byte-identical 200/65B + CORS `*` + OPTIONS 200
 - 2026-08-11 ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: NEW endpoint confirmed live — POST `{}` → 200/39B `{"checkInterval":86400,"identities":[]}` with CORS `*` + Allow-Methods POST,GET,OPTIONS,DELETE; accepts `emailHashes`; burst rate-limiter (>20min cooldown); CORS `*` present on 400 OPTIONS too
+- 2026-08-11 ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: New endpoint confirmed live — returns identity-existence oracle (valid→200/134B with token+constant tokenRespKeyPub, invalid→200/46B "Identity not found"), CORS `*` on POST + OPTIONS 200 with Allow-Methods + Allow-Headers (browser-viable)
+- 2026-08-11 ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: Response variance confirmed (200→400 on latest probe); OPTIONS 400 also carries CORS `*` + Allow-Headers Content-Type,User-Agent — CORS applied at route level not method level; rate-limiter cooldown >20min confirmed
+- 2026-08-11 WEAKENED AUTH @ work.threema.ch/api/v1: Downgraded to non-finding — 404 response has NO CORS headers, missing-key and invalid-key produce byte-identical 404, browser cross-origin fully blocked. X-Api-Key source remains unknown.
+- 2026-08-11 ACCEPTED MISCONFIG @ billing.threema.ch: Confirmed serving real static assets (jQuery 3.7.1 + custom CSS) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options) on assets, but 404 error page lacks these headers — minor defense-in-depth gap
+- 2026-08-11 REJECTED MISCONFIG @ ds-apip.threema.ch/identity/match batch-size ceiling: Not proven dead or alive — unmapped cost-unit boundary (N=emailHashes per POST→200 vs 413/429); PASSIVE verification pending rate-limiter reset
 === INVENTORY gladia ===
 # Inventory: threema
 
