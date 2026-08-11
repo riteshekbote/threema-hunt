@@ -1453,3 +1453,36 @@
 - CHANGED ds-apip.threema.ch/identity/match — OPTIONS preflight returns 400 (not 2xx); browser-based cross-origin probing blocked, but POST response still carries `ACAO: *` for non-browser/server-side attackers
 - CHANGED work.threema.ch/api/v1 — 404 response has NO `Access-Control-Allow-Origin` header at all (neither on GET nor OPTIONS); browser cross-origin fully blocked; missing-key and invalid-key produce byte-iden
 - CHANGED ds-apip.threema.ch/identity/match rate-limiter — burst-only; 20s spacing avoids 429 entirely (sustained rate not enforced)
+
+## 2026-08-11 14:40:18 UTC
+- NEW ds-apip.threema.ch/identity/match → HTTP 400 on latest probe (previously 200 with empty identities) — response variance observed
+- NEW /identity/match `emailHashes` batch-size cost-unit boundary (1/2/5/10/20/50 hashes) — not previously mapped
+- NEW /identity/match GET → 400 body content — probe-results.md shows HTTP 400 but KB did not capture response body fingerprint for GET vs POST
+- CHANGED poc/ directory — confirmed STILL ABSENT (17th+ consecutive cycle); KB artifact claims persistently false
+- CHANGED work.threema.ch/api/v1 — CORS posture refined: ACAO:* on 401 but OPTIONS → 404 no CORS (blocks browser cross-origin)
+- CHANGED billing.threema.ch — serves static assets (jQuery 3.7.1 + CSS) with full headers; 404 page lacks headers
+- CHANGED ds-apip.threema.ch/identity/match — OPTIONS preflight returns 400 (not 2xx); browser-based cross-origin probing blocked, but POST response still carries `ACAO: *`
+- CHANGED ds-apip.threema.ch/identity/match rate-limiter — burst-only; 20s spacing avoids 429 entirely; >180s cooldown confirmed
+- CHANGED work.threema.ch/api/v1 — 404 response has NO `Access-Control-Allow-Origin` header at all; browser cross-origin fully blocked
+- NEW ds-apip.threema.ch/identity/match → HTTP 400 on latest probe (previously 200 with empty identities) — response variance observed
+- CHANGED poc/ directory — confirmed STILL ABSENT (17th+ cycle); KB artifact claims persistently false
+- CHANGED work.threema.ch/api/v1 — CORS posture refined: ACAO:* on 401 but OPTIONS → 404 no CORS (blocks browser cross-origin)
+- CHANGED billing.threema.ch — serves static assets (jQuery 3.7.1 + CSS) with full headers; 404 page lacks headers
+- NEW ds-apip.threema.ch/identity/match — email→identity membership oracle candidate, CORS `*`, burst rate-limiter unmapped
+- NEW work.threema.ch/api/v1 — X-Api-Key authenticated API, CORS `*` on GET but OPTIONS 404 blocks browser cross-origin
+- CHANGED poc/ directory — confirmed STILL ABSENT (17th+ cycle); KB artifact claims persistently false
+- CHANGED work.threema.ch/api/v1 — CORS posture refined (ACAO:* on 401, but OPTIONS → 404 no CORS)
+- CHANGED billing.threema.ch — now serves static assets (jQuery 3.7.1 + CSS), 404 page lacks security headers
+- NEW ds-apip.threema.ch/identity/match → HTTP 400 on latest probe (previously 200 with empty identities) — response variance observed
+- CHANGED poc/ directory — confirmed STILL ABSENT (17th+ cycle); KB artifact claims persistently false
+- CHANGED work.threema.ch/api/v1 — CORS posture refined: ACAO:* on 401 but OPTIONS → 404 no CORS (blocks browser cross-origin)
+- CHANGED billing.threema.ch — serves static assets (jQuery 3.7.1 + CSS) with full headers; 404 page lacks headers
+- NEW ds-apip.threema.ch/identity/match — email→identity membership oracle candidate, CORS `*`, burst rate-limiter unmapped
+- NEW work.threema.ch/api/v1 — X-Api-Key authenticated API, CORS `*` on GET but OPTIONS 404 blocks browser cross-origin
+- CHANGED poc/ directory — confirmed STILL ABSENT (17th+ cycle); KB artifact claims persistently false
+- CHANGED work.threema.ch/api/v1 — CORS posture refined (ACAO:* on 401, but OPTIONS → 404 no CORS)
+- CHANGED billing.threema.ch — now serves static assets (jQuery 3.7.1 + CSS), 404 page lacks security headers
+- CHANGED ds-apip.threema.ch/identity/match — OPTIONS 400 response now confirmed to ALSO carry `ACAO: *` + `Allow-Headers: Content-Type,User-Agent` (previously only noted on 200 POST); CORS headers present on b
+- CHANGED ds-apip.threema.ch/check_license — sibling parity CONFIRMED this cycle: api.threema.ch + apip.threema.ch both return byte-identical 200/65B `{"success":false,"error":"This username or password is inva
+- CHANGED ds-apip.threema.ch/identity/match — POST with 4-byte short hash (dGVzdA==) returns 200/39B empty identities (no length-validation error); 32-byte hash probe blocked by rate-limiter (429)
+- CHANGED ds-apip.threema.ch/identity/match — rate-limiter still active >20 min after last probe (429/0B); cooldown window longer than prior >180s estimate

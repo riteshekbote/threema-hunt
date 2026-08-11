@@ -459,3 +459,11 @@
 - 2026-08-11 ACCEPTED AUTH @ ds-apip.threema.ch/check_license: OPTIONS returns 200 (not 400 like /identity/match) — browser-viable cross-origin path confirmed; CORS `*` + Allow-Headers Content-Type; no 429 on sequential POSTs.
 - 2026-08-11 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-path chain stable on GitHub `stable`; PoC artifact still ABSENT from workspace (filesystem-verified).
 - 2026-08-11 REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), purged at line 233.
+- 2026-08-11 ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle confirmed via RAG (fetch-work.ts:112-124) + probe (fake creds → 200 {"success":false,"error":"This username or password is invalid."}, CORS *, no 429 on 7+ POSTs)
+- 2026-08-11 WEAKENED AUTH @ work.threema.ch/api/v1: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls); 404 response has NO CORS headers
+- 2026-08-11 ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: response variance observed (200→400 transition); OPTIONS preflight returns 400 (browser path blocked); burst-only limiter (>180s cooldown, 20s spacing avoids 429)
+- 2026-08-11 CHANGED poc/ directory: confirmed STILL ABSENT (17th+ consecutive cycle); KB artifact claims persistently false; filesystem ground truth overrides all KB assertions
+- 2026-08-11 ACCEPTED AUTH @ ds-apip.threema.ch/check_license: sibling parity CONFIRMED — api.threema.ch + apip.threema.ch return byte-identical 200/65B + CORS `*` + OPTIONS 200 with Allow-Headers Content-Type,User-Agent
+- 2026-08-11 ACCEPTED AUTH @ ds-apip.threema.ch/check_license: OPTIONS returns 200 (not 400) — browser-viable cross-origin path confirmed; CORS `*` + Allow-Headers Content-Type,User-Agent on both POST and OPTIONS
+- 2026-08-11 ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: OPTIONS 400 response ALSO carries CORS `*` + Allow-Headers Content-Type,User-Agent (CORS headers present on both 200 POST and 400 OPTIONS)
+- 2026-08-11 ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: POST with 4-byte short hash returns 200/39B empty identities — no client-visible length validation error (hash format validation unclear)
