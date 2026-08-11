@@ -1434,3 +1434,22 @@
 - CHANGED poc/ directory — confirmed STILL ABSENT (17th+ cycle); KB artifact claims persistently false
 - CHANGED work.threema.ch/api/v1 — CORS posture refined (ACAO:* on 401, but OPTIONS → 404 no CORS)
 - CHANGED billing.threema.ch — now serves static assets (jQuery 3.7.1 + CSS), 404 page lacks security headers
+
+## 2026-08-11 13:31:24 UTC
+- NEW ds-apip.threema.ch/identity/match → HTTP 400 on latest probe (previously 200 with empty identities) — response variance observed
+- CHANGED poc/ directory — confirmed STILL ABSENT (17th+ cycle); KB artifact claims persistently false
+- CHANGED work.threema.ch/api/v1 — CORS posture refined: ACAO:* on 401 but OPTIONS → 404 no CORS (blocks browser cross-origin)
+- CHANGED billing.threema.ch — serves static assets (jQuery 3.7.1 + CSS) with full headers; 404 page lacks headers
+- NEW ds-apip.threema.ch/identity/match — email→identity membership oracle candidate, CORS `*`, burst rate-limiter unmapped
+- NEW work.threema.ch/api/v1 — X-Api-Key authenticated API, CORS `*` on GET but OPTIONS 404 blocks browser cross-origin
+- CHANGED poc/ directory — confirmed STILL ABSENT (17th+ cycle); KB artifact claims persistently false
+- CHANGED work.threema.ch/api/v1 — CORS posture refined (ACAO:* on 401, but OPTIONS → 404 no CORS)
+- CHANGED billing.threema.ch — now serves static assets (jQuery 3.7.1 + CSS), 404 page lacks security headers
+- NEW /identity/match `emailHashes` batch-size cost-unit boundary (1/2/5/10/20/50 hashes) — not previously mapped (KB only confirmed 1-hash→200, 2-POST→429)
+- NEW /identity/match GET → 400 body content (probe-results.md line 806 shows `HTTP 400` but KB did not capture response body fingerprint for GET vs POST)
+- CHANGED KB claims (lines 422, 437) "PoC artifact `poc/key-storage-acl-bypass-poc.js` NOW genuinely on disk" — filesystem `ls` confirms `POC_DIR_ABSENT` for 17th+ cycle; ground truth overrides KB (consistent f
+- CHANGED work.threema.ch/api/v1 confirmed live this cycle: GET /api/v1 → 401 `{"error":"Invalid X-Api-Key"}`, GET /api/v1/users → 401, OPTIONS /api/v1 → 404 — X-Api-Key auth confirmed, source unknown (RAG-veri
+- CHANGED /identity/match cooldown confirmed >180s between probes (POST at 12:22 → 200; POST at 13:28 → 200, not 429) — limiter allows ~1 hash per 2-3 min
+- CHANGED ds-apip.threema.ch/identity/match — OPTIONS preflight returns 400 (not 2xx); browser-based cross-origin probing blocked, but POST response still carries `ACAO: *` for non-browser/server-side attackers
+- CHANGED work.threema.ch/api/v1 — 404 response has NO `Access-Control-Allow-Origin` header at all (neither on GET nor OPTIONS); browser cross-origin fully blocked; missing-key and invalid-key produce byte-iden
+- CHANGED ds-apip.threema.ch/identity/match rate-limiter — burst-only; 20s spacing avoids 429 entirely (sustained rate not enforced)

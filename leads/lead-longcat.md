@@ -1739,3 +1739,54 @@ testability: HUMAN
 [RISK] sync: 50 — mediator/rendezvous uniform 403, no CORS; ds-apip-work auth-gated (401 + CORS `*` + no HSTS); TWRK-1633 cross-subscription leak candidate unvalidated; work.threema.ch/api/v1 X-Api-Key source unknown
 [RISK] safe: 80 — 5 safe-* hostnames single IP 203.56.112.231; CORS `*` + write-capable methods + Allow-Headers Authorization; HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 (CVSS 7.4); HTTP Basic Auth + route-existence oracle (400 vs 404) byte-stable
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub stable source paths); BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); remaining gap: live Windows runtime validation (CVSS 8.1)
+## 2026-08-11 13:29:52 UTC [sync] (model longcat)
+[CHANGED] ds-apip.threema.ch/identity/match — OPTIONS preflight returns 400 (not 2xx); browser-based cross-origin probing blocked, but POST response still carries `ACAO: *` for non-browser/server-side attackers
+[CHANGED] work.threema.ch/api/v1 — 404 response has NO `Access-Control-Allow-Origin` header at all (neither on GET nor OPTIONS); browser cross-origin fully blocked; missing-key and invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}` 404 — no key-validation oracle
+[CHANGED] ds-apip.threema.ch/identity/match rate-limiter — burst-only; 20s spacing avoids 429 entirely (sustained rate not enforced)
+[PRIO] ds-apip.threema.ch/identity/match — 6.65 (attack:8, business:8, tech:7, gate:7, cloud:6, fresh:10)
+[PRIO] ds-apip.threema.ch/check_license — 8.25 (attack:8, business:8, tech:7, gate:10, cloud:8, fresh:9)
+[PRIO] threema-desktop key-storage (Windows ACL bypass) — 8.20 (attack:10, business:9, tech:9, gate:6, cloud:7, fresh:5)
+[PRIO] ds-apip.threema.ch/identity/fetch_bulk — 8.50 (attack:9, business:9, tech:8, gate:10, cloud:8, fresh:5)
+[PRIO] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} — 7.50 (attack:8, business:8, tech:7, gate:7, cloud:9, fresh:5)
+[HYP] Email→identity membership oracle via /identity/match (server-side path)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 45
+reasoning: POST `{}` → 200 `{"checkInterval":86400,"identities":[]}` with CORS `*`. Accepts `emailHashes` (base64 32B). OPTIONS returns 400 (blocks browser cross-origin) but POST response carries `ACAO:*` — server-side/non-browser attackers can still read response body. Invalid hashes return empty `identities`. Burst rate-limiter only (20s spacing = no 429). Positive case (valid hash → non-empty identities) unverified without known-registered email.
+evidence_needed: (a) CORS `*` on POST confirmed live; (b) differential response for valid vs invalid email hash; (c) HMAC key server-secret vs client-computable (determines if attacker can precompute target hashes)
+verify_steps: PASSIVE: 1) `curl -s -X POST -H "Content-Type: application/json" -H "Origin: https://evil.com" -d '{"emailHashes":["<base64-sha256-of-known-registered-email>"]}' https://ds-apip.threema.ch/identity/match` → check if `identities` array non-empty; 2) compare against invalid hash baseline; 3) 15-20s spacing to avoid burst limiter. Use only own test emails.
+impact: Server-side cross-origin email→Threema-identity membership oracle enables targeted phishing + de-anonymization at scale. Browser path blocked by 400 OPTIONS. CVSS ~5.5 (server-side only, rate-limited bursts); ~3.5 if HMAC key is client-computable (lower barrier).
+testability: PASSIVE (server-side curl only — browser blocked by 400 OPTIONS)
+[HYP] Cross-origin credential validation oracle on check_license (refined)
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 70
+reasoning: RAG-confirmed (fetch-work.ts:112-124): desktop POSTs `{licenseUsername, licensePassword, version, arch}`. Probe: fake creds → 200 `{"success":false,"error":"This username or password is invalid."}`, CORS `*` + Allow-Headers Content-Type. OPTIONS → 200 with CORS `*` (unlike /identity/match, this endpoint's OPTIONS succeeds). No 429 on sequential POSTs. Valid-pair response shape (`success:true`) distinguishable from invalid — cross-origin driveable from browser.
+evidence_needed: (a) confirm OPTIONS 2xx (not 400) for browser path; (b) zero 429s across ≥10 POSTs; (c) CORS parity on api/apip siblings
+verify_steps: PASSIVE: 1) `curl -s -X OPTIONS -H "Origin: https://evil.com" -H "Access-Control-Request-Method: POST" https://ds-apip.threema.ch/check_license -D - -o /dev/null` → confirm 2xx + ACAO:*; 2) 10x sequential POST at 1 rps with fake creds → confirm no 429; 3) repeat on api.apip/apip siblings for CORS parity. Do NOT attempt real credential guessing.
+impact: Unauthenticated cross-origin-driveable Work license credential oracle; valid creds gate ds-apip-work `/identities`+`/fetch2`. Browser-viable (OPTIONS 2xx). CVSS 6.5.
+testability: PASSIVE
+[HYP] Windows key-storage ACL bypass → full identity key + SQLCipher key extraction
+class: MISCONFIG
+asset: threema-desktop (Windows) — data/keystorage.bin + data/keystorage.password.bin
+confidence: 95
+reasoning: RAG-verified 6-path chain on GitHub `stable`: (1) fs.ts:41 returns `{}` on win32; (2) key-storage/index.ts:559-560 spreads `{}` (no ACL); (3) electron-main.ts:944-945 writes keystorage.password.bin with `{}`; (4) inner/v3.ts:65,70 exposes `identityData.ck` (Ed25519 32-byte privkey) + `databaseKey` (SQLCipher 32-byte key); (5) crypto.ts:53-113 Argon2id→XSalsa20-Poly1305 decrypt; (6) db/sqlite.ts:240 raw SQLCipher PRAGMA key. Any same-user process reads both files → DPAPI decrypt → extract identity key + DB key.
+evidence_needed: (a) live Windows: `icacls` shows Users:(R); (b) safeStorage.decryptString works for same-user process; (c) decryptAndDecodeLatestIntermediateKeyStorage succeeds with extracted password
+verify_steps: HUMAN: On Windows with threema-desktop installed: `icacls "%LOCALAPPDATA%\ThreemaDesktop\data\keystorage.bin"` → confirm ACL gap. Run PoC under different same-user process.
+impact: Full Ed25519 identity key + SQLCipher key extraction → decrypt all local messages + impersonate identity. Requires local access. CVSS 8.1.
+testability: HUMAN
+[FINAL] 1. Windows key-storage ACL bypass (MISCONFIG, confidence 95, CVSS 8.1)
+[FINAL] 2. check_license cross-origin credential validation oracle (AUTH, confidence 70, CVSS 6.5)
+[FINAL] 3. identity/match email→identity membership oracle — server-side path only (IDOR, confidence 45, CVSS ~5.5)
+[NEXT] PROBE: `curl -s -X OPTIONS -H "Origin: https://evil.com" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: Content-Type" https://ds-apip.threema.ch/check_license -D - -o /dev/null` followed by `curl -s -X POST -H "Content-Type: application/json" -H "Origin: https://evil.com" -d '{"licenseUsername":"fake","licensePassword":"fake","version":"test","arch":"x64"}' https://ds-apip.threema.ch/check_license` repeated 10x at 1 rps to confirm zero 429s and CORS `*` on OPTIONS 2xx. Then repeat on api.threema.ch + apip.threema.ch for sibling parity.
+[LEARN] WEAKENED AUTH @ work.threema.ch/api/v1: 404 response has NO CORS headers (neither GET nor OPTIONS); missing-key and invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}` 404 — no key-validation oracle; browser cross-origin fully blocked. Downgraded from AUTH finding to INTERESTING non-finding.
+[LEARN] ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: server-side oracle path confirmed (POST response carries CORS `*`); browser path blocked (OPTIONS → 400); burst-only rate-limiter (20s spacing avoids 429); invalid email hashes return empty `identities` (expected); positive case unverified without known-registered email.
+[LEARN] ACCEPTED AUTH @ ds-apip.threema.ch/check_license: OPTIONS returns 200 (not 400 like /identity/match) — browser-viable cross-origin path confirmed; CORS `*` + Allow-Headers Content-Type; no 429 on sequential POSTs.
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-path chain stable on GitHub `stable`; PoC artifact still ABSENT from workspace (filesystem-verified).
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), purged at line 233.
+[LEARN] REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree), not standalone.
+[RISK] chat: 25 — prod DNS shard→node map fully attributed; in-band 443/5222 passive channel closed (0 bytes without authenticated login frame, no cert/SAN leak); no passive surface remaining
+[RISK] web: 90 — directory triad fetch_bulk 10k ID enumeration + CORS `*` + no auth + zero 429 (CVSS 7.5); check_license cross-origin credential oracle with browser-viable OPTIONS 2xx (CVSS 6.5); GET /identity/{id} 200/404 oracle; 5 challenge param-oracles; identity/match server-side email→identity oracle candidate (CVSS ~5.5); safe backup CORS* + HSTS gap (CVSS 7.4); work.threema.ch/api/v1 downgraded to non-finding (no CORS, no oracle)
+[RISK] sync: 40 — mediator/rendezvous uniform 403, no CORS; ds-apip-work auth-gated (401 + CORS `*` + no HSTS); TWRK-1633 cross-subscription leak candidate unvalidated; work.threema.ch/api_v1 X-Api-Key source still unknown across all client repos
+[RISK] safe: 80 — 5 safe-* hostnames single IP 203.56.112.231; CORS `*` + write-capable methods + Allow-Headers Authorization; HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 (CVSS 7.4); HTTP Basic Auth + route-existence oracle (400 vs 404) byte-stable
+[RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub stable source paths); BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); remaining gap: live Windows runtime validation (CVSS 8.1)
