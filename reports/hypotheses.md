@@ -3047,3 +3047,25 @@
 - LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), purged at line 233
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+
+## RANKED HYPOTHESES 2026-08-11 20:15:38 UTC
+- [90] https://ds-apip.threema.ch/identity/match: Forgeable-HMAC email/mobile→identity membership oracle via /identity/match (from reports/hypotheses-nemotron3.txt)
+- [80] https://ds-apip.threema.ch/identity/match_token: match_token identity-existence oracle + challenge token leak (from reports/hypotheses-laguna.txt)
+- [60] https://ds-apip.threema.ch/identity/match: /identity/match batch-size cost-unit ceiling maps per-window enumeration throughput (from reports/hypotheses-bigpickle.txt)
+- [55] https://ds-apip.threema.ch/identity/match: Batch-size cost-unit ceiling on /identity/match maps enumeration throughput (from reports/hypotheses-longcat.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: Wait for /identity/match rate-limiter reset (>20min cooldown from last probe), then at ≤1 rps with 60s spacing: `curl -s -X POST -H "Origin: https://evil
+- NEXT(hypotheses-bigpickle.txt): PROBE (deferred ≥20:30 UTC — burst 429 triggered at 20:07:15, cooldown >20min): single POST `curl -s -w "\n%{http_code} %{size_download}" -X POST -H "Content-Ty
+- NEXT(hypotheses-laguna.txt): PROBE: `curl -s -w "\n%{http_code} %{size_download}" -X POST -H "Content-Type: application/json" -H "Origin: https://evil.com" -d '{"identity":"ZZZZZZZZ"}' http
+- NEXT(hypotheses-longcat.txt): PROBE: Wait for /identity/match rate-limiter reset (>20min cooldown from last probe → ready ~19:50+ UTC), then single batch-size probe at 60s+ spacing: `curl -s
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle confirmed via RAG (fetch-work.ts:112-124) + probe (fake creds → 200 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk ceiling precisely bounded at 10000 IDs/req; CORS * + no rate-limit + 5 challenge p
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: NEW endpoint confirmed live — POST `{}` → 200/39B `{"checkInterval":86400,"identities":[]}` with CORS `*` + 
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c` confirmed benchmark-only dummy 
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: REJECTED class @ mediator/rendezvous WSS error-path divergence: confidence below threshold, no passive verify path, sync surface closed
+- LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls
+- LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: X-Api-Key NOT found in threema-desktop source (RAG-verified: fetch-work.ts uses username/password for all work API calls
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: sibling parity confirmed — api.threema.ch + apip.threema.ch return byte-identical 200/65B + CORS `*` + OPTIONS
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: NEW endpoint confirmed live — POST `{}` → 200/39B `{"checkInterval":86400,"identities":[]}` with CORS `*` + 
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), purged at line 233
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre

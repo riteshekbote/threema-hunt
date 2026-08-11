@@ -7307,3 +7307,30 @@ testability: AUTH_HELPED
 [RISK] sync: 40 — mediator/rendezvous uniform 403, no CORS, no passive divergence; ds-apip-work auth-gated (401 + CORS `*` + no HSTS/Expect-CT); work.threema.ch/api/v1 downgraded to non-finding.
 [RISK] safe: 80 — 5 hostnames behind single IP; CORS `*` + write-capable methods + HSTS gap on credential-gated endpoint (CVSS 7.4); route-existence oracle stable.
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub stable source paths); BrowserWindow `sandbox` unset + `nodeIntegrationInWorker: true` (conditional RCE); NEW Android JoinResponse.kt:70 icePassword logcat leak; PoC artifact absent from workspace.
+## 2026-08-11 20:15:25 UTC [desktop] (model laguna)
+[HYP] match_token identity-existence oracle + challenge token leak
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 80
+reasoning: POST `{"identity":"ECHOECHO"}` → 200/134B returns fresh `token` + constant `tokenRespKeyPub` (sha256 `c8005cca…`); POST `{"identity":"ZZZZZZZZ"}` → 200/46B `{"success":false,"error":"Identity not found"}`. OPTIONS → 200 with CORS `*` + Allow-Methods POST,Get,OPTIONS,DELETE + Allow-Headers Content-Type,User-Agent (browser-viable). Sibling parity byte-identical on api.threema.ch + apip.threema.ch. No 429 observed across sequential probes. Not documented in KB.
+evidence_needed: Confirm `tokenRespKeyPub` is a static server-side key (constant across requests/hosts); confirm token is a per-request nonce (challenge); determine if token+pubkey enable downstream challenge-response flows (sfu_cred/blob_cred)
+verify_steps: PROBE: (1) `curl -s -X POST -H "Content-Type: application/json" -d '{"identity":"ZZZZZZZZ"}' https://ds-apip.threema.ch/identity/match_token` → expect 200/46B "Identity not found"; (2) `curl -s -X POST -d '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_token` → expect 200/133B same tokenRespKeyPub; (3) `curl -s -D - -o /dev/null -X OPTIONS -H "Origin: https://evil.com" -H "Access-Control-Request-Method: POST" https://ds-apip.threema.ch/identity/match_token` → expect 200 + ACAO:*
+[HYP] check_license cross-origin credential validation oracle (success-shape gap)
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 95
+reasoning: RAG confirms fetch-work.ts POSTs {licenseUsername, licensePassword, version, arch} to /check_license. Probe: fake creds → 200/65B `{"success":false,"error":"This username or password is invalid."}`, CORS `*`, OPTIONS 200 (browser-viable), zero 429 on 7+ sequential POSTs, sibling parity all 3 hosts. OpenAPI/work.ts source proves WORK_LICENSE_CHECK_RESPONSE_SCHEMA.
+evidence_needed: One valid Work license pair confirming `{"success":true}` (~18B) distinct from failure case (65B)
+verify_steps: AUTH_HELPED: POST `{"licenseUsername":"<issued>","licensePassword":"<issued>","version":"4.7.6","arch":"x64"}` → expect `{"success":true}`
+[HYP] fetch_bulk 10k-ID enumeration oracle + parameter validation chain
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk
+confidence: 95
+reasoning: Verified ceiling exactly 10000 IDs/req (10000→200/152B, 10001→400/0B sharp count-cap); CORS `*` + Allow-Methods POST,Get,OPTIONS,DELETE on both 200 and 400; zero 429 across 35+ probes; 5 challenge param-validation-before-identity-lookup oracles confirmed (set_revocation_key: "Bad revocation key length", update_work_info: "Missing parameters"); GET /identity/{id} → 200/404 oracle; byte-stable across all 3 prod hosts
+evidence_needed: None — fully validated via passive probes
+verify_steps: PASSIVE: `curl -s -X POST -H "Origin: https://evil.com" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://ds-apip.threema.ch/identity/fetch_bulk` → 200, only valid pubkey returned, invalid silently omitted, CORS `*`
+[PARKED] fetch_bulk type-filter → scoped Work-identity harvest: confidence 50, no filter param proven via GET/POST differential — speculative on `type`/`state` filter.
+[FINAL] 1. https://ds-apip.threema.ch/identity/match_token — IDOR, confidence 80, PASSIVE (identity-existence oracle + challenge token, browser-viable CORS, sibling parity)
+[FINAL] 2. https://ds-apip.threema.ch/identity/fetch_bulk — IDOR, confidence 95, PASSIVE (10k ID enumeration, no rate limit, already accepted Finding #1)
+[FINAL] 3. https://ds-apip.threema.ch/check_license — AUTH, confidence 95, AUTH_HELPED (cross-origin credential validation oracle, success-shape gap only)
+[NEXT] PROBE: `curl -s -w "\n%{http_code} %{size_download}" -X POST -H "Content-Type: application/json" -H "Origin: https://evil.com" -d '{"identity":"ZZZZZZZZ"}' https://ds-apip.threema.ch/identity/match_token` → expect 200/46B `{"success":false,"error":"Identity not found"}` — confirm negative oracle; then `curl -s -X POST -d '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_token` → verify sibling parity (same tokenRespKeyPub sha256 `c8005cca…`); then `curl -s -D - -o /dev/null -X OPTIONS -H "Origin: https://evil.com" -H "Access-Control-Request-Method: POST" https://ds-apip.threema.ch/identity/match_token` → confirm browser-viable CORS preflight (200 + ACAO:* + Allow-Methods). At ≤1 rps.
