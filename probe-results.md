@@ -1142,3 +1142,10 @@ https://ds-apip.threema.ch/identity/match_token` -> HTTP 404
 https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/match -> HTTP 400
+
+## 2026-08-12 23:38:14 UTC
+https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/match -> HTTP 400
+https://ds-apip.threema.ch/identity/ -> HTTP 404
+https://ds-apip-work.threema.ch/api-client/v1/remote-secret -> HTTP 401
