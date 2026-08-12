@@ -10585,3 +10585,53 @@ evidence_needed: 10 sequential 200-POSTs on api.threema.ch with zero 429 + 2 rap
 verify_steps: PASSIVE: 10 POSTs `{"emailHashes":["AAAA"]}` 2s apart on api.threema.ch, then 2 rapid on ds-apip after cooldown; count 429s.
 impact: if confirmed → rate-limit bypass for the email→identity match primitive via unthrottled sibling; amplifies accepted contact-discovery oracle. Severity low-medium.
 testability: PASSIVE (cooldown-gated control)
+## 2026-08-12 20:22:55 UTC [chat] (model bigpickle)
+impact: validation-order oracle (decode→length→auth) + a cheap 500 amplifier if unthrottled; no data leak. Severity low.
+testability: PASSIVE
+[HYP] matchToken redemption 401 is a static credential gate (hybrid public/auth endpoint), not token-signature rejection
+class: AUTH
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 50
+reasoning: own probes — freshly minted token presented same-host and cross-host → byte-identical 401; token was server-signed <5min prior, so signature-failure is implausible; 401 empty-body matches auth-middleware shape. Mint (match_token) is public; redemption is not.
+evidence_needed: an authenticated request reaching non-401 with a minted token → proves the gate is credential-based.
+verify_steps: AUTH_HELPED: with valid Work license creds, mint on ds-apip then POST api.threema.ch/identity/match `{emailHashes,identity,matchToken}` → 200/400 = credential-gated; 401 = token-validity-gated.
+impact: bounds the accepted match_token oracle — mint public, redemption auth-only; no anonymous cross-host replay primitive. Informational.
+testability: AUTH_HELPED
+[HYP] api.threema.ch/apip.threema.ch /identity/match lack the ds-apip burst limiter (host-local limiter, unthrottled siblings)
+class: MISCONFIG
+asset: https://api.threema.ch/identity/match
+confidence: 45
+reasoning: own probes — 10+ sequential POSTs to api.threema.ch this cycle, zero 429s, while ds-apip is documented burst-limited (429 after 2 rapid POSTs, >100min cooldown); 401/500 likely bypass the 200-counting limiter.
+evidence_needed: 10 sequential 200-POSTs on api.threema.ch with zero 429 + 2 rapid 200-POSTs on ds-apip → 429 (control).
+verify_steps: PASSIVE: 10 POSTs `{"emailHashes":["AAAA"]}` 2s apart on api.threema.ch, then 2 rapid on ds-apip after cooldown; count 429s.
+impact: if confirmed → rate-limit bypass for the email→identity match primitive via unthrottled sibling; amplifies accepted contact-discovery oracle. Severity low-medium.
+testability: PASSIVE (cooldown-gated control)
+[HYP] POST-verb case-fold/silent-omit is uniform across directory verbs; GET exact-case is the only strict layer
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk
+confidence: 72
+reasoning: single-char lowercase `e` → 200/17B empty (no format error); GET /identity/e + /identity/EchoEcho → 404 at same instant; mixed-case batches dedup to canonical ECHOECHO across all 3 hosts. Validation folds case, GET store lookup doesn't.
+evidence_needed: a directory verb that still honors exact-case server-side (would isolate fold to store vs validation layer).
+verify_steps: PASSIVE ≤1 rps: repeat mixed-case batch on all 3 hosts after 24h gap to confirm canonical dedup stable; single lowercase `e` repeat → expect persistent 200/17B.
+impact: confirms case-agnostic enumeration/oracle primitives with canonical dedup; zero amplification. Low (strengthens accepted IDOR).
+testability: PASSIVE
+[HYP] match_token tokens accepted cross-host on sibling /identity/match (shared validation key vs per-host key)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 60
+reasoning: 3 hosts mint distinct tokens for same identity+second but share constant tokenRespKeyPub; single-key ownership-proof verification plausible; cross-host acceptance never tested — /identity/match cooldown-gated since 2026-08-11.
+evidence_needed: ds-apip-minted token presented in POST /identity/match on api.threema.ch returning 200 (not 400/401).
+verify_steps: PASSIVE after /identity/match cooldown reset (>100min, next window ≈21:30 UTC): mint on ds-apip.threema.ch, then single POST `{"emailHashes":["AAAA"],"matchToken":"<ds-apip-minted>"}` to api.threema.ch/identity/match; non-400 → cross-host acceptance.
+impact: token minted anywhere honored anywhere → host-agnostic contact-discovery primitive; reinforces accepted IDOR. Low-medium.
+testability: PASSIVE (cooldown-gated)
+[HYP] Chat node IPs expose exactly {443, 5222}; no alternate management/telemetry service port exists
+class: OTHER
+asset: https://g-*.0.threema.ch
+confidence: 48
+reasoning: 10-port connect sweep on both 203.56.112.202/.204 → only 443+5222 open, 8 others closed/filtered; 0B pushed on both open ports; g-*.{1,2,3}.threema.ch NXDOMAIN — no management tier at DNS level.
+evidence_needed: extended connect-only sweep (larger port set) returning any additional open port, or confirmation none exist.
+verify_steps: PASSIVE connect-only (0 bytes sent) sweep of ~50 common service ports on both chat node IPs at ≤1 rps; any additional OPEN port = new surface.
+impact: bounds the chat attack surface to exactly two closed ports; any residual surface requires authenticated XMPP login frame. Informational.
+testability: PASSIVE
+[FINAL] ranked survivors: 1) fetch_bulk case-fold uniformity (72) 2) match_token cross-host acceptance (60) 3) chat {443,5222}-only port set (48)
+[NEXT] PROBE: chat port-set confirmation — extend connect-only sweep on 203.56.112.202/.204 to ~40 ports (e.g. 21,25,110,143,389,445,465,587,636,993,995,1433,1521,2375,2376,3000,3306,3389,4369,5432,5601,6379,7001,8000,8008,8009,8081,8090,8888,9000,9200,9300,11211,15672,18080,27017,50000) at ≤1 rps, 0 bytes sent; any OPEN beyond {443,5222} = new chat surface.
