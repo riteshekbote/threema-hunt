@@ -10656,3 +10656,4 @@ verify_steps: PASSIVE after reset (>100min, no prior contact this cycle): one PO
 impact: email→identity oracle throughput amplification per limiter window. Severity low.
 testability: PASSIVE (cooldown-gated, long)
 [NEXT] RAG: search threema-android + threema-ios source (WebFetch GitHub `main`) for `match_token` / `tokenRespKeyPub` / `IdentityMatchToken` usage to recover the redemption request shape (`emailHashes`+`matchToken` anonymous vs auth-required) and confirm whether the 401 on /identity/match is a static credential gate or token-validity rejection — closes the cross-host hypothesis cheaply without waiting on cooldown.
+## 2026-08-12 22:53:24 UTC [chat] (model bigpickle)
