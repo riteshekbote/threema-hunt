@@ -9847,3 +9847,31 @@ verify_steps: RAG: WebFetch better-sqlcipher bindings/open source on win32 for f
 impact: same-user/local copy of SQLCipher DB possible; data is encrypted and key recovery requires the already-accepted keystorage chain — extension, not standalone. Severity low-medium.
 testability: PASSIVE
 [NEXT] PROBE: At ≤1 rps with 60s spacing, `curl -s -X POST https://ds-apip.threema.ch/identity/match_token -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}'` twice, diff token bytes (fresh-entropy vs deterministic); then single POST with `{"identity":"ECHOECHO","token":"<minted>"}` to observe consume-vs-reject — closes the token-lifecycle amplifier question on the top asset.
+## 2026-08-12 09:30:09 UTC [chat] (model bigpickle)
+[HYP] A valid matchToken may lift the /identity/match per-host burst/cooldown ceiling
+class: AUTH
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 65
+reasoning: threema-android `obtainMatchToken()` mints matchToken after phase-2 proof-of-possession, caches it via MatchTokenStore, and includes it in every `/identity/match` call; server returns `checkInterval: 86400`. Whether the >100min cooldown / 2-POST burst applies to matchToken-carrying requests is unknown.
+evidence_needed: matchToken-carrying match requests exceeding the anonymous burst budget.
+verify_steps: AUTH_HELPED: requires a valid Threema identity keypair to complete phase 2, obtain a real matchToken, then POST `/identity/match` with `matchToken` and compare limiter behavior vs anonymous baseline.
+impact: if matchToken lifts the limiter, only identity owners gain higher throughput; attacker value remains bounded. Severity low-medium.
+testability: AUTH_HELPED
+[HYP] Full triad rotation yields 3 independent /identity/match probe budgets
+class: BUSLOGIC
+asset: https://apip.threema.ch/identity/match
+confidence: 85
+reasoning: ds-apip→429 and api→200/39B→429 on the same IPv4 seconds apart proves per-host counters; apip→429 on first POST shows its own spent counter. Each host offers ~1-2 match POSTs per cooldown window.
+evidence_needed: a fresh 200 on apip after its cooldown expires, then 429 on rapid 2nd.
+verify_steps: PROBE at ≤1 rps after apip cooldown: single POST apip.threema.ch/identity/match `{"emailHashes":["dGVzdEBleGFtcGxlLmNvbQ=="]}` → expect 200/39B, then rapid 2nd → 429; rotate ds-apip→api→apip to sustain cadence.
+impact: email→identity oracle throughput ×3 vs single-host assumption. Severity low-medium.
+testability: PASSIVE
+[HYP] Staging /identity/match offers a cheap batch-size ceiling map while match_token POST is degraded
+class: BUSLOGIC
+asset: https://ds-apip.test.threema.ch/identity/match
+confidence: 50
+reasoning: earlier cycles recorded "staging has no limiter"; staging match_token POST now times out (×2 at 09:2x) while GET /identity/match → 400. If match POST recovers, N=1/2/5/10/20/50 emailHashes map costs zero prod cooldown.
+evidence_needed: staging match POST 200/39B baseline first.
+verify_steps: PROBE staging GET /identity/match → 400 (route present), then single POST `{"emailHashes":["dGVzdEBleGFtcGxlLmNvbQ=="]}` → 200/39B? then 5/10/20/50-hash batches at ≤1 rps; defer if POST times out like match_token.
+impact: batch ceiling mapped → enumeration throughput bound for email→identity oracle. Severity low.
+testability: PASSIVE
