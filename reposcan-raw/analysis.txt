@@ -1,3 +1,16 @@
 [0m
 > build · nemotron-3-ultra-free
 [0m
+[0m← [0mWrite triage_results.md
+Wrote file successfully.
+[0m
+Done. Wrote full triage to `triage_results.md`.
+
+**Bottom line: No reportable secrets.**
+
+- **0 REAL_SECRET** — no live credentials/API keys
+- **21 TEST_OR_EXAMPLE** — all in test files (`*Tests.swift`, `*Tests.kt`, `test-data.ts`)
+- **11 ENDPOINT_LEAK** — known staging hosts (`ds-apip.test.threema.ch`, `ds-apip-work.test.threema.ch`, `work.test.threema.ch`) already in active scope
+- **16 INTERESTING** — constants, key names, regex patterns, public Sentry DSNs, benchmark dummy (rejected 15+ cycles), UserDefaults key name
+
+Only marginal item: `threema-android JoinResponse.kt:70` leaks `icePassword` in `toString()` — low value (local-only, ephemeral WebRTC creds), needs runtime logcat validation.
