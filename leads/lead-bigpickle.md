@@ -9875,3 +9875,60 @@ evidence_needed: staging match POST 200/39B baseline first.
 verify_steps: PROBE staging GET /identity/match → 400 (route present), then single POST `{"emailHashes":["dGVzdEBleGFtcGxlLmNvbQ=="]}` → 200/39B? then 5/10/20/50-hash batches at ≤1 rps; defer if POST times out like match_token.
 impact: batch ceiling mapped → enumeration throughput bound for email→identity oracle. Severity low.
 testability: PASSIVE
+## 2026-08-12 10:32:41 UTC [chat] (model bigpickle)
+[HYP] A valid matchToken may lift the /identity/match per-host burst/cooldown ceiling
+class: AUTH
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 65
+reasoning: threema-android `obtainMatchToken()` mints matchToken after phase-2 proof-of-possession, caches it via MatchTokenStore, and includes it in every `/identity/match` call; server returns `checkInterval: 86400`. Whether the >100min cooldown / 2-POST burst applies to matchToken-carrying requests is unknown.
+evidence_needed: matchToken-carrying match requests exceeding the anonymous burst budget.
+verify_steps: AUTH_HELPED: requires a valid Threema identity keypair to complete phase 2, obtain a real matchToken, then POST `/identity/match` with `matchToken` and compare limiter behavior vs anonymous baseline.
+impact: if matchToken lifts the limiter, only identity owners gain higher throughput; attacker value remains bounded. Severity low-medium.
+testability: AUTH_HELPED
+[HYP] Full triad rotation yields 3 independent /identity/match probe budgets
+class: BUSLOGIC
+asset: https://apip.threema.ch/identity/match
+confidence: 85
+reasoning: ds-apip→429 and api→200/39B→429 on the same IPv4 seconds apart proves per-host counters; apip→429 on first POST shows its own spent counter. Each host offers ~1-2 match POSTs per cooldown window.
+evidence_needed: a fresh 200 on apip after its cooldown expires, then 429 on rapid 2nd.
+verify_steps: PROBE at ≤1 rps after apip cooldown: single POST apip.threema.ch/identity/match `{"emailHashes":["dGVzdEBleGFtcGxlLmNvbQ=="]}` → expect 200/39B, then rapid 2nd → 429; rotate ds-apip→api→apip to sustain cadence.
+impact: email→identity oracle throughput ×3 vs single-host assumption. Severity low-medium.
+testability: PASSIVE
+[HYP] Staging /identity/match offers a cheap batch-size ceiling map while match_token POST is degraded
+class: BUSLOGIC
+asset: https://ds-apip.test.threema.ch/identity/match
+confidence: 50
+reasoning: earlier cycles recorded "staging has no limiter"; staging match_token POST now times out (×2 at 09:2x) while GET /identity/match → 400. If match POST recovers, N=1/2/5/10/20/50 emailHashes map costs zero prod cooldown.
+evidence_needed: staging match POST 200/39B baseline first.
+verify_steps: PROBE staging GET /identity/match → 400 (route present), then single POST `{"emailHashes":["dGVzdEBleGFtcGxlLmNvbQ=="]}` → 200/39B? then 5/10/20/50-hash batches at ≤1 rps; defer if POST times out like match_token.
+impact: batch ceiling mapped → enumeration throughput bound for email→identity oracle. Severity low.
+testability: PASSIVE
+[HYP] match_token sustained-rate behavior on prod (unthrottled browser-viable existence oracle)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 70
+reasoning: Staging mirror unthrottled across ~7 rapid mints this cycle (all 200, no 429); prod observed only 2 sequential POSTs with no 429 per KB. GET /identity/{id} and fetch_bulk are already-accepted unthrottled oracles, but match_token adds OPTIONS 200 CORS `*` browser-viability (a victim-browser-origin attacker page can enumerate silently).
+evidence_needed: 3 spaced prod POSTs all returning 200 with no 429.
+verify_steps: PROBE at 60s spacing, 3 sequential POSTs `-X POST https://ds-apip.threema.ch/identity/match_token -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}'`; all expect 200/133B, zero 429.
+impact: confirms a third, browser-viable, unthrottled identity-existence oracle on prod → cross-origin silent enumeration from victim browsers (spam/phishing priming). Severity medium (amplifies accepted IDOR).
+testability: PASSIVE
+[HYP] check_license error string discriminates valid-username/wrong-password from unknown-username
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 60
+reasoning: POST-form returns `{"success":false,"error":"This username or password is invalid."}` (65B) for fake creds; GET-form returns constant `error:null` (params ignored). Whether a valid Work username + wrong password yields a different error (enumeration discriminator) is untested; no rate limit across 7+ sequential POSTs.
+evidence_needed: a valid Work license username (AUTH_HELPED) or a different error string for any credential class.
+verify_steps: AUTH_HELPED: with a valid Work username `U`, POST `{"licenseUsername":"U","licensePassword":"wrong","version":"...","arch":"..."}`; compare error string vs fake-username baseline.
+impact: if error strings differ → unauthenticated Work username enumeration with zero rate limiting, browser-viable (OPTIONS 200 CORS `*`). Severity medium.
+testability: AUTH_HELPED
+[HYP] staging /identity/match cooldown is shorter than prod's >100min, enabling cheap batch-ceiling map
+class: BUSLOGIC
+asset: https://ds-apip.test.threema.ch/identity/match
+confidence: 45
+reasoning: This cycle staging match burned its burst budget (200/39B baseline then 429 on 20-/50-batch), proving a limiter exists on staging — but its cooldown duration is unmeasured and may be far shorter than prod's >100min.
+evidence_needed: a 200 response from staging match after cooldown expiry, then a fresh N-size map.
+verify_steps: PROBE: after ≥20min, single POST staging `{"emailHashes":["dGVzdEBleGFtcGxlLmNvbQ=="]}` → 200/39B; then 5/10/20/50-batch at ≤1 rps recording status; never touches prod cooldown.
+impact: batch ceiling (N=emailHashes→200 vs 429/413) mapped at low cost → enumeration throughput bound for email→identity oracle. Severity low.
+testability: PASSIVE
+[NEXT] PROBE: at 60s spacing, 3 sequential prod POSTs `curl -s -m 20 -w "\nHTTP %{http_code}" -X POST https://ds-apip.threema.ch/identity/match_token -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}'` — confirms unthrottled sustained status of the browser-viable identity-existence oracle (all expect 200/133B, zero 429); advance POC chat by verifying the contact-discovery protocol primitive the chat client uses (threema-android `obtainMatchToken`).
+[RISK] chat: 20 reason: DNS shard map re-verified stable; passive channel formally closed; match_token POC work is directory-side, not chat-host surface; remaining tests AUTH_HELPED | web: 85 reason: directory triad oracles byte-stable (match_token stateless + fresh-entropy confirmed, GET-form check_license non-oracle closed, fetch_bulk 10k cap, check_license POST parity) | sync: 30 reason: mediator/rendezvous WSS uniform 403, DNS split attributed, chat rides mediator; no passive in-band divergence | safe: 60 reason: 5 hosts behind 203.56.112.231; HSTS/Expect-CT on OPTIONS 204 but ABSENT on GET 400; Basic Auth + route-existence oracle stable | desktop-src: 70 reason: Windows key-storage ACL chain RAG-verified (6 paths); `poc/` dir still filesystem-ABSENT (KB claims persistently false); needs Windows runtime validation
