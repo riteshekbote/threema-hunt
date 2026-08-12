@@ -3346,3 +3346,8 @@
 - LEARN: CHANGED billing.threema.ch: Confirmed serving real static assets (jQuery 3.7.1 + custom billing CSS) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Opti
 - LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: Downgraded to non-finding — no CORS on 404 response, missing-key/invalid-key produce byte-identical `{"error":"Invalid X
 - LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): RAG-verified 6-core-path chain stable on GitHub `stable` this cycle; PoC artifact `poc/key-storage-a
+
+## RANKED HYPOTHESES 2026-08-12 08:26:48 UTC
+- [95] https://ds-apip.threema.ch/identity/match_token: match_token minted-token lifecycle may feed an interactive directory challenge (post-auth-agnostic recon primitive) (from reports/hypotheses-bigpickle.txt)
+- [95] https://ds-apip.threema.ch/identity/match_token: Cross-origin identity-existence oracle via /identity/match_token minting (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: After ≥60s spacing, single `curl -s -m 20 -w "\n%{http_code}" -X POST https://ds-apip.test.threema.ch/identity/match_token -H "Content-Type: application/
