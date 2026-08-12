@@ -9367,3 +9367,35 @@ evidence_needed: an identity in a known revoked/inactive state to compare phase-
 verify_steps: AUTH_HELPED — revoke own test identity via app, POST `{"identity":"<own>"}` to phase-1, diff response size/body vs pre-revocation (133B vs 46B vs other).
 impact: state attribution (revoked/inactive) enriches the accepted existence oracle for enumeration targeting. Severity: low-medium.
 testability: AUTH_HELPED
+## 2026-08-12 01:14:26 UTC [chat] (model bigpickle)
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 45
+reasoning: phase-1 mints a challenge for any valid identity (200/133B) vs 46B "Identity not found"; no auth, no observed limiter across 5+ probes; client's `includeInactive` flag proves inactive/revoked states exist server-side.
+evidence_needed: an identity in a known revoked/inactive state to compare phase-1 body shape vs active.
+verify_steps: AUTH_HELPED — revoke own test identity via app, POST `{"identity":"<own>"}` to phase-1, diff response size/body vs pre-revocation (133B vs 46B vs other).
+impact: state attribution (revoked/inactive) enriches the accepted existence oracle for enumeration targeting. Severity: low-medium.
+testability: AUTH_HELPED
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 88
+reasoning: RAG-complete this cycle — MOBILENO_HMAC_KEY (sha256 `1b4c7efeb2ee`) extracted from APIConnector.java:84-90; normalization = E164 digits-no-plus; endpoint accepts `mobileNoHashes` tokenless (L645-646); match response leaks identity+publicKey+mobileNoHash (L666-675). Live confirmation blocked by burst limiter (N=20 mixed → 429).
+evidence_needed: one clean tokenless POST with ≥1 forgeable phone hash after limiter reset → 200/39B vs 429; positive differential requires known identity+phone.
+verify_steps: PROBE deferred ≥75min after last 429 — single POST `{"emailHashes":[],"mobileNoHashes":["<b64-HMAC-SHA256(mob_key, e164digits)>"]}` to ds-apip.threema.ch/identity/match; classify 200 vs 429; then repeat once on api.threema.ch (independent window).
+impact: phone→identity de-anonymization on second PII domain, key forgeable from shipped client; sweep rate = per-hostname window × independent-host multiplier. Severity: medium-high.
+testability: PASSIVE
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 55
+reasoning: own probes this cycle — api.threema.ch 200 then 429 on 2nd rapid POST while ds-apip concurrently 429 from same IP; per-IP limiter would block all 3 hosts together; api's fresh 200 with ds-apip blocked implies per-hostname budget.
+evidence_needed: apip.threema.ch POST after cooldown — 200 (independent hostname) vs 429 (shares ds-apip state).
+verify_steps: deferred PROBE ≥75min — POST 1 hash to ds-apip (expect 200), immediately POST 1 hash to apip: 200 → per-hostname confirmed (3x multiplier); 429 → shared-state.
+impact: attacker multiplies sweep rate by #independent hostname windows; tightens accepted oracle's throughput bound. Severity: low.
+testability: PASSIVE
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 45
+reasoning: phase-1 mints 133B token for valid identity vs 46B "Identity not found"; no limiter across 6+ probes; client `includeInactive` flag (L617) proves inactive/revoked states exist; phase-2 private-key-gated so phase-1 is the only unauth surface.
+evidence_needed: an identity in a known revoked/inactive state to compare phase-1 body shape vs active.
+verify_steps: AUTH_HELPED — revoke own test identity via app; POST `{"identity":"<own>"}` to phase-1; diff response size/body vs pre-revocation (133B vs 46B vs other).
+impact: state attribution (revoked/inactive) enriches the accepted existence oracle for enumeration targeting. Severity: low-medium.
+testability: AUTH_HELPED
