@@ -961,3 +961,17 @@ https://ds-apip.threema.ch/identity/lookup -> HTTP 404
 https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
 https://ds-apip.threema.ch/identity/{identity -> HTTP 404
 https://ds-apip.test.threema.ch/` -> HTTP 404
+
+## 2026-08-12 05:17:32 UTC
+https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/match -> HTTP 400
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/match` -> HTTP 404
+https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
+https://ds-apip.threema.ch/identity/lookup -> HTTP 404
+https://ds-apip.threema.ch/identity/{identity -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/` -> HTTP 404
+https://work.test.threema.ch/` -> HTTP 404
+https://ds-apip.test.threema.ch -> HTTP 403
+https://ds-apip.test.threema.ch/identity/match -> HTTP 400
