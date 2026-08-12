@@ -7955,3 +7955,4 @@ testability: AUTH_HELPED
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (all 6 source paths fetched live from GitHub stable); PoC artifact `poc/key-storage-acl-bypass-poc.js` NOW GENERATED + syntax-verified + Linux no-op confirmed (sha256 `4771aafb…`); full Ed25519 identity key + SQLCipher database key chain confirmed via 15 source paths; remaining gap = Windows runtime validation only; BrowserWindow sandbox unset + nodeIntegrationInWorker: true (conditional RCE, rejected as standalone); crypto.ts:223 benchmark dummy REJECTED; Electron attack surface confirmed in scope
 ## 2026-08-12 12:10:58 UTC [desktop] (model laguna)
 ## 2026-08-12 13:54:35 UTC [desktop] (model laguna)
+## 2026-08-12 14:57:15 UTC [desktop] (model laguna)

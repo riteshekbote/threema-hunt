@@ -10229,3 +10229,32 @@ evidence_needed: matchToken-carrying match requests exceeding the anonymous burs
 verify_steps: AUTH_HELPED: with a real matchToken from a valid identity keypair, POST /identity/match twice rapidly; compare vs anonymous baseline (200 then 429).
 impact: if token lifts the limiter, only identity owners gain throughput — attacker value remains bounded; does not widen email→identity oracle for unauthenticated attackers. Severity low-medium.
 testability: AUTH_HELPED
+## 2026-08-12 14:40:40 UTC [chat] (model bigpickle)
+[HYP] match_token response key is a deployment-wide static constant (cross-env replay)
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 75
+reasoning: tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=` (sha256 c8005ccadfab04f28212122400c7dc87c3389ee958003ac888df20d7a3c862a5) byte-identical on all 3 prod hosts AND staging, re-verified on prod this cycle; token changes per mint, proving pubkey is a static server constant.
+evidence_needed: token minted on one host accepted by /identity/match on another host.
+verify_steps: AUTH_HELPED: mint token on ds-apip.test.threema.ch, present it in POST `/identity/match {"emailHashes":[...],"matchToken":"<staging-minted>"}` against ds-apip.threema.ch; 200 non-400 → cross-env replay.
+impact: no environment key separation; staging-side response-key exposure becomes prod-grade material; tokens minted on one env cryptographically valid on another. Low-medium severity.
+testability: AUTH_HELPED
+[HYP] match_token mint normalization is broader than case-folding (mixed-case/whitespace variants mint)
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 70
+reasoning: confirmed this cycle — `echoecho`→200/133B but GET exact-case→404; `zzzzzzzz` and 7-char `ECHOECH`→200/46B. Mint path case-folds before lookup; exact normalization rule (trim? full-fold? unicode?) unmapped.
+evidence_needed: whether mixed-case or whitespace-padded canonical IDs mint a token (200/133B).
+verify_steps: PROBE at ≤1 rps: POST match_token `{"identity":"EchoEcho"}` and `{"identity":" ECHOECHO "}` on ds-apip.threema.ch; 133B → normalization wider than lowercase-fold; 46B → exact fold boundary.
+impact: enumeration need not use canonical spelling; marginal amplification of the accepted identity-existence IDOR. Low severity.
+testability: PASSIVE
+[HYP] /identity/match emailHashes batch has an unmapped cost-unit ceiling
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 50
+reasoning: endpoint returns `{"checkInterval":86400,"identities":[]}` for empty/short input; anonymous path is burst-limited (>100min cooldown, 429 after ~2 rapid POSTs). Batch ceiling N=emailHashes never mapped due to limiter.
+evidence_needed: N where a single POST transitions 200→413/400/429.
+verify_steps: PASSIVE after limiter reset (>100min): single POST with N=1,5,20,50,100 base64 emailHashes at 60s spacing on ds-apip.threema.ch/identity/match; record response code+body size each.
+impact: if no size cap → per-request amplification of the email→identity match primitive once a valid hash set exists. Low-medium severity.
+testability: PASSIVE (cooldown-gated)
+[NEXT] PROBE: 2 sequential POSTs at ≤1 rps on ds-apip.threema.ch/identity/match_token — `curl -s -m 20 -X POST https://ds-apip.threema.ch/identity/match_token -H "Content-Type: application/json" -d '{"identity":"EchoEcho"}'` then `-d '{"identity":" ECHOECHO "}'`; 133B on either → mint normalization exceeds case-folding (whitespace/mixed-case accepted), widening the unthrottled existence-oracle input surface.
