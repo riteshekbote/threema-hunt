@@ -3586,3 +3586,17 @@
 - LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain fully verified via WebFetch on GitHub stable; PoC artifact NOW genuinely on disk (s
 - LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
 - LEARN: ACCEPTED MISCONFIG @ billing.threema.ch: serves static assets (jQuery 3.7.1 + CSS) with full security headers on /cache/ paths; 404 error page lacks headers — h
+
+## RANKED HYPOTHESES 2026-08-12 21:14:30 UTC
+- [95] https://ds-apip.threema.ch/identity/match_token: Cross-origin identity-existence oracle with challenge-token minting via match_token (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: Wait for /identity/match rate-limiter reset (>100min cooldown from last 429), then at ≤1 rps with 60s spacing: `curl -s -X POST -H "Origin: https://evil.
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: NEW endpoint fully verified live — identity-existence oracle (valid→200/133B token + constant tokenResp
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 10000-ID ceiling + CORS `*` + zero 429s + 5 challenge param-oracles — all byte-stable this cycle
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: email→identity membership oracle via public HMAC key (fetch-work.ts), burst-only limiter >100min cooldown, CO
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle (fake creds→200/65B), CORS `*` + OPTIONS 200, sibling parity all 3 p
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle DISPROVEN — no CORS on 404, missing-key/invalid-key byte-identical 404, key NOT in desktop s
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 52a0af98… confirmed benchmark-only dummy in determineKdfParams(), derived key purged at line 233 —
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain fully verified via WebFetch on GitHub stable; PoC artifact NOW genuinely on disk (s
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
+- LEARN: ACCEPTED MISCONFIG @ billing.threema.ch: serves static assets (jQuery 3.7.1 + CSS) with full security headers on /cache/ paths; 404 error page lacks headers — h

@@ -10635,3 +10635,4 @@ impact: bounds the chat attack surface to exactly two closed ports; any residual
 testability: PASSIVE
 [FINAL] ranked survivors: 1) fetch_bulk case-fold uniformity (72) 2) match_token cross-host acceptance (60) 3) chat {443,5222}-only port set (48)
 [NEXT] PROBE: chat port-set confirmation — extend connect-only sweep on 203.56.112.202/.204 to ~40 ports (e.g. 21,25,110,143,389,445,465,587,636,993,995,1433,1521,2375,2376,3000,3306,3389,4369,5432,5601,6379,7001,8000,8008,8009,8081,8090,8888,9000,9200,9300,11211,15672,18080,27017,50000) at ≤1 rps, 0 bytes sent; any OPEN beyond {443,5222} = new chat surface.
+## 2026-08-12 21:11:59 UTC [chat] (model bigpickle)
