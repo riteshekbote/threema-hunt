@@ -1810,3 +1810,5 @@
 - CHANGED ds-apip.threema.ch/check_license — sibling parity CONFIRMED across all 3 prod hosts (byte-identical 200/65B + CORS * + OPTIONS 200)
 - CHANGED ds-apip.threema.ch/identity/fetch_bulk — byte-stable (10000→200/152B, 10001→400/0B sharp count-cap)
 - CHANGED safe-{01,1a,1b,02,00}.threema.ch — HSTS/Expect-CT on OPTIONS 204 but ABSENT on GET 400 — byte-stable
+
+## 2026-08-12 13:54:47 UTC

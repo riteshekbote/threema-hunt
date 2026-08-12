@@ -10201,3 +10201,31 @@ verify_steps: AUTH_HELPED: with a program-provided revoked test identity, POST `
 impact: confirms the accepted IDOR amplifies to liveness-blind enumeration (any ever-registered ID usable for phishing priming even after revocation). Severity low-medium.
 testability: AUTH_HELPED
 [NEXT] PROBE: 2 sequential POSTs (≤1 rps) — `curl -s -m 20 -X POST https://apip.threema.ch/identity/match_token -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}'` then same on `https://api.threema.ch/identity/match_token`; diff `tokenRespKeyPub` against the known constant `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=` — confirms deployment-wide constancy (or reveals per-host key isolation) of the match-token response key.
+## 2026-08-12 13:39:42 UTC [chat] (model bigpickle)
+[HYP] Cross-environment token crypto identity is a single shared constant with cross-env replay potential
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 72
+reasoning: tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=` (sha256 c8005ccadfab04f28212122400c7dc87c3389ee958003ac888df20d7a3c862a5) is byte-identical on all 3 prod hosts AND staging (own probes this cycle). Token entropy differs per mint on every host, proving the pubkey is a static server constant, not per-request. A single response-encryption key across prod+staging implies a single corresponding private key — no environment key separation.
+evidence_needed: whether the private key backing tokenRespKeyPub is the same constant across environments (verify via behavior: token minted on one host accepted in /identity/match on another).
+verify_steps: AUTH_HELPED: with a valid Threema identity keypair, mint a token on ds-apip.test.threema.ch, then present it in `POST /identity/match {"emailHashes":[...],"matchToken":"<staging-minted>"}` against ds-apip.threema.ch; if accepted → cross-env replay confirmed.
+impact: staging-side key material exposure becomes prod-grade; tokens minted on one host are cryptographically valid on another (cross-env replay of the contact-discovery proof). Severity low-medium.
+testability: AUTH_HELPED
+[HYP] match_token mint normalization diverges from GET /identity/{id}, widening the existence oracle's positive surface
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 55
+reasoning: `echoecho` mints a token (200/133B) but `GET /identity/echoecho` returns 404 while `GET /identity/ECHOECHO` returns 200 (uniform across api/apip). The mint path case-normalizes before lookup; the GET path is exact-case. Format-agnostic minting (1-char/164-char → 46B) plus case-folding means the mint oracle's positive set includes non-canonical spellings of registered IDs.
+evidence_needed: confirm the negative boundary — whether any case/mixed variant of an invalid ID ever mints, and whether 8-char lowercase non-IDs mint.
+verify_steps: PROBE at ≤1 rps: POST match_token `{"identity":"zzzzzzzz"}` (all lowercase invalid) and `{"identity":"ECHOECH"}` (7-char) — expect 200/46B; diff against uppercase negatives already recorded.
+impact: marginal — confirms enumeration can be driven with case-agnostic inputs; no access amplification over the accepted IDOR. Severity low.
+testability: PASSIVE
+[HYP] A valid matchToken lifts the /identity/match burst/cooldown limiter
+class: AUTH
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 65
+reasoning: match_token minting is confirmed unthrottled on all 4 hosts; /identity/match is burst-limited (>100min cooldown) for anonymous POSTs. threema-android `obtainMatchToken()` mints after phase-2 proof-of-possession and includes the token in every match call. Whether token-carrying match requests are exempt from the anonymous burst ceiling is untested.
+evidence_needed: matchToken-carrying match requests exceeding the anonymous burst budget (2 rapid POSTs, no 429).
+verify_steps: AUTH_HELPED: with a real matchToken from a valid identity keypair, POST /identity/match twice rapidly; compare vs anonymous baseline (200 then 429).
+impact: if token lifts the limiter, only identity owners gain throughput — attacker value remains bounded; does not widen email→identity oracle for unauthenticated attackers. Severity low-medium.
+testability: AUTH_HELPED
