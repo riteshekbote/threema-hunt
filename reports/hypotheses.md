@@ -3600,3 +3600,41 @@
 - LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain fully verified via WebFetch on GitHub stable; PoC artifact NOW genuinely on disk (s
 - LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
 - LEARN: ACCEPTED MISCONFIG @ billing.threema.ch: serves static assets (jQuery 3.7.1 + CSS) with full security headers on /cache/ paths; 404 error page lacks headers — h
+
+## RANKED HYPOTHESES 2026-08-12 22:15:36 UTC
+- [95] https://ds-apip.threema.ch/identity/match_token: Cross-origin identity-existence oracle with challenge-token minting via match_token (from reports/hypotheses-nemotron3.txt)
+- [95] https://ds-apip.threema.ch/identity/fetch_bulk: Mass identity→pubkey enumeration via fetch_bulk with parameter-validation oracle chaining (from reports/hypotheses-laguna.txt)
+- [60] https://ds-apip.threema.ch/identity/match_token: match_token mint path is a separate rate-limit bucket; cross-host token redemption shares a single signing key (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: Wait for /identity/match rate-limiter reset (>100min cooldown from last 429), then at ≤1 rps with 60s spacing: `curl -s -X POST -H "Origin: https://evil.
+- NEXT(hypotheses-bigpickle.txt): RAG: search threema-android + threema-ios source (WebFetch GitHub `main`) for `match_token` / `tokenRespKeyPub` / `IdentityMatchToken` usage to recover the rede
+- NEXT(hypotheses-laguna.txt): PROBE: Wait for /identity/match rate-limiter reset (>100min cooldown from last 429), then at ≤1 rps with 60s spacing: `curl -s -X POST -H "Origin: https://evil.
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: NEW endpoint fully verified live — identity-existence oracle (valid→200/133B token + constant tokenResp
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 10000-ID ceiling + CORS `*` + zero 429s + 5 challenge param-oracles — all byte-stable this cycle
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: email→identity membership oracle via public HMAC key (fetch-work.ts), burst-only limiter >100min cooldown, CO
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle (fake creds→200/65B), CORS `*` + OPTIONS 200, sibling parity all 3 p
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle DISPROVEN — no CORS on 404, missing-key/invalid-key byte-identical 404, key NOT in desktop s
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 52a0af98… confirmed benchmark-only dummy in determineKdfParams(), derived key purged at line 233 —
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain fully verified via WebFetch on GitHub stable; PoC artifact NOW genuinely on disk (s
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
+- LEARN: ACCEPTED MISCONFIG @ billing.threema.ch: serves static assets (jQuery 3.7.1 + CSS) with full security headers on /cache/ paths; 404 error page lacks headers — h
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: NEW endpoint fully verified live — identity-existence oracle (valid→200/133B token + constant tokenResp
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 10000-ID ceiling + CORS `*` + zero 429s + 5 challenge param-oracles — all byte-stable this cycle
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: email→identity membership oracle via public HMAC key (fetch-work.ts), burst-only limiter >100min cooldown, CO
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: cross-origin credential validation oracle (fake creds→200/65B), CORS `*` + OPTIONS 200, sibling parity all 3 p
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle DISPROVEN — no CORS on 404, missing-key/invalid-key byte-identical 404, key NOT in desktop s
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 52a0af98… confirmed benchmark-only dummy in determineKdfParams(), derived key purged at line 233 —
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain fully verified via WebFetch on GitHub stable; PoC artifact NOW genuinely on disk (s
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
+- LEARN: ACCEPTED MISCONFIG @ billing.threema.ch: serves static assets (jQuery 3.7.1 + CSS) with full security headers on /cache/ paths; 404 error page lacks headers — h
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in `determineKdfParams()`, derived key immediately purged, not used for any real 
+- LEARN: ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — `keystorage.bin` and `keystorage.password.bin`
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateL
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: Staging directory server publicly reachable with identical API surface to production; HSTS/Expect-CT present on st
+- LEARN: CONFIRMED MISCONFIG @ threema-desktop key-storage (Windows): Filesystem GROUND TRUTH now confirms `poc/key-storage-acl-bypass-poc.js` GENUINELY on disk (sha256 
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` — sha256 corrected to `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae1
+- LEARN: CONFIRMED MISCONFIG @ threema-desktop electron-main.ts:1240-1262 BrowserWindow — `sandbox` UNSET (not `false`), `// TODO(DESK-79): Enable sandbox: true` at :125
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: fetch_bulk 10000-ID ceiling + CORS `*` + zero 429 + 5 challenge param-oracles — byte-stable t
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: identity-existence oracle + case-fold amplification — byte-stable (valid→200/133B token + constant toke
+- LEARN: CONFIRMED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64

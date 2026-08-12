@@ -1,16 +1,12 @@
-## 2026-08-12 21:08:25 UTC [web] (model nemotron3)
-[NEW] poc/key-storage-acl-bypass-poc.js — filesystem GROUND TRUTH confirms NOW genuinely on disk (sha256 `7d2a65384f19df735145e8f1df4d7a448c1f4fe37e48b79a08871a0e316e5bff`, 9233 B); `node --check` PASS; `node poc/...` EXIT 0 Linux no-op — 19th+ cycle gap finally closed
+## 2026-08-12 22:02:45 UTC [web] (model nemotron3)
+[NEW] poc/key-storage-acl-bypass-poc.js — filesystem GROUND TRUTH confirms NOW genuinely on disk (sha256 `7d2a65384f19df735145e8f1df4d7a448c1f4fe37e48b79a08871a0e316e5bff`, 9233 B); `node --check` PASS; `node poc/...` EXIT 0 Linux no-op — 19th+ cycle gap closed
 [CHANGED] ds-apip.threema.ch/identity/match_token — case-fold amplification confirmed: POST `{"identity":"EchoEcho"}`→200/133B token + constant tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=`; GET `/identity/EchoEcho`→404 (case-sensitive); sibling parity all 3 prod hosts
 [CHANGED] /identity/match rate-limiter cooldown — >100min confirmed (re-measured 2026-08-12 17:38 & 18:43 UTC); burst-only limiter; 60s+ spacing still triggers 429; single POST after cooldown → 200/39B returns to baseline
 [CHANGED] work.threema.ch/api/v1 — downgraded to non-finding: 404 response has NO CORS headers (neither GET nor OPTIONS); missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`; X-Api-Key NOT in threema-desktop source (fetch-work.ts uses username/password exclusively)
 [CHANGED] billing.threema.ch — now serves real static assets (jQuery 3.7.1 + custom CSS on /cache/ paths) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options); 404 error page lacks all headers — header divergence stable
-[PRIO] ds-apip.threema.ch/identity/match_token, 91, attack_surface:10 business_value:9 tech_exposure:9 gate_ease:10 cloud_surface:5 freshness:10
-[PRIO] ds-apip.threema.ch/identity/fetch_bulk, 89, attack_surface:10 business_value:9 tech_exposure:8 gate_ease:10 cloud_surface:5 freshness:8
-[PRIO] ds-apip.threema.ch/identity/match, 78, attack_surface:8 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:9
-[PRIO] threema-desktop key-storage (Windows), 75, attack_surface:7 business_value:9 tech_exposure:9 gate_ease:5 cloud_surface:3 freshness:6
-[PRIO] ds-apip.threema.ch/check_license, 72, attack_surface:7 business_value:7 tech_exposure:6 gate_ease:10 cloud_surface:5 freshness:8
-[PRIO] safe-{01,1a,1b,02,00}.threema.ch, 58, attack_surface:5 business_value:6 tech_exposure:6 gate_ease:5 cloud_surface:7 freshness:5
-[PRIO] billing.threema.ch, 45, attack_surface:4 business_value:4 tech_exposure:5 gate_ease:10 cloud_surface:5 freshness:3
+[PRIO] https://ds-apip.threema.ch/identity/match_token, 91, attack_surface:10 business_value:9 tech_exposure:9 gate_ease:10 cloud_surface:5 freshness:10
+[PRIO] https://ds-apip.threema.ch/identity/fetch_bulk, 89, attack_surface:10 business_value:9 tech_exposure:8 gate_ease:10 cloud_surface:5 freshness:8
+[PRIO] https://ds-apip.threema.ch/identity/match, 78, attack_surface:8 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:9
 [HYP] Cross-origin identity-existence oracle with challenge-token minting via match_token
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/match_token
