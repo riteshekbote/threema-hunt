@@ -1,6 +1,14 @@
 [0m
 > build · nemotron-3-ultra-free
 [0m
-[0m$ [0mecho -n "r3gGN9GDQ5NF6tM6" | sha256sum
-400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12  -
+[0m← [0mWrite triage-report.md
+Wrote file successfully.
 [0m
+Done. Wrote full triage report to `triage-report.md`.
+
+**Bottom line:** 0 REAL_SECRET findings. All 56 hits are:
+- 21 TEST_OR_EXAMPLE (test fixtures)
+- 11 ENDPOINT_LEAK (staging URLs — already ACCEPTED MISCONFIG in KB)
+- 24 INTERESTING (constants, public Sentry DSNs, config keys)
+
+The only *new* item is `JoinResponse.kt:70` logging `icePassword` in `toString()` — low-value (local-only, short-lived WebRTC ICE creds), needs runtime logcat validation to confirm sink. No disclosure reports needed.
