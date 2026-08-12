@@ -3424,3 +3424,18 @@
 
 ## RANKED HYPOTHESES 2026-08-12 13:54:47 UTC
 - [72] https://ds-apip.threema.ch/identity/match_token: Cross-environment token crypto identity is a single shared constant with cross-env replay potential (from reports/hypotheses-bigpickle.txt)
+
+## RANKED HYPOTHESES 2026-08-12 14:57:29 UTC
+- [95] https://ds-apip.threema.ch/identity/match_token: Cross-origin identity-existence oracle via /identity/match_token minting (from reports/hypotheses-nemotron3.txt)
+- [75] https://ds-apip.threema.ch/identity/match_token: match_token response key is a deployment-wide static constant (cross-env replay) (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: Wait for /identity/match rate-limiter reset (>100min cooldown from last probe), then at ≤1 rps with 60s spacing: `curl -s -X POST -H "Origin: https://evi
+- NEXT(hypotheses-bigpickle.txt): PROBE: 2 sequential POSTs at ≤1 rps on ds-apip.threema.ch/identity/match_token — `curl -s -m 20 -X POST https://ds-apip.threema.ch/identity/match_token -H "Cont
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: NEW endpoint fully verified live — positive (ECHOECHO→200/133B token + constant tokenRespKeyPub sha256 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain fully verified via WebFetch on GitHub stable — fs.ts:41→{}, key-storage/index.ts:55
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 52a0af98… confirmed benchmark-only dummy in determineKdfParams(), derived key purged at line 233 —
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle DISPROVEN — no CORS on 404 response, missing-key/invalid-key produce byte-identical `{"error
+- LEARN: ACCEPTED MISCONFIG @ billing.threema.ch: serves static assets (jQuery 3.7.1 + CSS) with full security headers; 404 page lacks headers — minor defense-in-depth g
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: response variance 200→400 confirmed; OPTIONS 400 carries CORS * + Allow-Headers; rate-limiter cooldown >20mi
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: sibling parity CONFIRMED across all 3 prod hosts (byte-identical 200/65B + CORS * + OPTIONS 200)
+- LEARN: CONFIRM MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64he
