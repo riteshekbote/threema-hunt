@@ -2383,3 +2383,4 @@ testability: RUNTIME_HELPED-LOCAL
 [RISK] safe: 80 — 5 safe-* hostnames single IP 203.56.112.231; CORS * + write-capable methods + Allow-Headers Authorization; HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 (CVSS 7.4); HTTP Basic Auth + route-existence oracle stable
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub stable source paths); BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); remaining gap: PoC artifact + live Windows runtime validation (CVSS 8.1)
 ## 2026-08-12 03:29:03 UTC [sync] (model longcat)
+## 2026-08-12 05:14:06 UTC [sync] (model longcat)
