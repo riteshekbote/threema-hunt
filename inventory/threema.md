@@ -1778,3 +1778,11 @@
 - CHANGED ds-apip.threema.ch/check_license — sibling parity CONFIRMED across all 3 prod hosts (byte-identical 200/65B + CORS * + OPTIONS 200)
 - CHANGED ds-apip.threema.ch/identity/fetch_bulk — byte-stable (10000→200/152B, 10001→400/0B sharp count-cap)
 - CHANGED safe-{01,1a,1b,02,00}.threema.ch — HSTS/Expect-CT on OPTIONS 204 but ABSENT on GET 400 — byte-stable
+
+## 2026-08-12 10:48:18 UTC
+- NEW ds-apip.threema.ch/identity/match_token — NEW endpoint fully verified live (positive: ECHOECHO→200/133B token + constant tokenRespKeyPub sha256 `c8005cca9…`; negative: ZZZZZZZZ→200/46B "Identity not f
+- NEW /identity/match `emailHashes` batch-size cost-unit boundary — unmapped (N=1/2/5/10/20/50 hashes → 200 vs 413/429; batch ceiling not yet measured)
+- NEW /identity/match response variance — 200/39B → 400 transition confirmed on latest probes; GET 400 body fingerprint unmapped
+- CHANGED /identity/match rate-limiter cooldown remeasured — >100min confirmed; burst-only limiter; 60s+ spacing still triggers 429
+- CHANGED poc/ directory — confirmed STILL ABSENT (18th+ consecutive cycle); KB artifact claims persistently false
+- CHANGED work.threema.ch/api/v1 — downgraded to non-finding: no CORS on 404, missing-key/invalid-key byte-identical 404, X-Api-Key not in desktop source

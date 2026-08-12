@@ -7905,3 +7905,4 @@ testability: AUTH_HELPED
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (all 6 source paths fetched live from GitHub stable); full Ed25519 identity key + SQLCipher database key chain confirmed via 15 source paths; PoC artifact STILL absent from filesystem (18+ cycle gap); crypto.ts:223 benchmark dummy REJECTED (not a secret); BrowserWindow sandbox unset + nodeIntegrationInWorker: true (conditional RCE, rejected standalone); Electron attack surface confirmed in scope
 ## 2026-08-12 08:21:35 UTC [desktop] (model laguna)
 ## 2026-08-12 09:24:47 UTC [desktop] (model laguna)
+## 2026-08-12 10:48:08 UTC [desktop] (model laguna)
