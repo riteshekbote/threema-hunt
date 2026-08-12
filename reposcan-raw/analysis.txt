@@ -1,24 +1,87 @@
 [0m
 > build · nemotron-3-ultra-free
 [0m
-[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/
+[0m$ [0mls -la reposcan-raw/threema-ch/
 total 72
-drwxr-xr-x 18 runner runner 4096 Aug 12 13:55 .
-drwxr-xr-x  3 runner runner 4096 Aug 12 13:55 ..
-drwxr-xr-x  7 runner runner 4096 Aug 12 13:55 app-remote-protocol
-drwxr-xr-x 10 runner runner 4096 Aug 12 13:55 compose-area
-drwxr-xr-x  7 runner runner 4096 Aug 12 13:55 push-relay
-drwxr-xr-x 14 runner runner 4096 Aug 12 13:55 threema-android
-drwxr-xr-x  8 runner runner 4096 Aug 12 13:55 threema-bot-sdk
-drwxr-xr-x 12 runner runner 4096 Aug 12 13:55 threema-desktop
-drwxr-xr-x 32 runner runner 4096 Aug 12 13:55 threema-ios
-drwxr-xr-x  6 runner runner 4096 Aug 12 13:55 threema-markup
-drwxr-xr-x  4 runner runner 4096 Aug 12 13:55 threema-msgapi-sdk-java
-drwxr-xr-x  5 runner runner 4096 Aug 12 13:55 threema-msgapi-sdk-php
-drwxr-xr-x  7 runner runner 4096 Aug 12 13:55 threema-msgapi-sdk-python
-drwxr-xr-x  9 runner runner 4096 Aug 12 13:55 threema-msgapi-sdk-rust
-drwxr-xr-x 16 runner runner 4096 Aug 12 13:55 threema-web
-drwxr-xr-x  8 runner runner 4096 Aug 12 13:55 threema-web-electron
-drwxr-xr-x  7 runner runner 4096 Aug 12 13:55 wasm-minisign-verify
-drwxr-xr-x  5 runner runner 4096 Aug 12 13:55 webrtc-build-docker
+drwxr-xr-x 18 runner runner 4096 Aug 12 14:35 .
+drwxr-xr-x  3 runner runner 4096 Aug 12 14:35 ..
+drwxr-xr-x  7 runner runner 4096 Aug 12 14:35 app-remote-protocol
+drwxr-xr-x 10 runner runner 4096 Aug 12 14:35 compose-area
+drwxr-xr-x  7 runner runner 4096 Aug 12 14:35 push-relay
+drwxr-xr-x 14 runner runner 4096 Aug 12 14:35 threema-android
+drwxr-xr-x  8 runner runner 4096 Aug 12 14:35 threema-bot-sdk
+drwxr-xr-x 12 runner runner 4096 Aug 12 14:35 threema-desktop
+drwxr-xr-x 32 runner runner 4096 Aug 12 14:35 threema-ios
+drwxr-xr-x  6 runner runner 4096 Aug 12 14:35 threema-markup
+drwxr-xr-x  4 runner runner 4096 Aug 12 14:35 threema-msgapi-sdk-java
+drwxr-xr-x  5 runner runner 4096 Aug 12 14:35 threema-msgapi-sdk-php
+drwxr-xr-x  7 runner runner 4096 Aug 12 14:35 threema-msgapi-sdk-python
+drwxr-xr-x  9 runner runner 4096 Aug 12 14:35 threema-msgapi-sdk-rust
+drwxr-xr-x 16 runner runner 4096 Aug 12 14:35 threema-web
+drwxr-xr-x  8 runner runner 4096 Aug 12 14:35 threema-web-electron
+drwxr-xr-x  7 runner runner 4096 Aug 12 14:35 wasm-minisign-verify
+drwxr-xr-x  5 runner runner 4096 Aug 12 14:35 webrtc-build-docker
 [0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt[90m [limit=15, offset=65][0m
+[0m→ [0mRead reposcan-raw/threema-ch/threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts[90m [offset=215, limit=25][0m
+Based on my analysis of the scan results and the knowledge base, here's the triage:
+
+---
+
+### **REAL_SECRET** (reportable)
+| File | Line | SHA256 (truncated) | Context |
+|------|------|-------------------|---------|
+| threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt | 70 | `icePassword` in toString() | Logs ICE password to logcat if object logged — low value (local-only, short-lived), needs runtime validation |
+
+---
+
+### **TEST_OR_EXAMPLE** (not reportable)
+| File | Line | Note |
+|------|------|------|
+| threema-ios/ThreemaFrameworkTests/**/*.swift | multiple | Test fixtures: `testPassword`, `password1`, `authToken`, `shootdeathstar` |
+| threema-desktop/apps/desktop/src/common/test-data.ts | 62 | Placeholder `keyStoragePassword: 'CHANGE_ME'` |
+| threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts | 223 | Benchmark-only dummy `r3gGN9GDQ5NF6tM6` (purged at L233) — **KB REJECTED** |
+
+---
+
+### **ENDPOINT_LEAK** (internal/staging URLs)
+| File | Line | Endpoint |
+|------|------|----------|
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
+| threema-android/domain/protocol/src/directory.openapi.yml | 7, 911 | Same staging directory endpoints |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | Same |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 7, 911 | Same |
+| threema-desktop/apps/desktop/config/vite.config.ts | 147, 153, 154 | `DIRECTORY_SERVER_URL`, `WORK_SERVER_LEGACY_URL`, `WORK_SERVER_URL` pointing to `.test.threema.ch` |
+
+---
+
+### **INTERESTING** (non-secrets, unusual patterns)
+| File | Line | Note |
+|------|------|------|
+| threema-android/SfuToken.kt | 49 | Proper redaction `sfuToken='********'` in toString() — security-positive |
+| threema-android/WebClientSessionModel.java | 28 | `COLUMN_PUSH_TOKEN = "push_token"` — column name |
+| threema-android/DatabaseUpdateToVersion37.java | 48 | Same push_token column |
+| threema-android/IceCandidateParser.java | 43 | Regex `TOKEN = "[a-zA-Z]+"` — pattern, not secret |
+| threema-android/ClientInfo.java | 37 | `PUSH_TOKEN = "pushToken"` — constant name |
+| threema-android/NotificationChannels.kt | 52 | Channel name `NOTIFICATION_CHANNEL_REMOTE_SECRET` |
+| threema-android/PasswordEntryDialog.java | 47 | Key name `KEY_PASSWORD = "password"` |
+| threema-android/SentryConfig.kt | 15, 19 | Public Sentry DSN keys (sha256 `3a826628...`, `3686395f...`) — public by design |
+| threema-desktop/enum/index.ts | 3126, 3162 | IPC constants `LOAD_USER_PASSWORD`, `STORE_USER_PASSWORD` |
+| threema-desktop/enum/schema.ts | 983, 1000 | Same IPC constants (source of generated file) |
+| threema-desktop/packages/webrtc/src/sdp/ice-password.ts | 12 | Validation error message for ICE password |
+| threema-ios/AppMigration.swift | 873 | `persistenceKeyLicensePassword = "Threema license password"` — **UserDefaults key name**, not hardcoded password (**KB REJECTED**) |
+
+---
+
+### **SHORT VERDICT LIST**
+
+| Candidate | REPORT_CANDIDATE | Reason |
+|-----------|------------------|--------|
+| JoinResponse.kt:70 `icePassword` in toString() | **no** | Low value (local-only, short-lived ICE creds); requires runtime logcat validation to confirm sink |
+| crypto.ts:223 benchmark password | **no** | KB REJECTED ×15+ cycles — benchmark-only dummy, purged immediately |
+| Staging directory URLs (`.test.threema.ch`) | **no** | Known staging endpoints, already in KB as accepted surfaces |
+| Sentry public DSN keys | **no** | Public by design (INTERESTING non-finding) |
+| AppMigration.swift key name | **no** | KB REJECTED — UserDefaults key, not hardcoded password |
+| All test fixtures | **no** | TEST_OR_EXAMPLE |
+
+**No new REAL_SECRET findings requiring disclosure.** The only potentially actionable item (JoinResponse icePassword leak) is low-value and needs runtime validation first.
