@@ -1119,3 +1119,9 @@ https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/jso
 https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
 https://g-*.0.threema.ch -> ERR <urlopen error [Errno -2] Name or service not know
 https://ds-apip.threema.ch/identity/match` -> HTTP 404
+
+## 2026-08-12 21:14:32 UTC
+https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/match -> HTTP 400
+https://ds-apip.threema.ch/identity/match` -> HTTP 404

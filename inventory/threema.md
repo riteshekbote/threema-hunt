@@ -1915,3 +1915,10 @@
 - CHANGED /identity/match rate-limiter cooldown — >100min confirmed (re-measured 2026-08-12 17:38 & 18:43 UTC); burst-only limiter; 60s+ spacing still triggers 429; single POST after cooldown → 200/39B returns 
 - CHANGED work.threema.ch/api/v1 — downgraded to non-finding: 404 response has NO CORS headers (neither GET nor OPTIONS); missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`; X-Api-Ke
 - CHANGED billing.threema.ch — now serves real static assets (jQuery 3.7.1 + custom CSS on /cache/ paths) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options); 404 error page lacks all headers — head
+
+## 2026-08-12 21:14:30 UTC
+- NEW poc/key-storage-acl-bypass-poc.js — filesystem GROUND TRUTH confirms NOW genuinely on disk (sha256 `7d2a65384f19df735145e8f1df4d7a448c1f4fe37e48b79a08871a0e316e5bff`, 9233 B); `node --check` PASS; `no
+- CHANGED ds-apip.threema.ch/identity/match_token — case-fold amplification confirmed: POST `{"identity":"EchoEcho"}`→200/133B token + constant tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=`; GE
+- CHANGED /identity/match rate-limiter cooldown — >100min confirmed (re-measured 2026-08-12 17:38 & 18:43 UTC); burst-only limiter; 60s+ spacing still triggers 429; single POST after cooldown → 200/39B returns 
+- CHANGED work.threema.ch/api/v1 — downgraded to non-finding: 404 response has NO CORS headers (neither GET nor OPTIONS); missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`; X-Api-Ke
+- CHANGED billing.threema.ch — now serves real static assets (jQuery 3.7.1 + custom CSS on /cache/ paths) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options); 404 error page lacks all headers — head
