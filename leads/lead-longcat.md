@@ -2384,3 +2384,4 @@ testability: RUNTIME_HELPED-LOCAL
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub stable source paths); BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); remaining gap: PoC artifact + live Windows runtime validation (CVSS 8.1)
 ## 2026-08-12 03:29:03 UTC [sync] (model longcat)
 ## 2026-08-12 05:14:06 UTC [sync] (model longcat)
+## 2026-08-12 06:42:04 UTC [sync] (model longcat)
