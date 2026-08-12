@@ -1922,3 +1922,16 @@
 - CHANGED /identity/match rate-limiter cooldown — >100min confirmed (re-measured 2026-08-12 17:38 & 18:43 UTC); burst-only limiter; 60s+ spacing still triggers 429; single POST after cooldown → 200/39B returns 
 - CHANGED work.threema.ch/api/v1 — downgraded to non-finding: 404 response has NO CORS headers (neither GET nor OPTIONS); missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`; X-Api-Ke
 - CHANGED billing.threema.ch — now serves real static assets (jQuery 3.7.1 + custom CSS on /cache/ paths) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options); 404 error page lacks all headers — head
+
+## 2026-08-12 22:15:36 UTC
+- NEW poc/key-storage-acl-bypass-poc.js — filesystem GROUND TRUTH confirms NOW genuinely on disk (sha256 `7d2a65384f19df735145e8f1df4d7a448c1f4fe37e48b79a08871a0e316e5bff`, 9233 B); `node --check` PASS; `no
+- CHANGED ds-apip.threema.ch/identity/match_token — case-fold amplification confirmed: POST `{"identity":"EchoEcho"}`→200/133B token + constant tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=`; GE
+- CHANGED /identity/match rate-limiter cooldown — >100min confirmed (re-measured 2026-08-12 17:38 & 18:43 UTC); burst-only limiter; 60s+ spacing still triggers 429; single POST after cooldown → 200/39B returns 
+- CHANGED work.threema.ch/api/v1 — downgraded to non-finding: 404 response has NO CORS headers (neither GET nor OPTIONS); missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`; X-Api-Ke
+- CHANGED billing.threema.ch — now serves real static assets (jQuery 3.7.1 + custom CSS on /cache/ paths) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options); 404 error page lacks all headers — head
+- CHANGED `/identity/fetch_bulk` rate-limit absence quantified: 30 sequential POSTs at 1 rps → all HTTP 200, no 429/RateLimit/Retry-After headers, consistent ~340ms response times. Previously only “no 429 obser
+- NEW `ds-apip.test.threema.ch` confirmed live and publicly reachable — returns identical identity→pubkey oracle + CORS `*` (with `Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE`) as production. S
+- NEW RAG finding: `crypto.ts:223` hardcoded password `r3gGN9GDQ5NF6tM6` is a **benchmark dummy** only — used in `determineKdfParams()` to measure Argon2id runtime, immediately purged (`benchmarkKey.purge()
+- CHANGED RAG finding: OnPrem config trust path **debunked as vulnerable** — uses Ed25519 signature verification against 3 hardcoded `ONPREM_CONFIG_TRUSTED_PUBLIC_KEYS` in `vite.config.ts`. OPPF URLs are valida
+- CHANGED RAG finding: Desktop key storage confirmed — `fileModeInternalObjectIfPosix()` returns `{}` (no restriction) on Windows. Both `keystorage.bin` (Argon2id-encrypted) and `keystorage.password.bin` (DPAPI
+- CHANGED RAG finding: Electron BrowserWindow has `sandbox` NOT enabled (explicit TODO DEK-79) and `nodeIntegrationInWorker: true` (TODO DEK-79). `nodeIntegration: false` and `contextIsolation: true` are set.

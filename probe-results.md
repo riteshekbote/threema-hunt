@@ -1125,3 +1125,15 @@ https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/js
 https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/match -> HTTP 400
 https://ds-apip.threema.ch/identity/match` -> HTTP 404
+
+## 2026-08-12 22:15:41 UTC
+https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/match -> HTTP 400
+https://ds-apip.threema.ch/identity/match` -> HTTP 404
+https://ds-apip.test.threema.ch/ -> HTTP 403
+https://ds-apip.test.threema.ch/'` -> HTTP 404
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://github.com/threema-ch/threema-desktop` -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/match_token` -> HTTP 404
