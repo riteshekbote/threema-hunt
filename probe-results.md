@@ -1039,3 +1039,7 @@ https://ds-apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/
 https://apip.threema.ch/identity/match -> HTTP 400
 https://ds-apip.test.threema.ch/identity/match -> HTTP 400
 https://apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-12 13:54:48 UTC
+https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/match -> HTTP 400

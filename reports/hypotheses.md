@@ -3421,3 +3421,6 @@
 - LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: response variance 200→400 confirmed; OPTIONS 400 carries CORS * + Allow-Headers; rate-limiter cooldown >20mi
 - LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: sibling parity CONFIRMED across all 3 prod hosts (byte-identical 200/65B + CORS * + OPTIONS 200)
 - LEARN: CONFIRM MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64he
+
+## RANKED HYPOTHESES 2026-08-12 13:54:47 UTC
+- [72] https://ds-apip.threema.ch/identity/match_token: Cross-environment token crypto identity is a single shared constant with cross-env replay potential (from reports/hypotheses-bigpickle.txt)
