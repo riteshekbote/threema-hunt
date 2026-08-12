@@ -10340,3 +10340,31 @@ verify_steps: AUTH_HELPED: needs one valid Work license username to establish di
 impact: if differential exists → unauthenticated username enumeration; combined with zero rate limit, an online password brute-force primitive against Work license accounts. Severity low-medium.
 testability: AUTH_HELPED
 [NEXT] PROBE: cross-host token replay readiness — mint on ds-apip.threema.ch, then single POST `/identity/match_token` with `{"identity":"echoecho"}` on api.threema.ch and apip.threema.ch (1 rps) to confirm the mint surface is uniformly time-bucketed-deterministic + unthrottled on all hosts, completing the prerequisite map for the cross-env replay test once AUTH material is available.
+## 2026-08-12 17:31:27 UTC [chat] (model bigpickle)
+[HYP] match_token tokens accepted cross-host on sibling /identity/match (shared validation key vs per-host key)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 60
+reasoning: 3 hosts mint distinct tokens for same identity+second (per-host mint) but share constant tokenRespKeyPub; single private-key/ownership-proof verification is plausible but cross-host token acceptance never tested — /identity/match cooldown-gated since 2026-08-11.
+evidence_needed: ds-apip-minted token presented in POST /identity/match on api.threema.ch returning 200 (not 400).
+verify_steps: PASSIVE after /identity/match cooldown reset (>100min): mint on ds-apip.threema.ch, then single POST `{"emailHashes":["<4B>"],"matchToken":"<ds-apip-minted>"}` to api.threema.ch/identity/match at 60s spacing; record code+body; non-400 → cross-host acceptance.
+impact: token minted anywhere is honored anywhere → host-agnostic contact-discovery primitive; reinforces accepted IDOR. Severity low-medium.
+testability: PASSIVE (cooldown-gated)
+[HYP] case-fold+canonicalization covers all lookup verbs (fetch_bulk/mint uniform) — GET is the outlier
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk
+confidence: 72
+reasoning: own probes this cycle — mixed-case batches return single canonical `ECHOECHO` entry, byte-identical across all 3 hosts; GET /identity/{id} is exact-case (mixed → 404). Client-side validation is the only case-strict layer; server lookup is uniformly case-insensitive.
+evidence_needed: a directory verb that still honors exact-case at the server (would narrow the case-fold to the store, not validation).
+verify_steps: PASSIVE ≤1 rps: repeat mixed-case batch on all 3 hosts after a 24h gap and confirm dedup/canonicalization stable; also `POST /identity/fetch_bulk` with 1-byte-lowercase `e` alone → expect 200 empty (fold), vs GET /identity/e → 404.
+impact: confirms enumeration/oracle primitives are case-insensitive and responses dedup canonical — enumeration surface case-agnostic with no amplification. Severity low (strengthens accepted finding).
+testability: PASSIVE
+[HYP] check_license valid-username timing differential + zero rate-limit (credential brute-force primitive)
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 45
+reasoning: own probes — 3 distinct fake usernames → 200/65B byte-identical combined error, latency 413-427ms tight band, zero 429; combined message removes textual user-existence oracle; only timing could split valid vs invalid username.
+evidence_needed: latency/body differential between known-invalid and a valid Work license username.
+verify_steps: AUTH_HELPED: with one valid Work license username, 10 POSTs valid vs invalid at ≤1 rps, compare p50 latency; passive probe alone cannot confirm.
+impact: unauthenticated username enumeration + online password brute-force primitive against Work license accounts. Severity low-medium.
+testability: AUTH_HELPED
