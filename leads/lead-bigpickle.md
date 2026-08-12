@@ -9789,3 +9789,61 @@ impact: staging mirror not byte-identical to prod (skew/degradation) — weakens
 testability: PASSIVE
 [NEXT] PROBE: After ≥60s spacing, single `curl -s -m 20 -w "\n%{http_code}" -X POST https://ds-apip.test.threema.ch/identity/match_token -H "Content-Type: application/json" -d '{"identity":"ZZZZZZZZ"}'` (no Origin header) — negative-case + origin-isolation of the 500; if still 500, one more single POST with `{"identity":null}` to discriminate backend failure (500) vs schema validation (400). ≤1 rps, GET/HEAD where possible, never touches prod cooldown.
 [RISK] chat: 20 reason: DNS shard→node map fully attributed + no AAAA + no .1 tier (re-verified); desktop 2.x routes chat over mediator WSS (RAG) so no direct chat-host client surface; TCP 5222/443 close immediately with 0 bytes; passive channel formally closed; remaining tests AUTH_HELPED | web: 85 reason: Directory triad oracles byte-stable (match_token 200/133B re-verified, tokenRespKeyPub sha256 c8005cca…, fetch_bulk 10k cap, check_license sibling parity); NEW live staging divergence (match + match_token POST → 500 vs prod 200) | sync: 30 reason: mediator/rendezvous WSS uniform 403, DNS split attributed, chat rides mediator so edge is the single choke point; no passive in-band divergence | safe: 60 reason: 5 hosts behind 203.56.112.231; HSTS/Expect-CT on OPTIONS 204 but ABSENT on GET 400; HTTP Basic Auth + route-existence oracle stable | desktop-src: 70 reason: Windows key-storage ACL chain RAG-verified (6 paths); chat-via-mediator architecture mapped; threema.sqlite ACL check pending; PoC artifact still filesystem-ABSENT; needs Windows runtime validation
+## 2026-08-12 08:05:19 UTC [chat] (model bigpickle)
+[HYP] match_token minted-token lifecycle may feed an interactive directory challenge (post-auth-agnostic recon primitive)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 95
+reasoning: Verified live this cycle — POST {identity:ECHOECHO} → 200/133B fresh token + constant tokenRespKeyPub (sha256 c8005cca…); invalid → 200/46B "Identity not found"; OPTIONS 200 CORS `*`; sibling parity all 3 prod hosts. Directory exposes sibling challenge endpoints (set_revocation_key, update_work_info) that run param-validation before identity lookup.
+evidence_needed: whether the minted token is consumable in a follow-up challenge call (token lifecycle/validity window, single-use) — i.e., token is an oracle amplifier, not just an existence marker.
+verify_steps: PROBE at ≤1 rps, 60s spacing: POST match_token for ECHOECHO twice (token entropy/length diff), then POST the same token into set_revocation_key/update_work_info-style calls observing consume-vs-reject; cross-check staging byte-parity once staging POSTs recover.
+impact: mass valid-identity enumeration + per-identity challenge-token minting for targeted phishing/spam; severity medium.
+testability: PASSIVE
+[HYP] threema.sqlite (SQLCipher DB) inherits the same no-ACL write path on Windows as keystorage.bin
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop `apps/desktop/src/common/db/sqlite.ts`
+confidence: 60
+reasoning: Accepted key-storage chain shows `fileModeInternalObjectIfPosix()` returns `{}` on win32 for keystorage.bin + keystorage.password.bin; the SQLCipher `data/threema.sqlite` (PRAGMA key = databaseKey) is the third sensitive file in `data/`. If its open/write path uses the same mode-less options, same-user processes can read/copy the encrypted DB.
+evidence_needed: the sqlite.ts open() write-mode/options call and whether it passes `{}` (no ACL) on win32.
+verify_steps: RAG: WebFetch `apps/desktop/src/common/db/sqlite.ts` on `stable` — grep open options / `fileModeInternalObjectIfPosix` / chmod; also check fs.ts:41 shared helper. No live requests.
+impact: same-user/local attacker copies SQLCipher DB for offline brute-force of databaseKey; severity medium (local-access prerequisite, extends accepted finding).
+testability: PASSIVE
+[HYP] Staging directory POST endpoints are backend-degraded (500), not schema-rejecting — mirror build skew live
+class: MISCONFIG
+asset: https://ds-apip.test.threema.ch/identity/match_token
+confidence: 75
+reasoning: Two consecutive single POSTs to staging match + match_token both → HTTP 500 empty body at ~10.3s (backend timeout signature), while prod match_token → 200/133B at 0.56s and staging GET /identity/match → 400 fast. Prior cycles recorded staging byte-parity 200/39B and 200/133B — behavior changed.
+evidence_needed: whether 500 persists across body shapes and with no Origin header (isolating backend failure vs cross-origin rejection vs schema validation).
+verify_steps: PROBE at ≤1 rps after ≥60s spacing: single POST staging `/identity/match_token` with `{"identity":"ZZZZZZZZ"}` (negative case) and single POST with `{"identity":null}` (schema-robustness); if 500 persists across both → backend/infra failure; if 200/46B or 400 → validation-only/transient.
+impact: staging mirror not byte-identical to prod (skew/degradation) — weakens the "validated mirror" model; no data leak observed (500 empty). Severity low.
+testability: PASSIVE
+[NEXT] PROBE: After ≥60s spacing, single `curl -s -m 20 -w "\n%{http_code}" -X POST https://ds-apip.test.threema.ch/identity/match_token -H "Content-Type: application/json" -d '{"identity":"ZZZZZZZZ"}'` (no Origin header) — negative-case + origin-isolation of the 500; if still 500, one more single POST with `{"identity":null}` to discriminate backend failure (500) vs schema validation (400). ≤1 rps, GET/HEAD where possible, never touches prod cooldown.
+[RISK] chat: 20 reason: DNS shard→node map fully attributed + no AAAA + no .1 tier (re-verified); desktop 2.x routes chat over mediator WSS (RAG) so no direct chat-host client surface; TCP 5222/443 close immediately with 0 bytes; passive channel formally closed; remaining tests AUTH_HELPED | web: 85 reason: Directory triad oracles byte-stable (match_token 200/133B re-verified, tokenRespKeyPub sha256 c8005cca…, fetch_bulk 10k cap, check_license sibling parity); NEW live staging divergence (match + match_token POST → 500 vs prod 200) | sync: 30 reason: mediator/rendezvous WSS uniform 403, DNS split attributed, chat rides mediator so edge is the single choke point; no passive in-band divergence | safe: 60 reason: 5 hosts behind 203.56.112.231; HSTS/Expect-CT on OPTIONS 204 but ABSENT on GET 400; HTTP Basic Auth + route-existence oracle stable | desktop-src: 70 reason: Windows key-storage ACL chain RAG-verified (6 paths); chat-via-mediator architecture mapped; threema.sqlite ACL check pending; PoC artifact still filesystem-ABSENT; needs Windows runtime validation
+[HYP] match_token minted-token is a fresh per-request challenge — lifecycle consumability test
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 85
+reasoning: Verified live this cycle — negative ZZZZZZZZ→200/46B, positive ECHOECHO→200/133B (token + tokenRespKeyPub), prod and staging byte-identical; tokenRespKeyPub constant sha256 c8005cca9…; only 2 sequential prod POSTs so far so no observed 429 on this endpoint.
+evidence_needed: whether two minted tokens for the same identity differ (fresh entropy vs deterministic); whether the token can be consumed/replayed in a follow-up directory call.
+verify_steps: PROBE at ≤1 rps, 60s spacing: POST `{"identity":"ECHOECHO"}` twice, diff token bytes; then single POST `{"identity":"ECHOECHO","token":"<minted>"}` observing consume-vs-reject vs fresh re-mint.
+impact: if token is an attacker-usable challenge, it amplifies enumeration into per-identity proof minting (phishing/spam); if E2E-encrypted to identity responder key, only the existence oracle remains (already accepted). Severity medium.
+testability: PASSIVE
+[HYP] Staging /identity/match offers a cheaper batch-size ceiling map than prod (>100min cooldown)
+class: BUSLOGIC
+asset: https://ds-apip.test.threema.ch/identity/match
+confidence: 65
+reasoning: Prod /identity/match batch boundary (N=1/2/5/10/20/50 emailHashes → 200 vs 413/429) unmapped, blocked by >100min burst cooldown; staging match_token recovered from 500 to full prod byte-parity this cycle, implying staging backend healthy and limiter config possibly weaker.
+evidence_needed: whether staging /identity/match accepts multiple N-sizes without prod's long cooldown, yielding the cost-unit boundary cheaply.
+verify_steps: PROBE at ≤1 rps after ≥60s spacing: single POST staging `{"emailHashes":["dGVzdEBleGFtcGxlLmNvbQ=="]}` (baseline 200/39B vs prod), then one POST with 20 hashes, one with 50; record status/body; compare limiter behavior. Staging-only, never touches prod cooldown.
+impact: batch ceiling mapped at low cost → enumeration throughput bound for the email→identity oracle; informs prod abuse potential. Severity low-medium.
+testability: PASSIVE
+[HYP] better-sqlcipher opens threema.sqlite on win32 with default inherited ACL (no explicit restriction anywhere in write path)
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop `apps/desktop/src/common/node/db/sqlite.ts`
+confidence: 55
+reasoning: RAG-verified this cycle: constructor passes only `{verbose}` — no fileMode options; the keystorage helper `fileModeInternalObjectIfPosix()` is not invoked, so the DB + `-wal`/`-shm` sidecars (WAL IS encrypted per source comment) inherit process/dir defaults on win32.
+evidence_needed: better-sqlcipher/better-sqlite3 native open-mode behavior on win32 (CreateFile DACL/default sharing) to confirm no restrictive ACL.
+verify_steps: RAG: WebFetch better-sqlcipher bindings/open source on win32 for file-mode flags; grep sqlite.ts for any chmod/open option (none found this cycle). No live requests.
+impact: same-user/local copy of SQLCipher DB possible; data is encrypted and key recovery requires the already-accepted keystorage chain — extension, not standalone. Severity low-medium.
+testability: PASSIVE
+[NEXT] PROBE: At ≤1 rps with 60s spacing, `curl -s -X POST https://ds-apip.threema.ch/identity/match_token -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}'` twice, diff token bytes (fresh-entropy vs deterministic); then single POST with `{"identity":"ECHOECHO","token":"<minted>"}` to observe consume-vs-reject — closes the token-lifecycle amplifier question on the top asset.
