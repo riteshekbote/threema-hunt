@@ -10018,3 +10018,186 @@ impact: confirms the accepted IDOR amplification — silent cross-origin identit
 testability: PASSIVE
 [NEXT] PROBE: complete the match_token length-bound map at ≤1 rps — POST `{"identity":""}` (empty) and `{"identity":"A"*256}` to ds-apip.threema.ch/identity/match_token; both expected 200/46B (any 400 bounds the oracle's search space). Advances POC chat by fully characterizing the browser-viable contact-discovery primitive the chat client uses.
 [RISK] chat: 20 reason: chat hosts passive-closed (SNI/TLS probes close immediately, DNS shard map stable); all active POC work is directory-side protocol primitives the chat client consumes — no chat-host surface delta | web: 88 reason: directory triad oracles byte-stable and this cycle deepened — match_token now 3-deep confirmed sustained-unthrottled + format-agnostic browser-viable oracle; check_license field-gating mapped; apip match per-host budget cycle confirmed | sync: 30 reason: mediator/rendezvous WSS uniform 403, DNS split attributed, chat rides mediator; no passive in-band divergence | safe: 60 reason: 5 hosts behind 203.56.112.231; HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400; Basic Auth + route-existence oracle stable | desktop-src: 70 reason: Windows key-storage ACL 6-path RAG chain stable; `poc/` dir filesystem-ABSENT (19th+ cycle, KB claims persistently false); needs Windows runtime validation
+## 2026-08-12 12:05:55 UTC [chat] (model bigpickle)
+class: BUSLOGIC
+asset: apip.threema.ch/identity/ws/revoke
+confidence: 45
+reasoning: OpenAPI (directory.openapi.yml) shows /identity/ws/revoke is the ONLY identity endpoint with a single-step request (identity + revocationKey = SHA256(revocation-password)[:4], 32 bits) and NO challenge-response step, and unlike blob_cred/sfu_cred/work endpoints it documents NO 429 rate-limit response.
+evidence_needed: server enforces/omits rate limiting on ws/revoke; error/timing differences per guessed key; whether a correct 4-byte key revokes any ID.
+verify_steps: AUTH_HELPED: on a program-provided test ID, POST /identity/ws/revoke with a deliberately wrong revocationKey (observe error shape and timing), repeat small count to test for 429; never target third-party IDs and do not create accounts.
+impact: if unrate-limited, brute-force of 2^32 space → force-revoke/delete any Threema ID (permanent identity destruction / DoS). Severity: medium-high.
+testability: AUTH_HELPED
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities (backend of in-scope work.threema.ch)
+confidence: 50
+reasoning: directory.openapi.yml line 1172 states "/identities ... currently buggy. See TWRK-1633"; endpoint returns "a subset of the provided contacts that are part of the same Work subscription" + work properties (first/last name, jobTitle, department, availability); GET / returns 401 confirming a live credential-gated backend.
+evidence_needed: whether contact matching can be induced to return contacts outside the caller's subscription.
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities (contacts:[...]) mixing own- and other-subscription IDs and compare membership + properties; also probe /directory pagination bounds (page/size, wildcard queries).
+impact: cross-subscription disclosure of work-directory metadata (names, titles, departments, availability) → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+class: OTHER
+asset: mediator-*.threema.ch / rendezvous-*.threema.ch / blob-mirror-*.threema.ch
+confidence: 40
+reasoning: all sampled shards (0..f) resolve; GET / → uniform 403; shard prefix is derived from the first byte of a public-key (routing, not auth per config.rs) — no passive distinguishing signal observed.
+evidence_needed: any shard or path (wss /{prefix}/) responding differently than 403.
+verify_steps: PASSIVE: GET https://{rendezvous,mediator,blob-mirror}-{0,7,f}.threema.ch/ and a few /XX/ paths at ≤1rps, compare status/body fingerprints.
+impact: none observed; would only indicate a routing/edge misconfiguration. Severity: n/a
+testability: PASSIVE
+[HYP] ds-apip.threema.ch directory lookup / unauth enumeration
+class: AUTH
+asset: ds-apip.threema.ch
+confidence: 55
+reasoning: directory.openapi.yml lists `ds-apip.*` as the directory API base; production `ds-apip.threema.ch` returns root 403 with `Access-Control-Allow-Origin: *` and allows POST/GET/OPTIONS/DELETE cross-origin. apip.threema.ch returns 404 on all openapi subpaths (host mismatch), so any live directory routes live on the ds-apip host. If any lookup route is unauthenticated, CORS-* enables cross-origin probing from an attacker page.
+evidence_needed: an endpoint under ds-apip.threema.ch returning ≠403/404 to GET; response-body fingerprints differing from apip.
+verify_steps: PASSIVE: GET https://ds-apip.threema.ch/identity/lookup and /directory (compare vs apip 404), GET https://ds-apip-work.threema.ch/identity/lookup (401=route-exists-behind-auth vs 404=no-route), ≤1 rps.
+impact: Threema ID/pubkey enumeration → spam, phishing, targeted abuse. Severity: medium.
+testability: PASSIVE
+[HYP] threema-desktop key-storage KDF parameter weakness
+class: OTHER
+asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/key-storage/crypto.ts)
+confidence: 45
+reasoning: reposcan found crypto.ts:223 uses fixed benchmark password `r3gGN9GDQ5NF6tM6` to calibrate Argon2id params at runtime, and test-data.ts defines `keyStoragePassword: 'CHANGE_ME'`; no committed credentials exist, so only the KDF/key-handling logic can be weak. Electron 2.x stores user password/keys through this module.
+evidence_needed: how Argon2id memory/time params are derived (floors/caps) and whether the derived key protects an offline-readable store.
+verify_steps: PASSIVE: static read of crypto.ts `determineKdfParams()` and the storage backend (safeStorage vs plaintext file). No live requests.
+impact: if params are attacker-favorable, offline recovery of stored user credentials/keys from disk. Severity: low-medium.
+testability: PASSIVE
+[HYP] ds-apip-work.threema.ch /identities cross-subscription disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 52
+reasoning: directory.openapi.yml:1172 flags "/identities ... currently buggy. See TWRK-1633"; endpoint returns a subset of provided contacts in the same Work subscription plus work properties (first/last name, jobTitle, department, availability). Host now confirmed live returning 401 with permissive CORS.
+evidence_needed: whether the membership filter can be induced to return out-of-subscription contacts.
+verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities mixing own- and other-subscription IDs and compare membership + property leak; probe pagination bounds (page/size, wildcard).
+impact: cross-subscription disclosure of work-directory metadata → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[NEXT] PROBE: GET https://ds-apip-work.threema.ch/identity/lookup and /directory (401 vs 404 distinguishes route-existence behind the auth gate), then GET https://ds-apip.threema.ch/identity/lookup + /directory at ≤1 rps to fingerprint the directory host independently of apip.
+[HYP] ds-apip.test.threema.ch staging directory server publicly exposed
+class: MISCONFIG
+asset: ds-apip.test.threema.ch
+confidence: 60
+reasoning: verified 200 on GET /identity/ECHOECHO and /identity/fetch_bulk with same JSON shape and CORS `*` as production ds-apip.threema.ch; hostname is a staging/test env (ds-apip.test.*), yet answers the live identity API with no auth and no documented client reference.
+evidence_needed: whether the test host mirrors live production data or an isolated dataset (byte-diff a real ID's publicKey across hosts) and whether it exposes extra routes or an older/newer build (error-shape/header skew).
+verify_steps: PASSIVE: GET https://ds-apip.test.threema.ch/identity/ECHOECHO and /identity/fetch_bulk with full headers, diff Server/Date/body fingerprints vs ds-apip.threema.ch; HEAD a few extra paths (/, /identity/lookup, /swagger) at ≤1rps; no third-party IDs.
+impact: internet-reachable staging env; version skew, unpatched/test-only routes, or a full unauthenticated mirror of the identity directory. Severity: low-medium.
+testability: PASSIVE
+[HYP] Unauthenticated bulk identity lookup + CORS `*` enables cross-origin directory enumeration
+class: BUSLOGIC
+asset: apip.threema.ch/identity/fetch_bulk
+confidence: 55
+reasoning: GET /identity/{id} returns 200 + publicKey/featureLevel/state/type for existing IDs, 404 otherwise; GET /identity/fetch_bulk → `{"identities":[]}` proves a bulk route parsing an `identities` array; CORS allows Origin `*`, methods POST/GET/OPTIONS/DELETE, header Content-Type — a malicious page can POST bulk lookups cross-origin.
+evidence_needed: whether POST fetch_bulk returns records without any token, batch-size caps, and whether the `state` field discriminates active vs revoked/suspended IDs.
+verify_steps: AUTH_HELPED: with an authorized test ID set {ECHOECHO active, official revoked/echo test IDs, random-invalid}, POST /identity/fetch_bulk and compare presence/state/type; only official test IDs, no third-party real IDs; GET probes ≤1rps only.
+impact: mass existence/state oracle + publicKey harvesting for spam/phishing/profile building; endpoint is by-design public, so impact is scale via bulk+CORS. Severity: low-medium.
+testability: AUTH_HELPED
+[HYP] ds-apip-work.threema.ch /identities cross-subscription metadata disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 52
+reasoning: directory OpenAPI flags /identities "currently buggy" (TWRK-1633); returns same-subscription contacts plus first/last name, jobTitle, department, availability; host answers 401 (route exists behind credential gate, permissive CORS).
+[HYP] A valid matchToken may lift the /identity/match per-host burst/cooldown ceiling
+class: AUTH
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 65
+reasoning: threema-android `obtainMatchToken()` mints matchToken after phase-2 proof-of-possession, caches it via MatchTokenStore, and includes it in every `/identity/match` call; server returns `checkInterval: 86400`. Whether the >100min cooldown / 2-POST burst applies to matchToken-carrying requests is unknown.
+evidence_needed: matchToken-carrying match requests exceeding the anonymous burst budget.
+verify_steps: AUTH_HELPED: requires a valid Threema identity keypair to complete phase 2, obtain a real matchToken, then POST `/identity/match` with `matchToken` and compare limiter behavior vs anonymous baseline.
+impact: if matchToken lifts the limiter, only identity owners gain higher throughput; attacker value remains bounded. Severity low-medium.
+testability: AUTH_HELPED
+[HYP] Full triad rotation yields 3 independent /identity/match probe budgets
+class: BUSLOGIC
+asset: https://apip.threema.ch/identity/match
+confidence: 85
+reasoning: ds-apip→429 and api→200/39B→429 on the same IPv4 seconds apart proves per-host counters; apip→429 on first POST shows its own spent counter. Each host offers ~1-2 match POSTs per cooldown window.
+evidence_needed: a fresh 200 on apip after its cooldown expires, then 429 on rapid 2nd.
+verify_steps: PROBE at ≤1 rps after apip cooldown: single POST apip.threema.ch/identity/match `{"emailHashes":["dGVzdEBleGFtcGxlLmNvbQ=="]}` → expect 200/39B, then rapid 2nd → 429; rotate ds-apip→api→apip to sustain cadence.
+impact: email→identity oracle throughput ×3 vs single-host assumption. Severity low-medium.
+testability: PASSIVE
+[HYP] Staging /identity/match offers a cheap batch-size ceiling map while match_token POST is degraded
+class: BUSLOGIC
+asset: https://ds-apip.test.threema.ch/identity/match
+confidence: 50
+reasoning: earlier cycles recorded "staging has no limiter"; staging match_token POST now times out (×2 at 09:2x) while GET /identity/match → 400. If match POST recovers, N=1/2/5/10/20/50 emailHashes map costs zero prod cooldown.
+evidence_needed: staging match POST 200/39B baseline first.
+verify_steps: PROBE staging GET /identity/match → 400 (route present), then single POST `{"emailHashes":["dGVzdEBleGFtcGxlLmNvbQ=="]}` → 200/39B? then 5/10/20/50-hash batches at ≤1 rps; defer if POST times out like match_token.
+impact: batch ceiling mapped → enumeration throughput bound for email→identity oracle. Severity low.
+testability: PASSIVE
+[HYP] match_token sustained-rate behavior on prod (unthrottled browser-viable existence oracle)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 70
+reasoning: Staging mirror unthrottled across ~7 rapid mints this cycle (all 200, no 429); prod observed only 2 sequential POSTs with no 429 per KB. GET /identity/{id} and fetch_bulk are already-accepted unthrottled oracles, but match_token adds OPTIONS 200 CORS `*` browser-viability (a victim-browser-origin attacker page can enumerate silently).
+evidence_needed: 3 spaced prod POSTs all returning 200 with no 429.
+verify_steps: PROBE at 60s spacing, 3 sequential POSTs `-X POST https://ds-apip.threema.ch/identity/match_token -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}'`; all expect 200/133B, zero 429.
+impact: confirms a third, browser-viable, unthrottled identity-existence oracle on prod → cross-origin silent enumeration from victim browsers (spam/phishing priming). Severity medium (amplifies accepted IDOR).
+testability: PASSIVE
+[HYP] check_license error string discriminates valid-username/wrong-password from unknown-username
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 60
+reasoning: POST-form returns `{"success":false,"error":"This username or password is invalid."}` (65B) for fake creds; GET-form returns constant `error:null` (params ignored). Whether a valid Work username + wrong password yields a different error (enumeration discriminator) is untested; no rate limit across 7+ sequential POSTs.
+evidence_needed: a valid Work license username (AUTH_HELPED) or a different error string for any credential class.
+verify_steps: AUTH_HELPED: with a valid Work username `U`, POST `{"licenseUsername":"U","licensePassword":"wrong","version":"...","arch":"..."}`; compare error string vs fake-username baseline.
+impact: if error strings differ → unauthenticated Work username enumeration with zero rate limiting, browser-viable (OPTIONS 200 CORS `*`). Severity medium.
+testability: AUTH_HELPED
+[HYP] staging /identity/match cooldown is shorter than prod's >100min, enabling cheap batch-ceiling map
+class: BUSLOGIC
+asset: https://ds-apip.test.threema.ch/identity/match
+confidence: 45
+reasoning: This cycle staging match burned its burst budget (200/39B baseline then 429 on 20-/50-batch), proving a limiter exists on staging — but its cooldown duration is unmeasured and may be far shorter than prod's >100min.
+evidence_needed: a 200 response from staging match after cooldown expiry, then a fresh N-size map.
+verify_steps: PROBE: after ≥20min, single POST staging `{"emailHashes":["dGVzdEBleGFtcGxlLmNvbQ=="]}` → 200/39B; then 5/10/20/50-batch at ≤1 rps recording status; never touches prod cooldown.
+impact: batch ceiling (N=emailHashes→200 vs 429/413) mapped at low cost → enumeration throughput bound for email→identity oracle. Severity low.
+testability: PASSIVE
+[NEXT] PROBE: at 60s spacing, 3 sequential prod POSTs `curl -s -m 20 -w "\nHTTP %{http_code}" -X POST https://ds-apip.threema.ch/identity/match_token -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}'` — confirms unthrottled sustained status of the browser-viable identity-existence oracle (all expect 200/133B, zero 429); advance POC chat by verifying the contact-discovery protocol primitive the chat client uses (threema-android `obtainMatchToken`).
+[RISK] chat: 20 reason: DNS shard map re-verified stable; passive channel formally closed; match_token POC work is directory-side, not chat-host surface; remaining tests AUTH_HELPED | web: 85 reason: directory triad oracles byte-stable (match_token stateless + fresh-entropy confirmed, GET-form check_license non-oracle closed, fetch_bulk 10k cap, check_license POST parity) | sync: 30 reason: mediator/rendezvous WSS uniform 403, DNS split attributed, chat rides mediator; no passive in-band divergence | safe: 60 reason: 5 hosts behind 203.56.112.231; HSTS/Expect-CT on OPTIONS 204 but ABSENT on GET 400; Basic Auth + route-existence oracle stable | desktop-src: 70 reason: Windows key-storage ACL chain RAG-verified (6 paths); `poc/` dir still filesystem-ABSENT (KB claims persistently false); needs Windows runtime validation
+[HYP] matchToken-carrying /identity/match requests may bypass the anonymous burst/cooldown limiter
+class: AUTH
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 65
+reasoning: match_token minting is now confirmed unthrottled (3 spaced prod POSTs 200, zero 429; format-agnostic). threema-android `obtainMatchToken()` mints a token after phase-2 proof-of-possession and includes it in every /identity/match call; server returns checkInterval 86400. Whether token-carrying match requests are exempt from the >100min per-host burst ceiling is untested.
+evidence_needed: matchToken-carrying match requests exceeding the anonymous burst budget (2 rapid POSTs, no 429).
+verify_steps: AUTH_HELPED: with a real matchToken from a valid Threema identity keypair, POST /identity/match `{"emailHashes":["..."],"matchToken":"..."}` twice rapidly; compare limiter behavior vs anonymous baseline (200 then 429).
+impact: if token lifts the limiter, only identity owners gain throughput — attacker value remains bounded; does not widen the email→identity oracle for unauthenticated attackers. Severity low-medium.
+testability: AUTH_HELPED
+[HYP] check_license is an unauthenticated, unthrottled, browser-viable boolean credential-validation oracle whose success-shape (`{"success":true}`) is reachable only with a valid Work license pair
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 65
+reasoning: Field-gating now mapped: missing licenseUsername/licensePassword → 200/31B error:null; complete pair → 200/65B "invalid credentials" (lookup executes). version/arch not required. CORS `*` + OPTIONS 200 browser-viable; zero 429 across ~11 POSTs. Only the success-shape remains unobserved.
+evidence_needed: a valid Work license pair to confirm `{"success":true}` response shape and absence of rate limit on success.
+verify_steps: AUTH_HELPED: with valid Work credentials, POST full body; confirm {"success":true}; then 3 sequential POSTs confirming no 429 on the success path.
+impact: unauthenticated cross-origin credential-validation oracle for Work licenses (enumeration/spray priming) with no rate limiting. Severity medium.
+testability: AUTH_HELPED
+[HYP] match_token minting timing/response-size is independent of identity string length (no length-gated validation), so the 46B vs 133B differential is a pure existence signal usable for full-space scanning from victim browsers
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 70
+reasoning: 1-char and 164-char identity both → 200/46B; ECHOECHO → 200/133B. Sustained unthrottled (3/3 spaced POSTs 200). If length-independence holds across the full range, the oracle is a clean boolean over the entire search space with browser-viable OPTIONS 200 CORS `*`.
+[HYP] match_token response key is a deployment-wide static constant shared across all directory hosts and staging
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 75
+reasoning: tokenRespKeyPub base64 44B (sha256 `c8005cca9…`) is byte-identical between prod ds-apip and staging ds-apip.test across 3+ probes this cycle; the token itself changes per mint, proving the pubkey is not a per-request value.
+evidence_needed: identical tokenRespKeyPub on the remaining two prod hosts (apip.threema.ch + api.threema.ch).
+verify_steps: PROBE at ≤1 rps: POST `{"identity":"ECHOECHO"}` once each to apip.threema.ch and api.threema.ch `/identity/match_token`; diff tokenRespKeyPub vs the known constant.
+impact: if deployment-wide constant, staging and prod share the same token-response crypto identity → no environment key separation; tokens minted on one host are cryptographically valid against another (cross-env replay); a staging-side key exposure = prod-grade material. Severity low-medium.
+testability: PASSIVE
+[HYP] check_license error string discriminates valid-username/wrong-password from unknown-username
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 60
+reasoning: POST-form returns 200/65B "This username or password is invalid." for fake creds; GET-form returns constant error:null (params ignored); zero 429 across ~11 POSTs. Whether a valid Work username + wrong password yields a different error is untested.
+evidence_needed: a valid Work license username or a distinct error string for any credential class.
+verify_steps: AUTH_HELPED: with valid Work username `U`, POST `{"licenseUsername":"U","licensePassword":"wrong"}`; compare error string vs fake-username baseline; then 3 sequential POSTs for 429-check on the discriminator path.
+impact: if error strings differ → unauthenticated Work username enumeration, browser-viable (OPTIONS 200 CORS `*`), zero rate limiting. Severity medium.
+testability: AUTH_HELPED
+[HYP] match_token existence differential is state-blind (revoked/suspended identities still yield token)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 55
+reasoning: GET /identity/{id} exposes a state field (active/revoked/suspended) but match_token returns only token-vs-46B; if revoked identities still mint tokens, the oracle conflates existence with liveness — a wider signal than the directory's own state field.
+evidence_needed: a known revoked/suspended test identity returning 200/133B rather than 46B.
+verify_steps: AUTH_HELPED: with a program-provided revoked test identity, POST `{"identity":"<revoked>"}` → if 200/133B, oracle is liveness-blind; compare against ECHOECHO baseline.
+impact: confirms the accepted IDOR amplifies to liveness-blind enumeration (any ever-registered ID usable for phishing priming even after revocation). Severity low-medium.
+testability: AUTH_HELPED
+[NEXT] PROBE: 2 sequential POSTs (≤1 rps) — `curl -s -m 20 -X POST https://apip.threema.ch/identity/match_token -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}'` then same on `https://api.threema.ch/identity/match_token`; diff `tokenRespKeyPub` against the known constant `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=` — confirms deployment-wide constancy (or reveals per-host key isolation) of the match-token response key.
