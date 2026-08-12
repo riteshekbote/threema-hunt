@@ -542,6 +542,10 @@
 - 2026-08-12 WEAKENED AUTH @ work.threema.ch/api/v1: downgraded to non-finding — no CORS on 404, missing-key/invalid-key byte-identical 404, X-Api-Key not in desktop source
 - 2026-08-12 REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), purged at line 233
 - 2026-08-12 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain, not standalone
+- 2026-08-12 REJECTED MISCONFIG @ crypto.ts:223: Benchmark password (sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c`) re-confirmed benchmark-only dummy in determineKdfParams(), purged at line 233 — not used for real encryption
+- 2026-08-12 ACCEPTED MISCONFIG @ billing.threema.ch: Confirmed serving real static assets (jQuery 3.7.1 + custom billing CSS) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options) on assets; 404 error page lacks these headers — security-header divergence confirmed, minor defense-in-depth gap
+- 2026-08-12 REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c`) re-confirmed benchmark-only dummy in `determineKdfParams()`, `benchmarkKey.purge()` at L233 — not used for real encryption; distinct from key-storage ACL bypass finding
+- 2026-08-12 ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: server-side identity-existence oracle confirmed (valid→200/133B, invalid→200/46B, CORS *, OPTIONS 200 browser-viable, sibling parity all 3 prod hosts)
 === INVENTORY gladia ===
 # Inventory: threema
 
