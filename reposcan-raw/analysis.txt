@@ -1,14 +1,24 @@
 [0m
 > build · nemotron-3-ultra-free
 [0m
-[0m← [0mWrite triage-report.md
-Wrote file successfully.
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/
+total 72
+drwxr-xr-x 18 runner runner 4096 Aug 12 13:55 .
+drwxr-xr-x  3 runner runner 4096 Aug 12 13:55 ..
+drwxr-xr-x  7 runner runner 4096 Aug 12 13:55 app-remote-protocol
+drwxr-xr-x 10 runner runner 4096 Aug 12 13:55 compose-area
+drwxr-xr-x  7 runner runner 4096 Aug 12 13:55 push-relay
+drwxr-xr-x 14 runner runner 4096 Aug 12 13:55 threema-android
+drwxr-xr-x  8 runner runner 4096 Aug 12 13:55 threema-bot-sdk
+drwxr-xr-x 12 runner runner 4096 Aug 12 13:55 threema-desktop
+drwxr-xr-x 32 runner runner 4096 Aug 12 13:55 threema-ios
+drwxr-xr-x  6 runner runner 4096 Aug 12 13:55 threema-markup
+drwxr-xr-x  4 runner runner 4096 Aug 12 13:55 threema-msgapi-sdk-java
+drwxr-xr-x  5 runner runner 4096 Aug 12 13:55 threema-msgapi-sdk-php
+drwxr-xr-x  7 runner runner 4096 Aug 12 13:55 threema-msgapi-sdk-python
+drwxr-xr-x  9 runner runner 4096 Aug 12 13:55 threema-msgapi-sdk-rust
+drwxr-xr-x 16 runner runner 4096 Aug 12 13:55 threema-web
+drwxr-xr-x  8 runner runner 4096 Aug 12 13:55 threema-web-electron
+drwxr-xr-x  7 runner runner 4096 Aug 12 13:55 wasm-minisign-verify
+drwxr-xr-x  5 runner runner 4096 Aug 12 13:55 webrtc-build-docker
 [0m
-Done. Wrote triage report to `triage-report.md`.
-
-**Zero REAL_SECRET findings** — all 56 hits are:
-- **TEST_OR_EXAMPLE** (20): test fixtures, placeholder passwords
-- **ENDPOINT_LEAK** (11): known staging endpoints (ds-apip.test, ds-apip-work.test, work.test) — already in inventory
-- **INTERESTING** (25): IPC constant names, Sentry public DSNs (public by design), benchmark dummy password (confirmed purged), one low-value ICE password toString() leak (ephemeral, local-only)
-
-The `crypto.ts:223` benchmark password (`r3gGN9GDQ5NF6tM6`, SHA256 `52a0af98...`) is RAG-verified as a calibration dummy in `determineKdfParams()` with `benchmarkKey.purge()` at line 233 — not used for real encryption.
