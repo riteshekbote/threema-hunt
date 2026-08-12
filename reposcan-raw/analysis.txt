@@ -1,25 +1,14 @@
 [0m
 > build · nemotron-3-ultra-free
 [0m
-### Classification Table
+[0m← [0mWrite triage-report.md
+Wrote file successfully.
+[0m
+Done. Wrote triage report to `triage-report.md`.
 
-| Category | Hits |
-|----------|------|
-| **REAL_SECRET** | (none) |
-| **TEST_OR_EXAMPLE** | 24 hits: All test fixtures (`testPassword`, `password1`, `validPassword`, `shootdeathstar`, `abcdefghijkl`, `ABcd!@#tgk092`, `CHANGE_ME`), benchmark password `r3gGN9GDQ5NF6tM6` (crypto.ts:223 — KB-confirmed benchmark-only dummy, purged at line 233) |
-| **ENDPOINT_LEAK** | 10 hits: Staging URLs in OpenAPI specs & vite.config.ts (`ds-apip.test.threema.ch`, `ds-apip-work.test.threema.ch`, `work.test.threema.ch`) — all known/accepted staging surfaces per KB |
-| **INTERESTING** | 14 hits: IPC event constants (`LOAD_USER_PASSWORD`, `STORE_USER_PASSWORD`), Android constant key names (`KEY_PASSWORD`, `PUSH_TOKEN`, `COLUMN_PUSH_TOKEN`), notification channel ID, ICE password regex, Sentry public DSN keys (public by design), ICE password logging in `JoinResponse.kt:70` (potential logcat leak — low value, local-only, short-lived creds), proper redaction in `SfuToken.kt:49` |
+**Zero REAL_SECRET findings** — all 56 hits are:
+- **TEST_OR_EXAMPLE** (20): test fixtures, placeholder passwords
+- **ENDPOINT_LEAK** (11): known staging endpoints (ds-apip.test, ds-apip-work.test, work.test) — already in inventory
+- **INTERESTING** (25): IPC constant names, Sentry public DSNs (public by design), benchmark dummy password (confirmed purged), one low-value ICE password toString() leak (ephemeral, local-only)
 
----
-
-### Verdict List
-
-| Candidate | File:Line | Classification | REPORT_CANDIDATE |
-|-----------|-----------|----------------|------------------|
-| Benchmark password `r3gGN9GDQ5NF6tM6` | threema-desktop/.../crypto.ts:223 | TEST_OR_EXAMPLE (KB: benchmark-only, purged) | **no** |
-| Staging endpoints (ds-apip.test, ds-apip-work.test, work.test) | Multiple OpenAPI + vite.config.ts | ENDPOINT_LEAK (known/accepted) | **no** |
-| ICE password in `JoinResponse.toString()` | threema-android/.../JoinResponse.kt:70 | INTERESTING (runtime logcat leak, low value) | **no** |
-| Sentry public DSN keys | threema-android/.../SentryConfig.kt:15,19 | INTERESTING (public by design) | **no** |
-| All other hits | — | TEST_OR_EXAMPLE / INTERESTING (constants, test fixtures) | **no** |
-
-**Summary**: No reportable secrets found. All hits are test fixtures, known staging endpoints, constant identifiers, or public-by-design keys. The only code-level concern (`JoinResponse.kt` logging ICE credentials) is low-value (local-only, ephemeral WebRTC credentials) and requires runtime validation to confirm logcat exposure.
+The `crypto.ts:223` benchmark password (`r3gGN9GDQ5NF6tM6`, SHA256 `52a0af98...`) is RAG-verified as a calibration dummy in `determineKdfParams()` with `benchmarkKey.purge()` at line 233 — not used for real encryption.
