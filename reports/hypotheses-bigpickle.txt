@@ -1,28 +1,19 @@
-## 2026-08-11 23:15:59 UTC [chat] (model bigpickle)
-[HYP] match_token phase-1 liveness oracle may attribute non-default identity states (revoked/inactive) via a third response shape
+## 2026-08-12 00:00:52 UTC [chat] (model bigpickle)
+[HYP] mobileNoHashes extends the forgeable-HMAC oracle to phone→identity de-anonymization
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 85
+reasoning: RAG-verified — mobileNoHash = HMAC-SHA256(MOBILENO_HMAC_KEY, E164-no-plus digits), key hardcoded in shipped APK; endpoint accepts `mobileNoHashes` array, tokenless, and returns matched identity+publicKey+mobileNoHash. Same per-IP burst limiter (>100min prod cooldown) and CORS `*` as the email path.
+evidence_needed: one clean tokenless POST with N phone hashes after limiter reset → 200 with/without matches vs 429; sibling parity api.threema.ch+apip.threema.ch.
+verify_steps: PROBE (deferred, limiter-blocked): single POST `{"emailHashes":[],"mobileNoHashes":["<HMAC>"]}` with 20 forgeable phone hashes, ≥2h after last 429; classify 200 vs 429, diff response size vs baseline 39B.
+impact: phone-number→identity de-anonymization on second PII domain, same forgeable-key primitive; sweep rate = batch ceiling × limiter window. Severity: medium-high.
+testability: PASSIVE
+[HYP] match_token phase-1 renders a distinct third response shape for revoked/inactive identities
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/match_token
 confidence: 45
-reasoning: phase-1 mints a challenge for any valid identity (133B) vs 46B "Identity not found"; no limiter across 5+ probes; case-insensitive; client code has includeInactive flag implying inactive/revoked states exist that phase-1 might render distinctly.
-evidence_needed: an identity in a known non-default state to compare phase-1 shape (133B/46B/other).
-verify_steps: AUTH_HELPED — revoke a test identity via app, re-POST `{"identity":"<identity>"}` to /identity/match_token phase-1, compare response size/body vs pre-revocation; repeat for an expired identity if obtainable.
-impact: state attribution enriches the accepted existence oracle for target selection in enumeration. Severity: low-medium.
+reasoning: phase-1 mints a challenge for any valid identity (200/133B) vs 46B "Identity not found"; no auth, no observed limiter across 5+ probes; client's `includeInactive` flag proves inactive/revoked states exist server-side.
+evidence_needed: an identity in a known revoked/inactive state to compare phase-1 body shape vs active.
+verify_steps: AUTH_HELPED — revoke own test identity via app, POST `{"identity":"<own>"}` to phase-1, diff response size/body vs pre-revocation (133B vs 46B vs other).
+impact: state attribution (revoked/inactive) enriches the accepted existence oracle for enumeration targeting. Severity: low-medium.
 testability: AUTH_HELPED
-[HYP] valid matchToken (mintable by any registered identity) grants a sweep whose throughput is bounded only by per-IP limiter × unmapped batch ceiling
-class: AUTH
-asset: https://ds-apip.threema.ch/identity/match
-confidence: 50
-reasoning: invalid matchToken → 401/0B strict gate; tokenless → 200/39B empty; minting requires identity privkey (server-verified). Whether one minted token authorizes arbitrarily many match requests, and whether the burst limiter is per-IP or per-token, is unverified — this sets the real email→identity de-anonymization rate.
-evidence_needed: one valid token minted from any registered identity; (a) N-hash batch → 200-with-matches vs 400/429, (b) cross-IP token reuse.
-verify_steps: AUTH_HELPED — mint via two-phase match_token with own identity; POST `{"matchToken":"<token>","emailHashes":["<N up to 10000>"]}` at 60s spacing; classify; repeat from 2nd IP.
-impact: if per-token budget and no batch cap → unbounded email→identity de-anonymization by any registered user. Severity: high.
-testability: AUTH_HELPED
-[HYP] fetch_bulk response type/state/featureMask fields expose Work-vs-consumer classification at 10k/req
-class: IDOR
-asset: https://ds-apip.threema.ch/identity/fetch_bulk
-confidence: 40
-reasoning: response schema includes type/state/featureLevel/featureMask (ECHOECHO → type:0,state:0,featureLevel:3,featureMask:9); client sends only `identities`; Work identities otherwise unobtainable (ds-apip-work 401-gated).
-evidence_needed: any known Work identity sample; otherwise confirm consumer set is uniformly type:0.
-verify_steps: PROBE (≤1rps): POST `{"identities":["ECHOECHO","<other known-valid>"]}` over 2 cycles; record type/state/featureMask distribution; if uniform type:0 → mark untestable passively.
-impact: targeted Work-identity targeting for credential-stuffing on work.threema.ch. Severity: medium.
-testability: PASSIVE

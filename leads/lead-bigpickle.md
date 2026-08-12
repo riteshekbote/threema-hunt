@@ -9348,3 +9348,22 @@ evidence_needed: any known Work identity sample; otherwise confirm consumer set 
 verify_steps: PROBE (≤1rps): POST `{"identities":["ECHOECHO","<other known-valid>"]}` over 2 cycles; record type/state/featureMask distribution; if uniform type:0 → mark untestable passively.
 impact: targeted Work-identity targeting for credential-stuffing on work.threema.ch. Severity: medium.
 testability: PASSIVE
+## 2026-08-12 00:00:52 UTC [chat] (model bigpickle)
+[HYP] mobileNoHashes extends the forgeable-HMAC oracle to phone→identity de-anonymization
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 85
+reasoning: RAG-verified — mobileNoHash = HMAC-SHA256(MOBILENO_HMAC_KEY, E164-no-plus digits), key hardcoded in shipped APK; endpoint accepts `mobileNoHashes` array, tokenless, and returns matched identity+publicKey+mobileNoHash. Same per-IP burst limiter (>100min prod cooldown) and CORS `*` as the email path.
+evidence_needed: one clean tokenless POST with N phone hashes after limiter reset → 200 with/without matches vs 429; sibling parity api.threema.ch+apip.threema.ch.
+verify_steps: PROBE (deferred, limiter-blocked): single POST `{"emailHashes":[],"mobileNoHashes":["<HMAC>"]}` with 20 forgeable phone hashes, ≥2h after last 429; classify 200 vs 429, diff response size vs baseline 39B.
+impact: phone-number→identity de-anonymization on second PII domain, same forgeable-key primitive; sweep rate = batch ceiling × limiter window. Severity: medium-high.
+testability: PASSIVE
+[HYP] match_token phase-1 renders a distinct third response shape for revoked/inactive identities
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 45
+reasoning: phase-1 mints a challenge for any valid identity (200/133B) vs 46B "Identity not found"; no auth, no observed limiter across 5+ probes; client's `includeInactive` flag proves inactive/revoked states exist server-side.
+evidence_needed: an identity in a known revoked/inactive state to compare phase-1 body shape vs active.
+verify_steps: AUTH_HELPED — revoke own test identity via app, POST `{"identity":"<own>"}` to phase-1, diff response size/body vs pre-revocation (133B vs 46B vs other).
+impact: state attribution (revoked/inactive) enriches the accepted existence oracle for enumeration targeting. Severity: low-medium.
+testability: AUTH_HELPED

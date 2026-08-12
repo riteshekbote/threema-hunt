@@ -2288,3 +2288,50 @@ testability: PASSIVE (server-side curl, own emails only)
 [RISK] sync: 40 — mediator/rendezvous uniform 403 no CORS; ds-apip-work auth-gated 401 + CORS * + no HSTS; work.threema.ch/api/v1 downgraded to non-finding (no CORS on 404, no oracle); sync surface largely closed for passive recon
 [RISK] safe: 80 — 5 safe-* hostnames single IP 203.56.112.231; CORS * + write-capable methods + Allow-Headers Authorization; HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 (CVSS 7.4); HTTP Basic Auth + route-existence oracle stable
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub stable source paths); BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); remaining gap: live Windows runtime validation (CVSS 8.1)
+## 2026-08-11 23:57:47 UTC [sync] (model longcat)
+[PRIO] https://ds-apip.threema.ch/identity/match — score 8.10 (attack 9, business 9, tech 6, gate 8, cloud 5, fresh 10)
+[PRIO] https://ds-apip.threema.ch/identity/match_token — score 7.85 (attack 8, business 8, tech 6, gate 9, cloud 5, fresh 9)
+[PRIO] https://ds-apip.threema.ch/check_license — score 7.45 (attack 8, business 7, tech 5, gate 9, cloud 5, fresh 4)
+[HYP] Forgeable-HMAC email→identity membership oracle via /identity/match
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 45
+reasoning: POST {"emailHashes":[...]} → 200 {"identities":[...]}. If HMAC key is embedded in client-side code (iOS/Android/desktop), attacker can forge arbitrary email hashes server-side → scalable email-to-identity de-anonymization. KB shows server returns empty identities for unknown hashes, non-empty for registered. HMAC key source determines exploitability.
+evidence_needed: (a) locate HMAC key construction in threema-ios/threema-android source; (b) confirm key is not server-secret; (c) passive probe: registered email hash → non-empty identities vs invalid → []
+verify_steps: RAG: WebFetch threema-ios GitHub main (DirectoryService / contact-matching files) for match_token/email-hash construction. Then PASSIVE (rate-limiter reset pending): POST single own-email 32-byte hash, 60s spacing, compare identities array.
+impact: Cross-origin server-side email→Threema-identity membership oracle → targeted phishing, de-anonymization at scale. CVSS ~5.5-8.1 depending on HMAC forgeability.
+testability: PASSIVE (RAG + own-email probe)
+[HYP] match_token phase-1 response-shape oracle attributes non-default identity states
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 45
+reasoning: ECHOECHO (default test identity) → 200/133B token+tokenRespKeyPub; ZZZZZZZZ (invalid) → 200/46B "Identity not found". Unknown: do revoked, inactive, or work-only identities produce a THIRD response shape? If so, endpoint attributes identity state without auth.
+evidence_needed: (a) obtain a non-default test identity (e.g. revoked state); (b) compare response shape byte-wise against ECHOECHO and invalid baselines; (c) confirm third shape is state-correlated
+verify_steps: PASSIVE: POST {"identity":"ECHOECHO"} → 200/133B baseline (confirmed). POST {"identity":"ZZZZZZZZ"} → 200/46B baseline (confirmed). POST {"identity":"<known-revoked-or-work-id>"} → observe third shape. 60s spacing. Sibling parity on api.threema.ch.
+impact: Unauthenticated identity-state attribution (active vs revoked vs inactive). CVSS ~4.5 (informational, enables targeted attacks).
+testability: PASSIVE (server-side curl)
+[HYP] Batch-size cost-unit ceiling on /identity/match maps enumeration throughput bound
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 55
+reasoning: Single-hash POST → 200/39B empty identities. Unknown: at what N=emailHashes does the endpoint return 413/429/400? Maps max batch size per request → enumeration throughput ceiling. Rate-limiter cooldown blocks immediate verification.
+evidence_needed: (a) POST with N=2,5,10,20,50 hashes → observe first non-200 response; (b) confirm whether ceiling is count-based, size-based, or time-based
+verify_steps: PASSIVE: wait rate-limiter reset (>100min from last 429); POST {"emailHashes":["<1 invalid hash>"]} → 200 baseline; repeat N=2,5,10,20 with 60s spacing; capture first 413/429/400. Use only own test emails hashed client-side.
+impact: Defines max enumeration rate per request → total time to scan email space. CVSS ~5.5 (combined with membership oracle hypothesis).
+testability: PASSIVE (server-side curl, own emails only)
+[PARKED] Batch-size cost-unit ceiling on /identity/match: KB already REJECTED this hypothesis ("not proven dead or alive — unmapped cost-unit boundary"). Rate-limiter cooldown >100min makes passive verification impractical within this cycle. Redundant probing risk. Dropped.
+[FINAL] 1. Forgeable-HMAC email→identity membership oracle via /identity/match (IDOR, confidence 45, CVSS ~5.5-8.1) — highest value: HMAC key source question is decisive; if client-side → full enumeration chain
+[FINAL] 2. match_token phase-1 response-shape oracle attributes non-default identity states (IDOR, confidence 45, CVSS ~4.5) — lower value, informational, but rate-limiter bypass possible
+[NEXT] RAG: WebFetch threema-ios source on GitHub `main` for `match_token`, `emailHash`, `DirectoryService`, and `contact-matching` files — determine whether HMAC key for /identity/match emailHashes is embedded in client-side code (forgeable) or server-secret. Key source is the decisive evidence gap for the forgeable-HMAC oracle hypothesis.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 10000-ID ceiling + CORS * + zero 429s — byte-stable this cycle
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: identity-existence oracle confirmed (valid→200/133B, invalid→200/46B, CORS *, OPTIONS 200 browser-viable, sibling parity all 3 prod hosts)
+[LEARN] ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: rate-limiter cooldown >100min confirmed; burst-only limiter; 60s+ spacing still triggers 429
+[LEARN] ACCEPTED AUTH @ ds-apip.threema.ch/check_license: sibling parity CONFIRMED — api.threema.ch + apip.threema.ch byte-identical 200/65B + CORS * + OPTIONS 200
+[LEARN] WEAKENED AUTH @ work.threema.ch/api/v1: downgraded to non-finding — no CORS on 404, missing-key/invalid-key byte-identical 404, X-Api-Key not in desktop source
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), purged at line 233
+[LEARN] REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain, not standalone
+[RISK] chat: 25 — prod DNS shard→node map fully attributed; in-band passive channel closed (0 bytes without authenticated login frame); no remaining passive surface
+[RISK] web: 90 — directory triad fetch_bulk 10k ID enumeration + CORS * + zero 429 (CVSS 7.5); check_license cross-origin credential oracle sibling parity confirmed (CVSS 6.5); GET /identity/{id} 200/404 oracle; 5 challenge param-oracles; identity/match HMAC key source unmapped (CVSS up to 8.1 if forgeable); safe backup CORS* + HSTS gap (CVSS 7.4)
+[RISK] sync: 40 — mediator/rendezvous uniform 403 no CORS; ds-apip-work auth-gated 401 + CORS * + no HSTS; work.threema.ch/api/v1 downgraded to non-finding; sync surface largely closed for passive recon
+[RISK] safe: 80 — 5 safe-* hostnames single IP 203.56.112.231; CORS * + write-capable methods + Allow-Headers Authorization; HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 (CVSS 7.4); HTTP Basic Auth + route-existence oracle stable
+[RISK] desktop-src: 95 — Windows key-storage ACL bypass RAG-verified at 95 confidence (6 GitHub stable source paths); BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, conditional RCE); remaining gap: live Windows runtime validation (CVSS 8.1)
