@@ -10513,3 +10513,75 @@ evidence_needed: latency/body differential between known-invalid and a valid Wor
 verify_steps: AUTH_HELPED: with one valid Work license username, 10 POSTs valid vs invalid at ≤1 rps, compare p50 latency; passive probe alone cannot confirm.
 impact: if differential exists → unauthenticated username enumeration + online password brute-force against Work license accounts. Low-medium.
 testability: AUTH_HELPED
+## 2026-08-12 19:39:01 UTC [chat] (model bigpickle)
+reasoning: own probes this cycle — single-char lowercase `e` → 200/17B empty (no 400 format error), GET /identity/e + /identity/EchoEcho → 404 nginx at same instant; mixed-case batches previously dedup to canonical ECHOECHO across all 3 hosts.
+evidence_needed: a directory verb that still honors exact-case server-side (would narrow the fold to the store vs validation) — GET already shown strict.
+verify_steps: PASSIVE ≤1 rps: after 24h gap, repeat mixed-case batch on all 3 hosts to confirm dedup/canonicalization stable; single lowercase `e` repeat → expect persistent 200/17B.
+impact: confirms enumeration/oracle primitives case-agnostic with canonical dedup, zero amplification. Low (strengthens accepted finding).
+testability: PASSIVE
+[HYP] check_license valid-username timing differential + zero rate-limit (credential brute-force primitive)
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 45
+reasoning: own probes — 3 distinct fake usernames → 200/65B byte-identical combined error (no user/pass split), latency 413-427ms tight band, zero 429; combined message removes textual user-existence oracle.
+evidence_needed: latency/body differential between known-invalid and a valid Work license username.
+verify_steps: AUTH_HELPED: with one valid Work license username, 10 POSTs valid vs invalid at ≤1 rps, compare p50 latency; passive probe alone cannot confirm.
+impact: if differential exists → unauthenticated username enumeration + online password brute-force against Work license accounts. Low-medium.
+testability: AUTH_HELPED
+verify_steps: AUTH_HELPED: with one valid Work license username, 10 POSTs valid vs invalid at ≤1 rps, compare p50 latency; passive probe alone cannot confirm.
+impact: unauthenticated username enumeration + online password brute-force primitive against Work license accounts. Severity low-medium.
+testability: AUTH_HELPED
+[HYP] match_token tokens accepted cross-host on sibling /identity/match (shared validation key vs per-host key)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 60
+reasoning: 3 hosts mint distinct tokens for same identity+second but share constant tokenRespKeyPub; single-key ownership-proof verification plausible, cross-host acceptance never tested — /identity/match cooldown-gated since 2026-08-11.
+evidence_needed: ds-apip-minted token presented in POST /identity/match on api.threema.ch returning 200 (not 400).
+verify_steps: PASSIVE after /identity/match cooldown reset (>100min, next window ≈19:20 UTC): mint on ds-apip.threema.ch, then single POST `{"emailHashes":["AAAA"],"matchToken":"<ds-apip-minted>"}` to api.threema.ch/identity/match; non-400 → cross-host acceptance.
+impact: token minted anywhere honored anywhere → host-agnostic contact-discovery primitive; reinforces accepted IDOR. Low-medium.
+testability: PASSIVE (cooldown-gated)
+[HYP] POST-verb case-fold/silent-omit is uniform across directory verbs; GET exact-case is the outlier (validation layer is the only strict layer)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk
+confidence: 72
+reasoning: own probes this cycle — single-char lowercase `e` → 200/17B empty (no 400 format error), GET /identity/e + /identity/EchoEcho → 404 nginx at same instant; mixed-case batches previously dedup to canonical ECHOECHO across all 3 hosts.
+evidence_needed: a directory verb that still honors exact-case server-side (would narrow the fold to the store vs validation) — GET already shown strict.
+verify_steps: PASSIVE ≤1 rps: after 24h gap, repeat mixed-case batch on all 3 hosts to confirm dedup/canonicalization stable; single lowercase `e` repeat → expect persistent 200/17B.
+impact: confirms enumeration/oracle primitives case-agnostic with canonical dedup, zero amplification. Low (strengthens accepted finding).
+testability: PASSIVE
+[HYP] check_license valid-username timing differential + zero rate-limit (credential brute-force primitive)
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 45
+reasoning: own probes — 3 distinct fake usernames → 200/65B byte-identical combined error (no user/pass split), latency 413-427ms tight band, zero 429; combined message removes textual user-existence oracle.
+evidence_needed: latency/body differential between known-invalid and a valid Work license username.
+verify_steps: AUTH_HELPED: with one valid Work license username, 10 POSTs valid vs invalid at ≤1 rps, compare p50 latency; passive probe alone cannot confirm.
+impact: if differential exists → unauthenticated username enumeration + online password brute-force against Work license accounts. Low-medium.
+testability: AUTH_HELPED
+[HYP] matchToken 32-byte threshold is a fixed cryptobox length assertion — sub-32B tokens crash (500) while ≥32B hit an auth gate; the short-token path is an unhandled-exception sink
+class: MISCONFIG
+asset: https://api.threema.ch/identity/match
+confidence: 52
+reasoning: own probes this cycle — 3B/16B base64 and invalid base64 → 500/0B; 32B/44B fabricated zeros and server-minted tokens → 401/0B; no matchToken → 200/39B. Order is decode→length-assert→auth; the <32B branch throws unhandled.
+evidence_needed: a length→status curve across 1..128B proving the assertion is fixed-32 vs range-check, plus latency differential on the 500 path.
+verify_steps: PASSIVE ≤1 rps, 2s spacing on api.threema.ch: POST matchToken = valid-base64 zero strings of decoded lengths {1,16,24,32,33,44,48,64,128}; record code+latency each.
+impact: validation-order oracle (decode→length→auth) + a cheap 500 amplifier if unthrottled; no data leak. Severity low.
+testability: PASSIVE
+[HYP] matchToken redemption 401 is a static credential gate (hybrid public/auth endpoint), not token-signature rejection
+class: AUTH
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 50
+reasoning: own probes — freshly minted token presented same-host and cross-host → byte-identical 401; token was server-signed <5min prior, so signature-failure is implausible; 401 empty-body matches auth-middleware shape. Mint (match_token) is public; redemption is not.
+evidence_needed: an authenticated request reaching non-401 with a minted token → proves the gate is credential-based.
+verify_steps: AUTH_HELPED: with valid Work license creds, mint on ds-apip then POST api.threema.ch/identity/match `{emailHashes,identity,matchToken}` → 200/400 = credential-gated; 401 = token-validity-gated.
+impact: bounds the accepted match_token oracle — mint public, redemption auth-only; no anonymous cross-host replay primitive. Informational.
+testability: AUTH_HELPED
+[HYP] api.threema.ch/apip.threema.ch /identity/match lack the ds-apip burst limiter (host-local limiter, unthrottled siblings)
+class: MISCONFIG
+asset: https://api.threema.ch/identity/match
+confidence: 45
+reasoning: own probes — 10+ sequential POSTs to api.threema.ch this cycle, zero 429s, while ds-apip is documented burst-limited (429 after 2 rapid POSTs, >100min cooldown); 401/500 likely bypass the 200-counting limiter.
+evidence_needed: 10 sequential 200-POSTs on api.threema.ch with zero 429 + 2 rapid 200-POSTs on ds-apip → 429 (control).
+verify_steps: PASSIVE: 10 POSTs `{"emailHashes":["AAAA"]}` 2s apart on api.threema.ch, then 2 rapid on ds-apip after cooldown; count 429s.
+impact: if confirmed → rate-limit bypass for the email→identity match primitive via unthrottled sibling; amplifies accepted contact-discovery oracle. Severity low-medium.
+testability: PASSIVE (cooldown-gated control)
