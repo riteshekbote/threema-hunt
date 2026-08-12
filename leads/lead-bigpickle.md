@@ -10286,3 +10286,57 @@ evidence_needed: transition N for a single POST at 60s spacing after limiter res
 verify_steps: PASSIVE after cooldown reset (>100min): single POSTs with N=1,5,20,50,100 base64 emailHashes on ds-apip.threema.ch/identity/match, record code+body size each.
 impact: if no size cap, a single authorized-hash-set request scans large batches — mild amplification of the email→identity match primitive. Severity low-medium.
 testability: PASSIVE (cooldown-gated)
+## 2026-08-12 16:32:27 UTC [chat] (model bigpickle)
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 78
+reasoning: own probes this cycle — mixed-case `EchoEcho` → 200/133B token minted; whitespace-padded ` ECHOECHO ` → 200/46B. KB already records lowercase `echoecho` → 133B while GET /identity/{id} exact-case → 404. Mint path folds case, does not trim, and is unthrottled on all 4 hosts.
+evidence_needed: whether mixed-case variants of INVALID IDs also return 46B (no false positives) and whether GET /identity/EchoEcho confirms the exact-case 404 at the same instant.
+verify_steps: PROBE at ≤1 rps: GET https://ds-apip.threema.ch/identity/EchoEcho (expect 404 — proves GET/mint divergence on identical string); POST match_token `{"identity":"EchoEchoX"}` (expect 46B — confirms no false-positive minting for unregistered mixed-case).
+impact: enumeration need not use canonical spelling; any-case variants of ever-registered IDs mint — amplifies the accepted IDOR into a case-agnostic liveness oracle for phishing priming. Severity low-medium.
+testability: PASSIVE
+[HYP] match_token minted on staging is accepted by production /identity/match (cross-env replay)
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 60
+reasoning: tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=` (sha256 c8005cca…) is byte-identical on all 3 prod hosts AND staging; token changes per mint, so the pubkey is a static server constant implying a single shared private key — no environment key separation.
+evidence_needed: a token minted on ds-apip.test.threema.ch presented in POST /identity/match on ds-apip.threema.ch returning 200 (not 400).
+verify_steps: AUTH_HELPED: with a valid identity keypair, mint on staging, present `{"emailHashes":[...],"matchToken":"<staging-minted>"}` against prod ds-apip.threema.ch; non-400 → cross-env replay confirmed.
+impact: staging key-material exposure becomes prod-grade; contact-discovery proofs replay across environments. Severity low-medium.
+testability: AUTH_HELPED
+[HYP] /identity/match emailHashes batch has an unmapped cost-unit ceiling (per-request amplification)
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 50
+reasoning: endpoint returns `{"checkInterval":86400,"identities":[]}` for empty/short input; anonymous path burst-limited (>100min cooldown, 429 after ~2 rapid POSTs). N=emailHashes per POST where response transitions 200→400/413/429 never measured.
+evidence_needed: transition N for a single POST at 60s spacing after limiter reset.
+verify_steps: PASSIVE after cooldown reset (>100min): single POSTs with N=1,5,20,50,100 base64 emailHashes on ds-apip.threema.ch/identity/match, record code+body size each.
+impact: if no size cap, a single authorized-hash-set request scans large batches — mild amplification of the email→identity match primitive. Severity low-medium.
+testability: PASSIVE (cooldown-gated)
+[HYP] match_token minted on staging is accepted by production /identity/match (cross-env replay)
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 60
+reasoning: tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=` (sha256 c8005cca…) byte-identical on all 3 prod hosts AND staging; token changes per mint, so the pubkey is a static server constant implying a single shared private key — no environment key separation. Token is time-bucketed deterministic (same identity+second → same token), consistent with an HMAC(sign-time) scheme under one key.
+evidence_needed: a token minted on ds-apip.test.threema.ch presented in POST /identity/match on ds-apip.threema.ch returning 200 (not 400).
+verify_steps: AUTH_HELPED: with a valid identity keypair, mint on staging, present `{"emailHashes":[...],"matchToken":"<staging-minted>"}` + ownership proof against prod ds-apip.threema.ch; non-400 → cross-env replay confirmed.
+impact: staging key-material exposure becomes prod-grade; contact-discovery proofs replay across environments. Severity low-medium.
+testability: AUTH_HELPED
+[HYP] /identity/match emailHashes batch has an unmapped cost-unit ceiling (per-request amplification)
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 50
+reasoning: endpoint returns `{"checkInterval":86400,"identities":[]}` for empty/short input; anonymous path burst-limited (>100min cooldown, 429 after ~2 rapid POSTs). N=emailHashes per POST where response transitions 200→400/413/429 never measured.
+evidence_needed: transition N for a single POST at 60s spacing after limiter reset.
+verify_steps: PASSIVE after cooldown reset (>100min): single POSTs with N=1,5,20,50,100 base64 emailHashes on ds-apip.threema.ch/identity/match, record code+body size each.
+impact: if no size cap, a single authorized-hash-set request scans large batches — mild amplification of the email→identity match primitive. Severity low-medium.
+testability: PASSIVE (cooldown-gated)
+[HYP] check_license has a valid-username timing differential and zero rate limiting (credential brute-force primitive)
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 45
+reasoning: own probes this cycle — 3 sequential POSTs with distinct fake usernames all → 200/65B byte-identical combined error ("This username or password is invalid.", no user/pass split), latency 413-427ms tight band, zero 429s. Combined message removes any textual user-existence oracle; only a timing differential could split valid vs invalid username.
+evidence_needed: latency+body differential between a known-invalid username and a valid Work license username; username enumeration via timing would confirm.
+verify_steps: AUTH_HELPED: needs one valid Work license username to establish differential; measure 10 POSTs valid vs invalid at ≤1 rps, compare p50 latency; passive probe alone cannot confirm.
+impact: if differential exists → unauthenticated username enumeration; combined with zero rate limit, an online password brute-force primitive against Work license accounts. Severity low-medium.
+testability: AUTH_HELPED
+[NEXT] PROBE: cross-host token replay readiness — mint on ds-apip.threema.ch, then single POST `/identity/match_token` with `{"identity":"echoecho"}` on api.threema.ch and apip.threema.ch (1 rps) to confirm the mint surface is uniformly time-bucketed-deterministic + unthrottled on all hosts, completing the prerequisite map for the cross-env replay test once AUTH material is available.
