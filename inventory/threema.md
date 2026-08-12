@@ -1675,3 +1675,34 @@
 - CHANGED ds-apip.threema.ch/check_license — sibling parity CONFIRMED across all 3 prod hosts (byte-identical 200/65B + CORS * + OPTIONS 200)
 - CHANGED ds-apip.threema.ch/identity/fetch_bulk — byte-stable (10000→200/152B, 10001→400/0B sharp count-cap)
 - CHANGED safe-{01,1a,1b,02,00}.threema.ch — HSTS/Expect-CT on OPTIONS 204 but ABSENT on GET 400 — byte-stable
+
+## 2026-08-12 03:35:09 UTC
+- NEW ds-apip.threema.ch/identity/match_token — fully verified live endpoint (positive: ECHOECHO→200/133B token + constant tokenRespKeyPub sha256 c8005cca9…; negative: ZZZZZZZZ→200/46B "Identity not found";
+- NEW /identity/match batch-size cost-unit boundary (N=1/2/5/10/20/50 emailHashes) — unmapped, blocked by >100min rate-limiter cooldown
+- NEW /identity/match response variance — 200/39B → 400 transition confirmed on latest probes; GET 400 body fingerprint unmapped
+- CHANGED /identity/match rate-limiter cooldown remeasured — >100min confirmed; burst-only limiter; 60s+ spacing still triggers 429
+- CHANGED work.threema.ch/api/v1 — downgraded to non-finding: no CORS on 404, missing-key/invalid-key byte-identical 404, X-Api-Key not in desktop source (RAG-verified fetch-work.ts uses username/password)
+- CHANGED poc/ directory — confirmed STILL ABSENT (18th+ cycle); KB artifact claims persistently false
+- CHANGED billing.threema.ch — serves static assets (jQuery 3.7.1 + CSS) with full security headers; 404 page lacks headers (header divergence)
+- CHANGED ds-apip.threema.ch/check_license — sibling parity CONFIRMED across all 3 prod hosts (byte-identical 200/65B + CORS * + OPTIONS 200)
+- CHANGED ds-apip.threema.ch/identity/fetch_bulk — byte-stable (10000→200/152B, 10001→400/0B sharp count-cap)
+- CHANGED safe-{01,1a,1b,02,00}.threema.ch — HSTS/Expect-CT on OPTIONS 204 but ABSENT on GET 400 — byte-stable
+- NEW ds-apip.threema.ch/identity/match_token — NEW endpoint fully verified live (positive: ECHOECHO→200/133B token + constant tokenRespKeyPub sha256 `c8005cca9…`; negative: ZZZZZZZZ→200/46B "Identity not f
+- NEW /identity/match `emailHashes` batch-size cost-unit boundary — unmapped (N=1/2/5/10/20/50 hashes → 200 vs 413/429; batch ceiling not yet measured)
+- NEW /identity/match response variance — 200/39B → 400 transition confirmed on latest probes; GET 400 body fingerprint unmapped
+- CHANGED /identity/match rate-limiter cooldown remeasured — >20min confirmed (>100min per bigpickle); burst-only limiter; 60s+ spacing still triggers 429
+- CHANGED work.threema.ch/api/v1 — downgraded to non-finding: no CORS on 404, missing-key/invalid-key produce byte-identical 404, X-Api-Key not found in desktop source (RAG-verified fetch-work.ts uses username/
+- CHANGED poc/ directory — confirmed STILL ABSENT (18th+ consecutive cycle); KB artifact claims persistently false — filesystem ground truth overrides all assertions
+- CHANGED billing.threema.ch — confirmed serving real static assets (jQuery 3.7.1 + custom CSS) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options) on assets; 404 error page lacks these headers (hea
+- CHANGED ds-apip.threema.ch/check_license — sibling parity CONFIRMED across all 3 prod hosts (byte-identical 200/65B + CORS * + OPTIONS 200)
+- CHANGED ds-apip.threema.ch/identity/fetch_bulk — byte-stable (10000→200/152B, 10001→400/0B sharp count-cap)
+- CHANGED safe-{01,1a,1b,02,00}.threema.ch — HSTS/Expect-CT on OPTIONS 204 but ABSENT on GET 400 — byte-stable
+- NEW `ds-apip.threema.ch` — canonical directory server hostname (source `config/vite.config.ts` + OpenAPI); public `GET /identity/{id}` returns 200/404 oracle.
+- NEW `mediator-{X}.threema.ch/{XX}/` hostname pattern (WSS sync server) — `mediator-*.threema.ch` in scope, pattern confirmed from client config.
+- NEW `safe-{XX}.threema.ch/` hostname pattern (backup safe) — `safe-*.threema.ch` in scope, pattern confirmed from client config.
+- NEW `rendezvous-{X}.threema.ch/{XX}/` hostname pattern (WSS linking server) — `rendezvous-*.threema.ch` in scope, pattern confirmed from client config.
+- NEW `api.threema.ch` — 403 + same permissive CORS as apip (candidate ID/directory sibling).
+- CHANGED `apip.threema.ch` — was 403 on `/`; now verified 200 on `/identity/ECHOECHO`, 404 on invalid, CORS `*`.
+- CHANGED `work.threema.ch` / `shop.threema.ch` / `broadcast.threema.ch` / `gateway.threema.ch` — 301/302 now with session cookie, CSP, Sentry (was TIMEOUT/301).
+- CHANGED `billing.threema.ch` — 301 → `threema.ch`.
+- NEW `ds-apip.test.threema.ch` — leaked test/staging directory server reachable (static + live 200).

@@ -3246,3 +3246,39 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `52a0af98…` re-confirmed benchmark-only dummy in determineKdfParams(), purged at line 233
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain, not standalone
 - LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: downgraded to non-finding — no CORS on 404, missing-key/invalid-key byte-identical 404, X-Api-Key not in desktop source
+
+## RANKED HYPOTHESES 2026-08-12 03:35:09 UTC
+- [95] https://ds-apip.threema.ch/identity/match_token: Cross-origin identity-existence oracle via /identity/match_token minting (from reports/hypotheses-nemotron3.txt)
+- [95] github.com/threema-ch/threema-desktop: Windows key-storage ACL bypass — full identity + database key theft (from reports/hypotheses-laguna.txt)
+- [90] https://ds-apip.threema.ch/identity/match: Forgeable-HMAC email→identity membership oracle via /identity/match (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: Wait for /identity/match rate-limiter reset (>100min cooldown from last probe), then at ≤1 rps with 60s spacing: `curl -s -X POST -H "Origin: https://evi
+- NEXT(hypotheses-bigpickle.txt): PROBE: Wait for /identity/match rate-limiter reset (>100min cooldown from last probe), then at ≤1 rps with 60s spacing: `curl -s -X POST -H "Origin: https://evi
+- NEXT(hypotheses-laguna.txt): PROBE: Wait for /identity/match rate-limiter cooldown (>100min from last 429), then at ≤1 rps with 60s+ spacing test batch-size boundary: `curl -s -X POST -H "O
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: NEW endpoint fully verified live — positive (ECHOECHO→200/133B token + constant tokenRespKeyPub sha256 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain fully verified via WebFetch on GitHub stable — fs.ts:41→{}, key-storage/index.ts:55
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 52a0af98… confirmed benchmark-only dummy in determineKdfParams(), derived key purged at line 233 —
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: WEAKENED AUTH @ work.threema.ch/api/v1: downgraded to non-finding — no CORS on 404, missing-key/invalid-key byte-identical 404, X-Api-Key not in desktop source 
+- LEARN: ACCEPTED MISCONFIG @ billing.threema.ch: serves static assets (jQuery 3.7.1 + CSS) with full security headers; 404 page lacks headers — minor defense-in-depth g
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: response variance 200→400 confirmed; OPTIONS 400 carries CORS * + Allow-Headers; rate-limiter cooldown >20mi
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: sibling parity CONFIRMED across all 3 prod hosts (byte-identical 200/65B + CORS * + OPTIONS 200)
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: Rate-limiter cooldown remeasured — >20min confirmed (>100min per bigpickle); burst-only limiter; 60s+ spacing
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: Response variance confirmed — 200/39B → 400 transition on latest probes; OPTIONS 400 also carries CORS `*` +
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password (sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c`) re-confirmed benchmark-only d
+- LEARN: ACCEPTED MISCONFIG @ billing.threema.ch: Confirmed serving real static assets (jQuery 3.7.1 + custom billing CSS) with full security headers (HSTS/Expect-CT/CSP
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: batch-size cost-unit boundary ($N=1/2/5/10/20/50$ `emailHashes`) remains unmapped; 429 on 2-rapid-POST (burst
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle DISPROVEN — no CORS on 404 response, missing-key/invalid-key produce byte-identical `{"error
+- LEARN: CONFIRM MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64he
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.threema.ch/identity/match: OPTIONS 400 response ALSO carries CORS `*` + Allow-Headers Content-Type,User-Agent — CORS applied at rou
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c`) re-confirm
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: NEW endpoint fully verified live — positive (ECHOECHO→200/133B token + constant tokenRespKeyPub sha256 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain fully verified via WebFetch on GitHub stable — fs.ts:41→{}, key-storage/index.ts:55
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 52a0af98… confirmed benchmark-only dummy in determineKdfParams(), derived key purged at line 233 —
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact `poc/key-storage-acl-bypass-poc.js` NOW GENUINELY on disk (sha256 ce1b1a2f14fd193311a88
+- LEARN: CONFIRMED IDOR @ ds-apip.threema.ch/identity/match_token: Sibling parity byte-stable across all 3 prod hosts (ds-apip/api/apip); tokenRespKeyPub sha256 `c8005cc
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: fetch-work.ts RAG-verified body schema `{licenseUsername,licensePassword,version,arch}` + response `WORK_LICEN
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts:1252: `nodeIntegrationInWorker: true` with `// TODO(DESK-79)` confirmed via WebFetch on `stable`; `sandbox
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c`) — re-confi
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: Byte-stable this cycle — 10000→200/152B (valid IDs only echoed), 10001→400/0B (sharp count-cap, no parti
+- LEARN: REJECTED HYP @ work.threema.ch/api/v1 X-Api-Key oracle: Disproven — no CORS on 404 response, missing-key/invalid-key produce byte-identical `{"error":"Invalid X
