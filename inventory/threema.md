@@ -1831,3 +1831,10 @@
 - CHANGED ds-apip.threema.ch/identity/fetch_bulk — byte-stable (10000→200/152B, 10001→400/0B sharp count-cap)
 - CHANGED safe-{01,1a,1b,02,00}.threema.ch — HSTS/Expect-CT on OPTIONS 204 but ABSENT on GET 400 — byte-stable
 - CHANGED threema-desktop key-storage (Windows) — PoC artifact `poc/key-storage-acl-bypass-poc.js` NOW genuinely on disk (sha256 `4771aafb…`, 6921 B); `node --check` PASS; `node poc/...` EXIT 0 Linux no-op; all
+
+## 2026-08-12 15:37:58 UTC
+- NEW mediator-{X}.threema.ch/{XX}/ hostname pattern (WSS sync server) — `mediator-*.threema.ch` in scope, pattern confirmed from client config
+- NEW safe-{XX}.threema.ch/ hostname pattern (backup safe) — `safe-*.threema.ch` in scope, pattern confirmed from client config
+- NEW rendezvous-{X}.threema.ch/{XX}/ hostname pattern (WSS linking server) — `rendezvous-*.threema.ch` in scope, pattern confirmed from client config
+- NEW ds-apip.threema.ch — canonical directory server hostname confirmed via `config/vite.config.ts` + OpenAPI; public `GET /identity/{id}` returns 200/404 oracle
+- CHANGED threema-desktop key-storage (Windows) — PoC artifact `poc/key-storage-acl-bypass-poc.js` NOW genuinely on disk (sha256 `4771aafb…`, 6921 B); `node --check` PASS; `node poc/...` EXIT 0 Linux no-op; all
