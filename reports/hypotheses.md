@@ -3380,3 +3380,29 @@
 - LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: response variance 200→400 confirmed; OPTIONS 400 carries CORS * + Allow-Headers; rate-limiter cooldown >20mi
 - LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: sibling parity CONFIRMED across all 3 prod hosts (byte-identical 200/65B + CORS * + OPTIONS 200)
 - LEARN: CONFIRM MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64he
+
+## RANKED HYPOTHESES 2026-08-12 11:37:32 UTC
+- [95] https://ds-apip.threema.ch/identity/match_token: Cross-origin identity-existence oracle via /identity/match_token minting (from reports/hypotheses-nemotron3.txt)
+- [65] https://ds-apip.threema.ch/identity/match: A valid matchToken may lift the /identity/match per-host burst/cooldown ceiling (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: Wait for /identity/match rate-limiter reset (>100min cooldown from last probe), then at ≤1 rps with 60s spacing: `curl -s -X POST -H "Origin: https://evi
+- NEXT(hypotheses-bigpickle.txt): PROBE: at 60s spacing, 3 sequential prod POSTs `curl -s -m 20 -w "\nHTTP %{http_code}" -X POST https://ds-apip.threema.ch/identity/match_token -H "Content-Type:
+- NEXT(hypotheses-laguna.txt): HUMAN: On a Windows host running as the same user as Threema Desktop (after creating one profile), execute `node poc/key-storage-acl-bypass-poc.js` to validate 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: NEW endpoint fully verified live — positive (ECHOECHO→200/133B token + constant tokenRespKeyPub sha256 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain fully verified via WebFetch on GitHub stable — fs.ts:41→{}, key-storage/index.ts:55
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 52a0af98… confirmed benchmark-only dummy in determineKdfParams(), derived key purged at line 233 —
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle DISPROVEN — no CORS on 404 response, missing-key/invalid-key produce byte-identical `{"error
+- LEARN: ACCEPTED MISCONFIG @ billing.threema.ch: serves static assets (jQuery 3.7.1 + CSS) with full security headers; 404 page lacks headers — minor defense-in-depth g
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: response variance 200→400 confirmed; OPTIONS 400 carries CORS * + Allow-Headers; rate-limiter cooldown >20mi
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: sibling parity CONFIRMED across all 3 prod hosts (byte-identical 200/65B + CORS * + OPTIONS 200)
+- LEARN: CONFIRM MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64he
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: Fully verified live — valid identity (ECHOECHO) → 200/133B token + constant tokenRespKeyPub (sha256 `c8
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact `poc/key-storage-acl-bypass-poc.js` NOW genuinely on disk (sha256 `4771aafb…`, 6921 B);
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c`) re-confirm
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Conditional RCE requires separate renderer exploit chain (0 dynamic sinks `require`/`imp
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: Downgraded to non-finding — no CORS on 404 response; missing-key and invalid-key produce byte-identical `{"error":"Inval
+- LEARN: ACCEPTED OTHER @ billing.threema.ch: Confirmed serving real static assets (jQuery 3.7.1 + custom billing CSS) with full security headers (HSTS/Expect-CT/CSP/X-F
+- LEARN: REJECTED OTHER @ saltyrtc-{00..ff}.threema.ch:443: NOT in scope per scope.yml (only `g-*.0.threema.ch` listed for chat); HTTP 426 on GET; out of scope.
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: Byte-stable this cycle — 10000→200/152B (valid IDs only echoed), 10001→400/0B sharp count-cap (no partia
+- LEARN: CONFIRM MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64he
+- LEARN: NEW @ threema-android JoinResponse.kt:70: `toString()` includes `icePassword='$icePassword'` in plain text — RAG-verified via WebFetch on GitHub `main`; potenti

@@ -1,4 +1,4 @@
-## 2026-08-12 10:32:41 UTC [chat] (model bigpickle)
+## 2026-08-12 11:27:12 UTC [chat] (model bigpickle)
 [HYP] A valid matchToken may lift the /identity/match per-host burst/cooldown ceiling
 class: AUTH
 asset: https://ds-apip.threema.ch/identity/match
@@ -55,3 +55,32 @@ impact: batch ceiling (N=emailHashes→200 vs 429/413) mapped at low cost → en
 testability: PASSIVE
 [NEXT] PROBE: at 60s spacing, 3 sequential prod POSTs `curl -s -m 20 -w "\nHTTP %{http_code}" -X POST https://ds-apip.threema.ch/identity/match_token -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}'` — confirms unthrottled sustained status of the browser-viable identity-existence oracle (all expect 200/133B, zero 429); advance POC chat by verifying the contact-discovery protocol primitive the chat client uses (threema-android `obtainMatchToken`).
 [RISK] chat: 20 reason: DNS shard map re-verified stable; passive channel formally closed; match_token POC work is directory-side, not chat-host surface; remaining tests AUTH_HELPED | web: 85 reason: directory triad oracles byte-stable (match_token stateless + fresh-entropy confirmed, GET-form check_license non-oracle closed, fetch_bulk 10k cap, check_license POST parity) | sync: 30 reason: mediator/rendezvous WSS uniform 403, DNS split attributed, chat rides mediator; no passive in-band divergence | safe: 60 reason: 5 hosts behind 203.56.112.231; HSTS/Expect-CT on OPTIONS 204 but ABSENT on GET 400; Basic Auth + route-existence oracle stable | desktop-src: 70 reason: Windows key-storage ACL chain RAG-verified (6 paths); `poc/` dir still filesystem-ABSENT (KB claims persistently false); needs Windows runtime validation
+[HYP] matchToken-carrying /identity/match requests may bypass the anonymous burst/cooldown limiter
+class: AUTH
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 65
+reasoning: match_token minting is now confirmed unthrottled (3 spaced prod POSTs 200, zero 429; format-agnostic). threema-android `obtainMatchToken()` mints a token after phase-2 proof-of-possession and includes it in every /identity/match call; server returns checkInterval 86400. Whether token-carrying match requests are exempt from the >100min per-host burst ceiling is untested.
+evidence_needed: matchToken-carrying match requests exceeding the anonymous burst budget (2 rapid POSTs, no 429).
+verify_steps: AUTH_HELPED: with a real matchToken from a valid Threema identity keypair, POST /identity/match `{"emailHashes":["..."],"matchToken":"..."}` twice rapidly; compare limiter behavior vs anonymous baseline (200 then 429).
+impact: if token lifts the limiter, only identity owners gain throughput — attacker value remains bounded; does not widen the email→identity oracle for unauthenticated attackers. Severity low-medium.
+testability: AUTH_HELPED
+[HYP] check_license is an unauthenticated, unthrottled, browser-viable boolean credential-validation oracle whose success-shape (`{"success":true}`) is reachable only with a valid Work license pair
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license
+confidence: 65
+reasoning: Field-gating now mapped: missing licenseUsername/licensePassword → 200/31B error:null; complete pair → 200/65B "invalid credentials" (lookup executes). version/arch not required. CORS `*` + OPTIONS 200 browser-viable; zero 429 across ~11 POSTs. Only the success-shape remains unobserved.
+evidence_needed: a valid Work license pair to confirm `{"success":true}` response shape and absence of rate limit on success.
+verify_steps: AUTH_HELPED: with valid Work credentials, POST full body; confirm {"success":true}; then 3 sequential POSTs confirming no 429 on the success path.
+impact: unauthenticated cross-origin credential-validation oracle for Work licenses (enumeration/spray priming) with no rate limiting. Severity medium.
+testability: AUTH_HELPED
+[HYP] match_token minting timing/response-size is independent of identity string length (no length-gated validation), so the 46B vs 133B differential is a pure existence signal usable for full-space scanning from victim browsers
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 70
+reasoning: 1-char and 164-char identity both → 200/46B; ECHOECHO → 200/133B. Sustained unthrottled (3/3 spaced POSTs 200). If length-independence holds across the full range, the oracle is a clean boolean over the entire search space with browser-viable OPTIONS 200 CORS `*`.
+evidence_needed: confirm no length class ever triggers 400/413 (bounds: 0-char/empty and 256+ char).
+verify_steps: PROBE at ≤1 rps: POST {"identity":""} → expect 200/46B; POST {"identity":"A"*256} → expect 200/46B; any 400 would bound the oracle.
+impact: confirms the accepted IDOR amplification — silent cross-origin identity enumeration with no format constraint, no throttle, no browser restrictions. Severity medium (amplifies accepted IDOR).
+testability: PASSIVE
+[NEXT] PROBE: complete the match_token length-bound map at ≤1 rps — POST `{"identity":""}` (empty) and `{"identity":"A"*256}` to ds-apip.threema.ch/identity/match_token; both expected 200/46B (any 400 bounds the oracle's search space). Advances POC chat by fully characterizing the browser-viable contact-discovery primitive the chat client uses.
+[RISK] chat: 20 reason: chat hosts passive-closed (SNI/TLS probes close immediately, DNS shard map stable); all active POC work is directory-side protocol primitives the chat client consumes — no chat-host surface delta | web: 88 reason: directory triad oracles byte-stable and this cycle deepened — match_token now 3-deep confirmed sustained-unthrottled + format-agnostic browser-viable oracle; check_license field-gating mapped; apip match per-host budget cycle confirmed | sync: 30 reason: mediator/rendezvous WSS uniform 403, DNS split attributed, chat rides mediator; no passive in-band divergence | safe: 60 reason: 5 hosts behind 203.56.112.231; HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400; Basic Auth + route-existence oracle stable | desktop-src: 70 reason: Windows key-storage ACL 6-path RAG chain stable; `poc/` dir filesystem-ABSENT (19th+ cycle, KB claims persistently false); needs Windows runtime validation
