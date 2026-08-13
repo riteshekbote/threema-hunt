@@ -1959,3 +1959,11 @@
 - CHANGED ds-apip.test.threema.ch: Staging directory mirror confirmed live — identical API surface + CORS `*` + `Access-Control-Allow-Methods: POST,GET,OPTIONS,DELETE` as production; HSTS/Expect-CT present on s
 
 ## 2026-08-13 04:31:10 UTC
+
+## 2026-08-13 06:03:07 UTC
+- NEW NO_DELTA
+- CHANGED `poc/key-storage-acl-bypass-poc.js`: Filesystem GROUND TRUTH now confirms GENUINELY on disk (sha256 `4a83bdea5320439ec21264eb276545ae88f568ba4611c78f69d9611151de26e4`, 14340 B); `node --check` PASS; `
+- CHANGED RAG source paths corrected: `fs.ts` lives at `apps/desktop/src/common/node/fs.ts` (not the stale `apps/desktop/src/common/filesystem/fs.ts`); `crypto.ts` at `apps/desktop/src/common/node/key-storage/c
+- CHANGED `crypto.ts:223` benchmark password sha256 finalized as `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed directly from literal `r3gGN9GDQ5NF6tM6` via `echo -n 'r3gGN9GDQ5NF6
+- CHANGED BrowserWindow webPreferences: `sandbox` confirmed UNSET (not `false`), `// TODO(DESK-79): Enable sandbox: true` at L~1255, `nodeIntegrationInWorker: true` with `// TODO(DESK-79)` at L~1252; L1240 comm
+- NEW RAG verification chain re-confirmed this cycle via WebFetch + GitHub API tree on `stable`: all 6 paths verified live (`fs.ts:41`, `key-storage/index.ts:_writeOrOverrideFile`, `electron-main.ts STORE/L
