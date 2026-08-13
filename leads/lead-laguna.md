@@ -9398,3 +9398,4 @@ testability: PASSIVE
 [RISK] safe: 65 — 5 backup hosts behind single IP with HSTS/Expect-CT gap on credential-gated GET 400; HTTP Basic Auth + route-existence oracle (400 vs 404) stable; CORS `*` with write-capable methods on preflight.
 [RISK] desktop-src: 95 — Windows key-storage ACL bypass fully RAG-verified (6-path chain); PoC artifact now genuinely on disk + syntax-verified; remaining evidence gap is Windows runtime validation only. Electron BrowserWindow sandbox unset + nodeIntegrationInWorker true (conditional RCE, formally rejected as standalone).
 ## 2026-08-13 18:29:17 UTC [desktop] (model laguna)
+## 2026-08-13 19:40:57 UTC [desktop] (model laguna)
