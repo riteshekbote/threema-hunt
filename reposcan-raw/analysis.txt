@@ -1,3 +1,156 @@
 [0m
 > build · nemotron-3-ultra-free
 [0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-ios/Threema/AppMigration.swift 2>/dev/null && head -900 /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-ios/Threema/AppMigration.swift | tail -50
+-rw-r--r-- 1 runner runner 43745 Aug 13 13:36 /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-ios/Threema/AppMigration.swift
+        if foundOptionalString {
+            businessInjector.userSettings.profilePictureContactList = profilePictureContactList
+        }
+        
+        os_signpost(.end, log: osPOILog, name: "6.8.8 migration")
+        DDLogNotice("[AppMigration] App migration to version 6.8.8 successfully finished")
+    }
+
+    /// Migrate to version 6.9:
+    /// - Migrate some Settings to Keychain
+    private func migrateTo6_9() throws {
+        DDLogNotice("[AppMigration] App migration to version 6.9 started")
+        os_signpost(.begin, log: osPOILog, name: "6.9 migration")
+
+        try businessInjector.keychainManager.migrateToVersion1(
+            myIdentity: ThreemaIdentity(businessInjector.myIdentityStore.identity)
+        )
+
+        /// Migrate license
+        /// Before 6.9, we stored it in UserDefaults.
+        /// Now we need to migrate it to Keychain.
+        let persistenceKeyLicenseUser = "Threema license username"
+        let persistenceKeyLicensePassword = "Threema license password"
+        let persistenceKeyDeviceID = "Threema device ID"
+        let persistenceKeyOnPremConfigURL = "Threema OnPrem config URL"
+
+        if let user = AppGroup.userDefaults().string(forKey: persistenceKeyLicenseUser),
+           let password = AppGroup.userDefaults().string(forKey: persistenceKeyLicensePassword) {
+
+            let deviceID = AppGroup.userDefaults().string(forKey: persistenceKeyDeviceID)
+            let server = AppGroup.userDefaults().string(forKey: persistenceKeyOnPremConfigURL)
+
+            let license = ThreemaLicense(
+                user: user,
+                password: password,
+                deviceID: deviceID,
+                onPremServer: server
+            )
+            /// Due to it never being encrypted before, this is going to be
+            /// unencrypted.
+            /// Remote Secret was only introduced in 6.9, and if the customer
+            /// enables it, all the app data is going to be cleared and
+            /// the user needs to go over the onboarding again.
+            try businessInjector.keychainManager.storeLicense(license)
+        }
+
+        AppGroup.userDefaults().removeObject(forKey: persistenceKeyLicenseUser)
+        AppGroup.userDefaults().removeObject(forKey: persistenceKeyLicensePassword)
+        AppGroup.userDefaults().removeObject(forKey: persistenceKeyOnPremConfigURL)
+        AppGroup.userDefaults().removeObject(forKey: persistenceKeyDeviceID)
+[0m
+[0m$ [0mls -la /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt 2>/dev/null && cat /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt
+-rw-r--r-- 1 runner runner 3839 Aug 13 13:36 /home/runner/work/threema-hunt/threema-hunt/reposcan-raw/threema-ch/threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt
+package ch.threema.app.voip.groupcall.sfu
+
+import ch.threema.app.voip.groupcall.sfu.webrtc.DtlsParameters
+import ch.threema.app.voip.groupcall.sfu.webrtc.IceParameters
+import ch.threema.app.voip.groupcall.sfu.webrtc.SessionParameters
+import ch.threema.common.toHexString
+import ch.threema.protobuf.group_call.SfuHttpResponse
+
+typealias JoinResponse = SfuResponse<JoinResponseBody>
+
+data class JoinResponseBody(
+    val startedAt: ULong,
+    val maxParticipants: UInt,
+    val participantId: ParticipantId,
+    val iceUsernameFragment: String,
+    val icePassword: String,
+    val dtlsFingerprint: ByteArray,
+    val addresses: List<Address>,
+    val rtpHeaderExtensionIds: RtpHeaderExtensionIds,
+) {
+    data class Address(
+        val port: Int,
+        val ip: String,
+        val protocol: Protocol,
+    ) {
+        enum class Protocol {
+            UDP,
+            UNRECOGNIZED,
+        }
+
+        val isIpv6: Boolean by lazy {
+            ip.contains(':')
+        }
+    }
+
+    val sessionParameters: SessionParameters
+        get() = SessionParameters(
+            participantId = participantId,
+            iceParameters = IceParameters(iceUsernameFragment, icePassword),
+            dtlsParameters = DtlsParameters(dtlsFingerprint),
+            rtpHeaderExtensionIds = rtpHeaderExtensionIds,
+        )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is JoinResponseBody) return false
+
+        if (maxParticipants != other.maxParticipants) return false
+        if (participantId != other.participantId) return false
+        if (iceUsernameFragment != other.iceUsernameFragment) return false
+        if (icePassword != other.icePassword) return false
+        if (!dtlsFingerprint.contentEquals(other.dtlsFingerprint)) return false
+        if (addresses != other.addresses) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = maxParticipants.hashCode()
+        result = 31 * result + participantId.hashCode()
+        result = 31 * result + iceUsernameFragment.hashCode()
+        result = 31 * result + icePassword.hashCode()
+        result = 31 * result + dtlsFingerprint.contentHashCode()
+        result = 31 * result + addresses.hashCode()
+        return result
+    }
+
+    override fun toString() =
+        "JoinResponseBody(startedAt=$startedAt, maxParticipants=$maxParticipants, participantId=$participantId, " +
+            "iceUsernameFragment='$iceUsernameFragment', icePassword='$icePassword', " +
+            "dtlsFingerprint=${dtlsFingerprint.toHexString()}, addresses=$addresses)"
+
+    companion object {
+        fun fromSfuResponseBytes(bytes: ByteArray): JoinResponseBody {
+            val joinResponse = SfuHttpResponse.Join.parseFrom(bytes)
+            return JoinResponseBody(
+                startedAt = joinResponse.startedAt.toULong(),
+                maxParticipants = joinResponse.maxParticipants.toUInt(),
+                participantId = ParticipantId(joinResponse.participantId.toUInt()),
+                iceUsernameFragment = joinResponse.iceUsernameFragment,
+                icePassword = joinResponse.icePassword,
+                dtlsFingerprint = joinResponse.dtlsFingerprint.toByteArray(),
+                addresses = joinResponse.addressesList.toAddresses(),
+                rtpHeaderExtensionIds = RtpHeaderExtensionIds.createFromJoinResponse(joinResponse),
+            )
+        }
+
+        private fun List<SfuHttpResponse.Join.Address>.toAddresses(): List<Address> =
+            map { address ->
+                val protocol = when (address.protocol) {
+                    SfuHttpResponse.Join.Address.Protocol.UDP -> Address.Protocol.UDP
+                    else -> Address.Protocol.UNRECOGNIZED
+                }
+                Address(address.port, address.ip, protocol)
+            }
+    }
+}
+[0m
