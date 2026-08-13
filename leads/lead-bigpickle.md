@@ -11334,3 +11334,32 @@ verify_steps: RAG: fetch threema-ios matchIdentitiesWithEmailHashes:matchToken (
 impact: Corrects attribution; confirms the email→identity oracle (identity/match) requires key-possession despite the public HMAC key in the KB lead. Severity: informational.
 testability: PASSIVE
 [NEXT] PROBE: sibling parity for the new `/identity/check` oracle — `curl -s -X POST -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://api.threema.ch/identity/check` (expect 200/76B `{"checkInterval":86400,"states":[0,0],"types":[0,0],"featureMasks":[9,null]}` + CORS `*`), then same on apip.threema.ch; 2 requests, 1 rps. If byte-identical, confirm shared-handler family (matches fetch_bulk parity pattern) and promote check to a full IDOR lead.
+## 2026-08-13 16:33:35 UTC [chat] (model bigpickle)
+[HYP] check `state`/`type` fields are a revocation-state + identity-class discrimination oracle
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 75
+reasoning: Own probes this cycle — 3/3 hosts byte-identical 200/76B, ECHOECHO→featureMask 9, invalid→null, states/types all 0; sharp 10000/10001 count-cap identical to fetch_bulk (shared handler); exact-case sensitive (echoecho→null). RAG (threema-ios ServerAPIConnector.m:562-572) confirms plain unauthenticated postJSONToAPIPath, per-identity `states` consumed client-side.
+evidence_needed: Known-revoked identity → non-zero `state`; known work/consumer identity → distinct `type`; featureMask→capability map from client enums.
+verify_steps: AUTH_HELPED-LOCAL: register test identity, revoke it, POST `{"identities":["<revokedId>"]}` → observe state≠0 vs active control; PASSIVE: mixed batch ECHOECHO+invalid for positionally-aligned featureMask/null (done, 3 hosts).
+impact: Unauthenticated batch revocation-state + identity-class enumeration (10k IDs/req, no rate limit, server-side) — flags revoked/stolen accounts for targeting; capability fingerprinting via featureMask. Severity: High (CVSS 7.5).
+testability: PASSIVE (existence/feature) + AUTH_HELPED-LOCAL (state semantics)
+[HYP] fetch_priv `errorType` discriminates revoked vs invalid identities (3-state error path)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 62
+reasoning: Own probes — ECHOECHO→token mint (200/133-134B); ZZZZZZZZ/missing/short→uniform 88B `errorType:"invalid-identity"` (byte-parity confirmed on ds-apip + apip); hypothesis (laguna) asserts distinct revocation-3-state path; error text conflates "not found or revoked" but structured `errorType` field may vary for revoked identities; tokenRespKeyPub constant confirms family membership.
+evidence_needed: Known-revoked identity → observe errorType value vs active vs never-existed.
+verify_steps: AUTH_HELPED-LOCAL: create test ID, revoke, POST `{"identity":"<revokedId>"}` to /identity/fetch_priv → compare errorType/error with ZZZZZZZZ baseline (88B captured).
+impact: Adds revocation-state discrimination to the existence-oracle family; if errorType diverges, enables unauthenticated revoked-account flagging. Severity: Medium.
+testability: PASSIVE (partial) + AUTH_HELPED-LOCAL
+[HYP] revoke phase-1 mint token is endpoint-unbound (redeemable in sibling challenge flows)
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/revoke
+confidence: 48
+reasoning: Sibling parity all 3 hosts (200/133-134B token + constant tokenRespKeyPub, invalid→200/46B); revocationKey param ignored at mint; phase-2 per RAG (sapic.m:542-560) = HMAC(KDF("3ma-csp","dir",ECDH(privkey,tokenRespKeyPub)), token).
+evidence_needed: test identity private key + phase-2 body schema; whether match_token-minted token redeems in revoke phase-2.
+verify_steps: AUTH_HELPED-LOCAL: mint via match_token for own ID, redeem at revoke phase-2 → accepted ⇒ token not endpoint-bound.
+impact: token interchangeability across 9-member family; at minimum revoke joins enumeration set. Severity: Low-medium.
+testability: AUTH_HELPED-LOCAL
+[NEXT] PROBE: `curl -s -X POST -H "Content-Type: application/json" -d '{"identities":["ECHOECHO"]}' https://ds-apip.test.threema.ch/identity/check` + `-d '{"identities":["echoecho","ZZZZZZZZ"]}'` → verify staging mirrors prod for the new endpoint (featureMask 9 for ECHOECHO, null for lowercase/invalid, same 200/76B shape + 10000/10001 cap) — extends the mirror-evidence chain to the newest family member; 2 requests, 1 rps.
