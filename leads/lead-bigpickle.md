@@ -11305,3 +11305,32 @@ verify_steps: PASSIVE: RAG grep threema-ios + threema-desktop for `remote-secret
 impact: if the 200-path returns MDM-issued secrets and the route lives behind a non-auth'd edge, token-existence oracle + secret retrieval; needs a leaked token for impact. Severity low-medium.
 testability: PASSIVE
 [NEXT] PROBE: sibling parity for the new 7th oracle — `curl -s -X POST -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/revoke` and same on apip.threema.ch (expect 200/133B + constant tokenRespKeyPub, invalid → 200/46B); 2 requests, 1 rps.
+## 2026-08-13 15:41:33 UTC [chat] (model bigpickle)
+[HYP] identity/check is a batch revocation-state + feature-flag oracle sharing fetch_bulk's count-cap
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 90
+reasoning: Own probes confirm unauthenticated plain POST returns positionally-aligned per-identity states/types/featureMasks (ECHOECHO→featureMask 9, ZZZZZZZZ→null, states/types all 0) with CORS `*`; 10000→200/90058B, 10001→400/0B sharp cap byte-identical to fetch_bulk; OPTIONS 500 still carries CORS `*`. RAG (threema-ios ServerAPIConnector.m:562-572) confirms plain postJSONToAPIPath — no signing/token — client consumes `states` per identity.
+evidence_needed: known-revoked identity to observe non-zero `state` value (revocation-state differential); featureMask→capability map from client enums.
+verify_steps: PASSIVE: `curl -s -X POST -H "Content-Type: application/json" -d '{"identities":["ECHOECHO"]}' https://ds-apip.threema.ch/identity/check` (expect featureMask 9); `-d '{"identities":["ECHOECHO","ZZZZZZZZ"]}'` (null differential); 10000 vs 10001-batch → 200 vs 400/0B. Repeat on api.threema.ch + apip.threema.ch. AUTH_HELPED: compare `state` for a revoked test identity.
+impact: Unauthenticated batch identity-state/feature enumeration (10k IDs/req, no rate limit, browser-viable) — `state` values can reveal revoked/stolen accounts; feature masks enable capability fingerprinting. Severity: High (CVSS 7.5).
+testability: PASSIVE
+[HYP] identity/revoke is a 7th member of the challenge-token family; phase-2 redemption only proves identity private-key possession
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/revoke
+confidence: 92
+reasoning: Sibling parity confirmed this cycle — api.threema.ch + apip.threema.ch byte-identical 200/133-134B token + constant tokenRespKeyPub for ECHOECHO, 200/46B "Identity not found" for ZZZZZZZZ; revocationKey param ignored at mint. RAG (sapic.m:542-560, 770-794): revokeID POSTs `{identity, lang}` phase-1; phase-2 = HMAC(KDF("3ma-csp","dir",ECDH(privkey,tokenRespKeyPub)), token).
+evidence_needed: none for the existence-oracle; cross-endpoint token-reuse test needs a test identity private key (AUTH_HELPED-LOCAL).
+verify_steps: PASSIVE complete (own probes, all 3 hosts for family). AUTH_HELPED-LOCAL: mint token at match_token, redeem at revoke phase-2 with a test identity — if server accepts, token is not endpoint-bound; if rejects, bound.
+impact: 7th unauthenticated identity-existence oracle; phase-2 not exploitable without the identity key — de-values the earlier cross-endpoint BUSLOGIC. Severity: Medium (amplification of existing family).
+testability: PASSIVE
+[HYP] match_token attribution correction — iOS client uses it and gates match (email-hash) on key-possession token
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 85
+reasoning: RAG this cycle (threema-ios ServerAPIConnector.m:402) — obtainMatchTokenForIdentity POSTs `{identity}` to identity/match_token via sendSignedRequest, phase-2 `matchToken` cached in UserDefaults "MatchToken". KB "client-source absence" covered only desktop fetch-*.ts.
+evidence_needed: token binding between match_token and match (does /identity/match accept a matchToken minted without prior match_token call).
+verify_steps: RAG: fetch threema-ios matchIdentitiesWithEmailHashes:matchToken (sapic.m:430-445) + ServerAPIRequest postJSON path to confirm request body; PASSIVE probe of /identity/match deferred (rate-limiter cooldown >100min).
+impact: Corrects attribution; confirms the email→identity oracle (identity/match) requires key-possession despite the public HMAC key in the KB lead. Severity: informational.
+testability: PASSIVE
+[NEXT] PROBE: sibling parity for the new `/identity/check` oracle — `curl -s -X POST -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://api.threema.ch/identity/check` (expect 200/76B `{"checkInterval":86400,"states":[0,0],"types":[0,0],"featureMasks":[9,null]}` + CORS `*`), then same on apip.threema.ch; 2 requests, 1 rps. If byte-identical, confirm shared-handler family (matches fetch_bulk parity pattern) and promote check to a full IDOR lead.

@@ -1,17 +1,1 @@
-## 2026-08-13 14:53:01 UTC [desktop] (model laguna)
-[HYP] fetch_priv is the 6th unauthenticated identity-existence oracle with distinct revocation-3-state error path
-class: IDOR
-asset: https://ds-apip.threema.ch/identity/fetch_priv (+ sibling parity on api.threema.ch + apip.threema.ch)
-confidence: 94
-reasoning: Own probes confirm POST `{"identity":"ECHOECHO"}`→200/134B (token + constant tokenRespKeyPub sha256 c8005cca…), invalid→200/88B `{"errorType":"invalid-identity","error":"Identity not found or revoked"}`; error wording "or revoked" differs from match_token's "Identity not found" (46B, sha256 6a8ac489…) suggesting separate handler with potential revocation-3-state; case-fold confirmed (echoecho→identical tokenRespKeyPub); OPTIONS→200 with CORS `*` + Allow-Methods + Allow-Headers (browser-viable); zero rate-limit across 5 sequential POSTs at 1 rps; sibling parity byte-stable across all 3 prod hosts.
-evidence_needed: A known-revoked Threema identity to diff fetch_priv error body vs match_token error body — if revoked identity yields a third body variant, 3-state oracle confirmed.
-verify_steps: PASSIVE: `curl -s -X POST -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/fetch_priv` → verify 200/134B token + constant tokenRespKeyPub; `curl -s -X POST -H "Content-Type: application/json" -d '{"identity":"ZZZZZZZZ"}' https://ds-apip.threema.ch/identity/fetch_priv` → verify 200/88B "Identity not found or revoked"; `curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/fetch_priv -D -` → verify CORS `*` + Allow-Methods + Allow-Headers (browser-viable); repeat on api.threema.ch + apip.threema.ch for sibling parity. AUTH_HELPED: with a known-revoked test identity, POST to fetch_priv vs match_token and diff error bodies for 3rd variant.
-impact: Unauthenticated browser-viable identity-existence oracle (case-fold, no rate-limit, no input validation) feeding shared challenge-key family; "or revoked" error path may enable revocation-status observation. Combined with match_token + fetch_bulk, enables efficient directory enumeration at scale with per-request challenge-token minting. Severity: High (CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N).
-testability: PASSIVE
-[HYP] Mass identity→pubkey harvesting via fetch_bulk with 10000-ID ceiling
-class: IDOR
-asset: https://ds-apip.threema.ch/identity/fetch_bulk (+ sibling parity on api.threema.ch + apip.threema.ch)
-confidence: 95
-reasoning: Own probes confirm POST `{"identities":["ECHOECHO","ZZZZZZZZ"]}`→200/152B returns only ECHOECHO's pubkey (sha256 6a6de444…); 10000-ID→200 (152B), 10001→400 (0B, no partial leak); CORS `*` + Allow-Methods POST,Get,OPTIONS,Delete; zero 429s across 30 sequential POSTs at 1 rps; invalid IDs silently omitted (response-size differential); GET `/identity/{id}`→200/404 oracle; 5 challenge endpoints return 200 JSON errors with parameter-validation-before-identity-lookup oracles.
-evidence_needed: None — all byte-stable this cycle via own probes.
-verify_steps: PASSIVE: `curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://ds-apip.threema.ch/identity/fetch_bulk` → verify 200/1
+## 2026-08-13 15:38:12 UTC [desktop] (model laguna)
