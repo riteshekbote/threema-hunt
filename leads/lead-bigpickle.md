@@ -11192,3 +11192,4 @@ evidence_needed: a known-revoked identity to test the third state — none obtai
 verify_steps: PASSIVE: with a revoked test ID (program-provided), POST `{"identity":REVOKEDID}` to fetch_priv vs match_token and diff bodies; no such ID available today.
 impact: adds revocation-status signal to the existence oracle set. Severity nil-low.
 testability: AUTH_HELPED
+## 2026-08-13 12:10:33 UTC [chat] (model bigpickle)
