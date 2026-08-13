@@ -3883,3 +3883,20 @@
 - LEARN: ACCEPTED MISCONFIG @ billing.threema.ch: Static assets (jQuery 3.7.1 + custom CSS on /cache/) serve with full security headers (HSTS/Expect-CT/CSP/X-Frame-Optio
 - LEARN: CONFIRMED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: Rate-limiter cooldown >100min re-measured (2026-08-12 17:38 & 18:43 UTC); burst-only limiter; 60s+ spacing st
+
+## RANKED HYPOTHESES 2026-08-13 14:56:35 UTC
+- [95] https://ds-apip.threema.ch/identity/match_token: Cross-origin identity-existence oracle with challenge-token minting via match_token (from reports/hypotheses-nemotron3.txt)
+- [94] https://ds-apip.threema.ch/identity/fetch_priv: fetch_priv is the 6th unauthenticated identity-existence oracle with distinct revocation-3-state error path (from reports/hypotheses-laguna.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO"]}' https://ds-apip.threema.ch/identity/fe
+- NEXT(hypotheses-bigpickle.txt): PROBE: sibling parity for the new 7th oracle — `curl -s -X POST -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}' https://api.threema.ch/identity
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: Case-fold amplification re-confirmed — POST `{"identity":"echoecho"}` → 200/133B identical to ECHOECHO;
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 30 sequential POSTs at 1 rps quantified — all HTTP 200, no 429/RateLimit/Retry-After, consistent ~340ms;
+- LEARN: ACCEPTED OTHER @ ds-apip.test.threema.ch: Staging directory mirror confirmed live — identical API surface + CORS `*` + `Access-Control-Allow-Methods: POST,GET,O
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle DISPROVEN — 404 response has NO CORS headers (neither GET nor OPTIONS); missing-key/invalid-
+- LEARN: ACCEPTED MISCONFIG @ billing.threema.ch: Static assets (jQuery 3.7.1 + custom CSS on /cache/) serve with full security headers (HSTS/Expect-CT/CSP/X-Frame-Optio
+- LEARN: CONFIRMED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: Rate-limiter cooldown >100min re-measured (2026-08-12 17:38 & 18:43 UTC); burst-only limiter; 60s+ spacing st
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` — sha256 corrected to `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae1
+- LEARN: CONFIRMED MISCONFIG @ threema-desktop electron-main.ts:1240-1262 BrowserWindow — `sandbox` UNSET (not `false`), `// TODO(DESK-79): Enable sandbox: true` at L~12
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): `fileModeInternalObjectIfPosix()` returns `{}` on win32 confirmed via WebFetch on `stable`; both `ke
+- LEARN: REJECTED MISCONFIG @ threema-desktop OnPrem config trust: Ed25519 signature verification against 3 hardcoded `ONPREM_CONFIG_TRUSTED_PUBLIC_KEYS` in `vite.config
