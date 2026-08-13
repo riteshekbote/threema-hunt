@@ -3981,3 +3981,6 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 — sha256 corrected to 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (
 - LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on win32 confirmed via WebFetch on stable; both keystorag
 - LEARN: REJECTED MISCONFIG @ threema-desktop OnPrem config trust: Ed25519 signature verification against 3 hardcoded ONPREM_CONFIG_TRUSTED_PUBLIC_KEYS in vite.config.ts
+
+## RANKED HYPOTHESES 2026-08-13 19:41:11 UTC
+- [80] https://ds-apip.threema.ch/identity/check_featuremask: check_featuremask batch ceiling exceeds 10000 (no shared count-cap with check/fetch_bulk) (from reports/hypotheses-bigpickle.txt)

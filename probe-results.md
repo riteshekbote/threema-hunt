@@ -1277,3 +1277,8 @@ https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/jso
 https://ds-apip.threema.ch/identity/match -> HTTP 400
 https://safe-01.threema.ch/backups/{64hex -> HTTP 400
 https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+
+## 2026-08-13 19:41:12 UTC
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/check -> HTTP 500
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
