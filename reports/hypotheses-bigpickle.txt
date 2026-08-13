@@ -1,1 +1,28 @@
-## 2026-08-13 12:10:33 UTC [chat] (model bigpickle)
+## 2026-08-13 13:44:39 UTC [chat] (model bigpickle)
+[HYP] Work /identities empty-200 short-circuit is an auth-enforcement gap (TWRK-1633)
+class: AUTH
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 70
+reasoning: 10/10 arbitrary credential shapes → 200/15B `{"contacts":[]}` with zero 429 while sibling /fetch2 and /directory return 401 for the same posture — credential check is skipped on schema-valid requests; OpenAPI flags the endpoint "currently buggy" (TWRK-1633).
+evidence_needed: valid Work license pair returning 200 with non-empty contacts, or out-of-subscription IDs returned in a mixed batch.
+verify_steps: AUTH_HELPED: POST `/identities` `{username,password,contacts:[own+foreign IDs]}` with valid Work creds; compare membership + work properties (first/last name, jobTitle, department, availability); probe batch/page bounds.
+impact: cross-subscription work-directory PII disclosure → targeted phishing; severity medium.
+testability: AUTH_HELPED
+[HYP] Shared challenge-key family permits cross-endpoint token replay (endpoint-binding gap)
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 45
+reasoning: fetch_priv and match_token mint tokens against the identical constant tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=` (sha256 `c8005cca…`) with identical 133B positive shape and case-fold — if phase-2 validates only signature-over-token, a match_token-issued token may redeem on fetch_priv.
+evidence_needed: phase-2 redemption route shape — consumer endpoint absent from desktop/android/ios client source (RAG exhausted: fetch-directory.ts:230-236 privateData() is the last candidate).
+verify_steps: PASSIVE: RAG WebFetch threema-android + threema-desktop `main` for the `fetch_priv`/`privateData`/`tokenRespKeyPub` phase-2 consumer; if request shape recovered, probe with self-minted token + deliberately invalid response signature to classify auth-vs-signature ordering (no victim ck needed to classify).
+impact: nil without victim ck (response key derives from victim identity key); at best an endpoint-binding defense-in-depth note; severity nil-low.
+testability: PASSIVE
+[HYP] fetch_priv "not found or revoked" wording exposes a revocation 3-state
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 42
+reasoning: fetch_priv negative = 88B `"Identity not found or revoked"` vs match_token negative = 46B `"Identity not found"` — distinct error paths imply a revoked identity may resolve to a distinguishable third body on at least one mint endpoint.
+evidence_needed: a known-revoked identity for cross-endpoint body diff (none obtainable passively).
+verify_steps: AUTH_HELPED: with a program-revoked test ID, POST `{"identity":REVOKED}` to fetch_priv and match_token; diff bodies against the invalid-identity baseline (88B vs 46B).
+impact: adds revocation-status signal to the existence-oracle set; severity nil-low.
+testability: AUTH_HELPED
