@@ -10834,3 +10834,33 @@ verify_steps: HUMAN: run `node poc/key-storage-acl-bypass-poc.js` on a Windows T
 impact: any same-user process extracts Ed25519 identity key (ck) + SQLCipher databaseKey → identity theft + full plaintext local message history. Severity high.
 testability: HUMAN_ONLY
 [NEXT] RAG: search threema-android + threema-ios source (WebFetch GitHub `main`) for `match_token` / `tokenRespKeyPub` / `IdentityMatchToken` to recover the phase-2 redemption protocol and identify the consumer endpoint for the constant tokenRespKeyPub (sha256 `c8005cca…`) — feeds the top-ranked [95] match_token oracle.
+## 2026-08-13 07:09:59 UTC [chat] (model bigpickle)
+[HYP] fetch_priv issues challenge only for existing identities — 6th existence oracle
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 60
+reasoning: unauth `POST {}` → 200/88B `invalid-identity` (identity-validation runs before auth); same pattern as sfu_cred/update_work_info param-oracles; `privateData()` in fetch-directory.ts:230-236 is the challenge-response consumer with CHALLENGE_PAYLOAD schema.
+evidence_needed: `POST {"identity":"ECHOECHO"}` → 200 with challenge `{token, tokenRespKeyPub}` (~133B) vs `POST {"identity":"ZZZZZZZZ"}` → 200/88B invalid-identity — differential proves challenge issuance is an existence signal.
+verify_steps: PASSIVE: two POSTs at 1s spacing on ds-apip.threema.ch `/identity/fetch_priv` with `{"identity":"ECHOECHO"}` then `{"identity":"ZZZZZZZZ"}`; classify body (challenge vs invalid-identity).
+impact: adds authenticated private-data endpoint to the enumeration set; existence signal only (completing phase-2 requires victim ck). Severity low.
+testability: PASSIVE
+[HYP] work /identities returns positive contacts shape with valid Work credentials
+class: AUTH
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 65
+reasoning: 10/10 arbitrary credential shapes → 200/15B `{"contacts":[]}` zero 429 (auth-independent invalid shape); schema-invalid → 401/0B; auth-before-contacts ordering confirmed; browser blocked (OPTIONS 401).
+evidence_needed: valid Work credential pair → 200 with non-empty `contacts`.
+verify_steps: AUTH_HELPED: POST `{"username,password,contacts:[]}` with a valid Work license pair → expect 200 `{"contacts":[...]}`.
+impact: mirrors consumer check_license credential oracle on Work backend, bypassing Basic-auth 401 gate, unthrottled — targeted Work-account credential confirmation. Severity low-medium.
+testability: AUTH_HELPED
+[HYP] match_token phase-2 redemption — token/identity binding
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 25
+reasoning: RAG recovered protocol: `token` is a server challenge MAC'd with `deriveDirectoryChallengeResponseKey(ck, tokenRespKeyPub)` — completing phase-2 requires the victim's identity private key (ck); consumer endpoint absent from all client source.
+evidence_needed: a phase-2 route accepting `{token, signature}` that leaks identity data without valid ck.
+verify_steps: PASSIVE: RAG exhausted (desktop/android/ios clones grep'd); no consumer endpoint name recoverable → no concrete request to run.
+impact: none without ck possession; nil beyond accepted existence oracle. Severity nil.
+testability: PASSIVE
+[NEXT] PROBE: on ds-apip.threema.ch, at 1 rps: `POST /identity/fetch_priv` with `{"identity":"ECHOECHO"}` then `{"identity":"ZZZZZZZZ"}` — classify response: challenge-payload `{token, tokenRespKeyPub}` (~133B) vs `invalid-identity` (88B). If differential exists, fetch_priv is the 6th unauthenticated identity-existence oracle and feeds the [60] hypothesis.
+[RISK] chat: 40 — DNS shard map complete, passive channel closed (0-byte handshakes), no new chat surface | web: 35 — billing/broadcast static-only, work API non-finding, no credential oracles live | sync: 45 — directory surface remains the active front: fetch_bulk 10k-batch + match_token + match + now fetch_priv 6th endpoint, all unauthenticated (burst-limiter only on match) | safe: 35 — header-inconsistency + route-oracle only; no data access without backupId:backupKey | desktop-src: 40 — key-storage ACL bypass RAG-verified at 95 but PoC artifact never existed on filesystem and needs Windows runtime; sandbox gap rejected as standalone.
