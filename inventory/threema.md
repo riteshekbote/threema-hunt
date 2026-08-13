@@ -1957,3 +1957,5 @@
 - CHANGED ds-apip.threema.ch/identity/match_token: Case-fold amplification confirmed — POST `{"identity":"EchoEcho"}`→200/133B token + constant tokenRespKeyPub; GET `/identity/EchoEcho`→404 (case-sensitive); si
 - CHANGED ds-apip.threema.ch/identity/fetch_bulk: 30 sequential POSTs at 1 rps quantified — all HTTP 200, no 429/RateLimit/Retry-After, consistent ~340ms response times; hard 10000-ID ceiling re-verified
 - CHANGED ds-apip.test.threema.ch: Staging directory mirror confirmed live — identical API surface + CORS `*` + `Access-Control-Allow-Methods: POST,GET,OPTIONS,DELETE` as production; HSTS/Expect-CT present on s
+
+## 2026-08-13 04:31:10 UTC

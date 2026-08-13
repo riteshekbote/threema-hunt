@@ -8564,3 +8564,4 @@ evidence_needed: None — all findings byte-stable across cycles, confirmed live
 verify_steps: PASSIVE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO"]}' https://ds-apip.threema.ch/identity/fetch_bulk — verify 200 + CORS `*` + pubkey echo; curl -s -X POST ... -d '{"identities":["ECHOECHO"]*10001}' — verify 400/0B sharp count-cap; probe `/identity/sfu_cred` GET → 200 JSON; verify `update_work_info` returns "Missing parameters" (param-validation oracle); confirm GET `/identity/ECHOECHO` → 200 + GET `/identity/ZZZZZZZZ` → 404
 impact: Unauthenticated mass identity→pubkey harvesting (10k IDs/request, no rate limit, no auth) combined with parameter-validation oracles on 5 challenge endpoints; enables efficient directory enumeration and pre-auth attack chaining. Severity: High (CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
 testability: PASSIVE
+## 2026-08-13 04:30:46 UTC [desktop] (model laguna)

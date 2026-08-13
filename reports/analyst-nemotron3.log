@@ -15394,3 +15394,68 @@ testability: PASSIVE
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: Rate-limiter cooldown >100min re-measured (2026-08-12 17:38 & 18:43 UTC); burst-only limiter; 60s+ spacing still triggers 429; single POST after cooldown → 200/39B baseline
 
 [RISK] chat: 25 reason: DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band TCP/TLS probes close immediately (0 bytes, no cert leak); handshake requires authenticated login frame; passive channel formally closed | web: 85 reason: Directory triad (ds-apip/api/apip) exposes unauthenticated IDOR (fetch_bulk 10k IDs, CORS `*`, no rate-limit), cross-origin credential validation (check_license), new email→identity membership oracle (identity/match with selective limiter), identity-existence oracle (match_token); work.api CORS blocks browser cross-origin; billing static assets with header divergence | sync: 35 reason: Mediator/rendezvous WSS uniform 403 on HTTPS, high-entropy path structure, DNS split routing confirmed; no passive in-band divergence obtainable; error-path divergence hypothesis rejected | safe: 65 reason: 5 backup hosts behind single IP with HSTS/Expect-CT gap on credential-gated GET 400 (present on OPTIONS 204, absent on GET 400); HTTP Basic Auth + route-existence oracle (400 vs 404) stable; CORS `*` with write-capable methods on preflight | desktop-src: 70 reason: Windows key-storage ACL bypass fully RAG-verified (6-path chain); PoC artifact now on disk (sha256 cc0481d8…), syntax-verified, Linux no-op confirmed; Ed25519 identity key + SQLCipher key recoverable by same-user processes; Electron BrowserWindow sandbox unset + nodeIntegrationInWorker true (conditional RCE, rejected as standalone)
+===== ANALYST nemotron3 2026-08-13 04:31:10 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+NO_DELTA
+
+[PRIO] threema-desktop (Windows key-storage ACL bypass), 88, attack_surface:10 business_value:10 tech_exposure:9 gate_ease:10 cloud_surface:5 freshness:8
+[PRIO] https://ds-apip.threema.ch/identity/match_token, 91, attack_surface:10 business_value:9 tech_exposure:9 gate_ease:10 cloud_surface:5 freshness:10
+[PRIO] https://ds-apip.threema.ch/identity/fetch_bulk, 89, attack_surface:10 business_value:9 tech_exposure:8 gate_ease:10 cloud_surface:5 freshness:8
+
+[HYP] Cross-origin identity-existence oracle with challenge-token minting via match_token
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 95
+reasoning: POST `{"identity":"ECHOECHO"}` returns 200/133B with per-request token + constant tokenRespKeyPub (sha256 c8005cca9…); POST `{"identity":"ZZZZZZZZ"}` returns 200/46B "Identity not found"; OPTIONS 200 with CORS `*` + Allow-Methods + Allow-Headers (browser-viable); sibling parity on api.threema.ch + apip.threema.ch; case-fold amplification: POST `{"identity":"EchoEcho"}`→200 while GET `/identity/EchoEcho`→404; no rate limit observed on sequential POSTs
+evidence_needed: None — finding fully validated via passive probes across all 3 production hosts
+verify_steps: PASSIVE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/match_token — verify 200 + CORS `*` + token + constant pubkey; curl -s -X POST ... -d '{"identity":"ZZZZZZZZ"}' — verify 200 + "Identity not found"; test OPTIONS preflight for CORS headers; repeat on api.threema.ch + apip.threema.ch for sibling parity
+impact: Unauthenticated cross-origin identity existence oracle with challenge-token minting; enables targeted identity enumeration and potential pre-auth attack surface. Severity: High (CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
+testability: PASSIVE
+
+[HYP] Mass identity→pubkey enumeration via fetch_bulk with parameter-validation oracle chaining
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk
+confidence: 95
+reasoning: Hard ceiling exactly 10000 IDs/request (10000→200/152B, 10001→400/0B sharp count-cap); CORS `*` on both 200 and 400 with Allow-Methods POST,GET,OPTIONS,DELETE; zero 429s across 35+ sequential probes; 5 challenge endpoints (sfu_cred, blob_cred, set_revocation_key, check_revocation_key, update_work_info) return 200 JSON errors with parameter-validation-before-identity-lookup oracles; invalid IDs silently omitted from response — response-size differential is stable enumeration primitive
+evidence_needed: None — ceiling, CORS, rate-limit absence, param-oracles all byte-stable this cycle
+verify_steps: PASSIVE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO"]+'"ZZZZZZZZ"'*9999}' https://ds-apip.threema.ch/identity/fetch_bulk — verify 200 + CORS `*` + only ECHOECHO pubkey echoed; curl ... -d '{"identities":["ECHOECHO"]*'10001}' — verify 400/0B sharp cap; probe challenge endpoints with GET for param-oracles (e.g. set_revocation_key returns "Bad revocation key length" without identity lookup)
+impact: Unauthenticated mass identity→pubkey harvesting (10k IDs/request, no rate limit) combined with parameter-validation oracles on 5 challenge endpoints; enables efficient directory enumeration and pre-auth attack chaining. Severity: High (CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
+testability: PASSIVE
+
+[HYP] Windows key-storage ACL bypass leaking Ed25519 identity key + SQLCipher database key
+class: MISCONFIG
+asset: threema-desktop (Windows)
+confidence: 95
+reasoning: `fileModeInternalObjectIfPosix()` returns `{}` on win32 (fs.ts:41); both `keystorage.bin` (Argon2id-encrypted) and `keystorage.password.bin` (DPAPI) written without ACL restrictions (key-storage/index.ts:555, electron-main.ts:944); `INNER_KEY_STORAGE_V3_SCHEMA` exposes `identityData.ck` (Ed25519 privkey) + `databaseKey` (SQLCipher key) (inner/v3.ts:65-70); Argon2id→XSalsa20-Poly1305 decrypt chain confirmed (crypto.ts:95-113); SQLCipher PRAGMA key uses `databaseKey` (sqlite.ts:240); PoC artifact on disk (sha256 cc0481d8…), syntax-verified, Linux no-op confirmed
+evidence_needed: Windows runtime validation (RUNTIME_AUTH_HELPED-LOCAL) to demonstrate same-user process key recovery
+verify_steps: PASSIVE: RAG verification complete — 6-path chain confirmed on GitHub `stable` via WebFetch. AUTH_HELPED-LOCAL: execute PoC on Windows host with Threema Desktop installed — verify `keystorage.bin` + `keystorage.password.bin` readable by non-owner same-user process; decrypt `identityData.ck` + `databaseKey`; open `threema.sqlite` with PRAGMA key
+impact: Same-user process on Windows can recover Ed25519 identity private key and SQLCipher database key, enabling full account takeover and local message decryption. Severity: High (CVSS 3.1: 7.1 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N)
+testability: AUTH_HELPED-LOCAL
+
+[PARKED] Forgeable-HMAC email→identity membership oracle via /identity/match with selective rate-limiting: confidence 90 but rate-limiter cooldown >100min blocks passive verification of positive-match response and batch-size boundary mapping; deferred until cooldown resets
+[PARKED] Cross-origin credential validation oracle on check_license with username enumeration: requires AUTH_HELPED (valid license credentials) — not passive-first
+[PARKED] HSTS/Expect-CT header inconsistency on safe-*.threema.ch: defense-in-depth gap only, no direct data access amplification beyond route-existence oracle already captured
+[PARKED] Static asset header divergence on billing.threema.ch: minor defense-in-depth gap, no credential handling on error path
+
+[FINAL] 1. Cross-origin identity-existence oracle with challenge-token minting via match_token (confidence 95, PASSIVE)
+[FINAL] 2. Mass identity→pubkey enumeration via fetch_bulk with parameter-validation oracle chaining (confidence 95, PASSIVE)
+[FINAL] 3. Windows key-storage ACL bypass leaking Ed25519 identity key + SQLCipher database key (confidence 95, AUTH_HELPED-LOCAL)
+
+[NEXT] RAG: search threema-android + threema-ios source (WebFetch GitHub `main`) for `match_token` / `tokenRespKeyPub` / `IdentityMatchToken` usage to recover the redemption path and determine if minted tokens are consumable cross-origin
+
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): Filesystem GROUND TRUTH now confirms `poc/key-storage-acl-bypass-poc.js` GENUINELY on disk (sha256 `cc0481d8aff12bd3e9e0243b599271e7e14eb732a3efb0822fdf6ba52e621c7e`, 14104 B) — ends 19+ cycle KB/filesystem contradiction; 6-path RAG chain verified via direct git clone + WebFetch
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` — sha256 corrected to `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed from literal); confirmed benchmark-only dummy in `determineKdfParams()`, `benchmarkKey.purge()` at :233, NOT used for real encryption
+[LEARN] CONFIRMED MISCONFIG @ threema-desktop electron-main.ts:1240-1262 BrowserWindow — `sandbox` UNSET (not `false`), `// TODO(DESK-79): Enable sandbox: true` at :1255; `nodeIntegrationInWorker: true` at :1252; L1240 comment "sandboxing is enabled by default" INCORRECT per Electron docs; conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree grep)
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: Case-fold amplification confirmed — POST `{"identity":"EchoEcho"}`→200/133B token + constant tokenRespKeyPub; GET `/identity/EchoEcho`→404 (case-sensitive); sibling parity byte-stable across all 3 prod hosts
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 30 sequential POSTs at 1 rps quantified — all HTTP 200, no 429/RateLimit/Retry-After, consistent ~340ms response times; hard 10000-ID ceiling re-verified
+[LEARN] ACCEPTED OTHER @ ds-apip.test.threema.ch: Staging directory mirror confirmed live — identical API surface + CORS `*` + `Access-Control-Allow-Methods: POST,GET,OPTIONS,DELETE` as production; HSTS/Expect-CT present on staging, absent on production
+[LEARN] REJECTED MISCONFIG @ threema-desktop OnPrem config trust: Ed25519 signature verification against 3 hardcoded `ONPREM_CONFIG_TRUSTED_PUBLIC_KEYS` in `vite.config.ts` confirmed; OPPF URLs validated via HTTPS/WSS — not vulnerable
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): `fileModeInternalObjectIfPosix()` returns `{}` on win32 confirmed via WebFetch on `stable`; both `keystorage.bin` and `keystorage.password.bin` written without ACL restrictions
+[LEARN] REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle DISPROVEN — 404 response has NO CORS headers (neither GET nor OPTIONS); missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`; key NOT in threema-desktop source (fetch-work.ts uses username/password exclusively)
+[LEARN] ACCEPTED MISCONFIG @ billing.threema.ch: Static assets (jQuery 3.7.1 + custom CSS on /cache/) serve with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options); 404 error page lacks all headers — header divergence confirmed
+[LEARN] CONFIRMED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64hex}` — byte-stable across all 5 hosts behind 203.56.112.231
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: Rate-limiter cooldown >100min re-measured (2026-08-12 17:38 & 18:43 UTC); burst-only limiter; 60s+ spacing still triggers 429; single POST after cooldown → 200/39B baseline
+
+[RISK] chat: 25 reason: DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band TCP/TLS probes close immediately (0 bytes, no cert leak); handshake requires authenticated login frame; passive channel formally closed | web: 85 reason: Directory triad (ds-apip/api/apip) exposes unauthenticated IDOR (fetch_bulk 10k IDs, CORS `*`, no rate-limit), cross-origin credential validation (check_license), new email→identity membership oracle (identity/match with selective limiter), identity-existence oracle (match_token); work.api CORS blocks browser cross-origin; billing static assets with header divergence | sync: 35 reason: Mediator/rendezvous WSS uniform 403 on HTTPS, high-entropy path structure, DNS split routing confirmed; no passive in-band divergence obtainable; error-path divergence hypothesis rejected | safe: 65 reason: 5 backup hosts behind single IP with HSTS/Expect-CT gap on credential-gated GET 400 (present on OPTIONS 204, absent on GET 400); HTTP Basic Auth + route-existence oracle (400 vs 404) stable; CORS `*` with write-capable methods on preflight | desktop-src: 70 reason: Windows key-storage ACL bypass fully RAG-verified (6-path chain); PoC artifact now on disk (sha256 cc0481d8…), syntax-verified, Linux no-op confirmed; Ed25519 identity key + SQLCipher key recoverable by same-user processes; Electron BrowserWindow sandbox unset + nodeIntegrationInWorker true (conditional RCE, rejected as standalone)
