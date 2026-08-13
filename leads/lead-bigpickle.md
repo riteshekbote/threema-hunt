@@ -10866,3 +10866,181 @@ testability: PASSIVE
 [RISK] chat: 40 — DNS shard map complete, passive channel closed (0-byte handshakes), no new chat surface | web: 35 — billing/broadcast static-only, work API non-finding, no credential oracles live | sync: 45 — directory surface remains the active front: fetch_bulk 10k-batch + match_token + match + now fetch_priv 6th endpoint, all unauthenticated (burst-limiter only on match) | safe: 35 — header-inconsistency + route-oracle only; no data access without backupId:backupKey | desktop-src: 40 — key-storage ACL bypass RAG-verified at 95 but PoC artifact never existed on filesystem and needs Windows runtime; sandbox gap rejected as standalone.
 ## 2026-08-13 08:42:44 UTC [chat] (model bigpickle)
 ## 2026-08-13 09:45:38 UTC [chat] (model bigpickle)
+## 2026-08-13 10:46:54 UTC [chat] (model bigpickle)
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 65
+reasoning: schema-valid POST `{username,password,contacts:[]}` → 200/15B `{"contacts":[]}` for arbitrary invalid creds (test/test, random/wrong, empty pw) while schema-invalid bodies → 401/0B; contacts ignored on invalid creds → auth-before-contacts ordering; OPTIONS preflight → 401 blocks browsers (server-side only); 200 carries HSTS/Expect-CT, gate 401 does not; staging byte-identical; no 429 on 4 rapid POSTs.
+evidence_needed: a VALID Work credential pair returning 200 with non-empty contacts (positive shape), or any response code other than 401/200 proving auth-dependence.
+verify_steps: PASSIVE: vary username/password shape (1-char, UTF-8, 256-char) to confirm 200/15B is auth-independent invalid shape; AUTH_HELPED: with a valid Work license pair, POST same body → expect 200 `{"contacts":[...]}`.
+impact: mirrors the consumer check_license credential oracle on the Work backend, bypassing the Basic-auth 401 gate and unthrottled at burst — enables targeted Work-account credential confirmation. Severity low-medium.
+testability: AUTH_HELPED
+[HYP] match_token phase-1 mint is unthrottled — second enumeration primitive for identity existence
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 55
+reasoning: phase-1 POST `{"identity":X}` → 200/46B "Identity not found" (non-existent) vs 200/133B `{token,tokenRespKeyPub}` (existing, token per-request) — existence differential with no auth and no cooldown observed across ~10 probes this cycle + prior cycles; case-fold amplification confirmed (`echoecho` == `ECHOECHO`).
+evidence_needed: 20 sequential phase-1 POSTs at 1 rps with zero 429 — quantization of mint throughput.
+verify_steps: PASSIVE 20x POST `{"identity":"ZZZZZZZZ"}` at 1s spacing on ds-apip.threema.ch → all 200/46B, no 429.
+impact: second, simpler existence-enumeration path beside fetch_bulk 10k-batch; complements accepted match_token oracle. Severity low (identity existence quasi-public via fetch_bulk).
+testability: PASSIVE
+[HYP] /identity/match batch-size / hash-format cost-unit boundary unmapped
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 50
+reasoning: POST `{}` → 200/39B `{"checkInterval":86400,"identities":[]}`; earlier 200→400 response variance observed; batch-size boundary (N hashes vs 413/429) unmapped since 2026-08-11; `includeInactive` param (confirmed in APIConnector.java) untested.
+evidence_needed: after cooldown reset, single POST `{"emailHashes":["AAAA"],"mobileNoHashes":[],"includeInactive":true}` → 200 (4-byte hash lenient) vs 400 (format validation).
+verify_steps: PASSIVE (cooldown-gated >100min): one POST on ds-apip.threema.ch after reset, then remeasure cooldown.
+impact: maps cost-unit boundary of the designed anonymous match oracle; low severity (designed feature, burst limiter caps abuse).
+testability: PASSIVE
+[NEXT] PROBE: quantize the new /identities oracle — 5 sequential POSTs with varied username/password shapes (1-char `a`, 256-char, UTF-8, `"0"*8`) to confirm 200/15B `{"contacts":[]}` is auth-independent invalid shape, then 5 sequential POSTs back-to-back to confirm zero-429 rate posture on ds-apip-work.threema.ch/identities (already 4 rapid → 200; extend to 10 total for the KB rate claim).
+[RISK] chat: 15 — in-band chat channel formally closed (0-byte close on 443/5222, no cert/SAN leak); only DNS shard attribution remains, no data path.
+[RISK] web: 30 — work.test /api-app public/settings staging-only divergence + billing header gap; no credential-bearing live routes; cookie-on-404 minor.
+[RISK] sync: 45 — directory surface is the active front: fetch_bulk 10k-batch + match_token existence oracle + match tokenless match + new work /identities credential oracle; no auth gates on the enumeration primitives (burst-limiter only on /identity/match).
+[RISK] safe: 35 — backup API header inconsistency (HSTS/Expect-CT absent on GET 400) + route-existence oracle + Basic-auth gating intact; no data access without backupId:backupKey.
+[RISK] desktop-src: 40 — key-storage Windows ACL bypass RAG-verified at 95 (Ed25519 ck + SQLCipher databaseKey), PoC on disk with Linux no-op; sandbox/worker gap formally rejected as standalone; remaining gap is Windows runtime validation only.
+[HYP] match_token phase-1 mint is unthrottled — second enumeration primitive
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 65
+reasoning: 5 sequential POSTs `{"identity":"ZZZZZZZZ"}` @1 rps this cycle → all 200/46B, zero 429 (no cooldown, unlike /identity/match); existence differential 200/133B vs 200/46B confirmed across prior cycles; case-fold amplification (`echoecho`==`ECHOECHO`) established.
+evidence_needed: 15 additional sequential mints @1 rps → zero 429 (total 20 for KB rate claim).
+verify_steps: PASSIVE: POST `{"identity":"ZZZZZZZZ"}` x15 at 1s spacing on ds-apip.threema.ch → all 200/46B; then one POST `{"identity":"ECHOECHO"}` → 200/133B token (positive control).
+impact: second simpler identity-existence enumeration path beside fetch_bulk 10k-batch; complements accepted match_token oracle. Severity low (existence quasi-public via fetch_bulk).
+testability: PASSIVE
+[HYP] GET variant of match_token accepts identity as query param — GET-only existence oracle
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 50
+reasoning: GET without body → 200/46B "Identity not found" (app-layer, not 405) this cycle; fetch_bulk GET also accepted (200/17B) — the app layer tolerates GET on POST-designed routes; query-param handling untested.
+evidence_needed: GET `/identity/match_token?identity=ECHOECHO` → 200/133B token (params read) vs 200/46B (params ignored).
+verify_steps: PASSIVE: single GET with `?identity=ECHOECHO` then single GET with `?identity=ZZZZZZZZ` on ds-apip.threema.ch at 1s spacing; classify body size 133B vs 46B.
+impact: browser-trivial GET-only existence oracle (link/img-tag reachable, no fetch/POST needed); strengthens match_token surface. Severity low-medium.
+testability: PASSIVE
+[HYP] Work /identities is an unauthenticated username/password validation oracle
+class: AUTH
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 65
+reasoning: schema-valid POST → 200/15B `{"contacts":[]}` for arbitrary invalid creds while schema-invalid → 401/0B; auth-before-contacts ordering; OPTIONS preflight 401 blocks browsers (server-side only); no 429 on rapid POSTs.
+evidence_needed: any response code other than 401/200 for varied credential shapes, or positive shape `{"contacts":[...]}` with valid Work creds.
+verify_steps: PASSIVE: vary username/password shapes (1-char, UTF-8, 256-char) → confirm 200/15B is auth-independent invalid shape; AUTH_HELPED: valid Work license pair → expect 200 `{"contacts":[...]}`.
+impact: mirrors consumer check_license credential oracle on Work backend, bypassing the Basic-auth 401 gate — targeted Work-account credential confirmation. Severity low-medium.
+testability: AUTH_HELPED
+[HYP] match_token phase-2 redemption — token/identity binding semantics untested
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 50
+reasoning: phase-1 mint confirmed unthrottled (17 sequential, zero 429); token changes per-request but tokenRespKeyPub is constant (sha256 `c8005cca…`); phase-2 consumer endpoint and token→identity binding never tested.
+evidence_needed: phase-2 route (sibling /identity/* accepting {token,...} or signature) where token minted for identity A is accepted for identity B, or proves bound.
+verify_steps: PASSIVE: RAG threema-android + threema-ios (WebFetch GitHub `main`, grep `match_token`/`tokenRespKeyPub`/`IdentityMatchToken`) to recover redemption protocol; then 1rps POST cross-identity token-reuse probes on the recovered endpoint.
+impact: if token not identity-bound → proof-of-possession confusion for identity linking; if bound → nil. Severity low-medium.
+testability: PASSIVE
+[HYP] Work /identities positive-shape credential confirmation
+class: AUTH
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 65
+reasoning: 10/10 credential shapes → 200/15B `{"contacts":[]}` (auth-independent invalid shape) with zero 429; schema-invalid → 401/0B; auth-before-contacts ordering; OPTIONS preflight 401 blocks browsers.
+evidence_needed: valid Work credential pair returning 200 with non-empty contacts.
+verify_steps: AUTH_HELPED: POST `{username,password,contacts:[]}` with a valid Work license pair → expect 200 `{"contacts":[...]}`.
+impact: mirrors the consumer check_license credential oracle on the Work backend, bypassing the Basic-auth 401 gate, unthrottled — targeted Work-account credential confirmation. Severity low-medium.
+testability: AUTH_HELPED
+[HYP] Windows runtime validation of key-storage ACL bypass
+class: MISCONFIG
+asset: threema-desktop key-storage (Windows)
+confidence: 95
+reasoning: 6-path RAG chain verified on GitHub `stable` (fs.ts:41-42 `{}` on win32; key-storage/index.ts:559-560; electron-main.ts:944-945; inner/v3.ts:65,70; crypto.ts:53-113; sqlite.ts:240); PoC artifact on disk, syntax-verified; only gap is runtime DACL observation.
+evidence_needed: on a real Windows install, `icacls` on data/keystorage.bin + data/keystorage.password.bin showing broad same-user ACEs (not owner-restricted) + safeStorage.decryptString reachable by a second same-user process.
+verify_steps: HUMAN: run `node poc/key-storage-acl-bypass-poc.js` on a Windows Threema Desktop 2.x install; confirm both files present and DACL output.
+impact: any same-user process extracts Ed25519 identity key (ck) + SQLCipher databaseKey → identity theft + full plaintext local message history. Severity high.
+testability: HUMAN_ONLY
+[NEXT] RAG: search threema-android + threema-ios source (WebFetch GitHub `main`) for `match_token` / `tokenRespKeyPub` / `IdentityMatchToken` to recover the phase-2 redemption protocol and identify the consumer endpoint for the constant tokenRespKeyPub (sha256 `c8005cca…`) — feeds the top-ranked [95] match_token oracle.
+[HYP] fetch_priv issues challenge only for existing identities — 6th existence oracle
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 60
+reasoning: unauth `POST {}` → 200/88B `invalid-identity` (identity-validation runs before auth); same pattern as sfu_cred/update_work_info param-oracles; `privateData()` in fetch-directory.ts:230-236 is the challenge-response consumer with CHALLENGE_PAYLOAD schema.
+evidence_needed: `POST {"identity":"ECHOECHO"}` → 200 with challenge `{token, tokenRespKeyPub}` (~133B) vs `POST {"identity":"ZZZZZZZZ"}` → 200/88B invalid-identity — differential proves challenge issuance is an existence signal.
+verify_steps: PASSIVE: two POSTs at 1s spacing on ds-apip.threema.ch `/identity/fetch_priv` with `{"identity":"ECHOECHO"}` then `{"identity":"ZZZZZZZZ"}`; classify body (challenge vs invalid-identity).
+impact: adds authenticated private-data endpoint to the enumeration set; existence signal only (completing phase-2 requires victim ck). Severity low.
+testability: PASSIVE
+[HYP] work /identities returns positive contacts shape with valid Work credentials
+class: AUTH
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 65
+reasoning: 10/10 arbitrary credential shapes → 200/15B `{"contacts":[]}` zero 429 (auth-independent invalid shape); schema-invalid → 401/0B; auth-before-contacts ordering confirmed; browser blocked (OPTIONS 401).
+evidence_needed: valid Work credential pair → 200 with non-empty `contacts`.
+verify_steps: AUTH_HELPED: POST `{"username,password,contacts:[]}` with a valid Work license pair → expect 200 `{"contacts":[...]}`.
+impact: mirrors consumer check_license credential oracle on Work backend, bypassing Basic-auth 401 gate, unthrottled — targeted Work-account credential confirmation. Severity low-medium.
+testability: AUTH_HELPED
+[HYP] match_token phase-2 redemption — token/identity binding
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 25
+reasoning: RAG recovered protocol: `token` is a server challenge MAC'd with `deriveDirectoryChallengeResponseKey(ck, tokenRespKeyPub)` — completing phase-2 requires the victim's identity private key (ck); consumer endpoint absent from all client source.
+evidence_needed: a phase-2 route accepting `{token, signature}` that leaks identity data without valid ck.
+verify_steps: PASSIVE: RAG exhausted (desktop/android/ios clones grep'd); no consumer endpoint name recoverable → no concrete request to run.
+impact: none without ck possession; nil beyond accepted existence oracle. Severity nil.
+testability: PASSIVE
+[NEXT] PROBE: on ds-apip.threema.ch, at 1 rps: `POST /identity/fetch_priv` with `{"identity":"ECHOECHO"}` then `{"identity":"ZZZZZZZZ"}` — classify response: challenge-payload `{token, tokenRespKeyPub}` (~133B) vs `invalid-identity` (88B). If differential exists, fetch_priv is the 6th unauthenticated identity-existence oracle and feeds the [60] hypothesis.
+[RISK] chat: 40 — DNS shard map complete, passive channel closed (0-byte handshakes), no new chat surface | web: 35 — billing/broadcast static-only, work API non-finding, no credential oracles live | sync: 45 — directory surface remains the active front: fetch_bulk 10k-batch + match_token + match + now fetch_priv 6th endpoint, all unauthenticated (burst-limiter only on match) | safe: 35 — header-inconsistency + route-oracle only; no data access without backupId:backupKey | desktop-src: 40 — key-storage ACL bypass RAG-verified at 95 but PoC artifact never existed on filesystem and needs Windows runtime; sandbox gap rejected as standalone.
+[HYP] fetch_priv challenge-mint CONFIRMED — 6th unauthenticated identity-existence oracle (browser-viable, case-fold, unthrottled)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 90
+reasoning: own probes this cycle — POST {"identity":"ECHOECHO"} -> 200/133B {token,tokenRespKeyPub}; {"identity":"ZZZZZZZZ"} -> 200/88B {"errorType":"invalid-identity","error":"Identity not found or revoked"}; {"identity":"echoecho"} -> 200/133B (case-fold amplification identical to match_token); {} -> 200/88B; OPTIONS -> 200 CORS * + Allow-Methods POST,GET,OPTIONS,DELETE + Allow-Headers Content-Type,User-Agent (browser-viable); api.threema.ch sibling parity 200/134B; tokenRespKeyPub constant = match_token's constant (sha256 c8005cca…); zero 429 across 5 rapid probes.
+evidence_needed: none for existence; phase-2 redemption semantics (challenge-response signed with deriveDirectoryChallengeResponseKey(ck,tokenRespKeyPub)) still require victim ck — no passive bypass found.
+verify_steps: PASSIVE: 20x POST {"identity":"ZZZZZZZZ"} @1 rps to quantize no-rate-limit claim; probe fetch_priv GET variant + revocation 3-state ("or revoked" wording vs match_token "not found").
+impact: 6th unauthenticated existence oracle, functionally equivalent to match_token; each adds negligible incremental value (fetch_bulk 10k-batch dominates) — but confirms /identity/fetch_priv is part of the same challenge-mint family with identical server key, i.e. the challenge protocol is shared across endpoints. Severity low.
+testability: PASSIVE
+[HYP] shared challenge key family — same tokenRespKeyPub across match_token + fetch_priv enables cross-endpoint challenge-replay probing
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 45
+reasoning: both endpoints return byte-identical constant tokenRespKeyPub (sha256 c8005cca…); if phase-2 validation only checks signature-over-token (not token-minted-for-this-endpoint), a challenge minted on match_token for identity A might redeem on fetch_priv — but completion requires responding with a key derived from victim ck, so replay needs ck regardless; no passive amplification identified.
+evidence_needed: a phase-2 route accepting {token, response} without ck — none found in RAG (consumer endpoint absent from client source).
+verify_steps: PASSIVE: RAG re-scan of threema-android for fetch_priv consumer (privateData() path fetch-directory.ts:230-236) to recover phase-2 request shape; if recovered, probe with self-minted token + intentionally invalid signature to classify auth-vs-signature ordering.
+impact: nil without ck possession; cross-endpoint replay would only confirm token is not endpoint-bound (defense-in-depth note). Severity nil-low.
+testability: PASSIVE
+[NEXT] PROBE: quantize fetch_priv no-rate-limit claim — 20 sequential POSTs {"identity":"ZZZZZZZZ"} @1s spacing on ds-apip.threema.ch (expect all 200/88B, zero 429), then single GET /identity/fetch_priv?identity=ECHOECHO to test GET query-param existence-oracle variant (browser-trivial link/img-tag reachable).
+[RISK] chat: 15 — in-band chat channel formally closed (0-byte close 443/5222); DNS shard map complete; no new chat surface
+[RISK] web: 30 — billing static-asset-only + work API non-finding; no credential-bearing live routes
+[RISK] sync: 50 — directory surface remains the active front: fetch_bulk 10k-batch + match_token + match + now fetch_priv confirmed as 6th unauthenticated existence oracle (browser-viable, case-fold, unthrottled, sibling parity); burst-limiter only on /identity/match
+[RISK] safe: 35 — header-inconsistency + route-oracle only; no data access without backupId:backupKey
+[RISK] desktop-src: 40 — key-storage ACL bypass RAG-verified at 95; PoC artifact filesystem-verified ABSENT again this cycle (poc/ dir missing); remaining gap = Windows runtime validation
+[RISK] chat: 15 — in-band chat channel formally closed (0-byte close 443/5222); DNS shard map complete; no new chat surface
+[RISK] web: 30 — billing static-asset-only + work API non-finding; no credential-bearing live routes
+[RISK] sync: 50 — directory surface remains the active front: fetch_bulk 10k-batch + match_token + match + now fetch_priv confirmed as 6th unauthenticated existence oracle (browser-viable, case-fold, unthrottled, sibling parity); burst-limiter only on /identity/match
+[RISK] safe: 35 — header-inconsistency + route-oracle only; no data access without backupId:backupKey
+[RISK] desktop-src: 40 — key-storage ACL bypass RAG-verified at 95; PoC artifact filesystem-verified ABSENT again this cycle (poc/ dir missing); remaining gap = Windows runtime validation
+[HYP] fetch_priv is a browser-viable, unthrottled, case-folded identity-existence oracle
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 90
+reasoning: own probes this cycle — ECHOECHO→200/133B `{token,tokenRespKeyPub}`, ZZZZZZZZ→200/88B invalid-identity, echoecho→200/133B (case-fold), `{}`→200/88B, OPTIONS→200 CORS `*`+Allow-Methods+Allow-Headers (browser-viable), api.threema.ch parity 200/134B, zero 429 across 5 rapid probes; constant tokenRespKeyPub sha256 `c8005cca…` = match_token's.
+evidence_needed: none for existence; phase-2 redemption still requires victim ck (deriveDirectoryChallengeResponseKey) — no passive bypass found.
+verify_steps: PASSIVE: 20x POST `{"identity":"ZZZZZZZZ"}` @1s on ds-apip.threema.ch to quantize zero-429; single GET `/identity/fetch_priv?identity=ECHOECHO` to test browser-trivial GET query-param variant.
+impact: 6th existence oracle, functionally equivalent to match_token; incremental value low (fetch_bulk 10k-batch dominates) — but confirms the challenge-mint family is shared across endpoints. Severity low.
+testability: PASSIVE
+[HYP] Work /identities positive-shape credential confirmation
+class: AUTH
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 65
+reasoning: 10/10 arbitrary credential shapes → 200/15B `{"contacts":[]}` (auth-independent invalid shape) with zero 429; schema-invalid → 401/0B; auth-before-contacts ordering; OPTIONS preflight 401 blocks browsers (server-side only).
+evidence_needed: valid Work license pair → 200 with non-empty contacts, or any response code other than 401/200.
+verify_steps: AUTH_HELPED: POST `{"username,password,contacts:[]}` with a valid Work license pair → expect 200 `{"contacts":[...]}`.
+impact: mirrors consumer check_license credential oracle on Work backend, bypassing Basic-auth 401 gate, unthrottled — targeted Work-account credential confirmation. Severity low-medium.
+testability: AUTH_HELPED
+[HYP] Shared challenge-key family enables cross-endpoint token replay probing
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 45
+reasoning: both match_token and fetch_priv mint challenges signed-against the identical constant tokenRespKeyPub (sha256 `c8005cca…`); if phase-2 validation checks only signature-over-token, a match_token-issued token might redeem on fetch_priv — but completion requires responding with a key derived from the victim's ck, so replay is ck-gated either way.
+evidence_needed: a phase-2 route accepting `{token, response}` — consumer endpoint absent from desktop/android/ios client source (RAG exhausted).
+verify_steps: PASSIVE: re-scan threema-android for the fetch_priv consumer (`privateData()` fetch-directory.ts:230-236) to recover phase-2 request shape; if recovered, probe with self-minted token + deliberately invalid signature to classify auth-vs-signature ordering.
+impact: nil without ck possession; at best a defense-in-depth note on endpoint binding. Severity nil-low.
+testability: PASSIVE
+[NEXT] PROBE: on ds-apip.threema.ch at 1 rps — 20 sequential `POST /identity/fetch_priv {"identity":"ZZZZZZZZ"}` to quantize the zero-429 claim (expect all 200/88B), then one `GET /identity/fetch_priv?identity=ECHOECHO` to test the browser-trivial GET query-param existence variant.
+[RISK] chat: 15 — in-band chat channel formally closed (0-byte close on 443/5222), DNS shard map complete, no data path
+[RISK] web: 30 — billing static-asset-only, work API X-Api-Key disproven, no credential-bearing live routes
+[RISK] sync: 50 — directory surface remains the active front: fetch_bulk 10k-batch + match_token + match + now fetch_priv 6th existence oracle (browser-viable, case-fold, unthrottled, sibling parity); burst-limiter only on /identity/match
+[RISK] safe: 35 — HSTS/Expect-CT header inconsistency + route-existence oracle only; no data access without backupId:backupKey
+[RISK] desktop-src: 40 — key-storage ACL bypass RAG-verified at 95, PoC artifact filesystem-verified ABSENT again (poc/ dir missing); sandbox gap rejected as standalone; gap = Windows runtime validation

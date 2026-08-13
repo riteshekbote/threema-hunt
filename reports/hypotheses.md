@@ -3821,3 +3821,9 @@
 - LEARN: ACCEPTED MISCONFIG @ billing.threema.ch: Static assets (jQuery 3.7.1 + custom CSS on /cache/) serve with full security headers (HSTS/Expect-CT/CSP/X-Frame-Optio
 - LEARN: CONFIRMED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: Rate-limiter cooldown >100min re-measured (2026-08-12 17:38 & 18:43 UTC); burst-only limiter; 60s+ spacing st
+
+## RANKED HYPOTHESES 2026-08-13 10:58:58 UTC
+- [95] https://ds-apip.threema.ch/identity/match_token: Cross-origin identity-existence oracle with challenge-token minting via match_token (from reports/hypotheses-laguna.txt)
+- [65] https://ds-apip-work.threema.ch/identities: match_token phase-1 mint is unthrottled — second enumeration primitive for identity existence (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: quantize the new /identities oracle — 5 sequential POSTs with varied username/password shapes (1-char `a`, 256-char, UTF-8, `"0"*8`) to confirm 200/15B `
+- NEXT(hypotheses-laguna.txt): RAG: search threema-android + threema-ios source (WebFetch GitHub `main`) for `match_token` / `tokenRespKeyPub` / `IdentityMatchToken` usage to recover the rede
