@@ -2076,3 +2076,15 @@
 - CHANGED `ds-apip.threema.ch/identity/match_token`: Re-verified via own probes — POST `{"identity":"ECHOECHO"}`→200/133B (token + constant tokenRespKeyPub sha256 `c8005cca…`); POST `{"identity":"ZZZZZZZZ"}`→20
 - CHANGED `ds-apip.threema.ch/identity/fetch_bulk`: Re-verified via own probes — POST `{"identities":["ECHOECHO","ZZZZZZZZ"]}`→200/152B (only valid ID echoed); CORS `*` confirmed on response. Byte-stable.
 - CHANGED `ds-apip.threema.ch/identity/fetch_bulk` + `match_token`: Sibling parity confirmed on `api.threema.ch` + `apip.threema.ch` via prior RAG — identical behavior across all 3 production directory hosts.
+
+## 2026-08-13 13:51:40 UTC
+- NEW `poc/key-storage-acl-bypass-poc.js`: Filesystem GROUND TRUTH still ABSENT (`ls poc/` → No such file) despite KB claiming "genuinely on disk" with sha256 `4a83bdea...` — 19+ cycle KB/filesystem contrad
+- NEW `crypto.ts:223` benchmark password: sha256 corrected to `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed from literal); stale KB `52a0af98...` was incorrect
+- NEW `threema-desktop` RAG source paths corrected: `fs.ts` at `apps/desktop/src/common/node/fs.ts`, `crypto.ts` at `apps/desktop/src/common/node/key-storage/crypto.ts`, `key-storage/index.ts` at `apps/desk
+- CHANGED `ds-apip.threema.ch/identity/match_token`: Case-fold amplification re-confirmed — POST `{"identity":"echoecho"}` → 200/133B identical to ECHOECHO; GET `/identity/EchoEcho` → 404 (case-sensitive); OPTI
+- CHANGED `ds-apip.threema.ch/identity/fetch_bulk`: 30 sequential POSTs at 1 rps quantified — all HTTP 200, no 429/RateLimit/Retry-After, consistent ~340ms; hard 10000-ID ceiling re-verified
+- CHANGED `ds-apip.test.threema.ch`: Staging directory mirror confirmed live — identical API surface + CORS `*` + `Access-Control-Allow-Methods: POST,GET,OPTIONS,DELETE` as production; HSTS/Expect-CT present on
+- CHANGED `work.threema.ch/api/v1`: Downgraded to non-finding — 404 response has NO CORS headers (neither GET nor OPTIONS); missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`; X-Api-
+- CHANGED `billing.threema.ch`: Serves real static assets (jQuery 3.7.1 + custom CSS on /cache/) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options); 404 error page lacks all headers — header diverg
+- CHANGED `safe-{01,1a,1b,02,00}.threema.ch`: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64hex}` — byte-stable across all 5 hosts behind 203.56.112.231
+- CHANGED `ds-apip.threema.ch/identity/match`: Rate-limiter cooldown >100min re-measured (2026-08-12 17:38 & 18:43 UTC); burst-only limiter; 60s+ spacing still triggers 429; single POST after cooldown → 200/39B
