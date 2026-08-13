@@ -1,4 +1,5 @@
-## 2026-08-13 21:42:27 UTC [chat] (model bigpickle)
+## 2026-08-13 22:26:45 UTC [chat] (model bigpickle)
+[RISK] desktop-src: 65 — Windows key-storage ACL bypass RAG-verified (15 paths) with PoC artifact filesystem gap persistent; electron webPreferences surface accepted; conditional-RCE class rejected
 class: MISCONFIG
 asset: https://ds-apip.threema.ch/identity/check
 confidence: 70
@@ -57,3 +58,30 @@ verify_steps: AUTH_HELPED-LOCAL: with valid work creds + own token, POST fetch v
 impact: if 403-vs-404 leaks blocked-vs-missing and token ever recoverable, enables remote-secret recovery; currently auth-gated. Severity: Low.
 testability: AUTH_HELPED
 [NEXT] PROBE: route-presence dictionary on ds-apip.threema.ch — `for p in get_pub lookup pubkey exists status info validate check_work get_pubkey fetch create; do curl -s -o /dev/null -w "%{http_code}" -X GET https://ds-apip.threema.ch/identity/$p; sleep 1; done` → 200/400 marks hidden route (candidate 7th oracle), 404 absent; ≤1 rps, 12 requests.
+[HYP] Revoked identities collapse to state:0 (active) on /identity/check
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 70
+reasoning: Tri-state mapped (active→0 incl. 5U8DM3J3/RFK5RDU6, registered-inactive→1, never-registered→0 with mask-null); revoked-state remains untested — if revoked→0, clients treat revoked accounts as active.
+evidence_needed: known-revoked identity's state on prod vs random-ID baseline.
+verify_steps: AUTH_HELPED-LOCAL — register throwaway ID on own device, POST `{"identities":["<id>"]}` to /identity/check → expect state:0; revoke via app; re-POST → observe 0 (collapse) vs 1/2 (distinct).
+impact: revoked accounts indistinguishable from active → stale-account targeting defeats revocation-state sync. Severity: Medium.
+testability: AUTH_HELPED-LOCAL
+[HYP] /identity/create phase-1 mints registration challenges unauthenticated with CORS * — browser-viable self-service identity minting
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/create
+confidence: 62
+reasoning: POST valid 44B base64 publicKey → 200 {token, tokenRespKeyPub} with no auth and CORS `*`; tokenRespKeyPub equals the constant key on /identity/match_token; RAG confirms phase-2 requires private-key proof-of-possession (APIConnector.java:166-182) so minting is self-registration only.
+evidence_needed: phase-1 rate-limit absence across repeat POSTs; license-less phase-2 completion path in free/HMS client flavor.
+verify_steps: PASSIVE-bounded — 3 POSTs `{"publicKey":<fresh 44B base64>}` at ≤1 rps → any 429? (phase-2 omitted; no account created); RAG `createIdentityRequestDataJSON()` in free/hms flavor.
+impact: unbounded self-service identity minting → mass free-account registration/abuse + a calibration primitive that makes the enumeration oracle fully self-verifying. Severity: Low-Medium.
+testability: PASSIVE
+[HYP] Windows keystorage files are written without ACL restrictions and readable by same-user processes
+class: MISCONFIG
+asset: https://github.com/threema-ch/threema-desktop (data/keystorage.bin, data/keystorage.password.bin)
+confidence: 85
+reasoning: 6-path RAG chain verified on `stable` (fs.ts:41 `{}` on win32; key-storage/index.ts:559-560; electron-main.ts:944-945; inner/v3.ts:65,70; crypto.ts:53-113; sqlite.ts:240). PoC artifact absent on filesystem (20+ cycles); runtime proof never obtained.
+evidence_needed: Windows runtime ACL inspection + same-user DPAPI recovery.
+verify_steps: HUMAN — on Windows: install stable, log in, `icacls` on data/keystorage.bin + data/keystorage.password.bin (expect no ACL entries); recover keystorage.password.bin via safeStorage from a same-user process.
+impact: local same-user credential theft → full desktop identity (Ed25519 `ck`) + SQLCipher DB key. Severity: High (local).
+testability: HUMAN_ONLY
