@@ -2265,3 +2265,12 @@
 - CHANGED threema-desktop key-storage (Windows): RAG source chain remains fully verified (6 paths on GitHub `stable`): fs.ts:41→`{}` win32; index.ts:559→`{...fileModeInternalObjectIfPosix()}`; electron-main.ts:
 - CHANGED work.threema.ch/api/v1: AUTH finding DOWNGRADED to non-finding — 404 response has NO CORS headers, missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`, X-Api-Key NOT in thre
 - CHANGED billing.threema.ch: Confirmed serving real static assets (jQuery 3.7.1 + custom CSS on /cache/) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options); 404 error page lacks all headers — head
+
+## 2026-08-13 22:29:59 UTC
+- NEW `poc/key-storage-acl-bypass-poc.js` — PoC artifact generated, on disk (sha256 `e39ba5771bc8007671ae11fb3eda10835db254de7acb98fffd86463528cf5788`, 13,519 B); `node --check` PASS; `node poc/...` EXIT 0 
+- NEW `threema-desktop` source tree cloned to `/tmp/opencode/threema-desktop` (stable branch) — all 6 RAG paths independently re-verified via `git clone`, no longer dependent on stale WebFetch claims.
+- CHANGED `sqlite.ts` path corrected — file is at `apps/desktop/src/common/node/db/sqlite.ts` (not `db/sqlite.ts`); PRAGMA key at line 240 (`this._rawDb.pragma(`key = "x'${dbKeyHex}'"`)`), raw key without PBKDF
+- CHANGED `crypto.ts:223` benchmark password sha256 corrected — stale KB (`52a0af98…`) was wrong; actual sha256 of `r3gGN9GDQ5NF6tM6` = `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (comput
+- CHANGED `electron-main.ts` BrowserWindow line numbers corrected — `sandbox` property is UNSET (not explicitly `false`), located at L1255 `// TODO(DESK-79): Enable sandbox: true`; `nodeIntegrationInWorker: tru
+- CHANGED `inner/v3.ts` corrected path — located at `apps/desktop/src/common/key-storage/layers/inner/v3.ts` (not `node/inner/v3.ts`); INNER_KEY_STORAGE_V3_SCHEMA at lines 31-73 correctly exposes `identityData.
+- CHANGED `helpers.ts` confirmed path — `apps/desktop/src/common/node/safe-storage/helpers.ts`; `getSafeStoragePasswordPath()` → `data/keystorage.password.bin` via `STATIC_CONFIG.SAFE_STORAGE_PASSWORD_PATH`.
