@@ -10686,3 +10686,32 @@ verify_steps: PASSIVE single OPTIONS then single POST after 1s; compare to GET 4
 impact: route-presence + token-existence oracle on multi-device sync key material if gate is method-specific. Severity low (random 32B token infeasible to guess).
 testability: PASSIVE
 [NEXT] PROBE: GET route-table mapping on ds-apip.threema.ch — `for p in check_email hash lookup register status me pubkey keys profile verify: GET /identity/$p` at 1s spacing, classify 13B (app-routed NEW) vs 146B (nginx catch-all); also repeat `GET /identity/match` + `GET /identity/match_token` to confirm known live routes still respond 400/200.
+## 2026-08-13 00:20:27 UTC [chat] (model bigpickle)
+[HYP] Undocumented app-routed directory endpoints beyond {fetch_bulk, match, match_token, check_license}
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/
+confidence: 60
+reasoning: match/match_token/fetch_bulk are live but absent from checked-in OpenAPI; GET /identity/{x} returns 13B app-text "404 Not Found" while non-app paths return 146B nginx HTML — a passive GET-only oracle cleanly separates app-routed from nginx-routed paths.
+evidence_needed: a GET on an unlisted /identity/<segment> returning 13B app-404 (app-routed) that is not among the 9 known endpoints.
+verify_steps: PASSIVE ≤1 rps GET of ~10 candidate segments (/identity/{check_email,hash,lookup,register,status,me,pubkey,keys,profile,verify}) on ds-apip.threema.ch; classify body-size 13B=app-routed vs 146B=nginx.
+impact: route-map of undocumented directory surface for later targeted POST probing; zero data exposure itself. Severity informational-to-low.
+testability: PASSIVE
+[HYP] /identity/match accepts a minted matchToken WITHOUT a signed challenge response
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 45
+reasoning: match_token returns exactly the documented auth-challenge-request shape; spec does not cover /identity/match so response-requirement is unverified; server may skip proof-of-ownership on match, upgrading the empty-identities differential to a real anonymous email→identity oracle.
+evidence_needed: POST /identity/match with `{"emailHashes":["AAAA"],"matchToken":"<minted>"}` (no `response`) → 200/checkInterval (not 400/401) after cooldown reset.
+verify_steps: PASSIVE after match cooldown reset (>100min, cooldown-gated since 2026-08-11): mint on ds-apip.threema.ch, single POST without response field; record code+body.
+impact: anonymous email→identity confirmation without identity-key proof; amplifies accepted match oracle. Severity low-medium.
+testability: PASSIVE (cooldown-gated)
+[HYP] remote-secret POST fetch passes the nginx 401 gate (method-specific gating)
+class: AUTH
+asset: https://ds-apip-work.threema.ch/api-client/v1/remote-secret
+confidence: 38
+reasoning: only documented no-challenge endpoint in spec; GET uniformly 401, but gate may be GET-only and POST may reach app layer → 404/403/200 token-existence differential on a 32-byte token.
+evidence_needed: POST `{"secretAuthenticationToken":"<base64 32B>"}` → any code other than 401.
+verify_steps: PASSIVE single OPTIONS then single POST after 1s; compare to GET 401 baseline.
+impact: route-presence + token-existence oracle on multi-device sync key material if gate is method-specific. Severity low (random 32B token infeasible to guess).
+testability: PASSIVE
+[NEXT] PROBE: GET route-table mapping on ds-apip.threema.ch — `for p in check_email hash lookup register status me pubkey keys profile verify: GET /identity/$p` at 1s spacing, classify 13B (app-routed NEW) vs 146B (nginx catch-all); also repeat `GET /identity/match` + `GET /identity/match_token` to confirm known live routes still respond 400/200.

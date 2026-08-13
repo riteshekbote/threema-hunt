@@ -15297,3 +15297,29 @@ drwxr-xr-x  2 runner runner   4096 Aug 12 23:19 scripts
 -rw-r--r--  1 runner runner     33 Aug 12 23:19 state_nemotron3.json
 drwxr-xr-x  2 runner runner  12288 Aug 12 23:19 triage
 [0m
+===== ANALYST nemotron3 2026-08-13 00:20:38 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mls -la poc/ 2>/dev/null || echo "POC_DIR_ABSENT"
+POC_DIR_ABSENT
+[0m
+[0m$ [0mcurl -s -I https://ds-apip.threema.ch/identity/match_token 2>&1 | head -20
+HTTP/1.1 200 OK
+Server: nginx
+Date: Thu, 13 Aug 2026 00:11:56 GMT
+Content-Type: application/json; charset=utf-8
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE
+Access-Control-Allow-Headers: Content-Type, User-Agent
+[0m
+[0m$ [0mcurl -s -X POST -H "Content-Type: application/json" -H "Origin: https://evil.com" -d '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/match_token 2>&1
+{"token":"\/2p9DFYQ7WwT+1PbtT4l534QMl14xpDP4jD4twIikuXJKaKAPw==","tokenRespKeyPub":"6DsxFgjFcMVU\/oI\/j0YS7H2v680IrLbnf\/BY6gqiV3Y="}
+[0m
+[0m$ [0mcurl -s -X POST -H "Content-Type: application/json" -H "Origin: https://evil.com" -d '{"identity":"ZZZZZZZZ"}' https://ds-apip.threema.ch/identity/match_token 2>&1
+{"success":false,"error":"Identity not found"}
+[0m
+[0m$ [0mcurl -s -X POST -H "Content-Type: application/json" -H "Origin: https://evil.com" -d '{"identities":["ECHOECHO"]}' https://ds-apip.threema.ch/identity/fetch_bulk 2>&1
+{"identities":[{"identity":"ECHOECHO","publicKey":"SmobNNzvFdQ8t03i\/TYJG+mfu68SbQmdR9g9kZcSxys=","featureLevel":3,"featureMask":9,"state":0,"type":0}]}
+[0m
