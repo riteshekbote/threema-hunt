@@ -11759,3 +11759,55 @@ evidence_needed: confirm staging check_featuremask body-cap parity (524900 → 5
 verify_steps: PASSIVE — 1 POST 524900-ID batch to ds-apip.test.threema.ch/identity/check_featuremask → 200 vs 500 marks cap parity; re-probe known prod IDs on staging over cycles to detect dataset sync.
 impact: If staging ever mirrors prod data, attackers gain a parallel identity-existence/mask oracle (staging has HSTS while prod lacks it — defense-consistent staging). Severity: Low.
 testability: PASSIVE
+## 2026-08-13 21:03:08 UTC [chat] (model bigpickle)
+evidence_needed: confirm staging check_featuremask body-cap parity (524900 
+[NEW] /identity/check sibling parity byte-identical across ds-apip/api/apip — own probe 20:58 UTC, 5-ID batch → 200/95B `states[1,1,1,1,0] masks[255,3,63,63,9]` on all 3 hosts; state+featureMask batch oracle confirmed live beyond ds-apip
+[NEW] 10 real identities recovered in 1.148M fresh random draws this cycle (~8.7e-6 density) via check_featuremask (WANRKN9X:15; 524k#1 → ZSATSM69:15, AJ6R3Z97:63, CRCSTZDR:15, 5DHZTWZ9:63, 5U8DM3J3:2047, V9S24X84:63; 524k#2 → 7DNSM5RM:15, HUSU5H5M:15, RFK5RDU6:2047); 14 total this session incl. prior cycle's 4
+[NEW] 2 LIVE ACTIVE accounts recovered — 5U8DM3J3 + RFK5RDU6 both `state:0` with current-era mask 2047 on /identity/check (111B/90B) — active-account enumeration proven, not just stale/abandoned
+[NEW] check_featuremask ceiling precisely bounded ~524k IDs/req (~5.77MB body): 524000→200/2620001B, 524900→500/0B, 1M→413/176B — body-size cap, NOT count-cap (vs check/fetch_bulk 10000); zero 429 across all 8 batch probes
+[NEW] check_featuremask alphabet/case-fold probe (80 IDs: A-Z/a-z/0-9/symbols/ambiguous/1I-O0-lI) → all `null` except ECHOECHO→9, no 500, NO case-fold (contrast match_token) — restricted-alphabet census shortcut DISPROVEN
+[NEW] staging cap parity confirmed — 524000-batch → 200/2620018B (3.4s) on ds-apip.test.threema.ch vs 200/2620008B (14.2s) prod; staging 0 hits in 524k (test dataset isolation reconfirmed)
+[CHANGED] "mask = registration-era snapshot" strong form WEAKENED — active accounts carry current-era 2047 masks; legacy masks (255/63/15/9/3) only on inactive accounts → masks reflect live client capability state, enabling current-era attribution
+[PRIO] https://ds-apip.threema.ch/identity/check_featuremask | score 8.2 | attack 10 business 9 tech 5 gate 10 cloud 2 fresh 10
+[PRIO] https://ds-apip.threema.ch/identity/check | score 7.5 | attack 9 business 8 tech 5 gate 10 cloud 2 fresh 8
+[PRIO] https://ds-apip.test.threema.ch/identity/check_featuremask | score 5.5 | attack 6 business 5 tech 4 gate 9 cloud 2 fresh 6
+[HYP] Unauth enumeration primitive returns live active accounts + per-identity current-era capability profile at ~524k IDs/req
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask
+confidence: 95
+reasoning: 14 real identities recovered this session incl. 2 ACTIVE (5U8DM3J3, RFK5RDU6) with current-era mask 2047, cross-validated byte-identical on /identity/check (state 0 + mask match); masks span legacy 8-bit (255/63/15/9/3) to current 11-bit (2047); cap 524000→200 / 524900→500/0B (~5.77MB body); zero 429 across 8 batch probes; 3-host parity confirmed.
+evidence_needed: (1) snapshot-vs-live update semantics via set_featuremask (AUTH_HELPED); (2) exact body-cap byte boundary 524000-524900; (3) active-account yield ratio over further draws.
+verify_steps: PASSIVE — (a) 524500-ID batch on ds-apip → 200 vs 500 narrows exact cap; (b) re-probe all 14 known IDs on /identity/check after ≥1h → state+mask stability; (c) 14-ID parity batch on api/apip. ≤1 rps, ~4 requests.
+impact: Unauthenticated batch enumeration yields real Threema identities (incl. live active accounts) at 524k IDs/req with zero rate limit; per-identity capability fingerprinting (voice/file/group/edit/delete/reactions via mask bits) enables targeted phishing of legacy clients, stale-account harvesting, and active-account identification. Severity: High (CVSS 7.5).
+testability: PASSIVE
+[HYP] prod /identity/check collapses revoked identities to state 0 (active)
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 70
+reasoning: Prod state semantics fully mapped this cycle (active→0 incl. 5U8DM3J3/RFK5RDU6, registered-inactive→1, never-registered→0); staging never-registered→2. Unknown→0 default isolated; revoked-state remains untested — if revoked→0, clients treat revoked accounts as active.
+evidence_needed: known-revoked identity's state on prod vs staging.
+verify_steps: AUTH_HELPED-LOCAL: register test ID, revoke via app, POST `{"identities":["<revokedId>"]}` to /identity/check on prod → state 1/2 vs random-ID 0.
+impact: If revoked→0, clients treat revoked accounts as active, defeating revocation-state sync and enabling stale-account targeting. Severity: Medium.
+testability: AUTH_HELPED-LOCAL
+[HYP] set_featuremask write path is auth-gated; mask = live capability state (not frozen snapshot)
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/set_featuremask
+confidence: 55
+reasoning: Android client routes set_featuremask (APIConnector.java:824) + check_featuremask (:855); discovered masks span legacy 8-bit to current 11-bit, with active accounts at 2047 and inactive at legacy values — consistent with per-account client-update history, not uniform registration-era snapshot.
+evidence_needed: unauthenticated set_featuremask response (401/403 vs 200); featureMask bit enum + update flow in client source (RAG).
+verify_steps: PASSIVE — POST `{"identity":"<discoveredId>","featureMask":2047}` unauth to set_featuremask → 401/403 confirms write-gating; RAG via WebFetch of APIConnector.java + featureMask enum on GitHub main.
+impact: Confirms read-only oracle (write vector closed); establishes mask reflects live client capability, sharpening targeted-phishing attribution. Severity: Low.
+testability: PASSIVE
+[PARKED] check_featuremask restricted-alphabet whole-ID-space census: DISPROVEN this cycle — 80-ID boundary probe (A-Z/a-z/0-9/symbols/1I-O0-lI ambiguous) returned all `null` masks with no 500/error and no case-fold; endpoint accepts arbitrary input with null default, no alphabet-validation oracle, no census-space shortcut; ~5.4M × ~15s for full 36^8 remains infeasible; sampling enumeration is the only practical primitive.
+[PARKED] exact 524000-524900 boundary narrowing: low decision value (body-size cap established; attacker uses <cap batches); defer unless report requires byte-exact limit.
+[FINAL] H1 (conf 95) > H2 (conf 70) > H3 (conf 55) — H1 now near-proven; H2 is the highest-value unproven question (revoked-state collapse) and needs AUTH_HELPED-LOCAL; H3 kept as passive corroboration.
+[NEXT] PROBE: re-probe all 14 discovered IDs via `curl -X POST -H "Content-Type: application/json" -d '{"identities":["2KBUH63B","64SWFM33","DUKE2PBB","WKZPPY8E","WANRKN9X","ZSATSM69","AJ6R3Z97","CRCSTZDR","5DHZTWZ9","5U8DM3J3","V9S24X84","7DNSM5RM","HUSU5H5M","RFK5RDU6"]}' https://ds-apip.threema.ch/identity/check` after >1h gap → state+mask stability re-confirmation for the report; then 14-ID parity batch on api.threema.ch + apip.threema.ch (byte-identical expected). 3 requests, ≤1 rps, PASSIVE.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/check_featuremask + /identity/check: unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed: state:0, mask 2047) at ~524k IDs/req (body-size cap ~5.77MB, zero 429); tri-state oracle = mask-null (never-registered) / state:1 (inactive) / state:0 (active); masks cross-endpoint byte-identical; 3-host parity — proven this cycle via 1.148M draws, 10 hits, density ~8.7e-6.
+[LEARN] REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOECHO→9), no alphabet rejection (all char classes → null, no 500) — no differential to exploit for census-space reduction; restricted-alphabet census hypothesis closed.
+[LEARN] REJECTED MISCONFIG @ "mask = immutable registration-era snapshot": strong form disproven — active accounts 5U8DM3J3/RFK5RDU6 carry current-era 2047 masks while inactive accounts carry legacy 255/63/15/9/3; masks reflect live client capability state.
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging shares prod body-cap (524000→200 both) AND dataset isolation confirmed (0 prod identities in 524k staging draw) — staging mirror validated as logic-identical, data-disjoint.
+[RISK] chat: 55 — chat passive channel formally closed (SNI/TLS probes 0-byte), DNS shard map complete (g-{00..7f}→.202, g-{80..ff}→.204); no in-band surface left
+[RISK] web: 78 — directory oracle family now PROVEN to enumerate live active Threema accounts at 524k IDs/req, no rate limit, CORS `*`, 3-host parity; per-identity capability profiling + active-account identification; staging mirror logic-identical
+[RISK] sync: 40 — mediator/rendezvous uniform 403, DNS split mapped, error-path divergence below threshold; no passive in-band surface
+[RISK] safe: 50 — backup API credential-gated (Basic auth), route-existence oracle + HSTS/OPTIONS-vs-GET 400 header inconsistency stable; no credential exposure
+[RISK] desktop-src: 65 — Windows key-storage ACL bypass RAG-verified (15 paths) with PoC artifact filesystem gap persistent; electron webPreferences surface accepted; conditional-RCE class rejected
