@@ -9239,3 +9239,4 @@ confidence: 95
 reasoning: Own probes confirm POST `{"identities":["ECHOECHO","ZZZZZZZZ"]}`→200/152B returns only ECHOECHO's pubkey (sha256 6a6de444…); 10000-ID→200 (152B), 10001→400 (0B, no partial leak); CORS `*` + Allow-Methods POST,Get,OPTIONS,Delete; zero 429s across 30 sequential POSTs at 1 rps; invalid IDs silently omitted (response-size differential); GET `/identity/{id}`→200/404 oracle; 5 challenge endpoints return 200 JSON errors with parameter-validation-before-identity-lookup oracles.
 evidence_needed: None — all byte-stable this cycle via own probes.
 verify_steps: PASSIVE: `curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://ds-apip.threema.ch/identity/fetch_bulk` → verify 200/1
+## 2026-08-13 15:38:12 UTC [desktop] (model laguna)

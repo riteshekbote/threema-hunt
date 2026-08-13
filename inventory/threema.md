@@ -2111,3 +2111,13 @@
 - CHANGED `billing.threema.ch`: Serves real static assets (jQuery 3.7.1 + custom CSS on /cache/) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options); 404 error page lacks all headers — header diverg
 - CHANGED `safe-{01,1a,1b,02,00}.threema.ch`: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64hex}` — byte-stable across all 5 hosts behind 203.56.112.231
 - CHANGED `ds-apip.threema.ch/identity/match`: Rate-limiter cooldown >100min re-measured (2026-08-12 17:38 & 18:43 UTC); burst-only limiter; 60s+ spacing still triggers 429; single POST after cooldown → 200/39B
+
+## 2026-08-13 15:45:01 UTC
+- NEW `ds-apip.threema.ch/identity/fetch_priv`: 6th unauthenticated identity-existence oracle with distinct revocation-3-state error path (from hypotheses-laguna.txt, ranked 94)
+- CHANGED `ds-apip.threema.ch/identity/match_token`: Case-fold amplification re-confirmed — POST `{"identity":"echoecho"}` → 200/133B identical to ECHOECHO; GET `/identity/EchoEcho` → 404 (case-sensitive); OPTI
+- CHANGED `ds-apip.threema.ch/identity/fetch_bulk`: 30 sequential POSTs at 1 rps quantified — all HTTP 200, no 429/RateLimit/Retry-After, consistent ~340ms; hard 10000-ID ceiling re-verified
+- CHANGED `ds-apip.test.threema.ch`: Staging directory mirror confirmed live — identical API surface + CORS `*` + `Access-Control-Allow-Methods: POST,GET,OPTIONS,DELETE` as production; HSTS/Expect-CT present on
+- CHANGED `work.threema.ch/api/v1`: Downgraded to non-finding — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`; X-Api-Key NOT in threema-desktop
+- CHANGED `billing.threema.ch`: Serves real static assets (jQuery 3.7.1 + custom CSS on /cache/) with full security headers; 404 error page lacks all headers — header divergence confirmed
+- CHANGED `safe-{01,1a,1b,02,00}.threema.ch`: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64hex}` — byte-stable across all 5 hosts behind 203.56.112.231
+- CHANGED `ds-apip.threema.ch/identity/match`: Rate-limiter cooldown >100min re-measured; burst-only limiter; 60s+ spacing still triggers 429; single POST after cooldown → 200/39B baseline
