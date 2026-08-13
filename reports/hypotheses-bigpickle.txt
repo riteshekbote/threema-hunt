@@ -1,4 +1,156 @@
-## 2026-08-13 19:35:51 UTC [chat] (model bigpickle)
+## 2026-08-13 20:14:46 UTC [chat] (model bigpickle)
+[CHANGED] ds-apip.threema.ch/identity/fetch_bulk: 30 sequential POSTs at 1 rps quantified — all HTTP 200, no 429/RateLimit/Retry-After, consistent ~340ms; hard 10000-ID ceiling re-verified
+[CHANGED] ds-apip.test.threema.ch: Staging directory mirror confirmed live — identical API surface + CORS * + Access-Control-Allow-Methods: POST,GET,OPTIONS,DELETE as production; HSTS/Expect-CT present on staging, absent on production
+[CHANGED] work.
+[HYP] check_featuremask enumerates real identities with no shared 10000-count-cap and mask = registration-snapshot capability
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask
+confidence: 90
+reasoning: Own probes this cycle — 100000 and 100001-ID batches both 200/500017B (11.8s), positionally aligned (ECHOECHO→9 at idx0), no 413/429; 2 real registered inactive identities found in ~200k random draws (masks 255, 3), masks cross-validated identical on /identity/check (state:1). 255 = full legacy 8-bit set (voice..groupCall), 9 = voice+file, 3 = voice+group → masks look like registration-era snapshots, not current-client (current ≈2047 incl edit/delete/reactions bits).
+evidence_needed: cap boundary above 100001; mask stability over time for same ID (snapshot vs live); sibling parity on api/apip hosts.
+verify_steps: PASSIVE — (a) 200000-ID random batch to check_featuremask → 200 vs 400/0B marks boundary; (b) re-probe the 2 discovered IDs after ≥1h → identical masks = stable snapshot; (c) same 3-ID batch (ECHOECHO + 2 hits) on api.threema.ch + apip.threema.ch → byte-identical parity. ≤1 rps, 4 requests.
+impact: Unauthenticated batch capability fingerprinting ≥100k IDs/req with zero rate limit — per-identity client-era/feature profiling (FS, group calls, reactions absent in legacy masks) for targeted phishing of outdated clients and stale-account harvesting; random enumeration now demonstrated to yield real identities. Severity: High (CVSS 7.5).
+testability: PASSIVE
+[HYP] prod /identity/check collapses revoked identities to state 0 (active)
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 70
+reasoning: Own probes — never-registered ZZZZZZZZ-type IDs → state:0 on all 3 prod hosts but state:2 on staging; newly discovered registered-inactive accounts → state:1; ECHOECHO active → state:0 + mask 9. Prod emits nonzero states for registered-inactive, so the unknown→0 default is the isolated defect; revoked handling remains untested.
+evidence_needed: known-revoked identity → state on prod vs staging.
+verify_steps: AUTH_HELPED-LOCAL: register test ID, revoke via app, POST `{"identities":["<revokedId>"]}` to /identity/check → state 1/2 vs random-ID 0.
+impact: If revoked→0, clients treat revoked accounts as active, defeating revocation-state sync and enabling stale-account targeting. Severity: Medium.
+testability: AUTH_HELPED-LOCAL
+[HYP] fetch_priv errorType diverges for revoked vs never-registered identities
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 62
+reasoning: Invalid ZZZZZZZZ → 200/88B `errorType:"invalid-identity"` + "Identity not found or revoked" byte-identical on all 3 hosts; valid → 200/133-134B token mint; structured errorType may vary by revocation state.
+evidence_needed: known-revoked identity → errorType/error value vs ZZZZZZZZ baseline.
+verify_steps: AUTH_HELPED-LOCAL: revoke test ID, POST `{"identity":"<revokedId>"}` to fetch_priv, compare errorType with 88B baseline; PASSIVE 3-host parity already done.
+impact: If errorType diverges, adds unauthenticated revoked-account flagging to the oracle family. Severity: Medium.
+testability: AUTH_HELPED-LOCAL
+[HYP] check_featuremask batch ceiling exceeds 10000 (no shared count-cap with check/fetch_bulk)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask
+confidence: 80
+reasoning: Prior probes show 50000-ID batch → 200/250018B (positionally-aligned featureMasks, ECHOECHO→9, invalid→null) with no 413/429, unlike the sharp 10000/10001 cap just re-confirmed on /identity/check. GET → HTTP 500 (route requires POST).
+evidence_needed: boundary test at 100000 IDs → if 200, no shared 10000-cap; if 400/0B, shared handler with identical overflow guard.
+verify_steps: generate 100000 random 8-char IDs, POST `{"identities":[...]}` to https://ds-apip.threema.ch/identity/check_featuremask, observe status/size; 1 request, ≤1 rps.
+impact: Unauthenticated batch capability fingerprinting beyond 10k IDs/request with no observable rate limit — client-version/capability profiling (FS, group calls, reactions via featureMask bits) for targeted phishing of legacy clients; same positionally-aligned silent-omit primitive as fetch_bulk. Severity: High (CVSS 7.5).
+testability: PASSIVE
+[HYP] prod /identity/check reports REVOKED identities as state 0 (active) — revocation visibility defeated
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 68
+reasoning: Prod returns state:0 for never-registered IDs (confirmed 10000-ID batch this cycle) while staging returns state:2; ContactState enum active=0/inactive=1/invalid=2 (ContactEntity.swift:29-31) with client writing state verbatim (ContactStore.m:1907-1908). If prod defaults unknown→0, revoked may also collapse to 0.
+evidence_needed: known-revoked identity → state value on prod vs staging.
+verify_steps: AUTH_HELPED-LOCAL: register test ID, revoke, POST `{"identities":["<revokedId>"]}` to /identity/check on prod → observe state 1/2 vs random-ID state 0.
+impact: Revocation-state visibility poisoned on prod — clients treat revoked/nonexistent accounts as active, defeating contact-state sync and enabling stale-account targeting. Severity: Medium.
+testability: AUTH_HELPED-LOCAL
+[HYP] fetch_priv errorType diverges for revoked vs never-registered identities
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 62
+reasoning: Invalid ZZZZZZZZ → 200/88B `errorType:"invalid-identity"` + text "Identity not found or revoked" byte-identical on all 3 hosts; valid → 200/133-134B token mint; structured errorType may vary by revocation state.
+evidence_needed: known-revoked identity → errorType value vs ZZZZZZZZ baseline.
+verify_steps: AUTH_HELPED-LOCAL: revoke test ID, POST `{"identity":"<revokedId>"}` to /identity/fetch_priv, compare errorType/error with 88B baseline; PASSIVE parity already done.
+impact: If errorType diverges, adds unauthenticated revoked-account flagging to the existence-oracle family. Severity: Medium.
+testability: AUTH_HELPED-LOCAL
+[NEW] ds-apip.threema.ch/identity/check: batch revocation-state + feature-flag oracle sharing fetch_bulk's 10000-ID count-cap (from hypotheses-bigpickle.txt, ranked 90)
+[NEW] crypto.ts:223 benchmark password: sha256 corrected to 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (computed from literal); stale KB 52a0af98... was incorrect
+[NEW] threema-desktop RAG source paths corrected: fs.ts at apps/desktop/src/common/node/fs.ts, crypto.ts at apps/desktop/src/common/node/key-storage/crypto.ts, key-storage/index.ts at apps/desktop/src/common/node/key-storage/index.ts
+[CHANGED] ds-apip.threema.ch/identity/fetch_priv: Now ACCEPTED in KB as 6th unauthenticated identity-existence oracle with revocation-3-state error path (was NEW in prior cycle)
+[CHANGED] ds-apip.threema.ch/identity/match_token: Case-fold amplification re-confirmed — POST {"identity":"echoecho"} → 200/133B identical to ECHOECHO; GET /identity/EchoEcho → 404 (case-sensitive); OPTIONS 200 CORS * browser-viable
+[CHANGED] ds-apip.threema.ch/identity/fetch_bulk: 30 sequential POSTs at 1 rps quantified — all HTTP 200, no 429/RateLimit/Retry-After, consistent ~340ms; hard 10000-ID ceiling re-verified
+[CHANGED] ds-apip.test.threema.ch: Staging directory mirror confirmed live — identical API surface + CORS * + Access-Control-Allow-Methods: POST,GET,OPTIONS,DELETE as production; HSTS/Expect-CT present on staging, absent on production
+[CHANGED] work.
+[HYP] check_featuremask enumerates real identities with no shared 10000-count-cap and mask = registration-snapshot capability
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask
+confidence: 90
+reasoning: Own probes this cycle — 100000 and 100001-ID batches both 200/500017B (11.8s), positionally aligned (ECHOECHO→9 at idx0), no 413/429; 2 real registered inactive identities found in ~200k random draws (masks 255, 3), masks cross-validated identical on /identity/check (state:1). 255 = full legacy 8-bit set (voice..groupCall), 9 = voice+file, 3 = voice+group → masks look like registration-era snapshots, not current-client (current ≈2047 incl edit/delete/reactions bits).
+evidence_needed: cap boundary above 100001; mask stability over time for same ID (snapshot vs live); sibling parity on api/apip hosts.
+verify_steps: PASSIVE — (a) 200000-ID random batch to check_featuremask → 200 vs 400/0B marks boundary; (b) re-probe the 2 discovered IDs after ≥1h → identical masks = stable snapshot; (c) same 3-ID batch (ECHOECHO + 2 hits) on api.threema.ch + apip.threema.ch → byte-identical parity. ≤1 rps, 4 requests.
+impact: Unauthenticated batch capability fingerprinting ≥100k IDs/req with zero rate limit — per-identity client-era/feature profiling (FS, group calls, reactions absent in legacy masks) for targeted phishing of outdated clients and stale-account harvesting; random enumeration now demonstrated to yield real identities. Severity: High (CVSS 7.5).
+testability: PASSIVE
+[HYP] prod /identity/check collapses revoked identities to state 0 (active)
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 70
+reasoning: Own probes — never-registered ZZZZZZZZ-type IDs → state:0 on all 3 prod hosts but state:2 on staging; newly discovered registered-inactive accounts → state:1; ECHOECHO active → state:0 + mask 9. Prod emits nonzero states for registered-inactive, so the unknown→0 default is the isolated defect; revoked handling remains untested.
+evidence_needed: known-revoked identity → state on prod vs staging.
+verify_steps: AUTH_HELPED-LOCAL: register test ID, revoke via app, POST `{"identities":["<revokedId>"]}` to /identity/check → state 1/2 vs random-ID 0.
+impact: If revoked→0, clients treat revoked accounts as active, defeating revocation-state sync and enabling stale-account targeting. Severity: Medium.
+testability: AUTH_HELPED-LOCAL
+[HYP] fetch_priv errorType diverges for revoked vs never-registered identities
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 62
+reasoning: Invalid ZZZZZZZZ → 200/88B `errorType:"invalid-identity"` + "Identity not found or revoked" byte-identical on all 3 hosts; valid → 200/133-134B token mint; structured errorType may vary by revocation state.
+evidence_needed: known-revoked identity → errorType/error value vs ZZZZZZZZ baseline.
+[HYP] check_featuremask enumerates real identities with no shared 10000-count-cap and mask = registration-snapshot capability
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask
+confidence: 90
+reasoning: Own probes this cycle — 100000 and 100001-ID batches both 200/500017B (11.8s), positionally aligned (ECHOECHO→9 at idx0), no 413/429; 2 real registered inactive identities found in ~200k random draws (masks 255, 3), masks cross-validated identical on /identity/check (state:1). 255 = full legacy 8-bit set (voice..groupCall), 9 = voice+file, 3 = voice+group → masks look like registration-era snapshots, not current-client (current ≈2047 incl edit/delete/reactions bits).
+evidence_needed: cap boundary above 100001; mask stability over time for same ID (snapshot vs live); sibling parity on api/apip hosts.
+verify_steps: PASSIVE — (a) 200000-ID random batch to check_featuremask → 200 vs 400/0B marks boundary; (b) re-probe the 2 discovered IDs after ≥1h → identical masks = stable snapshot; (c) same 3-ID batch (ECHOECHO + 2 hits) on api.threema.ch + apip.threema.ch → byte-identical parity. ≤1 rps, 4 requests.
+impact: Unauthenticated batch capability fingerprinting ≥100k IDs/req with zero rate limit — per-identity client-era/feature profiling (FS, group calls, reactions absent in legacy masks) for targeted phishing of outdated clients and stale-account harvesting; random enumeration now demonstrated to yield real identities. Severity: High (CVSS 7.5).
+testability: PASSIVE
+[HYP] prod /identity/check collapses revoked identities to state 0 (active)
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 70
+reasoning: Own probes — never-registered ZZZZZZZZ-type IDs → state:0 on all 3 prod hosts but state:2 on staging; newly discovered registered-inactive accounts → state:1; ECHOECHO active → state:0 + mask 9. Prod emits nonzero states for registered-inactive, so the unknown→0 default is the isolated defect; revoked handling remains untested.
+evidence_needed: known-revoked identity → state on prod vs staging.
+verify_steps: AUTH_HELPED-LOCAL: register test ID, revoke via app, POST `{"identities":["<revokedId>"]}` to /identity/check → state 1/2 vs random-ID 0.
+impact: If revoked→0, clients treat revoked accounts as active, defeating revocation-state sync and enabling stale-account targeting. Severity: Medium.
+testability: AUTH_HELPED-LOCAL
+[HYP] fetch_priv errorType diverges for revoked vs never-registered identities
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 62
+reasoning: Invalid ZZZZZZZZ → 200/88B `errorType:"invalid-identity"` + "Identity not found or revoked" byte-identical on all 3 hosts; valid → 200/133-134B token mint; structured errorType may vary by revocation state.
+evidence_needed: known-revoked identity → errorType/error value vs ZZZZZZZZ baseline.
+verify_steps: AUTH_HELPED-LOCAL: revoke test ID, POST `{"identity":"<revokedId>"}` to fetch_priv, compare errorType with 88B baseline; PASSIVE 3-host parity already done.
+impact: If errorType diverges, adds unauthenticated revoked-account flagging to the oracle family. Severity: Medium.
+testability: AUTH_HELPED-LOCAL
+[HYP] fetch_priv `errorType` diverges for revoked identities (3-state error path)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 60
+reasoning: Own probes — invalid ZZZZZZZZ → 200/88B `errorType:"invalid-identity"` + error text "Identity not found or revoked" byte-identical on all 3 hosts; valid → token mint 200/134B; error text conflates not-found/revoked but structured errorType field may vary per state; constant tokenRespKeyPub confirms family membership.
+evidence_needed: known-revoked identity → errorType/error value vs active vs never-existed baselines.
+verify_steps: AUTH_HELPED-LOCAL: create test ID, revoke, POST `/identity/fetch_priv` `{"identity":"<revokedId>"}` → compare errorType with ZZZZZZZZ baseline; PASSIVE partial done (3-host parity).
+impact: If errorType diverges, adds unauthenticated revoked-account flagging to the family. Severity: Medium.
+testability: PASSIVE (partial) + AUTH_HELPED-LOCAL
+[HYP] check_featuremask batch ceiling exceeds 10000 (no shared count-cap with check/fetch_bulk)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask
+confidence: 80
+reasoning: Prior probes show 50000-ID batch → 200/250018B (positionally-aligned featureMasks, ECHOECHO→9, invalid→null) with no 413/429, unlike the sharp 10000/10001 cap just re-confirmed on /identity/check. GET → HTTP 500 (route requires POST).
+evidence_needed: boundary test at 100000 IDs → if 200, no shared 10000-cap; if 400/0B, shared handler with identical overflow guard.
+verify_steps: generate 100000 random 8-char IDs, POST `{"identities":[...]}` to https://ds-apip.threema.ch/identity/check_featuremask, observe status/size; 1 request, ≤1 rps.
+impact: Unauthenticated batch capability fingerprinting beyond 10k IDs/request with no observable rate limit — client-version/capability profiling (FS, group calls, reactions via featureMask bits) for targeted phishing of legacy clients; same positionally-aligned silent-omit primitive as fetch_bulk. Severity: High (CVSS 7.5).
+testability: PASSIVE
+[HYP] prod /identity/check reports REVOKED identities as state 0 (active) — revocation visibility defeated
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 68
+reasoning: Prod returns state:0 for never-registered IDs (confirmed 10000-ID batch this cycle) while staging returns state:2; ContactState enum active=0/inactive=1/invalid=2 (ContactEntity.swift:29-31) with client writing state verbatim (ContactStore.m:1907-1908). If prod defaults unknown→0, revoked may also collapse to 0.
+evidence_needed: known-revoked identity → state value on prod vs staging.
+verify_steps: AUTH_HELPED-LOCAL: register test ID, revoke, POST `{"identities":["<revokedId>"]}` to /identity/check on prod → observe state 1/2 vs random-ID state 0.
+impact: Revocation-state visibility poisoned on prod — clients treat revoked/nonexistent accounts as active, defeating contact-state sync and enabling stale-account targeting. Severity: Medium.
+testability: AUTH_HELPED-LOCAL
+[HYP] fetch_priv errorType diverges for revoked vs never-registered identities
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 62
+reasoning: Invalid ZZZZZZZZ → 200/88B `errorType:"invalid-identity"` + text "Identity not found or revoked" byte-identical on all 3 hosts; valid → 200/133-134B token mint; structured errorType may vary by revocation state.
+evidence_needed: known-revoked identity → errorType value vs ZZZZZZZZ baseline.
+verify_steps: AUTH_HELPED-LOCAL: revoke test ID, POST `{"identity":"<revokedId>"}` to /identity/fetch_priv, compare errorType/error with 88B baseline; PASSIVE parity already done.
+impact: If errorType diverges, adds unauthenticated revoked-account flagging to the existence-oracle family. Severity: Medium.
+testability: AUTH_HELPED-LOCAL
 [HYP] check_featuremask batch ceiling exceeds 10000 (no shared count-cap with check/fetch_bulk)
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/check_featuremask
@@ -61,3 +213,37 @@ evidence_needed: known-revoked identity → errorType/error value vs ZZZZZZZZ ba
 verify_steps: AUTH_HELPED-LOCAL: revoke test ID, POST `{"identity":"<revokedId>"}` to fetch_priv, compare errorType with 88B baseline; PASSIVE 3-host parity already done.
 impact: If errorType diverges, adds unauthenticated revoked-account flagging to the oracle family. Severity: Medium.
 testability: AUTH_HELPED-LOCAL
+[HYP] check_featuremask batch ceiling exceeds 10000 (no shared count-cap with check/fetch_bulk)
+asset: https://ds-apip.threema.ch/identity/check_featuremask
+verify_steps: generate 100000 random 8-char IDs, POST `{"identities":[...]}` to https://ds-apip.threema.ch/identity/check_featuremask, observe status/size; 1 request, 
+[HYP] check_featuremask enumerates real identities with no shared 10000-count-cap and mask = registration-snapshot capability
+asset: https://ds-apip.threema.ch/identity/check_featuremask
+[PARKED] Safe backup service unauthenticated probe surface: confidence 65 but no concrete vulnerable endpoint discovered yet; only root 404 with permissive CORS; verify_steps speculative for API paths
+[PARKED] Safe backup service unauthenticated probe surface: confidence 65 but no concrete vulnerable endpoint discovered yet; only root 404 with permissive CORS; verify_steps speculative for API paths
+[HYP] check_featuremask enables whole-ID-space census via documented character-set enumeration
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask
+confidence: 72
+reasoning: 4 real registered-inactive identities found in ~520k uniform random 36-alphabet draws (density ~8e-6). If the valid Threema ID alphabet is a restricted subset (e.g. 32-char set, some vendors exclude 0/O/1/I), effective space shrinks and census becomes feasible at 524k IDs/req with zero rate limit.
+evidence_needed: response differential for boundary-case characters (lowercase, digits, excluded chars) — does check_featuremask return `null` mask or an error for malformed IDs, and does it case-fold like match_token?
+verify_steps: PASSIVE — 3 POSTs at ≤1 rps: batch of 96 boundary IDs (a-z, A-Z, 0-9, edge cases) to ds-apip.threema.ch/identity/check_featuremask → observe which alphabet members are accepted vs rejected (null vs error vs 500); compare case-fold behavior vs known match_token case-fold.
+impact: If a restricted alphabet is confirmed, census cost drops from 36^8 to (32^8) and full-space discovery of registered identities (mask + existence) becomes computationally practical via 524k-ID batches with no rate limit. Severity: High (CVSS 7.5).
+testability: PASSIVE
+[HYP] prod /identity/check collapses revoked identities to state 0 (active) — revocation visibility defeated
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 70
+reasoning: Prod state semantics: active ECHOECHO→0, registered-inactive→1, never-registered→0 (all confirmed this cycle); staging never-registered→2. Registered-inactive emits nonzero, so unknown→0 default is isolated; revoked handling remains untested.
+evidence_needed: known-revoked identity → state on prod vs staging.
+verify_steps: AUTH_HELPED-LOCAL: register test ID, revoke via app, POST `{"identities":["<revokedId>"]}` to /identity/check on prod → observe state 1/2 vs random-ID 0.
+impact: If revoked→0, clients treat revoked accounts as active, defeating revocation-state sync and enabling stale-account targeting. Severity: Medium.
+testability: AUTH_HELPED-LOCAL
+[HYP] staging dataset flip would expose test-identity existence oracle without validation gap
+class: MISCONFIG
+asset: https://ds-apip.test.threema.ch/identity/check_featuremask
+confidence: 55
+reasoning: Staging resolves only ECHOECHO (mask 9), all 4 prod-real IDs → null — staging holds test-only dataset with byte-identical validation logic (524k body-cap parity unverified but 10000-cap parity known). Any prod-dataset sync to staging would create a second full oracle with no rate limit.
+evidence_needed: confirm staging check_featuremask body-cap parity (524900 → 500?) and whether staging dataset changes over time.
+verify_steps: PASSIVE — 1 POST 524900-ID batch to ds-apip.test.threema.ch/identity/check_featuremask → 200 vs 500 marks cap parity; re-probe known prod IDs on staging over cycles to detect dataset sync.
+impact: If staging ever mirrors prod data, attackers gain a parallel identity-existence/mask oracle (staging has HSTS while prod lacks it — defense-consistent staging). Severity: Low.
+testability: PASSIVE
