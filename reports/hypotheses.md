@@ -4105,3 +4105,53 @@
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/check_featuremask + /identity/check: unauthenticated random enumeration yields real i
 - LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
 - LEARN: REJECTED MISCONFIG @ "mask = immutable registration-era snapshot": strong form disproven — active accounts 5U8DM3J3/RFK5RDU6 carry current-era 2047 masks while 
+
+## RANKED HYPOTHESES 2026-08-13 23:59:08 UTC
+- [95] threema-desktop: threema-desktop Windows key-storage ACL bypass — full identity key + SQLCipher key recovery (from reports/hypotheses-laguna.txt)
+- [95] https://ds-apip.threema.ch/identity/check_featuremask: Unauthenticated massive identity enumeration via check_featuremask enables precision targeting of active users (from reports/hypotheses-nemotron3.txt)
+- [72] https://ds-apip.threema.ch/identity/check: create mints unbounded registration challenges unauthenticated with zero rate limit — cross-origin self-service identity minting + enumeration calibration primitive (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO"]}' https://ds-apip.threema.ch/identity/fe
+- NEXT(hypotheses-laguna.txt): RAG: Re-verify `apps/desktop/src/common/node/db/connection.ts` or `apps/desktop/src/common/db/index.ts` for the `databaseKey` propagation path end-to-end — conf
+- NEXT(hypotheses-bigpickle.txt): RAG: verify whether `/identity/create` is documented in the published directory-server OpenAPI spec (spec is NOT served at ds-apip.openapi.{yml,json} — locate s
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: New endpoint confirmed as 6th unauthenticated identity-existence oracle with revocation-3-state error pa
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check: Batch revocation-state + feature-flag oracle sharing fetch_bulk's 10000-ID count-cap; sibling parity byte-ide
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 — sha256 corrected to 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12; 
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
+- LEARN: REJECTED MISCONFIG @ "mask = immutable registration-era snapshot": strong form disproven — active accounts 5U8DM3J3/RFK5RDU6 carry current-era 2047 masks while 
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging shares prod body-cap (524000→200 both) AND dataset isolation confirmed (0 prod identities in 524k staging 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on win32 confirmed via WebFetch on stable; both keystorag
+- LEARN: REJECTED MISCONFIG @ threema-desktop OnPrem config trust: Ed25519 signature verification against 3 hardcoded ONPREM_CONFIG_TRUSTED_PUBLIC_KEYS in vite.config.ts
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle DISPROVEN — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact `poc/key-storage-acl-bypass-poc.py` now GENUINELY on disk (sha256 `b7ce7cf1f0b16843e40a
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 = `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed 
+- LEARN: REJECTED class @ BrowserWindow sandbox+nodeIntegrationInWorker: Conditional RCE requires separate renderer exploit chain (0 dynamic sinks require/import/eval/ch
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle DISPROVEN — 404 response has NO CORS headers (neither GET nor OPTIONS); missing-key and inva
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: New endpoint confirmed as 6th unauthenticated identity-existence oracle with revocation-3-state error pa
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check: Batch revocation-state + feature-flag oracle sharing fetch_bulk's 10000-ID count-cap; sibling parity byte-ide
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/check_featuremask + /identity/check: unauthenticated random enumeration yields real i
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
+- LEARN: REJECTED MISCONFIG @ "mask = immutable registration-era snapshot": strong form disproven — active accounts 5U8DM3J3/RFK5RDU6 carry current-era 2047 masks while 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: New endpoint confirmed as 6th unauthenticated identity-existence oracle with revocation-3-state error pa
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check: Batch revocation-state + feature-flag oracle sharing fetch_bulk's 10000-ID count-cap; sibling parity byte-ide
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 — sha256 corrected to 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12; 
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
+- LEARN: REJECTED MISCONFIG @ "mask = immutable registration-era snapshot": strong form disproven — active accounts 5U8DM3J3/RFK5RDU6 carry current-era 2047 masks while 
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging shares prod body-cap (524000→200 both) AND dataset isolation confirmed (0 prod identities in 524k staging 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on win32 confirmed via WebFetch on stable; both keystorag
+- LEARN: REJECTED MISCONFIG @ threema-desktop OnPrem config trust: Ed25519 signature verification against 3 hardcoded ONPREM_CONFIG_TRUSTED_PUBLIC_KEYS in vite.config.ts
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle DISPROVEN — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: New endpoint confirmed as 6th unauthenticated identity-existence oracle with revocation-3-state error pa
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check: Batch revocation-state + feature-flag oracle sharing fetch_bulk's 10000-ID count-cap; sibling parity byte-ide
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/check_featuremask + /identity/check: unauthenticated random enumeration yields real i
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
+- LEARN: REJECTED MISCONFIG @ "mask = immutable registration-era snapshot": strong form disproven — active accounts 5U8DM3J3/RFK5RDU6 carry current-era 2047 masks while 
+- LEARN: ACCEPTED OTHER @ threema-android directory.openapi.yml: published spec documents exactly 12 Work-flavour paths; ALL 8 probed consumer routes (create/check/check
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/create: challenge token = deterministic f(publicKey) (3 same-key mints byte-identica
+- LEARN: ACCEPTED OTHER @ create phase-2 (APIConnector.java:134-190 + UserServiceImpl.java:918-952): PoP = BLAKE2b keyed-MAC (X25519HSalsa20 shared secret, personal '3ma
+- LEARN: ACCEPTED OTHER @ ds-apip-work.threema.ch: live work route surface = exactly {/identities,/fetch2,/directory} all 401 work-creds-gated; spec'd /api-client/v1/{us
+- LEARN: REJECTED OTHER @ work /api-client/v1/remote-secret bearer-token fetch oracle: documented in spec but 404 on prod → not deployed; closed.

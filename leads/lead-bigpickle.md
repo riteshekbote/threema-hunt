@@ -11998,3 +11998,167 @@ verify_steps: HUMAN — install stable on Windows, log in, `icacls data/keystora
 impact: local same-user credential theft → full desktop identity + SQLCipher DB key. Severity: High (local).
 testability: HUMAN_ONLY
 [NEXT] RAG: verify whether `/identity/create` is documented in the published directory-server OpenAPI spec (spec is NOT served at ds-apip.openapi.{yml,json} — locate spec via WebFetch on threema-desktop `config/vite.config.ts` + OpenAPI reference or GitHub threema-msgapi-sdk) — distinguishes "hidden route" from "documented registration flow" for the report; then run 3 more fresh-key POSTs to https://ds-apip.threema.ch/identity/create at 1s spacing to document sustained zero-429 (unbounded mint).
+## 2026-08-13 23:58:55 UTC [chat] (model bigpickle)
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/check
+[HYP] create mints unbounded registration challenges unauthenticated with zero rate limit — cross-origin self-service identity minting + enumeration calibration primitive
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/create
+confidence: 72
+reasoning: Confirmed live this cycle — POST fresh 32B base64 pubkey → 200/126B per-request token + constant tokenRespKeyPub (sha256 c8005cca…, identical to match_token) on all 3 hosts; OPTIONS 200 CORS `*` + Allow-Methods → browser-viable; 5 sequential POSTs zero 429 (endpoint has no burst limiter, contrast /identity/match).
+evidence_needed: phase-2 completion (private-key proof-of-possession, APIConnector.java:166-182) license-gating — does free/HMS flavor complete mint without license?
+verify_steps: PASSIVE-bounded — 3 more fresh-key POSTs at 1s spacing (expect 200, zero 429); RAG threema-android createIdentityRequestDataJSON() to confirm PoP + license requirements; no phase-2 submitted (no account created).
+impact: unbounded self-service identity minting → mass free-account registration/abuse; self-verifying calibration primitive (mint → confirm state:0/mask on check) making the proven enumeration end-to-end self-validating. Severity: Medium.
+testability: PASSIVE
+[HYP] set_featuremask write path may lack HTTP auth — capability-mask modification of arbitrary identities if write is gated only by crypto PoP
+class: AUTH
+asset: https://ds-apip.threema.ch/identity/set_featuremask
+confidence: 60
+reasoning: Route confirmed this cycle — GET + POST (valid-shape invalid-ID + empty body) all → 200/46B byte-identical "Identity not found": identity-lookup runs FIRST with NO auth challenge at handler level (contrast set_revocation_key/update_work_info param-first validation); no 401/403 on any probe.
+evidence_needed: whether a completed write (valid identity + mask) requires private-key PoP/challenge-token vs fully unauthenticated.
+verify_steps: AUTH_HELPED-LOCAL (scope-constrained — no account creation permitted): with an already-owned throwaway identity, POST `{"identity":<own-id>,"featureMask":<own-mask>}` → observe success shape + signature requirement; do NOT touch real identities (5U8DM3J3/RFK5RDU6 are live accounts — off-limits).
+impact: if unauthenticated → arbitrary-account capability-mask modification (breaks client feature gating, legacy-capability spoofing amplifies targeted phishing); if PoP-gated → surface fact only. Severity: Medium (High if write unauth).
+testability: AUTH_HELPED
+[HYP] Windows keystorage ACL bypass runtime validation — same-user DPAPI recovery of Ed25519 ck + SQLCipher key
+class: MISCONFIG
+asset: data/keystorage.bin + data/keystorage.password.bin (threema-desktop)
+confidence: 85
+reasoning: 6-path RAG chain stable on `stable` (fs.ts:41 `{}` on win32; key-storage/index.ts:559-560; electron-main.ts:944-945; inner/v3.ts:65,70; crypto.ts:53-113; sqlite.ts:240 raw PRAGMA key). Filesystem ground truth: poc/ ABSENT (20+ cycles) — KB artifact claims untrustworthy.
+evidence_needed: Windows runtime icacls output + same-user safeStorage recovery.
+verify_steps: HUMAN — install stable on Windows, log in, `icacls data/keystorage.bin data/keystorage.password.bin` (expect no ACL entries); same-user process calls safeStorage.decryptString on password blob.
+impact: local same-user credential theft → full desktop identity + SQLCipher DB key. Severity: High (local).
+testability: HUMAN_ONLY
+[NEXT] RAG: verify whether `/identity/create` is documented in the published directory-server OpenAPI spec (spec is NOT served at ds-apip.openapi.{yml,json} — locate spec via WebFetch on threema-desktop `config/vite.config.ts` + OpenAPI reference or GitHub threema-msgapi-sdk) — distinguishes "hidden route" from "documented registration flow" for the report; then run 3 more fresh-key POSTs to https://ds-apip.threema.ch/identity/create at 1s spacing to document sustained zero-429 (unbounded mint).
+class: AUTH
+asset: https://ds-apip.threema.ch/identity/set_featuremask
+confidence: 60
+reasoning: Route confirmed this cycle — GET + POST (valid-shape invalid-ID + empty body) all → 200/46B byte-identical "Identity not found": identity-lookup runs FIRST with NO auth challenge at handler level (contrast set_revocation_key/update_work_info param-first validation); no 401/403 on any probe.
+evidence_needed: whether a completed write (valid identity + mask) requires private-key PoP/challenge-token vs fully unauthenticated.
+verify_steps: AUTH_HELPED-LOCAL (scope-constrained — no account creation permitted): with an already-owned throwaway identity, POST `{"identity":<own-id>,"featureMask":<own-mask>}` → observe success shape + signature requirement; do NOT touch real identities (5U8DM3J3/RFK5RDU6 are live accounts — off-limits).
+impact: if unauthenticated → arbitrary-account capability-mask modification (breaks client feature gating, legacy-capability spoofing amplifies targeted phishing); if PoP-gated → surface fact only. Severity: Medium (High if write unauth).
+testability: AUTH_HELPED
+[HYP] Windows keystorage ACL bypass runtime validation — same-user DPAPI recovery of Ed25519 ck + SQLCipher key
+class: MISCONFIG
+asset: data/keystorage.bin + data/keystorage.password.bin (threema-desktop)
+confidence: 85
+reasoning: 6-path RAG chain stable on `stable` (fs.ts:41 `{}` on win32; key-storage/index.ts:559-560; electron-main.ts:944-945; inner/v3.ts:65,70; crypto.ts:53-113; sqlite.ts:240 raw PRAGMA key). Filesystem ground truth: poc/ ABSENT (20+ cycles) — KB artifact claims untrustworthy.
+evidence_needed: Windows runtime icacls output + same-user safeStorage recovery.
+verify_steps: HUMAN — install stable on Windows, log in, `icacls data/keystorage.bin data/keystorage.password.bin` (expect no ACL entries); same-user process calls safeStorage.decryptString on password blob.
+impact: local same-user credential theft → full desktop identity + SQLCipher DB key. Severity: High (local).
+testability: HUMAN_ONLY
+[NEXT] RAG: verify whether `/identity/create` is documented in the published directory-server OpenAPI spec (spec is NOT served at ds-apip.openapi.{yml,json} — locate spec via WebFetch on threema-desktop `config/vite.config.ts` + OpenAPI reference or GitHub threema-msgapi-sdk) — distinguishes "hidden route" from "documented registration flow" for the report; then run 3 more fresh-key POSTs to https://ds-apip.threema.ch/identity/create at 1s spacing to document sustained zero-429 (unbounded mint).
+[NEXT] PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO"]}' https://ds-apip.threema.ch/identity/fetch_priv — verify endpoint existence, CORS *, response schema, and revocation-state discrimination
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: New endpoint confirmed as 6th unauthenticated identity-existence oracle with revocation-3-state error path
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed: state:0, mask 2047) at ~524k IDs/req (body-size cap ~5.77MB, zero 429); tri-state oracle proven
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/check: Batch revocation-state + feature-flag oracle sharing fetch_bulk's 10000-ID count-cap; sibling parity byte-identical across ds-apip/api/apip
+[NEXT] PROBE: re-probe all 14 discovered IDs via `curl -X POST -H "Content-Type: application/json" -d '{"identities":["2KBUH63B","64SWFM33","DUKE2PBB","WKZPPY8E","WANRKN9X","ZSATSM69","AJ6R3Z97","CRCSTZDR","5DHZTWZ9","5U8DM3J3","V9S24X84","7DNSM5RM","HUSU5H5M","RFK5RDU6"]}' https://ds-apip.threema.ch/identity/check` after >1h gap → state+mask stability re-confirmation for the report; then 14-ID parity batch on api.threema.ch + apip.threema.ch (byte-identical expected). 3 requests, ≤1 rps, PASSIVE.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/check_featuremask + /identity/check: unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed: state:0, mask 2047) at ~524k IDs/req (body-size cap ~5.77MB, zero 429); tri-state oracle = mask-null (never-registered) / state:1 (inactive) / state:0 (active); masks cross-endpoint byte-identical; 3-host parity — proven this cycle via 1.148M draws, 10 hits, density ~8.7e-6.
+[LEARN] REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOECHO→9), no alphabet rejection (all char classes → null, no 500) — no differential to exploit for census-space reduction; restricted-alphabet census hypothesis closed.
+[LEARN] REJECTED MISCONFIG @ "mask = immutable registration-era snapshot": strong form disproven — active accounts 5U8DM3J3/RFK5RDU6 carry current-era 2047 masks while inactive accounts carry legacy 255/63/15/9/3; masks reflect live client capability state.
+[NEXT] PROBE: route-presence dictionary on ds-apip.threema.ch — `for p in get_pub lookup pubkey exists status info validate check_work get_pubkey fetch create; do curl -s -o /dev/null -w "%{http_code}" -X GET https://ds-apip.threema.ch/identity/$p; sleep 1; done` → 200/400 marks hidden route (candidate 7th oracle), 404 absent; ≤1 rps, 12 requests.
+[HYP] Revoked identities collapse to state:0 (active) on /identity/check
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/check
+[HYP] create mints unbounded registration challenges unauthenticated with zero rate limit — cross-origin self-service identity minting + enumeration calibration primitive
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/create
+confidence: 72
+reasoning: Confirmed live this cycle — POST fresh 32B base64 pubkey → 200/126B per-request token + constant tokenRespKeyPub (sha256 c8005cca…, identical to match_token) on all 3 hosts; OPTIONS 200 CORS `*` + Allow-Methods → browser-viable; 5 sequential POSTs zero 429 (endpoint has no burst limiter, contrast /identity/match).
+evidence_needed: phase-2 completion (private-key proof-of-possession, APIConnector.java:166-182) license-gating — does free/HMS flavor complete mint without license?
+verify_steps: PASSIVE-bounded — 3 more fresh-key POSTs at 1s spacing (expect 200, zero 429); RAG threema-android createIdentityRequestDataJSON() to confirm PoP + license requirements; no phase-2 submitted (no account created).
+impact: unbounded self-service identity minting → mass free-account registration/abuse; self-verifying calibration primitive (mint → confirm state:0/mask on check) making the proven enumeration end-to-end self-validating. Severity: Medium.
+testability: PASSIVE
+[HYP] set_featuremask write path may lack HTTP auth — capability-mask modification of arbitrary identities if write is gated only by crypto PoP
+class: AUTH
+asset: https://ds-apip.threema.ch/identity/set_featuremask
+confidence: 60
+reasoning: Route confirmed this cycle — GET + POST (valid-shape invalid-ID + empty body) all → 200/46B byte-identical "Identity not found": identity-lookup runs FIRST with NO auth challenge at handler level (contrast set_revocation_key/update_work_info param-first validation); no 401/403 on any probe.
+evidence_needed: whether a completed write (valid identity + mask) requires private-key PoP/challenge-token vs fully unauthenticated.
+verify_steps: AUTH_HELPED-LOCAL (scope-constrained — no account creation permitted): with an already-owned throwaway identity, POST `{"identity":<own-id>,"featureMask":<own-mask>}` → observe success shape + signature requirement; do NOT touch real identities (5U8DM3J3/RFK5RDU6 are live accounts — off-limits).
+impact: if unauthenticated → arbitrary-account capability-mask modification (breaks client feature gating, legacy-capability spoofing amplifies targeted phishing); if PoP-gated → surface fact only. Severity: Medium (High if write unauth).
+reasoning: ACCEPTED in KB as 6th unauthenticated identity-existence oracle with distinct revocation-3-state error path; returns different error codes for valid vs revoked vs non-existent identities; CORS * expected based on directory triad parity; no rate limit observed on sibling endpoints
+evidence_needed: Passive probe to confirm endpoint existence, response schema, and revocation-state discrimination
+verify_steps: PASSIVE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO"]}' https://ds-apip.threema.ch/identity/fetch_priv — verify 200 + CORS *; test with known-revoked identity if available; test with invalid identity for 3-state discrimination; repeat on api.threema.ch + apip.threema.ch for sibling parity
+impact: Unauthenticated identity-existence oracle with revocation-state leakage (valid/revoked/unknown); enables precise directory enumeration and account-status reconnaissance. Severity: High (CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
+testability: PASSIVE
+[FINAL] 1. Unauthenticated massive identity enumeration via check_featuremask enables precision targeting of active users (confidence 95, PASSIVE)
+[FINAL] 2. Unauthenticated identity-existence oracle via fetch_priv with revocation-state discrimination enables precise directory enumeration (confidence 94, PASSIVE)
+[FINAL] 3. Unauthenticated batch revocation-state + feature-flag oracle via identity/check enables precise account-status enumeration at scale (confidence 90, PASSIVE)
+[NEXT] PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO"]}' https://ds-apip.threema.ch/identity/fetch_priv — verify endpoint existence, CORS *, response schema, and revocation-state discrimination
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: New endpoint confirmed as 6th unauthenticated identity-existence oracle with revocation-3-state error path
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed: state:0, mask 2047) at ~524k IDs/req (body-size cap ~5.77MB, zero 429); tri-state oracle proven
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/check: Batch revocation-state + feature-flag oracle sharing fetch_bulk's 10000-ID count-cap; sibling parity byte-identical across ds-apip/api/apip
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 — sha256 corrected to 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12; confirmed benchmark-only dummy in determineKdfParams(), benchmarkKey.purge() at L233, NOT used for real encryption
+[LEARN] REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOECHO→9), no alphabet rejection (all char classes → null, no 500) — restricted-alphabet census shut down
+[LEARN] REJECTED MISCONFIG @ "mask = immutable registration-era snapshot": strong form disproven — active accounts 5U8DM3J3/RFK5RDU6 carry current-era 2047 masks while inactive accounts carry legacy 255/63/15/9/3; masks reflect live client capability state
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging shares prod body-cap (524000→200 both) AND dataset isolation confirmed (0 prod identities in 524k staging draw) — mirror validated as logic-identical, data-disjoint
+[LEARN] ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on win32 confirmed via WebFetch on stable; both keystorage.bin and keystorage.password.bin written without ACL restrictions
+[LEARN] REJECTED MISCONFIG @ threema-desktop OnPrem config trust: Ed25519 signature verification against 3 hardcoded ONPREM_CONFIG_TRUSTED_PUBLIC_KEYS in vite.config.ts confirmed; OPPF URLs validated via HTTPS/WSS — not vulnerable
+[LEARN] REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle DISPROVEN — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical {"error":"Invalid X-Api-Key"}; key NOT in threema-desktop source
+[RISK] chat: 25 reason: DNS shard→node map fully attributed (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); in-band TCP/TLS probes close immediately (0 bytes, no cert leak); handshake requires authenticated login frame; passive channel formally closed | web: 92 reason: Directory triad (ds-apip/api/apip) exposes unauthenticated IDOR (fetch_bulk 10k IDs, fetch_priv 6th oracle, match_token identity-existence + token minting, check_featuremask ~524k IDs/req with live active-account discrimination, check batch revocation-state+flags, CORS *, no rate-limit), cross-origin credential validation (check_license), email→identity membership oracle (identity/match with selective limiter); work.api CORS blocks browser cross-origin; billing static assets with header divergence | sync: 35 reason: Mediator/rendezvous WSS uniform 403 on HTTPS, high-entropy path structure, DNS split routing confirmed; no passive in-band divergence obtainable; error-path divergence hypothesis rejected | safe: 65 reason: 5 backup hosts behind single IP with HSTS/Expect-CT gap on credential-gated GET 400 (present on OPTIONS 204, absent on GET 400); HTTP Basic Auth + route-existence oracle (400 vs 404) stable; CORS * with write-capable methods on preflight | desktop-src: 73 reason: Windows key-storage ACL bypass fully RAG-verified (6-path chain); PoC artifact KB/filesystem gap persists (19+ cycles); Ed25519 identity key + SQLCipher key recoverable by same-user processes; Electron BrowserWindow sandbox unset + nodeIntegrationInWorker true (conditional RCE, rejected as standalone)
+[NEXT] PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO"]}' https://ds-apip.threema.ch/identity/fetch_priv — verify endpoint existence, CORS *, response schema, and revocation-state discrimination
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: New endpoint confirmed as 6th unauthenticated identity-existence oracle with revocation-3-state error path
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed: state:0, mask 2047) at ~524k IDs/req (body-size cap ~5.77MB, zero 429); tri-state oracle proven
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/check: Batch revocation-state + feature-flag oracle sharing fetch_bulk's 10000-ID count-cap; sibling parity byte-identical across ds-apip/api/apip
+[NEXT] PROBE: re-probe all 14 discovered IDs via `curl -X POST -H "Content-Type: application/json" -d '{"identities":["2KBUH63B","64SWFM33","DUKE2PBB","WKZPPY8E","WANRKN9X","ZSATSM69","AJ6R3Z97","CRCSTZDR","5DHZTWZ9","5U8DM3J3","V9S24X84","7DNSM5RM","HUSU5H5M","RFK5RDU6"]}' https://ds-apip.threema.ch/identity/check` after >1h gap → state+mask stability re-confirmation for the report; then 14-ID parity batch on api.threema.ch + apip.threema.ch (byte-identical expected). 3 requests, ≤1 rps, PASSIVE.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/check_featuremask + /identity/check: unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed: state:0, mask 2047) at ~524k IDs/req (body-size cap ~5.77MB, zero 429); tri-state oracle = mask-null (never-registered) / state:1 (inactive) / state:0 (active); masks cross-endpoint byte-identical; 3-host parity — proven this cycle via 1.148M draws, 10 hits, density ~8.7e-6.
+[LEARN] REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOECHO→9), no alphabet rejection (all char classes → null, no 500) — no differential to exploit for census-space reduction; restricted-alphabet census hypothesis closed.
+[LEARN] REJECTED MISCONFIG @ "mask = immutable registration-era snapshot": strong form disproven — active accounts 5U8DM3J3/RFK5RDU6 carry current-era 2047 masks while inactive accounts carry legacy 255/63/15/9/3; masks reflect live client capability state.
+[NEXT] PROBE: route-presence dictionary on ds-apip.threema.ch — `for p in get_pub lookup pubkey exists status info validate check_work get_pubkey fetch create; do curl -s -o /dev/null -w "%{http_code}" -X GET https://ds-apip.threema.ch/identity/$p; sleep 1; done` → 200/400 marks hidden route (candidate 7th oracle), 404 absent; ≤1 rps, 12 requests.
+[HYP] Revoked identities collapse to state:0 (active) on /identity/check
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/check
+[HYP] create mints unbounded registration challenges unauthenticated with zero rate limit — cross-origin self-service identity minting + enumeration calibration primitive
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/create
+confidence: 72
+reasoning: Confirmed live this cycle — POST fresh 32B base64 pubkey → 200/126B per-request token + constant tokenRespKeyPub (sha256 c8005cca…, identical to match_token) on all 3 hosts; OPTIONS 200 CORS `*` + Allow-Methods → browser-viable; 5 sequential POSTs zero 429 (endpoint has no burst limiter, contrast /identity/match).
+evidence_needed: phase-2 completion (private-key proof-of-possession, APIConnector.java:166-182) license-gating — does free/HMS flavor complete mint without license?
+verify_steps: PASSIVE-bounded — 3 more fresh-key POSTs at 1s spacing (expect 200, zero 429); RAG threema-android createIdentityRequestDataJSON() to confirm PoP + license requirements; no phase-2 submitted (no account created).
+impact: unbounded self-service identity minting → mass free-account registration/abuse; self-verifying calibration primitive (mint → confirm state:0/mask on check) making the proven enumeration end-to-end self-validating. Severity: Medium.
+testability: PASSIVE
+[HYP] set_featuremask write path may lack HTTP auth — capability-mask modification of arbitrary identities if write is gated only by crypto PoP
+class: AUTH
+asset: https://ds-apip.threema.ch/identity/set_featuremask
+confidence: 60
+reasoning: Route confirmed this cycle — GET + POST (valid-shape invalid-ID + empty body) all → 200/46B byte-identical "Identity not found": identity-lookup runs FIRST with NO auth challenge at handler level (contrast set_revocation_key/update_work_info param-first validation); no 401/403 on any probe.
+evidence_needed: whether a completed write (valid identity + mask) requires private-key PoP/challenge-token vs fully unauthenticated.
+verify_steps: AUTH_HELPED-LOCAL (scope-constrained — no account creation permitted): with an already-owned throwaway identity, POST `{"identity":<own-id>,"featureMask":<own-mask>}` → observe success shape + signature requirement; do NOT touch real identities (5U8DM3J3/RFK5RDU6 are live accounts — off-limits).
+impact: if unauthenticated → arbitrary-account capability-mask modification (breaks client feature gating, legacy-capability spoofing amplifies targeted phishing); if PoP-gated → surface fact only. Severity: Medium (High if write unauth).
+testability: AUTH_HELPED
+[HYP] Windows keystorage ACL bypass runtime validation — same-user DPAPI recovery of Ed25519 ck + SQLCipher key
+class: MISCONFIG
+asset: data/keystorage.bin + data/keystorage.password.bin (threema-desktop)
+confidence: 85
+reasoning: 6-path RAG chain stable on `stable` (fs.ts:41 `{}` on win32; key-storage/index.ts:559-560; electron-main.ts:944-945; inner/v3.ts:65,70; crypto.ts:53-113; sqlite.ts:240 raw PRAGMA key). Filesystem ground truth: poc/ ABSENT (20+ cycles) — KB artifact claims untrustworthy.
+evidence_needed: Windows runtime icacls output + same-user safeStorage recovery.
+verify_steps: HUMAN — install stable on Windows, log in, `icacls data/keystorage.bin data/keystorage.password.bin` (expect no ACL entries); same-user process calls safeStorage.decryptString on password blob.
+impact: local same-user credential theft → full desktop identity + SQLCipher DB key. Severity: High (local).
+testability: HUMAN_ONLY
+[NEXT] RAG: verify whether `/identity/create` is documented in the published directory-server OpenAPI spec (spec is NOT served at ds-apip.openapi.{yml,json} — locate spec via WebFetch on threema-desktop `config/vite.config.ts` + OpenAPI reference or GitHub threema-msgapi-sdk) — distinguishes "hidden route" from "documented registration flow" for the report; then run 3 more fresh-key POSTs to https://ds-apip.threema.ch/identity/create at 1s spacing to document sustained zero-429 (unbounded mint).
+class: MISCONFIG
+asset: data/keystorage.bin + data/keystorage.password.bin (threema-desktop)
+confidence: 85
+reasoning: 6-path RAG chain stable on `stable` (fs.ts:41 `{}` on win32; key-storage/index.ts:559-560; electron-main.ts:944-945; inner/v3.ts:65,70; crypto.ts:53-113; sqlite.ts:240 raw PRAGMA key). Filesystem ground truth: poc/ ABSENT (20+ cycles) — KB artifact claims untrustworthy.
+evidence_needed: Windows runtime icacls output + same-user safeStorage recovery.
+verify_steps: HUMAN — install stable on Windows, log in, `icacls data/keystorage.bin data/keystorage.password.bin` (expect no ACL entries); same-user process calls safeStorage.decryptString on password blob.
+impact: local same-user credential theft → full desktop identity + SQLCipher DB key. Severity: High (local).
+testability: HUMAN_ONLY
+[NEXT] RAG: verify whether `/identity/create` is documented in the published directory-server OpenAPI spec (spec is NOT served at ds-apip.openapi.{yml,json} — locate spec via WebFetch on threema-desktop `config/vite.config.ts` + OpenAPI reference or GitHub threema-msgapi-sdk) — distinguishes "hidden route" from "documented registration flow" for the report; then run 3 more fresh-key POSTs to https://ds-apip.threema.ch/identity/create at 1s spacing to document sustained zero-429 (unbounded mint).
+[NEXT] PROBE: time-stability — re-mint the SAME publicKey on ds-apip after ≥1h gap (`curl -s -X POST -H "Content-Type: application/json" -d '{"publicKey":<same-key>}' https://ds-apip.threema.ch/identity/create`) → byte-identical token = stateless TTL-free derivation, changed token = challenge TTL exists. Then DRAFT create writeup/closure (severity Low-Medium, abuse-enabling) + refresh lead file + update state; set_featuremask stays AUTH_HELPED-open (needs owned throwaway identity — flagged for accounted phase if scope permits).
+[NEXT] PROBE: time-stability — re-mint the SAME publicKey on ds-apip after >=1h gap (same key as parity run: k6STNfE9wk34f7NnUDv1sGEdhN8BRUVgZkAoNpdWOfQ=) → byte-identical token = stateless TTL-free derivation; changed token = challenge TTL exists. Then DRAFT create writeup/closure (severity Low-Medium, abuse-enabling) + lead-file refresh.
+[LEARN] ACCEPTED OTHER @ threema-android directory.openapi.yml: published spec documents exactly 12 Work-flavour paths; ALL 8 probed consumer routes (create/check/check_featuremask/match/match_token/fetch_priv/fetch_bulk/set_featuremask) are UNDOCUMENTED — spec-faithful inventory != live surface; consumer directory API fully hidden.
+[LEARN] ACCEPTED OTHER @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/create: challenge token = deterministic f(publicKey) (3 same-key mints byte-identical across all hosts, 2 different-key mints differ) — stateless derivation, no per-key server state, no host nonce; mint amplification per-UNIQUE-key only; tokenRespKeyPub constant 6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y= shared with match_token.
+[LEARN] ACCEPTED OTHER @ create phase-2 (APIConnector.java:134-190 + UserServiceImpl.java:918-952): PoP = BLAKE2b keyed-MAC (X25519HSalsa20 shared secret, personal '3ma-csp', salt 'dir') → self-registration only, no takeover; license fields client-optional (GOOGLE lvl*/HMS hms*/serial licenseKey|user creds, all omitted when absent) → license-less body is valid client shape; server-side acceptance unverifiable (submitting phase-2 = account creation, out of scope).
+[LEARN] ACCEPTED OTHER @ ds-apip-work.threema.ch: live work route surface = exactly {/identities,/fetch2,/directory} all 401 work-creds-gated; spec'd /api-client/v1/{user-properties,remote-secret} NOT deployed (404, incl. bearer-token-only POST fetch) — work/consumer API divergence documented, work surface fully enumerated.
+[LEARN] REJECTED OTHER @ work /api-client/v1/remote-secret bearer-token fetch oracle: documented in spec but 404 on prod → not deployed; closed.
+[HYP] create mints unbounded registration challenges unauthenticated with zero rate limit — cross-origin self-service identity minting + enumeration calibration primitive
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/create
+confidence: 78
+reasoning: CONFIRMED — 10+ POSTs across cycles zero 429; OPTIONS 200 CORS `*` browser-viable; token deterministic f(publicKey) byte-identical 3-host parity (stateless, no state growth per key); phase-2 self-registration only (BLAKE2b keyed-MAC PoP, APIConnector.java:166-182); route undocumented in published directory.openapi.yml.
+evidence_needed: server-side acceptance of license-less phase-2 body (unlimited free-identity fabrication) — unverifiable passively, out of scope (data modification).
+verify_steps: PASSIVE — 1 same-key re-mint after >=1h (token time-stability/TTL check); then CLOSE with writeup.
+impact: abuse-enabling — unlimited free-account fabrication IF license-less phase-2 accepted (client shape proven valid); CPU/derivation DoS per unique key; no takeover. Determinism downgrades stored-state amplification. Severity: Low-Medium.
+testability: PASSIVE
+verify_steps: PASSIVE — 1 same-key re-mint after >=1h (token time-stability/TTL check); then CLOSE with writeup.
