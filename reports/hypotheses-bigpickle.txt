@@ -1,28 +1,29 @@
-## 2026-08-13 04:28:41 UTC [chat] (model bigpickle)
-[HYP] match_token phase-1 mint is unthrottled — second enumeration primitive
-class: IDOR
-asset: https://ds-apip.threema.ch/identity/match_token
-confidence: 65
-reasoning: 5 sequential POSTs `{"identity":"ZZZZZZZZ"}` @1 rps this cycle → all 200/46B, zero 429 (no cooldown, unlike /identity/match); existence differential 200/133B vs 200/46B confirmed across prior cycles; case-fold amplification (`echoecho`==`ECHOECHO`) established.
-evidence_needed: 15 additional sequential mints @1 rps → zero 429 (total 20 for KB rate claim).
-verify_steps: PASSIVE: POST `{"identity":"ZZZZZZZZ"}` x15 at 1s spacing on ds-apip.threema.ch → all 200/46B; then one POST `{"identity":"ECHOECHO"}` → 200/133B token (positive control).
-impact: second simpler identity-existence enumeration path beside fetch_bulk 10k-batch; complements accepted match_token oracle. Severity low (existence quasi-public via fetch_bulk).
-testability: PASSIVE
-[HYP] GET variant of match_token accepts identity as query param — GET-only existence oracle
+## 2026-08-13 05:58:48 UTC [chat] (model bigpickle)
+[HYP] match_token phase-2 redemption — token/identity binding semantics untested
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/match_token
 confidence: 50
-reasoning: GET without body → 200/46B "Identity not found" (app-layer, not 405) this cycle; fetch_bulk GET also accepted (200/17B) — the app layer tolerates GET on POST-designed routes; query-param handling untested.
-evidence_needed: GET `/identity/match_token?identity=ECHOECHO` → 200/133B token (params read) vs 200/46B (params ignored).
-verify_steps: PASSIVE: single GET with `?identity=ECHOECHO` then single GET with `?identity=ZZZZZZZZ` on ds-apip.threema.ch at 1s spacing; classify body size 133B vs 46B.
-impact: browser-trivial GET-only existence oracle (link/img-tag reachable, no fetch/POST needed); strengthens match_token surface. Severity low-medium.
+reasoning: phase-1 mint confirmed unthrottled (17 sequential, zero 429); token changes per-request but tokenRespKeyPub is constant (sha256 `c8005cca…`); phase-2 consumer endpoint and token→identity binding never tested.
+evidence_needed: phase-2 route (sibling /identity/* accepting {token,...} or signature) where token minted for identity A is accepted for identity B, or proves bound.
+verify_steps: PASSIVE: RAG threema-android + threema-ios (WebFetch GitHub `main`, grep `match_token`/`tokenRespKeyPub`/`IdentityMatchToken`) to recover redemption protocol; then 1rps POST cross-identity token-reuse probes on the recovered endpoint.
+impact: if token not identity-bound → proof-of-possession confusion for identity linking; if bound → nil. Severity low-medium.
 testability: PASSIVE
-[HYP] Work /identities is an unauthenticated username/password validation oracle
+[HYP] Work /identities positive-shape credential confirmation
 class: AUTH
 asset: https://ds-apip-work.threema.ch/identities
 confidence: 65
-reasoning: schema-valid POST → 200/15B `{"contacts":[]}` for arbitrary invalid creds while schema-invalid → 401/0B; auth-before-contacts ordering; OPTIONS preflight 401 blocks browsers (server-side only); no 429 on rapid POSTs.
-evidence_needed: any response code other than 401/200 for varied credential shapes, or positive shape `{"contacts":[...]}` with valid Work creds.
-verify_steps: PASSIVE: vary username/password shapes (1-char, UTF-8, 256-char) → confirm 200/15B is auth-independent invalid shape; AUTH_HELPED: valid Work license pair → expect 200 `{"contacts":[...]}`.
-impact: mirrors consumer check_license credential oracle on Work backend, bypassing the Basic-auth 401 gate — targeted Work-account credential confirmation. Severity low-medium.
+reasoning: 10/10 credential shapes → 200/15B `{"contacts":[]}` (auth-independent invalid shape) with zero 429; schema-invalid → 401/0B; auth-before-contacts ordering; OPTIONS preflight 401 blocks browsers.
+evidence_needed: valid Work credential pair returning 200 with non-empty contacts.
+verify_steps: AUTH_HELPED: POST `{username,password,contacts:[]}` with a valid Work license pair → expect 200 `{"contacts":[...]}`.
+impact: mirrors the consumer check_license credential oracle on the Work backend, bypassing the Basic-auth 401 gate, unthrottled — targeted Work-account credential confirmation. Severity low-medium.
 testability: AUTH_HELPED
+[HYP] Windows runtime validation of key-storage ACL bypass
+class: MISCONFIG
+asset: threema-desktop key-storage (Windows)
+confidence: 95
+reasoning: 6-path RAG chain verified on GitHub `stable` (fs.ts:41-42 `{}` on win32; key-storage/index.ts:559-560; electron-main.ts:944-945; inner/v3.ts:65,70; crypto.ts:53-113; sqlite.ts:240); PoC artifact on disk, syntax-verified; only gap is runtime DACL observation.
+evidence_needed: on a real Windows install, `icacls` on data/keystorage.bin + data/keystorage.password.bin showing broad same-user ACEs (not owner-restricted) + safeStorage.decryptString reachable by a second same-user process.
+verify_steps: HUMAN: run `node poc/key-storage-acl-bypass-poc.js` on a Windows Threema Desktop 2.x install; confirm both files present and DACL output.
+impact: any same-user process extracts Ed25519 identity key (ck) + SQLCipher databaseKey → identity theft + full plaintext local message history. Severity high.
+testability: HUMAN_ONLY
+[NEXT] RAG: search threema-android + threema-ios source (WebFetch GitHub `main`) for `match_token` / `tokenRespKeyPub` / `IdentityMatchToken` to recover the phase-2 redemption protocol and identify the consumer endpoint for the constant tokenRespKeyPub (sha256 `c8005cca…`) — feeds the top-ranked [95] match_token oracle.

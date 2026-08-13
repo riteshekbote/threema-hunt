@@ -10805,3 +10805,32 @@ evidence_needed: any response code other than 401/200 for varied credential shap
 verify_steps: PASSIVE: vary username/password shapes (1-char, UTF-8, 256-char) → confirm 200/15B is auth-independent invalid shape; AUTH_HELPED: valid Work license pair → expect 200 `{"contacts":[...]}`.
 impact: mirrors consumer check_license credential oracle on Work backend, bypassing the Basic-auth 401 gate — targeted Work-account credential confirmation. Severity low-medium.
 testability: AUTH_HELPED
+## 2026-08-13 05:58:48 UTC [chat] (model bigpickle)
+[HYP] match_token phase-2 redemption — token/identity binding semantics untested
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 50
+reasoning: phase-1 mint confirmed unthrottled (17 sequential, zero 429); token changes per-request but tokenRespKeyPub is constant (sha256 `c8005cca…`); phase-2 consumer endpoint and token→identity binding never tested.
+evidence_needed: phase-2 route (sibling /identity/* accepting {token,...} or signature) where token minted for identity A is accepted for identity B, or proves bound.
+verify_steps: PASSIVE: RAG threema-android + threema-ios (WebFetch GitHub `main`, grep `match_token`/`tokenRespKeyPub`/`IdentityMatchToken`) to recover redemption protocol; then 1rps POST cross-identity token-reuse probes on the recovered endpoint.
+impact: if token not identity-bound → proof-of-possession confusion for identity linking; if bound → nil. Severity low-medium.
+testability: PASSIVE
+[HYP] Work /identities positive-shape credential confirmation
+class: AUTH
+asset: https://ds-apip-work.threema.ch/identities
+confidence: 65
+reasoning: 10/10 credential shapes → 200/15B `{"contacts":[]}` (auth-independent invalid shape) with zero 429; schema-invalid → 401/0B; auth-before-contacts ordering; OPTIONS preflight 401 blocks browsers.
+evidence_needed: valid Work credential pair returning 200 with non-empty contacts.
+verify_steps: AUTH_HELPED: POST `{username,password,contacts:[]}` with a valid Work license pair → expect 200 `{"contacts":[...]}`.
+impact: mirrors the consumer check_license credential oracle on the Work backend, bypassing the Basic-auth 401 gate, unthrottled — targeted Work-account credential confirmation. Severity low-medium.
+testability: AUTH_HELPED
+[HYP] Windows runtime validation of key-storage ACL bypass
+class: MISCONFIG
+asset: threema-desktop key-storage (Windows)
+confidence: 95
+reasoning: 6-path RAG chain verified on GitHub `stable` (fs.ts:41-42 `{}` on win32; key-storage/index.ts:559-560; electron-main.ts:944-945; inner/v3.ts:65,70; crypto.ts:53-113; sqlite.ts:240); PoC artifact on disk, syntax-verified; only gap is runtime DACL observation.
+evidence_needed: on a real Windows install, `icacls` on data/keystorage.bin + data/keystorage.password.bin showing broad same-user ACEs (not owner-restricted) + safeStorage.decryptString reachable by a second same-user process.
+verify_steps: HUMAN: run `node poc/key-storage-acl-bypass-poc.js` on a Windows Threema Desktop 2.x install; confirm both files present and DACL output.
+impact: any same-user process extracts Ed25519 identity key (ck) + SQLCipher databaseKey → identity theft + full plaintext local message history. Severity high.
+testability: HUMAN_ONLY
+[NEXT] RAG: search threema-android + threema-ios source (WebFetch GitHub `main`) for `match_token` / `tokenRespKeyPub` / `IdentityMatchToken` to recover the phase-2 redemption protocol and identify the consumer endpoint for the constant tokenRespKeyPub (sha256 `c8005cca…`) — feeds the top-ranked [95] match_token oracle.
