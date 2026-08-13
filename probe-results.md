@@ -1336,3 +1336,17 @@ https://ds-apip-work.threema.ch/api-client/v1/remote-secret -> HTTP 401
 https://ds-apip.threema.ch/identity/$p -> HTTP 404
 https://ds-apip.threema.ch/identity/create -> 200 len=? type=application/json; charset=utf-8
 https://github.com/threema-ch/threema-desktop -> 200 len=? type=text/html; charset=utf-8
+
+## 2026-08-13 23:15:38 UTC
+https://ds-apip.threema.ch -> HTTP 403
+https://api.threema.ch -> HTTP 403
+https://apip.threema.ch -> HTTP 403
+https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
+https://ds-apip.threema.ch/identity/check` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/$p -> HTTP 404
+https://ds-apip.threema.ch/identity/check -> HTTP 500
+https://ds-apip.threema.ch/identity/create -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/set_featuremask -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
