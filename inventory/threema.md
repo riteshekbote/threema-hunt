@@ -1939,3 +1939,12 @@
 ## 2026-08-12 22:53:33 UTC
 
 ## 2026-08-12 23:38:11 UTC
+
+## 2026-08-13 00:20:38 UTC
+- CHANGED poc/key-storage-acl-bypass-poc.js: Filesystem GROUND TRUTH confirms NOW genuinely on disk (sha256 `cc0481d8…`, 14104 B); `node --check` PASS; `node poc/key-storage-acl-bypass-poc.js` EXIT 0 on Linux (
+- CHANGED crypto.ts:223 benchmark password: sha256 corrected to `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed from literal `r3gGN9GDQ5NF6tM6` via `echo -n 'r3gGN9GDQ5NF6tM6' | sha
+- CHANGED electron-main.ts:1234-1262 BrowserWindow webPreferences: confirmed via direct curl on GitHub `stable` — `sandbox` UNSET (not `false`), `// TODO(DESK-79): Enable sandbox: true` at L1255; `nodeIntegrati
+- CHANGED vite.config.ts: confirmed `KEY_STORAGE_PATH: ['data', 'keystorage.bin']`, `SAFE_STORAGE_PASSWORD_PATH: ['data', 'keystorage.password.bin']`, `DATABASE_PATH: ['data', 'threema.sqlite']`.
+- CHANGED inner/v3.ts:65-70: confirmed `INNER_KEY_STORAGE_V3_SCHEMA` exposes `identityData.ck` (Ed25519 client private key) + `databaseKey` (SQLCipher key) via `validatedToConsumable`.
+- CHANGED fs.ts:41-42: confirmed `fileModeInternalObjectIfPosix()` returns `{}` on win32, `{mode: MODE_FILE_INTERNAL}` on POSIX.
+- CHANGED electron-main.ts:934-946: confirmed `STORE_USER_PASSWORD` writes with `{...fileModeInternalObjectIfPosix()}` = `{}` on Windows; `LOAD_USER_PASSWORD` reads via `fs.readFileSync` + `electron.safeStorage
