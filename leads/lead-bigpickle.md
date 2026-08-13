@@ -11811,3 +11811,62 @@ testability: PASSIVE
 [RISK] sync: 40 — mediator/rendezvous uniform 403, DNS split mapped, error-path divergence below threshold; no passive in-band surface
 [RISK] safe: 50 — backup API credential-gated (Basic auth), route-existence oracle + HSTS/OPTIONS-vs-GET 400 header inconsistency stable; no credential exposure
 [RISK] desktop-src: 65 — Windows key-storage ACL bypass RAG-verified (15 paths) with PoC artifact filesystem gap persistent; electron webPreferences surface accepted; conditional-RCE class rejected
+## 2026-08-13 21:42:27 UTC [chat] (model bigpickle)
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 70
+reasoning: Prod state semantics fully mapped this cycle (active→0 incl. 5U8DM3J3/RFK5RDU6, registered-inactive→1, never-registered→0); staging never-registered→2. Unknown→0 default isolated; revoked-state remains untested — if revoked→0, clients treat revoked accounts as active.
+evidence_needed: known-revoked identity's state on prod vs staging.
+verify_steps: AUTH_HELPED-LOCAL: register test ID, revoke via app, POST `{"identities":["<revokedId>"]}` to /identity/check on prod → state 1/2 vs random-ID 0.
+impact: If revoked→0, clients treat revoked accounts as active, defeating revocation-state sync and enabling stale-account targeting. Severity: Medium.
+testability: AUTH_HELPED-LOCAL
+[HYP] set_featuremask write path is auth-gated; mask = live capability state (not frozen snapshot)
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/set_featuremask
+confidence: 55
+reasoning: Android client routes set_featuremask (APIConnector.java:824) + check_featuremask (:855); discovered masks span legacy 8-bit to current 11-bit, with active accounts at 2047 and inactive at legacy values — consistent with per-account client-update history, not uniform registration-era snapshot.
+evidence_needed: unauthenticated set_featuremask response (401/403 vs 200); featureMask bit enum + update flow in client source (RAG).
+verify_steps: PASSIVE — POST `{"identity":"<discoveredId>","featureMask":2047}` unauth to set_featuremask → 401/403 confirms write-gating; RAG via WebFetch of APIConnector.java + featureMask enum on GitHub main.
+impact: Confirms read-only oracle (write vector closed); establishes mask reflects live client capability, sharpening targeted-phishing attribution. Severity: Low.
+testability: PASSIVE
+[PARKED] check_featuremask restricted-alphabet whole-ID-space census: DISPROVEN this cycle — 80-ID boundary probe (A-Z/a-z/0-9/symbols/1I-O0-lI ambiguous) returned all `null` masks with no 500/error and no case-fold; endpoint accepts arbitrary input with null default, no alphabet-validation oracle, no census-space shortcut; ~5.4M × ~15s for full 36^8 remains infeasible; sampling enumeration is the only practical primitive.
+[PARKED] exact 524000-524900 boundary narrowing: low decision value (body-size cap established; attacker uses <cap batches); defer unless report requires byte-exact limit.
+[FINAL] H1 (conf 95) > H2 (conf 70) > H3 (conf 55) — H1 now near-proven; H2 is the highest-value unproven question (revoked-state collapse) and needs AUTH_HELPED-LOCAL; H3 kept as passive corroboration.
+[NEXT] PROBE: re-probe all 14 discovered IDs via `curl -X POST -H "Content-Type: application/json" -d '{"identities":["2KBUH63B","64SWFM33","DUKE2PBB","WKZPPY8E","WANRKN9X","ZSATSM69","AJ6R3Z97","CRCSTZDR","5DHZTWZ9","5U8DM3J3","V9S24X84","7DNSM5RM","HUSU5H5M","RFK5RDU6"]}' https://ds-apip.threema.ch/identity/check` after >1h gap → state+mask stability re-confirmation for the report; then 14-ID parity batch on api.threema.ch + apip.threema.ch (byte-identical expected). 3 requests, ≤1 rps, PASSIVE.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/check_featuremask + /identity/check: unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed: state:0, mask 2047) at ~524k IDs/req (body-size cap ~5.77MB, zero 429); tri-state oracle = mask-null (never-registered) / state:1 (inactive) / state:0 (active); masks cross-endpoint byte-identical; 3-host parity — proven this cycle via 1.148M draws, 10 hits, density ~8.7e-6.
+[LEARN] REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOECHO→9), no alphabet rejection (all char classes → null, no 500) — no differential to exploit for census-space reduction; restricted-alphabet census hypothesis closed.
+[LEARN] REJECTED MISCONFIG @ "mask = immutable registration-era snapshot": strong form disproven — active accounts 5U8DM3J3/RFK5RDU6 carry current-era 2047 masks while inactive accounts carry legacy 255/63/15/9/3; masks reflect live client capability state.
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging shares prod body-cap (524000→200 both) AND dataset isolation confirmed (0 prod identities in 524k staging draw) — staging mirror validated as logic-identical, data-disjoint.
+[RISK] chat: 55 — chat passive channel formally closed (SNI/TLS probes 0-byte), DNS shard map complete (g-{00..7f}→.202, g-{80..ff}→.204); no in-band surface left
+[RISK] web: 78 — directory oracle family now PROVEN to enumerate live active Threema accounts at 524k IDs/req, no rate limit, CORS `*`, 3-host parity; per-identity capability profiling + active-account identification; staging mirror logic-identical
+[RISK] sync: 40 — mediator/rendezvous uniform 403, DNS split mapped, error-path divergence below threshold; no passive in-band surface
+[RISK] safe: 50 — backup API credential-gated (Basic auth), route-existence oracle + HSTS/OPTIONS-vs-GET 400 header inconsistency stable; no credential exposure
+[RISK] desktop-src: 65 — Windows key-storage ACL bypass RAG-verified (15 paths) with PoC artifact filesystem gap persistent; electron webPreferences surface accepted; conditional-RCE class rejected
+[HYP] Enumeration family is undocumented hidden surface; further unlisted /identity/ routes likely exist
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/
+confidence: 80
+reasoning: Published openapi.yml (RAG this cycle) lacks check/check_featuremask/match/match_token/fetch_bulk/fetch_priv, yet all are live on 3 hosts; fetch_priv (6th oracle) also absent from client source — server-only unadvertised routes.
+evidence_needed: route-presence differential on plausible unlisted names.
+verify_steps: PASSIVE — 12 GET probes on ds-apip: /identity/{get_pub,lookup,pubkey,exists,status,info,validate,check_work,check_lic,get_pubkey,fetch,create} → 200/400 (route present) vs 404 (absent); ≤1 rps.
+impact: maps hidden directory-server surface; likely finds 7th+ oracle extending proven enumeration. Severity: Medium (recon amplification).
+testability: PASSIVE
+[HYP] System/wildcard identity class enumerable via same batch oracle
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 75
+reasoning: `*SUPPORT` + `*3MAW0RK` (openapi-documented reserved IDs, pattern `^[0-9A-Z*]{1}[0-9A-Z]{7}$`) → state:0/mask 15 on ds-apip + api; all other `*`-probes null. Reserved namespace is live in the unauth batch oracle.
+evidence_needed: further undocumented `*`-system IDs; `*`-space count-cap parity.
+verify_steps: PASSIVE — POST 20-ID batch of targeted `*`-candidates (*SUPPORT, *3MAW0RK, *3MAWORK, *HELP, *INFO, *TEST…, *NEWS, *BOTxxx) to /identity/check; count non-null; ≤1 rps.
+impact: identifies reserved support/work-bot identities (system-account identification); incremental on accepted IDOR. Severity: Low-Medium.
+testability: PASSIVE
+[HYP] remote-secret fetch is a 3-state oracle (200/403/404) gated by 32B token
+class: AUTH
+asset: https://ds-apip-work.threema.ch/api-client/v1/remote-secret
+confidence: 45
+reasoning: openapi spec: POST fetch → 200 secret+config / 403 blocked / 404 missing; requires identity + remoteSecretAuthenticationToken (32B high-entropy). No passive verification path; token brute-force infeasible.
+evidence_needed: live 200/403/404 behavior; token-validation existence leak.
+verify_steps: AUTH_HELPED-LOCAL: with valid work creds + own token, POST fetch valid/invalid/blocked token → confirm 3-state discrimination; else PASSIVE route-presence only.
+impact: if 403-vs-404 leaks blocked-vs-missing and token ever recoverable, enables remote-secret recovery; currently auth-gated. Severity: Low.
+testability: AUTH_HELPED
+[NEXT] PROBE: route-presence dictionary on ds-apip.threema.ch — `for p in get_pub lookup pubkey exists status info validate check_work get_pubkey fetch create; do curl -s -o /dev/null -w "%{http_code}" -X GET https://ds-apip.threema.ch/identity/$p; sleep 1; done` → 200/400 marks hidden route (candidate 7th oracle), 404 absent; ≤1 rps, 12 requests.
