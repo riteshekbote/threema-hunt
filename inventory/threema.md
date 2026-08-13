@@ -2215,3 +2215,24 @@
 - CHANGED ds-apip.threema.ch/identity/fetch_bulk: 30 sequential POSTs at 1 rps quantified — all HTTP 200, no 429/RateLimit/Retry-After, consistent ~340ms; hard 10000-ID ceiling re-verified
 - CHANGED ds-apip.test.threema.ch: Staging directory mirror confirmed live — identical API surface + CORS * + Access-Control-Allow-Methods: POST,GET,OPTIONS,DELETE as production; HSTS/Expect-CT present on stagi
 - CHANGED work.
+
+## 2026-08-13 21:03:19 UTC
+- NEW ds-apip.threema.ch/identity/fetch_priv: 6th unauthenticated identity-existence oracle with revocation-3-state error path (ACCEPTED in KB)
+- NEW ds-apip.threema.ch/identity/check: batch revocation-state + feature-flag oracle sharing fetch_bulk's 10000-ID count-cap (from hypotheses-bigpickle.txt, ranked 90)
+- NEW crypto.ts:223 benchmark password: sha256 corrected to 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (computed from literal); stale KB 52a0af98... was incorrect
+- NEW threema-desktop RAG source paths corrected: fs.ts at apps/desktop/src/common/node/fs.ts, crypto.ts at apps/desktop/src/common/node/key-storage/crypto.ts, key-storage/index.ts at apps/desktop/src/commo
+- NEW poc/key-storage-acl-bypass-poc.js: Filesystem GROUND TRUTH still ABSENT (ls poc/ → No such file) despite KB claiming "genuinely on disk" — 19+ cycle KB/filesystem contradiction persists
+- CHANGED ds-apip.threema.ch/identity/match_token: Case-fold amplification re-confirmed — POST {"identity":"echoecho"} → 200/133B identical to ECHOECHO; GET /identity/EchoEcho → 404 (case-sensitive); OPTIONS 20
+- CHANGED ds-apip.threema.ch/identity/fetch_bulk: 30 sequential POSTs at 1 rps quantified — all HTTP 200, no 429/RateLimit/Retry-After, consistent ~340ms; hard 10000-ID ceiling re-verified
+- CHANGED ds-apip.test.threema.ch: Staging directory mirror confirmed live — identical API surface + CORS * + Access-Control-Allow-Methods: POST,GET,OPTIONS,DELETE as production; HSTS/Expect-CT present on stagi
+- CHANGED work.threema.ch/api/v1: Downgraded to non-finding — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical {"error":"Invalid X-Api-Key"}; X-Api-Key NOT in threema-desktop sou
+- CHANGED billing.threema.ch: Serves real static assets (jQuery 3.7.1 + custom CSS on /cache/) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options); 404 error page lacks all headers — header divergen
+- CHANGED safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated /backups/{64hex} — byte-stable across all 5 hosts behind 203.56.112.231
+- CHANGED ds-apip.threema.ch/identity/match: Rate-limiter cooldown >100min re-measured; burst-only limiter; 60s+ spacing still triggers 429; single POST after cooldown → 200/39B baseline
+- NEW /identity/check sibling parity byte-identical across ds-apip/api/apip — own probe 20:58 UTC, 5-ID batch → 200/95B `states[1,1,1,1,0] masks[255,3,63,63,9]` on all 3 hosts; state+featureMask batch oracl
+- NEW 10 real identities recovered in 1.148M fresh random draws this cycle (~8.7e-6 density) via check_featuremask (WANRKN9X:15; 524k#1 → ZSATSM69:15, AJ6R3Z97:63, CRCSTZDR:15, 5DHZTWZ9:63, 5U8DM3J3:2047, V
+- NEW 2 LIVE ACTIVE accounts recovered — 5U8DM3J3 + RFK5RDU6 both `state:0` with current-era mask 2047 on /identity/check (111B/90B) — active-account enumeration proven, not just stale/abandoned
+- NEW check_featuremask ceiling precisely bounded ~524k IDs/req (~5.77MB body): 524000→200/2620001B, 524900→500/0B, 1M→413/176B — body-size cap, NOT count-cap (vs check/fetch_bulk 10000); zero 429 across al
+- NEW check_featuremask alphabet/case-fold probe (80 IDs: A-Z/a-z/0-9/symbols/ambiguous/1I-O0-lI) → all `null` except ECHOECHO→9, no 500, NO case-fold (contrast match_token) — restricted-alphabet census sho
+- NEW staging cap parity confirmed — 524000-batch → 200/2620018B (3.4s) on ds-apip.test.threema.ch vs 200/2620008B (14.2s) prod; staging 0 hits in 524k (test dataset isolation reconfirmed)
+- CHANGED "mask = registration-era snapshot" strong form WEAKENED — active accounts carry current-era 2047 masks; legacy masks (255/63/15/9/3) only on inactive accounts → masks reflect live client capability st
