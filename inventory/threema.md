@@ -2143,3 +2143,10 @@
 - CHANGED `billing.threema.ch`: Serves real static assets (jQuery 3.7.1 + custom CSS on /cache/) with full security headers; 404 error page lacks all headers — header divergence confirmed
 - CHANGED `safe-{01,1a,1b,02,00}.threema.ch`: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64hex}` — byte-stable across all 5 hosts behind 203.56.112.231
 - CHANGED `ds-apip.threema.ch/identity/match`: Rate-limiter cooldown >100min re-measured; burst-only limiter; 60s+ spacing still triggers 429; single POST after cooldown → 200/39B baseline
+
+## 2026-08-13 17:42:19 UTC
+- NEW `ds-apip.threema.ch/identity/check`: batch revocation-state + feature-flag oracle sharing fetch_bulk's 10000-ID count-cap (from hypotheses-bigpickle.txt, ranked 90)
+- NEW `crypto.ts:223` benchmark password: sha256 corrected to `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed from literal); stale KB `52a0af98...` was incorrect
+- NEW `threema-desktop` RAG source paths corrected: `fs.ts` at `apps/desktop/src/common/node/fs.ts`, `crypto.ts` at `apps/desktop/src/common/node/key-storage/crypto.ts`, `key-storage/index.ts` at `apps/desk
+- CHANGED `ds-apip.threema.ch/identity/fetch_priv`: Now ACCEPTED in KB as 6th unauthenticated identity-existence oracle with revocation-3-state error path (was NEW in prior cycle)
+- CHANGED `poc/key-storage-acl-bypass-poc.js`: Filesystem GROUND TRUTH still ABSENT (`ls poc/` → No such file) despite KB claiming "genuinely on disk" — 19+ cycle KB/filesystem contradiction persists

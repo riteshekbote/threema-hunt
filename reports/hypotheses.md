@@ -3952,3 +3952,19 @@
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: Case-fold amplification re-confirmed — POST `{"identity":"echoecho"}` → 200/133B identical to ECHOECHO;
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 30 sequential POSTs at 1 rps quantified — all HTTP 200, no 429/RateLimit/Retry-After, consistent ~340ms;
 - LEARN: ACCEPTED OTHER @ ds-apip.test.threema.ch: Staging directory mirror confirmed live — identical API surface + CORS `*` + `Access-Control-Allow-Methods: POST,GET,O
+
+## RANKED HYPOTHESES 2026-08-13 17:42:19 UTC
+- [95] threema-desktop: threema-desktop key-storage (Windows) ACL bypass leaking Ed25519 identity key + SQLCipher database key (from reports/hypotheses-laguna.txt)
+- [90] https://ds-apip.threema.ch/identity/check: Unauthenticated batch revocation-state + feature-flag oracle via identity/check (from reports/hypotheses-nemotron3.txt)
+- [75] https://ds-apip.threema.ch/identity/check: check `state`/`type` fields are a revocation-state + identity-class discrimination oracle (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://ds-apip.threema.ch/
+- NEXT(hypotheses-bigpickle.txt): PROBE: `curl -s -X POST -H "Content-Type: application/json" -d '{"identities":["ECHOECHO"]}' https://ds-apip.test.threema.ch/identity/check` + `-d '{"identities
+- NEXT(hypotheses-laguna.txt): PROBE: Generate a Threema Desktop test identity on a Windows host and run `node poc/key-storage-acl-bypass-poc.js` against a logged-in profile to validate the f
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: New endpoint confirmed as 6th unauthenticated identity-existence oracle with revocation-3-state error pa
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: Case-fold amplification re-confirmed — POST `{"identity":"echoecho"}` → 200/133B identical to ECHOECHO;
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 30 sequential POSTs at 1 rps quantified — all HTTP 200, no 429/RateLimit/Retry-After, consistent ~340ms;
+- LEARN: ACCEPTED OTHER @ ds-apip.test.threema.ch: Staging directory mirror confirmed live — identical API surface + CORS `*` + `Access-Control-Allow-Methods: POST,GET,O
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle DISPROVEN — 404 response has NO CORS headers (neither GET nor OPTIONS); missing-key/invalid-
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` — sha256 corrected to `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae1
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): `fileModeInternalObjectIfPosix()` returns `{}` on win32 confirmed via WebFetch on `stable`; both `ke
+- LEARN: REJECTED MISCONFIG @ threema-desktop OnPrem config trust: Ed25519 signature verification against 3 hardcoded `ONPREM_CONFIG_TRUSTED_PUBLIC_KEYS` in `vite.config
