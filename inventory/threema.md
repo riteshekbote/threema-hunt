@@ -1948,3 +1948,12 @@
 - CHANGED inner/v3.ts:65-70: confirmed `INNER_KEY_STORAGE_V3_SCHEMA` exposes `identityData.ck` (Ed25519 client private key) + `databaseKey` (SQLCipher key) via `validatedToConsumable`.
 - CHANGED fs.ts:41-42: confirmed `fileModeInternalObjectIfPosix()` returns `{}` on win32, `{mode: MODE_FILE_INTERNAL}` on POSIX.
 - CHANGED electron-main.ts:934-946: confirmed `STORE_USER_PASSWORD` writes with `{...fileModeInternalObjectIfPosix()}` = `{}` on Windows; `LOAD_USER_PASSWORD` reads via `fs.readFileSync` + `electron.safeStorage
+
+## 2026-08-13 02:49:03 UTC
+- NEW poc/key-storage-acl-bypass-poc.js: Filesystem GROUND TRUTH confirms NOW genuinely on disk (sha256 `cc0481d8aff12bd3e9e0243b599271e7e14eb732a3efb0822fdf6ba52e621c7e`, 14104 B); `node --check` PASS; `no
+- NEW crypto.ts:223 benchmark password: sha256 corrected to `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed from literal `r3gGN9GDQ5NF6tM6`); previous KB `52a0af98...` was incor
+- NEW threema-desktop key-storage (Windows): Full RAG verification chain confirmed independently this cycle via WebFetch + GitHub API on `stable` branch — 6 paths: fs.ts:41-42, key-storage/index.ts:555, ele
+- NEW electron-main.ts:1234-1262 BrowserWindow webPreferences: confirmed via direct curl on GitHub `stable` — `sandbox` UNSET (not `false`), `// TODO(DESK-79): Enable sandbox: true` at L1255; `nodeIntegrati
+- CHANGED ds-apip.threema.ch/identity/match_token: Case-fold amplification confirmed — POST `{"identity":"EchoEcho"}`→200/133B token + constant tokenRespKeyPub; GET `/identity/EchoEcho`→404 (case-sensitive); si
+- CHANGED ds-apip.threema.ch/identity/fetch_bulk: 30 sequential POSTs at 1 rps quantified — all HTTP 200, no 429/RateLimit/Retry-After, consistent ~340ms response times; hard 10000-ID ceiling re-verified
+- CHANGED ds-apip.test.threema.ch: Staging directory mirror confirmed live — identical API surface + CORS `*` + `Access-Control-Allow-Methods: POST,GET,OPTIONS,DELETE` as production; HSTS/Expect-CT present on s
