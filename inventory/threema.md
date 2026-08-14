@@ -2558,3 +2558,11 @@
 - CHANGED safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated /backups/{64hex} — byte-stable across all 5 hosts behind 203.56.112.231
 - CHANGED poc/key-storage-acl-bypass-poc.py: Filesystem GROUND TRUTH still ABSENT (20+ cycle KB/filesystem contradiction persists)
 - CHANGED threema-desktop key-storage (Windows): RAG source chain fully verified (6 paths on GitHub stable: fs.ts:41, index.ts:559, electron-main.ts:934-946, inner/v3.ts:65-70, crypto.ts:53-113, vite.config.ts)
+
+## 2026-08-14 19:21:21 UTC
+- NEW ds-apip.threema.ch/identity/check_featuremask: sibling parity CONFIRMED on api.threema.ch + apip.threema.ch (byte-identical `{"featureMasks":[9,null]}`, CORS `*` on all 3 prod hosts)
+- NEW work.threema.ch/api/v1/users: returns 401 with ACAO `*` but OPTIONS 404 without CORS headers — server-side cross-origin only, browser path blocked
+- CHANGED poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH still ABSENT (`find / -name "key-storage-acl-bypass*" 2>/dev/null` returns zero; `ls poc/` → No such file) — 20+ cycle KB/filesystem contradi
+- CHANGED safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64hex}` — byte-stable across all 5 hosts behind 203.56.112.231
+- CHANGED billing.threema.ch: serves real static assets (jQuery 3.7.1 + CSS on /cache/) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options); 404 error page lacks all headers — header divergence conf
+- CHANGED work.threema.ch/api/v1: AUTH finding downgraded to non-finding — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`; X-Api-Key NOT in desk
