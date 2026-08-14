@@ -13084,3 +13084,33 @@ verify_steps: PASSIVE — single POST `{"identities":[10000 random 8-char IDs]}`
 impact: Quantified enumeration yield → sustained census feasibility proof at 10k IDs/call. CVSS 7.5 High.
 testability: PASSIVE
 [NEXT] PROBE: single POST `{"identities":[10000 random 8-char uppercase-alnum IDs]}` to https://ds-apip.threema.ch/identity/check ≤1 rps — tally states[]/featureMasks[] buckets to quantify active-account density; then diff the 4-ID cohort masks against this cycle for drift.
+## 2026-08-14 20:51:08 UTC [chat] (model bigpickle)
+[HYP] check/check_featuremask dual-oracle sustained census — active+dormant account recovery at 524k IDs/req
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask + /identity/check (siblings api/apip.threema.ch, ds-apip.test.threema.ch)
+confidence: 95
+reasoning: This cycle re-confirmed check at 10k/req (200/90061B, 1.09s, zero 429) and check_featuremask cohort byte-stable; prior 1.148M draw yielded 10 registered (density 8.7e-6) incl. 2 LIVE active (state:0, mask 2047). featureMasks non-null = registration discriminator now proven independent of state.
+evidence_needed: Sustained multi-524k-request sweep feasibility without 429/ban + density re-measurement on a fresh draw.
+verify_steps: PASSIVE — single POST `{"identities":[524000 random 8-char uppercase-alnum IDs]}` to https://ds-apip.threema.ch/identity/check_featuremask (Origin: https://evil.example) ≤1 rps; tally non-null masks; confirm zero 429; compare density vs 8.7e-6.
+impact: Unauthenticated census of 5.4T-ID keyspace → active-account recovery + legacy-client fingerprinting → precision phishing + message pre-encryption. Browser-viable (CORS `*`). CVSS 7.5 High.
+testability: PASSIVE
+[HYP] fetch_priv tri-bucket revoked-vs-never-registered split in 88B bucket
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv (siblings api/apip.threema.ch)
+confidence: 95
+reasoning: 8/8 registered-ID probes (ECHOECHO, 5U8DM3J3 state:0; WANRKN9X state:1) minted 200/134-136B tokens with per-request challenge + constant tokenRespKeyPub 6DsxFgjFcMVU/… on ds-apip+apip; ZZZZZZZZ → 200/88B `{"errorType":"invalid-identity"}`. 88B bucket = revoked OR never-registered only.
+evidence_needed: Known-revoked control ID → 88B while check still reports state+mask≠null → settles revocation observability split.
+verify_steps: AUTH_HELPED: register throwaway ID, revoke it, then POST `{"identity":"<revoked>"}` to fetch_priv vs check/check_featuremask — observe token→88B transition with mask retained.
+impact: Passive active/dormant/revoked discrimination on 3 hosts → precision phishing + revocation-status leak. CVSS 7.5 High.
+testability: AUTH_HELPED
+[HYP] check states[] revocation encoding — revoked accounts produce state outside {0,1} or retain mask≠null
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check (siblings api/apip.threema.ch)
+confidence: 75
+reasoning: states[] only 0 (never-registered + active) and 1 (dormant, WANRKN9X) observed; featureMasks non-null is the registration discriminator. Whether revocation flips state to 2/3 or nulls the mask is unmapped.
+evidence_needed: A revoked control's check response (state + featureMask values).
+verify_steps: AUTH_HELPED: after registering+revoking a throwaway, POST `{"identities":["<revoked>","WANRKN9X","ZZZZZZZZ"]}` to https://ds-apip.threema.ch/identity/check ≤1 rps; diff state[]/featureMasks[] encoding.
+impact: Closes the last encoding gap of the tri-state oracle → complete passive account lifecycle classification. CVSS 7.5 High.
+testability: AUTH_HELPED
+[FINAL]
+[NEXT] PROBE: single POST `{"identities":[524000 random 8-char uppercase-alnum IDs]}` to https://ds-apip.threema.ch/identity/check_featuremask with `Origin: https://evil.example`, ≤1 rps — tally non-null masks, confirm zero 429/ban, and re-measure registered-account density against the prior 8.7e-6 baseline (1.148M draw, 10 hits, 2 live-active).
