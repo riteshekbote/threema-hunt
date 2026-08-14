@@ -1,14 +1,86 @@
 [0m
 > build · nemotron-3-ultra-free
 [0m
-[0m← [0mWrite triage-report.md
-Wrote file successfully.
-[0m
-Done. Wrote triage report to `triage-report.md`.
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcat << 'EOF' > /tmp/triage.md
+# Static Scan Triage: threema-ch GitHub Org
 
-**Summary**: No reportable secrets (REAL_SECRET) from this scan. All 56 hits classify as:
-- **TEST_OR_EXAMPLE** (28): test fixtures, benchmark dummy (`crypto.ts:223` — known dummy, purged at L233)
-- **ENDPOINT_LEAK** (11): staging URLs in OpenAPI specs & `vite.config.ts` — already documented in KB
-- **INTERESTING** (17): constant names, Sentry public DSNs, proper redaction in `SfuToken.kt:49`, and `JoinResponse.kt:70` (icePassword in toString — low value, needs runtime logcat validation)
+## REAL_SECRET
+| File | Line | SHA256 | Verdict |
+|------|------|--------|---------|
+| (none) | - | - | No hardcoded credentials with signs of life found |
 
-No new vulnerability candidates.
+## TEST_OR_EXAMPLE
+| File | Line | Context | Notes |
+|------|------|---------|-------|
+| threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | `serverPassword: "password1"` | Test fixture |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15 | `expectedAuthToken = "authToken"` | Test fixture |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 18 | `expectedPassword = "testPassword"` | Test fixture |
+| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift | 50,72,148 | `licensePassword = "testPassword"` | Test fixture |
+| threema-ios/ThreemaFrameworkTests/WorkDataAPICallerTests.swift | 13,37,103 | `expectedPassword = "testPassword"` / `validPassword` | Test fixture |
+| threema-ios/ThreemaTests/SafeTests.swift | 67,76,105 | `safePassword: "shootdeathstar"` | Test-only credential (TEST_ONLY) |
+| threema-ios/ThreemaTests/ManuallyTests/.../HttpClientDownloadSafeTests.swift | 28,76,120 | `safePassword: "shootdeathstar"` | Manual test fixture |
+| threema-ios/ThreemaTests/ManuallyTests/.../HttpClientUploadSafeTests.swift | 38,83 | `safePassword: "shootdeathstar"` | Manual test fixture |
+| threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift | 30,227 | `password = "abcdefghijkl"` / `validPassword = "ABcd!@#tgk092"` | Validator test fixtures |
+| threema-desktop/apps/desktop/src/common/test-data.ts | 62 | `keyStoragePassword: 'CHANGE_ME'` | Explicit placeholder |
+| threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts | 223 | `password: 'r3gGN9GDQ5NF6tM6'` | Benchmark-only dummy (KB REJECTED) |
+| threema-android/app/src/main/java/.../SfuToken.kt | 49 | `sfuToken='********'` | Redaction in toString() — security-positive |
+
+## ENDPOINT_LEAK
+| File | Line | Endpoint | Type |
+|------|------|----------|------|
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` | Staging work directory |
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 917 | `https://ds-apip.test.threema.ch` | Staging consumer directory |
+| threema-android/domain/protocol/src/directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` | Staging work directory |
+| threema-android/domain/protocol/src/directory.openapi.yml | 911 | `https://ds-apip.test.threema.ch` | Staging consumer directory |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` | Staging work directory (dup) |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 917 | `https://ds-apip.test.threema.ch` | Staging consumer directory (dup) |
+| threema-desktop/apps/desktop/config/vite.config.ts | 147 | `DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/'` | Staging consumer directory |
+| threema-desktop/apps/desktop/config/vite.config.ts | 153 | `WORK_SERVER_LEGACY_URL: 'https://ds-apip-work.test.threema.ch/'` | Staging work directory |
+| threema-desktop/apps/desktop/config/vite.config.ts | 154 | `WORK_SERVER_URL: 'https://work.test.threema.ch/'` | Staging work web app |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 7 | `https://ds-apip-work.test.threema.ch` | Staging work directory (dup) |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 911 | `https://ds-apip.test.threema.ch` | Staging consumer directory (dup) |
+
+## INTERESTING
+| File | Line | Finding | Notes |
+|------|------|---------|-------|
+| threema-ios/Threema/AppMigration.swift | 873 | `persistenceKeyLicensePassword = "Threema license password"` | UserDefaults **key name**, not a password (KB REJECTED) |
+| threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt | 15 | `publicApiKey = "b3e20afbf356a8748bb62ac165aa780c"` | Sentry public DSN (sha256 `3a826628...`) — public by design |
+| threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt | 19 | `publicApiKey = "615af77cb3d980c41b3b04b07417cc7d"` | Sentry public DSN (sha256 `3686395f...`) — public by design |
+| threema-android/app/src/main/java/.../JoinResponse.kt | 70 | `icePassword='$icePassword'` in toString() | Local-only, short-lived ICE creds; potential logcat leak if logged (low value, needs runtime validation) |
+| threema-android/app/src/main/java/.../NotificationChannels.kt | 52 | `NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"` | Channel ID constant, not a secret |
+| threema-android/app/src/main/java/.../PasswordEntryDialog.java | 47 | `KEY_PASSWORD = "password"` | SharedPreferences key name |
+| threema-android/app/src/main/java/.../WebClientSessionModel.java | 28 | `COLUMN_PUSH_TOKEN = "push_token"` | DB column name |
+| threema-android/app/src/main/java/.../DatabaseUpdateToVersion37.java | 48 | `COLUMN_PUSH_TOKEN = "push_token"` | DB column name (dup) |
+| threema-android/app/src/main/java/.../ClientInfo.java | 37 | `PUSH_TOKEN = "pushToken"` | JSON field name constant |
+| threema-android/app/src/main/java/.../IceCandidateParser.java | 43 | `TOKEN = "[a-zA-Z]+"` | Regex pattern constant |
+| threema-desktop/apps/desktop/src/common/enum/index.ts | 3126,3162 | `LOAD_USER_PASSWORD` / `STORE_USER_PASSWORD` | IPC handler names |
+| threema-desktop/apps/desktop/src/enum/schema.ts | 983,1000 | `LOAD_USER_PASSWORD` / `STORE_USER_PASSWORD` | IPC handler names (dup) |
+| threema-desktop/packages/webrtc/src/sdp/ice-password.ts | 12 | `throw Error(\`Not a valid ICE password: '\${value}'\`)` | Validation error message |
+
+---
+
+## VERDICT LIST
+
+| Candidate | Category | REPORT_CANDIDATE |
+|-----------|----------|------------------|
+| threema-desktop crypto.ts:223 benchmark password | TEST_OR_EXAMPLE (benchmark dummy) | **no** — KB REJECTED, `benchmarkKey.purge()` at L233 |
+| threema-ios AppMigration.swift:873 license password key | INTERESTING (key name only) | **no** — KB REJECTED, not a secret |
+| threema-android SentryConfig.kt DSN keys | INTERESTING (public DSN) | **no** — public by design |
+| threema-android JoinResponse.kt:70 icePassword in toString | INTERESTING (local ICE creds) | **no** — low value, requires runtime logcat validation |
+| Staging endpoints in openapi.yml / vite.config.ts | ENDPOINT_LEAK | **no** — staging hosts already in KB (ds-apip.test, ds-apip-work.test, work.test) |
+| All test fixtures (testPassword, shootdeathstar, etc.) | TEST_OR_EXAMPLE | **no** |
+| Threema desktop IPC handler names | INTERESTING (constants) | **no** |
+| Android constants (push_token, KEY_PASSWORD, etc.) | INTERESTING (constants) | **no** |
+
+---
+
+## SUMMARY
+- **0 REAL_SECRET** findings — no hardcoded live credentials
+- **18 TEST_OR_EXAMPLE** hits — all test fixtures, placeholders, or benchmark dummies
+- **11 ENDPOINT_LEAK** hits — all staging endpoints already documented in KB
+- **17 INTERESTING** hits — constants, key names, public DSNs, validation patterns; one low-value ICE cred leak in toString() requiring runtime validation
+- **No new vulnerability classes** — all findings already captured in knowledge base
+EOF
+cat /tmp/triage.md failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
