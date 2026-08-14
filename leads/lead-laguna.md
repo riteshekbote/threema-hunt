@@ -10077,3 +10077,36 @@ testability: PASSIVE
 ## 2026-08-14 06:28:29 UTC [desktop] (model laguna)
 ## 2026-08-14 08:01:00 UTC [desktop] (model laguna)
 ## 2026-08-14 09:04:30 UTC [desktop] (model laguna)
+## 2026-08-14 09:56:07 UTC [desktop] (model laguna)
+[HYP] Live featureMask time-drift enables client-version tracking of specific active users
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask
+confidence: 55
+reasoning: 14-ID cohort masks byte-identical across check + check_featuremask this cycle (sha256 `3cf2e997…`); active accounts carry current-era 2047, inactive carry legacy 255/63/15/9/3; endpoint returns per-ID masks unauthenticated, zero 429, ~524k IDs/req body-cap.
+evidence_needed: cohort re-query ≥1h later shows a mask change on an active account → masks drift with client upgrades.
+verify_steps: PASSIVE — 1 POST of the 14 recovered IDs to https://ds-apip.threema.ch/identity/check_featuremask next cycle (≥1h from baseline `3cf2e997…`); diff masks; ≤1 rps.
+impact: Attacker tracks specific active users' client-version upgrades over time (upgrade surveillance) for targeted-phishing attribution. Severity: Low.
+testability: PASSIVE
+[HYP] /identity/check state:1 uniquely marks registered-but-revoked/inactive identities (3-way oracle)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 50
+reasoning: Own probes — never-existed lowercase IDs → state:0/mask:null; ECHOECHO (registered legacy) → state:0/mask:9; 12 recovered inactive IDs → state:1/mask≠null; active → state:0/mask:2047; check is case-sensitive (echoecho→null). fetch_priv conflates not-found+revoked; check discriminates.
+evidence_needed: a known-revoked control ID confirming state:1 = revoked (not merely dormant).
+verify_steps: AUTH_HELPED: on a program-provided test ID, register throwaway identity, confirm state:0; revoke via app; re-POST {"identities":["<id>"]} to check → observe state transition (1 = revoked, or collapse to 0).
+impact: revocation-status census → account-lifecycle surveillance (spot recently-revoked accounts for re-registration/phishing). Severity: Low.
+testability: AUTH_HELPED
+[HYP] Cross-endpoint token interchangeability — fetch_priv-minted token accepted by revoke phase-2 PoP
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/revoke
+confidence: 55
+reasoning: revoke + fetch_priv share the 64-char `/2p+` token family with identical tokenRespKeyPub constant (sha256 `c8005cca…`); both mint per-request random tokens for the same identity; both return 200/134B. One verify key likely validates all minted tokens.
+evidence_needed: whether a fetch_priv token validates as the revocation PoP challenge.
+verify_steps: AUTH_HELPED: on a program-provided test ID, submit revoke phase-2 signed over a fetch_priv-minted token vs a revoke-minted token; compare acceptance/error.
+impact: challenge-token scope confusion across endpoints; abuse-enabling only, no data exposure (self-service mint). Severity: Low.
+testability: AUTH_HELPED
+[PARKED] /identity/check 25s-hang/000 as input-triggered error path: DISPROVEN this cycle — lowercase/alphabet/empty-array batches all hang once then return 200/0.46s on retry; the stable 500 is empty-body-only (malformed request), no batch/alphabet boundary trigger; confidence dropped below 40.
+[PARKED] revoke mint token time-stability handle: RESOLVED as per-request random (token sha256 changed `1aefce38…`→`4ccbd28d…`); hypothesis closed, folded into the token-family characterization.
+[FINAL] 1. [55] token interchangeability fetch_priv→revoke (AUTH_HELPED) | 2. [55] featureMask time-drift (PASSIVE) | 3. [50] check state:1 3-way oracle (AUTH_HELPED)
+[NEXT] PROBE: 1 POST of the 14 recovered IDs to `https://ds-apip.threema.ch/identity/check_featuremask` (≥1h after this cycle's baseline capture, masks sha256 `3cf2e997…`), byte-compare mask array for drift on active accounts 5U8DM3J3/RFK5RDU6 (mask 2047) vs legacy inactive cohort — closes the featureMask time-drift hypothesis; ≤1 rps, single request.
+[RISK] chat: 25 — chat in-band channel closed (0-byte handshake, auth-required login frame); DNS shard map complete; staging out of scope | web: 65 — directory API exposes 8+ unauthenticated identity oracles (check/check_featuremask/fetch_bulk/match_token/fetch_priv/match/check_license/create) with CORS `*`, zero rate-limit on most, ~524k IDs/req enumeration; work/billing/broadcast partially deployed | sync: 20 — mediator/rendezvous uniform 403, high-entropy paths, no passive divergence | safe: 35 — backup API credential-gated, HSTS/Expect-CT absent on GET 400, CORS credentialed preflight | desktop-src: 50 — Windows keystorage ACL bypass (DPAPI recoverable, no ACL), sandbox unset (DESK-79), key-storage PoC artifact absent on filesystem.
