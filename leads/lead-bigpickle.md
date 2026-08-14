@@ -13440,3 +13440,31 @@ evidence_needed: no new evidence required for the ladder claim; optional refinem
 verify_steps: PASSIVE — RAG only (git log per-flag introduction) OR cross-check vs android/iOS flag constants. Zero network load to Threema.
 impact: Version-attribution layer on top of the accepted census → legacy-client targeting. CVSS 5.3 Medium.
 testability: PASSIVE
+## 2026-08-14 23:14:38 UTC [chat] (model bigpickle)
+[HYP] types[] on /identity/check = stored account subclass; type:1 is functional, not cosmetic
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check (siblings api/apip)
+confidence: 80
+reasoning: DZ34BVDV type:1 stable 3rd cycle, 131B byte-identical on ds-apip + api (own probe this cycle); all 8 cohort siblings (active, dormant, never-registered) type:0. This cycle added independent confirmation: fetch_priv refuses a token for it while match_token mints one.
+evidence_needed: a second type:1 ID in census draws, or correlation of DZ34BVDV with a known work/gateway-origin identity.
+verify_steps: PASSIVE — periodic 9-ID re-POST to /identity/check ≤1 rps for type:1 stability; watch future census draws for new type:1.
+impact: Adds account-class dimension to the accepted census → restricted-account identification. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] fetch_priv 88B bucket = never-registered OR type:1; token minted iff type:0 AND registered
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv (siblings api/apip)
+confidence: 85
+reasoning: Own probes this cycle: registered type:0 active (5U8DM3J3), dormant (6F5S79A3, YUWB4V3M) → tokens 134-135B; registered type:1 (DZ34BVDV) → 88B; never-registered (ZZZZZZZZ) → 88B. State is irrelevant; type:1 or never-registered lands in 88B. match_token mints for the same type:1 ID (134B) → handler-level gate difference.
+evidence_needed: revoked-control ID to separate revoked from type:1 within the 88B bucket; a type:0 check on fetch_priv for a revoked identity.
+verify_steps: AUTH_HELPED — register a throwaway ID, revoke it, POST {"identity":X} to fetch_priv vs /identity/check (mask retained, token?). CONFLICTS with passive-first (no account creation) — defer to Threema triage; passive component (type:1 discriminator) already confirmed.
+impact: Passive active-class discrimination: revoked/restricted-account oracle on top of the accepted census. CVSS 7.5 High (asymmetric), but passive observable portion is Medium.
+testability: AUTH_HELPED
+[HYP] match_token mints for type:1 while fetch_priv refuses → token-mint inconsistency reveals restricted subclass via public endpoints alone
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token (siblings api/apip)
+confidence: 65
+reasoning: This cycle: DZ34BVDV (type:1, registered) → match_token token (134B) but fetch_priv 88B; 6F5S79A3 (type:0) → token on both. Cross-endpoint differential is observable unauthenticated with CORS `*` and OPTIONS 200 (browser-viable).
+evidence_needed: confirm the differential holds across all 3 hosts for DZ34BVDV (parity check on api/apip this cycle not yet run for fetch_priv).
+verify_steps: PASSIVE — ≤1 rps re-POST of DZ34BVDV to fetch_priv + match_token on api.threema.ch and apip.threema.ch; confirm 88B-vs-134B differential identical.
+impact: Cross-endpoint oracle: classifies any known identity as type:0/type:1 without needing census — complements match_token case-fold amplification. CVSS 5.3 Medium.
+testability: PASSIVE
