@@ -1552,3 +1552,17 @@ https://api.threema.ch/identity/check_featuremask -> HTTP 500
 https://api.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
 https://apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
 https://api.threema.ch/identity/{set_revocation_key,revoke -> HTTP 404
+
+## 2026-08-14 19:55:08 UTC
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/check -> HTTP 500
+https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://work.threema.ch/api/v1/users -> HTTP 401
+https://threema-desktop -> ERR <urlopen error [Errno -3] Temporary failure in nam
+https://ds-apip.threema.ch/identity/EchoEcho -> HTTP 404
+https://api.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
+https://github.com/threema-ch/threema-desktop -> 200 len=? type=text/html; charset=utf-8
+https://ds-apip.threema.ch/identity/create -> 200 len=? type=application/json; charset=utf-8
+https://threema-android/directory.openapi.yml -> ERR <urlopen error [Errno -3] Temporary failure in nam
+https://api.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8

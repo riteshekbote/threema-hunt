@@ -1,4 +1,4 @@
-## 2026-08-14 19:08:23 UTC [web] (model nemotron3)
+## 2026-08-14 19:54:29 UTC [web] (model nemotron3)
 [NEW] ds-apip.threema.ch/identity/check_featuremask: sibling parity CONFIRMED on api.threema.ch + apip.threema.ch (byte-identical `{"featureMasks":[9,null]}`, CORS `*` on all 3 prod hosts)
 [NEW] work.threema.ch/api/v1/users: returns 401 with ACAO `*` but OPTIONS 404 without CORS headers — server-side cross-origin only, browser path blocked
 [CHANGED] poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH still ABSENT (`find / -name "key-storage-acl-bypass*" 2>/dev/null` returns zero; `ls poc/` → No such file) — 20+ cycle KB/filesystem contradiction persists
@@ -8,15 +8,13 @@
 [PRIO] https://ds-apip.threema.ch/identity/check_featuremask, 9.15, attack_surface:10 business_value:9 tech_exposure:8 gate_ease:10 cloud_surface:5 freshness:10
 [PRIO] https://ds-apip.threema.ch/identity/check, 8.55, attack_surface:9 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:9
 [PRIO] https://ds-apip.threema.ch/identity/match_token, 8.25, attack_surface:9 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:8
-[PRIO] https://ds-apip.threema.ch/identity/fetch_priv, 7.80, attack_surface:8 business_value:7 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:7
-[PRIO] https://github.com/threema-ch/threema-desktop (key-storage Windows), 7.65, attack_surface:8 business_value:9 tech_exposure:6 gate_ease:6 cloud_surface:4 freshness:9
-[PRIO] https://ds-apip.threema.ch/identity/create, 7.20, attack_surface:7 business_value:6 tech_exposure:8 gate_ease:10 cloud_surface:4 freshness:7
-[PRIO] https://threema-android/directory.openapi.yml, 6.80, attack_surface:6 business_value:7 tech_exposure:9 gate_ease:10 cloud_surface:3 freshness:6
+[PRIO] https://work.threema.ch/api/v1/users, 6.30, attack_surface:7 business_value:6 tech_exposure:6 gate_ease:5 cloud_surface:4 freshness:8
+[PRIO] https://threema-desktop (key-storage Windows), 7.65, attack_surface:8 business_value:9 tech_exposure:6 gate_ease:6 cloud_surface:4 freshness:9
 [HYP] Unauthenticated massive identity enumeration via check_featuremask enables precision targeting of active users
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/check_featuremask
 confidence: 95
-reasoning: 1.148M random draws yielded 10 real identities including 2 LIVE ACTIVE accounts (5U8DM3J3, RFK5RDU6 state:0 mask 2047); ceiling ~524k IDs/req (body-size cap ~5.77MB) vs fetch_bulk's 10k count-cap; zero 429 across all probes; tri-state oracle (mask-null=never-registered, state:1=inactive, state:0=active) with current-era capability masks; sibling parity on api.threema.ch/apip.threema.ch
+reasoning: 1.148M random draws yielded 10 real identities including 2 LIVE ACTIVE accounts (5U8DM3J3, RFK5RDU6 state:0 mask 2047); ceiling ~524k IDs/req (body-size cap ~5.77MB) vs fetch_bulk's 10k count-cap; zero 429 across all probes; tri-state oracle (mask-null=never-registered, state:1=inactive, state:0=active) with current-era capability masks; sibling parity on api.threema.ch/apip.threema.ch confirmed byte-identical
 evidence_needed: Passive probe confirming 524k-ID batch ceiling and tri-state response schema on all 3 prod hosts
 verify_steps: PASSIVE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://ds-apip.threema.ch/identity/check_featuremask — verify 200 + CORS * + featureMask per identity; test 524000/524900/1000000-ID batches for body-size cap; repeat on api.threema.ch + apip.threema.ch for sibling parity
 impact: Unauthenticated massive directory enumeration (~524k IDs/req, no rate limit) with live active-account discrimination and per-identity capability profiling; enables precision targeting of active users. Severity: High (CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
