@@ -13360,3 +13360,83 @@ evidence_needed: type value stable on re-probe over time + correlation of type:1
 verify_steps: PASSIVE — periodic re-POST of the same 7-ID cohort to /identity/check ≤1 rps; check DZ34BVDV type:1 stability and watch for new type:1 IDs in future census draws.
 impact: Adds identity-classification dimension to the accepted census → work/gateway-account targeting. CVSS 5.3 Medium.
 testability: PASSIVE
+## 2026-08-14 22:41:41 UTC [chat] (model bigpickle)
+[HYP] fetch_priv 88B bucket = revoked OR never-registered — revocation observability split
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv (siblings api/apip)
+confidence: 85
+reasoning: 3-host probes this cycle: registered (ECHOECHO, census-recovered) → 200/135-137B token; never-registered ZZZZZZZZ → 200/88B; CORS `*`. The 88B bucket must contain any revoked IDs — revoked-vs-never-registered split unmapped, needs a revoked control.
+evidence_needed: A revoked control ID returns 88B on fetch_priv while /identity/check still reports state:1 + mask≠null (mask retained, token gone).
+verify_steps: AUTH_HELPED — register throwaway ID, revoke it, POST `{"identity":"<revoked>"}` to fetch_priv vs /identity/check. CONFLICTS with program passive-first (no account creation) — defer to Threema triage, do not self-register.
+impact: Passive active/dormant/revoked discrimination on 3 hosts → revocation-status leak + precision targeting. CVSS 7.5 High.
+testability: AUTH_HELPED
+[HYP] featureMask values map to client-version eras → version-attribution for targeting
+class: OTHER
+asset: github.com/threema-ch/{threema-android,threema-ios,threema-desktop} feature-flag constants
+confidence: 60
+reasoning: Census-recovered masks across all 3 hosts: 2047 (active+dormant), 255, 63, 15, 9, 3. Mask deltas are 3-6 bit flags; if each flag maps to a feature added in a known release, the mask dates the last-used client.
+evidence_needed: Repo feature-mask bit definitions (e.g. FeatureMask/FLAG_/featureMask constants) map bit→release/version tag.
+verify_steps: RAG — clone the 3 repos, grep feature-mask constants, correlate flags to git history/tags ≤ no network load.
+impact: Turns the accepted census into a version-attribution engine → target legacy clients with known-fixed vulns. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] /identity/check types[] encodes a stored identity subclass (gateway/work/alternate-flow)
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 60
+reasoning: type:1 on DZ34BVDV only, byte-identical across all 3 hosts (114B each, own probe); 4 sibling registered IDs + 1 never-registered all type:0 — host-independent stored per-identity attribute, not a keyspace function.
+evidence_needed: type value stable on re-probe over time + correlation of type:1 with a known gateway/work-origin identity.
+verify_steps: PASSIVE — periodic re-POST of the same 7-ID cohort to /identity/check ≤1 rps; check DZ34BVDV type:1 stability and watch for new type:1 IDs in future census draws.
+impact: Adds identity-classification dimension to the accepted census → work/gateway-account targeting. CVSS 5.3 Medium.
+testability: PASSIVE
+reasoning: type:1 on DZ34BVDV only, byte-identical across all 3 hosts (114B each, own probe); 4 sibling registered IDs + 1 never-registered all type:0 — host-independent stored per-identity attribute, not a keyspace function.
+evidence_needed: type value stable on re-probe over time + correlation of type:1 with a known gateway/work-origin identity.
+verify_steps: PASSIVE — periodic re-POST of the same 7-ID cohort to /identity/check ≤1 rps; check DZ34BVDV type:1 stability and watch for new type:1 IDs in future census draws.
+impact: Adds identity-classification dimension to the accepted census → work/gateway-account targeting. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] fetch_priv 88B bucket = revoked OR never-registered — revocation observability split
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv (siblings api/apip)
+confidence: 85
+reasoning: 3-host probes this cycle: registered (ECHOECHO, census-recovered) → 200/135-137B token; never-registered ZZZZZZZZ → 200/88B; CORS `*`. The 88B bucket must contain any revoked IDs — revoked-vs-never-registered split unmapped, needs a revoked control.
+evidence_needed: A revoked control ID returns 88B on fetch_priv while /identity/check still reports state:1 + mask≠null (mask retained, token gone).
+verify_steps: AUTH_HELPED — register throwaway ID, revoke it, POST `{"identity":"<revoked>"}` to fetch_priv vs /identity/check. CONFLICTS with program passive-first (no account creation) — defer to Threema triage, do not self-register.
+impact: Passive active/dormant/revoked discrimination on 3 hosts → revocation-status leak + precision targeting. CVSS 7.5 High.
+testability: AUTH_HELPED
+[HYP] featureMask values map to client-version eras → version-attribution for targeting
+class: OTHER
+asset: github.com/threema-ch/{threema-android,threema-ios,threema-desktop} feature-flag constants
+confidence: 60
+reasoning: Census-recovered masks across all 3 hosts: 2047 (active+dormant), 255, 63, 15, 9, 3. Mask deltas are 3-6 bit flags; if each flag maps to a feature added in a known release, the mask dates the last-used client.
+evidence_needed: Repo feature-mask bit definitions (e.g. FeatureMask/FLAG_/featureMask constants) map bit→release/version tag.
+verify_steps: RAG — clone the 3 repos, grep feature-mask constants, correlate flags to git history/tags ≤ no network load.
+impact: Turns the accepted census into a version-attribution engine → target legacy clients with known-fixed vulns. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] /identity/check types[] encodes a stored identity subclass (gateway/work/alternate-flow)
+asset: github.com/threema-ch/threema-desktop (stable) apps/desktop/src/common/network/types/index.ts
+[HYP] /identity/check types[] encodes a stored identity subclass — type:1 stable again this cycle
+class: OTHER
+asset: https://apip.threema.ch/identity/check (siblings ds-apip/api)
+confidence: 65
+reasoning: 9-ID cohort re-probe this cycle: states [1,0,1,1,0,0,1,0,1], types [0,0,0,0,0,0,0,0,1], featureMasks [31,2047,1023,31,2047,2047,3,9,31] — byte-identical 130B on all 3 hosts. DZ34BVDV type:1 stable for 2nd consecutive cycle; 4 sibling registered IDs + never-registered ECHOECHO-adjacent all type:0. Host-independent stored per-identity attribute.
+evidence_needed: new type:1 ID recovered via census OR correlation of DZ34BVDV with a gateway/work-origin identity.
+verify_steps: PASSIVE — periodic re-POST of the 7-ID cohort to /identity/check ≤1 rps; continue watching census draws for type:1.
+impact: Adds identity-classification dimension to the accepted census → work/gateway-account targeting. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] types[] on /identity/check encodes a stored identity subclass (gateway/work/alternate-flow)
+class: OTHER
+asset: https://apip.threema.ch/identity/check (siblings ds-apip/api)
+confidence: 65
+reasoning: DZ34BVDV type:1 stable across all 3 hosts and 2 cycles; all sibling registered IDs + never-registered control type:0; 130B byte-identical responses rule out per-host variance — host-independent per-identity attribute.
+evidence_needed: a second type:1 identity recovered by census, or correlation of DZ34BVDV with a known gateway/work-origin identity.
+verify_steps: PASSIVE — periodic re-POST of the 7-ID cohort to /identity/check ≤1 rps; watch census draws for new type:1 IDs.
+impact: Adds identity-classification dimension to the accepted census → work/gateway-account targeting precision. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] featureMask bit-set dates the last-used client feature-era (version attribution)
+class: OTHER
+asset: github.com/threema-ch/threema-desktop (stable) FEATURE_MASK_FLAG
+confidence: 75
+reasoning: Bit definitions now decoded; all census masks except 9 are monotone prefixes of 2047 → each observed mask pins the client to a feature era (e.g., 1023 pre-reactions, 255 pre-edit/delete, 63 pre-FS/group-call). Active (state:0) accounts all carry 2047 = current-era clients.
+evidence_needed: no new evidence required for the ladder claim; optional refinement maps each flag to its introducing release tag (git archaeology).
+verify_steps: PASSIVE — RAG only (git log per-flag introduction) OR cross-check vs android/iOS flag constants. Zero network load to Threema.
+impact: Version-attribution layer on top of the accepted census → legacy-client targeting. CVSS 5.3 Medium.
+testability: PASSIVE
