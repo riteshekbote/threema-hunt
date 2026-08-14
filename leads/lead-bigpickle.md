@@ -12191,3 +12191,32 @@ verify_steps: PASSIVE — 1 POST {"identities":[recovered IDs]} to ds-apip/ident
 impact: enables cohort-targeted phishing attribution (legacy-client accounts = higher credential-stuffing value). Severity: Low.
 testability: PASSIVE
 [NEXT] PROBE: 1 POST `{"identity":"ECHOECHO"}` to https://ds-apip.threema.ch/identity/revoke next cycle at ≥1h spacing; byte-compare token against this cycle's capture (sha256 `9a115312…`-style record) to classify revoke mint as time-stable handle vs TTL — resolves the 7th-oracle characterization; then DRAFT create closure writeup + update leads/state.
+## 2026-08-14 03:17:42 UTC [chat] (model bigpickle)
+[HYP] /identity/check input-triggered error path (500 / 25s-hang) at batch/alphabet boundary
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 42
+reasoning: 11-ID batch this cycle → HTTP 000 (25s hang) while 4-ID → 200/92B; prior cycles logged intermittent HTTP 500 on check; sharp 10000/10001 count-cap already proven → flakiness is NOT count-monotonic, points to input-triggered unhandled exception.
+evidence_needed: reproducible status/000 differential tied to a specific input class (batch size, alphabet, ID values).
+verify_steps: PASSIVE — POST batches of {2, 4, 11, 100, 1000, 10000} IDs and an alphabet-differential batch (lowercase/symbol IDs) at ≤1 rps; classify 500/000 as input-triggered vs transient; never probe during the 10000/10001 boundary test.
+impact: availability bug on an accepted enumeration endpoint + possible error-path oracle (500 vs 200 vs 400). Severity: Low.
+testability: PASSIVE
+[HYP] Cross-endpoint token interchangeability — fetch_priv-minted token accepted by revoke phase-2 PoP
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/revoke
+confidence: 50
+reasoning: revoke and fetch_priv share the `/2p+Z` token family, same 64-char shape, identical tokenRespKeyPub constant (sha256 `f78c80a9…`) — distinct from match_token's 43-char `/+r…` token; both mint per-request random tokens for the same identity.
+evidence_needed: whether a fetch_priv token validates as the revocation PoP challenge (same key family → likely shared verify).
+verify_steps: AUTH_HELPED: on a program-provided test ID, submit revoke phase-2 signed over a fetch_priv-minted token vs a revoke-minted token; compare acceptance/error.
+impact: challenge-token scope confusion across endpoints; at most abuse-enabling, no data exposure (self-service mint). Severity: Low.
+testability: AUTH_HELPED
+[HYP] /identity/check `types` field may discriminate work-managed accounts (type≠0) via passive random draws
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 45
+reasoning: cohort of 11 recovered identities all return types=[0,…] (consumer); if type≠0 encodes work-managed identity, check (10000/req, unauthenticated, zero 429) extends the proven census to work-account attribution; semantics of `types` not verified in any published spec (all consumer routes undocumented).
+evidence_needed: any type≠0 sample among random draws.
+verify_steps: PASSIVE — 1-2 random-draw batches (up to 10000 IDs) via check at ≤1 rps, scan `types` for non-zero; no third-party targeted IDs.
+impact: work-account census → targeted phishing of managed accounts. Severity: Low-Medium if type≠0 confirmed.
+testability: PASSIVE
+[NEXT] PROBE: repeat the 11-ID cohort batch plus a 2-ID control on https://ds-apip.threema.ch/identity/check (≥2s apart) to confirm the 25s-hang/000 is reproducible, then one alphabet-differential batch (100 mixed lowercase/symbol IDs) at ≤1 rps to classify the intermittent 500/000 as input-triggered vs transient.
