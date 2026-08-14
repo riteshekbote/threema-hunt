@@ -1426,3 +1426,17 @@ https://ds-apip.threema.ch/identity/check -> HTTP 500
 https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
 https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-14 10:46:26 UTC
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/check -> HTTP 500
+https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
+https://github.com/threema-ch/threema-desktop -> 200 len=? type=text/html; charset=utf-8
+https://github.com/threema-ch/threema-desktop.git -> 200 len=? type=text/html; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_priv` -> HTTP 404
+https://ds-apip.threema.ch/identity/ZZZZZZZZ` -> HTTP 404
+https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/apps/desktop/src/common/node/fs.ts' -> HTTP 404
+https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8

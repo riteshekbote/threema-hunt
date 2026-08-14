@@ -2460,3 +2460,14 @@
 - CHANGED staging check_featuremask cap parity confirmed — 524000-batch → 200/2620018B (3.4s) on ds-apip.test.threema.ch vs 200/2620008B (14.2s) prod; staging 0 hits in 524k (dataset isolation reconfirmed)
 - CHANGED threema-desktop key-storage (Windows): RAG source chain fully verified (6 paths on GitHub stable: fs.ts:41, index.ts:559, electron-main.ts:934-946, inner/v3.ts:65-70, crypto.ts:53-113, vite.config.ts)
 - CHANGED poc/ directory: Filesystem GROUND TRUTH still ABSENT (ls poc/ → No such file) despite KB claiming "genuinely on disk" — 20+ cycle KB/filesystem contradiction persists
+
+## 2026-08-14 10:46:22 UTC
+- CHANGED ds-apip.threema.ch/identity/fetch_priv: Returns "Identity not found or revoked" (88B, errorType:invalid-identity) for BOTH valid identities (ECHOECHO, 5U8DM3J3) and invalid (ZZZZZZZZ) — contradicts pr
+- CHANGED ds-apip.threema.ch/identity/check_featuremask: Ceiling precisely bounded ~524k IDs/req (~5.77MB body-size cap): 524000→200/2.62MB, 524900→500/0B, 1M→413/176B; zero 429; body-size cap NOT count-cap; st
+- CHANGED ds-apip.threema.ch/identity/check: Batch revocation-state + feature-flag oracle confirmed — 10000-ID count-cap (10001→400/0B sharp), sibling parity byte-identical across ds-apip/api/apip; states[0,1] 
+- CHANGED ds-apip.threema.ch/identity/match_token: Case-fold amplification re-confirmed — POST {"identity":"echoecho"}→200/133B identical to ECHOECHO; GET /identity/EchoEcho→404 (case-sensitive); OPTIONS 200 CO
+- CHANGED work.threema.ch/api/v1: AUTH finding downgraded to non-finding — 404 response has NO CORS headers (neither GET nor OPTIONS); missing-key/invalid-key produce byte-identical {"error":"Invalid X-Api-Key"
+- CHANGED billing.threema.ch: Serves real static assets (jQuery 3.7.1 + custom CSS on /cache/) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options); 404 error page lacks all headers — header divergen
+- CHANGED safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated /backups/{64hex} — byte-stable across all 5 hosts behind 203.56.112.231
+- CHANGED poc/ directory: Filesystem GROUND TRUTH still ABSENT (`ls poc/` → No such file) despite KB claiming "genuinely on disk" with sha256 hashes — 20+ cycle KB/filesystem contradiction persists
+- CHANGED threema-desktop key-storage (Windows): RAG source chain fully verified (6 paths on GitHub stable: fs.ts:41, index.ts:559, electron-main.ts:934-946, inner/v3.ts:65-70, crypto.ts:53-113, vite.config.ts)
