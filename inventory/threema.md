@@ -2515,3 +2515,17 @@
 - CHANGED safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated /backups/{64hex} — byte-stable across all 5 hosts behind 203.56.112.231
 - CHANGED poc/ directory: Filesystem GROUND TRUTH still ABSENT (`ls poc/` → No such file) despite KB claiming "genuinely on disk" with sha256 hashes — 20+ cycle KB/filesystem contradiction persists
 - CHANGED threema-desktop key-storage (Windows): RAG source chain fully verified (6 paths on GitHub stable: fs.ts:41, index.ts:559, electron-main.ts:934-946, inner/v3.ts:65-70, crypto.ts:53-113, vite.config.ts)
+
+## 2026-08-14 15:36:19 UTC
+- NEW ds-apip.threema.ch/identity/check_featuremask: unauthenticated massive enumeration (~524k IDs/req, body-size cap) yielding LIVE ACTIVE accounts (state:0, mask 2047) confirmed
+- NEW ds-apip.threema.ch/identity/check: batch revocation-state + feature-flag oracle (10k ID count-cap, sibling parity byte-identical) confirmed
+- NEW ds-apip.threema.ch/identity/fetch_priv: 6th unauthenticated identity-existence oracle live (CORS *, browser-viable OPTIONS); returns 88B "invalid-identity" for both valid/invalid — 3-state revocation 
+- NEW ds-apip.threema.ch/identity/match_token: case-fold amplification re-confirmed (POST "echoecho" → identical token to ECHOECHO; GET case-sensitive 404); sibling parity stable
+- NEW threema-android directory.openapi.yml: published spec documents exactly 12 Work-flavour paths; ALL 8 consumer routes (create/check/check_featuremask/match/match_token/fetch_priv/fetch_bulk/set_feature
+- NEW ds-apip.threema.ch/identity/create: challenge token = deterministic f(publicKey) (stateless, no per-key server state, no host nonce); tokenRespKeyPub constant shared with match_token
+- NEW ds-apip-work.threema.ch: live work route surface = exactly {/identities,/fetch2,/directory} all 401 work-creds-gated; spec'd /api-client/v1/{user-properties,remote-secret} NOT deployed (404)
+- CHANGED work.threema.ch/api/v1: AUTH finding downgraded to non-finding — 404 has NO CORS headers, missing/invalid key byte-identical 404, X-Api-Key NOT in desktop source
+- CHANGED billing.threema.ch: serves real static assets (jQuery 3.7.1 + CSS on /cache/) with full security headers; 404 error page lacks all headers — header divergence confirmed
+- CHANGED safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated /backups/{64hex} — byte-stable across 5 hosts behind 203.56.112.231
+- CHANGED poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH still ABSENT (20+ cycle KB/filesystem contradiction persists)
+- CHANGED threema-desktop key-storage (Windows): RAG source chain fully verified (6 paths on GitHub stable)
