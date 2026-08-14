@@ -2654,3 +2654,16 @@
 - NEW fetch_priv 3-host parity re-established — registered→200/135-137B token, never-registered→200/88B, CORS `*`; DISPROVES this cycle's inventory claim of universal-88B (root cause: request-shape sensitiv
 - CHANGED Mask semantics refined — dormant state:1 account 6F5S79A3 carries mask 2047 → mask = last-used client capability, independent of activity state and registration era
 - CHANGED check_featuremask/check transient HTTP 500s recovered — 200 on ds-apip + api, cohort byte-stable [9,2047,2047,15,null], no regression
+
+## 2026-08-14 22:03:24 UTC
+- NEW api.threema.ch/identity/check_featuremask: 524k-scale parity confirmed (200/2620012B, density 7.63e-6, zero 429, CORS *)
+- NEW api.threema.ch/identity/check_featuremask: Fresh census recovered 4 registered IDs (PJNEKNJN/63, 6F5S79A3/2047, Y8FV92TU/31, YUWB4V3M/31; all state:1 dormant)
+- NEW all 3 hosts/identity/fetch_priv: 3-host parity re-established (registered→135-137B token, never-registered→88B, CORS *)
+- NEW Mask semantics refined: dormant state:1 account 6F5S79A3 carries mask 2047 → mask = last-used client capability, independent of activity state
+- CHANGED ds-apip.threema.ch/identity/check_featuremask: Transient HTTP 500s (20:27-20:54 UTC) fully recovered to 200/25B
+- CHANGED ds-apip.threema.ch/identity/check: Transient HTTP 500s fully recovered to 200/76B with 10000-ID cap
+- CHANGED ds-apip.threema.ch/identity/fetch_priv: Returns 88B "invalid-identity" for BOTH valid and invalid identities (contradicts prior 137B valid token claim)
+- CHANGED work.threema.ch/api/v1: AUTH finding downgraded to non-finding (no CORS on 404, missing-key/invalid-key byte-identical)
+- CHANGED billing.threema.ch: Serves static assets (jQuery 3.7.1 + CSS) with full security headers; 404 page lacks headers
+- CHANGED poc/key-storage-acl-bypass-poc.py: Filesystem GROUND TRUTH still ABSENT (20+ cycle KB/filesystem contradiction)
+- CHANGED threema-desktop key-storage (Windows): RAG source chain fully verified (6 paths on GitHub stable)

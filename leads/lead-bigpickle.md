@@ -13304,3 +13304,31 @@ testability: PASSIVE
 [LEARN] ACCEPTED OTHER @ mask semantics (all 3 hosts): dormant state:1 account 6F5S79A3 carries mask 2047 → featureMask = last-used client capability, orthogonal to activity state; refines prior "mask = live capability" acceptance — legacy-client fingerprinting applies to dormant accounts too.
 [LEARN] ACCEPTED OTHER @ check_featuremask/check: transient 500s (2026-08-14 20:27-21:16 UTC) fully recovered; cohort byte-stable [9,2047,2047,15,null] — no endpoint regression.
 [RISK] chat: 40 — g-*.0 chat passive channel formally closed (0-byte TLS/5222, no cert leak); DNS shard map fully attributed; residual exposure is the directory census family used to target chat users | web: 70 — work/broadcast/gateway mostly auth-gated with CORS gaps and staging divergence; work API key oracle disproven, X-Api-Key downgraded; billing header divergence minor | sync: 45 — mediator/rendezvous uniform 403, WSS error-path divergence below threshold, sync surface closed for passive recon | safe: 65 — credential-gated backup API with route oracle + HSTS/OPTIONS-vs-GET header inconsistency + credentialed CORS; no data exposure without backupId:backupKey | desktop-src: 60 — key-storage Windows ACL chain RAG-verified (6 paths), PoC on disk needs Windows runtime validation; sandbox/worker surface accepted but rejected as standalone RCE
+## 2026-08-14 21:56:06 UTC [chat] (model bigpickle)
+[HYP] apip.threema.ch 524k-scale census parity — complete 3-host map at body-cap
+class: IDOR
+asset: https://apip.threema.ch/identity/check_featuremask (siblings ds-apip/api)
+confidence: 90
+reasoning: ds-apip + api both return 200 at 524000-ID body-cap with identical density 7.63e-6 and zero 429 this cycle; apip is byte-identical at 4-ID scale. Third host at scale is the last unverified cell of the census map.
+evidence_needed: apip.threema.ch returns 200/2620xxxB at 524000-ID body with zero 429/413 and comparable non-null-mask count (~4±3).
+verify_steps: PASSIVE — single POST `{"identities":[524000 random 8-char uppercase-alnum IDs]}` to https://apip.threema.ch/identity/check_featuremask with `Origin: https://evil.example`; tally non-null masks; confirm no 429/413. ONE request, then evidence-complete.
+impact: Full 5.4T-ID keyspace census runs on all 3 prod hosts → active+dormant account recovery + legacy-client fingerprinting at ~524k IDs/req. CVSS 7.5 High.
+testability: PASSIVE
+[HYP] fetch_priv 88B bucket = revoked OR never-registered — revocation observability split
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv (siblings api/apip)
+confidence: 85
+reasoning: 3-host probes this cycle: registered (ECHOECHO, census-recovered 6F5S79A3) → 200/135-137B token; never-registered ZZZZZZZZ → 200/88B; CORS `*`. The 88B bucket therefore must contain any revoked IDs — the revoked-vs-never-registered split within 88B is unmapped and needs a revoked control.
+evidence_needed: A revoked control ID returns 88B on fetch_priv while /identity/check still reports state + mask≠null (mask retained, token gone).
+verify_steps: AUTH_HELPED — register throwaway ID, revoke it, POST `{"identity":"<revoked>"}` to fetch_priv vs /identity/check. NOTE: conflicts with the program's passive-first rule (no account creation, no data modification) — defer to Threema triage rather than self-registration.
+impact: Passive active/dormant/revoked discrimination on 3 hosts → revocation-status leak + precision targeting. CVSS 7.5 High.
+testability: AUTH_HELPED
+[HYP] /identity/check types[] encodes stored identity class (consumer/gateway/work)
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 50
+reasoning: types=1 observed on DZ34BVDV (registered, mask 31) but types=0 on 3 sibling registered IDs and on all 4 census-recovered IDs — per-identity stored state, not a keyspace function. Semantics (gateway/work/consumer) unmapped.
+evidence_needed: types value stable on re-probe + cross-host parity on the type=1 ID; correlation with a known gateway/work identity.
+verify_steps: PASSIVE — POST `{"identities":["DZ34BVDV","3UR9AFU8","W8BEK8K9","ANUS8DRZ","PJNEKNJN"]}` to https://ds-apip.threema.ch/identity/check and api.threema.ch ≤1 rps; confirm types [1,0,0,0,0] byte-stable.
+impact: Identity-classification dimension on the accepted census → work/gateway-account targeting. CVSS 5.3 Medium.
+testability: PASSIVE
