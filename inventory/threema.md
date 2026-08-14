@@ -2543,3 +2543,5 @@
 - CHANGED safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated /backups/{64hex} — byte-stable across 5 hosts behind 203.56.112.231
 - CHANGED poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH still ABSENT (20+ cycle KB/filesystem contradiction persists)
 - CHANGED threema-desktop key-storage (Windows): RAG source chain fully verified (6 paths on GitHub stable)
+
+## 2026-08-14 17:10:58 UTC
