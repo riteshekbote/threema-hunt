@@ -13332,3 +13332,31 @@ evidence_needed: types value stable on re-probe + cross-host parity on the type=
 verify_steps: PASSIVE — POST `{"identities":["DZ34BVDV","3UR9AFU8","W8BEK8K9","ANUS8DRZ","PJNEKNJN"]}` to https://ds-apip.threema.ch/identity/check and api.threema.ch ≤1 rps; confirm types [1,0,0,0,0] byte-stable.
 impact: Identity-classification dimension on the accepted census → work/gateway-account targeting. CVSS 5.3 Medium.
 testability: PASSIVE
+## 2026-08-14 22:11:49 UTC [chat] (model bigpickle)
+[HYP] fetch_priv 88B bucket = revoked OR never-registered — revocation observability split
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv (siblings api/apip)
+confidence: 85
+reasoning: 3-host probes this cycle: registered (ECHOECHO, census-recovered) → 200/135-137B token; never-registered ZZZZZZZZ → 200/88B; CORS `*`. The 88B bucket must contain any revoked IDs — revoked-vs-never-registered split unmapped, needs a revoked control.
+evidence_needed: A revoked control ID returns 88B on fetch_priv while /identity/check still reports state:1 + mask≠null (mask retained, token gone).
+verify_steps: AUTH_HELPED — register throwaway ID, revoke it, POST `{"identity":"<revoked>"}` to fetch_priv vs /identity/check. CONFLICTS with program passive-first (no account creation) — defer to Threema triage, do not self-register.
+impact: Passive active/dormant/revoked discrimination on 3 hosts → revocation-status leak + precision targeting. CVSS 7.5 High.
+testability: AUTH_HELPED
+[HYP] featureMask values map to client-version eras → version-attribution for targeting
+class: OTHER
+asset: github.com/threema-ch/{threema-android,threema-ios,threema-desktop} feature-flag constants
+confidence: 60
+reasoning: Census-recovered masks across all 3 hosts: 2047 (active+dormant), 255, 63, 15, 9, 3. Mask deltas are 3-6 bit flags; if each flag maps to a feature added in a known release, the mask dates the last-used client.
+evidence_needed: Repo feature-mask bit definitions (e.g. FeatureMask/FLAG_/featureMask constants) map bit→release/version tag.
+verify_steps: RAG — clone the 3 repos, grep feature-mask constants, correlate flags to git history/tags ≤ no network load.
+impact: Turns the accepted census into a version-attribution engine → target legacy clients with known-fixed vulns. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] /identity/check types[] encodes a stored identity subclass (gateway/work/alternate-flow)
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 60
+reasoning: type:1 on DZ34BVDV only, byte-identical across all 3 hosts (114B each, own probe); 4 sibling registered IDs + 1 never-registered all type:0 — host-independent stored per-identity attribute, not a keyspace function.
+evidence_needed: type value stable on re-probe over time + correlation of type:1 with a known gateway/work-origin identity.
+verify_steps: PASSIVE — periodic re-POST of the same 7-ID cohort to /identity/check ≤1 rps; check DZ34BVDV type:1 stability and watch for new type:1 IDs in future census draws.
+impact: Adds identity-classification dimension to the accepted census → work/gateway-account targeting. CVSS 5.3 Medium.
+testability: PASSIVE

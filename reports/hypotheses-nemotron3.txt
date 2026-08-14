@@ -1,4 +1,4 @@
-## 2026-08-14 21:55:44 UTC [web] (model nemotron3)
+## 2026-08-14 22:11:00 UTC [web] (model nemotron3)
 [NEW] api.threema.ch/identity/check_featuremask: 524k-scale parity confirmed (200/2620012B, density 7.63e-6, zero 429, CORS *)
 [NEW] api.threema.ch/identity/check_featuremask: Fresh census recovered 4 registered IDs (PJNEKNJN/63, 6F5S79A3/2047, Y8FV92TU/31, YUWB4V3M/31; all state:1 dormant)
 [NEW] all 3 hosts/identity/fetch_priv: 3-host parity re-established (registered→135-137B token, never-registered→88B, CORS *)
@@ -16,8 +16,6 @@
 [PRIO] https://api.threema.ch/identity/check, 8.20, attack_surface:9 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:9
 [PRIO] https://ds-apip.threema.ch/identity/fetch_priv, 7.50, attack_surface:8 business_value:7 tech_exposure:6 gate_ease:10 cloud_surface:5 freshness:8
 [PRIO] https://api.threema.ch/identity/fetch_priv, 7.50, attack_surface:8 business_value:7 tech_exposure:6 gate_ease:10 cloud_surface:5 freshness:8
-[PRIO] https://ds-apip.threema.ch/identity/create, 6.80, attack_surface:7 business_value:6 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:7
-[PRIO] https://ds-apip.threema.ch/identity/match_token, 6.50, attack_surface:7 business_value:6 tech_exposure:6 gate_ease:10 cloud_surface:5 freshness:6
 [HYP] Unauthenticated massive identity enumeration via check_featuremask enables precision targeting of active users
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/check_featuremask
@@ -40,7 +38,7 @@ testability: PASSIVE
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/fetch_priv
 confidence: 70
-reasoning: Returns 200/88B `{"success":false,"errorType":"invalid-identity","error":"Identity not found or revoked"}` for both ECHOECHO and ZZZZZZZZ; OPTIONS 200 with CORS * browser-viable; distinct handler from match_token (46B "Identity not found"); sibling parity unconfirmed this cycle
+reasoning: Returns 200/88B {"success":false,"errorType":"invalid-identity","error":"Identity not found or revoked"} for both ECHOECHO and ZZZZZZZZ; OPTIONS 200 with CORS * browser-viable; distinct handler from match_token (46B "Identity not found"); sibling parity unconfirmed this cycle
 evidence_needed: Passive probe with known-revoked identity to verify 3-state discrimination (active vs inactive vs revoked) claimed in prior KB; sibling parity check on api.threema.ch + apip.threema.ch
 verify_steps: PASSIVE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/fetch_priv — verify 200/88B uniform error; curl -s -X OPTIONS -H "Origin: https://evil.com" https://ds-apip.threema.ch/identity/fetch_priv — verify 200 CORS *; repeat on api.threema.ch + apip.threema.ch for sibling parity; requires known-revoked identity for full 3-state verification (no passive path currently)
 impact: Potential unauthenticated identity-existence oracle with revocation-state discrimination (3 states); if 3-state holds, enables account-status enumeration. Severity: Medium-High (CVSS 3.1: 6.5 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N) pending 3-state confirmation
