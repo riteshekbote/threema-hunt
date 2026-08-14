@@ -1499,3 +1499,17 @@ https://ds-apip.threema.ch/identity/EchoEcho -> HTTP 404
 https://api.threema.ch/identity/check_featuremask -> HTTP 500
 https://ds-apip.threema.ch/identity/fetch_priv` -> HTTP 404
 https://api.threema.ch/identity/set_revocation_key` -> HTTP 404
+
+## 2026-08-14 16:23:45 UTC
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/check -> HTTP 500
+https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
+https://github.com/threema-ch/threema-desktop -> 200 len=? type=text/html; charset=utf-8
+https://billing.threema.ch/cache/ -> HTTP 404
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://ds-apip.threema.ch/identity/create -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/EchoEcho -> HTTP 404
+https://api.threema.ch/identity/check_featuremask -> HTTP 500
+https://github.com/threema-ch/threema-desktop.git -> 200 len=? type=text/html; charset=utf-8
+https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
