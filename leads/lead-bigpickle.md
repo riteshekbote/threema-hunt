@@ -13055,3 +13055,32 @@ evidence_needed: state-enum range (only 0/1 observed; whether a revoked account 
 verify_steps: PASSIVE — single POST `{"identities":["5U8DM3J3","RFK5RDU6","WANRKN9X","ZZZZZZZZ"]}` to check on ds-apip ≤1 rps; diff vs this cycle; AUTH_HELPED — register+revoke throwaway to observe state transition.
 impact: Unauthenticated combined active/dormant/never-registered classification + legacy-client flagging in one 10k/req call. CVSS 7.5 High.
 testability: PASSIVE
+## 2026-08-14 20:18:19 UTC [chat] (model bigpickle)
+[HYP] fetch_priv tri-bucket classifier: revoked-vs-never-registered split in 88B bucket
+class: IDOR
+asset: https://apip.threema.ch/identity/fetch_priv (siblings ds-apip/api.threema.ch)
+confidence: 95
+reasoning: This cycle completed 3-host parity — WANRKN9X (state:1 dormant) mints 200/134B token (magic ff6a7f, tokenRespKeyPub sha256 c8005cca), ZZZZZZZZ → 200/88B. State:1 inactive accounts still mint → 88B bucket = revoked OR never-registered only.
+evidence_needed: Known-revoked control ID returns 88B while check/check_featuremask still report state:1 + mask≠null — settles revocation observability split.
+verify_steps: AUTH_HELPED: register throwaway ID, revoke it, POST `{"identity":"<revoked>"}` to fetch_priv vs check — observe token→88B transition with mask retained.
+impact: Passive account census with active/dormant/revoked discrimination on 3 hosts → precision phishing + revocation-status leak. CVSS 7.5 High.
+testability: AUTH_HELPED
+[HYP] check_featuremask/check dual-oracle census — mask drift across >1h window on 3rd host
+class: IDOR
+asset: https://apip.threema.ch/identity/check_featuremask (siblings ds-apip/api.threema.ch)
+confidence: 95
+reasoning: Cohort byte-stable this cycle on apip (masks [2047,2047,15,null]); ~524k IDs/req body-cap, zero 429; staging logic-identical/data-disjoint. Drift would confirm mask = live capability state (legacy-client fingerprinting).
+evidence_needed: featureMask byte-diff for same cohort across a >1h window on a previously-unprobed host.
+verify_steps: PASSIVE — single POST `{"identities":["5U8DM3J3","RFK5RDU6","WANRKN9X","ZZZZZZZZ"]}` to check_featuremask on ds-apip ≤1 rps; diff masks vs this cycle's saved cohort.
+impact: Unauthenticated census of 5.4T-ID space → active-account recovery + client-era attribution → precision phishing. CVSS 7.5 High.
+testability: PASSIVE
+[HYP] /identity/check sustained-scale density sampling — active-account rate at 10k/req
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check (siblings api/apip.threema.ch)
+confidence: 90
+reasoning: 10000→200/90058B confirmed; 10001→400/0B sharp count-cap; zero 429s on 8+ batch probes. states[]/featureMasks[] dual-field response is the most compact oracle at batch scale.
+evidence_needed: states[] distribution over a 10k random draw → active (state:0) vs dormant (state:1) density estimate to bound census yield.
+verify_steps: PASSIVE — single POST `{"identities":[10000 random 8-char IDs]}` to https://ds-apip.threema.ch/identity/check ≤1 rps; tally states[] buckets; compare vs prior 8.7e-6 hit rate.
+impact: Quantified enumeration yield → sustained census feasibility proof at 10k IDs/call. CVSS 7.5 High.
+testability: PASSIVE
+[NEXT] PROBE: single POST `{"identities":[10000 random 8-char uppercase-alnum IDs]}` to https://ds-apip.threema.ch/identity/check ≤1 rps — tally states[]/featureMasks[] buckets to quantify active-account density; then diff the 4-ID cohort masks against this cycle for drift.
