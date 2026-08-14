@@ -1461,3 +1461,13 @@ https://api.github.com/repos/threema-ch/threema-android/commits?path=domain/prot
 https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
 https://ds-apip.threema.ch/identity/check` -> HTTP 404
 https://api.threema.ch/identity/set_revocation_key` -> HTTP 404
+
+## 2026-08-14 13:38:23 UTC
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/check -> HTTP 500
+https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/EchoEcho -> HTTP 404
+https://api.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
+https://ds-apip.threema.ch/identity/check` -> HTTP 404
+https://api.threema.ch/identity/set_revocation_key` -> HTTP 404
