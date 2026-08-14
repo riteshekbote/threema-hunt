@@ -1,6 +1,6 @@
-## 2026-08-14 11:30:59 UTC [web] (model nemotron3)
+## 2026-08-14 12:09:34 UTC [web] (model nemotron3)
 [NEW] ds-apip.threema.ch/identity/fetch_priv: Returns 88B "invalid-identity" error for BOTH valid (ECHOECHO, 5U8DM3J3) and invalid (ZZZZZZZZ) identities — contradicts prior KB claim of 200/137B valid token; 3-state revocation discrimination NOT observed this cycle
-[NEW] ds-apip.threema.ch/identity/check_featuremask: Ceiling precisely bounded ~524k IDs/req (~5.77MB body-size cap): 524000→200/2.62MB, 524900→500/0B, 1M→413/176B; zero 429; body-size cap NOT count-cap; staging parity confirmed (524k→200 both, dataset isolation 0 prod IDs in 524k draw)
+[NEW] ds-apip.threema.ch/identity/check_featuremask: Ceiling precisely bounded ~524k IDs/req (~5.77MB body-size cap): 524000→200/2.62MB, 524900→500/0B, 1M→413/176B; zero 429; body-size cap NOT count-cap; staging parity confirmed
 [NEW] ds-apip.threema.ch/identity/check: Batch revocation-state + feature-flag oracle confirmed — 10000-ID count-cap (10001→400/0B sharp), sibling parity byte-identical across ds-apip/api/apip; states[0,1] + featureMasks per identity
 [NEW] ds-apip.threema.ch/identity/match_token: Case-fold amplification re-confirmed — POST {"identity":"echoecho"}→200/133B identical to ECHOECHO; GET /identity/EchoEcho→404 (case-sensitive); OPTIONS 200 CORS * browser-viable; sibling parity on all 3 prod hosts
 [CHANGED] work.threema.ch/api/v1: AUTH finding downgraded to non-finding — 404 response has NO CORS headers (neither GET nor OPTIONS); missing-key/invalid-key produce byte-identical {"error":"Invalid X-Api-Key"}; X-Api-Key NOT in threema-desktop source

@@ -1449,3 +1449,15 @@ https://ds-apip.threema.ch/identity/EchoEcho -> HTTP 404
 https://api.threema.ch/identity/check_featuremask -> HTTP 500
 https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
 https://api.github.com/repos/threema-ch/threema-android/commits?path=domain/protocol/src/common.proto&per_page=100` -> 200 len=9903 type=application/json; charset=utf-8
+
+## 2026-08-14 12:09:53 UTC
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/check -> HTTP 500
+https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/EchoEcho -> HTTP 404
+https://api.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://api.github.com/repos/threema-ch/threema-android/commits?path=domain/protocol/src/common.proto&per_page=100` -> 200 len=9903 type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
+https://ds-apip.threema.ch/identity/check` -> HTTP 404
+https://api.threema.ch/identity/set_revocation_key` -> HTTP 404
