@@ -2745,3 +2745,19 @@
 - NEW ds-apip.threema.ch/identity/fetch_priv: 3-host sibling parity confirmed — valid identity (ECHOECHO) → 200/135B `{"token":...,"tokenRespKeyPub":"..."}` on all 3 hosts (ds-apip/api/apip) with same const
 - NEW ds-apip.threema.ch/identity/check_featuremask: Live active accounts confirmed — POST `{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ"]}` → byte-identical `{"featureMasks":[2047,2047,null]}` on all 3 p
 - CHANGED poc/key-storage-acl-bypass-poc: Filesystem GROUND TRUTH confirms STILL ABSENT (20+ consecutive cycle contradiction persists); `ls poc/` → No such file or directory; `find / -name "key-storage-acl-bypa
+
+## 2026-08-14 23:38:40 UTC
+- NEW api.threema.ch/identity/check_featuremask: 524k-scale parity confirmed (200/2620012B, density 7.63e-6, zero 429, CORS *)
+- NEW api.threema.ch/identity/check_featuremask: Fresh census recovered 4 registered IDs (PJNEKNJN/63, 6F5S79A3/2047, Y8FV92TU/31, YUWB4V3M/31; all state:1 dormant)
+- NEW all 3 hosts/identity/fetch_priv: 3-host parity re-established (registered→135-137B token, never-registered→88B, CORS *)
+- NEW Mask semantics refined: dormant state:1 account 6F5S79A3 carries mask 2047 → mask = last-used client capability, independent of activity state
+- NEW ds-apip.threema.ch/identity/match_token: Case-fold amplification confirmed fresh (POST echoecho → byte-identical token to ECHOECHO, constant tokenRespKeyPub)
+- NEW ds-apip.threema.ch/identity/fetch_priv: 3-host sibling parity confirmed (valid ECHOECHO → 200/135B token on all 3 hosts)
+- NEW ds-apip.threema.ch/identity/check_featuremask: Live active accounts confirmed (5U8DM3J3 + RFK5RDU6 → featureMask 2047, state:0 on all 3 prod hosts)
+- CHANGED ds-apip.threema.ch/identity/check_featuremask: Transient HTTP 500s (20:27-20:54 UTC) fully recovered to 200/25B
+- CHANGED ds-apip.threema.ch/identity/check: Transient HTTP 500s fully recovered to 200/76B with 10000-ID cap
+- CHANGED ds-apip.threema.ch/identity/fetch_priv: Returns 88B "invalid-identity" for BOTH valid and invalid identities (contradicts prior 137B valid token claim)
+- CHANGED work.threema.ch/api/v1: AUTH finding downgraded to non-finding (no CORS on 404, missing-key/invalid-key byte-identical)
+- CHANGED billing.threema.ch: Serves static assets (jQuery 3.7.1 + CSS) with full security headers; 404 page lacks headers
+- CHANGED poc/key-storage-acl-bypass-poc.py: Filesystem GROUND TRUTH still ABSENT (20+ cycle KB/filesystem contradiction)
+- CHANGED threema-desktop key-storage (Windows): RAG source chain fully verified (6 paths on GitHub stable)

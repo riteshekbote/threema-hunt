@@ -13468,3 +13468,31 @@ evidence_needed: confirm the differential holds across all 3 hosts for DZ34BVDV 
 verify_steps: PASSIVE — ≤1 rps re-POST of DZ34BVDV to fetch_priv + match_token on api.threema.ch and apip.threema.ch; confirm 88B-vs-134B differential identical.
 impact: Cross-endpoint oracle: classifies any known identity as type:0/type:1 without needing census — complements match_token case-fold amplification. CVSS 5.3 Medium.
 testability: PASSIVE
+## 2026-08-14 23:37:17 UTC [chat] (model bigpickle)
+[HYP] fetch_priv mints token iff registered (any type); 88B bucket = never-registered or revoked, type-independent
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv (siblings api/apip)
+confidence: 80
+reasoning: Own probes this cycle: DZ34BVDV (type:1, state:1, mask 31) → 134B on ds-apip, 135B on api+apip; ZZZZZZZZ → 88B on ds-apip + api, byte-stable. Prior "type:1→88B" contradicts all 3 hosts now — captured during the 20:27-21:16 UTC degraded window.
+evidence_needed: revoked-control identity to separate revoked vs never-registered inside the 88B bucket (requires account lifecycle, AUTH_HELPED).
+verify_steps: PASSIVE — periodic re-POST of the 8-ID cohort (incl. DZ34BVDV, 6F5S79A3, YUWB4V3M, ZZZZZZZZ) to /identity/fetch_priv ≤1 rps; flag any registered ID that drops to 88B.
+impact: Third independent binary registered/not oracle (parallel to GET /identity/{id} and check) from a distinct handler; revoked/restricted discrimination only if a revoked control is obtained. CVSS 5.3 Medium (passive portion).
+testability: PASSIVE
+[HYP] types[] on /identity/check encodes a stored account subclass; type:1 is functional, not cosmetic
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check (siblings api/apip)
+confidence: 82
+reasoning: DZ34BVDV type:1 stable 4th cycle, byte-identical on all 3 hosts; this cycle proves it is a real registered account (mints 134-135B tokens on fetch_priv AND match_token everywhere) yet carries type:1 while all 8 cohort siblings are type:0. Host-independent per-identity stored attribute.
+evidence_needed: a second type:1 ID recovered by census, or correlation of DZ34BVDV with a known work/gateway-origin identity.
+verify_steps: PASSIVE — periodic 9-ID cohort re-POST to /identity/check ≤1 rps for type:1 stability; watch future census draws for new type:1.
+impact: Account-class dimension on the accepted census → restricted-account identification and targeted-phishing attribution. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] featureMask bit-set dates last-used client feature-era (version attribution), orthogonal to activity state
+class: OTHER
+asset: github.com/threema-ch/threema-desktop (stable) FEATURE_MASK_FLAG + github.com/threema-ch/threema-android
+confidence: 75
+reasoning: Masks are monotone prefixes of 2047 (except 9); this cycle adds DZ34BVDV state:1 with mask 31 (legacy era) while dormant 6F5S79A3 state:1 carries 2047 — mask = last-used client capability independent of state, so it pins feature-era for dormant AND active accounts.
+evidence_needed: optional refinement only — map each flag to its introducing release tag (git archaeology, zero network load).
+verify_steps: PASSIVE — RAG git log per-flag introduction on threema-desktop `stable`; cross-check constants vs threema-android/threema-ios.
+impact: Version-attribution layer on the census → target legacy clients with known-fixed vulnerabilities. CVSS 5.3 Medium.
+testability: PASSIVE
