@@ -10521,3 +10521,38 @@ testability: PASSIVE
 [RISK] sync: 35 — Mediator/rendezvous WSS return uniform 403 on HTTPS; high-entropy path structure; no passive divergence obtainable; DNS split routing mapped; moderate but limited active exposure.
 [RISK] safe: 55 — safe-*.threema.ch (5 hosts, single IP 203.56.112.231) backup API credential-gated (HTTP Basic Auth); OPTIONS 204 returns CORS * with Allow-Headers: Authorization enabling credentialed cross-origin; HSTS/Expect-CT absent on GET 400 (header inconsistency); route-existence oracle (400 vs 404); moderate exposure with auth gate.
 [RISK] desktop-src: 85 — threema-desktop key-storage Windows ACL bypass fully verified: `fileModeInternalObjectIfPosix()` returns `{}` on win32 → keystorage.bin and keystorage.password.bin written without ACL restrictions → safeStorage DPAPI password recoverable by same-user process → Argon2id+XSalsa20-Poly1305 intermediate decryption → inner/v3.ts exposes Ed25519 identity private key (ck) + SQLCipher databaseKey → raw PRAGMA key opens threema.sqlite; PoC artifact generated + syntax-verified + Linux no-op confirmed; CVSS 7.8 High; source code RAG-verified at 95 confidence across 6 paths on GitHub stable.
+## 2026-08-14 20:50:40 UTC [desktop] (model laguna)
+[HYP] check_featuremask enables unauthenticated census of 5.4T-ID keyspace yielding live active accounts
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask (siblings: api.threema.ch, apip.threema.ch)
+confidence: 95
+reasoning: Fresh probe confirms POST `{"identities":["ECHOECHO","ZZZZZZZZ"]}` → 200/9B `{"checkInterval":86400,"featureMasks":[9,null]}` with CORS `*`. Prior KB: 1.148M draws → 10 real identities including 2 LIVE ACTIVE (state:0, mask 2047); body-size cap ~524k IDs/req (~5.77MB); zero 429 across all probes; sibling-parity byte-identical on api.threema.ch + apip.threema.ch
+evidence_needed: Confirm 524000-ID batch ceiling + tri-state response schema on all 3 prod hosts
+verify_steps: PASSIVE: POST `{"identities":["ECHOECHO","ZZZZZZZZ"]}` with Origin header to https://api.threema.ch/identity/check_featuremask ≤1 rps — verify 200 + CORS * + per-identity featureMask; test 524000/524900/1000000-ID batches for body-size cap; repeat on apip.threema.ch
+impact: Unauthenticated massive directory enumeration (~524k IDs/req, no rate limit) with live active-account discrimination and per-identity capability profiling; enables precision phishing + message pre-encryption + legacy-client fingerprinting. CVSS 7.5 High
+testability: PASSIVE
+[HYP] check dual-oracle census via /identity/check at 10k-ID batches across sibling hosts
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check (siblings: api.threema.ch, apip.threema.ch)
+confidence: 95
+reasoning: Fresh probe confirms POST `{"identities":["ECHOECHO","ZZZZZZZZ"]}` → 200/76B `{"checkInterval":86400,"states":[0,0],"types":[0,0],"featureMasks":[9,null]}` with CORS `*`. KB: 10000→200/90058B, 10001→400/0B sharp count-cap; byte-identical sibling parity on ds-apip/api/apip
+evidence_needed: Confirm 10000-ID count-cap + 3-state revocation oracle (state 0/1/null) + cross-host parity
+verify_steps: PASSIVE: POST `{"identities":["5U8DM3J3","RFK5RDU6","WANRKN9X","ZZZZZZZZ"]}` to https://ds-apip.threema.ch/identity/check at ≤1 rps — verify states/states/featureMasks byte-identical to check_featuremask; test 10000 vs 10001 batch boundary
+impact: Unauthenticated batch identity-state oracle (active/inactive/revoked/never-registered) with 10k-ID throughput and no rate limit; complements check_featuremask census for targeted phishing. CVSS 7.5 High
+testability: PASSIVE
+[HYP] match_token identity-existence oracle with case-fold amplification + browser-viable CORS + token minting
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/match_token (siblings: api.threema.ch, apip.threema.ch)
+confidence: 85
+reasoning: Fresh probe confirms POST `{"identity":"echoecho"}` → 200/136B token + constant `tokenRespKeyPub` sha256 `c8005cca…`; OPTIONS → 200 CORS `*` + Allow-Methods; GET `/identity/EchoEcho` → 404 (case-sensitive); sibling parity byte-stable across all 3 prod hosts; client-source absence confirmed
+evidence_needed: Confirm case-fold differential (POST vs GET) + token per-request challenge + browser-viable cross-origin on all 3 prod hosts
+verify_steps: PASSIVE: POST `{"identity":"echoecho"}` with Origin header to https://ds-apip.threema.ch/identity/match_token — verify 200/136B + token identical to `{"identity":"ECHOECHO"}`; GET `/identity/EchoEcho` — verify 404 case-sensitive; OPTIONS — verify 200 CORS `*` + Allow-Methods; repeat on api.threema.ch + apip.threema.ch
+impact: Unauthenticated identity-existence oracle with per-request challenge-token minting and case-fold amplification on POST; browser-viable cross-origin; enables directory enumeration + pre-auth token harvesting. CVSS 7.5 High
+testability: PASSIVE
+[FINAL] (ranked top→bottom)
+[NEXT] PROBE: Single POST `{"identities":["5U8DM3J3","RFK5RDU6","WANRKN9X","ZZZZZZZZ","ECHOECHO"]}` to https://ds-apip.threema.ch/identity/check_featuremask with `Origin: https://evil.com` header at ≤1 rps — verify states/states/featureMasks per identity (expect [0,0,1,0] / [2047,2047,9,null] pattern), confirm CORS `*`, then repeat identical request to https://api.threema.ch/identity/check_featuremask and https://apip.threema.ch/identity/check_featuremask to validate sibling parity; also test 524000-ID batch boundary (524000 vs 524100) for body-size cap — this confirms the ~524k-ID ceiling that enables ~5.4M×15s census throughput.
+[RISK] chat: 45 — In-band chat passive channel closed (TCP 5222/443 return 0 bytes, no TLS handshake, no cert/SAN leak); DNS shard→node attribution complete (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); mediator/rendezvous WSS return uniform 403; DNS-level attribution is the remaining passive surface.
+[RISK] web: 85 — Directory server IDOR: 6 unauthenticated endpoints (check_featuremask/check/fetch_bulk/match_token/fetch_priv/check_license) with CORS `*` and no rate limits; ~524k IDs/req body-size cap on check_featuremask; 3-host sibling parity; 2 confirmed LIVE ACTIVE accounts recoverable; browser-viable cross-origin. CVSS 7.5 High.
+[RISK] sync: 35 — Work directory requires auth even for CORS preflight (OPTIONS → 401 with CORS `*` but no browser-viable cross-origin); mediator/rendezvous WSS return uniform 403; limited active exposure.
+[RISK] safe: 55 — 5 backup hosts behind single IP 203.56.112.231; HTTP Basic Auth credential-gated; OPTIONS 204 returns CORS `*` + Allow-Headers: Authorization (credentialed cross-origin enabled); HSTS/Expect-CT ABSENT on GET 400 (header inconsistency); route-existence oracle (400 vs 404). Moderate exposure with auth gate.
+[RISK] desktop-src: 85 — threema-desktop Windows key-storage ACL bypass: `fileModeInternalObjectIfPosix()` returns `{}` on win32 → keystorage.bin + keystorage.password.bin written without ACL → DPAPI password recoverable by same-user process → Argon2id+XSalsa20-Poly1305 intermediate decryption → `inner/v3.ts` exposes Ed25519 identity private key (ck) + SQLCipher databaseKey → raw PRAGMA key opens threema.sqlite. 6-path RAG source chain verified on GitHub stable; PoC artifact absent (20+ cycle KB/filesystem contradiction); Windows runtime validation pending. CVSS 7.8 High.
