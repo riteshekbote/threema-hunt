@@ -12900,3 +12900,31 @@ verify_steps: PASSIVE — single POST of 10000-iteration ID sweep ≤1 rps again
 impact: Same census as check_featuremask at 10k IDs/req with revocation-state added → active/dormant/revoked discrimination in one shot. CVSS 7.5 High.
 testability: PASSIVE
 [NEXT] PROBE: extend the fetch_priv oracle coverage — single POST `{"identity":"RFK5RDU6"}` to https://api.threema.ch/identity/fetch_priv (≤1 rps) to confirm sibling-parity token mint for the second active account and lock the active/dormant/unregistered tri-bucket classifier before the revoked-vs-never-registered AUTH_HELPED test.
+## 2026-08-14 17:09:48 UTC [chat] (model bigpickle)
+[HYP] fetch_priv token-mint tri-bucket classifier complete across hosts; revoked-vs-never-registered split still open
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv (siblings: api.threema.ch, apip.threema.ch)
+confidence: 90
+reasoning: Own probes this cycle — active RFK5RDU6 → 200/134B token (constant tokenRespKeyPub sha256 c8005cca…); unregistered ZZZZZZZZ → 200/88B invalid-identity; prior 88B-for-valid observation non-replicated. Registered (active+dormant) mint tokens, unregistered 88B; 88B bucket still conflates revoked with never-registered.
+evidence_needed: Known-revoked control ID returning 88B while /identity/check shows state:1/mask≠null — settles the revoked-vs-never-registered split.
+verify_steps: PASSIVE — single POST `{"identity":"WANRKN9X"}` + `{"identity":"5U8DM3J3"}` to https://apip.threema.ch/identity/fetch_priv at ≤1 rps (complete 3-host dormant/active parity); AUTH_HELPED — register throwaway, revoke via app, re-POST fetch_priv to observe token→88B transition.
+impact: Passive account-existence census with active/dormant discrimination across 3 hosts → precision phishing; feeds check_featuremask census. CVSS 7.5 High.
+testability: PASSIVE
+[HYP] check_featuremask/check dual-oracle live-account census for precision targeting (unchanged, re-confirmed)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask + /identity/check (siblings: api.threema.ch, apip.threema.ch, ds-apip.test.threema.ch)
+confidence: 95
+reasoning: Cohort masks `[9,15,15,63,15,63,2047,2047,null]` byte-stable; states `[0,1,1,1,1,1,0,0,0]` cross-confirm; 2 live actives recovered; ~524k IDs/req body-cap, zero 429; staging logic-identical/data-disjoint.
+evidence_needed: featureMask drift over >1h window; mask→client-era map for legacy targeting.
+verify_steps: PASSIVE — single POST `{"identities":["5U8DM3J3","RFK5RDU6","WANRKN9X","ZZZZZZZZ"]}` to check_featuremask + check on api.threema.ch ≤1 rps; diff masks/states vs this cycle.
+impact: Unauthenticated census of 5.4T-ID keyspace at 524k draws/req → active-account recovery → targeted phishing + message pre-encryption + legacy-client fingerprinting. Browser-viable. CVSS 7.5 High.
+testability: PASSIVE
+[HYP] Challenge tokens minted across create/match_token/fetch_priv accepted by one shared host-agnostic verifier
+class: OTHER
+asset: https://api.threema.ch/identity/{set_revocation_key,revoke} (tokens minted on ds-apip.threema.ch/identity/fetch_priv)
+confidence: 45
+reasoning: tokenRespKeyPub byte-identical constant `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=` (sha256 c8005cca…) across fetch_priv (134B), match_token (133B), create (deterministic f(publicKey)) on all 3 hosts → single shared verifier plausible; no host nonce observed.
+evidence_needed: Whether a token minted on ds-apip is accepted by phase-2 PoP endpoints on api.threema.ch.
+verify_steps: AUTH_HELPED — mint token on ds-apip; submit phase-2 PoP signed over that token to https://api.threema.ch/identity/set_revocation_key; compare vs same-host minted token.
+impact: Challenge-token scope confusion across endpoint family; abuse-enabling only, no data exposure; Low.
+testability: AUTH_HELPED
