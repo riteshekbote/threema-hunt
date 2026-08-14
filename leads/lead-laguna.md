@@ -10277,3 +10277,4 @@ testability: PASSIVE
 [NEXT] HUMAN: Run `python3 poc/key-storage-acl-bypass-poc.py` on a Windows 10/11 host with threema-desktop profile directory present at %LOCALAPPDATA%\Threema\threema-desktop\data\ ; confirm: (1) keystorage.password.bin readable without ACL (icacls shows no appcontainer SID), (2) CryptUnprotectData succeeds recovering passphrase (sha256[:16] logged), (3) Argon2id key derivation + XSalsa20-Poly1305 decrypt outer→intermediate→InnerKeyStorageV3, (4) ck + databaseKey extracted, (5) `sqlcipher threema.sqlite "PRAGMA key=x'<databaseKey_hex>'"` opens and dumps messages table. This closes the final evidence gap (RAG source verification ≠ runtime exploitation).
 [RISK] chat: 88 | sync: 40 | web: 85 | safe: 55 | desktop-src: 90
 ## 2026-08-14 18:05:10 UTC [desktop] (model laguna)
+## 2026-08-14 19:21:10 UTC [desktop] (model laguna)
