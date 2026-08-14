@@ -12162,3 +12162,32 @@ verify_steps: PASSIVE — 1 same-key re-mint after >=1h (token time-stability/TT
 impact: abuse-enabling — unlimited free-account fabrication IF license-less phase-2 accepted (client shape proven valid); CPU/derivation DoS per unique key; no takeover. Determinism downgrades stored-state amplification. Severity: Low-Medium.
 testability: PASSIVE
 verify_steps: PASSIVE — 1 same-key re-mint after >=1h (token time-stability/TTL check); then CLOSE with writeup.
+## 2026-08-14 00:48:58 UTC [chat] (model bigpickle)
+[HYP] revoke mint token stability — time-stable per (identity,host) handle vs TTL
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/revoke
+confidence: 45
+reasoning: POST {identity:ECHOECHO} → per-host distinct tokens sharing `/2p+Za` prefix across ds-apip/api/apip (structural, not 2^40 coincidence); prefix suggests embedded truncated timestamp or host-nonce component; per-host same-identity stability untested.
+evidence_needed: two ≥1h-spaced mints of same identity on same host → byte-identical = stable handle; changed = TTL/derivation nonce.
+verify_steps: PASSIVE — 1 POST {"identity":"ECHOECHO"} to ds-apip next cycle, byte-compare with this cycle capture (sha256 stored); ≤1 rps.
+impact: identity-existence oracle already proven; token stability would add identity-state tracking handle + token-window characterization for the revocation PoP flow. Severity: Low.
+testability: PASSIVE
+[HYP] create mint is TTL-free replayable challenge (determinism re-confirmed)
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/create
+confidence: 70
+reasoning: same-key re-mint byte-identical across 2 probes this cycle (token sha256 `9a115312…`) + prior cross-host byte-identical parity — stateless f(publicKey), no per-key state, no expiry; zero 429 across 10+ POSTs.
+evidence_needed: none further for determinism; closure writeup only.
+verify_steps: CLOSE — draft writeup (Low-Medium abuse-enabling: unlimited self-service mint, CPU cost per unique key, no takeover since PoP BLAKE2b keyed-MAC; phase-2 acceptance out of scope).
+impact: unbounded stateless challenge minting → free-identity fabrication enabler IF license-less phase-2 accepted (client shape proven valid); calibration primitive for proven enumeration. Severity: Low-Medium.
+testability: PASSIVE
+[HYP] featureMask value = client-era cohort attribution for inactive identities
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 50
+reasoning: recovered identities carry masks 255/63/15/9/3 (legacy) vs 2047 (current, live accounts) — masks already shown to reflect live client capability state, not registration snapshot.
+evidence_needed: batch re-query of all 10 recovered inactive identities → confirm mask cohorts map to client release eras.
+verify_steps: PASSIVE — 1 POST {"identities":[recovered IDs]} to ds-apip/identity/check next cycle; cohort table mask→era; ≤1 rps.
+impact: enables cohort-targeted phishing attribution (legacy-client accounts = higher credential-stuffing value). Severity: Low.
+testability: PASSIVE
+[NEXT] PROBE: 1 POST `{"identity":"ECHOECHO"}` to https://ds-apip.threema.ch/identity/revoke next cycle at ≥1h spacing; byte-compare token against this cycle's capture (sha256 `9a115312…`-style record) to classify revoke mint as time-stable handle vs TTL — resolves the 7th-oracle characterization; then DRAFT create closure writeup + update leads/state.

@@ -4155,3 +4155,31 @@
 - LEARN: ACCEPTED OTHER @ create phase-2 (APIConnector.java:134-190 + UserServiceImpl.java:918-952): PoP = BLAKE2b keyed-MAC (X25519HSalsa20 shared secret, personal '3ma
 - LEARN: ACCEPTED OTHER @ ds-apip-work.threema.ch: live work route surface = exactly {/identities,/fetch2,/directory} all 401 work-creds-gated; spec'd /api-client/v1/{us
 - LEARN: REJECTED OTHER @ work /api-client/v1/remote-secret bearer-token fetch oracle: documented in spec but 404 on prod → not deployed; closed.
+
+## RANKED HYPOTHESES 2026-08-14 00:53:00 UTC
+- [95] https://ds-apip.threema.ch/identity/check_featuremask: Unauthenticated massive identity enumeration via check_featuremask enables precision targeting of active users (from reports/hypotheses-nemotron3.txt)
+- [95] apip.threema.ch/identity/ws/revoke: threema-desktop Windows key-storage ACL bypass (from reports/hypotheses-laguna.txt)
+- [45] https://ds-apip.threema.ch/identity/revoke: revoke mint token stability — time-stable per (identity,host) handle vs TTL (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://ds-apip.threema.ch/
+- NEXT(hypotheses-bigpickle.txt): PROBE: 1 POST `{"identity":"ECHOECHO"}` to https://ds-apip.threema.ch/identity/revoke next cycle at ≥1h spacing; byte-compare token against this cycle's capture
+- NEXT(hypotheses-laguna.txt): PROBE: Generate the PoC artifact `poc/key-storage-acl-bypass-poc.py` documenting the 6-step attack chain (fs.ts:41 → index.ts:559 → electron-main.ts:934-946 → v
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check: Batch revocation-state + feature-flag oracle sharing fetch_bulk's 10000-ID count-cap; sibling parity byte-ide
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: New endpoint confirmed as 6th unauthenticated identity-existence oracle with revocation-3-state error pa
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 = `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed 
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
+- LEARN: REJECTED MISCONFIG @ "mask = immutable registration-era snapshot": strong form disproven — active accounts 5U8DM3J3/RFK5RDU6 carry current-era 2047 masks while 
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging shares prod body-cap (524000→200 both) AND dataset isolation confirmed (0 prod identities in 524k staging 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on win32 confirmed via WebFetch on stable; both keystorag
+- LEARN: REJECTED MISCONFIG @ threema-desktop OnPrem config trust: Ed25519 signature verification against 3 hardcoded ONPREM_CONFIG_TRUSTED_PUBLIC_KEYS in vite.config.ts
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle DISPROVEN — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` — sha256 corrected to `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae1
+- LEARN: REJECTED class @ BrowserWindow sandbox+nodeIntegrationInWorker: Conditional RCE requires separate renderer exploit chain (0 dynamic sinks require/import/eval/ch
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle DISPROVEN — 404 response has NO CORS headers (neither GET nor OPTIONS), missing-key/invalid-
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py: Filesystem GROUND TRUTH (`find / -name "key-storage-acl-bypass*" 2>/dev/null` returns zero; `ls poc/` → 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: ~524k IDs/req body-size cap (NOT count-cap) confirmed; staging dataset isolation (0 prod IDs in 5
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: 6th oracle confirmed — valid→200/137B (token + constant tokenRespKeyPub sha256 `c98a3c50…`), invalid→200
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check: Batch revocation-state + feature-flag oracle fully verified — POST→200/76B `{"checkInterval":86400,"states":[
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: Case-fold amplification confirmed — POST `{"identity":"echoecho"}`→200/133B identical to ECHOECHO (toke
+- LEARN: REJECTED OTHER @ saltyrtc-*.threema.ch: HTTP 426 on GET, explicitly NOT in scope per scope.yml.
+- LEARN: REJECTED MISCONFIG @ JoinResponse.kt:70 (icePassword in toString): Low value — local-only, short-lived ICE creds; requires runtime logcat validation to confirm 
