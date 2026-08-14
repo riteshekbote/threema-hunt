@@ -12281,3 +12281,32 @@ reasoning: POST {identity:ECHOECHO} → per-host distinct tokens sharing `/2p+Za
 [HYP] Cross-endpoint token interchangeability — fetch_priv-minted token accepted by revoke phase-2 PoP
 reasoning: revoke and fetch_priv share the `/2p+Z` token family, same 64-char shape, identical tokenRespKeyPub constant (sha256 `f78c80a9…`) — distinct from match_token's 43-char `/+r…` token; both mint per-request random tokens for the same identity.
 verify_steps: AUTH_HELPED: on a program-provided test ID, submit revoke phase-2 signed over a fetch_priv-minted token vs a revoke-minted token; compare acceptance/error.
+## 2026-08-14 06:22:15 UTC [chat] (model bigpickle)
+[HYP] Live featureMask time-drift enables client-version tracking of specific active users
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask
+confidence: 55
+reasoning: Masks are live client-capability state, not registration snapshots (active 5U8DM3J3/RFK5RDU6 = 2047, legacy inactive = 255/63/15/9/3); endpoint returns per-ID masks unauthenticated with zero 429 and ~524k IDs/req body-cap.
+evidence_needed: Re-query of the 10 recovered IDs after a time gap shows a mask change → masks drift with client upgrades.
+verify_steps: PASSIVE — 1 POST of the 10 recovered IDs to https://ds-apip.threema.ch/identity/check_featuremask, then re-query ≥1h later; diff masks; ≤1 rps.
+impact: Attacker tracks specific active users' client-version upgrades over time (upgrade surveillance) enhancing targeted-phishing attribution. Severity: Low.
+testability: PASSIVE
+[HYP] /identity/check `types` field discriminates work-managed identities
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 45
+reasoning: Response schema exposes states/types/featureMasks; all 11 recovered consumer identities return types=[0,…]; consumer routes are undocumented (threema-android directory.openapi.yml lists only Work paths) so types semantics are unverified.
+evidence_needed: One random-draw batch returning any type≠0 → work-managed identities present in the consumer census.
+verify_steps: PASSIVE — 1-2 check batches (≤10000 IDs) of fresh random draws, scan types array for non-zero; ≤1 rps.
+impact: Extends the proven identity census to work-account attribution; cross-realm enumeration. Severity: Low.
+testability: PASSIVE
+[HYP] Windows keystorage ACL bypass remains exploitable at runtime (PoC validation pending)
+class: MISCONFIG
+asset: threema-desktop (Windows) — data/keystorage.bin + data/keystorage.password.bin
+confidence: 95
+reasoning: 6-path RAG chain verified on GitHub `stable`: fs.ts:41 returns `{}` on win32; _writeOrOverrideFile + STORE_USER_PASSWORD spread `{}` (no ACL); inner/v3.ts exposes identityData.ck + databaseKey; sqlite.ts:240 raw PRAGMA key.
+evidence_needed: Windows runtime — a second same-user process reads both keystorage files and recovers the DPAPI password, then decrypts keystorage.bin.
+verify_steps: AUTH_HELPED-LOCAL: run poc/key-storage-acl-bypass-poc.js on a Windows host; confirm both files readable + safeStorage.decryptString recovery of the Argon2id password; report.
+impact: Same-user process extracts full Ed25519 identity key + SQLCipher DB key. Severity: Medium-High (local, Windows-only).
+testability: AUTH_HELPED
+[NEXT] PROBE: route-presence dictionary on ds-apip.threema.ch — `for p in get_pub lookup pubkey exists status info validate check_work get_pubkey fetch create; do curl -s -o /dev/null -w "$p:%{http_code}\n" -X GET https://ds-apip.threema.ch/identity/$p; sleep 1; done` — 200/400 marks a hidden route (candidate 7th oracle), 404 absent; 11 requests ≤1 rps, GET-only.

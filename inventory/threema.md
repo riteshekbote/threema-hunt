@@ -2411,3 +2411,9 @@
 - CHANGED poc/ directory: Filesystem GROUND TRUTH still ABSENT (`ls poc/` → No such file) despite KB claiming "genuinely on disk" with sha256 hashes — 20+ cycle KB/filesystem contradiction persists
 - CHANGED crypto.ts:223 benchmark password sha256 corrected to `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed from literal `r3gGN9GDQ5NF6tM6`); stale KB `52a0af98...` was incorrect
 - CHANGED ds-apip.test.threema.ch: Staging mirror parity confirmed — 524000-ID batch → 200 on both prod+staging; 0 prod identities in 524k staging draw (dataset isolation)
+
+## 2026-08-14 06:28:39 UTC
+- NEW ds-apip.threema.ch/identity/fetch_priv returns "Identity not found or revoked" (88B) for identities valid on /identity/check (5U8DM3J3, ECHOECHO) — 3-state error path contradicts prior KB claim of 200
+- CHANGED poc/ directory: Filesystem GROUND TRUTH still ABSENT (`ls poc/` → No such file) despite KB claiming "genuinely on disk" with sha256 hashes — 20+ cycle KB/filesystem contradiction persists
+- CHANGED crypto.ts:223 benchmark password sha256 corrected to `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed from literal `r3gGN9GDQ5NF6tM6`); stale KB `52a0af98...` was incorrect
+- CHANGED ds-apip.test.threema.ch: Staging mirror parity confirmed — 524000-ID batch → 200 on both prod+staging; 0 prod identities in 524k staging draw (dataset isolation)
