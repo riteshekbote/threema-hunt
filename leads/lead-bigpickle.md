@@ -12751,3 +12751,22 @@ evidence_needed: whether a match_token minted on ds-apip is accepted by api.thre
 verify_steps: AUTH_HELPED: on program-provided test ID, mint match_token on ds-apip; submit phase-2 PoP signed over that token to `https://api.threema.ch/identity/set_revocation_key` and `/identity/revoke`; compare acceptance vs same-host token.
 impact: challenge-token scope confusion across endpoint family; abuse-enabling only, no data exposure; Low.
 testability: AUTH_HELPED
+## 2026-08-14 14:35:02 UTC [chat] (model bigpickle)
+[HYP] Revoked identities fail fetch_priv token-mint while dormant ones succeed (passive revoked detection)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 55
+reasoning: All 5 dormant cohort IDs (check state:1, masks 15/63) mint 200/134-135B tokens → registered-not-revoked; invalid ZZZZZZZZ → 200/88B. The 88B error conflates not-found+revoked, so revoked vs never-registered is not yet split passively.
+evidence_needed: a known-revoked control ID returning 88B while still present as check state:1/mask≠null.
+verify_steps: AUTH_HELPED: on program-provided test ID — register → POST `{"identity":"<id>"}` to `https://ds-apip.threema.ch/identity/fetch_priv` (expect token) → revoke via app → re-POST (expect 88B invalid-identity); PASSIVE secondary: re-probe dormant cohort fetch_priv next cycle for token-mint stability.
+impact: passive account-lifecycle discrimination (dormant vs revoked) feeding precision phishing / registration-timing abuse. Severity: Low-Medium.
+testability: AUTH_HELPED
+[HYP] fetch_priv/match_token/create tokens validated by one shared host-agnostic verifier (cross-host + cross-endpoint interchangeability)
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 50
+reasoning: tokenRespKeyPub byte-identical constant `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=` across fetch_priv (134-135B), match_token (133B), create (deterministic f(publicKey), no host nonce) on all 3 prod hosts → single shared verifier plausible.
+evidence_needed: whether a token minted on ds-apip is accepted by api.threema.ch phase-2 PoP endpoints.
+verify_steps: AUTH_HELPED: mint token on ds-apip; submit phase-2 PoP signed over that token to `https://api.threema.ch/identity/set_revocation_key` and `/identity/revoke`; compare acceptance vs a same-host token.
+impact: challenge-token scope confusion across endpoint family; abuse-enabling only, no data exposure. Severity: Low.
+testability: AUTH_HELPED

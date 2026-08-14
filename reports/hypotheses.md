@@ -4385,3 +4385,25 @@
 - LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/create: challenge token = deterministic f(publicKey) (3 same-key mints byte-identica
 - LEARN: ACCEPTED OTHER @ ds-apip-work.threema.ch: live work route surface = exactly {/identities,/fetch2,/directory} all 401 work-creds-gated; spec'd /api-client/v1/{us
 - LEARN: REJECTED OTHER @ work /api-client/v1/remote-secret bearer-token fetch oracle: documented in spec but 404 on prod → not deployed; closed.
+
+## RANKED HYPOTHESES 2026-08-14 14:43:43 UTC
+- [95] https://github.com/threema-ch/threema-desktop: Desktop key-storage Windows ACL bypass exposes full identity key + SQLCipher key chain (from reports/hypotheses-laguna.txt)
+- [95] https://ds-apip.threema.ch/identity/check_featuremask: Unauthenticated massive identity enumeration via check_featuremask enables precision targeting of active users (from reports/hypotheses-nemotron3.txt)
+- [55] https://ds-apip.threema.ch/identity/fetch_priv: Revoked identities fail fetch_priv token-mint while dormant ones succeed (passive revoked detection) (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://api.threema.ch/iden
+- NEXT(hypotheses-laguna.txt): GIT: `git clone --depth 1 --branch stable https://github.com/threema-ch/threema-desktop.git /tmp/openc-desktop-stable` already completed; `poc/key-storage-acl-b
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check: Batch revocation-state + feature-flag oracle sharing fetch_bulk's 10000-ID count-cap; sibling parity byte-ide
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: New endpoint confirmed live with CORS * + browser-viable OPTIONS; returns 200/88B "invalid-identity" for
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 = `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed 
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
+- LEARN: REJECTED MISCONFIG @ "mask = immutable registration-era snapshot": strong form disproven — active accounts 5U8DM3J3/RFK5RDU6 carry current-era 2047 masks while 
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging shares prod body-cap (524000→200 both) AND dataset isolation confirmed (0 prod identities in 524k staging 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on win32 confirmed via WebFetch on stable; both keystorag
+- LEARN: REJECTED MISCONFIG @ threema-desktop OnPrem config trust: Ed25519 signature verification against 3 hardcoded ONPREM_CONFIG_TRUSTED_PUBLIC_KEYS in vite.config.ts
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle DISPROVEN — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py: Filesystem GROUND TRUTH (`find / -name "key-storage-acl-bypass*" 2>/dev/null` returns zero; `ls poc/` → 
+- LEARN: ACCEPTED OTHER @ threema-android directory.openapi.yml: published spec documents exactly 12 Work-flavour paths; ALL 8 probed consumer routes (create/check/check
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/create: challenge token = deterministic f(publicKey) (3 same-key mints byte-identica
+- LEARN: ACCEPTED OTHER @ ds-apip-work.threema.ch: live work route surface = exactly {/identities,/fetch2,/directory} all 401 work-creds-gated; spec'd /api-client/v1/{us
+- LEARN: REJECTED OTHER @ work /api-client/v1/remote-secret bearer-token fetch oracle: documented in spec but 404 on prod → not deployed; closed.
