@@ -12928,3 +12928,4 @@ evidence_needed: Whether a token minted on ds-apip is accepted by phase-2 PoP en
 verify_steps: AUTH_HELPED — mint token on ds-apip; submit phase-2 PoP signed over that token to https://api.threema.ch/identity/set_revocation_key; compare vs same-host minted token.
 impact: Challenge-token scope confusion across endpoint family; abuse-enabling only, no data exposure; Low.
 testability: AUTH_HELPED
+## 2026-08-14 18:02:46 UTC [chat] (model bigpickle)
