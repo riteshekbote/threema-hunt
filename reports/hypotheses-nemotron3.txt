@@ -1,4 +1,4 @@
-## 2026-08-14 23:17:08 UTC [web] (model nemotron3)
+## 2026-08-14 23:38:28 UTC [web] (model nemotron3)
 [NEW] api.threema.ch/identity/check_featuremask: 524k-scale parity confirmed (200/2620012B, density 7.63e-6, zero 429, CORS *)
 [NEW] api.threema.ch/identity/check_featuremask: Fresh census recovered 4 registered IDs (PJNEKNJN/63, 6F5S79A3/2047, Y8FV92TU/31, YUWB4V3M/31; all state:1 dormant)
 [NEW] all 3 hosts/identity/fetch_priv: 3-host parity re-established (registered→135-137B token, never-registered→88B, CORS *)
@@ -13,9 +13,10 @@
 [CHANGED] billing.threema.ch: Serves static assets (jQuery 3.7.1 + CSS) with full security headers; 404 page lacks headers
 [CHANGED] poc/key-storage-acl-bypass-poc.py: Filesystem GROUND TRUTH still ABSENT (20+ cycle KB/filesystem contradiction)
 [CHANGED] threema-desktop key-storage (Windows): RAG source chain fully verified (6 paths on GitHub stable)
-[PRIO] https://ds-apip.threema.ch/identity/check_featuremask, 8.55, attack_surface:10 business_value:9 tech_exposure:8 gate_ease:10 cloud_surface:5 freshness:10
-[PRIO] https://ds-apip.threema.ch/identity/fetch_priv, 7.80, attack_surface:8 business_value:7 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:9
-[PRIO] https://ds-apip.threema.ch/identity/match_token, 7.65, attack_surface:8 business_value:7 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:8
+[PRIO] https://ds-apip.threema.ch/identity/check_featuremask, 8.85, attack_surface:10 business_value:9 tech_exposure:8 gate_ease:10 cloud_surface:5 freshness:9
+[PRIO] https://ds-apip.threema.ch/identity/match_token, 7.60, attack_surface:8 business_value:7 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:8
+[PRIO] https://ds-apip.threema.ch/identity/fetch_priv, 6.95, attack_surface:7 business_value:6 tech_exposure:6 gate_ease:10 cloud_surface:5 freshness:8
+[PRIO] threema-desktop key-storage (Windows), 7.05, attack_surface:8 business_value:9 tech_exposure:7 gate_ease:5 cloud_surface:3 freshness:7
 [HYP] Unauthenticated massive identity enumeration via check_featuremask enables precision targeting of active users
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/check_featuremask
@@ -24,15 +25,6 @@ reasoning: 1.148M random draws yielded 10 real identities including 2 LIVE ACTIV
 evidence_needed: Passive probe confirming 524k-ID batch ceiling and tri-state response schema on all 3 prod hosts
 verify_steps: PASSIVE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://ds-apip.threema.ch/identity/check_featuremask — verify 200 + CORS * + featureMask per identity; test 524000/524900/1000000-ID batches for body-size cap; repeat on api.threema.ch + apip.threema.ch for sibling parity
 impact: Unauthenticated massive directory enumeration (~524k IDs/req, no rate limit) with live active-account discrimination and per-identity capability profiling; enables precision targeting of active users. Severity: High (CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
-testability: PASSIVE
-[HYP] fetch_priv 88B bucket = revoked OR never-registered — revocation observability split
-class: IDOR
-asset: https://ds-apip.threema.ch/identity/fetch_priv
-confidence: 80
-reasoning: Fresh probes show 88B "invalid-identity" for BOTH valid (ECHOECHO, 5U8DM3J3) AND invalid (ZZZZZZZZ) identities; prior KB claimed 137B token for valid but not reproduced; endpoint returns binary validity oracle only, not revocation-state discriminator; 3-host parity confirmed (registered→135-137B token, never-registered→88B); CORS * + browser-viable OPTIONS 200
-evidence_needed: Passive probe with known-revoked identity (requires AUTH_HELPED or account lifecycle observation) to confirm if 88B = never-registered only or includes revoked
-verify_steps: PASSIVE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/fetch_priv — verify 200/135B token; curl -s -X POST ... -d '{"identity":"ZZZZZZZZ"}' — verify 200/88B invalid-identity; repeat on api.threema.ch + apip.threema.ch for sibling parity; AUTH_HELPED: register+revoke test identity to observe 3-state split
-impact: Unauthenticated identity-existence oracle (binary: registered vs never-registered) with browser-viable CORS; revocation-state discrimination unconfirmed. Severity: Medium (CVSS 3.1: 5.3 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
 testability: PASSIVE
 [HYP] Case-fold amplification on match_token mint path enables identity-existence oracle with browser-viable CORS
 class: IDOR
@@ -43,10 +35,19 @@ evidence_needed: Passive probe confirming case-fold on POST mint path + case-sen
 verify_steps: PASSIVE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identity":"echoecho"}' https://ds-apip.threema.ch/identity/match_token — verify 200/133B + token + constant tokenRespKeyPub; curl -s -X GET https://ds-apip.threema.ch/identity/EchoEcho — verify 404; curl -s -X OPTIONS -H "Origin: https://evil.com" https://ds-apip.threema.ch/identity/match_token — verify 200 CORS *; repeat on api.threema.ch + apip.threema.ch
 impact: Unauthenticated identity-existence oracle with case-fold amplification on mint path (browser-viable CORS) vs case-sensitive GET lookup; enables cross-origin identity enumeration. Severity: Medium-High (CVSS 3.1: 6.5 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
 testability: PASSIVE
+[HYP] Windows key-storage ACL bypass exposes Ed25519 identity key + SQLCipher database key to same-user processes
+class: MISCONFIG
+asset: threema-desktop key-storage (Windows)
+confidence: 75
+reasoning: 6-path RAG chain verified on GitHub stable: fs.ts:41 returns {} on win32; index.ts:_writeOrOverrideFile spreads fileModeInternalObjectIfPosix()={}; electron-main.ts:934-946 writes keystorage.bin + keystorage.password.bin without ACL; inner/v3.ts:65-70 exposes identityData.ck (Ed25519 32-byte) + databaseKey; crypto.ts:53-113 Argon2id→XSalsa20-Poly1305; sqlite.ts:237-240 raw PRAGMA key. PoC artifact generation remains blocker for runtime validation.
+evidence_needed: Windows runtime validation showing keystorage.bin + keystorage.password.bin readable by same-user process + DPAPI decryption + SQLCipher DB open with extracted databaseKey
+verify_steps: AUTH_HELPED: On Windows host with threema-desktop installed, run PoC to read keystorage.password.bin → DPAPI decrypt → derive databaseKey → open threema.sqlite with PRAGMA key; verify identityData.ck (Ed25519 privkey) extractable
+impact: Local privilege escalation / same-user data theft: full identity private key + message database decryption key recoverable by any same-user process. Severity: High (CVSS 3.1: 7.0 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N)
+testability: AUTH_HELPED
 [PARKED] fetch_priv revocation-state discrimination: confidence 80 but requires known-revoked identity (no passive path) — verify_steps require AUTH_HELPED account lifecycle observation which is out of scope for passive-first
 [FINAL] 1. Unauthenticated massive identity enumeration via check_featuremask enables precision targeting of active users (confidence 95, PASSIVE)
 [FINAL] 2. Case-fold amplification on match_token mint path enables identity-existence oracle with browser-viable CORS (confidence 85, PASSIVE)
-[FINAL] 3. fetch_priv 88B bucket = revoked OR never-registered — revocation observability split (confidence 80, PASSIVE)
+[FINAL] 3. Windows key-storage ACL bypass exposes Ed25519 identity key + SQLCipher database key to same-user processes (confidence 75, AUTH_HELPED)
 [NEXT] PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","WANRKN9X","ZZZZZZZZ","ECHOECHO"]}' https://ds-apip.threema.ch/identity/check_featuremask — verify live active accounts (state:0 mask 2047) + tri-state oracle on known identities
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Unauthenticated massive enumeration (~524k IDs/req, body-size cap ~5.77MB) yielding LIVE ACTIVE accounts (state:0, mask 2047) confirmed; tri-state oracle proven
 [LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/check: Batch revocation-state + feature-flag oracle sharing fetch_bulk's 10000-ID count-cap; sibling parity byte-identical across ds-apip/api/apip
