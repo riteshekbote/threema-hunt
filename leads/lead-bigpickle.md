@@ -12997,3 +12997,61 @@ impact: Challenge-token scope confusion across endpoint family; abuse-enabling o
 testability: AUTH_HELPED
 [FINAL] 1) check_featuremask/check census (95, PASSIVE) 2) fetch_priv tri-bucket classifier (90, PASSIVE) 3) token-mint scope confusion (50, AUTH_HELPED)
 [NEXT] PROBE: complete 3-host fetch_priv parity — single POST `{"identity":"WANRKN9X"}` then `{"identity":"ZZZZZZZZ"}` to https://apip.threema.ch/identity/fetch_priv at ≤1 rps (1.5s spacing); confirm dormant 136B-style token + 88B unregistered on the third host, locking the tri-bucket classifier across ds-apip/api/apip before the AUTH_HELPED revoked test.
+## 2026-08-14 19:54:53 UTC [chat] (model bigpickle)
+testability: AUTH_HELPED
+[HYP] check_featuremask/check dual-oracle census — cohort byte-stability reconfirmed; active/dormant/never-registered tri-state proven
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask + /identity/check (siblings: api.threema.ch, apip.threema.ch, ds-apip.test.threema.ch)
+confidence: 95
+reasoning: Own probes this cycle — masks `[2047,2047,15,null]` byte-identical across check + check_featuremask; states `[0,0,1,0]`; 2 live active accounts recovered; ~524k IDs/req body-cap with zero 429; staging logic-identical/data-disjoint.
+evidence_needed: featureMask drift over >1h window; mask→client-era map for legacy-targeting attribution.
+verify_steps: PASSIVE — single POST `{"identities":["5U8DM3J3","RFK5RDU6","WANRKN9X","ZZZZZZZZ"]}` to check + check_featuremask on apip.threema.ch ≤1 rps; diff masks/states vs this cycle.
+impact: Unauthenticated census of 5.4T-ID keyspace at 524k draws/req → active-account recovery → precision phishing + message pre-encryption + legacy-client fingerprinting. Browser-viable (CORS `*`). CVSS 7.5 High.
+testability: PASSIVE
+[HYP] fetch_priv tri-bucket classifier holds across hosts; revoked-vs-never-registered split still open
+class: IDOR
+asset: https://ds-apip.threma.ch/identity/fetch_priv (siblings: api.threema.ch, apip.threema.ch)
+confidence: 90
+reasoning: Own probes this cycle — registered (active 134-135B, dormant 136B) mint unique per-request tokens w/ constant magic `ff 6a 7f 66` + tokenRespKeyPub; unregistered ZZZZZZZZ → 88B `invalid-identity`. 18:06 "88B for valid" claim non-replicated (0/4).
+evidence_needed: Known-revoked control ID → 88B while /identity/check shows state:1/mask≠null — settles revoked-vs-never-registered conflation in the 88B bucket.
+verify_steps: PASSIVE — single POST `{"identity":"WANRKN9X"}` + `{"identity":"ZZZZZZZZ"}` to https://apip.threema.ch/identity/fetch_priv ≤1 rps (complete 3-host dormant/unregistered parity); AUTH_HELPED — register throwaway, revoke, re-POST to observe token→88B transition.
+impact: Passive account-existence census with active/dormant discrimination across 3 hosts → precision phishing; feeds the check_featuremask census. CVSS 7.5 High.
+testability: PASSIVE
+[HYP] Two distinct token-mint implementations → scope-confusion check across endpoint family
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/{fetch_priv,match_token,create} tokens verified by set_revocation_key/revoke
+confidence: 50
+reasoning: Own probes this cycle — fetch_priv + match_token mint `ff 6a 7f 66`-magic 32B per-request tokens; create mints different-magic shorter unpadded token (deterministic f(publicKey), KB 2026-08-14). tokenRespKeyPub constant `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=` (sha256 c8005cca…) across all three.
+evidence_needed: Whether a Type-A token (fetch_priv/match_token) is accepted by the phase-2 PoP verifier used for create-issued tokens.
+verify_steps: AUTH_HELPED — mint token on ds-apip fetch_priv; submit phase-2 PoP signed over it to set_revocation_key; compare vs create-minted token acceptance.
+impact: Challenge-token scope confusion across endpoint family; abuse-enabling only, no data exposure; Low.
+testability: AUTH_HELPED
+[FINAL] 1) check_featuremask/check census (95, PASSIVE) 2) fetch_priv tri-bucket classifier (90, PASSIVE) 3) token-mint scope confusion (50, AUTH_HELPED)
+[NEXT] PROBE: complete 3-host fetch_priv parity — single POST `{"identity":"WANRKN9X"}` then `{"identity":"ZZZZZZZZ"}` to https://apip.threema.ch/identity/fetch_priv at ≤1 rps (1.5s spacing); confirm dormant 136B-style token + 88B unregistered on the third host, locking the tri-bucket classifier across ds-apip/api/apip before the AUTH_HELPED revoked test.
+[HYP] check_featuremask/check dual-oracle live-account census — enumeration feasibility at sustained scale
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask + /identity/check (siblings: api.threema.ch, apip.threema.ch, ds-apip.test.threema.ch)
+confidence: 95
+reasoning: This cycle re-confirmed cohort byte-stability on the 3rd host (apip): masks `[2047,2047,15,null]` and states `[0,0,1,0]` identical across check + check_featuremask; fetch_bulk independently returned identical metadata. ~524k IDs/req body-cap, 10k/req count-cap on check, zero 429s.
+evidence_needed: Sustained multi-batch sweep feasibility (rate of 524k/req calls without 429/ban); featureMask drift over >1h window for legacy-client attribution.
+verify_steps: PASSIVE — single POST `{"identities":["5U8DM3J3","RFK5RDU6","WANRKN9X","ZZZZZZZZ"]}` to check_featuremask on ds-apip ≤1 rps; diff vs this cycle's masks; then one 10k-random-ID check call to sample states[] distribution.
+impact: Unauthenticated census of 5.4T-ID keyspace → active-account recovery (2 confirmed state:0/mask 2047) → precision phishing, message pre-encryption, legacy-client fingerprinting. Browser-viable (CORS `*`). CVSS 7.5 High.
+testability: PASSIVE
+[HYP] fetch_bulk deterministic batch metadata oracle — state+featureMask+featureLevel+type at 10k/req
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_bulk (siblings: api.threema.ch, apip.threema.ch)
+confidence: 90
+reasoning: Own probe this cycle — api.threema.ch returned full metadata schema for 3 registered IDs (mask/state/type/featureLevel) and silently omitted never-registered ZZZZZZZZ; metadata byte-matches check/check_featuremask. Unlike fetch_priv, fetch_bulk showed zero flakiness across all prior cycles (10000/10001 sharp count-cap, CORS `*`).
+evidence_needed: Confirmation metadata stays present for revoked accounts (revoked-vs-never-registered split at batch scale) — requires revoked control.
+verify_steps: PASSIVE — single POST `{"identities":["5U8DM3J3","RFK5RDU6","WANRKN9X","ZZZZZZZZ"]}` to fetch_bulk on ds-apip + apip ≤1 rps; diff metadata vs this cycle; AUTH_HELPED — revoked-control ID to test metadata retention.
+impact: Deterministic batch account census with active/dormant discrimination and client-capability fingerprinting at 10k IDs/request — strictly more reliable than fetch_priv and check_featuremask for small cohorts. CVSS 7.5 High.
+testability: PASSIVE
+[HYP] check dual-field sweep — states[]+featureMasks[] unified revocation-state oracle at batch scale
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check (siblings: api.threema.ch, apip.threema.ch)
+confidence: 90
+reasoning: Cohort byte-stable on all 3 hosts this cycle; 10000→200/90058B + 10001→400/0B count-cap identical to fetch_bulk; single request yields both revocation-state AND feature-mask per ID — the most compact dual-field oracle.
+evidence_needed: state-enum range (only 0/1 observed; whether a revoked account produces state 2/3 or mask null) — needs revoked control.
+verify_steps: PASSIVE — single POST `{"identities":["5U8DM3J3","RFK5RDU6","WANRKN9X","ZZZZZZZZ"]}` to check on ds-apip ≤1 rps; diff vs this cycle; AUTH_HELPED — register+revoke throwaway to observe state transition.
+impact: Unauthenticated combined active/dormant/never-registered classification + legacy-client flagging in one 10k/req call. CVSS 7.5 High.
+testability: PASSIVE
