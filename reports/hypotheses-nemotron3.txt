@@ -1,4 +1,4 @@
-## 2026-08-14 13:38:07 UTC [web] (model nemotron3)
+## 2026-08-14 14:36:30 UTC [web] (model nemotron3)
 [NEW] ds-apip.threema.ch/identity/fetch_priv: Returns 88B "invalid-identity" error for BOTH valid (ECHOECHO, 5U8DM3J3) and invalid (ZZZZZZZZ) identities — contradicts prior KB claim of 200/137B valid token; 3-state revocation discrimination NOT observed this cycle
 [CHANGED] ds-apip.threema.ch/identity/check_featuremask: Ceiling precisely bounded ~524k IDs/req (~5.77MB body-size cap): 524000→200/2.62MB, 524900→500/0B, 1M→413/176B; zero 429; body-size cap NOT count-cap; staging parity confirmed
 [CHANGED] ds-apip.threema.ch/identity/check: Batch revocation-state + feature-flag oracle confirmed — 10000-ID count-cap (10001→400/0B sharp), sibling parity byte-identical across ds-apip/api/apip; states[0,1] + featureMasks per identity
@@ -11,6 +11,11 @@
 [PRIO] https://ds-apip.threema.ch/identity/check_featuremask, 9.15, attack_surface:10 business_value:10 tech_exposure:9 gate_ease:10 cloud_surface:5 freshness:8
 [PRIO] https://ds-apip.threema.ch/identity/check, 9.05, attack_surface:10 business_value:10 tech_exposure:9 gate_ease:10 cloud_surface:5 freshness:7
 [PRIO] https://ds-apip.threema.ch/identity/match_token, 8.60, attack_surface:9 business_value:9 tech_exposure:8 gate_ease:10 cloud_surface:5 freshness:8
+[PRIO] https://ds-apip.threema.ch/identity/fetch_priv, 7.80, attack_surface:8 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:9
+[PRIO] https://safe-01.threema.ch/backups/{64hex}, 7.25, attack_surface:8 business_value:7 tech_exposure:6 gate_ease:9 cloud_surface:6 freshness:7
+[PRIO] https://billing.threema.ch/cache/, 5.90, attack_surface:6 business_value:5 tech_exposure:7 gate_ease:8 cloud_surface:5 freshness:6
+[PRIO] https://work.threema.ch/api/v1, 4.80, attack_surface:6 business_value:7 tech_exposure:5 gate_ease:4 cloud_surface:5 freshness:5
+[PRIO] https://ds-apip.threema.ch/identity/create, 6.35, attack_surface:7 business_value:6 tech_exposure:6 gate_ease:10 cloud_surface:4 freshness:7
 [HYP] Unauthenticated massive identity enumeration via check_featuremask enables precision targeting of active users
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/check_featuremask
@@ -38,7 +43,16 @@ evidence_needed: Passive probe confirming case-fold on POST mint path and browse
 verify_steps: PASSIVE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identity":"echoecho"}' https://ds-apip.threema.ch/identity/match_token — verify 200/133B + token + constant tokenRespKeyPub; curl -s -X GET -H "Origin: https://evil.com" https://ds-apip.threema.ch/identity/EchoEcho — verify 404 case-sensitive; curl -s -X OPTIONS -H "Origin: https://evil.com" https://ds-apip.threema.ch/identity/match_token — verify 200 CORS * + Allow-Headers; repeat on api.threema.ch + apip.threema.ch
 impact: Unauthenticated identity-existence oracle with per-request challenge-token minting and case-fold amplification on POST; browser-viable cross-origin; enables directory enumeration and pre-auth token harvesting. Severity: High (CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
 testability: PASSIVE
-[PARKED] Unauthenticated identity-existence oracle via fetch_priv with revocation-state discrimination enables precise directory enumeration: confidence 75 but 3-state discrimination NOT observed this cycle (all identities return identical 88B error); prior KB claim of 137B valid token contradicted; needs known-revoked identity to verify — no passive verify path currently
+[HYP] Unauthenticated identity-existence oracle via fetch_priv with revocation-state discrimination enables precise directory enumeration
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv
+confidence: 75
+reasoning: New endpoint confirmed live with CORS * + browser-viable OPTIONS; returns 200/88B "invalid-identity" for both valid and invalid identities — 3-state discrimination (valid vs invalid vs revoked) NOT observed this cycle; prior KB claim of 137B valid token contradicted; needs known-revoked identity to verify
+evidence_needed: Passive probe with known-revoked identity to confirm 3-state error discrimination (valid→token, invalid→"Identity not found", revoked→"Identity not found or revoked")
+verify_steps: PASSIVE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/fetch_priv — verify response; curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identity":"ZZZZZZZZ"}' https://ds-apip.threema.ch/identity/fetch_priv — verify 88B error; curl -s -X OPTIONS -H "Origin: https://evil.com" https://ds-apip.threema.ch/identity/fetch_priv — verify 200 CORS *; repeat on api.threema.ch + apip.threema.ch
+impact: Unauthenticated identity-existence oracle with potential 3-state revocation discrimination; browser-viable cross-origin; enables precise directory enumeration. Severity: High (CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N) if 3-state confirmed
+testability: PASSIVE
+[PARKED] Unauthenticated identity-existence oracle via fetch_priv with revocation-state discrimination: 3-state discrimination NOT observed this cycle (all identities return identical 88B error); prior KB claim of 137B valid token contradicted; needs known-revoked identity to verify — no passive verify path currently
 [FINAL] 1. Unauthenticated massive identity enumeration via check_featuremask enables precision targeting of active users (confidence 95, PASSIVE)
 [FINAL] 2. Unauthenticated batch revocation-state + feature-flag oracle via identity/check enables precise account-status enumeration at scale (confidence 90, PASSIVE)
 [FINAL] 3. Unauthenticated identity-existence oracle via match_token with case-fold amplification enables directory enumeration and token minting (confidence 85, PASSIVE)
