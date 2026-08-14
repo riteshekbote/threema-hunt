@@ -1,49 +1,4 @@
-## 2026-08-14 12:08:57 UTC [chat] (model bigpickle)
-[HYP] featureMask → client-era capability attribution (source-grounded)
-class: IDOR
-asset: https://ds-apip.threema.ch/identity/check_featuremask
-confidence: 65
-reasoning: RAG bit table (common.proto:102-127) decodes masks exactly: 2047=0x7FF all 11 flags, 255=0xFF (no edit/delete/reactions), 63=0x3F (no FS/group-calls), 15=0x0F (no VoIP), 3=0x03 (voice+group), 9=0x09 (voice+file, no group). getMyFeatureMask builds from current constants; shouldUpdateFeatureMask re-sends only on change/>1 day → inactive accounts keep a frozen last-transmitted mask. Cohort capture this cycle: all 12 inactive IDs carry legacy 255/63/15/3; both active carry 2047.
-evidence_needed: dated introduction of each bit (git history) to anchor era per mask value; per-ID stability already shown byte-stable across cycles.
-verify_steps: PASSIVE+RAG — GitHub commits API for domain/protocol/src/common.proto (unauth, read-only) to date flag additions; then single POST of a legacy-mask ID subset to check_featuremask for per-ID stability reconfirm; ≤1 rps.
-impact: census-scale capability/era profiling of accounts (identify dormant-account cohorts by client vintage) for targeted phishing against legacy-client users; combined with check state:1 = dormant-since-era fingerprint. Severity: Low-Medium.
-testability: PASSIVE
-[HYP] check state:1 uniquely marks registered-but-revoked/inactive identities (3-way oracle)
-class: IDOR
-asset: https://ds-apip.threema.ch/identity/check
-confidence: 50
-reasoning: Own probes — 12 recovered inactive IDs → state:1/mask≠null; active 5U8DM3J3/RFK5RDU6 → state:0/mask:2047; never-registered lowercase → state:0/mask:null; fetch_priv conflates not-found+revoked (88B), check discriminates via state field.
-evidence_needed: a known-revoked control ID confirming state:1 = revoked (not merely dormant).
-verify_steps: AUTH_HELPED: on a program-provided test ID, register throwaway identity → confirm state:0; revoke via app; re-POST {"identities":["<id>"]} to check → observe transition (1=revoked or collapse).
-impact: revocation-status census → account-lifecycle surveillance (spot recently-revoked accounts for re-registration/phishing). Severity: Low.
-testability: AUTH_HELPED
-[HYP] Cross-endpoint challenge-token interchangeability — fetch_priv-minted token accepted by revoke phase-2 PoP
-class: OTHER
-asset: https://ds-apip.threema.ch/identity/revoke
-confidence: 55
-reasoning: revoke + fetch_priv share the 64-char `/2p+` token family with identical constant tokenRespKeyPub (sha256 `c8005cca…`); both mint per-request random tokens for the same identity; one verify key likely validates all minted tokens.
-evidence_needed: whether a fetch_priv token validates as the revoke phase-2 PoP challenge.
-verify_steps: AUTH_HELPED: on a program-provided test ID, submit revoke phase-2 signed over a fetch_priv-minted token vs a revoke-minted token; compare acceptance/error.
-impact: challenge-token scope confusion across the 9-member endpoint family; abuse-enabling only, no data exposure (self-service mint). Severity: Low.
-testability: AUTH_HELPED
-[NEXT] RAG: date the CspFeatureMaskFlag bit additions via GitHub commits API — fetch `https://api.github.com/repos/threema-ch/threema-android/commits?path=domain/protocol/src/common.proto&per_page=100` (unauth read-only, ≤1 rps) to anchor each flag's introduction date → emit dated mask→client-era table (2047/255/63/15/3) completing the mask→era attribution evidence.
-[RISK] chat: 25 — in-band channel closed (0-byte handshake, auth-required login frame); DNS shard map complete (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204); staging out of scope | web: 68 — 9 unauthenticated identity oracles (check/check_featuremask/fetch_bulk/match_token/fetch_priv/match/check_license/create/set_featuremask) on ds-apip/api/apip with CORS `*`, zero rate-limit on most, ~524k IDs/req enumeration + source-grounded mask→era profiling; work/billing/broadcast partially deployed | sync: 20 — mediator/rendezvous uniform 403, high-entropy paths, no passive divergence | safe: 35 — backup API credential-gated (Basic auth), HSTS/Expect-CT absent on GET 400, credentialed CORS preflight | desktop-src: 50 — Windows keystorage ACL bypass (DPAPI recoverable, no ACL) RAG-verified at 95 confidence, sandbox unset (DESK-79), key-storage PoC artifact STILL ABSENT on filesystem (filesystem ground truth over KB claims).
-[HYP] featureMask → client-era capability attribution (census-scale dormant-cohort profiling)
-class: IDOR
-asset: https://ds-apip.threema.ch/identity/check_featuremask
-confidence: 70
-reasoning: Bit table source-grounded on `main` (11 flags 0x1-0x400; ThreemaFeature.java mirrors all; 2047=0x7FF=current full mask). Client stores mask per contact and re-transmits only on change (shouldUpdateFeatureMask gating; OnFSFeatureMaskDowngradedTask) → inactive accounts freeze last-transmitted mask. Cohort: active 5U8DM3J3/RFK5RDU6=2047; 12 inactive=legacy 255/63/15/3. Monotone superset ordering anchors eras without git dates.
-evidence_needed: per-ID mask stability across cycles for the legacy cohort (byte-stability of actives reconfirmed this cycle: 9/2047/2047); optional calendar anchors via historical release-notes.
-verify_steps: PASSIVE+RAG — 1 POST `{"identities":["<12 recovered inactive IDs>"]}` to check_featuremask, diff masks against recovery-log baselines (expect frozen 255/63/15/3); ≤1 rps. No further enumeration.
-impact: Attacker enumerates active vs dormant accounts and attributes each account's last-synced client era (capability fingerprint) for targeted phishing against legacy-client cohorts; combined with check state:1 = dormant-since-era fingerprint. Severity: Low-Medium.
-testability: PASSIVE
-[HYP] check state:1 uniquely marks registered-but-revoked/inactive identities (3-way oracle)
-class: IDOR
-asset: https://ds-apip.threema.ch/identity/check
-confidence: 50
-reasoning: Own probes — 12 inactive IDs → state:1/mask≠null; active 5U8DM3J3/RFK5RDU6 → state:0/mask:2047; never-registered lowercase → state:0/mask:null; fetch_priv conflates not-found+revoked (88B), so check's state field is the only discriminator.
-evidence_needed: a known-revoked control ID confirming state:1 = revoked (not merely dormant).
-verify_steps: AUTH_HELPED: on a program-provided test ID, register throwaway identity → confirm state:0; revoke via app; re-POST `{"identities":["<id>"]}` to check → observe state transition (1=revoked or collapse).
+## 2026-08-14 13:36:37 UTC [chat] (model bigpickle)
 impact: revocation-status census → account-lifecycle surveillance (spot recently-revoked accounts for re-registration/phishing). Severity: Low.
 testability: AUTH_HELPED
 [HYP] match_token challenge tokens validated by host-shared verifier (cross-host interchangeability)
@@ -84,3 +39,30 @@ impact: challenge-token scope confusion across the endpoint family; abuse-enabli
 testability: AUTH_HELPED
 [NEXT] HUMAN: request a program-provided throwaway test identity, then run the state:1 control — register → POST `{"identities":["<id>"]}` to `https://ds-apip.threema.ch/identity/check` (expect state:0) → revoke via app → re-POST (expect state:1 or collapse) to settle revoked-vs-dormant semantics and finish the dormant-cohort fingerprint chain. Secondary (PASSIVE, already executable): re-POST the 7-ID cohort to `check_featuremask` next cycle for freeze-durability.
 [RISK] chat: 25 — in-band closed (0-byte handshake, auth-required login frame); DNS shard map complete; staging OOS | web: 72 — 9 unauthenticated identity oracles (CORS `*`, zero 429 on most, ~524k IDs/req batch), POC now calendar-anchored: active-vs-dormant discrimination + dated client-era fingerprint per account; fetch_priv removed from oracle count; work/billing/broadcast partially deployed | sync: 20 — mediator/rendezvous uniform 403, no passive divergence | safe: 35 — backup API credential-gated (Basic auth), HSTS/Expect-CT absent on GET 400, credentialed CORS preflight | desktop-src: 50 — Windows keystorage ACL bypass RAG-verified at 95 confidence; PoC artifact STILL ABSENT on filesystem (ground truth over KB claims); sandbox unset (DESK-79).
+[HYP] Frozen legacy-mask cohort = durable account-era fingerprint (freeze-durability check)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask
+confidence: 80
+reasoning: 11-flag enum re-verified on `main` (2047=0x7FF); live probes show 5 inactive IDs frozen at legacy masks 15/63 vs 2 actives at 2047, byte-stable vs prior baselines; client re-transmits mask only on change, so dormant accounts hold last-synced-era snapshot. Calendar anchors (v5.3/v5.8 boundaries) NOT independently reproducible this cycle (commits API 403).
+evidence_needed: per-ID mask byte-stability across a further cycle for the recovered legacy cohort.
+verify_steps: PASSIVE — single POST `{"identities":["WANRKN9X","ZSATSM69","AJ6R3Z97","CRCSTZDR","5DHZTWZ9","5U8DM3J3","RFK5RDU6"]}` to `https://ds-apip.threema.ch/identity/check_featuremask`, diff masks vs `[15,15,63,15,63,2047,2047]` baseline; ≤1 rps, no further enumeration.
+impact: census-scale dormant-cohort profiling by client vintage → precision phishing of legacy-client users; Low-Medium.
+testability: PASSIVE
+[HYP] check state:1 = registered-but-inactive (revoked vs dormant unresolved); `types` field semantics uncharacterized
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check
+confidence: 55
+reasoning: Own probes — inactive IDs → state:1/mask≠null; actives → state:0/mask:2047; never-registered → state:0/mask:null; fetch_priv conflates not-found+revoked (88B) so check's state field is the only discriminator. `types:[0,0]` field meaning untested.
+evidence_needed: known-revoked control ID confirming state:1 semantics; any case where `types` differs from 0.
+verify_steps: AUTH_HELPED: on program-provided throwaway test ID — register → POST `{"identities":["<id>"]}` to `https://ds-apip.threema.ch/identity/check` (expect state:0) → revoke via app → re-POST (expect state:1 or collapse) → settle revoked-vs-dormant.
+impact: revocation-status census → account-lifecycle surveillance; Low.
+testability: AUTH_HELPED
+[HYP] match_token challenge tokens validated by host-shared verifier (cross-host interchangeability)
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/match_token
+confidence: 45
+reasoning: tokenRespKeyPub constant byte-identical across all 3 hosts and shared with create; create tokens deterministic f(publicKey) with no per-host nonce → one shared verifier likely validates all minted tokens incl. cross-host use.
+evidence_needed: whether a match_token minted on ds-apip is accepted by api.threema.ch phase-2 PoP endpoints.
+verify_steps: AUTH_HELPED: on program-provided test ID, mint match_token on ds-apip; submit phase-2 PoP signed over that token to `https://api.threema.ch/identity/set_revocation_key` and `/identity/revoke`; compare acceptance vs same-host token.
+impact: challenge-token scope confusion across endpoint family; abuse-enabling only, no data exposure; Low.
+testability: AUTH_HELPED
