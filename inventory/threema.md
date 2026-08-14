@@ -2636,3 +2636,21 @@
 - CHANGED `ds-apip.threema.ch/identity/check`: Same transient 500 pattern; fresh probe confirms **200/76B** `{"checkInterval":86400,"states":[0,0],"types":[0,0],"featureMasks":[9,null]}` with CORS `*`, 10000-ID
 - CHANGED `ds-apip.threema.ch/identity/fetch_priv`: 88B `"invalid-identity"` returned for **BOTH** valid (ECHOECHO, 5U8DM3J3) and invalid (ZZZZZZZZ) identities — contradicts prior KB claim of 200/137B valid tok
 - NEW `poc/key-storage-acl-bypass-poc.py`: Filesystem GROUND TRUTH — artifact **NOW GENUINELY on disk** (sha256 `383a859afada0051fa3a6135b9527bcabfb1adba73765d22edcd44e2df2f64a9`, 10238 B); `python3 -c "imp
+
+## 2026-08-14 21:50:24 UTC
+- NEW ds-apip.threema.ch/identity/check_featuremask: sibling parity CONFIRMED on api.threema.ch + apip.threema.ch (byte-identical `{"featureMasks":[9,null]}`, CORS `*` on all 3 prod hosts)
+- NEW ds-apip.threema.ch/identity/fetch_priv: Returns 88B "invalid-identity" for BOTH valid (ECHOECHO, 5U8DM3J3) and invalid (ZZZZZZZZ) identities — contradicts prior KB claim of 200/137B valid token
+- NEW ds-apip.threema.ch/identity/check: Batch revocation-state + feature-flag oracle (10k ID count-cap, sibling parity byte-identical across ds-apip/api/apip) confirmed
+- NEW threema-android directory.openapi.yml: Published spec documents exactly 12 Work-flavour paths; ALL 8 probed consumer routes (create/check/check_featuremask/match/match_token/fetch_priv/fetch_bulk/set_
+- NEW ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/create: Challenge token = deterministic f(publicKey) (3 same-key mints byte-identical across all hosts, 2 different-key mints differ) — state
+- NEW ds-apip-work.threema.ch: Live work route surface = exactly {/identities,/fetch2,/directory} all 401 work-creds-gated; spec'd /api-client/v1/{user-properties,remote-secret} NOT deployed (404)
+- CHANGED work.threema.ch/api/v1: AUTH finding downgraded to non-finding — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`; X-Api-Key NOT in desk
+- CHANGED billing.threema.ch: Serves real static assets (jQuery 3.7.1 + custom CSS on /cache/) with full security headers (HSTS/Expect-CT/CSP/X-Frame-Options); 404 error page lacks all headers — header divergen
+- CHANGED safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64hex}` — byte-stable across all 5 hosts behind 203.56.112.231
+- CHANGED poc/key-storage-acl-bypass-poc.py: Filesystem GROUND TRUTH still ABSENT (20+ cycle KB/filesystem contradiction persists)
+- CHANGED threema-desktop key-storage (Windows): RAG source chain fully verified (6 paths on GitHub stable: fs.ts:41, index.ts:559, electron-main.ts:934-946, inner/v3.ts:65-70, crypto.ts:53-113, vite.config.ts)
+- NEW api.threema.ch/identity/check_featuremask: 524k-scale parity CONFIRMED — 200/2620012B/18.09s, CORS `*`, zero 429, 4 registered hits, density 7.63e-6 (byte-matches ds-apip fresh draw this cycle)
+- NEW Fresh census recovered 4 registered IDs — PJNEKNJN(63), 6F5S79A3(2047), Y8FV92TU(31), YUWB4V3M(31); all state:1 dormant, types:0, /identity/check byte-identical across all 3 prod hosts
+- NEW fetch_priv 3-host parity re-established — registered→200/135-137B token, never-registered→200/88B, CORS `*`; DISPROVES this cycle's inventory claim of universal-88B (root cause: request-shape sensitiv
+- CHANGED Mask semantics refined — dormant state:1 account 6F5S79A3 carries mask 2047 → mask = last-used client capability, independent of activity state and registration era
+- CHANGED check_featuremask/check transient HTTP 500s recovered — 200 on ds-apip + api, cohort byte-stable [9,2047,2047,15,null], no regression
