@@ -1,28 +1,29 @@
-## 2026-08-14 23:57:01 UTC [chat] (model bigpickle)
+## 2026-08-15 00:35:01 UTC [chat] (model bigpickle)
+[HYP] check_featuremask census density is Poisson-stable → registered-population bound + active-share measurement primitive
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check_featuremask (api/apip parity)
+confidence: 70
+reasoning: 4th draw this cycle: 3/400k = 7.5e-6; cumulative 18 hits/2.596M ≈ 6.9e-6, all prior draws within Poisson noise (8.7e-6, 1.9e-6); zero 429; staging draw yields 0 prod IDs (data-isolated). 44W8S6JJ (state:0, mask 2047) is the 3rd live-active account recovered by sampling.
+evidence_needed: 2-3 more independent seeded draws to tighten CI + confirm hit-count variance is Poisson (≈ mean), not clustered.
+verify_steps: PASSIVE — repeat 400k seeded draws ≤1 rps spaced >60s on ds-apip, tally hits/draw vs Poisson(λ≈2.9); cross-check every hit via /identity/check for state/type.
+impact: attacker sizes registered userbase and measures active-cohort share without auth, enabling targeted-phishing census. CVSS 5.3 Medium.
+testability: PASSIVE
 [HYP] type:1 = stored restricted-origin account subclass, functional not cosmetic
 class: OTHER
 asset: https://ds-apip.threema.ch/identity/check (siblings api/apip)
 confidence: 85
-reasoning: 5th consecutive cycle DZ34BVDV returns type:1 byte-identical on all 3 hosts (138B each, own probe) while all 9 cohort siblings are type:0; it mints 134-135B tokens on fetch_priv AND match_token (real registered account) yet sits state:1 dormant with legacy mask 31 — host-independent stored attribute, not an error.
-evidence_needed: a second type:1 ID from census draws, or correlation of DZ34BVDV with a known work/gateway origin.
-verify_steps: PASSIVE — periodic 10-ID cohort re-POST to /identity/check ≤1 rps (executed this cycle, byte-stable); recheck every new census hit for type:1.
-impact: account-class dimension on the accepted census → restricted/legacy-account identification and targeted attribution. CVSS 5.3 Medium.
+reasoning: DZ34BVDV type:1, state:1, mask 31 byte-identical (77B) on ds-apip + api this cycle (6th consecutive); mints 134-135B tokens on fetch_priv across all 3 hosts (parity closed) and match_token — a real registered account, yet type:1 while all 13 cohort members are type:0. Host-independent stored attribute, not error.
+evidence_needed: second type:1 ID from census draws, or correlation of DZ34BVDV with work/gateway-origin identity.
+verify_steps: PASSIVE — periodic 14-ID cohort re-POST to /identity/check ≤1 rps; recheck every new census hit for type:1 (this cycle's 3 hits all type:0).
+impact: account-class dimension on accepted census → restricted/legacy-account identification and targeted attribution. CVSS 5.3 Medium.
 testability: PASSIVE
 [HYP] fetch_priv mints token iff registered (type-independent); 88B bucket = never-registered or revoked
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/fetch_priv (siblings api/apip)
 confidence: 80
-reasoning: registered type:1 (DZ34BVDV), active (5U8DM3J3), dormant (6F5S79A3) all mint 134-135B tokens; never-registered ZZZZZZZZ → 88B. Prior "88B for everything" was a request-shape/degraded-window artifact; 3-host parity byte-stable.
-evidence_needed: a revoked control identity to split revoked vs never-registered inside the 88B bucket (requires account lifecycle, AUTH_HELPED).
-verify_steps: PASSIVE — periodic cohort re-POST to /identity/fetch_priv ≤1 rps; flag any registered ID dropping to 88B (revocation canary).
-impact: third independent registered/not oracle from a distinct handler + revocation detection if a control is obtained. CVSS 5.3 Medium (passive portion).
+reasoning: DZ34BVDV (type:1) 134-135B on all 3 hosts this cycle; active 5U8DM3J3 + dormant 6F5S79A3 also mint 134-135B; never-registered ZZZZZZZZ → 88B. Prior "88B for everything" was request-shape artifact (single-field body required).
+evidence_needed: revoked control identity to split revoked vs never-registered inside the 88B bucket (account lifecycle, AUTH_HELPED).
+verify_steps: PASSIVE — periodic cohort re-POST ≤1 rps; flag any registered ID dropping to 88B (revocation canary).
+impact: third independent registered/not oracle from distinct handler + revocation detection with a control. CVSS 5.3 Medium (passive portion).
 testability: PASSIVE
-[HYP] check_featuremask census density is stable across draws → population-bound primitive for registered-identity space
-class: OTHER
-asset: https://ds-apip.threema.ch/identity/check_featuremask
-confidence: 60
-reasoning: this cycle 524k → 1 hit (1.9e-6); prior 1.148M → 10 hits (8.7e-6); both within Poisson noise for true density ~5-9e-6; zero 429 holds post-recovery. If sampling is uniform over 36^8, implied population ≈ density × 2.82e12 — assumption unverified.
-evidence_needed: 2-3 more independent seeded draws to tighten the density CI and test Poisson-ness of hit counts.
-verify_steps: PASSIVE — repeat 524k seeded draws ≤1 rps spaced >1min, tally hits/draw, compare against Poisson; recheck hits via /identity/check for type/state.
-impact: attacker can size the registered userbase and measure active-cohort share on the accepted census. CVSS 5.3 Medium.
-testability: PASSIVE
+[NEXT] PROBE: hunt a second type:1 — independent seeded 400k-ID census draw on api.threema.ch/identity/check_featuremask (host-rotation, one POST, body ≈4.8MB < 5.77MB cap), cross-check every hit via POST /identity/check {"identities":[hits]} ≤1 rps; any type:1 hit validates the account-subclass hypothesis; any state:0 hit extends the live-active census.
