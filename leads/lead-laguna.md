@@ -13712,3 +13712,4 @@ verify_steps: PASSIVE: curl -s -D -X POST -H "Origin: https://evil.com" -H "Cont
 impact: 9th unauthenticated identity-existence oracle with case-fold amplification reducing 36^8 search space → ~2.8M effective; browser-viable CORS enables drive-by enumeration; CVSS 6.5 Medium (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
 testability: PASSIVE
 [FINAL]
+## 2026-08-15 15:43:41 UTC [desktop] (model laguna)

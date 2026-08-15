@@ -16541,3 +16541,40 @@ evidence_needed: repeat state reads over successive cycles show persistent flips
 verify_steps: PASSIVE: single POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","ZZZZZZZZ","ECHOECHO"]}` to ds-apip.threema.ch/identity/check weekly; record states; ≤1 rps, 1 req/cycle
 impact: attacker silently tracks account activation/deactivation over time without any auth or rate limiting — enables targeted follow-on phishing against accounts that flip to active; severity: medium
 testability: PASSIVE
+## 2026-08-15 15:42:40 UTC [chat] (model bigpickle)
+[HYP] Unauthenticated activity-churn surveillance of known identities across 3 hosts
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/check (sibling parity all 3 prod hosts)
+confidence: 55
+reasoning: tri-state oracle (state:0 active / state:1 inactive / mask-null never-registered) proven, zero rate limit, 10000-ID cap; known account 7VVR9AX2 observed state 1→0 flip across consecutive cycles; 15-ID cohort byte-stable across all hosts
+evidence_needed: repeat state reads over successive cycles show persistent flips in a stable cohort, demonstrating time-series activity surveillance as a reproducible primitive
+verify_steps: PASSIVE: single POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","ZZZZZZZZ","ECHOECHO"]}` to ds-apip.threema.ch/identity/check weekly; record states; ≤1 rps, 1 req/cycle
+impact: attacker silently tracks account activation/deactivation over time without any auth or rate limiting — enables targeted follow-on phishing against accounts that flip to active; severity: medium
+testability: PASSIVE
+[HYP] Work-flagged and legacy-client identity fingerprinting for targeted BEC phishing
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/check (sibling parity all 3 prod hosts)
+confidence: 45
+reasoning: type field observed (type:1 = DZ34BVDV only, 1/49) and mask = last-used client capability (2047 current-era vs 7/31/63 legacy); /identity/check returns states+types+featureMasks for arbitrary 10000-ID batches with zero rate limit; server-side-only (browser preflight 500)
+evidence_needed: additional census draws surface ≥1 more type:1 account and a distribution of legacy masks (e.g. mask<1024) enabling reliable Work/legacy-client targeting
+verify_steps: PASSIVE: single 400k-ID POST `{"identities":[...]}` to ds-apip.threema.ch/identity/check, then single POST `{"identities":<hits>}` to /identity/check; classify by type/mask; ≤1 rps, 2 requests
+impact: attacker enumerates which identities belong to Work orgs (type:1) and to legacy clients (mask<2047) without auth, enabling targeted BEC-style phishing; severity: medium
+testability: PASSIVE
+[HYP] Windows key-storage ACL bypass — keystorage.bin/keystorage.password.bin recoverable by same-user process
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/fs.ts:41, key-storage/index.ts:559, electron-main.ts:923-946, inner/v3.ts:65-70, sqlite.ts:237-240)
+confidence: 85
+reasoning: 6-path RAG chain verified on GitHub `stable` across 20+ cycles; `fileModeInternalObjectIfPosix()` returns `{}` on win32 → no ACL on both key files; DPAPI password blob + raw SQLCipher PRAGMA key recoverable by same-user process; PoC poc/key-storage-acl-bypass-poc.py authored + ast.parse PASS + --dry-run EXIT 0
+evidence_needed: Windows runtime validation: read keystorage.password.bin → safeStorage decrypt → Argon2id → XSalsa20-Poly1305 → databaseKey → PRAGMA key → sqlite dump; icacls shows no ACL
+verify_steps: AUTH_HELPED: run poc/key-storage-acl-bypass-poc.py on a Windows host with threema-desktop installed; verify Ed25519 ck + databaseKey recovery and `icacls data\keystorage.bin` shows inherited/everyone perms
+impact: local attacker recovers full Threema identity (Ed25519) + message DB key (SQLCipher); CVSS 3.1: 7.1 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N
+testability: AUTH_HELPED
+[HYP] Unauthenticated activity-churn surveillance of known identities across 3 hosts
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/check (sibling parity all 3 prod hosts)
+confidence: 55
+reasoning: tri-state oracle proven, zero rate limit, 10000-ID cap; 7VVR9AX2 active 9 consecutive cycles (state:0 stable, prior 1→0 flip observed); server-side-only (preflight 500 blocks browser)
+evidence_needed: repeat state reads over successive cycles show persistent flips in a stable cohort, demonstrating time-series activity surveillance as a reproducible primitive
+verify_steps: PASSIVE: single POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","PYFM83B6","FMFPAU5E","ZZZZZZZZ","ECHOECHO"]}` to ds-apip.threema.ch/identity/check weekly; record states; ≤1 rps, 1 req/cycle
+impact: attacker silently tracks account activation/deactivation over time without auth — enables targeted follow-on phishing against accounts that flip to active; severity: medium
+testability: PASSIVE
