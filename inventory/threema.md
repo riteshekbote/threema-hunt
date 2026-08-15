@@ -3490,3 +3490,29 @@
 - NEW `ds-apip.threema.ch/identity/check_featuremask` — 13th census draw confirms 6th distinct live active account (6YMAT2YB, state:0, mask:2047) + type:1 stays 2/61 → Work-org density needs more draws
 - NEW `ds-apip.threema.ch/identity/match` — N-cost-unit gating bounded <10 (N=10 emailHashes → 429); burst-only limiter with >20min cooldown
 - CHANGED check_featuremask alphabet/case-fold probe (80 IDs: A-Z/a-z/0-9/symbols/ambiguous/1I-O0-lI) → all null except ECHOECHO→9, no 500, NO case-fold — restricted-alphabet census shut down
+
+## 2026-08-15 17:16:47 UTC
+- NEW ds-apip.threema.ch/identity/set_featuremask: 8th consumer route fully mapped — POST `{"identity":X}` mints per-request challenge token (valid→200/133-135B, invalid→200/46B, mixed-case accepted)
+- NEW ds-apip.threema.ch/identity/match: N-cost-unit gating bounded <10 — N=10 emailHashes POST → 429/0B (ACAO:*); bucket capacity <10, refill ≥1/multi-hour
+- NEW ds-apip.threema.ch/identity/fetch_priv: request-shape sensitivity confirmed — single-field `{"identity":X}` required; malformed bodies yield universal 88B; valid identity → 200/135B token
+- CHANGED work.threema.ch/api/v1: AUTH finding PERMANENTLY DOWNGRADED to non-finding (no CORS on 404, X-Api-Key not in desktop source)
+- CHANGED billing.threema.ch: serving static assets on /cache/ with full security headers; 404 page lacks headers
+- CHANGED threema-desktop key-storage (Windows): evidence gap reduced to "Windows runtime validation only" (AUTH_HELPED)
+- CHANGED ds-apip.threema.ch/identity/check_featuremask: transient HTTP 500s fully recovered to 200/25B
+- CHANGED ds-apip.threema.ch/identity/check: transient HTTP 500s fully recovered to 200/76B with 10000-ID cap
+- CHANGED State-flip primitive: 7VVR9AX2 state 1→0 confirmed on 2nd consecutive cycle
+- NEW ds-apip.threema.ch/identity/check_featuremask: 13th census draw confirms 6th live active account (6YMAT2YB, state:0, mask:2047)
+- NEW ds-apip.threema.ch/identity/check_featuremask: 12th census draw on api.threema.ch (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed); cross-host parity byte-stable
+- CHANGED `state_laguna.json` = `{"phase": "POC", "target": "desktop"}` — confirmed this cycle, hunt phase advanced to POC
+- CHANGED `ds-apip.threema.ch/identity/fetch_priv` — request-shape sensitivity confirmed (single-field `{"identity":X}` required; valid→135B token, malformed→universal 88B); 3-host sibling parity byte-stable
+- CHANGED `ds-apip.threema.ch/identity/check_featuremask` — 13th census draw confirms 6th distinct live active account (6YMAT2YB, state:0, mask:2047); type:1 stays 2/61; GET→500 (POST-only, not regression); tra
+- CHANGED `ds-apip.threema.ch/identity/match` — N-cost-unit gating bounded <10 (N=10 emailHashes→429); burst-only limiter with >20min cooldown; N=60s+ spacing still triggers 429
+- CHANGED `ds-apip.threema.ch/identity/set_featuremask` — 8th consumer route byte-stable; case-fold amplification + browser-viable CORS OPTIONS 200; not present in threema-desktop client source
+- CHANGED `ds-apip.threema.ch/check_license` — cross-origin credential validation oracle byte-stable (200/65B fake-creds error, CORS `*`, OPTIONS 200, sibling parity all 3 hosts, RAG source fetch-work.ts:47-59)
+- CHANGED `threema-desktop key-storage (Windows)` — 6-path RAG chain re-verified via WebFetch on GitHub `stable` this cycle; PoC artifact STILL ABSENT on filesystem (filesystem-verified, all KB sha256 claims di
+- CHANGED `threema-desktop electron-main.ts:1240-1262` — BrowserWindow `sandbox` UNSET (TODO DESK-79), `nodeIntegrationInWorker: true` (TODO DESK-79), L1240 comment "sandboxing is enabled by default" INCORRECT 
+- CHANGED `crypto.ts:223` — benchmark password sha256 `400c7846…` (computed directly from source literal; stale KB `52a0af98…` was incorrect) confirmed benchmark-only dummy in `determineKdfParams()`, `benchmark
+- NEW census draw 64 (524k IDs, seed 2026081599): 7 hits/524k = 1.34e-5 density, 200/2620004B, CORS `*`, zero 429 — 1/7 LIVE ACTIVE (E7UUX69V, state:0, mask:2047) = 7th distinct live active account; 3-host 
+- CHANGED type:1 Work-org density: draw 64 cohort all type:0 → type:1 stays 2/69 (~2.9%), still below the ≥3-draw threshold to firm a fingerprint class
+- CHANGED churn cohort: all 8 known active seeds persist state:0 (6YMAT2YB persists, M5NANUU2 type:1 active, 7VVR9AX2 held across 11+ reads) — no second flip observed
+- CHANGED poc/ directory: filesystem GROUND TRUTH still ABSENT (`ls poc/` → No such file) — KB PoC artifact sha256 claims remain false across 20+ cycles
