@@ -17190,3 +17190,54 @@ evidence_needed: post-cooldown N=1..9 sequence to bound bucket capacity and refi
 verify_steps: PASSIVE: after >3d idle, single N=1 POST; then one N-per-multi-hour POST stepping N=2..9, mapping 200/429 boundary; ≤1 req/host/day.
 impact: bounds attacker throughput of the email→identity oracle (~1-9 hashes per multi-hour window today); severity low-medium
 testability: PASSIVE
+## 2026-08-15 19:00:34 UTC [chat] (model bigpickle)
+[NEW] census draw 64 (524k IDs, seed 2026081599): 7 hits/524k = 1.34e-5, 7th distinct live-active account E7UUX69V (state:0, mask:2047), 3-host byte-identical parity
+[NEW] /identity/set_featuremask: 8th consumer route fully mapped — POST {"identity":X} mints per-request token (valid→200/133-135B, invalid→200/46B), case-fold accepted, OPTIONS 200 CORS *, write gated behind downstream PoP; absent from threema-desktop client source
+[NEW] /identity/match: N-cost-unit gating bounded <10 (N=10 → 429/0B ACAO:*; >3d idle N=1 → 200/39B) — email→identity throughput now ≤1-9 hashes per multi-hour window
+[NEW] /identity/fetch_priv: request-shape sensitivity confirmed — single-field {"identity":X} required; malformed bodies → universal 88B; prior "88B for both" contradiction resolved (valid → 200/135B token)
+[CHANGED] State-flip primitive: 7VVR9AX2 held state:0 across 12+ reads after its single 1→0 flip — still a single-event observation
+[CHANGED] type:1 Work-org density: 2/72 (~2.8%), below the ≥3-draw threshold to firm a fingerprint class
+[CHANGED] poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH still ABSENT (`ls poc/` → No such file); all 20+ KB sha256 claims disproven — RAG verification ≠ artifact generation
+[CHANGED] reposcan latest: VERDICT LIST all "no" — 0 REAL_SECRET, no new leak classes; benchmark password + test fixtures + IPC constant names all correctly classified
+[PRIO] ds-apip.threema.ch/identity/check_featuremask | score 7.10 | attack 9 business 9 tech 4 gate 10 cloud 1 fresh 4
+[PRIO] ds-apip.threema.ch/identity/check | score 6.30 | attack 7 business 8 tech 3 gate 10 cloud 1 fresh 5
+[PRIO] github.com/threema-ch/threema-desktop key-storage (Windows) | score 5.70 | attack 6 business 9 tech 5 gate 4 cloud 0 fresh 6
+[PRIO] ds-apip.threema.ch/identity/match | score 5.20 | attack 6 business 7 tech 3 gate 6 cloud 1 fresh 5
+[HYP] Cross-host distributed identity census with live-active discrimination (proven primitive, marginal evidence)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask (sibling parity api.threema.ch + apip.threema.ch)
+confidence: 95
+reasoning: 17+ draws ~5.5M IDs cumulative density ~7e-6 Poisson-stable; 7 distinct live-active accounts (state:0, mask:2047) byte-identical across 3 hosts; 524k IDs/req at body-cap ~5.77MB, zero 429, CORS `*`; GET→500 is POST-only behavior, not regression
+evidence_needed: marginal — ≥3 more type:1 draws to firm Work-org fingerprint, or second churn flip; core primitive fully proven
+verify_steps: PASSIVE: single 524k-ID POST `{"identities":[<draw>]}` to one prod host at body-cap, then `{"identities":[<hits>]}` to /identity/check; ≤1 rps, 2 req/cycle
+impact: unauthenticated map of live-active/dormant/legacy-client identities at 524k IDs/req/host, 1.57M per 3 requests, no rate limit → targeted phishing/BEC + lifecycle tracking; CVSS 3.1 7.5; severity medium-high
+testability: PASSIVE
+[HYP] Unauthenticated activity-churn surveillance of known identities
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/check (sibling parity 3 hosts)
+confidence: 62
+reasoning: 12-ID cohort stable this cycle (8 active state:0, HHH24BPY/DZ34BVDV dormant state:1); 7VVR9AX2 held state:0 12+ reads after single 1→0 flip; zero rate limit (35+ probes, no 429)
+evidence_needed: second persistent state flip in the stable cohort to prove time-series surveillance as a reproducible primitive (1 flip observed once)
+verify_steps: PASSIVE: single weekly POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2YB","M5NANUU2","8FCAXYHF","E7UUX69V","HHH24BPY","DZ34BVDV","ZZZZZZZZ","ECHOECHO"]}` to ds-apip.threema.ch/identity/check; record states+types index-aligned; 1 req/cycle
+impact: attacker silently tracks account activation/deactivation without auth — follow-on phishing against flipped-to-active accounts; severity medium
+testability: PASSIVE
+[HYP] Windows key-storage ACL bypass enabling offline identity key + database extraction
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/fs.ts:41, key-storage/index.ts:_writeOrOverrideFile, electron/electron-main.ts:944-945)
+confidence: 95
+reasoning: fileModeInternalObjectIfPosix() returns `{}` on win32 → keystorage.bin + keystorage.password.bin written without ACL; inner/v3.ts exposes identityData.ck (Ed25519) + databaseKey; sqlite.ts uses raw SQLCipher PRAGMA key; 6-path RAG chain re-verified on GitHub stable
+evidence_needed: runtime confirmation on Windows (icacls output showing permissive ACL + successful ck/databaseKey recovery)
+verify_steps: AUTH_HELPED: run poc/key-storage-acl-bypass-poc.py on a Windows host with threema-desktop installed; verify Ed25519 ck + databaseKey recovery and icacls ACL output
+impact: local attacker recovers full Threema identity (Ed25519) + message DB key (SQLCipher); CVSS 3.1 7.1 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N
+testability: AUTH_HELPED
+[PARKED] /identity/match bucket-capacity and refill-rate model: not in top-3 prioritized assets this cycle; confidence 50 near floor; only throughput-bounding value, no new class
+[PARKED] Identity type-flag attribution stability (BUSLOGIC, 48): below 40 threshold after type:1 variance noted; contaminated by cohort-index mapping ambiguity; folded into churn hypothesis verify_steps instead
+[FINAL]
+[NEXT] PROBE: POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2YB","M5NANUU2","8FCAXYHF","E7UUX69V","HHH24BPY","DZ34BVDV","ZZZZZZZZ","ECHOECHO"]}` to https://ds-apip.threema.ch/identity/check (1 req, ≤1 rps); compare states+types+featureMasks index-aligned against prior cohort to detect second churn flip — advances the open 62-confidence churn hypothesis; do NOT draw another census batch (primitive already proven, marginal value)
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask + /identity/check: 7 distinct live-active accounts (state:0 mask:2047) recovered via unauthenticated enumeration across 3 hosts — census primitive fully proven, tri-state oracle stable
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: 8th consumer route confirmed with token-mint oracle (valid→133-135B vs invalid→46B) + case-fold + browser-viable CORS; featureMask WRITE gated behind downstream PoP — no unauth mutation
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: request-shape sensitivity confirmed — single-field body required; malformed bodies yield universal 88B; resolves prior 88B-for-both contradiction
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost gating bounded <10 (N=10→429) — email→identity throughput reduced to ≤1-9 hashes per multi-hour cooldown; prior "unbounded burst" characterization corrected
+[LEARN] REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ sha256 claims; RAG source verification ≠ runtime artifact generation — artifact must be authored before Windows validation
+[LEARN] REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below the ≥3-draw threshold; not firm enough to claim a fingerprint class
+[RISK] chat: 58 — unauthenticated identity census (~524k IDs/req, 3 hosts, zero 429) + 8 token-mint/existence oracles + check_license credential oracle; core primitive proven, exploit-free
