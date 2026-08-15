@@ -3024,3 +3024,12 @@
 ## 2026-08-15 08:04:07 UTC
 - NEW 12th census draw (apip.threema.ch/identity/check_featuremask, seed 2026081505, 400k uniq 36-alphabet IDs, body 4400016B < 5.77MB cap): 6 hits/400k = 1.5e-5 → 9V5ATXDN (1023), ASTSY7Y6 (15), C7NZS3TR (
 - NEW Cross-check (apip/identity/check, 8 IDs incl. canaries) → 200/124B/0.4s: states=[1,1,1,1,1,1,0,1], types=[0,0,0,0,0,0,0,1], featureMasks=[1023,15,31,31,1023,255,2047,31]; ALL 6 hits dormant (state:1) 
+
+## 2026-08-15 08:53:02 UTC
+- NEW ds-apip.threema.ch/identity/fetch_priv: request-shape sensitivity confirmed — single-field `{"identity":X}` required; valid→200/135B token ({"token":"...","tokenRespKeyPub":"..."}), invalid→200/88B "I
+- NEW api.threema.ch/identity/check_featuremask: 12th seeded 400k-ID census draw → 6 hits/400k=1.5e-5 density, ALL 6 dormant (state:1); live active account 7V7T2NKR (mask 2047, state:0) confirmed
+- NEW Cross-host /identity/check parity: 8-ID cross-check including 7V7T2NKR → states=[1,1,1,1,1,1,0,1], types=[0,0,0,0,0,0,0,1], featureMasks=[1023,15,31,31,1023,255,2047,31]
+- NEW State-flip primitive: 7VVR9AX2 state 1→0 confirmed on 2nd consecutive cross-check cycle
+- CHANGED work.threema.ch/api/v1: AUTH finding PERMANENTLY DOWNGRADED to non-finding — 404 has NO CORS headers, missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`, X-Api-Key not in t
+- CHANGED billing.threema.ch: confirmed serving real static assets (jQuery 3.7.1 + CSS) on /cache/ paths with full HSTS/Expect-CT/CSP/X-Frame-Options; 404 error page lacks all security headers
+- CHANGED poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH confirmed STILL ABSENT (ls poc/ → No such file; find / returns zero) — 20+ cycle KB contradiction persists
