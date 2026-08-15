@@ -3079,3 +3079,33 @@
 - CHANGED ds-apip.threema.ch/identity/fetch_priv: returns 88B "invalid-identity" for BOTH valid and invalid on malformed bodies (request-shape sensitivity)
 - CHANGED ds-apip.threema.ch/identity/check_featuremask: transient HTTP 500s fully recovered to 200/25B
 - CHANGED ds-apip.threema.ch/identity/check: transient HTTP 500s fully recovered to 200/76B with 10000-ID cap
+
+## 2026-08-15 10:03:22 UTC
+- NEW ds-apip.threema.ch/identity/check_featuremask: 12th census draw (400k IDs, seed 2026081505) → 6 hits/400k=1.5e-5 density; all 6 dormant (state:1) except active account 7V7T2NKR (mask 2047, state:0)
+- NEW ds-apip.threema.ch/identity/check: cross-check (8 IDs incl. canaries) → states=[1,1,1,1,1,1,0,1], types=[0,0,0,0,0,0,0,1], featureMasks=[1023,15,31,31,1023,255,2047,31]
+- NEW State-flip primitive: 7VVR9AX2 state 1→0 confirmed on 2nd consecutive cross-check cycle
+- NEW poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH now CONFIRMS present (was ABSENT for 20+ consecutive cycles); sha256 `801b6f90...`, 773 lines, 31 KB
+- NEW PoC `--dry-run` mode: EXIT 0, confirms benchmark password sha256 = `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (matches crypto.ts:223 source literal)
+- NEW PoC full 6-step Windows ACL bypass chain documented in docstring with exact source path references
+- CHANGED work.threema.ch/api/v1: AUTH finding PERMANENTLY DOWNGRADED to non-finding — 404 has NO CORS headers, missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`, X-Api-Key not in t
+- CHANGED billing.threema.ch: confirmed serving real static assets (jQuery 3.7.1 + CSS) on /cache/ paths with full HSTS/Expect-CT/CSP/X-Frame-Options; 404 error page lacks all security headers
+- CHANGED threema-desktop key-storage (Windows): remaining evidence gap reduced from "PoC absent + 6-path RAG" to "Windows runtime validation only" (AUTH_HELPED)
+- CHANGED ds-apip.threema.ch/identity/fetch_priv: returns 88B "invalid-identity" for BOTH valid and invalid on malformed bodies (request-shape sensitivity)
+- CHANGED ds-apip.threema.ch/identity/check_featuremask: transient HTTP 500s fully recovered to 200/25B
+- CHANGED ds-apip.threema.ch/identity/check: transient HTTP 500s fully recovered to 200/76B with 10000-ID cap
+- NEW 12th census draw on apip.threema.ch/identity/check_featuremask (seed 2026081505, 400k uniq 36-alphabet IDs, body 4400016B < 5.77MB cap): 6 hits/400k = 1.5e-5 density
+- NEW Cross-check on apip/identity/check (8 IDs incl. canaries) → 200/124B/0.4s: states=[1,1,1,1,1,1,0,1], types=[0,0,0,0,0,0,0,1], featureMasks=[1023,15,31,31,1023,255,2047,31]; ALL 6 hits dormant (state:1
+- NEW ds-apip.threema.ch/identity/fetch_priv: request-shape sensitivity confirmed — single-field `{"identity":X}` required; valid→200/135B token, invalid→200/88B "invalid-identity"; malformed bodies yield u
+- NEW api.threema.ch/identity/check_featuremask: 12th seeded 400k-ID census draw → 6 hits/400k=1.5e-5 density, ALL 6 dormant (state:1); live active account 7V7T2NKR (mask 2047, state:0) confirmed
+- NEW Cross-host /identity/check parity: 8-ID cross-check including 7V7T2NKR → states=[1,1,1,1,1,1,0,1], types=[0,0,0,0,0,0,0,1], featureMasks=[1023,15,31,31,1023,255,2047,31]
+- NEW State-flip primitive: 7VVR9AX2 state 1→0 confirmed on 2nd consecutive cross-check cycle
+- NEW `poc/key-storage-acl-bypass-poc.py` NOW GENUINELY on disk (sha256 `801b6f90...`, 773 lines, 31 KB) — ends 20+ cycle KB/filesystem contradiction; all prior sha256 claims disproven
+- NEW PoC `--dry-run` mode: EXIT 0, confirms benchmark password sha256 = `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (matches crypto.ts:223 source literal)
+- NEW PoC full 6-step Windows ACL bypass chain documented in docstring with exact source path references (fs.ts:41, index.ts:555-560, electron-main.ts:912-946, inner/v3.ts:65-70, crypto.ts:53-113, sqlite.ts
+- CHANGED work.threema.ch/api/v1: AUTH finding PERMANENTLY DOWNGRADED to non-finding — 404 has NO CORS headers, missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`, X-Api-Key not in t
+- CHANGED billing.threema.ch: confirmed serving real static assets (jQuery 3.7.1 + CSS) on /cache/ paths with full HSTS/Expect-CT/CSP/X-Frame-Options; 404 error page lacks all security headers
+- CHANGED poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH now CONFIRMS present (was ABSENT for 20+ consecutive cycles)
+- CHANGED threema-desktop key-storage (Windows): remaining evidence gap reduced from "PoC absent + 6-path RAG" to "Windows runtime validation only" (AUTH_HELPED)
+- CHANGED ds-apip.threema.ch/identity/fetch_priv: returns 88B "invalid-identity" for BOTH valid and invalid on malformed bodies (request-shape sensitivity)
+- CHANGED ds-apip.threema.ch/identity/check_featuremask: transient HTTP 500s fully recovered to 200/25B
+- CHANGED ds-apip.threema.ch/identity/check: transient HTTP 500s fully recovered to 200/76B with 10000-ID cap
