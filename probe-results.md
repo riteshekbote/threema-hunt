@@ -1822,3 +1822,10 @@ https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
 https://safe-01.threema.ch/backups/$(python3 -> HTTP 400
 https://ds-apip.threema.ch/identity/check -> HTTP 500
 https://ds-apip.threema.ch/identity/match -> HTTP 400
+
+## 2026-08-15 09:11:48 UTC
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://safe-01.threema.ch/backups/$(python3 -> HTTP 400
+https://ds-apip.threema.ch/identity/check -> HTTP 500
+https://ds-apip.threema.ch/identity/match -> HTTP 400
