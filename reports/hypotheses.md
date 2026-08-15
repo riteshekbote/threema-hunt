@@ -5950,3 +5950,94 @@
 - LEARN: ACCEPTED OTHER @ mask semantics: HHH24BPY (state:1 dormant, mask 2047) 3rd example of dormant-account-with-current-mask — featureMask reflects last-used client 
 - LEARN: REJECTED HYP @ type:1 Work-org density: draw 62 added 0 type:1 → type:1 stays 2/61 (~3.3%, both active mask:2047); density signal not yet distinguishable from n
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` re-confirmed
+
+## RANKED HYPOTHESES 2026-08-15 16:59:50 UTC
+- [90] https://ds-apip.threema.ch/identity/check_featuremask: Cross-host distributed census at 524k IDs/req with live active-account discrimination (from reports/hypotheses-nemotron3.txt)
+- [72] https://ds-apip.threema.ch/identity/check_featuremask: /identity/check input-triggered error path (500 / 25s-hang) at batch/alphabet boundary (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","ZZZZZZZ
+- NEXT(hypotheses-laguna.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","ZZZZZZZ
+- NEXT(hypotheses-bigpickle.txt): PROBE: single 400k-ID census draw (seed 2026081563) via `curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" --data-binary @draw63
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: 8th consumer route fully mapped — POST {"identity":X} mints per-request challenge token (valid→200/
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost-unit gating bounded <10 — N=10 emailHashes POST → 429/0B (ACAO:*); bucket capacity <10, refill ≥1/mult
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: Request-shape sensitivity confirmed — single-field {"identity":X} required; malformed bodies yield unive
+- LEARN: ACCEPTED IDOR @ api.threema.ch/identity/check_featuremask: 524k-scale parity confirmed at body-cap — 200/2620012B, density 7.63e-6 identical to ds-apip, zero 42
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: PERMANENTLY DOWNGRADED to non-finding — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 sha256 = 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (computed from
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact poc/key-storage-acl-bypass-poc.py NOW genuinely on disk (sha256 801b6f90..., 773 lines,
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Conditional RCE requires separate renderer exploit chain (0 dynamic sinks require/import
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: PASSIVE verification this cycle confirms 5/5 seeded IDs correct — POST {"identities":["5U8DM3J3",
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated /backups/{64he
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: 8th consumer route fully mapped — POST {"identity":X} mints per-request challenge token (valid→200/
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost-unit gating bounded <10 — N=10 emailHashes POST → 429/0B (ACAO:*); bucket capacity <10, refill ≥1/mult
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: Request-shape sensitivity confirmed — single-field {"identity":X} required; malformed bodies yield unive
+- LEARN: ACCEPTED IDOR @ api.threema.ch/identity/check_featuremask: 524k-scale parity confirmed at body-cap — 200/2620012B, density 7.63e-6 identical to ds-apip, zero 42
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: PERMANENTLY DOWNGRADED to non-finding — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 sha256 = 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (computed from
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact poc/key-storage-acl-bypass-poc.py NOW genuinely on disk (sha256 801b6f90..., 773 lines,
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Conditional RCE requires separate renderer exploit chain (0 dynamic sinks require/import
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: PASSIVE verification this cycle confirms 5/5 seeded IDs correct — POST {"identities":["5U8DM3J3",
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated /backups/{64he
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: PASSIVE verification this cycle confirms 5/5 seeded IDs correct — POST `{"identities":["5U8DM3J3"
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: PASSIVE verification this cycle confirms 5/5 seeded IDs correct — POST `{"identities":["5U8DM3J3"
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/check_featuremask + /identity/check: unauthenticated random enumeration yields real i
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 13th census draw (400k IDs, seed 2026081562) → 6 hits/400k = 1.5e-5 density, 6th distinct live ac
+- LEARN: ACCEPTED OTHER @ mask semantics: HHH24BPY (state:1 dormant, mask 2047) 3rd example of dormant-account-with-current-mask — featureMask reflects last-used client 
+- LEARN: REJECTED HYP @ type:1 Work-org density: draw 62 added 0 type:1 → type:1 stays 2/61 (~3.3%, both active mask:2047); density signal not yet distinguishable from n
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` re-confirmed
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: 8th consumer route fully mapped — POST {"identity":X} mints per-request challenge token (valid→200/
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost-unit gating bounded <10 — N=10 emailHashes POST → 429/0B (ACAO:*); bucket capacity <10, refill ≥1/mult
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: Request-shape sensitivity confirmed — single-field {"identity":X} required; malformed bodies yield unive
+- LEARN: ACCEPTED IDOR @ api.threema.ch/identity/check_featuremask: 524k-scale parity confirmed at body-cap — 200/2620012B, density 7.63e-6 identical to ds-apip, zero 42
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: PERMANENTLY DOWNGRADED to non-finding — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 sha256 = 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (computed from
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact poc/key-storage-acl-bypass-poc.py NOW genuinely on disk (sha256 801b6f90..., 773 lines,
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Conditional RCE requires separate renderer exploit chain (0 dynamic sinks require/import
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: PASSIVE verification this cycle confirms 5/5 seeded IDs correct — POST {"identities":["5U8DM3J3",
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated /backups/{64he
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: PASSIVE verification this cycle confirms 5/5 seeded IDs correct — POST `{"identities":["5U8DM3J3"
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: PASSIVE verification this cycle confirms 5/5 seeded IDs correct — POST `{"identities":["5U8DM3J3"
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/check_featuremask + /identity/check: unauthenticated random enumeration yields real i
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 13th census draw (400k IDs, seed 2026081562) → 6 hits/400k = 1.5e-5 density, 6th distinct live ac
+- LEARN: ACCEPTED OTHER @ mask semantics: HHH24BPY (state:1 dormant, mask 2047) 3rd example of dormant-account-with-current-mask — featureMask reflects last-used client 
+- LEARN: REJECTED HYP @ type:1 Work-org density: draw 62 added 0 type:1 → type:1 stays 2/61 (~3.3%, both active mask:2047); density signal not yet distinguishable from n
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` re-confirmed
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch: Unauthenticated identity→pubkey oracle confirmed via GET /identity/{id} (200/404) AND POST /identity/fetch_bulk (returns pub
+- LEARN: ACCEPTED AUTH @ apip.threema.ch: CORS misconfiguration confirmed — Access-Control-Allow-Origin: *, methods include POST/GET/OPTIONS/DELETE — cross-origin API pr
+- LEARN: ACCEPTED OTHER @ api.threema.ch: Previously a "candidate ID/directory sibling"; now confirmed as an active directory server with identical endpoints and CORS he
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in `determineKdfParams()`, derived key immediately purged, not used for any real 
+- LEARN: REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not
+- LEARN: ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — `keystorage.bin` and `keystorage.password.bin`
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateL
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: Staging directory server publicly reachable with identical API surface to production; HSTS/Expect-CT present on st
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: PASSIVE verification this cycle confirms 5/5 seeded IDs correct — POST `{"identities":["5U8DM3J3"
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: PASSIVE verification this cycle confirms 5/5 seeded IDs correct — POST `{"identities":["5U8DM3J3"
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/check_featuremask + /identity/check: unauthenticated random enumeration yields real i
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 13th census draw (400k IDs, seed 2026081562) → 6 hits/400k = 1.5e-5 density, 6th distinct live ac
+- LEARN: ACCEPTED OTHER @ mask semantics: HHH24BPY (state:1 dormant, mask 2047) 3rd example of dormant-account-with-current-mask — featureMask reflects last-used client 
+- LEARN: REJECTED HYP @ type:1 Work-org density: draw 62 added 0 type:1 → type:1 stays 2/61 (~3.3%, both active mask:2047); density signal not yet distinguishable from n
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` re-confirmed
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch: Unauthenticated identity→pubkey oracle confirmed via GET /identity/{id} (200/404) AND POST /identity/fetch_bulk (returns pub
+- LEARN: ACCEPTED AUTH @ apip.threema.ch: CORS misconfiguration confirmed — Access-Control-Allow-Origin: *, methods include POST/GET/OPTIONS/DELETE — cross-origin API pr
+- LEARN: ACCEPTED OTHER @ api.threema.ch: Previously a "candidate ID/directory sibling"; now confirmed as an active directory server with identical endpoints and CORS he
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in `determineKdfParams()`, derived key immediately purged, not used for any real 
+- LEARN: REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not
+- LEARN: ACCEPTED MISCONFIG @ desktop key-storage Windows ACL: `fileModeInternalObjectIfPosix()` returns `{}` on Windows — `keystorage.bin` and `keystorage.password.bin`
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateL
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: Staging directory server publicly reachable with identical API surface to production; HSTS/Expect-CT present on st
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: 8th consumer route confirmed byte-stable this cycle — POST `{"identity":"echoecho"}` → 200/133B tok
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 13th census draw confirms 6th live active account (6YMAT2YB, state:0, mask:2047); type:1 stays 2/
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain verified on GitHub `stable` via WebFetch this cycle — fs.ts:41 returns `{}` on win3
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 = `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed 
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle PERMANENTLY DOWNGRADED — 404 response has NO CORS headers, missing-key/invalid-key produce b
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/check_featuremask + /identity/check: unauthenticated random enumeration yields real i
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Unauthenticated random enumeration yields real identities incl. LIVE ACTIVE accounts (2 confirmed
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 13th census draw (400k IDs, seed 2026081562) → 6 hits/400k = 1.5e-5 density, 6th distinct live ac
+- LEARN: ACCEPTED OTHER @ mask semantics: HHH24BPY (state:1 dormant, mask 2047) 3rd example of dormant-account-with-current-mask — featureMask reflects last-used client 
+- LEARN: REJECTED HYP @ type:1 Work-org density: draw 62 added 0 type:1 → type:1 stays 2/61 (~3.3%, both active mask:2047); density signal not yet distinguishable from n
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` re-confirmed
