@@ -2933,3 +2933,5 @@
 - CHANGED billing.threema.ch: serves static assets (jQuery 3.7.1 + CSS) with full security headers; 404 page lacks headers
 - CHANGED poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH still ABSENT (20+ cycle KB/filesystem contradiction)
 - CHANGED threema-desktop key-storage (Windows): RAG source chain fully verified (6 paths on GitHub stable)
+
+## 2026-08-15 05:56:28 UTC

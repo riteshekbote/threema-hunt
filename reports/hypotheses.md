@@ -5247,3 +5247,14 @@
 - LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/check + check_featuremask: continuous "500" in probe log disproven as instrumentation artifact; endpoints live and 
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 7-draw density series 8.7/1.9/7.5/7.5/7.5/7.5/5.0 (e-6), cumulative 26/3.796M ≈ 6.8e-6, all withi
 - LEARN: REJECTED HYP @ type:1 enrichment in dormant cohort: 2 new dormant hits (VK24VB77, RB75KK42) both type:0 — type:1 remains DZ34BVDV-only, 1/26.
+
+## RANKED HYPOTHESES 2026-08-15 05:56:28 UTC
+- [95] https://ds-apip.threema.ch/identity/: Directory identity enumeration + credential oracle chain (from reports/hypotheses-laguna.txt)
+- [88] https://ds-apip.threema.ch/identity/check_featuremask: Census Poisson-stability → registered-population bound + live-active-share primitive (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-laguna.txt): PROBE: Run PoC artifact generation + syntax validation on local Linux (graceful no-op expected) to close the persistent KB/filesystem contradiction before Windo
+- NEXT(hypotheses-bigpickle.txt): PROBE: 12th independent seeded 400k-ID census draw on apip.threema.ch/identity/check_featuremask (host-rotate to apip, seed 2026081505, one POST body ≈4.8MB < 5
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: request-shape sensitivity CONFIRMED this cycle — single-field `{"identity":X}` required; malformed bodie
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: case-fold amplification RE-VERIFIED — POST echoecho/EchoEcho/ECHOECHO all resolve to same identity (val
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 10001→400 sharp count-cap RE-VERIFIED via own Python urllib probe (10000→200/17B, CORS `*`); zero 429 ac
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact `poc/key-storage-acl-bypass-poc.py` NOW genuinely on disk (sha256 `bed017f8a22366ad…`, 
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed di
