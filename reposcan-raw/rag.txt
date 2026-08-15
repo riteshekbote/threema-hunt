@@ -1020,6 +1020,12 @@
 - 2026-08-15 ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 15th census draw (400k IDs, seed 2026081570, ds-apip rotate-back) → 4 hits/400k = 10e-6 density; 3 dormant (state:1, masks 1023/63/63) + NEW live-active TSBWUXYH (state:0, type:0, mask:2047) → 10th distinct live-active account; type:1 stays 2/87; zero 429, CORS `*`, 14.0s
 - 2026-08-15 ACCEPTED density series: draws 68/69/70 = 3/9/4 hits (7.5/22.5/10 e-6) → only 1/3 ≥6 → draw-69 outlier NOT supported; density stays ~7.5-10e-6, no upward revision
 - 2026-08-15 CHANGED legacy-active subclass: TSBWUXYH carries current-era mask 2047; NHCNWZRH (mask 255) remains sole legacy-active example (1/10 = 10%, below 20% materiality) — test continues
+- 2026-08-15 ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200 method-handling divergence confirmed fresh — endpoint accepts GET (unlike check/check_featuremask which return 500 on GET); token-mint oracle + case-fold + CORS * byte-stable across 3 prod hosts
+- 2026-08-15 ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 9th token-mint oracle — valid→200/133-136B token + constant tokenRespKeyPub (sha256 c8005cca9…), invalid→200/46B; revocationKey value does NOT change mint
+- 2026-08-15 REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 (sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12) — re-confirmed benchmark-only dummy in determineKdfParams(), benchmarkKey.purge() at L233, NOT used for real encryption
+- 2026-08-15 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Confirmed via direct WebFetch on GitHub stable — sandbox UNSET (TODO DESK-79 at electron-main.ts:1255), L1240 comment "sandboxing is enabled by default" INCORRECT per Electron docs; 0 dynamic sinks in worker/ tree; surface accepted, formally rejected as standalone class
+- 2026-08-15 REJECTED AUTH @ work.threema.ch/api/v1: PERMANENTLY DOWNGRADED — no CORS on 404 response, missing-key/invalid-key byte-identical {"error":"Invalid X-Api-Key"}, X-Api-Key NOT in threema-desktop source (fetch-work.ts uses username/password exclusively)
+- 2026-08-15 ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact filesystem GROUND TRUTH confirms STILL ABSENT (`ls poc/` → No such file) — all 20+ cycle KB sha256 claims DISPROVEN; 6-path RAG source chain remains verified on GitHub stable; bottleneck now = artifact authoring + Windows runtime validation only
 === INVENTORY gladia ===
 # Inventory: threema
 
