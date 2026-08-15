@@ -15418,3 +15418,86 @@ evidence_needed: mask histogram across 43 distinct census IDs to quantify client
 verify_steps: PASSIVE — classify existing census cohort masks by bit-cap; correlate mask vs state; no new probes required.
 impact: attacker fingerprints client-era cohorts for targeted phishing of legacy (no-FS/no-call) accounts. CVSS 4.3 Medium (census amplifier).
 testability: PASSIVE
+## 2026-08-15 11:02:46 UTC [chat] (model bigpickle)
+class: BUSLOGIC
+asset: apip.threema.ch/identity/ws/revoke
+confidence: 45
+reasoning: OpenAPI (directory.openapi.yml) shows /identity/ws/revoke is the ONLY identity endpoint with a single-step request (identity + revocationKey = SHA256(revocation-password)[:4], 32 bits) and NO challenge-response step, and unlike blob_cred/sfu_cred/work endpoints it documents NO 429 rate-limit response.
+evidence_needed: server enforces/omits rate limiting on ws/revoke; error/timing differences per guessed key; whether a correct 4-byte key revokes any ID.
+verify_steps: AUTH_HELPED: on a program-provided test ID, POST /identity/ws/revoke with a deliberately wrong revocationKey (observe error shape and timing), repeat small count to test for 429; never target third-party IDs and do not create accounts.
+impact: if unrate-limited, brute-force of 2^32 space → force-revoke/delete any Threema ID (permanent identity destruction / DoS). Severity: medium-high.
+testability: AUTH_HELPED
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities (backend of in-scope work.threema.ch)
+confidence: 50
+reasoning: directory.openapi.yml line 1172 states "/identities ... currently buggy. See TWRK-1633"; endpoint returns "a subset of the provided contacts that are part of the same Work subscription" + work properties (first/last name, jobTitle, department, availability); GET / returns 401 confirming a live credential-gated backend.
+evidence_needed: whether contact matching can be induced to return contacts outside the caller's subscription.
+verify_steps: AUTH_HELPED: with authorized work test license, POST /identities (contacts:[...]) mixing own- and other-subscription IDs and compare membership + properties; also probe /directory pagination bounds (page/size, wildcard queries).
+impact: cross-subscription disclosure of work-directory metadata (names, titles, departments, availability) → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+class: OTHER
+asset: mediator-*.threema.ch / rendezvous-*.threema.ch / blob-mirror-*.threema.ch
+confidence: 40
+reasoning: all sampled shards (0..f) resolve; GET / → uniform 403; shard prefix is derived from the first byte of a public-key (routing, not auth per config.rs) — no passive distinguishing signal observed.
+evidence_needed: any shard or path (wss /{prefix}/) responding differently than 403.
+verify_steps: PASSIVE: GET https://{rendezvous,mediator,blob-mirror}-{0,7,f}.threema.ch/ and a few /XX/ paths at ≤1rps, compare status/body fingerprints.
+impact: none observed; would only indicate a routing/edge misconfiguration. Severity: n/a
+testability: PASSIVE
+[HYP] ds-apip.threema.ch directory lookup / unauth enumeration
+class: AUTH
+asset: ds-apip.threema.ch
+confidence: 55
+reasoning: directory.openapi.yml lists `ds-apip.*` as the directory API base; production `ds-apip.threema.ch` returns root 403 with `Access-Control-Allow-Origin: *` and allows POST/GET/OPTIONS/DELETE cross-origin. apip.threema.ch returns 404 on all openapi subpaths (host mismatch), so any live directory routes live on the ds-apip host. If any lookup route is unauthenticated, CORS-* enables cross-origin probing from an attacker page.
+evidence_needed: an endpoint under ds-apip.threema.ch returning ≠403/404 to GET; response-body fingerprints differing from apip.
+verify_steps: PASSIVE: GET https://ds-apip.threema.ch/identity/lookup and /directory (compare vs apip 404), GET https://ds-apip-work.threema.ch/identity/lookup (401=route-exists-behind-auth vs 404=no-route), ≤1 rps.
+impact: Threema ID/pubkey enumeration → spam, phishing, targeted abuse. Severity: medium.
+testability: PASSIVE
+[HYP] threema-desktop key-storage KDF parameter weakness
+class: OTHER
+asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/key-storage/crypto.ts)
+confidence: 45
+reasoning: reposcan found crypto.ts:223 uses fixed benchmark password `r3gGN9GDQ5NF6tM6` to calibrate Argon2id params at runtime, and test-data.ts defines `keyStoragePassword: 'CHANGE_ME'`; no committed credentials exist, so only the KDF/key-handling logic can be weak. Electron 2.x stores user password/keys through this module.
+evidence_needed: how Argon2id memory/time params are derived (floors/caps) and whether the derived key protects an offline-readable store.
+verify_steps: PASSIVE: static read of crypto.ts `determineKdfParams()` and the storage backend (safeStorage vs plaintext file). No live requests.
+impact: if params are attacker-favorable, offline recovery of stored user credentials/keys from disk. Severity: low-medium.
+testability: PASSIVE
+[HYP] ds-apip-work.threema.ch /identities cross-subscription disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 52
+reasoning: directory.openapi.yml:1172 flags "/identities ... currently buggy. See TWRK-1633"; endpoint returns a subset of provided contacts in the same Work subscription plus work properties (first/last name, jobTitle, department, availability). Host now confirmed live returning 401 with permissive CORS.
+evidence_needed: whether the membership filter can be induced to return out-of-subscription contacts.
+verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities mixing own- and other-subscription IDs and compare membership + property leak; probe pagination bounds (page/size, wildcard).
+impact: cross-subscription disclosure of work-directory metadata → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[NEXT] PROBE: GET https://ds-apip-work.threema.ch/identity/lookup and /directory (401 vs 404 distinguishes route-existence behind the auth gate), then GET https://ds-apip.threema.ch/identity/lookup + /directory at ≤1 rps to fingerprint the directory host independently of apip.
+[HYP] ds-apip.test.threema.ch staging directory server publicly exposed
+class: MISCONFIG
+asset: ds-apip.test.threema.ch
+[HYP] Registered-population estimate bounded by 14-draw stable density
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check_featuremask (siblings api/apip)
+confidence: 70
+reasoning: 14 draws / 2 hosts cumulative 31/4.596M = 6.75e-6 (Poisson-stable); ID space 36^8 = 2.82e12 → E[registered] ≈ 2.82e12 × 6.75e-6 ≈ 1.9e7. Distinct-ID active share rose 4/43→8/48 (~17%) but this cycle's ds-apip draw was 3/3 active vs api 1/2 — active-share CI remains wide.
+evidence_needed: 2 more draws on apip.threema.ch + a fresh ds-apip seed to split within/cross-host active-share variance; then recompute population ± CI.
+verify_steps: PASSIVE — single 400k-ID POST `{"identities":[400k random 36-alphabet IDs]}` per host per cycle (body 4.8MB < 5.77MB cap), classify hits via POST /identity/check, update Poisson CI.
+impact: attacker sizes the ~19M registered pool and active share, validating enumeration completeness for phishing/impersonation. CVSS 4.3 Medium (census amplifier).
+testability: PASSIVE
+[HYP] Windows runtime validation confirms no restrictive DACL on keystorage files
+class: MISCONFIG
+asset: threema-desktop 2.x Windows (%APPDATA%/Threema/data/keystorage.bin, keystorage.password.bin)
+confidence: 90
+reasoning: fs.ts:41 returns `{}` on win32; index.ts:555/electron-main.ts:944 write both files with `{}` options → inherit %APPDATA% default ACL (user + Administrators); safeStorage (DPAPI) password decryptable by same-user process; 6-path chain RAG-verified.
+evidence_needed: on an authorized Windows host, inspect both files' DACLs + offline `safeStorage.decryptString()` recovery by a same-user process.
+verify_steps: HUMAN_ONLY: run `python3 poc/key-storage-acl-bypass-poc.py` on Windows; verify win32security shows no restrictive DACL and DPAPI vault password recovers.
+impact: same-user process reads Ed25519 identity key (ck) + raw SQLCipher databaseKey → full identity impersonation + message-DB decryption. CVSS 5.5 Medium.
+testability: HUMAN_ONLY
+[HYP] State-flip primitive remains single-event (7VVR9AX2 state:0, 11 consecutive)
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check (siblings api/apip)
+confidence: 70
+reasoning: one 1→0 transition observed once; 11 consecutive state:0 readings; no second flip across 8 distinct active accounts tracked ≥10 cycles; cohort byte-stable this cycle.
+evidence_needed: a second flip (either direction) to establish near-real-time activation/deactivation detection.
+verify_steps: PASSIVE — per-cycle 10-ID cohort POST /identity/check ≤1 rps; on any flip, immediate single POST /identity/fetch_priv for revocation correlation.
+impact: near-real-time account activation/deactivation detection → opportunistic targeting. CVSS 5.3 Medium.
+testability: PASSIVE
