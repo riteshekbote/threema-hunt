@@ -3196,3 +3196,17 @@
 - CHANGED threema-desktop key-storage (Windows): evidence gap reduced to "Windows runtime validation only" (AUTH_HELPED)
 - CHANGED ds-apip.threema.ch/identity/check_featuremask: transient HTTP 500s fully recovered to 200/25B
 - CHANGED ds-apip.threema.ch/identity/check: transient HTTP 500s fully recovered to 200/76B with 10000-ID cap
+
+## 2026-08-15 11:26:24 UTC
+- NEW ds-apip.threema.ch/identity/fetch_priv: request-shape sensitivity confirmed (single-field `{"identity":X}` required)
+- NEW poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH CONFIRMS present (sha256 801b6f90..., 773 lines, 31 KB)
+- NEW ds-apip/api/apip.threema.ch/identity/set_featuremask: 8th consumer route fully mapped — POST `{"identity":X}` mints per-request challenge token (valid→200/133-135B, invalid→200/46B "Identity not found
+- NEW ds-apip.threema.ch/identity/match: N-cost-unit gating bounded <10 — N=10 emailHashes POST → 429/0B (ACAO:*); bucket capacity <10, refill ≥1/multi-hour
+- NEW 12th census draw on api.threema.ch/identity/check_featuremask (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed)
+- NEW Cross-host /identity/check parity confirmed with 8 IDs including 7V7T2NKR (state:0, mask 2047)
+- NEW State-flip primitive: 7VVR9AX2 state 1→0 confirmed on 2nd consecutive cycle
+- CHANGED work.threema.ch/api/v1: AUTH finding PERMANENTLY DOWNGRADED to non-finding
+- CHANGED billing.threema.ch: serving static assets on /cache/ with full security headers; 404 page lacks headers
+- CHANGED threema-desktop key-storage (Windows): evidence gap reduced to "Windows runtime validation only" (AUTH_HELPED)
+- CHANGED ds-apip.threema.ch/identity/check_featuremask: transient HTTP 500s fully recovered to 200/25B
+- CHANGED ds-apip.threema.ch/identity/check: transient HTTP 500s fully recovered to 200/76B with 10000-ID cap
