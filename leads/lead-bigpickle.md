@@ -17923,3 +17923,31 @@ verify_steps: AUTH_HELPED: run `python3 poc/key-storage-acl-bypass-poc.py` on an
 impact: local attacker recovers full Threema identity (Ed25519) + message DB key (SQLCipher); CVSS 3.1 7.1 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N
 testability: AUTH_HELPED
 ## 2026-08-15 19:55:59 UTC [chat] (model bigpickle)
+## 2026-08-15 20:31:41 UTC [chat] (model bigpickle)
+[HYP] Windows key-storage ACL bypass enabling offline identity key + database extraction
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/fs.ts:41, key-storage/index.ts:_writeOrOverrideFile, electron/electron-main.ts:944-945)
+confidence: 95
+reasoning: fileModeInternalObjectIfPosix() returns {} on win32 → keystorage.bin + keystorage.password.bin written without ACL; inner/v3.ts:65-70 exposes identityData.ck (Ed25519) + databaseKey; sqlite.ts:237-240 raw SQLCipher PRAGMA key; PoC artifact now genuinely authored at filesystem ground truth (sha256 28153ff6…, dry-run EXIT 0)
+evidence_needed: runtime confirmation on Windows (icacls permissive DACL + DPAPI password recovery + ck/databaseKey extraction from threema.sqlite)
+verify_steps: AUTH_HELPED: run `python3 poc/key-storage-acl-bypass-poc.py` on an authorized Windows host with threema-desktop installed and logged in; inspect icacls output, DPAPI decrypt of keystorage.password.bin, then SQLCipher PRAGMA key open
+impact: local attacker recovers full Threema identity (Ed25519) + message DB key (SQLCipher); CVSS 3.1 7.1 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N; severity high
+testability: AUTH_HELPED
+[HYP] Unauthenticated activity-churn surveillance of known identities
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/check (sibling parity 3 hosts)
+confidence: 62
+reasoning: 12-ID cohort byte-stable this cycle (8 active state:0; HHH24BPY/DZ34BVDV dormant state:1); 7VVR9AX2 held state:0 across 13+ reads after its single 1→0 flip; zero rate limit (35+ probes, no 429)
+evidence_needed: a second persistent state flip in the stable cohort to prove time-series surveillance as a reproducible primitive (1 flip observed once)
+verify_steps: PASSIVE: single weekly POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2YB","M5NANUU2","8FCAXYHF","E7UUX69V","HHH24BPY","DZ34BVDV","ZZZZZZZZ","ECHOECHO"]}` to ds-apip.threema.ch/identity/check; compare states+types+masks index-aligned; 1 req/cycle
+impact: attacker silently tracks account activation/deactivation without auth — follow-on phishing against flipped-to-active accounts; severity medium
+testability: PASSIVE
+[HYP] type:1 identities form a Work-organization fingerprint class
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/check + check_featuremask (sibling parity 3 hosts)
+confidence: 42
+reasoning: type:1 observed only on 8FCAXYHF (state:0, mask:2047) and DZ34BVDV (state:1, mask:31) out of 72 hits (~2.8%); cohort re-read this cycle reconfirms exactly these two type:1 anchors; both carry masks consistent with real client usage
+evidence_needed: ≥3 type:1 observations (or 3 type:1-carrying draws) to distinguish a real Work-org class from noise
+verify_steps: PASSIVE: on the next scheduled census draw(s), annotate every hit via `{"identities":[<hits>]}` to /identity/check and tally type; stop once type:1 ≥3 (class firmed) or total draws ≥24 without 3rd (class falsified); ≤1 req/cycle
+impact: attacker fingerprints Work-org accounts for targeted BEC/phishing; severity low-medium
+testability: PASSIVE

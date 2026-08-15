@@ -2176,3 +2176,9 @@ https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
 https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
 https://ds-apip.threema.ch/identity/set_featuremask -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/EchoEcho -> HTTP 404
+
+## 2026-08-15 20:35:55 UTC
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/set_featuremask -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/EchoEcho -> HTTP 404
+https://ds-apip.threema.ch/identity/check -> HTTP 500
