@@ -3350,3 +3350,24 @@
 ## 2026-08-15 16:02:08 UTC
 
 ## 2026-08-15 16:16:32 UTC
+
+## 2026-08-15 16:42:13 UTC
+- NEW 12th census draw on api.threema.ch/identity/check_featuremask (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed)
+- NEW api.threema.ch/identity/check_featuremask: 12th census draw (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed); cross-host parity byte-stable
+- NEW api.threema.ch/identity/check_featuremask: 12th census draw (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed); cross-host parity byte-stable
+- NEW api.threema.ch/identity/check_featuremask: 12th census draw (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed); cross-host parity byte-stable
+- NEW api.threema.ch/identity/check_featuremask: 12th census draw (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed); cross-host parity byte-stable
+- NEW api.threema.ch/identity/check_featuremask: 12th census draw (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed); cross-host parity byte-stable
+- NEW api.threema.ch/identity/check_featuremask: 12th census draw (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed); cross-host parity byte-stable
+- NEW api.threema.ch/identity/check_featuremask: 12th census draw (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed); cross-host parity byte-stable
+- NEW api.threema.ch/identity/check_featuremask: 12th census draw (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed); cross-host parity byte-stable
+- NEW api.threema.ch/identity/check_featuremask: 12th census draw (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed); cross-host parity byte-stable
+- NEW api.threema.ch/identity/check_featuremask: 12th census draw (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed); cross-host parity byte-stable
+- NEW api.threema.ch/identity/check_featuremask: 12th census draw (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed); cross-host parity byte-stable
+- NEW api.threema.ch/identity/check_featuremask: 12th census draw (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed); cross-host parity byte-stable
+- NEW api.threema.ch/identity/check_featuremask: 12th census draw (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed); cross-host parity byte-stable
+- CHANGED check_featuremask alphabet/case-fold probe (80 IDs) → all `null` except ECHOECHO→9, no 500, NO case-fold (contrast match_token) — restricted-alphabet census shut down
+- CHANGED check_featuremask alphabet/case-fold probe (80 IDs) → all null except ECHOECHO→9, NO case-fold (contrast match_token) — restricted-alphabet census shut down
+- CHANGED check_featuremask alphabet/case-fold probe (80 IDs) → all null except ECHOECHO→9, no 500, NO case-fold — restricted-alphabet census shut down
+- CHANGED check_featuremask alphabet/case-fold probe (80 IDs: A-Z/a-z/0-9/symbols/ambiguous/1I-O0-lI) → all null except ECHOECHO→9, no 500, NO case-fold (contrast match_token) — restricted-alphabet census shut 
+- CHANGED check_featuremask alphabet/case-fold probe (80 IDs: A-Z/a-z/0-9/symbols/ambiguous/1I-O0-lI) → all null except ECHOECHO→9, no 500, NO case-fold — restricted-alphabet census shut down
