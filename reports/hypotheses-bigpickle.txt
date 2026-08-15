@@ -1,7 +1,4 @@
-## 2026-08-15 07:50:42 UTC [chat] (model bigpickle)
-testability: PASSIVE
-[NEXT] PROBE: 12th independent seeded 400k-ID census draw on apip.threema.ch/identity/check_featuremask (host-rotate to apip, seed 2026081505, one POST body ≈4.8MB < 5.77MB cap, ≤1 rps), cross-check every hit via POST /identity/check {"identities":[hits]} ≤1 rps; re-verify 7VVR9AX2 (4th state:0 reading) + DZ34BVDV (type:1 canary); any new type:1 validates account-subclass (N=37→38+).
-[RISK] chat: 45 — DNS shard map complete (sharp 0x7f/0x80, no .1/.2/IPv6), TCP 5222/443 0-byte posture both nodes, TLS close-immediate no cert; passive channel formally closed | web: 90 — census oracle (check_featuremask ~524k IDs/req, 11-draw Poisson-stable 6.86e-6, ~1.9e7 pop bound, CORS `*`, zero 429), 3 independent registered/not oracles (fetch_bulk/fetch_priv/match_token), 5 live-active accounts, state-flip primitive live, type:1 subclass 1/37 | sync: 40 — mediator/rendezvous WSS gated 403 all paths; no reachable surface | safe: 30 — credential-gated (400 no-creds), CORS `*` preflight only, HSTS gap on GET 400 | desktop-src: 40 — two accepted source misconfigs (Windows keystorage ACL bypass, electron sandbox unset + nodeIntegrationInWorker) with no remote path; PoC artifact filesystem-verified ABSENT (21 cycles)
+## 2026-08-15 08:03:34 UTC [chat] (model bigpickle)
 [NEW] 12th census draw (apip.threema.ch/identity/check_featuremask, seed 2026081505, 400k uniq 36-alphabet IDs, body 4400016B < 5.77MB cap): 6 hits/400k = 1.5e-5 → 9V5ATXDN (1023), ASTSY7Y6 (15), C7NZS3TR (31), SAMKKRDS (31), TNBYDU5R (1023), XU5JESWM (255); 200/2000011B in 13.8s, zero 429, ACAO `*`, ACAH "Content-Type, User-Agent". Cumulative 43/5.796M ≈ 7.42e-6 (12 draws) → ~2.1e7 registered at 36^8.
 [NEW] Cross-check (apip/identity/check, 8 IDs incl. canaries) → 200/124B/0.4s: states=[1,1,1,1,1,1,0,1], types=[0,0,0,0,0,0,0,1], featureMasks=[1023,15,31,31,1023,255,2047,31]; ALL 6 hits dormant (state:1) type:0 — 0/6 type:1, 0/6 state:0. 7VVR9AX2 → state:0 mask:2047 (4th consecutive reading; state-flip primitive now 4 readings deep). DZ34BVDV → type:1 state:1 mask:31 (canary byte-stable). NEW FIELD: checkInterval=86400 in /identity/check response — client-recommended recheck cadence (86400s = 24h), first observed this draw.
 [LEARN] ACCEPTED OTHER @ apip.threema.ch/identity/check: response now confirmed to include `checkInterval:86400` alongside states/types/featureMasks (24h client recheck hint). Previously-unlogged field; harmless but completes response-shape documentation.
@@ -62,3 +59,31 @@ evidence_needed: a second account flip (either direction) to establish direction
 verify_steps: PASSIVE — periodic 13-ID cohort re-POST to /identity/check ≤1 rps; flag any state/mask change vs this cycle's baseline (states=[1,1,1,1,0,1,1,0,0,0,0,1,0]).
 impact: attacker detects account activation/deactivation near-real-time → opportunistic targeting. CVSS 5.3 Medium.
 testability: PASSIVE
+[HYP] Registered-population bound + live-active-share finalized (15 draws, no drift; legacy-mask live accounts)
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check_featuremask (siblings api/apip)
+confidence: 92
+reasoning: 15 draws cumulative 51/6.996M ≈ 7.29e-6 (draw-15 3 hits @ 7.5e-6 within Poisson λ≈2.9 noise; zero 429, 3-host byte-identical, CORS `*`). 5 distinct live census accounts (5U8DM3J3, RFK5RDU6, 7V7T2NKR, 7VVR9AX2, B3VS263C) + ECHOECHO control; B3VS263C proves active accounts can carry legacy mask 1023.
+evidence_needed: none critical; 16th draw only if density drift suspected.
+verify_steps: PASSIVE — optional 16th seeded 400k draw ≤1 rps; cross-check every hit via POST /identity/check; diff density vs 7.29e-6.
+impact: attacker sizes registered population (~2.2e7 at 36^8) and live-active share (~11%) unauthenticated → targeted-phishing census. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] State flips are server-persisted and observable; directionality + second-flip unproven
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check (siblings api/apip)
+confidence: 80
+reasoning: 7VVR9AX2 state:0 for 6th consecutive independent reading (15-ID cohort byte-stable otherwise); ActivityState enum 0=ACTIVE/1=INACTIVE (enum/index.ts:2129); states persist server-side independent of request origin.
+evidence_needed: a second account flip (either direction) to establish directionality + correlate with mask change.
+verify_steps: PASSIVE — periodic 15-ID cohort re-POST to /identity/check ≤1 rps (IDs: HTF47B9R,J9BMHU2M,B3VS263C,EDCSKEXX,7VVR9AX2,DZ34BVDV,5U8DM3J3,RFK5RDU6,7V7T2NKR,ECHOECHO,6F5S79A3,PJNEKNJN,Y8FV92TU,YUWB4V3M,ZZZZZZZZ); flag any state/mask change vs this cycle's baseline.
+impact: attacker detects account activation/deactivation near-real-time → opportunistic targeting. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] fetch_priv 88B bucket = unknown ∨ revoked; split requires revoked control
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv (siblings api/apip)
+confidence: 87
+reasoning: 11/11 registered cohort (incl. DZ34BVDV type:1) mint 133-137B tokens this cycle; never-registered ZZZZZZZZ → 88B "invalid-identity"; source documents DirectoryErrorType 'invalid-identity' = "unknown or was revoked" (directory.ts:160); authenticated layer returns {identity, serverGroup, email?, mobileNo?} (directory.ts:61-68).
+evidence_needed: revoked control identity to split revoked vs never-registered inside 88B bucket (account lifecycle, AUTH_HELPED).
+verify_steps: PASSIVE — periodic cohort re-POST ≤1 rps; flag any registered ID dropping to 88B (revocation canary); AUTH_HELPED: register+revoke throwaway to observe transition.
+impact: third independent registered/not oracle + revocation detection with a control; PII (email/mobileNo) at authenticated layer. CVSS 5.3 Medium (passive portion).
+testability: PASSIVE
+[NEXT] PROBE: periodic 15-ID cohort re-POST to https://ds-apip.threema.ch/identity/check (≤1 rps, one 178B JSON body) to catch a second state flip or mask change vs baseline states=[1,1,0,1,0,1,0,0,0,0,1,1,1,1,0]; if any registered ID flips, immediately re-POST to fetch_priv (revocation correlation).
