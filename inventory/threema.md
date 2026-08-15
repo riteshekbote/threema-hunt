@@ -3020,3 +3020,7 @@
 - CHANGED poc/ directory: filesystem `ls poc/` → No such file (20+ cycle contradiction; all KB sha256 claims disproven)
 - NEW 12th census draw (apip.threema.ch/identity/check_featuremask, seed 2026081505, 400k uniq 36-alphabet IDs, body 4400016B < 5.77MB cap): 6 hits/400k = 1.5e-5 → 9V5ATXDN (1023), ASTSY7Y6 (15), C7NZS3TR (
 - NEW Cross-check (apip/identity/check, 8 IDs incl. canaries) → 200/124B/0.4s: states=[1,1,1,1,1,1,0,1], types=[0,0,0,0,0,0,0,1], featureMasks=[1023,15,31,31,1023,255,2047,31]; ALL 6 hits dormant (state:1) 
+
+## 2026-08-15 08:04:07 UTC
+- NEW 12th census draw (apip.threema.ch/identity/check_featuremask, seed 2026081505, 400k uniq 36-alphabet IDs, body 4400016B < 5.77MB cap): 6 hits/400k = 1.5e-5 → 9V5ATXDN (1023), ASTSY7Y6 (15), C7NZS3TR (
+- NEW Cross-check (apip/identity/check, 8 IDs incl. canaries) → 200/124B/0.4s: states=[1,1,1,1,1,1,0,1], types=[0,0,0,0,0,0,0,1], featureMasks=[1023,15,31,31,1023,255,2047,31]; ALL 6 hits dormant (state:1) 
