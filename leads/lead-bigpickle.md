@@ -18252,3 +18252,33 @@ testability: PASSIVE
 [PARKED] type:1 Work-org fingerprint: still 2/83 (< 3-draw threshold); continues parked; next census checkpoint at ≥24 draws without a 3rd type:1 → falsify
 [NEXT] PROBE: census draw 69 — single 400k-ID seeded POST `{"identities":[400k seeded random base32 IDs]}` to https://api.threema.ch/identity/check_featuremask (host-rotate, seed 2026081569), annotate all hits with one `/identity/check` POST (≤2 requests, spaced >3s); add any new live-active (state:0 mask:2047) accounts to cohort; incidental type:1 tally toward the parked Work-org class
 [LEARN] FIXED artifact gap @ poc/key-storage-acl-bypass-poc.py: re-authored at filesystem ground truth this cycle (sha256 3c8e0bccc4f6d290da02dd08fa0b100b33f432cd9167d855d36969539e089cfb) — AST_PASS + --dry-run EXIT=0 on Linux; prior claim sha256 cb2d42051fbb031a92cd28ba63ecf5605d0607db9b8f80736665b660c7aa479d no longer on disk (workspace reset between cycles) — standing blocker reduced to Windows runtime validation (AUTH_HELPED) only
+## 2026-08-15 21:59:15 UTC [chat] (model bigpickle)
+[HYP] check_featuremask census density re-estimation after draw-69 outlier
+class: IDOR
+asset: https://api.threema.ch/identity/check_featuremask (sibling parity ds-apip/apip)
+confidence: 65
+reasoning: draw 69 → 9 hits/400k = 22.5e-6 vs prior 15-draw mean ~7.5e-6; at Poisson(λ≈3) P(9)≈0.27%; cumulative density drifting to ~9.6e-6 over ~6.8M IDs — true density may exceed the early 6.8e-6 estimate
+evidence_needed: 2-3 consecutive draws to separate true density shift from single-draw outlier
+verify_steps: PASSIVE: draws 70-71, 400k seeded IDs each (seeds 2026081570/71), POST {"identities":[...]} to check_featuremask, record hit count; if ≥2 of 3 draws ≥6 hits → revise density upward
+impact: tighter bound on total registered-identity space (est. 1.2M-2.5M at 7.5e-6-1.5e-5 over 36^8) — enumeration throughput refinement; severity low
+testability: PASSIVE
+[HYP] Legacy-mask ACTIVE accounts as targeted-phishing subclass
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check_featuremask + /identity/check (3-host parity)
+confidence: 60
+reasoning: draw 69 recovered NHCNWZRH state:0 + mask:255 (first active-with-legacy-mask); prior model "active⇒2047 / dormant⇒legacy" contradicted — actively-used legacy clients are fingerprintable
+evidence_needed: tally mask<2047 among state:0 accounts across ≥3 draws; material if ≥20% of active hits carry legacy masks
+verify_steps: PASSIVE: for each census hit, annotate via one /identity/check POST (states/types/masks); count state:0 ∧ mask<2047 vs mask=2047; ≤2 req/draw
+impact: attacker targets actively-used outdated-client accounts for credential phishing/BEC; severity low-medium
+testability: PASSIVE
+[HYP] Windows key-storage ACL bypass — offline identity + DB key extraction
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop (fs.ts:41, key-storage/index.ts:_writeOrOverrideFile, electron-main.ts:944-945, inner/v3.ts:65-70, sqlite.ts:237-240)
+confidence: 95
+reasoning: fileModeInternalObjectIfPosix() returns {} on win32 → keystorage.bin + keystorage.password.bin written without ACL; inner v3 exposes identityData.ck + databaseKey; sqlite.ts raw PRAGMA key; 6-path RAG chain verified; PoC authored (filesystem-confirmed this cycle)
+evidence_needed: Windows runtime validation only (icacls permissive DACL + DPAPI decrypt + ck/databaseKey extraction)
+verify_steps: AUTH_HELPED: on authorized Windows host with desktop logged in: python3 poc/key-storage-acl-bypass-poc.py --data <dir> --exploit; icacls both keystorage files; decrypt keystorage.password.bin via DPAPI; Argon2id→XSalsa20 decrypt inner v3 for ck+databaseKey; open threema.sqlite with PRAGMA key
+impact: local attacker recovers full Threema identity (Ed25519) + message DB key (SQLCipher); CVSS 3.1 7.1; severity high
+testability: AUTH_HELPED
+[NEXT] PROBE: census draw 70 — single 400k-ID seeded POST `{"identities":[400k seeded random base32 IDs]}` to https://ds-apip.threema.ch/identity/check_featuremask (rotate back, seed 2026081570), annotate all hits with one `/identity/check` POST (≤2 requests, spaced >3s); add any new live-active (state:0 mask:2047) accounts to cohort; TALLY mask<2047 among state:0 (legacy-active subclass test); incidental type:1 tally toward parked Work-org class
+[RISK] chat: 15 — passive channel formally closed (SNI+TLS probes 0 bytes, handshake needs authenticated login frame); DNS shard map complete (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204) | web: 33 — 9+ unauthenticated IDOR endpoints on ds-apip/api/apip with CORS `*`; census at 400k IDs/req discriminating 10 live-active accounts; density estimate drifting up (~9.6e-6); new legacy-active subclass (NHCNWZRH) expands phishing targeting model; match oracle throughput bounded (1,9]/multi-hour; write paths PoP-gated; info-disclosure only | sync: 20 — mediator/rendezvous uniform 403, WSS auth-required, DNS split mapped | safe: 35 — 5 hosts behind 203.56.112.231; credentialed CORS + Basic-auth route oracle + HSTS/Expect-CT gap confirmed; read requires backupKey | desktop-src: 65 — key-storage ACL bypass at 95 confidence with verified 6-path chain; PoC authored and syntax-validated; sole remaining blocker = Windows runtime validation (AUTH_HELPED)
