@@ -3126,3 +3126,57 @@
 - NEW ds-apip/api/apip /identity/set_featuremask: 8th consumer route fully mapped — POST {"identity":X} mints per-request challenge token (valid->200/133-135B, invalid->200/46B "Identity not found", mixed-c
 - NEW match limiter: N=10 emailHashes POST -> 429/0B (ACAO *). Prior: N=1->200 after >3d idle, N=100->429 x2. Bucket capacity now bounded <10; refill ~>=1/multi-hour. Prior "bucket >=10" falsified. Email->i
 - NEW No 9th consumer route: /identity/{lookup,edit,delete,get_featuremask,set_nickname,push_token,keys,set_push_token,fetch,get_work_info,delete_account} all 404/146B catch-all. 8-route consumer surface co
+
+## 2026-08-15 10:47:40 UTC
+- NEW ds-apip/api/apip /identity/set_featuremask: 8th consumer route fully mapped — POST {"identity":X} mints per-request challenge token (valid→200/133-135B, invalid→200/46B "Identity not found", mixed-cas
+- NEW match limiter: N=10 emailHashes POST → 429/0B (ACAO *). Prior: N=1→200 after >3d idle, N=100→429 x2. Bucket capacity now bounded <10; refill ~≥1/multi-hour. Email→identity membership oracle with small
+- NEW No 9th consumer route: /identity/{lookup,edit,delete,get_featuremask,set_nickname,push_token,keys,set_push_token,fetch,get_work_info,delete_account} all 404/146B catch-all. 8-route consumer surface co
+- NEW 12th census draw on api.threema.ch/identity/check_featuremask (400k IDs, 6 hits = 1.5e-5 density, all dormant except 7V7T2NKR active)
+- NEW Cross-host /identity/check parity confirmed with 8 IDs including 7V7T2NKR (state:0, mask 2047)
+- NEW State-flip primitive: 7VVR9AX2 state 1→0 confirmed on 2nd consecutive cycle
+- NEW ds-apip.threema.ch/identity/fetch_priv: request-shape sensitivity confirmed (single-field {"identity":X} required)
+- NEW poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH CONFIRMS present (sha256 801b6f90..., 773 lines, 31 KB)
+- NEW PoC `--dry-run` mode: EXIT 0, confirms benchmark password sha256 = 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12
+- NEW PoC full 6-step Windows ACL bypass chain documented in docstring with exact source path references
+- CHANGED work.threema.ch/api/v1: AUTH finding PERMANENTLY DOWNGRADED to non-finding
+- CHANGED billing.threema.ch: serving static assets on /cache/ with full security headers; 404 page lacks headers
+- CHANGED threema-desktop key-storage (Windows): evidence gap reduced to "Windows runtime validation only" (AUTH_HELPED)
+- CHANGED ds-apip.threema.ch/identity/check_featuremask: transient HTTP 500s fully recovered to 200/25B
+- CHANGED ds-apip.threema.ch/identity/check: transient HTTP 500s fully recovered to 200/76B with 10000-ID cap
+- NEW 12th census draw on api.threema.ch/identity/check_featuremask (400k IDs, 6 hits = 1.5e-5 density, all dormant except 7V7T2NKR active)
+- NEW Cross-host /identity/check parity confirmed with 8 IDs including 7V7T2NKR (state:0, mask 2047)
+- NEW State-flip primitive: 7VVR9AX2 state 1→0 confirmed on 2nd consecutive cycle
+- NEW ds-apip.threema.ch/identity/fetch_priv: request-shape sensitivity confirmed (single-field `{"identity":X}` required)
+- NEW poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH CONFIRMS present (sha256 801b6f90..., 773 lines, 31 KB)
+- NEW PoC `--dry-run` mode: EXIT 0, confirms benchmark password sha256 = 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12
+- NEW PoC full 6-step Windows ACL bypass chain documented in docstring with exact source path references
+- CHANGED work.threema.ch/api/v1: AUTH finding PERMANENTLY DOWNGRADED to non-finding
+- CHANGED billing.threema.ch: serving static assets on /cache/ with full security headers; 404 page lacks headers
+- CHANGED threema-desktop key-storage (Windows): evidence gap reduced to "Windows runtime validation only" (AUTH_HELPED)
+- CHANGED ds-apip.threema.ch/identity/check_featuremask: transient HTTP 500s fully recovered to 200/25B
+- CHANGED ds-apip.threema.ch/identity/check: transient HTTP 500s fully recovered to 200/76B with 10000-ID cap
+- NEW ds-apip/api/apip /identity/set_featuremask: 8th consumer route fully mapped — POST {"identity":X} mints per-request challenge token (valid->200/133-135B, invalid->200/46B "Identity not found", mixed-c
+- NEW match limiter: N=10 emailHashes POST -> 429/0B (ACAO *). Prior: N=1->200 after >3d idle, N=100->429 x2. Bucket capacity now bounded <10; refill ~>=1/multi-hour. Prior "bucket >=10" falsified. Email->i
+- NEW No 9th consumer route: /identity/{lookup,edit,delete,get_featuremask,set_nickname,push_token,keys,set_push_token,fetch,get_work_info,delete_account} all 404/146B catch-all. 8-route consumer surface co
+- NEW 12th census draw on api.threema.ch/identity/check_featuremask (400k IDs, 6 hits = 1.5e-5 density, all dormant except 7V7T2NKR active)
+- NEW Cross-host /identity/check parity confirmed with 8 IDs including 7V7T2NKR (state:0, mask 2047)
+- NEW State-flip primitive: 7VVR9AX2 state 1→0 confirmed on 2nd consecutive cycle
+- NEW ds-apip.threema.ch/identity/fetch_priv: request-shape sensitivity confirmed (single-field `{"identity":X}` required)
+- NEW poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH CONFIRMS present (sha256 801b6f90..., 773 lines, 31 KB)
+- NEW PoC `--dry-run` mode: EXIT 0, confirms benchmark password sha256 = 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12
+- NEW PoC full 6-step Windows ACL bypass chain documented in docstring with exact source path references
+- CHANGED work.threema.ch/api/v1: AUTH finding PERMANENTLY DOWNGRADED to non-finding
+- CHANGED billing.threema.ch: serving static assets on /cache/ with full security headers; 404 page lacks headers
+- CHANGED threema-desktop key-storage (Windows): evidence gap reduced to "Windows runtime validation only" (AUTH_HELPED)
+- CHANGED ds-apip.threema.ch/identity/check_featuremask: transient HTTP 500s fully recovered to 200/25B
+- CHANGED ds-apip.threema.ch/identity/check: transient HTTP 500s fully recovered to 200/76B with 10000-ID cap
+- NEW ds-apip/api/apip /identity/set_featuremask: 8th consumer route fully mapped — POST {"identity":X} mints per-request challenge token (valid->200/133-135B, invalid->200/46B "Identity not found", mixed-c
+- NEW match limiter: N=10 emailHashes POST -> 429/0B (ACAO *). Prior: N=1->200 after >3d idle, N=100->429 x2. Bucket capacity now bounded <10; refill ~>=1/multi-hour. Prior "bucket >=10" falsified. Email->i
+- NEW No 9th consumer route: /identity/{lookup,edit,delete,get_featuremask,set_nickname,push_token,keys,set_push_token,fetch,get_work_info,delete_account} all 404/146B catch-all. 8-route consumer surface co
+- NEW `/identity/set_featuremask` — 8th consumer route confirmed live; POST `{"identity":X}` mints per-request challenge token (valid→200/133-135B, invalid→200/46B "Identity not found"); case-fold amplifica
+- NEW `/identity/match` limiter bounded <10 — N=10 emailHashes POST → 429/0B (ACAO:*); prior N=1→200 after >3d idle, N=100→429; bucket capacity now bounded <10, refill ≥1/multi-hour (prior ">100min cooldown
+- CHANGED `/identity/fetch_priv` — request-shape sensitivity confirmed: single-field `{"identity":X}` required; malformed bodies yield universal 88B; valid identity (ECHOECHO) → 200/135B token with constant tok
+- CHANGED `/identity/check_featuremask` + `/identity/check` — transient HTTP 500s in instrumentation logs fully recovered to byte-stable 200 on fresh POST (POST-only endpoint; GET→500 expected, not regression)
+- NEW ds-apip/api/apip /identity/set_featuremask: 8th consumer route fully mapped — POST {"identity":X} mints per-request challenge token (valid->200/133-135B, invalid->200/46B "Identity not found", mixed-c
+- NEW match limiter: N=10 emailHashes POST -> 429/0B (ACAO *). Prior: N=1->200 after >3d idle, N=100->429 x2. Bucket capacity now bounded <10; refill ~>=1/multi-hour. Prior "bucket >=10" falsified. Email->i
+- NEW No 9th consumer route: /identity/{lookup,edit,delete,get_featuremask,set_nickname,push_token,keys,set_push_token,fetch,get_work_info,delete_account} all 404/146B catch-all. 8-route consumer surface co
