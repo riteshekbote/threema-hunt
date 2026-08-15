@@ -2913,3 +2913,23 @@
 - NEW 8th census draw (api.threema.ch/identity/check_featuremask, seed 2026081502): 3 hits (7.5e-6 density) → UCVUB4ZR (dormant/mask63), 7V7T2NKR (ACTIVE/state:0/mask2047), 53C3P84N (dormant/mask15)
 - NEW 7VVR9AX2 state-flip 1→0 confirmed on 2nd consecutive cross-check cycle → state-change primitive live
 - NEW fetch_priv request-shape sensitivity confirmed: single-field `{"identity":X}` required; malformed bodies yield universal 88B "invalid-identity"
+
+## 2026-08-15 05:30:02 UTC
+- NEW ds-apip.threema.ch/identity/fetch_bulk: Consistent 200 responses confirmed on POST (was 404 on GET/HEAD probes)
+- NEW api.threema.ch/identity/fetch_bulk: Consistent 200 responses confirmed on POST (was 404 on GET/HEAD probes)
+- NEW 8th census draw on api.threema.ch/identity/check_featuremask: 3 hits (7.5e-6 density) → UCVUB4ZR (dormant/mask63), 7V7T2NKR (ACTIVE/state:0/mask2047), 53C3P84N (dormant/mask15)
+- NEW 7VVR9AX2 state-flip 1→0 confirmed on 2nd consecutive cross-check cycle → state-change primitive live
+- NEW 7th census draw recovered 2 dormant accounts (VK24VB77 mask 255, RB75KK42 mask 31) → registered cohort N=26
+- NEW fetch_priv request-shape sensitivity confirmed: single-field `{"identity":X}` required; malformed bodies yield universal 88B "invalid-identity"
+- NEW All 3 hosts /identity/fetch_priv parity re-established: registered→135-137B token, never-registered→88B, CORS *
+- NEW Mask semantics refined: dormant state:1 account 6F5S79A3 carries mask 2047 → mask = last-used client capability independent of activity state
+- NEW ds-apip.threema.ch/identity/match_token case-fold amplification fresh confirmation: POST echoecho → byte-identical token to ECHOECHO
+- NEW ds-apip.threema.ch/identity/check_featuremask live active accounts confirmed: 5U8DM3J3 + RFK5RDU6 → featureMask 2047, state:0 on all 3 prod hosts
+- NEW api.threema.ch/identity/check_featuremask fresh census: 4 registered IDs (PJNEKNJN/63, 6F5S79A3/2047, Y8FV92TU/31, YUWB4V3M/31; all state:1 dormant)
+- CHANGED ds-apip.threema.ch/identity/check_featuremask: transient HTTP 500s fully recovered to 200/25B
+- CHANGED ds-apip.threema.ch/identity/check: transient HTTP 500s fully recovered to 200/76B with 10000-ID cap
+- CHANGED ds-apip.threema.ch/identity/fetch_priv: returns 88B "invalid-identity" for BOTH valid and invalid (contradicts prior 137B valid token claim)
+- CHANGED work.threema.ch/api/v1: AUTH finding downgraded to non-finding (no CORS on 404, missing-key/invalid-key byte-identical)
+- CHANGED billing.threema.ch: serves static assets (jQuery 3.7.1 + CSS) with full security headers; 404 page lacks headers
+- CHANGED poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH still ABSENT (20+ cycle KB/filesystem contradiction)
+- CHANGED threema-desktop key-storage (Windows): RAG source chain fully verified (6 paths on GitHub stable)
