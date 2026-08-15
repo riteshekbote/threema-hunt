@@ -6243,3 +6243,70 @@
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost gating bounded <10 (N=10→429) — email→identity throughput reduced to ≤1-9 hashes per multi-hour cooldo
 - LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ sha256 claims; RAG s
 - LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below the ≥3-draw threshold; not firm enough to claim a fingerprint class
+
+## RANKED HYPOTHESES 2026-08-15 19:45:27 UTC
+- [95] https://ds-apip.threema.ch/identity/check_featuremask: Cross-host distributed identity census with active-account discrimination at 524k IDs/request (from reports/hypotheses-nemotron3.txt)
+- [45] apip.threema.ch/identity/ws/revoke: ds-apip.threema.ch directory lookup / unauth enumeration (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2Y
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://ds-apip-work.threema.ch/identity/lookup and /directory (401 vs 404 distinguishes route-existence behind the auth gate), then GET https://ds-a
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: 8th consumer route fully mapped — POST {"identity":X} mints per-request challenge token (valid→200/
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost-unit gating bounded <10 — N=10 emailHashes POST → 429/0B (ACAO:*); bucket capacity <10, refill ≥1/mult
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: Request-shape sensitivity confirmed — single-field {"identity":X} required; malformed bodies yield unive
+- LEARN: ACCEPTED IDOR @ api.threema.ch/identity/check_featuremask: 524k-scale parity confirmed at body-cap — 200/2620012B, density 7.63e-6 identical to ds-apip, zero 42
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: PERMANENTLY DOWNGRADED to non-finding — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 sha256 = 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (computed from
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain verified on GitHub stable; PoC artifact STILL ABSENT on filesystem (20+ cycle contr
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Conditional RCE requires separate renderer exploit chain (0 dynamic sinks require/import
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 13th census draw confirms 6th distinct live active account (6YMAT2YB, state:0, mask:2047); census
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Confirmed via direct WebFetch on GitHub `stable` this cycle — `sandbox` UNSET (not `fals
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed di
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle PERMANENTLY DOWNGRADED — no CORS on 404 response, missing-key/invalid-key produce byte-ident
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain verified via direct WebFetch on GitHub `stable` — all source files confirmed live a
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/{check_featuremask, fetch_bulk, check, match, match_token, fetch_priv, set_featuremask, check_license, match}: All 9
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
+- LEARN: REJECTED MISCONFIG @ poc/ directory: Filesystem GROUND TRUTH (`ls poc/` → No such file or directory; `find /` returns zero) confirms PoC artifact ABSENT after 2
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask + /identity/check: 7 distinct live-active accounts (state:0 mask:2047) recovered via unauthenticat
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: 8th consumer route confirmed with token-mint oracle (valid→133-135B vs invalid→46B) + case-fold + b
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: request-shape sensitivity confirmed — single-field body required; malformed bodies yield universal 88B; 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost gating bounded <10 (N=10→429) — email→identity throughput reduced to ≤1-9 hashes per multi-hour cooldo
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ sha256 claims; RAG s
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below the ≥3-draw threshold; not firm enough to claim a fingerprint class
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Confirmed via direct WebFetch on GitHub `stable` this cycle — `sandbox` UNSET (not `fals
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed di
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle PERMANENTLY DOWNGRADED — no CORS on 404 response, missing-key/invalid-key produce byte-ident
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain verified via direct WebFetch on GitHub `stable` — all source files confirmed live a
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/{check_featuremask, fetch_bulk, check, match, match_token, fetch_priv, set_featuremask, check_license, match}: All 9
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
+- LEARN: REJECTED MISCONFIG @ poc/ directory: Filesystem GROUND TRUTH (`ls poc/` → No such file or directory; `find /` returns zero) confirms PoC artifact ABSENT after 2
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Confirmed via direct WebFetch on GitHub `stable` this cycle — `sandbox` UNSET (not `fals
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed di
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle PERMANENTLY DOWNGRADED — no CORS on 404 response, missing-key/invalid-key produce byte-ident
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain verified via direct WebFetch on GitHub `stable` — all source files confirmed live a
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/{check_featuremask, fetch_bulk, check, match, match_token, fetch_priv, set_featuremask, check_license, match}: All 9
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
+- LEARN: REJECTED MISCONFIG @ poc/ directory: Filesystem GROUND TRUTH (`ls poc/` → No such file or directory; `find /` returns zero) confirms PoC artifact ABSENT after 2
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask + /identity/check: 7 distinct live-active accounts (state:0 mask:2047) recovered via unauthenticat
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: 8th consumer route confirmed with token-mint oracle (valid→133-135B vs invalid→46B) + case-fold + b
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: request-shape sensitivity confirmed — single-field body required; malformed bodies yield universal 88B; 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost gating bounded <10 (N=10→429) — email→identity throughput reduced to ≤1-9 hashes per multi-hour cooldo
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ sha256 claims; RAG s
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below the ≥3-draw threshold; not firm enough to claim a fingerprint class
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle PERMANENTLY DOWNGRADED — no CORS on 404 response, missing-key/invalid-key produce byte-ident
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain verified via direct WebFetch on GitHub `stable` — all source files confirmed live a
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/{check_featuremask, fetch_bulk, check, match, match_token, fetch_priv, set_featuremask, check_license, match}: All 9
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
+- LEARN: REJECTED MISCONFIG @ poc/ directory: Filesystem GROUND TRUTH (`ls poc/` → No such file or directory; `find /` returns zero) confirms PoC artifact ABSENT after 2
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Confirmed via direct WebFetch on GitHub `stable` this cycle — `sandbox` UNSET (not `fals
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed di
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle PERMANENTLY DOWNGRADED — no CORS on 404 response, missing-key/invalid-key produce byte-ident
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain verified via direct WebFetch on GitHub `stable` — all source files confirmed live a
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/{check_featuremask, fetch_bulk, check, match, match_token, fetch_priv, set_featuremask, check_license, match}: All 9
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
+- LEARN: REJECTED MISCONFIG @ poc/ directory: Filesystem GROUND TRUTH (`ls poc/` → No such file or directory; `find /` returns zero) confirms PoC artifact ABSENT after 2
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask + /identity/check: 7 distinct live-active accounts (state:0 mask:2047) recovered via unauthenticat
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: 8th consumer route confirmed with token-mint oracle (valid→133-135B vs invalid→46B) + case-fold + b
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: request-shape sensitivity confirmed — single-field body required; malformed bodies yield universal 88B; 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost gating bounded <10 (N=10→429) — email→identity throughput reduced to ≤1-9 hashes per multi-hour cooldo
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ sha256 claims; RAG s
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below the ≥3-draw threshold; not firm enough to claim a fingerprint class
