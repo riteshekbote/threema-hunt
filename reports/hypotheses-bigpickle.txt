@@ -1,23 +1,4 @@
-## 2026-08-15 21:30:22 UTC [chat] (model bigpickle)
-[HYP] Windows key-storage ACL bypass enabling offline identity key + database extraction
-class: MISCONFIG
-asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/fs.ts:41, key-storage/index.ts:_writeOrOverrideFile, electron/electron-main.ts:944-945)
-confidence: 95
-reasoning: fileModeInternalObjectIfPosix() returns `{}` on win32 → keystorage.bin + keystorage.password.bin written without ACL; inner/v3.ts:65-70 exposes identityData.ck (Ed25519) + databaseKey; sqlite.ts:237-240 raw SQLCipher PRAGMA key; 6-path RAG chain re-verified on GitHub stable
-evidence_needed: runtime confirmation on Windows (icacls permissive DACL + DPAPI password recovery + ck/databaseKey extraction from threema.sqlite)
-verify_steps: AUTH_HELPED: on an authorized Windows host with threema-desktop installed+logged in, run the PoC: (1) icacls data/keystorage.bin + data/keystorage.password.bin; (2) decrypt keystorage.password.bin via safeStorage/DPAPI; (3) open threema.sqlite with PRAGMA key; (4) decode v3 inner layer for ck + databaseKey
-impact: local attacker recovers full Threema identity (Ed25519) + message DB key (SQLCipher); CVSS 3.1 7.1 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N; severity high
-testability: AUTH_HELPED
-[HYP] Unauthenticated activity-churn surveillance of known identities
-class: BUSLOGIC
-asset: https://ds-apip.threema.ch/identity/check (sibling parity 3 hosts)
-confidence: 62
-reasoning: draw 66 annotation confirms 3 more dormant (state:1 mask:63) accounts and 2 active (state:0 mask:2047); cohort byte-stable across re-reads; 7VVR9AX2 still holds state:0 after its single 1→0 flip; zero rate limit
-evidence_needed: a second persistent state flip in the stable cohort to prove time-series surveillance as a reproducible primitive (still single-event)
-verify_steps: PASSIVE: single weekly POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2YB","M5NANUU2","8FCAXYHF","E7UUX69V","T6XR4WKA","J7RFXNZ7","HHH24BPY","DZ34BVDV","ECHOECHO"]}` to ds-apip.threema.ch/identity/check; compare index-aligned; 1 req/cycle
-impact: attacker silently tracks account activation/deactivation without auth — follow-on phishing on flipped-to-active accounts; severity medium
-testability: PASSIVE
-[HYP] type:1 identities form a Work-organization fingerprint class
+## 2026-08-15 21:48:49 UTC [chat] (model bigpickle)
 class: BUSLOGIC
 asset: https://ds-apip.threema.ch/identity/check + check_featuremask (sibling parity 3 hosts)
 confidence: 42
@@ -78,3 +59,8 @@ impact: quantifies max email→identity lookups per cooldown window for the acce
 testability: PASSIVE
 [NEXT] PROBE: census draw 68 — single 400k-ID seeded POST `{"identities":[400k seeded random base32 IDs]}` to https://ds-apip.threema.ch/identity/check_featuremask (seed 2026081568), annotate all hits with one `/identity/check` POST (≤2 requests, spaced >3s); add any new live-active (state:0 mask:2047) accounts to cohort; incidental type:1 tally toward the parked Work-org class
 [RISK] chat: 15 — passive channel formally closed (SNI+TLS probes 0 bytes, handshake requires authenticated login frame); DNS shard map complete (g-{00..7f}→203.56.112.202, g-{80..ff}→203.56.112.204) | web: 30 — 9 unauthenticated IDOR endpoints on ds-apip/api/apip, census at 400k-524k IDs/req discriminating 9 live-active accounts; match oracle throughput bounded (1,9]/multi-hour; all write paths PoP-gated; info-disclosure only, no write primitive | sync: 20 — mediator/rendezvous uniform 403, WSS auth-required, DNS split mapped | safe: 35 — 5 hosts behind 203.56.112.231; credentialed CORS + Basic-auth route oracle + HSTS/Expect-CT gap confirmed; read requires backupKey | desktop-src: 65 — key-storage ACL bypass at 95 confidence with verified 6-path chain; PoC artifact now authored and syntax-validated; sole remaining blocker = Windows runtime validation (AUTH_HELPED)
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 14th census draw (400k IDs, seed 2026081568) → 3 hits/400k = 7.5e-6 density, all dormant (state:1, type:0, legacy masks 3/3/3); no new live-active account; type:1 stays 2/83 (was 2/80 after draw 67); 9 distinct live-active accounts (state:0 mask:2047) cohort unchanged; zero 429; CORS `*` re-confirmed; byte-stable tri-state oracle
+[FINAL] Cross-host distributed identity census with active-account discrimination at 524k IDs/request (confidence 95, PASSIVE) — primitive fully proven; density series at 14 draws (mean ~3.6/draw); only open item = type:1 Work-org class (2/83, needs ≥3) + churn monitoring
+[PARKED] type:1 Work-org fingerprint: still 2/83 (< 3-draw threshold); continues parked; next census checkpoint at ≥24 draws without a 3rd type:1 → falsify
+[NEXT] PROBE: census draw 69 — single 400k-ID seeded POST `{"identities":[400k seeded random base32 IDs]}` to https://api.threema.ch/identity/check_featuremask (host-rotate, seed 2026081569), annotate all hits with one `/identity/check` POST (≤2 requests, spaced >3s); add any new live-active (state:0 mask:2047) accounts to cohort; incidental type:1 tally toward the parked Work-org class
+[LEARN] FIXED artifact gap @ poc/key-storage-acl-bypass-poc.py: re-authored at filesystem ground truth this cycle (sha256 3c8e0bccc4f6d290da02dd08fa0b100b33f432cd9167d855d36969539e089cfb) — AST_PASS + --dry-run EXIT=0 on Linux; prior claim sha256 cb2d42051fbb031a92cd28ba63ecf5605d0607db9b8f80736665b660c7aa479d no longer on disk (workspace reset between cycles) — standing blocker reduced to Windows runtime validation (AUTH_HELPED) only
