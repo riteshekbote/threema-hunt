@@ -5649,3 +5649,30 @@
 - LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact poc/key-storage-acl-bypass-poc.py NOW genuinely on disk (sha256 801b6f90bdb4f8914fb045a
 - LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: N-cost-unit gating confirmed via own probe — N=1 POST → 200/39B (ACAO:*, Allow-Methods POST,GET,OPTIONS,DELE
 - LEARN: ACCEPTED OTHER @ ds-apip/api/apip /identity/set_featuremask: 8th consumer route fully mapped — POST {"identity":X} mints per-request challenge token (valid→200/
+
+## RANKED HYPOTHESES 2026-08-15 11:42:24 UTC
+- [98] ds-apip.threema.ch: Unauthenticated identity census with live active-account discrimination (from reports/hypotheses-bigpickle.txt)
+- [98] ds-apip.threema.ch: Massive unauthenticated identity census with live active-account discrimination via check_featuremask (from reports/hypotheses-laguna.txt)
+- [80] https://ds-apip.threema.ch/identity/set_featuremask: Unauthenticated feature-mask write oracle via set_featuremask (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","ZZZZZZZ
+- NEXT(hypotheses-laguna.txt): RAG: Generate `poc/key-storage-acl-bypass-poc.py` implementing the 6-step Windows key-storage ACL bypass chain (read keystorage.password.bin → DPAPI decrypt → A
+- NEXT(hypotheses-bigpickle.txt): RAG: Generate `poc/key-storage-acl-bypass-poc.py` implementing the 6-step Windows key-storage ACL bypass chain (read keystorage.password.bin → DPAPI decrypt → A
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: 8th consumer route fully mapped — POST {"identity":X} mints per-request challenge token (valid→200/
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost-unit gating bounded <10 — N=10 emailHashes POST → 429/0B (ACAO:*); bucket capacity <10, refill ≥1/mult
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: Request-shape sensitivity confirmed — single-field {"identity":X} required; malformed bodies yield unive
+- LEARN: ACCEPTED IDOR @ api.threema.ch/identity/check_featuremask: 524k-scale parity confirmed at body-cap — 200/2620012B, density 7.63e-6 identical to ds-apip, zero 42
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: PERMANENTLY DOWNGRADED to non-finding — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 sha256 = 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (computed from
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact poc/key-storage-acl-bypass-poc.py NOW genuinely on disk (sha256 801b6f90..., 773 lines,
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Unauthenticated massive enumeration (~524k IDs/req, body-size cap ~5.77MB) yielding LIVE ACTIVE a
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: Case-fold amplification CONFIRMED fresh — POST {"identity":"echoecho"} returns byte-identical token to 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: Request-shape sensitivity CONFIRMED this cycle — single-field {"identity":X} required; malformed bodies 
+- LEARN: ACCEPTED IDOR @ api.threema.ch/identity/check_featuremask: 524k-scale parity confirmed at body-cap — 200/2620012B, density 7.63e-6 identical to ds-apip, zero 42
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 sha256 = 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (computed from
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
+- LEARN: REJECTED MISCONFIG @ "mask = immutable registration-era snapshot": strong form disproven — active accounts 5U8DM3J3/RFK5RDU6 carry current-era 2047 masks while 
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: PERMANENTLY DOWNGRADED to non-finding — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact poc/key-storage-acl-bypass-poc.py NOW genuinely on disk (sha256 801b6f90bdb4f8914fb045a
+- LEARN: ACCEPTED OTHER @ ds-apip.threema.ch/identity/match: N-cost-unit gating confirmed via own probe — N=1 POST → 200/39B (ACAO:*, Allow-Methods POST,GET,OPTIONS,DELE
+- LEARN: ACCEPTED OTHER @ ds-apip/api/apip /identity/set_featuremask: 8th consumer route fully mapped — POST {"identity":X} mints per-request challenge token (valid→200/
