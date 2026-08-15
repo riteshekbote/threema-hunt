@@ -16741,3 +16741,32 @@ verify_steps: AUTH_HELPED: run poc/key-storage-acl-bypass-poc.py on a Windows ho
 impact: local attacker recovers full Threema identity (Ed25519) + message DB key (SQLCipher); CVSS 3.1: 7.1 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N
 testability: AUTH_HELPED
 [NEXT] PROBE: `curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" --data-binary @<400k-ID-body> https://ds-apip.threema.ch/identity/check_featuremask` (single 400k-ID census draw, seed 2026081560) then `curl -s -X POST -d '{"identities":["E2R7XM9D","8FCAXYHF","6B2EP44T","NWPCDUVH","YBB6KE9B","998PU7E7"]}' https://ds-apip.threema.ch/identity/check` — quantify type:1 density and legacy-mask distribution (targets the type:1 fingerprinting hypothesis); ≤1 rps, 2 requests.
+## 2026-08-15 16:16:20 UTC [chat] (model bigpickle)
+[HYP] Work-org and legacy-client fingerprinting at census scale via type/mask discriminators
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/check_featuremask + /identity/check (sibling parity 3 hosts)
+confidence: 68
+reasoning: 2 census draws this cycle (+900k IDs) recovered 9 identities; type:1 share stabilizes at ~3.6% (2/55, both active mask:2047); mask:0 newly observed (6J6HN87K dormant) — legacy-client mask distribution now spans 0→2047; 5th live active account (M5NANUU2) recovered; zero 429, CORS `*`.
+evidence_needed: ≥3 more type:1 accounts across further draws to confirm Work-org density estimate; a mask:0 account re-read to confirm it is a registered-but-featureless identity, not a masking artifact.
+verify_steps: PASSIVE: single 400k-ID POST `{"identities":[...]}` (new seed) to ds-apip.threema.ch/identity/check_featuremask, then single POST `{"identities":<hits>}` to /identity/check for state/type/mask classification; ≤1 rps, 2 requests.
+impact: attacker maps Work-org members (type:1) and legacy-client accounts (mask<1024) at scale without auth or rate limiting → targeted BEC-style phishing; severity: medium
+testability: PASSIVE
+[HYP] Unauthenticated activity-churn surveillance of known identities
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/check (sibling parity 3 hosts)
+confidence: 60
+reasoning: 10-identity cohort read this cycle byte-stable — all 6 seeded accounts state:0 (7VVR9AX2 10th consecutive), 3 new census hits state:1, ZZZZZZZZ mask:null; prior 1→0 flip (7VVR9AX2) observed across cycles; zero rate limit, CORS `*`.
+evidence_needed: persistent state flips in the stable cohort across successive weekly reads demonstrating time-series surveillance as a reproducible primitive.
+verify_steps: PASSIVE: single POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","M5NANUU2","8FCAXYHF","ZZZZZZZZ","ECHOECHO"]}` to ds-apip.threema.ch/identity/check weekly; record states; ≤1 rps, 1 req/cycle.
+impact: attacker silently tracks account activation/deactivation over time without auth — enables targeted follow-on phishing against accounts flipping to active; severity: medium
+testability: PASSIVE
+[HYP] Windows key-storage ACL bypass — keystorage.bin/keystorage.password.bin recoverable by same-user process
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop (fs.ts:41, key-storage/index.ts:559, electron-main.ts:923-946, inner/v3.ts:65-70, sqlite.ts:237-240)
+confidence: 85
+reasoning: 6-path RAG chain re-verified on GitHub `stable`; `fileModeInternalObjectIfPosix()` returns `{}` on win32 → no ACL; DPAPI password blob + raw SQLCipher PRAGMA key recoverable by same-user process; PoC artifact authored + ast.parse PASS + --dry-run EXIT 0.
+evidence_needed: Windows runtime validation: read keystorage.password.bin → safeStorage decrypt → Argon2id → XSalsa20-Poly1305 → databaseKey → PRAGMA key → sqlite dump; `icacls data\keystorage.bin` shows no ACL.
+verify_steps: AUTH_HELPED: run poc/key-storage-acl-bypass-poc.py on a Windows host with threema-desktop installed; verify Ed25519 ck + databaseKey recovery and icacls output.
+impact: local attacker recovers full Threema identity (Ed25519) + message DB key (SQLCipher); CVSS 3.1: 7.1 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N
+testability: AUTH_HELPED
+[NEXT] PROBE: single 400k-ID census draw (seed 2026081562) via `curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" --data-binary @<body> https://ds-apip.threema.ch/identity/check_featuremask`, then `curl -s -X POST -d '{"identities":["<all hits>","M5NANUU2","8FCAXYHF","7VVR9AX2","ZZZZZZZZ"]}' https://ds-apip.threema.ch/identity/check` — extend type:1 density estimate and confirm mask:0 account is a genuine registered-featureless identity; ≤1 rps, 2 requests.
