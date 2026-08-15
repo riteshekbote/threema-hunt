@@ -12401,3 +12401,4 @@ testability: PASSIVE
 [RISK] sync: 35 reason: mediator/rendezvous uniform 403 with high-entropy paths; WSS requires auth; work directory (ds-apip-work) requires auth even for CORS preflight (OPTIONS→401); no browser-viable credentialed path
 [RISK] safe: 55 reason: safe-{01,1a,1b,02,00} HSTS/Expect-CT absent on GET 400 cred-gated endpoint but present on OPTIONS 204; HTTP Basic Auth + route-existence oracle (400-vs-404) + credentialed cross-origin CORS (Allow-Headers: Authorization, no ACAC); all 5 hosts behind single IP 203.56.112.231
 [RISK] desktop-src: 70 reason: key-storage ACL bypass on Windows now has PoC artifact generated + syntax-verified + 6-path RAG chain verified on GitHub stable (was 65); remaining gap = Windows runtime validation only; BrowserWindow sandbox unset + nodeIntegrationInWorker:true (TODO DESK-79, accepted surface, rejected as standalone); crypto.ts:223 benchmark dummy REJECTED
+## 2026-08-15 09:38:24 UTC [desktop] (model laguna)
