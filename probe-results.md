@@ -1855,3 +1855,17 @@ https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; cha
 https://safe-01.threema.ch/backups/$(python3 -> HTTP 400
 https://ds-apip.threema.ch/identity/match -> HTTP 400
 https://ds-apip.threema.ch/identity/check -> HTTP 500
+
+## 2026-08-15 10:27:49 UTC
+https://ds-apip.threema.ch/identity/check_featuremask: -> HTTP 404
+https://ds-apip.threema.ch/identity/match_token: -> HTTP 404
+https://api.threema.ch/identity/check_featuremask: -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_priv: -> HTTP 404
+https://ds-apip.threema.ch/identity/check: -> HTTP 404
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/EchoEcho -> HTTP 404
+https://api.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/match -> HTTP 400
+https://ds-apip.threema.ch/identity/check -> HTTP 500
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
