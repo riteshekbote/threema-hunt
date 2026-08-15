@@ -14194,3 +14194,33 @@ evidence_needed: a second type:1 ID from census draws, or correlation of DZ34BVD
 verify_steps: PASSIVE — periodic 12-ID cohort re-POST to /identity/check ≤1 rps; recheck every new census hit for type:1 (0/2 this cycle).
 impact: account-class dimension on accepted census → restricted/legacy-account identification and targeted attribution. CVSS 5.3 Medium.
 testability: PASSIVE
+## 2026-08-15 05:50:25 UTC [chat] (model bigpickle)
+[HYP] Census Poisson-stability → registered-population bound + live-active-share primitive
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check_featuremask (api/apip parity)
+confidence: 88
+reasoning: 11 draws mean 6.65e-6 (SEM/mean 10.1%); cumulative 37/5.396M ≈ 6.86e-6 → ~1.9e7 registered at 36^8; 5 confirmed state:0/mask2047 live accounts; this cycle's cohort re-check byte-stable on all 3 hosts; zero 429, CORS `*`.
+evidence_needed: 12th draw + ≥10 cumulative state:0 readings for active-share bound.
+verify_steps: PASSIVE — 12th seeded 400k-ID draw on apip.threema.ch ≤1 rps (seed 2026081505, body ≈4.8MB < 5.77MB cap); cross-check every hit via POST /identity/check ≤1 rps; tally type/state/mask.
+impact: attacker sizes registered population and measures live-active share without auth → targeted-phishing census + population metric. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] state-transition oracle: state:1→0 flips are server-persisted and observable
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check (siblings api/apip)
+confidence: 80
+reasoning: 7VVR9AX2 now state:0 for 3rd+ consecutive independent reading (was state:1 at recovery); 16-ID cohort otherwise byte-identical; states persist server-side per-account independent of request origin.
+evidence_needed: a second account flip, or reverse 0→1 flip, to establish directionality; correlate with mask change.
+verify_steps: PASSIVE — periodic 16-ID cohort re-POST to /identity/check ≤1 rps; flag any state/mask change; new census hits cross-checked for live→dormant transitions.
+impact: attacker detects accounts activating/deactivating in near-real-time → opportunistic targeting. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] fetch_priv mints token iff registered; 88B bucket = never-registered or revoked
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv (siblings api/apip)
+confidence: 87
+reasoning: 37/37 registered cohort IDs mint tokens (134-137B); never-registered ZZZZZZZZ→88B; registered/not discrimination independent of type/state/mask; request-shape sensitivity (`{"identity":X}` single-field) documented.
+evidence_needed: revoked control identity to split revoked vs never-registered inside 88B bucket (account lifecycle, AUTH_HELPED).
+verify_steps: PASSIVE — periodic cohort re-POST ≤1 rps; flag any registered ID dropping to 88B (revocation canary).
+impact: third independent registered/not oracle from distinct handler + revocation detection with a control. CVSS 5.3 Medium (passive portion).
+testability: PASSIVE
+[NEXT] PROBE: 12th independent seeded 400k-ID census draw on apip.threema.ch/identity/check_featuremask (host-rotate to apip, seed 2026081505, one POST body ≈4.8MB < 5.77MB cap, ≤1 rps), cross-check every hit via POST /identity/check {"identities":[hits]} ≤1 rps; re-verify 7VVR9AX2 (4th state:0 reading) + DZ34BVDV (type:1 canary); any new type:1 validates account-subclass (N=37→38+).
+[RISK] chat: 45 — DNS shard map complete (sharp 0x7f/0x80, no .1/.2/IPv6), TCP 5222/443 0-byte posture both nodes, TLS close-immediate no cert; passive channel formally closed | web: 90 — census oracle (check_featuremask ~524k IDs/req, 11-draw Poisson-stable 6.86e-6, ~1.9e7 pop bound, CORS `*`, zero 429), 3 independent registered/not oracles (fetch_bulk/fetch_priv/match_token), 5 live-active accounts, state-flip primitive live, type:1 subclass 1/37 | sync: 40 — mediator/rendezvous WSS gated 403 all paths; no reachable surface | safe: 30 — credential-gated (400 no-creds), CORS `*` preflight only, HSTS gap on GET 400 | desktop-src: 40 — two accepted source misconfigs (Windows keystorage ACL bypass, electron sandbox unset + nodeIntegrationInWorker) with no remote path; PoC artifact filesystem-verified ABSENT (21 cycles)
