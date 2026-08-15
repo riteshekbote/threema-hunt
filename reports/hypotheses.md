@@ -6520,3 +6520,20 @@
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost-unit gating bounded <10 (N=10 → 429/0B; >3d idle N=1 → 200/39B) — email→identity throughput ≤1-9 hashe
 - LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 (~2.8%) below ≥3-draw threshold — not firm enough to claim a fingerprint class
 - LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH confirms ABSENT (all 20+ KB sha256 claims DISPROVEN) — source ver
+
+## RANKED HYPOTHESES 2026-08-15 22:17:25 UTC
+- [95] https://ds-apip.threema.ch/identity/check_featuremask: Cross-host distributed identity census with active-account discrimination (from reports/hypotheses-nemotron3.txt)
+- [65] https://api.threema.ch/identity/check_featuremask: check_featuremask census density re-estimation after draw-69 outlier (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2Y
+- NEXT(hypotheses-bigpickle.txt): PROBE: census draw 70 — single 400k-ID seeded POST `{"identities":[400k seeded random base32 IDs]}` to https://ds-apip.threema.ch/identity/check_featuremask (ro
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 9th token-mint existence oracle (valid→200/133-136B token + constant tokenRespKeyPub, invalid→
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 8/8 census identities return distinct genuine pubkeys (featureLevel:3, mask:2047, state:0; 8FCAXYHF type
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200 (method-handling divergence from check_featuremask/check which return 500 on GET)
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below the ≥3-draw threshold; not firm enough to claim a fingerprint class
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ sha256 claims; RAG s
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Confirmed via direct WebFetch on GitHub `stable` — `sandbox` UNSET (not `false`), `// TO
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 14th census draw (400k IDs, seed 2026081568) → 3 hits/400k = 7.5e-6 density, all dormant (state:1
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 14th census draw (400k IDs, seed 2026081568) → 3 hits/400k = 7.5e-6 density, all dormant (state:1
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 15th census draw (400k IDs, seed 2026081570, ds-apip rotate-back) → 4 hits/400k = 10e-6 density; 
+- LEARN: ACCEPTED density series: draws 68/69/70 = 3/9/4 hits (7.5/22.5/10 e-6) → only 1/3 ≥6 → draw-69 outlier NOT supported; density stays ~7.5-10e-6, no upward revisi
+- LEARN: CHANGED legacy-active subclass: TSBWUXYH carries current-era mask 2047; NHCNWZRH (mask 255) remains sole legacy-active example (1/10 = 10%, below 20% materialit

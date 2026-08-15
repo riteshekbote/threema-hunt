@@ -3742,3 +3742,5 @@
 - CHANGED poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH still ABSENT (`ls poc/` → No such file); all 20+ KB sha256 claims DISPROVEN — source verification ≠ artifact generation. Fixed claim (sha256 
 - CHANGED type:1 Work-org density: 2/72 (~2.8%), below ≥3-draw threshold — REJECTED as fingerprint class
 - CHANGED State-flip primitive: 7VVR9AX2 held state:0 across 14+ reads after single 1→0 flip — still single-event observation
+
+## 2026-08-15 22:17:25 UTC
