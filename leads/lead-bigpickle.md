@@ -17951,3 +17951,34 @@ evidence_needed: ≥3 type:1 observations (or 3 type:1-carrying draws) to distin
 verify_steps: PASSIVE: on the next scheduled census draw(s), annotate every hit via `{"identities":[<hits>]}` to /identity/check and tally type; stop once type:1 ≥3 (class firmed) or total draws ≥24 without 3rd (class falsified); ≤1 req/cycle
 impact: attacker fingerprints Work-org accounts for targeted BEC/phishing; severity low-medium
 testability: PASSIVE
+## 2026-08-15 20:49:45 UTC [chat] (model bigpickle)
+[HYP] Windows key-storage ACL bypass enabling offline identity key + database extraction
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/fs.ts:41, key-storage/index.ts:_writeOrOverrideFile, electron/electron-main.ts:944-945)
+confidence: 95
+reasoning: fileModeInternalObjectIfPosix() returns `{}` on win32 → keystorage.bin + keystorage.password.bin written without ACL; inner/v3.ts:65-70 exposes identityData.ck (Ed25519) + databaseKey; sqlite.ts:237-240 raw SQLCipher PRAGMA key; 6-path RAG chain re-verified on GitHub stable
+evidence_needed: runtime confirmation on Windows (icacls permissive DACL + DPAPI password recovery + ck/databaseKey extraction from threema.sqlite)
+verify_steps: AUTH_HELPED: run `python3 poc/key-storage-acl-bypass-poc.py` on authorized Windows host with threema-desktop installed and logged in; inspect icacls output, safeStorage decrypt, SQLCipher PRAGMA key open
+impact: local attacker recovers full Threema identity (Ed25519) + message DB key (SQLCipher); CVSS 3.1 7.1 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N; severity high
+testability: AUTH_HELPED
+[HYP] Cross-host distributed identity census with active-account discrimination
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask (sibling parity 3 hosts)
+confidence: 95
+reasoning: draw 65 recovered 8th distinct live-active account 4CRS4BVA (state:0, mask:2047); density series 7-draw cumulative ~7.4e-6 all within Poisson noise; tri-state oracle (null/state:1/state:0) stable, ~524k IDs/req body-size cap, zero 429
+evidence_needed: none for primitive (proven); open item = type:1 Work-org class (needs ≥3 type:1 observations across draws; currently 2/76)
+verify_steps: PASSIVE: single 400k-ID seeded POST to check_featuremask, annotate hits via /identity/check, tally type; stop at type:1≥3 (firmed) or ≥24 draws without (falsified); ≤1 req/cycle
+impact: attacker enumerates and discriminates live vs dormant vs never-registered identities at scale for targeted phishing; severity medium
+testability: PASSIVE
+[HYP] Unauthenticated activity-churn surveillance of known identities
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/check (sibling parity 3 hosts)
+confidence: 62
+reasoning: 12-ID cohort byte-stable (8 active state:0, HHH24BPY/DZ34BVDV dormant state:1); 7VVR9AX2 held state:0 across 14+ reads after single 1→0 flip; zero rate limit
+evidence_needed: a second persistent state flip in the stable cohort to prove time-series surveillance as reproducible primitive (still single-event)
+verify_steps: PASSIVE: single weekly POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2YB","M5NANUU2","8FCAXYHF","E7UUX69V","4CRS4BVA","HHH24BPY","DZ34BVDV","ECHOECHO"]}` to ds-apip.threema.ch/identity/check; compare index-aligned
+impact: attacker silently tracks activation/deactivation without auth — follow-on phishing on flipped-to-active accounts; severity medium
+testability: PASSIVE
+[FINAL]
+[NEXT] PROBE: census draw 66 — single 400k-ID seeded POST `{"identities":[400k random IDs]}` to https://ds-apip.threema.ch/identity/check_featuremask, then annotate every hit with a single /identity/check POST to tally type (target: type:1 ≥3 to firm the Work-org class, or continue density series); ≤2 total requests, spaced >3s
+[RISK] chat: 15 — passive channel formally closed; DNS shard map complete; no in-band leak without authenticated login frame | web: 25 — work/broadcast/gateway/billing surfaces enumerated; X-Api-Key and /public/* divergences are non-findings; all live routes auth-gated | sync: 20 — mediator/rendezvous uniform 403, WSS handshake requires auth, DNS split mapped | safe: 35 — 5 hosts behind single IP; credentialed CORS + Basic-auth route oracle + HSTS gap confirmed but read requires backupKey | desktop-src: 60 — key-storage ACL bypass at 95 confidence with full source chain; severity high; only blockers are absent PoC artifact and Windows runtime validation
