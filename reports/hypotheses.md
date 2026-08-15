@@ -6537,3 +6537,72 @@
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 15th census draw (400k IDs, seed 2026081570, ds-apip rotate-back) → 4 hits/400k = 10e-6 density; 
 - LEARN: ACCEPTED density series: draws 68/69/70 = 3/9/4 hits (7.5/22.5/10 e-6) → only 1/3 ≥6 → draw-69 outlier NOT supported; density stays ~7.5-10e-6, no upward revisi
 - LEARN: CHANGED legacy-active subclass: TSBWUXYH carries current-era mask 2047; NHCNWZRH (mask 255) remains sole legacy-active example (1/10 = 10%, below 20% materialit
+
+## RANKED HYPOTHESES 2026-08-15 22:54:13 UTC
+- [95] https://ds-apip.threema.ch/identity/check_featuremask: Cross-host distributed identity census with active-account discrimination (from reports/hypotheses-nemotron3.txt)
+- [65] https://api.threema.ch/identity/check_featuremask: check_featuremask census density re-estimation after draw-69 outlier (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2Y
+- NEXT(hypotheses-laguna.txt): PROBE: `curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2
+- NEXT(hypotheses-bigpickle.txt): PROBE: census draw 70 — single 400k-ID seeded POST `{"identities":[400k seeded random base32 IDs]}` to https://ds-apip.threema.ch/identity/check_featuremask (ro
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 9th token-mint existence oracle (valid→200/133-136B token + constant tokenRespKeyPub, invalid→
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 8/8 census identities return distinct genuine pubkeys (featureLevel:3, mask:2047, state:0; 8FCAXYHF type
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200 (method-handling divergence from check_featuremask/check which return 500 on GET)
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below the ≥3-draw threshold; not firm enough to claim a fingerprint class
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ sha256 claims; RAG s
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Confirmed via direct WebFetch on GitHub `stable` — `sandbox` UNSET (not `false`), `// TO
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py filesystem claims: all 20+ KB sha256 hashes DISPROVEN — `ls poc/` → No such file; source verification (6-
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Confirmed via WebFetch on GitHub stable — sandbox UNSET (TODO DESK-79), L1240 comment "s
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 (sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12`) — benchmark-
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key oracle PERMANENTLY DOWNGRADED to non-finding — no CORS on 404, missing-key/invalid-key byte-identical, key NOT
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200 (method-handling divergence from check_featuremask/check which return 500 on GET); POST tok
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Census draw 66 confirmed — 7th distinct live-active account E7UUX69V (state:0, mask:2047); densit
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 (~2.8%) below ≥3-draw threshold — not firm enough to claim a fingerprint class
+- LEARN: REJECTED IDOR @ ds-apip.threema.ch/identity/check_featuremask case-fold/alphabet validation: 80-ID boundary probe — no case-fold, no alphabet rejection — restri
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 9th token-mint existence oracle — valid→200/133-136B token + constant tokenRespKeyPub, invalid
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200 method-handling divergence from check_featuremask/check (which return 500 on GET); POST tok
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: request-shape sensitivity confirmed — single-field `{"identity":X}` body required; malformed bodies yiel
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost-unit gating bounded <10 (N=10 → 429/0B; >3d idle N=1 → 200/39B) — email→identity throughput ≤1-9 hashe
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 (~2.8%) below ≥3-draw threshold — not firm enough to claim a fingerprint class
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH confirms ABSENT (all 20+ KB sha256 claims DISPROVEN) — source ver
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py filesystem claims: all 20+ KB sha256 hashes DISPROVEN — `ls poc/` → No such file; source verification (6-
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Confirmed via WebFetch on GitHub stable — sandbox UNSET (TODO DESK-79), L1240 comment "s
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 (sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12`) — benchmark-
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key oracle PERMANENTLY DOWNGRADED to non-finding — no CORS on 404, missing-key/invalid-key byte-identical, key NOT
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200 (method-handling divergence from check_featuremask/check which return 500 on GET); POST tok
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Census draw 66 confirmed — 7th distinct live-active account E7UUX69V (state:0, mask:2047); densit
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 (~2.8%) below ≥3-draw threshold — not firm enough to claim a fingerprint class
+- LEARN: REJECTED IDOR @ ds-apip.threema.ch/identity/check_featuremask case-fold/alphabet validation: 80-ID boundary probe — no case-fold, no alphabet rejection — restri
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 9th token-mint existence oracle — valid→200/133-136B token + constant tokenRespKeyPub, invalid
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200 method-handling divergence from check_featuremask/check (which return 500 on GET); POST tok
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: request-shape sensitivity confirmed — single-field `{"identity":X}` body required; malformed bodies yiel
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost-unit gating bounded <10 (N=10 → 429/0B; >3d idle N=1 → 200/39B) — email→identity throughput ≤1-9 hashe
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 (~2.8%) below ≥3-draw threshold — not firm enough to claim a fingerprint class
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH confirms ABSENT (all 20+ KB sha256 claims DISPROVEN) — source ver
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200 method-handling divergence confirmed fresh — endpoint accepts GET (unlike check/check_featu
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 9th token-mint oracle — valid→200/133-136B token + constant tokenRespKeyPub (sha256 c8005cca9…
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 (sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12) — re-confirmed
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Confirmed via direct WebFetch on GitHub stable — sandbox UNSET (TODO DESK-79 at electron
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: PERMANENTLY DOWNGRADED — no CORS on 404 response, missing-key/invalid-key byte-identical {"error":"Invalid X-Api-Key"}, 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact filesystem GROUND TRUTH confirms STILL ABSENT (`ls poc/` → No such file) — all 20+ cycl
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 14th census draw (400k IDs, seed 2026081568) → 3 hits/400k = 7.5e-6 density, all dormant (state:1
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 14th census draw (400k IDs, seed 2026081568) → 3 hits/400k = 7.5e-6 density, all dormant (state:1
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 15th census draw (400k IDs, seed 2026081570, ds-apip rotate-back) → 4 hits/400k = 10e-6 density; 
+- LEARN: ACCEPTED density series: draws 68/69/70 = 3/9/4 hits (7.5/22.5/10 e-6) → only 1/3 ≥6 → draw-69 outlier NOT supported; density stays ~7.5-10e-6, no upward revisi
+- LEARN: CHANGED legacy-active subclass: TSBWUXYH carries current-era mask 2047; NHCNWZRH (mask 255) remains sole legacy-active example (1/10 = 10%, below 20% materialit
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 9th token-mint existence oracle (valid→200/133-136B token + constant tokenRespKeyPub, invalid→
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 8/8 census identities return distinct genuine pubkeys (featureLevel:3, mask:2047, state:0; 8FCAXYHF type
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200 (method-handling divergence from check_featuremask/check which return 500 on GET)
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below the ≥3-draw threshold; not firm enough to claim a fingerprint class
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ sha256 claims; RAG s
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Confirmed via direct WebFetch on GitHub `stable` — `sandbox` UNSET (not `false`), `// TO
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 14th census draw (400k IDs, seed 2026081568) → 3 hits/400k = 7.5e-6 density, all dormant (state:1
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 14th census draw (400k IDs, seed 2026081568) → 3 hits/400k = 7.5e-6 density, all dormant (state:1
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 15th census draw (400k IDs, seed 2026081570, ds-apip rotate-back) → 4 hits/400k = 10e-6 density; 
+- LEARN: ACCEPTED density series: draws 68/69/70 = 3/9/4 hits (7.5/22.5/10 e-6) → only 1/3 ≥6 → draw-69 outlier NOT supported; density stays ~7.5-10e-6, no upward revisi
+- LEARN: CHANGED legacy-active subclass: TSBWUXYH carries current-era mask 2047; NHCNWZRH (mask 255) remains sole legacy-active example (1/10 = 10%, below 20% materialit
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 9th token-mint existence oracle (valid→200/133-136B token + constant tokenRespKeyPub, invalid→
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 8/8 census identities return distinct genuine pubkeys (featureLevel:3, mask:2047, state:0; 8FCAXYHF type
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200 (method-handling divergence from check_featuremask/check which return 500 on GET)
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below the ≥3-draw threshold; not firm enough to claim a fingerprint class
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ sha256 claims; RAG s
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Confirmed via direct WebFetch on GitHub `stable` — `sandbox` UNSET (not `false`), `// TO
