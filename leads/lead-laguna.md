@@ -15889,3 +15889,4 @@ testability: PASSIVE
 [RISK] sync: 20 — mediator/rendezvous uniform 403 on HTTPS, WSS handshake requires auth, DNS split mapped, no passive in-band divergence
 [RISK] safe: 55 — safe-*.threema.ch (5 hosts, single IP 203.56.112.231) expose credential-gated backup API with HSTS/Expect-CT header inconsistency (present on OPTIONS, absent on GET 400), HTTP Basic Auth + route-existence oracle (400 vs 404), credentialed cross-origin CORS stable
 [RISK] desktop-src: 80 — threema-desktop key-storage ACL bypass on Windows confirmed via 6-path RAG chain (fs.ts:41, index.ts:559, electron-main.ts:923-946, inner/v3.ts:65-70, sqlite.ts:237-240, crypto.ts:53-113); keystorage.bin + keystorage.password.bin written without ACL; BrowserWindow sandbox unset + nodeIntegrationInWorker: true (TODO DESK-79); PoC artifact must be authored for Windows runtime validation (AUTH_HELPED blocker)
+## 2026-08-15 22:15:22 UTC [desktop] (model laguna)
