@@ -11111,3 +11111,4 @@ testability: AUTH_HELPED
 [FINAL] 3. threema-desktop Windows key-storage ACL bypass enables same-user Ed25519 + SQLCipher key extraction (confidence 95, AUTH_HELPED)
 [NEXT] PROBE: `curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ","ECHOECHO"]}' https://ds-apip.threema.ch/identity/check_featuremask` — confirm live active accounts (state:0, mask 2047 for 5U8DM3J3+RFK5RDU6) + tri-state oracle + CORS `*` on all 3 prod hosts; followed by 524000-ID random batch to confirm body-size ceiling + zero 429
 ## 2026-08-15 00:02:45 UTC [desktop] (model laguna)
+## 2026-08-15 00:42:02 UTC [desktop] (model laguna)
