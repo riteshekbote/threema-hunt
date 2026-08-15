@@ -1,43 +1,42 @@
-## 2026-08-15 04:03:51 UTC [web] (model nemotron3)
-[NEW] api.threema.ch/identity/check_featuremask: 524k-scale parity confirmed (200/2620012B, density 7.63e-6, zero 429, CORS *)
-[NEW] api.threema.ch/identity/check_featuremask: Fresh census recovered 4 registered IDs (PJNEKNJN/63, 6F5S79A3/2047, Y8FV92TU/31, YUWB4V3M/31; all state:1 dormant)
-[NEW] all 3 hosts/identity/fetch_priv: 3-host parity re-established (registered→135-137B token, never-registered→88B, CORS *)
-[NEW] Mask semantics refined: dormant state:1 account 6F5S79A3 carries mask 2047 → mask = last-used client capability, independent of activity state
-[NEW] ds-apip.threema.ch/identity/match_token: Case-fold amplification confirmed fresh (POST echoecho → byte-identical token to ECHOECHO, constant tokenRespKeyPub)
-[NEW] ds-apip.threema.ch/identity/fetch_priv: 3-host sibling parity confirmed (valid ECHOECHO → 200/135B token on all 3 hosts)
-[NEW] ds-apip.threema.ch/identity/check_featuremask: Live active accounts confirmed (5U8DM3J3 + RFK5RDU6 → featureMask 2047, state:0 on all 3 prod hosts)
-[NEW] 7th census draw (ds-apip.threema.ch/identity/check_featuremask, seed 2026081501, 400k uniq IDs, body 4800016B < 5.77MB cap): 2 hits/400k = 5.0e-6 → VK24VB77 (mask 255), RB75KK42 (mask 31); 200/2000015
-[NEW] Cross-check via /identity/check (all 3 hosts): VK24VB77 state:1/type:0/mask255 dormant; RB75KK42 state:1/type:0/mask31 dormant; both mint fetch_priv tokens (134B/135B) → registered-verdict cohort now 
-[NEW] 7VVR9AX2 now reports state:0 (active) in cross-check vs prior "dormant" characterization — possible state flip 1→0 or prior mislabel; add to state-change watchlist.
-[CHANGED] ds-apip.threema.ch/identity/check_featuremask: Transient HTTP 500s (20:27-20:54 UTC) fully recovered to 200/25B
-[CHANGED] ds-apip.threema.ch/identity/check: Transient HTTP 500s fully recovered to 200/76B with 10000-ID cap
-[CHANGED] ds-apip.threema.ch/identity/fetch_priv: Returns 88B "invalid-identity" for BOTH valid and invalid identities (contradicts prior 137B valid token claim)
+## 2026-08-15 04:37:53 UTC [web] (model nemotron3)
+[NEW] 8th census draw on api.threema.ch/identity/check_featuremask: 400k uniq IDs, 3 hits (7.5e-6 density) → UCVUB4ZR (dormant/mask63), 7V7T2NKR (ACTIVE/state:0/mask2047), 53C3P84N (dormant/mask15)
+[NEW] 7VVR9AX2 state-flip 1→0 confirmed on 2nd consecutive cross-check cycle → state-change primitive live
+[NEW] 7th census draw recovered 2 dormant accounts (VK24VB77/mask255, RB75KK42/mask31) → registered cohort N=26
+[NEW] fetch_priv request-shape sensitivity: single-field `{"identity":X}` required; malformed bodies yield universal 88B "invalid-identity"
+[NEW] All 3 hosts /identity/fetch_priv parity re-established: registered→135-137B token, never-registered→88B, CORS *
+[NEW] Mask semantics refined: dormant state:1 account 6F5S79A3 carries mask 2047 → mask = last-used client capability independent of activity state
+[NEW] ds-apip.threema.ch/identity/match_token case-fold amplification fresh confirmation: POST echoecho → byte-identical token to ECHOECHO
+[NEW] ds-apip.threema.ch/identity/check_featuremask live active accounts confirmed: 5U8DM3J3 + RFK5RDU6 → featureMask 2047, state:0 on all 3 prod hosts
+[NEW] api.threema.ch/identity/check_featuremask fresh census: 4 registered IDs (PJNEKNJN/63, 6F5S79A3/2047, Y8FV92TU/31, YUWB4V3M/31; all state:1 dormant)
+[CHANGED] ds-apip.threema.ch/identity/check_featuremask: transient HTTP 500s (20:27-20:54 UTC) fully recovered to 200/25B
+[CHANGED] ds-apip.threema.ch/identity/check: transient HTTP 500s fully recovered to 200/76B with 10000-ID cap
+[CHANGED] ds-apip.threema.ch/identity/fetch_priv: returns 88B "invalid-identity" for BOTH valid and invalid (contradicts prior 137B valid token claim)
 [CHANGED] work.threema.ch/api/v1: AUTH finding downgraded to non-finding (no CORS on 404, missing-key/invalid-key byte-identical)
-[CHANGED] billing.threema.ch: Serves static assets (jQuery 3.7.1 + CSS) with full security headers; 404 page lacks headers
-[CHANGED] poc/key-storage-acl-bypass-poc.py: Filesystem GROUND TRUTH still ABSENT (20+ cycle KB/filesystem contradiction)
+[CHANGED] billing.threema.ch: serves static assets (jQuery 3.7.1 + CSS) with full security headers; 404 page lacks headers
+[CHANGED] poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH still ABSENT (20+ cycle KB/filesystem contradiction)
 [CHANGED] threema-desktop key-storage (Windows): RAG source chain fully verified (6 paths on GitHub stable)
-[PRIO] https://ds-apip.threema.ch/identity/check_featuremask, 8.9, attack_surface:10 business_value:9 tech_exposure:8 gate_ease:10 cloud_surface:5 freshness:9
-[PRIO] https://ds-apip.threema.ch/identity/match_token, 7.6, attack_surface:8 business_value:7 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:8
-[PRIO] threema-desktop key-storage (Windows), 6.1, attack_surface:8 business_value:8 tech_exposure:7 gate_ease:3 cloud_surface:0 freshness:6
-[PRIO] https://api.threema.ch/identity/check_featuremask, 7.4, attack_surface:9 business_value:7 tech_exposure:8 gate_ease:10 cloud_surface:5 freshness:8
-[PRIO] https://ds-apip.threema.ch/identity/fetch_priv, 6.9, attack_surface:7 business_value:6 tech_exposure:6 gate_ease:10 cloud_surface:5 freshness:7
+[PRIO] ds-apip.threema.ch/identity/check_featuremask, 8.85, attack=10 business=9 tech=8 gate=10 cloud=5 fresh=9
+[PRIO] ds-apip.threema.ch/identity/check, 7.30, attack=7 business=7 tech=7 gate=10 cloud=5 fresh=7
+[PRIO] ds-apip.threema.ch/identity/match_token, 7.85, attack=8 business=8 tech=7 gate=10 cloud=5 fresh=8
+[PRIO] threema-desktop key-storage (Windows), 6.85, attack=7 business=9 tech=9 gate=4 cloud=2 fresh=7
+[PRIO] ds-apip.threema.ch/identity/fetch_priv, 6.60, attack=6 business=6 tech=6 gate=10 cloud=5 fresh=7
 [HYP] Massive unauthenticated identity enumeration with live active-account discrimination
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/check_featuremask
 confidence: 95
-reasoning: POST accepts ~524k IDs/req (body-size cap ~5.77MB), returns tri-state oracle per identity (mask-null=never-registered, state:1=inactive, state:0=active with current-era 2047 masks), zero 429 across all probes, CORS * on all 3 prod hosts; fresh probe confirms 5U8DM3J3 + RFK5RDU6 as state:0/mask 2047 live active accounts
-evidence_needed: Passive probe confirming 524k-ID batch ceiling and tri-state response schema on all 3 prod hosts
-verify_steps: PASSIVE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","WANRKN9X","ZZZZZZZZ","ECHOECHO"]}' https://ds-apip.threema.ch/identity/check_featuremask — verify 200 + CORS * + featureMask per identity; test 524000/524900/1000000-ID batches for body-size cap; repeat on api.threema.ch + apip.threema.ch for sibling parity
-impact: Unauthenticated massive directory enumeration (~524k IDs/req, no rate limit) with live active-account discrimination and per-identity capability profiling; enables precision targeting of active users. Severity: High (CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
+reasoning: POST accepts ~524k IDs/req (body-size cap ~5.77MB), returns tri-state oracle (mask=null never-registered, mask=legacy dormant, mask=2047/state:0 live active), zero 429 across 8 batch probes, CORS * on all 3 prod hosts, sibling parity byte-identical
+evidence_needed: Passive probe confirming 524k-ID batch returns 200 with featureMasks array including live active accounts (state:0, mask 2047)
+verify_steps: PASSIVE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ","ECHOECHO"]}' https://ds-apip.threema.ch/identity/check_featuremask — verify 200 + featureMasks:[2047,2047,null,9] + CORS *; repeat on api.threema.ch + apip.threema.ch
+impact: Unauthenticated massive enumeration (~524k IDs/req) with live active-account discrimination (state:0, mask 2047) enabling targeted phishing/social engineering; CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N
 testability: PASSIVE
-[HYP] Case-fold amplification on match_token mint path enables identity-existence oracle with browser-viable CORS
+[HYP] Case-fold amplification on match_token mint path enables browser-viable identity-existence oracle
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/match_token
 confidence: 85
-reasoning: POST {"identity":"echoecho"} returns byte-identical token to ECHOECHO (per-request variation, constant tokenRespKeyPub sha256 c8005cca9...); GET /identity/EchoEcho → 404 (case-sensitive); OPTIONS 200 CORS * browser-viable; sibling parity byte-stable on api.threema.ch + apip.threema.ch; client-source absence (match_token NOT in fetch-directory.ts/fetch-work.ts) confirmed
+reasoning: POST {"identity":"echoecho"} returns byte-identical token to ECHOECHO (per-request variation, constant tokenRespKeyPub sha256 c8005cca9...); GET /identity/EchoEcho → 404 (case-sensitive); OPTIONS 200 CORS * browser-viable; sibling parity byte-stable on api.threema.ch + apip.threema.ch; client-source absence confirmed
 evidence_needed: Passive probe confirming case-fold on POST mint path + case-sensitive GET path across all 3 hosts
 verify_steps: PASSIVE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identity":"echoecho"}' https://ds-apip.threema.ch/identity/match_token — verify 200/133B + token + constant tokenRespKeyPub; curl -s -X GET https://ds-apip.threema.ch/identity/EchoEcho — verify 404; curl -s -X OPTIONS -H "Origin: https://evil.com" https://ds-apip.threema.ch/identity/match_token — verify 200 CORS *; repeat on api.threema.ch + apip.threema.ch
-impact: Unauthenticated identity-existence oracle with case-fold amplification on mint path (browser-viable CORS) vs case-sensitive GET lookup; enables cross-origin identity enumeration. Severity: Medium-High (CVSS 3.1: 6.5 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
+impact: Unauthenticated identity-existence oracle with case-fold amplification on mint path (browser-viable CORS) vs case-sensitive GET lookup; enables cross-origin identity enumeration; CVSS 3.1: 6.5 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N
 testability: PASSIVE
 [HYP] Windows key-storage ACL bypass exposes Ed25519 identity key + SQLCipher database key to same-user processes
 class: MISCONFIG
@@ -46,7 +45,7 @@ confidence: 75
 reasoning: 6-path RAG chain verified on GitHub stable: fs.ts:41 returns {} on win32; index.ts:_writeOrOverrideFile spreads fileModeInternalObjectIfPosix()={}; electron-main.ts:934-946 writes keystorage.bin + keystorage.password.bin without ACL; inner/v3.ts:65-70 exposes identityData.ck (Ed25519 32-byte) + databaseKey; crypto.ts:53-113 Argon2id→XSalsa20-Poly1305; sqlite.ts:237-240 raw PRAGMA key. PoC artifact generation remains blocker for runtime validation.
 evidence_needed: Windows runtime validation showing keystorage.bin + keystorage.password.bin readable by same-user process + DPAPI decryption + SQLCipher DB open with extracted databaseKey
 verify_steps: AUTH_HELPED: On Windows host with threema-desktop installed, run PoC to read keystorage.password.bin → DPAPI decrypt → derive databaseKey → open threema.sqlite with PRAGMA key; verify identityData.ck (Ed25519 privkey) extractable
-impact: Local privilege escalation / same-user data theft: full identity private key + message database decryption key recoverable by any same-user process. Severity: High (CVSS 3.1: 7.0 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N)
+impact: Local privilege escalation / same-user data theft: full identity private key + message database decryption key recoverable by any same-user process; CVSS 3.1: 7.0 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N
 testability: AUTH_HELPED
 [PARKED] Windows key-storage ACL bypass PoC artifact generation: confidence 75 but verify_steps require AUTH_HELPED Windows runtime which is not passive-first; PoC artifact still absent on filesystem despite 20+ cycle KB claims
 [PARKED] fetch_priv revocation-state discrimination: confidence 70 but requires known-revoked identity (no passive path) — verify_steps require AUTH_HELPED account lifecycle observation which is out of scope for passive-first
