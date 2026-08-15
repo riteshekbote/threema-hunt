@@ -2901,3 +2901,15 @@
 - CHANGED billing.threema.ch: serves static assets (jQuery 3.7.1 + CSS) with full security headers; 404 page lacks headers
 - CHANGED poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH still ABSENT (20+ cycle KB/filesystem contradiction)
 - CHANGED threema-desktop key-storage (Windows): RAG source chain fully verified (6 paths on GitHub stable)
+
+## 2026-08-15 05:04:56 UTC
+- NEW ds-apip.threema.ch/identity/fetch_bulk: Consistent 200 responses confirmed on POST (was 404 on GET/HEAD probes)
+- NEW api.threema.ch/identity/fetch_bulk: Consistent 200 responses confirmed on POST (was 404 on GET/HEAD probes)
+- CHANGED ds-apip.threema.ch/identity/check_featuremask: HTTP 500 on GET/HEAD persists (expected POST-only); own POST probes confirm 200 with live active accounts
+- CHANGED ds-apip.threema.ch/identity/check: HTTP 500 on GET/HEAD persists (expected POST-only); own POST probes confirm 200 with 10000-ID cap
+- CHANGED ds-apip.threema.ch/identity/fetch_priv: Returns 88B "invalid-identity" for BOTH valid and invalid identities on fresh probes (contradicts prior 137B valid token claim)
+- CHANGED poc/key-storage-acl-bypass-poc.py: Filesystem GROUND TRUTH still ABSENT (20+ cycle KB/filesystem contradiction)
+- NEW 7th census draw (ds-apip.threema.ch/identity/check_featuremask, seed 2026081501): 2 new dormant accounts (VK24VB77 mask 255, RB75KK42 mask 31) → registered cohort N=26
+- NEW 8th census draw (api.threema.ch/identity/check_featuremask, seed 2026081502): 3 hits (7.5e-6 density) → UCVUB4ZR (dormant/mask63), 7V7T2NKR (ACTIVE/state:0/mask2047), 53C3P84N (dormant/mask15)
+- NEW 7VVR9AX2 state-flip 1→0 confirmed on 2nd consecutive cross-check cycle → state-change primitive live
+- NEW fetch_priv request-shape sensitivity confirmed: single-field `{"identity":X}` required; malformed bodies yield universal 88B "invalid-identity"
