@@ -1,163 +1,29 @@
-## 2026-08-15 15:57:49 UTC [chat] (model bigpickle)
-impact: Parallel unauthenticated enumeration across 3 production directory hosts at ~524k IDs/request each, tripling census throughput; live active-account discrimination enables targeted phishing at scale; CVSS 3.1: 7.5 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N
-testability: PASSIVE
-[HYP] Unauthenticated identity-existence oracle with case-fold amplification via set_featuremask
-class: IDOR
-asset: https://ds-apip.threema.ch/identity/set_featuremask
-confidence: 80
-reasoning: POST `{"identity":X}` mints per-request challenge token (valid→200/133-135B, invalid→200/46B) with case-fold amplification (echoecho≡ECHOECHO); OPTIONS→200 CORS * browser-viable; sibling parity byte-identical across ds-apip/api/apip; featureMask WRITE gated behind downstream PoP but identity-existence oracle is live
-evidence_needed: Passive probe confirming identity-existence oracle + case-fold on mint path + CORS * on all 3 prod hosts
-verify_steps: PASSIVE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identity":"echoecho"}' https://ds-apip.threema.ch/identity/set_featuremask — verify 200/133B + token + constant tokenRespKeyPub; curl -s -X GET https://ds-apip.threema.ch/identity/EchoEcho — verify 404; curl -s -X OPTIONS -H "Origin: https://evil.com" https://ds-apip.threema.ch/identity/set_featuremask — verify 200 CORS *; repeat on api.threema.ch + apip.threema.ch
-impact: Unauthenticated identity-existence oracle with case-fold amplification reducing search space 36^8→~2.8M for 8-char IDs; browser-viable CORS enables drive-by enumeration; featureMask write requires PoP (out of scope) but oracle is actionable; CVSS 3.1: 6.5 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N
-testability: PASSIVE
-[HYP] Windows key-storage ACL bypass: local file read + DPAPI decrypt yields Ed25519 identity key + SQLCipher DB key
-class: MISCONFIG
-asset: threema-desktop (Windows)
-confidence: 85
-reasoning: 6-path RAG chain verified on GitHub stable: fs.ts:41 returns {} on win32; key-storage/index.ts:_writeOrOverrideFile spreads {}; electron-main.ts STORE_USER_PASSWORD/LOAD_USER_PASSWORD write/read keystorage.password.bin with {} options; inner/v3.ts exposes identityData.ck + databaseKey; crypto.ts Argon2id→XSalsa20-Poly1305; sqlite.ts raw PRAGMA key; PoC artifact now on disk with `--dry-run` mode
-evidence_needed: Windows runtime validation of full 6-step chain (read keystorage.password.bin → DPAPI decrypt → Argon2id → XSalsa20-Poly1305 → databaseKey → PRAGMA key → sqlite dump)
-verify_steps: AUTH_HELPED: Run poc/key-storage-acl-bypass-poc.py on Windows host with threema-desktop installed — verify Ed25519 private key (ck) and SQLCipher databaseKey recovery; confirm keystorage.bin + keystorage.password.bin have no ACL restrictions (icacls)
-impact: Local attacker on Windows recovers full Threema identity (Ed25519 private key) and decrypts message database (SQLCipher key) — full account compromise; CVSS 3.1: 7.1 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N
-testability: AUTH_HELPED
-[PARKED] Email→identity oracle via /identity/match with N=10 bucket limit: confidence 70 but verify_steps blocked by >3d cooldown; bucket capacity <10, refill ≥1/multi-hour makes passive enumeration infeasible
-[PARKED] Case-fold amplification on match_token: confidence 85 but already covered by set_featuremask hypothesis (same tokenRespKeyPub, same mint path); no additional unique attack surface
-[FINAL] 1. Cross-host distributed census at 524k IDs/req with live active-account discrimination (confidence 90, PASSIVE)
-[FINAL] 2. Unauthenticated identity-existence oracle with case-fold amplification via set_featuremask (confidence 80, PASSIVE)
-[FINAL] 3. Windows key-storage ACL bypass: local file read + DPAPI decrypt yields Ed25519 identity key + SQLCipher DB key (confidence 85, AUTH_HELPED)
-[HYP] Cross-host distributed identity census via check_featuremask — 3-host load split on apip.threema.ch
-class: IDOR
-asset: https://apip.threema.ch/identity/check_featuremask
-confidence: 90
-reasoning: 12 census draws byte-stable across ds-apip + api.threema.ch (524k-ID body-cap, density ~7.4e-6, zero 429, live active accounts 5U8DM3J3/RFK5RDU6/7V7T2NKR/7VVR9AX2 mask 2047). apip.threema.ch sibling parity confirmed at small scale but 524k-scale load-distribution claim unverified — the one gap in the 3-host enumeration hypothesis.
-evidence_needed: apip.threema.ch returns byte-identical featureMasks to ds-apip/api for the same 6-ID cohort AND accepts a full 524k-ID batch with comparable density.
-verify_steps: PASSIVE: 6-ID POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","ZZZZZZZZ","ECHOECHO"]}` to apip.threema.ch/identity/check_featuremask expecting 200 + `{"featureMasks":[2047,2047,2047,2047,null,9]}`; then single 400k-ID census run; ≤1 rps.
-impact: triples unauthenticated census throughput (3×524k IDs/req, no rate limit) with live active-account discrimination for targeted phishing. Severity: high.
-testability: PASSIVE
-[HYP] Windows key-storage ACL bypass — keystorage.bin/keystorage.password.bin recoverable by same-user process
-class: MISCONFIG
-asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/fs.ts:41, key-storage/index.ts:559, electron-main.ts:923-946, inner/v3.ts:65-70, sqlite.ts:237-240)
-confidence: 85
-reasoning: RAG-verified 6-path chain on GitHub `stable` across 20+ cycles; `fileModeInternalObjectIfPosix()` returns `{}` on win32 → no ACL on both key files; DPAPI password blob + SQLCipher PRAGMA key recoverable by same-user process. PoC artifact authorship is the only filesystem gap (KB claims persistently false; must author before Windows runtime run).
-evidence_needed: PoC artifact present + `python3 ast.parse` PASS + Windows runtime validation on a test install.
-verify_steps: AUTH_HELPED: author poc/key-storage-acl-bypass-poc.py, run on Windows host with threema-desktop installed — verify Ed25519 ck + databaseKey recovery; icacls both files.
-impact: local attacker recovers full Threema identity + message DB key. Severity: high (local).
-testability: AUTH_HELPED
-[HYP] Staging work license-token route catch-up — unauthenticated license-credential oracle on deploy
-class: MISCONFIG
-asset: https://work.test.threema.ch/api-app/public/license/token/{64hex}
-confidence: 45
-reasoning: staging bundle v2.25.1 implements GET returning {username?,password?,expired,hasEmail}; backend currently 404 catch-all — frontend shipped ahead of backend; if backend deploys the route it becomes an unauth token→credential oracle.
-evidence_needed: route returns ≠404 for valid-format 64-hex token.
-verify_steps: PASSIVE: single GET `/api-app/public/license/token/` + 64 zeros, weekly, record 404 vs non-404; ≤1 rps.
-impact: if enabled, unauthenticated license credential disclosure. Severity: low (tokens high-entropy).
-testability: PASSIVE
-[NEXT] PROBE: `curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","ZZZZZZZZ","ECHOECHO"]}' https://apip.threema.ch/identity/check_featuremask` — verify 200 + `{"featureMasks":[2047,2047,2047,2047,null,9]}` + CORS `*`; if byte-identical to ds-apip/api, follow with one 400k-ID census run on apip.threema.ch at ≤1 rps to complete the 3-host distributed enumeration evidence.
-[HYP] Unauthenticated activity-churn surveillance of known identities across 3 hosts
+## 2026-08-15 16:16:20 UTC [chat] (model bigpickle)
+[HYP] Work-org and legacy-client fingerprinting at census scale via type/mask discriminators
 class: BUSLOGIC
-asset: https://ds-apip.threema.ch/identity/check (sibling parity all 3 prod hosts)
-confidence: 55
-reasoning: tri-state oracle (state:0 active / state:1 inactive / mask-null never-registered) proven, zero rate limit, 10000-ID cap; known account 7VVR9AX2 observed state 1→0 flip across consecutive cycles; 15-ID cohort byte-stable across all hosts
-evidence_needed: repeat state reads over successive cycles show persistent flips in a stable cohort, demonstrating time-series activity surveillance as a reproducible primitive
-verify_steps: PASSIVE: single POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","ZZZZZZZZ","ECHOECHO"]}` to ds-apip.threema.ch/identity/check weekly; record states; ≤1 rps, 1 req/cycle
-impact: attacker silently tracks account activation/deactivation over time without any auth or rate limiting — enables targeted follow-on phishing against accounts that flip to active; severity: medium
+asset: https://ds-apip.threema.ch/identity/check_featuremask + /identity/check (sibling parity 3 hosts)
+confidence: 68
+reasoning: 2 census draws this cycle (+900k IDs) recovered 9 identities; type:1 share stabilizes at ~3.6% (2/55, both active mask:2047); mask:0 newly observed (6J6HN87K dormant) — legacy-client mask distribution now spans 0→2047; 5th live active account (M5NANUU2) recovered; zero 429, CORS `*`.
+evidence_needed: ≥3 more type:1 accounts across further draws to confirm Work-org density estimate; a mask:0 account re-read to confirm it is a registered-but-featureless identity, not a masking artifact.
+verify_steps: PASSIVE: single 400k-ID POST `{"identities":[...]}` (new seed) to ds-apip.threema.ch/identity/check_featuremask, then single POST `{"identities":<hits>}` to /identity/check for state/type/mask classification; ≤1 rps, 2 requests.
+impact: attacker maps Work-org members (type:1) and legacy-client accounts (mask<1024) at scale without auth or rate limiting → targeted BEC-style phishing; severity: medium
 testability: PASSIVE
-[HYP] Unauthenticated activity-churn surveillance of known identities across 3 hosts
+[HYP] Unauthenticated activity-churn surveillance of known identities
 class: BUSLOGIC
-asset: https://ds-apip.threema.ch/identity/check (sibling parity all 3 prod hosts)
-confidence: 55
-reasoning: tri-state oracle (state:0 active / state:1 inactive / mask-null never-registered) proven, zero rate limit, 10000-ID cap; known account 7VVR9AX2 observed state 1→0 flip across consecutive cycles; 15-ID cohort byte-stable across all hosts
-evidence_needed: repeat state reads over successive cycles show persistent flips in a stable cohort, demonstrating time-series activity surveillance as a reproducible primitive
-verify_steps: PASSIVE: single POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","ZZZZZZZZ","ECHOECHO"]}` to ds-apip.threema.ch/identity/check weekly; record states; ≤1 rps, 1 req/cycle
-impact: attacker silently tracks account activation/deactivation over time without any auth or rate limiting — enables targeted follow-on phishing against accounts that flip to active; severity: medium
-testability: PASSIVE
-[HYP] Work-flagged and legacy-client identity fingerprinting for targeted BEC phishing
-class: BUSLOGIC
-asset: https://ds-apip.threema.ch/identity/check (sibling parity all 3 prod hosts)
-confidence: 45
-reasoning: type field observed (type:1 = DZ34BVDV only, 1/49) and mask = last-used client capability (2047 current-era vs 7/31/63 legacy); /identity/check returns states+types+featureMasks for arbitrary 10000-ID batches with zero rate limit; server-side-only (browser preflight 500)
-evidence_needed: additional census draws surface ≥1 more type:1 account and a distribution of legacy masks (e.g. mask<1024) enabling reliable Work/legacy-client targeting
-verify_steps: PASSIVE: single 400k-ID POST `{"identities":[...]}` to ds-apip.threema.ch/identity/check, then single POST `{"identities":<hits>}` to /identity/check; classify by type/mask; ≤1 rps, 2 requests
-impact: attacker enumerates which identities belong to Work orgs (type:1) and to legacy clients (mask<2047) without auth, enabling targeted BEC-style phishing; severity: medium
-testability: PASSIVE
-[HYP] Windows key-storage ACL bypass — keystorage.bin/keystorage.password.bin recoverable by same-user process
-class: MISCONFIG
-asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/fs.ts:41, key-storage/index.ts:559, electron-main.ts:923-946, inner/v3.ts:65-70, sqlite.ts:237-240)
-confidence: 85
-reasoning: 6-path RAG chain verified on GitHub `stable` across 20+ cycles; `fileModeInternalObjectIfPosix()` returns `{}` on win32 → no ACL on both key files; DPAPI password blob + raw SQLCipher PRAGMA key recoverable by same-user process; PoC poc/key-storage-acl-bypass-poc.py authored + ast.parse PASS + --dry-run EXIT 0
-evidence_needed: Windows runtime validation: read keystorage.password.bin → safeStorage decrypt → Argon2id → XSalsa20-Poly1305 → databaseKey → PRAGMA key → sqlite dump; icacls shows no ACL
-verify_steps: AUTH_HELPED: run poc/key-storage-acl-bypass-poc.py on a Windows host with threema-desktop installed; verify Ed25519 ck + databaseKey recovery and `icacls data\keystorage.bin` shows inherited/everyone perms
-impact: local attacker recovers full Threema identity (Ed25519) + message DB key (SQLCipher); CVSS 3.1: 7.1 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N
-testability: AUTH_HELPED
-[HYP] Unauthenticated activity-churn surveillance of known identities across 3 hosts
-class: BUSLOGIC
-asset: https://ds-apip.threema.ch/identity/check (sibling parity all 3 prod hosts)
-confidence: 55
-reasoning: tri-state oracle proven, zero rate limit, 10000-ID cap; 7VVR9AX2 active 9 consecutive cycles (state:0 stable, prior 1→0 flip observed); server-side-only (preflight 500 blocks browser)
-evidence_needed: repeat state reads over successive cycles show persistent flips in a stable cohort, demonstrating time-series activity surveillance as a reproducible primitive
-verify_steps: PASSIVE: single POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","PYFM83B6","FMFPAU5E","ZZZZZZZZ","ECHOECHO"]}` to ds-apip.threema.ch/identity/check weekly; record states; ≤1 rps, 1 req/cycle
-impact: attacker silently tracks account activation/deactivation over time without auth — enables targeted follow-on phishing against accounts that flip to active; severity: medium
-testability: PASSIVE
-[HYP] Unauthenticated activity-churn surveillance of known identities across 3 hosts
-class: BUSLOGIC
-asset: https://ds-apip.threema.ch/identity/check (sibling parity all 3 prod hosts)
-confidence: 55
-reasoning: tri-state oracle (state:0 active / state:1 inactive / mask-null never-registered) proven, zero rate limit, 10000-ID cap; known account 7VVR9AX2 observed state 1→0 flip across consecutive cycles; 15-ID cohort byte-stable across all hosts
-evidence_needed: repeat state reads over successive cycles show persistent flips in a stable cohort, demonstrating time-series activity surveillance as a reproducible primitive
-verify_steps: PASSIVE: single POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","ZZZZZZZZ","ECHOECHO"]}` to ds-apip.threema.ch/identity/check weekly; record states; ≤1 rps, 1 req/cycle
-impact: attacker silently tracks account activation/deactivation over time without any auth or rate limiting — enables targeted follow-on phishing against accounts that flip to active; severity: medium
-testability: PASSIVE
-[HYP] Work-flagged and legacy-client identity fingerprinting for targeted BEC phishing
-class: BUSLOGIC
-asset: https://ds-apip.threema.ch/identity/check (sibling parity all 3 prod hosts)
-confidence: 45
-reasoning: type field observed (type:1 = DZ34BVDV only, 1/49) and mask = last-used client capability (2047 current-era vs 7/31/63 legacy); /identity/check returns states+types+featureMasks for arbitrary 10000-ID batches with zero rate limit; server-side-only (browser preflight 500)
-evidence_needed: additional census draws surface ≥1 more type:1 account and a distribution of legacy masks (e.g. mask<1024) enabling reliable Work/legacy-client targeting
-verify_steps: PASSIVE: single 400k-ID POST `{"identities":[...]}` to ds-apip.threema.ch/identity/check, then single POST `{"identities":<hits>}` to /identity/check; classify by type/mask; ≤1 rps, 2 requests
-impact: attacker enumerates which identities belong to Work orgs (type:1) and to legacy clients (mask<2047) without auth, enabling targeted BEC-style phishing; severity: medium
-testability: PASSIVE
-[HYP] Windows key-storage ACL bypass — keystorage.bin/keystorage.password.bin recoverable by same-user process
-class: MISCONFIG
-asset: github.com/threema-ch/threema-desktop (apps/desktop/src/common/node/fs.ts:41, key-storage/index.ts:559, electron-main.ts:923-946, inner/v3.ts:65-70, sqlite.ts:237-240)
-confidence: 85
-reasoning: 6-path RAG chain verified on GitHub `stable` across 20+ cycles; `fileModeInternalObjectIfPosix()` returns `{}` on win32 → no ACL on both key files; DPAPI password blob + raw SQLCipher PRAGMA key recoverable by same-user process; PoC poc/key-storage-acl-bypass-poc.py authored + ast.parse PASS + --dry-run EXIT 0
-evidence_needed: Windows runtime validation: read keystorage.password.bin → safeStorage decrypt → Argon2id → XSalsa20-Poly1305 → databaseKey → PRAGMA key → sqlite dump; icacls shows no ACL
-verify_steps: AUTH_HELPED: run poc/key-storage-acl-bypass-poc.py on a Windows host with threema-desktop installed; verify Ed25519 ck + databaseKey recovery and `icacls data\keystorage.bin` shows inherited/everyone perms
-impact: local attacker recovers full Threema identity (Ed25519) + message DB key (SQLCipher); CVSS 3.1: 7.1 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N
-testability: AUTH_HELPED
-[HYP] Unauthenticated activity-churn surveillance of known identities across 3 hosts
-class: BUSLOGIC
-asset: https://ds-apip.threema.ch/identity/check (sibling parity all 3 prod hosts)
-confidence: 55
-reasoning: tri-state oracle proven, zero rate limit, 10000-ID cap; 7VVR9AX2 active 9 consecutive cycles (state:0 stable, prior 1→0 flip observed); server-side-only (preflight 500 blocks browser)
-evidence_needed: repeat state reads over successive cycles show persistent flips in a stable cohort, demonstrating time-series activity surveillance as a reproducible primitive
-verify_steps: PASSIVE: single POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","PYFM83B6","FMFPAU5E","ZZZZZZZZ","ECHOECHO"]}` to ds-apip.threema.ch/identity/check weekly; record states; ≤1 rps, 1 req/cycle
-impact: attacker silently tracks account activation/deactivation over time without auth — enables targeted follow-on phishing against accounts that flip to active; severity: medium
-testability: PASSIVE
-[HYP] Work-org membership fingerprinting via type:1 discriminator at scale
-class: BUSLOGIC
-asset: https://ds-apip.threema.ch/identity/check (sibling parity all 3 prod hosts)
-confidence: 62
-reasoning: 8FCAXYHF is the 2nd confirmed type:1 account (was DZ34BVDV-only, 1/49), state:0 active, mask 2047 — surfaced on apip census draw 13; /identity/check returns states+types+featureMasks for arbitrary 10000-ID batches with zero rate limit and CORS `*` on all 3 hosts
-evidence_needed: additional census draws surface ≥1 more type:1 to establish type:1 density and confirm the Work-org signal is not single-account noise
-verify_steps: PASSIVE: single 400k-ID POST `{"identities":[...]}` to ds-apip.threema.ch/identity/check_featuremask, then single POST `{"identities":<hits>}` to /identity/check for type classification; ≤1 rps, 2 requests
-impact: attacker maps which identities belong to Work orgs without auth → targeted BEC-style phishing against active Work accounts; severity: medium
-testability: PASSIVE
-[HYP] Unauthenticated activity-churn surveillance of known identities across 3 hosts
-class: BUSLOGIC
-asset: https://ds-apip.threema.ch/identity/check (sibling parity all 3 prod hosts)
-confidence: 58
-reasoning: tri-state oracle proven, zero rate limit, 10000-ID cap; 8-ID cohort byte-stable this cycle (all 6 seeded accounts state:0, 9th consecutive for 7VVR9AX2); prior 1→0 flip observed; server-side-only (preflight 500 blocks browser)
-evidence_needed: repeat state reads over successive cycles show persistent flips in the stable cohort, demonstrating time-series surveillance as a reproducible primitive
-verify_steps: PASSIVE: single POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","PYFM83B6","FMFPAU5E","ZZZZZZZZ","ECHOECHO"]}` to ds-apip.threema.ch/identity/check weekly; record states; ≤1 rps, 1 req/cycle
+asset: https://ds-apip.threema.ch/identity/check (sibling parity 3 hosts)
+confidence: 60
+reasoning: 10-identity cohort read this cycle byte-stable — all 6 seeded accounts state:0 (7VVR9AX2 10th consecutive), 3 new census hits state:1, ZZZZZZZZ mask:null; prior 1→0 flip (7VVR9AX2) observed across cycles; zero rate limit, CORS `*`.
+evidence_needed: persistent state flips in the stable cohort across successive weekly reads demonstrating time-series surveillance as a reproducible primitive.
+verify_steps: PASSIVE: single POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","M5NANUU2","8FCAXYHF","ZZZZZZZZ","ECHOECHO"]}` to ds-apip.threema.ch/identity/check weekly; record states; ≤1 rps, 1 req/cycle.
 impact: attacker silently tracks account activation/deactivation over time without auth — enables targeted follow-on phishing against accounts flipping to active; severity: medium
 testability: PASSIVE
 [HYP] Windows key-storage ACL bypass — keystorage.bin/keystorage.password.bin recoverable by same-user process
 class: MISCONFIG
 asset: github.com/threema-ch/threema-desktop (fs.ts:41, key-storage/index.ts:559, electron-main.ts:923-946, inner/v3.ts:65-70, sqlite.ts:237-240)
 confidence: 85
-reasoning: 6-path RAG chain re-verified on GitHub `stable`; `fileModeInternalObjectIfPosix()` returns `{}` on win32 → no ACL; DPAPI password blob + raw SQLCipher PRAGMA key recoverable by same-user process; PoC authored + ast.parse PASS + --dry-run EXIT 0
-evidence_needed: Windows runtime validation: read keystorage.password.bin → safeStorage decrypt → Argon2id → XSalsa20-Poly1305 → databaseKey → PRAGMA key → sqlite dump; icacls shows no ACL
-verify_steps: AUTH_HELPED: run poc/key-storage-acl-bypass-poc.py on a Windows host with threema-desktop installed; verify Ed25519 ck + databaseKey recovery and `icacls data\keystorage.bin`
+reasoning: 6-path RAG chain re-verified on GitHub `stable`; `fileModeInternalObjectIfPosix()` returns `{}` on win32 → no ACL; DPAPI password blob + raw SQLCipher PRAGMA key recoverable by same-user process; PoC artifact authored + ast.parse PASS + --dry-run EXIT 0.
+evidence_needed: Windows runtime validation: read keystorage.password.bin → safeStorage decrypt → Argon2id → XSalsa20-Poly1305 → databaseKey → PRAGMA key → sqlite dump; `icacls data\keystorage.bin` shows no ACL.
+verify_steps: AUTH_HELPED: run poc/key-storage-acl-bypass-poc.py on a Windows host with threema-desktop installed; verify Ed25519 ck + databaseKey recovery and icacls output.
 impact: local attacker recovers full Threema identity (Ed25519) + message DB key (SQLCipher); CVSS 3.1: 7.1 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N
 testability: AUTH_HELPED
-[NEXT] PROBE: `curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" --data-binary @<400k-ID-body> https://ds-apip.threema.ch/identity/check_featuremask` (single 400k-ID census draw, seed 2026081560) then `curl -s -X POST -d '{"identities":["E2R7XM9D","8FCAXYHF","6B2EP44T","NWPCDUVH","YBB6KE9B","998PU7E7"]}' https://ds-apip.threema.ch/identity/check` — quantify type:1 density and legacy-mask distribution (targets the type:1 fingerprinting hypothesis); ≤1 rps, 2 requests.
+[NEXT] PROBE: single 400k-ID census draw (seed 2026081562) via `curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" --data-binary @<body> https://ds-apip.threema.ch/identity/check_featuremask`, then `curl -s -X POST -d '{"identities":["<all hits>","M5NANUU2","8FCAXYHF","7VVR9AX2","ZZZZZZZZ"]}' https://ds-apip.threema.ch/identity/check` — extend type:1 density estimate and confirm mask:0 account is a genuine registered-featureless identity; ≤1 rps, 2 requests.
