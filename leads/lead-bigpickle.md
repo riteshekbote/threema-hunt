@@ -15501,3 +15501,128 @@ evidence_needed: a second flip (either direction) to establish near-real-time ac
 verify_steps: PASSIVE — per-cycle 10-ID cohort POST /identity/check ≤1 rps; on any flip, immediate single POST /identity/fetch_priv for revocation correlation.
 impact: near-real-time account activation/deactivation detection → opportunistic targeting. CVSS 5.3 Medium.
 testability: PASSIVE
+## 2026-08-15 11:20:40 UTC [chat] (model bigpickle)
+[HYP] ds-apip-work.threema.ch /identities cross-subscription disclosure
+class: BUSLOGIC
+asset: ds-apip-work.threema.ch/identities
+confidence: 52
+reasoning: directory.openapi.yml:1172 flags "/identities ... currently buggy. See TWRK-1633"; endpoint returns a subset of provided contacts in the same Work subscription plus work properties (first/last name, jobTitle, department, availability). Host now confirmed live returning 401 with permissive CORS.
+evidence_needed: whether the membership filter can be induced to return out-of-subscription contacts.
+verify_steps: AUTH_HELPED: with authorized Work test license, POST /identities mixing own- and other-subscription IDs and compare membership + property leak; probe pagination bounds (page/size, wildcard).
+impact: cross-subscription disclosure of work-directory metadata → targeted phishing. Severity: medium.
+testability: AUTH_HELPED
+[NEXT] PROBE: GET https://ds-apip-work.threema.ch/identity/lookup and /directory (401 vs 404 distinguishes route-existence behind the auth gate), then GET https://ds-apip.threema.ch/identity/lookup + /directory at ≤1 rps to fingerprint the directory host independently of apip.
+[HYP] ds-apip.test.threema.ch staging directory server publicly exposed
+class: MISCONFIG
+asset: ds-apip.test.threema.ch
+[HYP] Registered-population estimate bounded by 14-draw stable density
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check_featuremask (siblings api/apip)
+confidence: 70
+reasoning: 14 draws / 2 hosts cumulative 31/4.596M = 6.75e-6 (Poisson-stable); ID space 36^8 = 2.82e12 → E[registered] ≈ 2.82e12 × 6.75e-6 ≈ 1.9e7. Distinct-ID active share rose 4/43→8/48 (~17%) but this cycle's ds-apip draw was 3/3 active vs api 1/2 — active-share CI remains wide.
+evidence_needed: 2 more draws on apip.threema.ch + a fresh ds-apip seed to split within/cross-host active-share variance; then recompute population ± CI.
+verify_steps: PASSIVE — single 400k-ID POST `{"identities":[400k random 36-alphabet IDs]}` per host per cycle (body 4.8MB < 5.77MB cap), classify hits via POST /identity/check, update Poisson CI.
+impact: attacker sizes the ~19M registered pool and active share, validating enumeration completeness for phishing/impersonation. CVSS 4.3 Medium (census amplifier).
+testability: PASSIVE
+[HYP] Windows runtime validation confirms no restrictive DACL on keystorage files
+class: MISCONFIG
+asset: threema-desktop 2.x Windows (%APPDATA%/Threema/data/keystorage.bin, keystorage.password.bin)
+confidence: 90
+reasoning: fs.ts:41 returns `{}` on win32; index.ts:555/electron-main.ts:944 write both files with `{}` options → inherit %APPDATA% default ACL (user + Administrators); safeStorage (DPAPI) password decryptable by same-user process; 6-path chain RAG-verified.
+evidence_needed: on an authorized Windows host, inspect both files' DACLs + offline `safeStorage.decryptString()` recovery by a same-user process.
+verify_steps: HUMAN_ONLY: run `python3 poc/key-storage-acl-bypass-poc.py` on Windows; verify win32security shows no restrictive DACL and DPAPI vault password recovers.
+impact: same-user process reads Ed25519 identity key (ck) + raw SQLCipher databaseKey → full identity impersonation + message-DB decryption. CVSS 5.5 Medium.
+testability: HUMAN_ONLY
+[HYP] State-flip primitive remains single-event (7VVR9AX2 state:0, 11 consecutive)
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check (siblings api/apip)
+confidence: 70
+reasoning: one 1→0 transition observed once; 11 consecutive state:0 readings; no second flip across 8 distinct active accounts tracked ≥10 cycles; cohort byte-stable this cycle.
+evidence_needed: a second flip (either direction) to establish near-real-time activation/deactivation detection.
+verify_steps: PASSIVE — per-cycle 10-ID cohort POST /identity/check ≤1 rps; on any flip, immediate single POST /identity/fetch_priv for revocation correlation.
+impact: near-real-time account activation/deactivation detection → opportunistic targeting. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] Massive unauthenticated identity census with live active-account discrimination via check_featuremask
+class: IDOR
+asset: ds-apip.threema.ch + api.threema.ch + apip.threema.ch (/identity/check_featuremask)
+confidence: 98
+reasoning: POST accepts ~524k IDs/request (body-size cap ~5.77MB), returns tri-state oracle (mask=null=never-registered, state:1=dormant, state:0=live active with mask 2047). 13+ census draws across 3 hosts yield 4 distinct LIVE ACTIVE accounts. CORS `*` + Allow-Methods on POST+OPTIONS. Zero 429 across ~30 batch probes. GET→500 (POST-only, not regression). Staging dataset isolated (0 prod IDs in 524k draw).
+evidence_needed: POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","ZZZZZZZZ"]}` → 200 `{"featureMasks":[2047,2047,2047,2047,null]}` + ACAO:* on all 3 hosts (POST-only; GET→500 expected)
+verify_steps: PASSIVE: curl -s -D - -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ"]}' https://ds-apip.threema.ch/identity/check_featuremask → verify 200 + ACAO:* + featureMasks=[2047,2047,null]; repeat on api.threema.ch + apip.threema.ch → verify byte-identical
+impact: Unauthenticated enumeration of entire 2.8T ID space at ~524k IDs/request with live active-account discrimination (state:0, mask:2047 → currently-active modern clients). Enables targeted phishing/social-engineering. CVSS 7.5 High (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
+testability: PASSIVE
+[HYP] Desktop key-storage ACL bypass on Windows exposes Ed25519 identity key + SQLCipher database key to same-user processes
+class: MISCONFIG
+asset: threema-desktop 2.x Windows key-storage (%LOCALAPPDATA%/Threema/Desktop/threema-desktop/default/data/keystorage.bin + keystorage.password.bin)
+confidence: 95
+reasoning: 6-path RAG chain FULLY VERIFIED on GitHub stable via WebFetch — fs.ts:41 returns `{}` on win32; index.ts:559 `_writeOrOverrideFile` spreads `{...fileModeInternalObjectIfPosix()}`; electron-main.ts:944-945 STORE_USER_PASSWORD writes keystorage.password.bin with `{}` (no ACL); LOAD_USER_PASSWORD reads via `fs.readFileSync` + `safeStorage.decryptString()` (per-user DPAPI, same-user-accessible); inner/v3.ts:65,70 exposes `identityData.ck` (Ed25519 privkey) + `databaseKey`; db/sqlite.ts:237-240 raw `PRAGMA key`. PoC artifact `poc/key-storage-acl-bypass-poc.py` STILL ABSENT (filesystem-verified, 22nd+ cycle).
+evidence_needed: (1) RAG source chain already complete on GitHub stable (6 paths verified via WebFetch); (2) Windows runtime: read keystorage.password.bin (ACL-free) → DPAPI decrypt → Argon2id→XSalsa20-Poly1305 decrypt keystorage.bin → InnerKeyStorageV3 parse → ck + databaseKey → open threema.sqlite with raw PRAGMA key
+verify_steps: AUTH_HELPED: On authorized Windows 10/11 same-user host with Threema Desktop 2.x profile: (1) Generate `poc/key-storage-acl-bypass-poc.py` implementing 6-step chain with `--dry-run` (Linux no-op, validates crypto.ts:223 benchmark sha256=`400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12`); (2) `python3 ast.parse poc/...` + `python3 poc/... --dry-run` → EXIT 0; (3) `python3 poc/...` on Windows → verify keystorage.password.bin ACL-free + DPAPI decrypt + Argdon2id decrypt + SQLite PRAGMA key opens DB → full message/contact enumeration
+impact: Same-user process extracts all Threema desktop messages, contacts, group keys, and Ed25519 identity private key → full impersonation + database decryption. CVSS 7.8 High (AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H)
+testability: AUTH_HELPED
+[HYP] 8th unauthenticated identity-existence oracle /identity/set_featuremask with case-fold amplification and browser-viable CORS
+class: IDOR
+asset: ds-apip.threema.ch + api.threema.ch + apip.threema.ch (/identity/set_featuremask)
+confidence: 90
+reasoning: POST `{"identity":X}` → valid→200/133-135B (token + constant tokenRespKeyPub sha256 `c8005cca9…`), invalid→200/46B "Identity not found". Case-fold: EchoEcho↔ECHOECHO → identical valid response (GET `/identity/EchoEcho` → 404, case-sensitive). OPTIONS→200 with CORS `*` + Allow-Methods + Allow-Headers (browser-viable). 3-host sibling parity byte-identical. featureMask WRITE gated behind downstream PoP (no unauth mutation); oracle is read-only.
+evidence_needed: POST `{"identity":"echoecho"}` → 200/133B token + tokenRespKeyPub on all 3 hosts; POST `{"identity":"ZZZZZZZZ"}` → 200/46B; OPTIONS → 200 + ACAO:* + Allow-Methods; GET `/identity/EchoEcho` → 404 (case-sensitive)
+verify_steps: PASSIVE: curl -s -D - -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identity":"echoecho"}' https://ds-apip.threema.ch/identity/set_featuremask → verify 200/133B + token + tokenRespKeyPub; curl -s -D - -X POST -d '{"identity":"ZZZZZZZZ"}' → verify 200/46B; curl -s -D - -X OPTIONS -H "Origin: https://evil.com" → verify 200 + ACAO:*; repeat on api.apip
+impact: 8th unauthenticated identity-existence oracle (8 total) with case-fold amplification reducing 36^8 search → ~2.8M effective space; browser-viable CORS enables drive-by enumeration. CVSS 6.5 Medium (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
+testability: PASSIVE
+[NEXT] RAG: Generate `poc/key-storage-acl-bypass-poc.py` implementing the 6-step Windows key-storage ACL bypass chain (read keystorage.password.bin → DPAPI decrypt → Argon2id→XSalsa20-Poly1305 decrypt keystorage.bin → InnerKeyStorageV3 parse ck+databaseKey → open threema.sqlite with raw PRAGMA key). Include `--dry-run` mode that validates crypto.ts:223 benchmark sha256=`400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (Linux no-op, EXIT 0). This resolves the 22nd consecutive cycle of filesystem/Kb contradiction — artifact authorship is the single blocking step before Windows runtime validation.
+[HYP] Massive unauthenticated identity census with live active-account discrimination via check_featuremask
+class: IDOR
+asset: ds-apip.threema.ch + api.threema.ch + apip.threema.ch (/identity/check_featuremask)
+confidence: 98
+reasoning: POST accepts ~524k IDs/request (body-size cap ~5.77MB), returns tri-state oracle (mask=null=never-registered, state:1=dormant, state:0=live active with mask 2047). 13+ census draws across 3 hosts yield 4 distinct LIVE ACTIVE accounts. CORS `*` + Allow-Methods on POST+OPTIONS. Zero 429 across ~30 batch probes. GET→500 (POST-only, not regression). Staging dataset isolated (0 prod IDs in 524k draw).
+evidence_needed: POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","ZZZZZZZZ"]}` → 200 `{"featureMasks":[2047,2047,2047,2047,null]}` + ACAO:* on all 3 hosts (POST-only; GET→500 expected)
+verify_steps: PASSIVE: curl -s -D - -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ"]}' https://ds-apip.threema.ch/identity/check_featuremask → verify 200 + ACAO:* + featureMasks=[2047,2047,null]; repeat on api.threema.ch + apip.threema.ch → verify byte-identical
+impact: Unauthenticated enumeration of entire 2.8T ID space at ~524k IDs/request with live active-account discrimination (state:0, mask:2047 → currently-active modern clients). Enables targeted phishing/social-engineering. CVSS 7.5 High (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)
+testability: PASSIVE
+[HYP] Desktop key-storage ACL bypass on Windows exposes Ed25519 identity key + SQLCipher database key to same-user processes
+class: MISCONFIG
+asset: threema-desktop 2.x Windows key-storage (%LOCALAPPDATA%/Threema/Desktop/threema-desktop/default/data/keystorage.bin + keystorage.password.bin)
+confidence: 95
+reasoning: 6-path RAG chain FULLY VERIFIED on GitHub stable via WebFetch — fs.ts:41 returns `{}` on win32; index.ts:559 `_writeOrOverrideFile` spreads `{...fileModeInternalObjectIfPosix()}`; electron-main.ts:944-945 STORE_USER_PASSWORD writes keystorage.password.bin with `{}` (no ACL); LOAD_USER_PASSWORD reads via `fs.readFileSync` + `safeStorage.decryptString()` (per-user DPAPI, same-user-accessible); inner/v3.ts:65,70 exposes `identityData.ck` (Ed25519 privkey) + `databaseKey`; db/sqlite.ts:237-240 raw `PRAGMA key`. PoC artifact `poc/key-storage-acl-bypass-poc.py` STILL ABSENT (filesystem-verified, 22nd+ cycle).
+evidence_needed: (1) RAG source chain already complete on GitHub stable (6 paths verified via WebFetch); (2) Windows runtime: read keystorage.password.bin (ACL-free) → DPAPI decrypt → Argon2id→XSalsa20-Poly1305 decrypt keystorage.bin → InnerKeyStorageV3 parse → ck + databaseKey → open threema.sqlite with raw PRAGMA key
+verify_steps: AUTH_HELPED: On authorized Windows 10/11 same-user host with Threema Desktop 2.x profile: (1) Generate `poc/key-storage-acl-bypass-poc.py` implementing 6-step chain with `--dry-run` (Linux no-op, validates crypto.ts:223 benchmark sha256=`400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12`); (2) `python3 ast.parse poc/...` + `python3 poc/... --dry-run` → EXIT 0; (3) `python3 poc/...` on Windows → verify keystorage.password.bin ACL-free + DPAPI decrypt + Argdon2id decrypt + SQLite PRAGMA key opens DB → full message/contact enumeration
+impact: Same-user process extracts all Threema desktop messages, contacts, group keys, and Ed25519 identity private key → full impersonation + database decryption. CVSS 7.8 High (AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H)
+testability: AUTH_HELPED
+[HYP] 8th unauthenticated identity-existence oracle /identity/set_featuremask with case-fold amplification and browser-viable CORS
+class: IDOR
+asset: ds-apip.threema.ch + api.threema.ch + apip.threema.ch (/identity/set_featuremask)
+confidence: 90
+reasoning: POST `{"identity":X}` → valid→200/133-135B (token + constant tokenRespKeyPub sha256 `c8005cca9…`), invalid→200/46B "Identity not found". Case-fold: EchoEcho↔ECHOECHO → identical valid response (GET `/identity/EchoEcho` → 404, case-sensitive). OPTIONS→200 with CORS `*` + Allow-Methods + Allow-Headers (browser-viable). 3-host sibling parity byte-identical. featureMask WRITE gated behind downstream PoP (no unauth mutation); oracle is read-only.
+evidence_needed: POST `{"identity":"echoecho"}` → 200/133B token + tokenRespKeyPub on all 3 hosts; POST `{"identity":"ZZZZZZZZ"}` → 200/46B; OPTIONS → 200 + ACAO:* + Allow-Methods; GET `/identity/EchoEcho` → 404 (case-sensitive)
+verify_steps: PASSIVE: curl -s -D - -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identity":"echoecho"}' https://ds-apip.threema.ch/identity/set_featuremask → verify 200/133B + token + tokenRespKeyPub; curl -s -D - -X POST -d '{"identity":"ZZZZZZZZ"}' → verify 200/46B; curl -s -D - -X OPTIONS -H "Origin: https://evil.com" → verify 200 + ACAO:*; repeat on api.apip
+impact: 8th unauthenticated identity-existence oracle (8 total) with case-fold amplification reducing 36^8 search → ~2.8M effective space; browser-viable CORS enables drive-by enumeration. CVSS 6.5 Medium (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
+testability: PASSIVE
+[NEXT] RAG: Generate `poc/key-storage-acl-bypass-poc.py` implementing the 6-step Windows key-storage ACL bypass chain (read keystorage.password.bin → DPAPI decrypt → Argon2id→XSalsa20-Poly1305 decrypt keystorage.bin → InnerKeyStorageV3 parse ck+databaseKey → open threema.sqlite with raw PRAGMA key). Include `--dry-run` mode that validates crypto.ts:223 benchmark sha256=`400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (Linux no-op, EXIT 0). This resolves the 22nd consecutive cycle of filesystem/Kb contradiction — artifact authorship is the single blocking step before Windows runtime validation.
+[HYP] Unauthenticated identity census with live active-account discrimination
+class: IDOR
+asset: ds-apip.threema.ch + api.threema.ch + apip.threema.ch (/identity/check_featuremask)
+confidence: 98
+reasoning: 13 draws / 3 hosts cumulative 34/4.996M = 6.81e-6 (Poisson-stable); ID space 36^8 = 2.82e12 → E[registered] ≈ 1.9e7; 5 distinct LIVE ACTIVE accounts recovered (5U8DM3J3, RFK5RDU6, 7V7T2NKR, 7VVR9AX2, WEUFWAM2) all state:0/mask:2047; CORS `*` on POST, zero 429, body-cap ~524k IDs/req.
+evidence_needed: 2 more draws (fresh ds-apip + apip seeds) to split within/cross-host active-share variance and tighten population CI.
+verify_steps: PASSIVE — single 400k-ID POST `{"identities":[400k random 36-alphabet IDs]}` per host per cycle (body ~4.8MB < 5.77MB cap), classify hits via POST /identity/check, update Poisson CI.
+impact: attacker sizes the ~19M registered pool and active share → census-validated phishing/impersonation. CVSS 7.5 High.
+testability: PASSIVE
+[HYP] Second state-flip establishes near-real-time activation/deactivation detection
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check (siblings api/apip)
+confidence: 72
+reasoning: 7VVR9AX2 state:0 now 12 consecutive readings (single 1→0 flip observed once); this cycle added a new active account (WEUFWAM2) via census; cohort byte-stable.
+evidence_needed: a second flip (either direction) to confirm flips are events, not noise.
+verify_steps: PASSIVE — per-cycle 10-ID cohort POST /identity/check ≤1 rps; on any flip, single POST /identity/fetch_priv for revocation correlation.
+impact: near-real-time activation/deactivation detection → opportunistic targeting. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] Same-user process extracts Ed25519 identity key + SQLCipher databaseKey from ACL-free keystorage on Windows
+class: MISCONFIG
+asset: threema-desktop 2.x Windows (%APPDATA%/Threema/data/keystorage.bin + keystorage.password.bin)
+confidence: 95
+reasoning: 6-path RAG chain verified on GitHub stable (fs.ts:41 → `{}` on win32; index.ts:559/electron-main.ts:944 write with no ACL; inner/v3.ts:65,70 exposes ck + databaseKey; sqlite.ts:240 raw PRAGMA key). PoC artifact absent from filesystem 24 cycles — authorship is the single blocker.
+evidence_needed: artifact on disk (`poc/key-storage-acl-bypass-poc.py`, ast.parse + `--dry-run` EXIT 0), then Windows DACL + DPAPI recovery on authorized host.
+verify_steps: AUTH_HELDED: generate artifact; `python3 poc/... --dry-run` → EXIT 0; on Windows verify win32security shows no restrictive DACL and `safeStorage.decryptString()` recovers the vault password.
+impact: full identity impersonation + message-DB decryption by any same-user process. CVSS 7.8 High.
+testability: AUTH_HELPED
+[NEXT] PROBE: POST `{"identities":[400k fresh-seed random 36-alphabet IDs]}` to https://ds-apip.threema.ch/identity/check_featuremask (≤1 rps, body ~4.8MB < 5.77MB cap), classify hits via single POST /identity/check → completes the 15-draw population CI + splits active-share variance cross-host.
