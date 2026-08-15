@@ -16220,3 +16220,4 @@ evidence_needed: already confirmed via own probes; remaining value = formally re
 verify_steps: PASSIVE: POST `{"identity":"echoecho"}` to /identity/set_featuremask on all 3 hosts → verify 200/133B + token + tokenRespKeyPub; GET `/identity/EchoEcho`→404 (case-sensitivity contrast).
 impact: 8th unauthenticated identity-existence oracle; case-fold reduces 36^8→~2.8M; drive-by enumeration via CORS. CVSS 6.5 Medium.
 testability: PASSIVE
+## 2026-08-15 14:06:02 UTC [chat] (model bigpickle)

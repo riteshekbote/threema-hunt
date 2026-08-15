@@ -1967,3 +1967,13 @@ https://ds-apip.threema.ch/identity/set_featuremask` -> HTTP 404
 https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
 https://ds-apip.threema.ch/identity/lookup -> HTTP 404
 https://ds-apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-15 14:07:13 UTC
+https://api.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/set_featuremask -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/match -> HTTP 400
+https://ds-apip.threema.ch/identity/check -> HTTP 500
+https://ds-apip.threema.ch/identity/EchoEcho -> HTTP 404
+https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
+https://ds-apip.threema.ch/identity/set_featuremask` -> HTTP 404
