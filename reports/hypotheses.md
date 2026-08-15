@@ -5464,3 +5464,14 @@
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: 135B-vs-88B differential CONFIRMED fresh via own probes this cycle — valid identity (ECHOECHO) → 200 wit
 - LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT header inconsistency byte-stable — GET 400 has NO HSTS/Expect-CT but ACAO:* + `Access-Cont
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Conditional RCE requires separate renderer exploit chain; 0 dynamic sinks (require/impor
+
+## RANKED HYPOTHESES 2026-08-15 09:11:46 UTC
+- [95] ds-apip.threema.ch: Unauthenticated directory identity enumeration across 7 oracle endpoints on 3 prod hosts (from reports/hypotheses-laguna.txt)
+- [80] https://ds-apip.threema.ch/identity/check: Second state-flip canary — directionality and persistence remain unproven (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: next cycle exactly ONE POST to https://ds-apip.threema.ch/identity/match with N=100 `emailHashes` (base64 HMAC placeholders, ≤1 rps, Origin evil.example)
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact `poc/key-storage-acl-bypass-poc.py` now genuinely on disk (sha256 `801b6f90bdb4f8914fb0
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 = `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed 
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Conditional RCE requires separate renderer exploit chain (0 dynamic sinks require/import
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle permanently downgraded to non-finding — 404 response has NO CORS headers, missing-key/invali
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: Request-shape sensitivity confirmed this cycle — single-field `{"identity":X}` required; valid (ECHOECHO
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 12th census draw (400k IDs, seed 2026081505) → 6 hits/400k=1.5e-5 density; all 6 dormant (state:1
