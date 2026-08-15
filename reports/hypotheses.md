@@ -6618,3 +6618,19 @@
 - LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below the ≥3-draw threshold; not firm enough to claim a fingerprint class
 - LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ sha256 claims; RAG s
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Confirmed via direct WebFetch on GitHub `stable` — `sandbox` UNSET (not `false`), `// TO
+
+## RANKED HYPOTHESES 2026-08-15 23:36:01 UTC
+- [97] https://ds-apip.threema.ch/identity/check_featuremask: Cross-host distributed identity census with active-account discrimination at ~524k IDs/request (from reports/hypotheses-laguna.txt)
+- [60] https://api.threema.ch/identity/check_featuremask: check_featuremask census density drift — 2-draw confirmation (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2Y
+- NEXT(hypotheses-bigpickle.txt): PROBE: census draw 72 — single POST `{"identities":[400k seeded base32 IDs]}` (seed 2026081572) to https://apip.threema.ch/identity/check_featuremask (3rd host 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 9th token-mint existence oracle (valid→200/133-136B token + constant tokenRespKeyPub, invalid→
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_bulk: 8/8 census identities return distinct genuine pubkeys (featureLevel:3, mask:2047, state:0; 8FCAXYHF type
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200 (method-handling divergence from check_featuremask/check which return 500 on GET)
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: request-shape sensitivity confirmed — single-field {"identity":X} body required; malformed bodies yield 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost-unit gating bounded <10 (N=10 emailHashes → 429/0B; >3d idle N=1 → 200/39B) — email→identity throughpu
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below the ≥3-draw threshold; not firm enough to claim a fingerprint class
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ sha256 claims; RAG s
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Confirmed via direct WebFetch on GitHub `stable` — `sandbox` UNSET (not `false`), `// TO
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: PERMANENTLY DOWNGRADED — no CORS on 404 response, missing-key/invalid-key byte-identical {"error":"Invalid X-Api-Key"}, 
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact filesystem GROUND TRUTH confirms STILL ABSENT (`ls poc/` → No such file) — all 20+ cycl
