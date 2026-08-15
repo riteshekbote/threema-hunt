@@ -14230,3 +14230,4 @@ testability: PASSIVE
 [LEARN] ACCEPTED OTHER @ apip.threema.ch/identity/check: response now confirmed to include `checkInterval:86400` alongside states/types/featureMasks (24h client recheck hint). Previously-unlogged field; harmless but completes response-shape documentation.
 [LEARN] CONFIRMED IDOR @ apip.threema.ch/identity/check_featuremask: 12th seeded 400k-ID draw → 200 in 13.8s zero 429, density series 12-draw cumulative 7.42e-6; draw-12 outlier (1.5e-5) within Poisson noise (λ≈2.74, P(X=6)≈5%); active-share tally now 7 cumulative state:0 readings (5U8DM3J3, RFK5RDU6, 7V7T2NKR, 7VVR9AX2×4) — 4 distinct live accounts; type:1 still DZ34BVDV-only (1/43).
 [HYP] census Poisson-stability: 12 draws mean 3.58 hits/draw (SEM/mean ~7.5%), 43/5.796M ≈ 7.42e-6; draw-12 count 6 = 1.6σ above mean — consistent with Poisson(λ≈3.6), no clustering evidence. Registered-pop bound now ~2.1e7 at 36^8.
+## 2026-08-15 06:53:50 UTC [chat] (model bigpickle)
