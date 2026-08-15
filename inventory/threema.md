@@ -3299,3 +3299,6 @@
 - CHANGED ds-apip.threema.ch/identity/check_featuremask: transient HTTP 500s fully recovered to 200/25B
 - CHANGED ds-apip.threema.ch/identity/check: transient HTTP 500s fully recovered to 200/76B with 10000-ID cap
 - CHANGED State-flip primitive: 7VVR9AX2 state 1→0 confirmed on 2nd consecutive cycle
+
+## 2026-08-15 14:07:10 UTC
+- NEW NO_DELTA — All items in latest inventory (2026-08-15 13:53:54) are re-verifications of findings already ACCEPTED in knowledge base (set_featuremask, match N-limit, fetch_priv shape-sensitivity, check_
