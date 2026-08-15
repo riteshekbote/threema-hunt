@@ -17162,3 +17162,31 @@ evidence_needed: 2 consecutive re-reads of the same 12-ID cohort showing stable 
 verify_steps: PASSIVE: same weekly POST as churn hypothesis (one request serves both); compare type array index-to-identity mapping across cycles.
 impact: if type is volatile, the Work-org type:1 fingerprint class is unreliable — attacker-side attribution primitive degrades; severity: low
 testability: PASSIVE
+## 2026-08-15 18:38:11 UTC [chat] (model bigpickle)
+[HYP] Cross-host distributed identity census with active-account discrimination
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask (sibling parity api + apip)
+confidence: 95
+reasoning: 17 draws ~5.5M IDs cumulative density ~7e-6 Poisson-stable; 7 distinct live-active accounts (state:0 mask:2047) byte-identical across 3 hosts; 524k IDs/req, body-cap ~5.77MB, zero 429, CORS `*`. Work-org type:1 anchor set corrected+stabilized this cycle to {DZ34BVDV dormant mask:31, 8FCAXYHF active mask:2047}.
+evidence_needed: marginal — ≥3 more type:1 draws to firm the Work-org fingerprint, or a second churn flip; core primitive fully proven.
+verify_steps: PASSIVE: single 524k-ID POST `{"identities":[...]}` to one prod host at body-cap + follow-up `{"identities":<hits>}` to /identity/check; ≤1 rps, 2 req/cycle.
+impact: unauthenticated map of live-active/dormant/legacy-client/Work-org identities at ~524k IDs/req, no rate limit → targeted phishing/BEC + lifecycle tracking; CVSS 3.1 7.5 (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N); severity medium-high
+testability: PASSIVE
+[HYP] Unauthenticated activity-churn surveillance of known identities
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/check (sibling parity 3 hosts)
+confidence: 62
+reasoning: this cycle's 12-ID re-read: 8/8 active seeds state:0, 2 dormant, masks byte-stable; 7VVR9AX2 held state:0 across 12+ reads after its single prior 1→0 flip; zero rate limit (35+ probes, no 429).
+evidence_needed: a second persistent state flip in the stable cohort to prove time-series surveillance as reproducible primitive (1 flip observed once).
+verify_steps: PASSIVE: single weekly POST `{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2YB","M5NANUU2","8FCAXYHF","E7UUX69V","HHH24BPY","DZ34BVDV","ZZZZZZZZ","ECHOECHO"]}` to ds-apip.threema.ch/identity/check; record states+types index-aligned; 1 req/cycle.
+impact: attacker silently tracks account activation/deactivation without auth — follow-on phishing against flipped-to-active accounts; severity medium
+testability: PASSIVE
+[HYP] /identity/match bucket-capacity and refill-rate model
+class: BUSLOGIC
+asset: https://ds-apip.threema.ch/identity/match
+confidence: 50
+reasoning: N=1 after >3d idle → 200/39B (ACAO:*); N=10 → 429/0B; 60s spacing still 429; capacity <10, refill ≥1/multi-hour — exact capacity and refill slope unmapped.
+evidence_needed: post-cooldown N=1..9 sequence to bound bucket capacity and refill rate.
+verify_steps: PASSIVE: after >3d idle, single N=1 POST; then one N-per-multi-hour POST stepping N=2..9, mapping 200/429 boundary; ≤1 req/host/day.
+impact: bounds attacker throughput of the email→identity oracle (~1-9 hashes per multi-hour window today); severity low-medium
+testability: PASSIVE
