@@ -5695,3 +5695,20 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 sha256 = 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (computed from
 - LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
 - LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact poc/key-storage-acl-bypass-poc.py NOW genuinely on disk (sha256 801b6f90..., 773 lines,
+
+## RANKED HYPOTHESES 2026-08-15 12:59:04 UTC
+- [80] https://ds-apip.threema.ch/identity/set_featuremask: Unauthenticated feature-mask write oracle via set_featuremask (from reports/hypotheses-nemotron3.txt)
+- [70] https://ds-apip.threema.ch/identity/check: Live account-activity surveillance via cohort state-flip tracking (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","ZZZZZZZ
+- NEXT(hypotheses-bigpickle.txt): HUMAN: On authorized Windows 10/11 same-user host with Threema Desktop 2.x installed:
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: 8th consumer route fully mapped — POST {"identity":X} mints per-request challenge token (valid→200/
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost-unit gating bounded <10 — N=10 emailHashes POST → 429/0B (ACAO:*); bucket capacity <10, refill ≥1/mult
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: Request-shape sensitivity confirmed — single-field {"identity":X} required; malformed bodies yield unive
+- LEARN: ACCEPTED IDOR @ api.threema.ch/identity/check_featuremask: 524k-scale parity confirmed at body-cap — 200/2620012B, density 7.63e-6 identical to ds-apip, zero 42
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: PERMANENTLY DOWNGRADED to non-finding — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 sha256 = 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (computed from
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact poc/key-storage-acl-bypass-poc.py NOW genuinely on disk (sha256 801b6f90..., 773 lines,
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 sha256 = 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (computed from
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact poc/key-storage-acl-bypass-poc.py NOW genuinely on disk (sha256 801b6f90..., 773 lines,

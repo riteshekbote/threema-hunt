@@ -13055,3 +13055,4 @@ impact: 8th unauthenticated identity-existence oracle (8 total: fetch_bulk, chec
 testability: PASSIVE
 [FINAL] (ranked):
 [NEXT] RAG: Author `poc/key-storage-acl-bypass-poc.py` implementing the 6-step Windows key-storage ACL bypass chain (read keystorage.password.bin → DPAPI decrypt → Argon2id→XSalsa20-Poly1305 decrypt keystorage.bin → InnerKeyStorageV3 parse ck+databaseKey → open threema.sqlite with raw PRAGMA key). Include `--dry-run` mode that validates crypto.ts:223 benchmark sha256=`400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (Linux no-op, EXIT 0). This resolves the 20+ cycle KB/filesystem contradiction — artifact authorship is the sole blocking step before AUTH_HELPED Windows runtime validation.
+## 2026-08-15 12:58:50 UTC [desktop] (model laguna)
