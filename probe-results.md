@@ -2008,3 +2008,10 @@ https://apip.threema.ch/identity/set_featuremask -> 200 len=? type=application/j
 https://apip.threema.ch/identity/check_featuremask -> HTTP 500
 https://work.test.threema.ch/api-app/public/license/token/{64hex -> HTTP 404
 https://apip.threema.ch/identity/check_featuremask` -> HTTP 404
+
+## 2026-08-15 15:26:33 UTC
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/set_featuremask -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/EchoEcho -> HTTP 404
+https://ds-apip.threema.ch/identity/check -> HTTP 500
