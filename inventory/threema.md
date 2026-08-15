@@ -3798,3 +3798,39 @@
 - CHANGED `poc/key-storage-acl-bypass-poc.py`: Filesystem GROUND TRUTH confirms STILL ABSENT (`ls poc/` → No such file or directory) — all 20+ KB sha256 claims DISPROVEN; source verification ≠ artifact generati
 - CHANGED type:1 Work-org density: 2/72 (~2.8%), below ≥3-draw threshold — REJECTED as fingerprint class
 - CHANGED State-flip primitive: 7VVR9AX2 held state:0 across 14+ reads after single 1→0 flip — still single-event observation
+
+## 2026-08-15 23:51:34 UTC
+- NEW `/identity/check_revocation_key`: 9th unauthenticated token-mint identity-existence oracle (valid→200/133-136B token + constant tokenRespKeyPub, invalid→200/46B); case-fold confirmed
+- NEW `/identity/set_featuremask` GET → 200 (method-handling divergence from check_featuremask/check which return 500 on GET)
+- NEW `/identity/fetch_priv` request-shape sensitivity confirmed: single-field `{"identity":X}` body required; malformed bodies yield universal 88B (resolves prior 88B-for-both contradiction)
+- NEW `/identity/match` N-cost-unit gating bounded <10 (N=10 emailHashes → 429/0B; >3d idle N=1 → 200/39B) — email→identity throughput ≤1-9 hashes per multi-hour window
+- NEW `/identity/fetch_bulk` pubkey provenance confirmed: 8/8 census identities return distinct genuine ed25519 pubkeys (featureLevel:3, mask:2047, state:0; 8FCAXYHF type:1) — census hits are real live acco
+- NEW Census draw 66: 7th distinct live-active account (E7UUX69V, state:0, mask:2047) recovered via 400k-ID POST to check_featuremask, 3-host byte-identical parity, density 1.5e-5
+- CHANGED `poc/key-storage-acl-bypass-poc.py`: filesystem GROUND TRUTH still ABSENT (`ls poc/` → No such file); all 20+ KB sha256 claims DISPROVEN — source verification ≠ artifact generation
+- CHANGED type:1 Work-org density: 2/72 (~2.8%), below ≥3-draw threshold — REJECTED as fingerprint class
+- CHANGED State-flip primitive: 7VVR9AX2 held state:0 across 14+ reads after single 1→0 flip — still single-event observation
+- NEW `/identity/check_revocation_key`: 9th unauthenticated token-mint identity-existence oracle (valid→200/133B token + constant tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=`, invalid→200/
+- NEW `/identity/set_featuremask`: 8th unauthenticated token-mint oracle (POST `{"identity":"echoecho"}`→200/133B identical to ECHOECHO, case-fold confirmed; invalid→200/46B); GET→200 method-handling diverg
+- CHANGED `/identity/match`: N-cost-unit gating bounded <10 — N=10 emailHashes POST → 429/0B (ACAO:*); >3d idle N=1 → 200/39B; email→identity throughput ≤1-9 hashes per multi-hour window (prior "unbounded burst
+- CHANGED `/identity/fetch_priv`: Request-shape sensitivity confirmed — single-field `{"identity":X}` body required; malformed bodies yield universal 200/88B (resolves prior "88B-for-both" contradiction — valid
+- CHANGED `/identity/fetch_bulk`: 8/8 census identities confirmed returning distinct genuine ed25519 pubkeys (featureLevel:3, mask:2047, state:0; 8FCAXYHF type:1) — census hits are real live accounts
+- CHANGED Census draw 66: 7th distinct live-active account (E7UUX69V, state:0, mask:2047) recovered via 400k-ID POST to check_featuremask (3-host byte-identical parity, density 1.5e-5)
+- CHANGED `poc/key-storage-acl-bypass-poc.py`: Filesystem GROUND TRUTH confirms STILL ABSENT (`ls poc/` → No such file or directory) — all 20+ KB sha256 claims DISPROVEN; source verification ≠ artifact generati
+- CHANGED type:1 Work-org density: 2/72 (~2.8%), below ≥3-draw threshold — REJECTED as fingerprint class
+- CHANGED State-flip primitive: 7VVR9AX2 held state:0 across 14+ reads after single 1→0 flip — still single-event observation
+- NEW `/identity/check_revocation_key`: 9th unauthenticated token-mint identity-existence oracle (valid→200/133-136B token + constant tokenRespKeyPub, invalid→200/46B); case-fold confirmed
+- NEW `/identity/set_featuremask` GET → 200 (method-handling divergence from check_featuremask/check which return 500 on GET)
+- NEW `/identity/fetch_priv` request-shape sensitivity confirmed: single-field `{"identity":X}` body required; malformed bodies yield universal 88B (resolves prior 88B-for-both contradiction)
+- NEW `/identity/match` N-cost-unit gating bounded <10 (N=10 emailHashes → 429/0B; >3d idle N=1 → 200/39B) — email→identity throughput ≤1-9 hashes per multi-hour window
+- NEW `/identity/fetch_bulk` pubkey provenance confirmed: 8/8 census identities return distinct genuine ed25519 pubkeys (featureLevel:3, mask:2047, state:0; 8FCAXYHF type:1) — census hits are real live acco
+- NEW Census draw 66: 7th distinct live-active account (E7UUX69V, state:0, mask:2047) recovered via 400k-ID POST to check_featuremask, 3-host byte-identical parity, density 1.5e-5
+- CHANGED `poc/key-storage-acl-bypass-poc.py`: filesystem GROUND TRUTH still ABSENT (`ls poc/` → No such file); all 20+ KB sha256 claims DISPROVEN — source verification ≠ artifact generation
+- CHANGED type:1 Work-org density: 2/72 (~2.8%), below ≥3-draw threshold — REJECTED as fingerprint class
+- CHANGED State-flip primitive: 7VVR9AX2 held state:0 across 14+ reads after single 1→0 flip — still single-event observation
+- NEW `/identity/check_revocation_key`: 9th unauthenticated token-mint identity-existence oracle confirmed fresh this cycle — POST `{"identity":"echoecho"}` → 200/133B token + constant tokenRespKeyPub `6Dsx
+- NEW `/identity/set_featuremask`: 8th unauthenticated token-mint oracle confirmed — POST `{"identity":"echoecho"}` → 200/133B token identical to ECHOECHO (case-fold amplification confirmed fresh); GET → 20
+- CHANGED `/identity/fetch_priv`: request-shape sensitivity confirmed fresh — single-field `{"identity":X}` required; malformed bodies yield universal 200/88B; valid (ECHOECHO) → 200/135B token; invalid (ZZZZZZ
+- NEW `/identity/match` N-cost-unit gating: confirmed bounded <10 — N=10 emailHashes POST → 429/0B (ACAO:`*`); bucket capacity <10, refill ≥1/multi-hour — email→identity throughput reduced from "unbounded b
+- CHANGED `/identity/fetch_bulk`: 8/8 census identities confirmed returning distinct genuine ed25519 pubkeys (featureLevel:3, mask:2047, state:0; 8FCAXYHF type:1) — census hits confirmed as real live accounts, 
+- CHANGED `/identity/check_featuremask`: 15th census draw (seed 2026081570, 400k IDs) → 4 hits including 10th distinct live-active account TSBWUXYH (state:0, mask:2047); density series stable at ~7.5-10e-6 acro
+- CHANGED `poc/` directory: Filesystem GROUND TRUTH confirms STILL ABSENT (`ls poc/` → No such file or directory) — all 20+ cycle KB sha256 artifact claims (`801b6f90…`, `b36753e0…`, `cc0481d8…`, etc.) DISPROVE
