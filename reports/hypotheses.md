@@ -5885,3 +5885,6 @@
 - LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
 - LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): PoC artifact poc/key-storage-acl-bypass-poc.py NOW genuinely on disk (sha256 801b6f90..., 773 lines,
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Conditional RCE requires separate renderer exploit chain (0 dynamic sinks require/import
+
+## RANKED HYPOTHESES 2026-08-15 15:43:52 UTC
+- [55] https://ds-apip.threema.ch/identity/check: Unauthenticated activity-churn surveillance of known identities across 3 hosts (from reports/hypotheses-bigpickle.txt)
