@@ -3767,3 +3767,14 @@
 - CHANGED `poc/` directory: filesystem GROUND TRUTH confirms STILL ABSENT (`ls poc/` → No such file) — all 20+ cycle KB sha256 claims for `poc/key-storage-acl-bypass-poc.py`/`.py` DISPROVEN; source verification
 - CHANGED probe-results.md 2026-08-15 22:17 UTC: `check_featuremask` GET→500 (POST-only, NOT a regression — byte-stable); `set_featuremask` GET→200 (method-handling divergence stable); `check_revocation_key` GE
 - CHANGED `set_featuremask` GET→200 (method-handling divergence) — endpoint accepts GET unlike `check`/`check_featuremask` which return 500 on GET; fresh probe confirms stable
+
+## 2026-08-15 23:14:33 UTC
+- NEW `/identity/check_revocation_key`: 9th unauthenticated token-mint identity-existence oracle (valid→200/133-136B token + constant tokenRespKeyPub, invalid→200/46B); case-fold confirmed
+- NEW `/identity/set_featuremask` GET → 200 (method-handling divergence from check_featuremask/check which return 500 on GET)
+- NEW `/identity/fetch_priv` request-shape sensitivity confirmed: single-field `{"identity":X}` body required; malformed bodies yield universal 88B (resolves prior 88B-for-both contradiction)
+- NEW `/identity/match` N-cost-unit gating bounded <10 (N=10 emailHashes → 429/0B; >3d idle N=1 → 200/39B) — email→identity throughput ≤1-9 hashes per multi-hour window
+- NEW `/identity/fetch_bulk` pubkey provenance confirmed: 8/8 census identities return distinct genuine ed25519 pubkeys (featureLevel:3, mask:2047, state:0; 8FCAXYHF type:1) — census hits are real live acco
+- NEW Census draw 66: 7th distinct live-active account (E7UUX69V, state:0, mask:2047) recovered via 400k-ID POST to check_featuremask, 3-host byte-identical parity, density 1.5e-5
+- CHANGED `poc/key-storage-acl-bypass-poc.py`: filesystem GROUND TRUTH still ABSENT (`ls poc/` → No such file); all 20+ KB sha256 claims DISPROVEN — source verification ≠ artifact generation
+- CHANGED type:1 Work-org density: 2/72 (~2.8%), below ≥3-draw threshold — REJECTED as fingerprint class
+- CHANGED State-flip primitive: 7VVR9AX2 held state:0 across 14+ reads after single 1→0 flip — still single-event observation
