@@ -3314,3 +3314,5 @@
 - CHANGED `billing.threema.ch` — 301 → `threema.ch`.
 - NEW `ds-apip.test.threema.ch` — leaked test/staging directory server reachable (static + live 200).
 - NEW NO_DELTA — All items in latest inventory (2026-08-15 13:53:54) are re-verifications of findings already ACCEPTED in knowledge base (set_featuremask, match N-limit, fetch_priv shape-sensitivity, check_
+
+## 2026-08-15 14:58:41 UTC
