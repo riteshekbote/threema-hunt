@@ -17922,3 +17922,4 @@ evidence_needed: runtime confirmation on Windows (icacls permissive DACL + succe
 verify_steps: AUTH_HELPED: run `python3 poc/key-storage-acl-bypass-poc.py` on an authorized Windows host with threema-desktop installed; verify icacls output + recovered Ed25519 ck and databaseKey
 impact: local attacker recovers full Threema identity (Ed25519) + message DB key (SQLCipher); CVSS 3.1 7.1 AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N
 testability: AUTH_HELPED
+## 2026-08-15 19:55:59 UTC [chat] (model bigpickle)
