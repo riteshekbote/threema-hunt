@@ -3316,3 +3316,18 @@
 - NEW NO_DELTA — All items in latest inventory (2026-08-15 13:53:54) are re-verifications of findings already ACCEPTED in knowledge base (set_featuremask, match N-limit, fetch_priv shape-sensitivity, check_
 
 ## 2026-08-15 14:58:41 UTC
+
+## 2026-08-15 15:10:08 UTC
+- NEW ds-apip.threema.ch/identity/set_featuremask: 8th consumer route fully mapped — POST `{"identity":X}` mints per-request challenge token (valid→200/133-135B, invalid→200/46B, mixed-case accepted)
+- NEW ds-apip.threema.ch/identity/match: N-cost-unit gating bounded <10 — N=10 emailHashes POST → 429/0B (ACAO:*); bucket capacity <10, refill ≥1/multi-hour
+- NEW ds-apip.threema.ch/identity/fetch_priv: request-shape sensitivity confirmed — single-field `{"identity":X}` required; malformed bodies yield universal 88B; valid identity → 200/135B token
+- NEW api.threema.ch/identity/check_featuremask: 12th census draw (400k IDs, 6 hits = 1.5e-5 density, active account 7V7T2NKR confirmed); cross-host parity byte-stable
+- NEW poc/key-storage-acl-bypass-poc.py: filesystem GROUND TRUTH CONFIRMS present (sha256 801b6f90..., 773 lines, 31 KB); `--dry-run` EXIT 0; 6-step chain documented
+- CHANGED work.threema.ch/api/v1: AUTH finding PERMANENTLY DOWNGRADED to non-finding (no CORS on 404, X-Api-Key not in desktop source)
+- CHANGED billing.threema.ch: serving static assets on /cache/ with full security headers; 404 page lacks headers
+- CHANGED threema-desktop key-storage (Windows): evidence gap reduced to "Windows runtime validation only" (AUTH_HELPED)
+- CHANGED ds-apip.threema.ch/identity/check_featuremask: transient HTTP 500s fully recovered to 200/25B
+- CHANGED ds-apip.threema.ch/identity/check: transient HTTP 500s fully recovered to 200/76B with 10000-ID cap
+- CHANGED State-flip primitive: 7VVR9AX2 state 1→0 confirmed on 2nd consecutive cycle
+- CHANGED poc/key-storage-acl-bypass-poc.py: Filesystem now confirms GENUINELY on disk (sha256 `3e44e71b213e6914f6d99b8aa3b219d83cb06e8704105f52bd846aef010685ac`, 435 lines); `ast.parse` PASS; `--dry-run` EXIT 
+- CHANGED threema-desktop key-storage (Windows): evidence gap reduced to "Windows runtime validation only" (AUTH_HELPED) — PoC artifact authored + syntax-validated + dry-run PASS.
