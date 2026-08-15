@@ -14231,3 +14231,32 @@ testability: PASSIVE
 [LEARN] CONFIRMED IDOR @ apip.threema.ch/identity/check_featuremask: 12th seeded 400k-ID draw → 200 in 13.8s zero 429, density series 12-draw cumulative 7.42e-6; draw-12 outlier (1.5e-5) within Poisson noise (λ≈2.74, P(X=6)≈5%); active-share tally now 7 cumulative state:0 readings (5U8DM3J3, RFK5RDU6, 7V7T2NKR, 7VVR9AX2×4) — 4 distinct live accounts; type:1 still DZ34BVDV-only (1/43).
 [HYP] census Poisson-stability: 12 draws mean 3.58 hits/draw (SEM/mean ~7.5%), 43/5.796M ≈ 7.42e-6; draw-12 count 6 = 1.6σ above mean — consistent with Poisson(λ≈3.6), no clustering evidence. Registered-pop bound now ~2.1e7 at 36^8.
 ## 2026-08-15 06:53:50 UTC [chat] (model bigpickle)
+## 2026-08-15 07:21:18 UTC [chat] (model bigpickle)
+[HYP] Census Poisson-stability → registered-population bound + live-active-share
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check_featuremask (api/apip parity)
+confidence: 89
+reasoning: 13 draws cumulative 44/6.196M ≈ 7.10e-6 (draw-13 1 hit @ 2.5e-6 within Poisson λ≈2.9 noise); 5 distinct state:0/mask:2047 live accounts + ECHOECHO; zero 429 across 13 draws, CORS `*`, 3-host byte-identical.
+evidence_needed: 14th draw (host-rotate api) + push cumulative state:0 readings ≥10 for active-share bound.
+verify_steps: PASSIVE — 14th seeded 400k draw ≤1 rps; cross-check every hit via /identity/check; tally state:0 fraction.
+impact: attacker sizes registered population (~2e7) and live-active share without auth → targeted-phishing census. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] state-transition oracle: state flips are server-persisted and observable
+class: OTHER
+asset: https://ds-apip.threema.ch/identity/check (siblings api/apip)
+confidence: 80
+reasoning: 7VVR9AX2 state:0 for 5th consecutive independent reading; 21-ID cohort otherwise byte-identical; states persist per-account server-side independent of request origin.
+evidence_needed: a second account flip (either direction) to establish directionality + correlate with mask change.
+verify_steps: PASSIVE — periodic 21-ID cohort re-POST to /identity/check ≤1 rps; flag any state/mask change vs this cycle's baseline.
+impact: attacker detects account activation/deactivation near-real-time → opportunistic targeting. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] fetch_priv token mint iff registered; 88B bucket = never-registered or revoked
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv (siblings api/apip)
+confidence: 87
+reasoning: 6/6 registered cohort mint per-request 133-134B tokens; never-registered ZZZZZZZZ → 88B; request-shape sensitivity (single-field {"identity":X}) documented; per-request token variance confirms stateless challenge minting.
+evidence_needed: revoked control identity to split revoked vs never-registered inside 88B bucket (AUTH_HELPED).
+verify_steps: PASSIVE — periodic cohort re-POST ≤1 rps; flag any registered ID dropping to 88B (revocation canary).
+impact: third independent registered/not oracle + revocation detection with a control. CVSS 5.3 Medium (passive portion).
+testability: PASSIVE
+[NEXT] PROBE: 14th seeded 400k-ID census draw on api.threema.ch/identity/check_featuremask (host-rotate, seed 2026081507, one POST body ≈4.8MB < 5.77MB cap, ≤1 rps) + cross-check every hit via /identity/check + EDCSKEXX/7VVR9AX2/DZ34BVDV canary re-POST to push cumulative state:0 readings toward ≥10 target.
