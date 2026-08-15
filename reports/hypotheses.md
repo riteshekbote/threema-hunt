@@ -6077,3 +6077,22 @@
 - LEARN: REJECTED HYP @ type:1 Work-org density: draw 64 cohort all type:0 → type:1 stays 2/69 (~2.9%); not yet distinguishable from noise — needs ≥3 more type:1 draws b
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` re-confirmed
 - LEARN: REJECTED HYP @ PoC artifact `poc/key-storage-acl-bypass-poc.py`: Filesystem GROUND TRUTH (`ls poc/` → No such file) confirms ABSENT — all KB sha256 claims acros
+
+## RANKED HYPOTHESES 2026-08-15 17:45:44 UTC
+- [95] https://ds-apip.threema.ch/identity/check_featuremask: Cross-host distributed census at 524k IDs/req — dormant-majority + active-account discrimination (from reports/hypotheses-bigpickle.txt)
+- [92] https://ds-apip.threema.ch/identity/check_featuremask: Cross-host distributed identity census with active-account discrimination at 524k IDs/request (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2Y
+- NEXT(hypotheses-bigpickle.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","ZZZZZZZ
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: 8th consumer route fully mapped — POST {"identity":X} mints per-request challenge token (valid→200/
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost-unit gating bounded <10 — N=10 emailHashes POST → 429/0B (ACAO:*); bucket capacity <10, refill ≥1/mult
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: Request-shape sensitivity confirmed — single-field {"identity":X} required; malformed bodies yield unive
+- LEARN: ACCEPTED IDOR @ api.threema.ch/identity/check_featuremask: 524k-scale parity confirmed at body-cap — 200/2620012B, density 7.63e-6 identical to ds-apip, zero 42
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: PERMANENTLY DOWNGRADED to non-finding — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 sha256 = 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (computed from
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/identity/check_featuremask case-fold + alphabet validation: 80-ID boundary probe → no case-fold (echoecho→null vs ECHOEC
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): 6-path RAG chain verified on GitHub stable; PoC artifact STILL ABSENT on filesystem (20+ cycle contr
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Conditional RCE requires separate renderer exploit chain (0 dynamic sinks require/import
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 13th census draw confirms 6th distinct live active account (6YMAT2YB, state:0, mask:2047); census
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: 8th consumer route fully mapped — POST {"identity":X} mints per-request challenge token (valid→200/
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match: N-cost-unit gating bounded <10 — N=10 emailHashes POST → 429/0B (ACAO:*); bucket capacity <10, refill ≥1/mult
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: Request-shape sensitivity confirmed — single-field {"identity":X} required; malformed bodies yield unive
