@@ -1360,6 +1360,16 @@
 - 2026-08-16 REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT for 22+ cycles; all KB sha256 claims disproven.
 - 2026-08-16 REJECTED MISCONFIG @ crypto.ts:223: benchmark-only dummy, purged at L233.
 - 2026-08-16 REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: permanently downgraded — no CORS, key not in source.
+- 2026-08-16 ACCEPTED MISCONFIG @ crash family: 16 endpoint families × 4 hosts × GET+POST = 104+ combos; ACAO * on every 500; zero 429; instant recovery
+- 2026-08-16 ACCEPTED IDOR @ /identity/revoke (non-ws path): 11th token-mint identity-existence oracle — GET+text/plain + POST both return 200/133B token for valid, 200/46B for invalid; case-fold amplification; 3-host parity; OPTIONS 200 CORS *
+- 2026-08-16 ACCEPTED MISCONFIG @ /identity/create: 16th crash family member — POST {"publicKey":{"x":1}} → 500/0B on all 3 prod + staging; batch {"identities":[{}]} → 500/0B; 5x burst @0.5s all 500 no 429; recovery to 200/133B
+- 2026-08-16 ACCEPTED MISCONFIG @ check_license: joins crash family — POST {"version":{}} → 500/0B (3-host parity); GET+text/plain {"version":{}} → 500/0B (CORS-safelisted, preflight-free); only crash family with OPTIONS 200; 4-host parity (ds-apip/api/apip/ds-apip.test)
+- 2026-08-16 REJECTED MISCONFIG @ state_bigpickle.json: filesystem = {"phase":"POC","target":"chat"} — KB desktop-target claims stale
+- 2026-08-16 ACCEPTED MISCONFIG @ crash family: 16 endpoint families × 4 hosts × GET+POST = 104+ combos; ACAO * on every 500; zero 429; instant recovery
+- 2026-08-16 ACCEPTED IDOR @ /identity/revoke (non-ws path): 11th token-mint identity-existence oracle — GET+text/plain + POST both return 200/133B token for valid, 200/46B for invalid; case-fold amplification; 3-host parity; OPTIONS 200 CORS *
+- 2026-08-16 ACCEPTED MISCONFIG @ /identity/create: 16th crash family member — POST {"publicKey":{"x":1}} → 500/0B on all 3 prod + staging; batch {"identities":[{}]} → 500/0B; 5x burst @0.5s all 500 no 429; recovery to 200/133B
+- 2026-08-16 ACCEPTED MISCONFIG @ check_license: joins crash family — POST {"version":{}} → 500/0B (3-host parity); GET+text/plain {"version":{}} → 500/0B (CORS-safelisted, preflight-free); only crash family with OPTIONS 200; 4-host parity (ds-apip/api/apip/ds-apip.test)
+- 2026-08-16 REJECTED MISCONFIG @ state_bigpickle.json: filesystem = {"phase":"POC","target":"chat"} — KB desktop-target claims stale
 === INVENTORY gladia ===
 # Inventory: threema
 
