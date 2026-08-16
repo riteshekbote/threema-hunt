@@ -2828,3 +2828,12 @@ https://ds-apip.threema.ch/check_license',{method:'GET',headers:{'Content-Type':
 https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
 https://ds-apip.threema.ch/identity/check` -> HTTP 404
 https://ds-apip.test.threema.ch/identity/check_featuremask` -> HTTP 404
+
+## 2026-08-16 23:01:40 UTC
+https://ds-apip-work.threema.ch -> HTTP 401
+https://ds-apip.threema.ch/identity/match_token',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
+https://ds-apip.threema.ch/check_license',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
+https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
+https://ds-apip.test.threema.ch/identity/check_featuremask` -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/{revoke,match_token,set_featuremask -> HTTP 404
