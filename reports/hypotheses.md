@@ -7459,3 +7459,23 @@
 - LEARN: CONFIRMED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Census primitive byte-stable — tri-state oracle (null/state:1/state:0+mask:2047) + 524k-ID body-
 - LEARN: CONFIRMED MISCONFIG @ ds-apip.threema.ch/identity/create crash family: Unauthenticated 500/0B on malformed object input ({"publicKey":{"x":1}} and {"identities"
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET+body method-handling divergence confirmed — unique token-mint endpoint accepting GET (returns 2
+
+## RANKED HYPOTHESES 2026-08-16 14:53:23 UTC
+- [97] https://ds-apip.threema.ch/identity/check_featuremask: Unauthenticated massive identity census with active-account discrimination via check_featuremask (from reports/hypotheses-nemotron3.txt)
+- [95] https://{ds-apip,api,apip}.threema.ch/identity/create: Crash-family DoS via unauthenticated malformed object input on shared handler (from reports/hypotheses-laguna.txt)
+- [90] https://{ds-apip,api,apip}.threema.ch/identity/{create,check,check_featuremask,match_token,check_revocation_key,set_revocation_key,fetch_priv,fetch_bulk,set_featuremask,sfu_cred,blob_cred,update_work_info,match,revoke}: Crash family cross-origin amplification via CORS-safelisted GET+text/plain (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: single browser-console fetch — `fetch('https://ds-apip.threema.ch/identity/match_token',{method:'GET',headers:{'Content-Type':'text/plain'},body:'{"ident
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.threema.ch/identity/create crash family: Unauthenticated 500/0B on malformed object input confirmed across all 3 prod hosts + stagi
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET+body method-handling divergence — unique token-mint endpoint accepting GET (valid→200/133B, inv
+- LEARN: CONFIRMED IDOR @ ds-apip.threema.ch/identity/fetch_priv: Request-shape sensitivity confirmed — single-field `{"identity":X}` required; malformed bodies yield un
+- LEARN: REJECTED MISCONFIG @ ds-apip.threema.ch/check_license input-shape differential: `{}` → 200/30B — no crash, no oracle, no differential — REJECTED as non-finding
+- LEARN: REJECTED HYPOTHESIS @ Type:1 Work-org fingerprint: density 2/72 below ≥3-draw threshold — not firm enough to claim a fingerprint class
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: Filesystem GROUND TRUTH (`ls poc/` → No such file; `find /` returns zero) confirms ABSENT
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: Filesystem shows `{"target":"chat"}` not `"desktop"` — agent state divergence persists
+- LEARN: REJECTED MISCONFIG @ reposcan-raw/threema-ch/ local clone: EMPTY (`find` returns 0 files across 18 repo dirs) — RAG evidence is WebFetch-only, not local; `analy
+- LEARN: CONFIRMED MISCONFIG @ {ds-apip,api,apip}.threema.ch crash family: GET-crash parity now byte-stable on all 3 prod hosts (apip match_token, api check_revocation_k
+- LEARN: CONFIRMED IDOR @ set_featuremask GET+body: 3-host sibling parity byte-identical — valid→200/133B token + constant tokenRespKeyPub, invalid→200/46B; only token-m
+- LEARN: CONFIRMED IDOR @ check_featuremask census: byte-stable this cycle — 200/35B `{"featureMasks":[2047,2047,null,9]}`, live-active 5U8DM3J3+RFK5RDU6 confirmed; tri-
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file, exit 2) — all 20+ KB sha256 claims dispro
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json: filesystem = `{"phase":"POC","target":"chat"}` — KB desktop-target claims stale (20+ cycles); agent state divergence 
+- LEARN: NO_NEW_CLASS: reposcan-raw grep-delta "0 new hit lines" (6656 files, 56 hits all previously-rejected items); no new secret/hardcode findings in source scan
