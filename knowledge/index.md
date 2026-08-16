@@ -1154,3 +1154,13 @@
 - 2026-08-16 REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: Filesystem GROUND TRUTH (`ls poc/` → No such file; `find /` returns zero) DISPROVES all 20+ cycle KB sha256 claims — 6-path RAG source chain remains verified on GitHub `stable`; source verification ≠ artifact generation; PoC must be authored
 - 2026-08-16 REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed from literal via WebFetch on `stable`) — confirmed benchmark-only dummy in `determineKdfParams()`, `benchmarkKey.purge()` at L233, NOT used for real encryption; distinct from key-storage ACL bypass
 - 2026-08-16 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree); `sandbox` unset (TODO DESK-79), L1240 comment incorrect per Electron docs — surface accepted as hardening gap only, formally rejected as standalone class
+- 2026-08-16 ACCEPTED MISCONFIG — Shared-handler crash class fully mapped:
+- 2026-08-16 ACCEPTED IDOR — check_featuremask PASSIVE census confirmed:
+- 2026-08-16 ACCEPTED IDOR — Token-mint oracle cluster (6 endpoints):
+- 2026-08-16 ACCEPTED MISCONFIG — Safe API HSTS/Expect-CT gap:
+- 2026-08-16 REJECTED HYPOTHESIS — check_license input-shape differential:
+- 2026-08-16 REJECTED MISCONFIG — BrowserWindow sandbox as standalone RCE:
+- 2026-08-16 REJECTED MISCONFIG — crypto.ts:223 benchmark password:
+- 2026-08-16 RESOLVED — 20+ cycle KB/filesystem contradiction:
+- 2026-08-16 REJECTED — work.threema.ch X-Api-Key oracle:
+- 2026-08-16 REJECTED — Type:1 Work-org fingerprint:
