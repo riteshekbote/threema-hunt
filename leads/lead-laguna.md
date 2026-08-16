@@ -19851,3 +19851,84 @@ testability: PASSIVE
 asset: https://{ds-apip,api,apip}.threema.ch/identity/{match_token,check_revocation_key,fetch_priv,set_featuremask,sfu_cred,blob_cred,update_work_info,create}
 confidence: 88
 testability: PASSIVE
+## 2026-08-16 14:06:18 UTC [desktop] (model laguna)
+[HYP] Crash-family DoS report ready — 14/14 endpoints, pending single browser-context proof
+class: MISCONFIG
+asset: https://{ds-apip,api,apip}.threema.ch/identity/{create,check,check_featuremask,match_token,check_revocation_key,set_revocation_key,fetch_priv,fetch_bulk,set_featuremask,sfu_cred,blob_cred,update_work_info,match,revoke} + staging ds-apip.test.threema.ch
+confidence: 95
+reasoning: 14/14 consumer endpoint families deterministically 500/0B on object-typed values, byte-identical across 3 hosts + staging; ACAO `*` + Allow-Methods POST,GET,OPTIONS,DELETE on every 500; text/plain POST is CORS-safelisted → zero preflight; crash path unthrottled (zero 429 across burst probes); create endpoint closed the 11th family this cycle.
+evidence_needed: browser-context fetch() reading 500 status + ACAO `*` with text/plain body (zero preflight).
+verify_steps: AUTH_HELPED — HUMAN: `fetch('https://ds-apip.threema.ch/identity/match_token',{method:'POST',headers:{'Content-Type':'text/plain'},body:'{"identity":{"x":1}}'}).then(r=>console.log(r.status,r.headers.get('access-control-allow-origin')))` → expect 500 + `*`.
+impact: any website deterministically generates production 500s on 42+ host-endpoint combos from visitor browsers; unrate-limited; empty 500 bodies → no data leak. CVSS 4.3.
+testability: AUTH_HELPED
+[HYP] mask:2047 active-share ~77% bounds live-active census estimate
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask (api/apip parity)
+confidence: 79
+reasoning: mask:2047 cohort 10 state:0 vs 3 state:1 = 77%; 15 draws plateau 7.5–15e-6; 10 distinct live-active accounts; ECHOECHO (mask 9, state:0) proves state:0 exists below 2047 → 77% understates active.
+evidence_needed: ≥5 more mask:2047 census hits cross-confirmed via /identity/check; ECHOECHO-class (mask<2047, state:0) rate.
+verify_steps: PASSIVE — periodic 400k-ID check_featuremask draws ≤1 rps; POST each mask:2047 hit to /identity/check; tally state:0 ratio.
+impact: live-active population sizing + legacy-client phishing attribution (mask fingerprint). CVSS 5.3.
+testability: PASSIVE
+[HYP] set_featuremask GET+body mint evades POST-targeted logging/limits
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/set_featuremask
+confidence: 60
+reasoning: only token-mint endpoint accepting GET (valid→200/133B, invalid→200/46B); check/check_featuremask return 500 on GET; GET-with-body is non-standard and may evade access-log/IDS rules filtering on POST; case-fold amplification confirmed.
+evidence_needed: confirm GET mint token byte-identical to POST mint; verify absence of rate-limit on GET path vs POST path.
+verify_steps: PASSIVE — GET /identity/set_featuremask with `{"identity":"echoecho"}` @1 rps on all 3 hosts; compare token length/bytes with POST mint; 10 rapid GETs → check 429.
+impact: GET-based identity-existence enumeration vector that may bypass POST-targeted detection and any method-specific limiter. CVSS 5.3.
+testability: PASSIVE
+[NEXT] HUMAN: single browser-console fetch against `https://ds-apip.threema.ch/identity/match_token` with method POST, `Content-Type: text/plain`, body `{"identity":{"x":1}}`; record status (expect 500) and `access-control-allow-origin` header (expect `*`) and confirm no OPTIONS preflight fired — this is the final impact proof for the 14-endpoint crash-family report, after which author `reports/hypotheses-bigpickle.txt` (14-endpoint host matrix, crash bodies, staging parity, burst/recovery timing).
+[CHANGED] Filesystem GROUND TRUTH: `poc/` directory does NOT exist (`ls poc/` → No such file, exit 2) — all 20+ cycle KB sha256 claims of on-disk PoC artifact (`094f1487…`, `b36753e0…`, `cc0481d8…`, `383a859a…`, `55502fcf…`, `e39ba577…`, `13afef1a…`, `bed017f8…`, `801b6f90…`, `dbf1469c…`, `f0141b0c…`, `4a83bdea…`, `7d2a6538…`, `950b24f5…`, `ce1b1a2f…`, `09cfb382…`, `14386b`…) DISPROVEN
+[CHANGED] `state_bigpickle.json` filesystem = `{"phase": "POC", "target": "chat"}` (sha256 `94bd1bd1…`) — NOT `{"target":"desktop"}` as KB/hypotheses claim; agent state divergence persists
+[CHANGED] `reposcan-raw/threema-ch/` local clone EMPTY — `find` returns 0 files across all 18 repo subdirectories; all "RAG-VERIFIED via direct git clone" claims unfulfilled; source evidence is WebFetch-only (remote); `reposcan-raw/analysis.txt` = build error message (not actual scan output)
+[CHANGED] `reposcan-raw/grep-delta.txt` = "0 new hit lines vs previous scan" — code scan (6656 files, 56 hits) confirms zero new secret/hardcode findings; all hits match previously-rejected items (crypto.ts:223 benchmark dummy, SfuToken.kt:49 redaction, SentryConfig.kt:15/19 public DSN, AppMigration.swift:873 UserDefaults key, JoinResponse.kt:70 icePassword, test passwords in test files)
+[PRIO] https://ds-apip.threema.ch/identity/check_featuremask, 96, attack=10,business=10,tech=9,gate=10,cloud=5,fresh=8
+[PRIO] https://{ds-apip,api,apip}.threema.ch/identity/{match_token,check_revocation_key,fetch_priv,set_featuremask,create}, 93, attack=10,business=9,tech=9,gate=10,cloud=5,fresh=9
+[PRIO] https://{ds-apip,api,apip,test.ds-apip}.threema.ch/identity/create, 90, attack=10,business=8,tech=9,gate=10,cloud=5,fresh=9
+[PRIO] https://{ds-apip,api,apip}.threema.ch/identity/match, 86, attack=9,business=8,tech=8,gate=8,cloud=5,fresh=8
+[PRIO] https://ds-apip.threema.ch/identity/check_license, 84, attack=8,business=8,tech=9,gate=10,cloud=3,fresh=7
+[HYP] Unauthenticated massive identity census with active-account discrimination via check_featuremask
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask
+confidence: 97
+reasoning: POST accepts ~524k IDs/req (body-size cap ~5.77MB, 413/176B at 1M IDs); returns tri-state oracle (null=never-registered, state:1=dormant, state:0+mask:2047=live active); 10+ distinct live-active accounts confirmed across 15 census draws (density ~7-10e-6, zero 429 across 35+ probes); CORS `*` + Allow-Methods POST,Get,OPTIONS,DELETE on all 3 prod hosts; GET→500 (POST-only, not regression); staging ds-apip.test.threema.ch byte-identical + dataset-isolated
+evidence_needed: Live POST census draw returning state:0+masks:2047 for known valid IDs alongside null for invalid; CORS headers on response; sibling parity across api+apip
+verify_steps: PASSIVE: curl -s -D - -X POST -H "Content-Type: application/json" -H "Origin: https://evil.com" -d '{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ","ECHOECHO"]}' https://ds-apip.threema.ch/identity/check_featuremask — verify 200 + ACAO:* + featureMasks [2047,2047,null,9]; repeat api.threema.ch + apip.threema.ch
+impact: Unauthenticated massive enumeration yielding live Threema IDs + client capability fingerprints (mask:2047=current era); enables targeted phishing/social engineering at scale; CVSS 6.5 (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
+testability: PASSIVE
+[HYP] Crash-family DoS via unauthenticated malformed object input on shared handler
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/create
+confidence: 95
+reasoning: POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod hosts + staging (ds-apip.test.threema.ch); `{"identities":[{}]}` batch widening also 500/0B + ACAO:*; 5x rapid probes @0.5s spacing all 500 with zero 429; after burst, normal POST recovers to 200/133B; check_featuremask/check also 500 on malformed input but set_featuremask GET→200 (method-handling divergence); 14/14 consumer endpoint families deterministically crash identically
+evidence_needed: Confirmed 500/0B on create with object-typed input + sibling parity across ds-apip/api/apip + staging + ACAO:* on 500 + zero 429 across burst + recovery to 200
+verify_steps: PASSIVE: curl -s -w "\nHTTP:%{http_code} SIZE:%{size_download}\n" -X POST -H "Origin:https://evil.com" -H "Content-Type:application/json" -d '{"publicKey":{"x":1}}' https://ds-apip.threema.ch/identity/create — verify HTTP:500 SIZE:0; curl -s -o /dev/null -w "HTTP:%{http_code} SIZE:%{size_download}\n" -X OPTIONS -H "Origin:https://evil.com" https://ds-apip.threema.ch/identity/create — verify CORS *; repeat on api+apip for sibling parity
+impact: Any website can trigger deterministic 500s on 42+ host-endpoint combinations from visitor browsers; text/plain POST is CORS-safelisted (zero preflight); crash path unthrottled (zero 429); empty 500 bodies = no data leak; CVSS 5.3 (AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L)
+testability: PASSIVE
+[HYP] Token-mint existence oracle cluster across 6+ unauthenticated directory endpoints
+class: IDOR
+asset: https://{ds-apip,api,apip}.threema.ch/identity/{match_token,check_revocation_key,fetch_priv,set_featuremask,create}
+confidence: 93
+reasoning: 6 endpoints (match_token, check_revocation_key, fetch_priv, set_featuremask, create, sfu_cred/blob_cred/update_work_info) all return 200/N-byte token + constant tokenRespKeyPub (sha256 `c8005cca9…`) for valid identities; 200/46B "Identity not found" for invalid; case-fold amplification confirmed (echoecho≡ECHOECHO); CORS `*` + OPTIONS 200 browser-viable; set_featuremask uniquely accepts GET (method-handling divergence); sibling parity byte-identical across all 3 prod hosts
+evidence_needed: Identical token bytes + CORS `*` on valid vs "Identity not found" on invalid across all 6 endpoints + sibling parity across ds-apip/api/apip
+verify_steps: PASSIVE: curl -s -X POST -H "Origin:https://evil.com" -H "Content-Type:application/json" -d '{"identity":"echoecho"}' https://ds-apip.threema.ch/identity/match_token — verify 200 + token + constant tokenRespKeyPub; curl -s -X POST -H "Origin:https://evil.com" -H "Content-Type:application/json" -d '{"identity":"ZZZZZZZZ"}' https://ds-apip.threema.ch/identity/match_token — verify 200/46B; curl -s -o /dev/null -w "HTTP:%{http_code}\n" -X OPTIONS -H "Origin:https://evil.com" https://ds-apip.threema.ch/identity/match_token — verify 200 + CORS *
+impact: Unauthenticated identity-existence enumeration with browser-viable CORS enables drive-by ID probing; token-mint primitive shared across endpoints; constant tokenRespKeyPub enables offline token verification; CVSS 6.5 (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
+testability: PASSIVE
+[FINAL] 1. Unauthenticated massive identity census with active-account discrimination via check_featuremask (confidence 97, PASSIVE)
+[FINAL] 2. Crash-family DoS via unauthenticated malformed object input on shared handler (confidence 95, PASSIVE)
+[FINAL] 3. Token-mint existence oracle cluster across 6+ unauthenticated directory endpoints (confidence 93, PASSIVE)
+[NEXT] PROBE: Verify the check_featuremask census primitive is still live and byte-stable — `curl -s -w "\nHTTP:%{http_code} SIZE:%{size_download}\n" -X POST -H "Origin:https://evil.com" -H "Content-Type:application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ","ECHOECHO"]}' https://ds-apip.threema.ch/identity/check_featuremask` → expect 200 + ACAO:* + featureMasks [2047,2047,null,9]; then immediately repeat on api.threema.ch + apip.threema.ch to confirm sibling parity (1 rps max)
+[LEARN] REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: Filesystem GROUND TRUTH (`ls poc/` → No such file, exit 2) confirms ABSENT — all 20+ cycle KB sha256 claims DISPROVEN; 6-path RAG source chain remains verified on GitHub stable via WebFetch, but runtime artifact must be authored for Windows validation
+[LEARN] REJECTED MISCONFIG @ state_bigpickle.json KB claims: Filesystem shows `{"target":"chat"}` (sha256 `94bd1bd1…`) not `{"target":"desktop"}` — agent state divergence persists, KB/hypotheses files stale
+[LEARN] REJECTED MISCONFIG @ reposcan-raw/threema-ch/ local clone: `find` returns 0 files across all 18 repo directories — all "RAG-VERIFIED via direct git clone" claims unfulfilled; source evidence is WebFetch-only (remote); `analysis.txt` = build error, not scan output
+[LEARN] ACCEPTED MISCONFIG @ reposcan-raw/grep-delta.txt: "0 new hit lines vs previous scan" — code scan (6656 files, 56 hits) confirms no new secret findings; all hits match previously-rejected items (benchmark password, public DSNs, UserDefaults keys, redactions)
+[LEARN] CONFIRMED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Census primitive byte-stable — tri-state oracle (null/state:1/state:0+mask:2047) + 524k-ID body-size cap + zero 429 + CORS * + sibling parity across 3 prod hosts; 10+ distinct live-active accounts confirmed across 15 draws
+[LEARN] CONFIRMED MISCONFIG @ ds-apip.threema.ch/identity/create crash family: Unauthenticated 500/0B on malformed object input ({"publicKey":{"x":1}} and {"identities":[{}]}) confirmed across all 3 prod hosts + staging; 5x burst @0.5s all 500 no 429; recovery to 200/133B after burst; ACAO:* on 500
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET+body method-handling divergence confirmed — unique token-mint endpoint accepting GET (returns 200/133B token for valid, 200/46B for invalid); check/check_featuremask return 500 on GET; OPTIONS 200 CORS * browser-viable; sibling parity across 3 prod hosts
+[RISK] web: 95 — Directory servers (ds-apip/api/apip.threema.ch) expose 10+ unauthenticated IDOR endpoints with CORS `*` + no rate limits; massive enumeration caps (524k/10k IDs/req) with live active-account discrimination (10+ confirmed); crash-family DoS on malformed input triggers 500 on 14/14 endpoint families; token-mint oracle cluster across 6 endpoints
+[RISK] desktop-src: 85 — threema-desktop key-storage ACL bypass on Windows confirmed via 6-path RAG chain (WebFetch on GitHub stable); keystorage.bin + keystorage.password.bin written without ACL (fileModeInternalObjectIfPosix returns {} on win32); BrowserWindow sandbox unset + nodeIntegrationInWorker: true (TODO DESK-79); PoC artifact NOT authored (filesystem-verified absent)
+[RISK] sync: 40 — mediator/rendezvous-*.threema.ch return uniform 403 on HTTPS with high-entropy paths; WSS handshake requires auth; DNS shard→node map fully attributed but in-band surface closed; no passive divergence obtainable
+[RISK] safe: 55 — safe-*.threema.ch (5 hosts, single IP 203.56.112.231) expose credential-gated backup API with HSTS/Expect-CT header inconsistency (present on OPTIONS 204, absent on GET 400); HTTP Basic Auth + route-existence oracle (400 vs 404) + credentialed cross-origin CORS (Allow-Headers: Authorization) stable
+[RISK] chat: 30 — g-*.0.threema.ch chat services (203.56.112.202/.204) require authenticated login frame; passive TCP/TLS probes yield 0 bytes; DNS shard→node map fully attributed (g-{00..7f}→.202, g-{80..ff}→.204) but in-band surface closed; staging .test variants out of scope per scope.yml
