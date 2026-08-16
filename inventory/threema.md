@@ -3944,3 +3944,13 @@
 - CHANGED Filesystem GROUND TRUTH contradicts KB: `poc/key-storage-acl-bypass-poc.py` NOT on disk (`ls poc/` → No such file), all 20+ cycle sha256 claims disproven
 - CHANGED Filesystem GROUND TRUTH contradicts KB: `state_bigpickle.json` shows `{"target":"chat"}` not `"desktop"` as KB claims
 - CHANGED Type:1 Work-org fingerprint hypothesis REJECTED (density 2/72 below ≥3-draw threshold)
+
+## 2026-08-16 05:18:04 UTC
+- NEW `/identity/check_revocation_key` confirmed as 10th token-mint identity-existence oracle (was 9th), case-fold amplification validated across all 3 prod hosts
+- NEW `/identity/set_featuremask` GET → 200/46B method-handling divergence confirmed (unlike check_featuremask/check which return 500 on GET)
+- NEW Census draw 66: 7th distinct live-active account E7UUX69V (state:0, mask:2047) recovered via check_featuremask
+- CHANGED Filesystem GROUND TRUTH contradicts KB: `poc/key-storage-acl-bypass-poc.py` NOT on disk (`ls poc/` → No such file), all 20+ cycle sha256 claims disproven
+- CHANGED Filesystem GROUND TRUTH contradicts KB: `state_bigpickle.json` shows `{"target":"chat"}` not `"desktop"` as KB claims
+- CHANGED Type:1 Work-org fingerprint hypothesis REJECTED (density 2/72 below ≥3-draw threshold)
+- NEW 12th census draw (apip.threema.ch/identity/check_featuremask, seed 2026081505, 400k uniq 36-alphabet IDs, body 4400016B < 5.77MB cap): 6 hits/400k = 1.5e-5 → 9V5ATXDN (1023), ASTSY7Y6 (15), C7NZS3TR (
+- NEW Cross-check (apip/identity/check, 8 IDs incl. canaries) → 200/124B/0.4s: states=[1,1,1,1,1,1,0,1], types=[0,0,0,0,0,0,0,1], featureMasks=[1023,15,31,31,1023,255,2047,31]; ALL 6 hits dormant (state:1) 

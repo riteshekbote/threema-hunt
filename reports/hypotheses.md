@@ -6872,3 +6872,27 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12`, computed d
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (not `false`, TODO DESK-79 at electron-main.ts:1255), `nodeIntegrationIn
 - LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key credential oracle PERMANENTLY DOWNGRADED to non-finding — 404 response has NO CORS headers (neither GET nor OP
+
+## RANKED HYPOTHESES 2026-08-16 05:18:04 UTC
+- [97] https://ds-apip.threema.ch/identity/{fetch_bulk|check_featuremask|match_token|fetch_priv|check|set_featuremask|check_revocation_key|check_license|match}: Unauthenticated massive identity census with live active-account discrimination via directory cluster (from reports/hypotheses-laguna.txt)
+- [97] https://ds-apip.threema.ch/identity/check_featuremask: Unauthenticated massive identity census with active-account discrimination via check_featuremask (from reports/hypotheses-nemotron3.txt)
+- [87] https://ds-apip.threema.ch/identity/fetch_priv: type:1 = stored restricted-origin account subclass, functional not cosmetic (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X GET -H "Origin: https://evil.com" https://ds-apip.threema.ch/identity/set_featuremask — verify 200 (method divergence); curl -s -X POST -H "Or
+- NEXT(hypotheses-laguna.txt): PROBE: `curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2
+- NEXT(hypotheses-bigpickle.txt): PROBE: 12th independent seeded 400k-ID census draw on apip.threema.ch/identity/check_featuremask (host-rotate to apip, seed 2026081505, one POST body ≈4.8MB < 5
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 10th token-mint existence oracle PASSIVE-verified — valid→200/133B token + constant tokenRespK
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200/46B method-handling divergence confirmed — accepts GET (unlike check_featuremask/check whic
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 15 census draws stable — 10 distinct live-active accounts (state:0 mask:2047), tri-state oracle b
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below ≥3-draw threshold — not firm enough to claim a fingerprint class
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ KB sha256 claims — s
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem shows `{"target":"chat"}` not `"desktop"` — agent state divergence persists
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) confirmed benchmark-only dummy in `determineKdfParams()`, `benchm
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (TODO DESK-79), L1240 comment incorrect per Electron docs, 0 dynamic sin
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/check_revocation_key: PASSIVE-verified this cycle — valid identity (echoecho→ECHOECHO
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: PASSIVE-verified fresh this cycle — GET+body `{"identity":"echoecho"}` → 200/133B token + constant 
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: Filesystem GROUND TRUTH confirms `{"target":"chat"}` not `"desktop"` — agent state divergence persists; KB/
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/sfu_cred + blob_cred + update_work_info: Challenge endpoints confirmed via GET returning 200 JSON error bodies + COR
+- LEARN: ACCEPTED AUTH @ ds-apip.threema.ch/check_license: PASSIVE-verified this cycle — POST {licenseUsername,licensePassword,version,arch} → 200/65B `{"success":false,
+- LEARN: ACCEPTED OTHER @ /identity/match N-cost-unit gating: N=10 emailHashes POST → 429/0B (ACAO:*); N=1 after >3d idle → 200/39B — bucket capacity <10, refill ≥1/mult
+- LEARN: ACCEPTED OTHER @ apip.threema.ch/identity/check: response now confirmed to include `checkInterval:86400` alongside states/types/featureMasks (24h client recheck
+- LEARN: CONFIRMED IDOR @ apip.threema.ch/identity/check_featuremask: 12th seeded 400k-ID draw → 200 in 13.8s zero 429, density series 12-draw cumulative 7.42e-6; draw-1
