@@ -4331,3 +4331,10 @@
 - CHANGED Type:1 Work-org fingerprint hypothesis REJECTED (density 2/72 below ≥3-draw threshold)
 - NEW `/identity/revoke` (non-ws path) LIVE token-mint identity-existence oracle — POST `{"identity":"ECHOECHO"}` → 200/133B token + constant tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=`; 
 - NEW `revoke` is the 2nd GET-accepting mint endpoint (GET no-body → 200/46B, GET+text/plain valid → 200/133B token) alongside `set_featuremask` — preflight-free GET enumeration vector now 2 endpoints.
+
+## 2026-08-16 15:31:47 UTC
+- NEW `/identity/revoke` (non-ws path) LIVE token-mint identity-existence oracle — POST `{"identity":"ECHOECHO"}` → 200/133B token + constant tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=`;
+- NEW `revoke` is the 2nd GET-accepting mint endpoint (GET no-body → 200/46B, GET+text/plain valid → 200/133B token) alongside `set_featuremask` — preflight-free GET enumeration vector now 2 endpoints.
+- CHANGED Filesystem GROUND TRUTH: `poc/` directory does NOT exist (`ls poc/` → No such file, exit 2) — all 20+ cycle KB sha256 claims of on-disk PoC artifact disproven
+- CHANGED `state_bigpickle.json` filesystem = `{"phase": "POC", "target": "chat"}` (sha256 `94bd1bd1…`) — NOT `{"target":"desktop"}` as KB/hypotheses claim; agent state divergence persists
+- CHANGED `reposcan-raw/threema-ch/` local clone EMPTY — `find` returns 0 files across all 18 repo subdirectories; all "RAG-VERIFIED via direct git clone" claims unfulfilled; source evidence is WebFetch-only (r
