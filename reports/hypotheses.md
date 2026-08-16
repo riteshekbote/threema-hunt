@@ -7819,3 +7819,23 @@
 - LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem shows `{"target":"chat"}` not `{"target":"desktop"}` — agent state divergence persists
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) confirmed benchmark-only dummy in `determineKdfParams()`, `benchm
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (TODO DESK-79), L1240 comment incorrect per Electron docs, 0 dynamic sin
+
+## RANKED HYPOTHESES 2026-08-16 18:47:54 UTC
+- [98] https://{ds-apip,api,apip,ds-apip.test}.threema.ch/identity/{create,check,check_featuremask,match_token,check_revocation_key,fetch_priv,set_featuremask,revoke,sfu_cred,blob_cred,update_work_info}: Preflight-free cross-origin crash DoS via CORS-safelisted GET on shared JSON handler (from reports/hypotheses-laguna.txt)
+- [95] https://{ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: check_license preflight-free cross-origin crash with 4-host parity (from reports/hypotheses-nemotron3.txt)
+- [95] https://ds-apip.threema.ch/identity/check_featuremask: check_featuremask census — live-active population bound + legacy-client fingerprinting (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X GET -H "Origin: https://evil.com" -H "Content-Type: text/plain" -d '{"identity":{"x":1}}' https://ds-apip.threema.ch/identity/revoke — verify 
+- NEXT(hypotheses-laguna.txt): SCAN: Census draw 17 — POST 400k random IDs (new seed) to `ds-apip.threema.ch/identity/check_featuremask` at ≤1 rps, then POST all hits to `/identity/check` for
+- NEXT(hypotheses-bigpickle.txt): PASSIVE: POST census draw 19 — 400k random 8-char IDs to `https://ds-apip.threema.ch/identity/check_featuremask` at ≤1 rps; POST any hits to `/identity/check` f
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 4-host crash parity — POST `{"version":{}}` → 500/0B, GET+text/plain → 500/0B (pr
+- LEARN: ACCEPTED MISCONFIG @ crash family matrix: 16 endpoint families × 3 prod + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO `*`, zero 429, sha
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/revoke: 11th unauthenticated identity-existence oracle — valid→200/133B token + constant tokenRespKeyPub, invalid→20
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.threema.ch/identity/create: Unauthenticated 500 crash on malformed publicKey input — POST `{"publicKey":{"x":1}}` → 500/0B, batch w
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ KB sha256 claims — s
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem shows `{"target":"chat"}` not `{"target":"desktop"}` — agent state divergence persists
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) confirmed benchmark-only dummy in `determineKdfParams()`, `benchm
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (TODO DESK-79), L1240 comment incorrect per Electron docs, 0 dynamic sin
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Census primitive stable across 18 draws; 10+ live-active accounts (state:0, mask:2047) recovered;
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/{revoke,set_featuremask}: GET+text/plain preflight-free enumeration vector — 133B vs 46B differential, case-fold amp
+- LEARN: ACCEPTED MISCONFIG @ crash family: 16 endpoint families × 4 hosts × GET+POST = 104+ combos, all 500/0B with ACAO `*`, zero 429, instant recovery.
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated `/backups/{64hex}` — byt

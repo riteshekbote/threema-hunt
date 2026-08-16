@@ -1,6 +1,11 @@
-## 2026-08-16 18:12:49 UTC [web] (model nemotron3)
-[NEW] `check_license` crash parity expanded to 4 hosts (ds-apip, api, apip, ds-apip.test) — POST `{"version":{}}` → 500/0B, GET+text/plain → 500/0B, OPTIONS 200 CORS `*` on all 4
+## 2026-08-16 18:47:41 UTC [web] (model nemotron3)
+[NEW] check_license crash parity expanded to 4 hosts (ds-apip, api, apip, ds-apip.test) — POST `{"version":{}}` → 500/0B, GET+text/plain → 500/0B, OPTIONS 200 CORS `*` on all 4
+[NEW] /identity/revoke (non-ws path) LIVE token-mint identity-existence oracle — POST/GET+text/plain valid→200/133B token + constant tokenRespKeyPub, invalid→200/46B, 3-host parity
+[NEW] /identity/create crash family — POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod + staging; batch `{"identities":[{}]} `→ 500/0B; 5x burst @0.5s all 500 no 429
 [NEW] Crash family matrix now 16 endpoint families × 3 prod + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO `*`, zero 429, instant recovery
+[CHANGED] Filesystem GROUND TRUTH re-verified: `poc/` absent (`ls poc/` → No such file), `state_bigpickle.json` = `{"phase":"POC","target":"chat"}`, `reposcan-raw/threema-ch/` EMPTY (`find` → 0 files across 18 repo dirs)
+[CHANGED] `/identity/revoke` token-mint oracle re-confirmed: POST/GET+text/plain valid→200/133B token + constant tokenRespKeyPub, invalid→200/46B, 3-host parity byte-stable
+[CHANGED] `/identity/create` crash family re-confirmed: POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod + staging; batch `{"identities":[{}]} `→ 500/0B; 5x burst @0.5s all 500 no 429
 [PRIO] https://{ds-apip,api,apip,ds-apip.test}.threema.ch/check_license, 9.4, attack=10, business=10, tech=9, gate=10, cloud=5, fresh=10
 [PRIO] https://{ds-apip,api,apip}.threema.ch/identity/revoke, 9.5, attack=10, business=10, tech=10, gate=10, cloud=5, fresh=10
 [PRIO] https://{ds-apip,api,apip}.threema.ch/identity/create, 9.3, attack=10, business=9, tech=10, gate=10, cloud=5, fresh=10
@@ -37,6 +42,8 @@ testability: PASSIVE
 [NEXT] PROBE: curl -s -X GET -H "Origin: https://evil.com" -H "Content-Type: text/plain" -d '{"identity":{"x":1}}' https://ds-apip.threema.ch/identity/revoke — verify 500/0B + ACAO `*`; repeat for all 16 endpoints on ds-apip/api/apip
 [LEARN] ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 4-host crash parity — POST `{"version":{}}` → 500/0B, GET+text/plain → 500/0B (preflight-free), OPTIONS 200 CORS `*`, instant recovery
 [LEARN] ACCEPTED MISCONFIG @ crash family matrix: 16 endpoint families × 3 prod + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO `*`, zero 429, shared handler crash signatures
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/revoke: 11th unauthenticated identity-existence oracle — valid→200/133B token + constant tokenRespKeyPub, invalid→200/46B, case-agnostic, GET+text/plain mint, 3-host parity
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.threema.ch/identity/create: Unauthenticated 500 crash on malformed publicKey input — POST `{"publicKey":{"x":1}}` → 500/0B, batch widening `{"identities":[{}]} `→ 500/0B, no 429, sibling parity, staging parity
 [LEARN] REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ KB sha256 claims — source verification ≠ artifact generation
 [LEARN] REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem shows `{"target":"chat"}` not `{"target":"desktop"}` — agent state divergence persists
 [LEARN] REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) confirmed benchmark-only dummy in `determineKdfParams()`, `benchmarkKey.purge()` at L233 — not used for real encryption
