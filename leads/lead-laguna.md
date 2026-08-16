@@ -21073,3 +21073,4 @@ testability: AUTH_HELPED
 [RISK] sync: 40 — mediator-*.threema.ch (DNS split 0-7→203.56.112.247, 8-f→203.56.114.247) + rendezvous-*.threema.ch (same split); uniformly 403 on HTTPS; high-entropy path structure; WSS requires auth frame; in-band surface closed.
 [RISK] safe: 55 — safe-{01,1a,1b,02,00} (203.56.112.231) credential-gated backup API; HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400; HTTP Basic Auth + route-existence oracle + credentialed cross-origin CORS; header inconsistency stable.
 [RISK] desktop-src: 75 — threema-desktop Windows key-storage ACL bypass (6-path RAG remote-verified via WebFetch on GitHub stable); BrowserWindow `sandbox` UNSET (TODO DESK-79) + `nodeIntegrationInWorker: true`; PoC artifact absent (filesystem-verified); gap = Windows runtime validation.
+## 2026-08-16 19:30:30 UTC [desktop] (model laguna)
