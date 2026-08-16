@@ -1267,6 +1267,11 @@
 - 2026-08-16 ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 4-host crash parity — POST `{"version":{}}` → 500/0B, GET+text/plain → 500/0B (preflight-free), OPTIONS 200 CORS `*`, instant recovery
 - 2026-08-16 ACCEPTED MISCONFIG @ crash family matrix: 16 endpoint families × 3 prod + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO `*`, zero 429, shared handler crash signatures
 - 2026-08-16 REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem shows `{"target":"chat"}` not `{"target":"desktop"}` — agent state divergence persists
+- 2026-08-16 ACCEPTED MISCONFIG @ ds-apip.threema.ch/identity/create: Unauthenticated 500 crash on malformed publicKey input — POST `{"publicKey":{"x":1}}` → 500/0B, batch widening `{"identities":[{}]} `→ 500/0B, no 429, sibling parity, staging parity
+- 2026-08-16 ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Census primitive stable across 18 draws; 10+ live-active accounts (state:0, mask:2047) recovered; density ~7e-6; tri-state oracle proven; zero 429.
+- 2026-08-16 ACCEPTED IDOR @ ds-apip.threema.ch/identity/{revoke,set_featuremask}: GET+text/plain preflight-free enumeration vector — 133B vs 46B differential, case-fold amplification, 3-host parity byte-stable.
+- 2026-08-16 ACCEPTED MISCONFIG @ crash family: 16 endpoint families × 4 hosts × GET+POST = 104+ combos, all 500/0B with ACAO `*`, zero 429, instant recovery.
+- 2026-08-16 ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated `/backups/{64hex}` — byte-stable across all 5 hosts.
 === INVENTORY gladia ===
 # Inventory: threema
 
