@@ -1220,6 +1220,21 @@
 - 2026-08-16 CONFIRMED IDOR @ {ds-apip,api,apip}.threema.ch/identity/set_featuremask: GET+text/plain mint re-confirmed — valid→200/133B token + constant tokenRespKeyPub, invalid→200/46B, 3-host parity byte-stable.
 - 2026-08-16 CONFIRMED IDOR @ ds-apip.threema.ch/identity/check_featuremask: byte-stable — `{"featureMasks":[2047,2047,null,9]}`; companion /identity/check → `{"checkInterval":86400,"states":[0,0,0,0],"types":[0,0,0,0],"featureMasks":[2047,2047,null,9]}`.
 - 2026-08-16 CONFIRMED @ filesystem ground truth: poc/ absent, state=`{"target":"chat"}`, reposcan-raw 0 source files — no changes.
+- 2026-08-16 ACCEPTED: crash family — 15 endpoint families × 3 hosts × GET+POST = 90 byte-stable 500/0B combos with ACAO:* and zero 429; revoke + set_featuremask are 2nd + 1st GET-accepting token-mint endpoints creating preflight-free enumeration vector
+- 2026-08-16 REJECTED: work.threema.ch/api/v1 X-Api-Key oracle PERMANENTLY — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`; key NOT in threema-desktop source (fetch-work.ts uses username/password)
+- 2026-08-16 REJECTED: crypto.ts:223 benchmark password — sha256 `400c7846…` computed from literal `r3gGN9GDQ5NF6tM6`; confirmed benchmark-only dummy in `determineKdfParams()`, purged at line 233; NOT used for real encryption
+- 2026-08-16 REJECTED: Desktop BrowserWindow sandbox+nodeIntegrationInWorker — conditional RCE requires separate renderer exploit chain; 0 dynamic sinks in worker/ tree; surface accepted as hardening gap only
+- 2026-08-16 REJECTED: poc/key-storage-acl-bypass-poc.py filesystem claims — `ls poc/` → No such file (exit 2); all 20+ cycle KB sha256 claims DISPROVEN; 6-path RAG chain verified on GitHub `stable` via WebFetch (remote-only, not local clone)
+- 2026-08-16 REJECTED: state_bigpickle.json `{"target":"desktop"}` claims — filesystem shows `{"phase":"POC","target":"chat"}`; agent state divergence persists
+- 2026-08-16 REJECTED: Type:1 Work-org fingerprint hypothesis — density 2/72 below ≥3-draw threshold, not firm enough to claim a class
+- 2026-08-16 REJECTED: reposcan-raw/threema-ch local clone — `find` returns 0 files across 18 repo dirs; all "direct git clone" RAG claims unfulfilled
+- 2026-08-16 CONFIRMED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 4-host crash parity confirmed this cycle — POST `{"version":{"x":1}}` → 500/0B on ALL 4 hosts; GET+text/plain malformed → 500/0B on ALL 4 hosts; OPTIONS → 200/30B on ALL 4 hosts; recovery instant (200/65B normal). ACAO `*` on every 500. This was the pending NEXT from last cycle.
+- 2026-08-16 CONFIRMED MISCONFIG @ {ds-apip,api,apip}.threema.ch/identity/revoke: POST `{"identity":{"x":1}}` → 500/0B with ACAO `*` on ALL 3 prod hosts — revoke confirmed as crash family member; recovery to 200/135B.
+- 2026-08-16 CONFIRMED MISCONFIG @ {ds-apip,api,apip}.threema.ch/identity/set_featuremask: POST `{"identity":{"x":1}}` → 500/0B on ALL 3 prod hosts — crash parity confirmed; recovery to 200/133B.
+- 2026-08-16 CONFIRMED MISCONFIG @ crash family matrix: now 16 endpoint families × 3 prod hosts + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO `*`, zero 429, instant recovery; check_license is sole OPTIONS-200 family and sole 4-host parity family.
+- 2026-08-16 CONFIRMED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke: GET+text/plain mint re-confirmed — valid→200/133B, invalid→200/46B, 3-host parity byte-stable; recovery confirmed.
+- 2026-08-16 CONFIRMED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Draw-17 (seed 2026081680, 400k IDs, 4800016B) → 3 hits/400k = 7.5e-6 density; all3 state=1 type=0 legacy (masks 127, 15, 31); 0 live-active (state:0) hits — expected under Poisson(λ≈3.5). Cumulative ~46/6.6M ≈ 7.0e-6 across 17 draws. No429. 13.7s round-trip.
+- 2026-08-16 CONFIRMED @ /identity/check dual-oracle stability: checkInterval=86400, states=[1,1,1], types=[0,0,0], masks=[127,15,31] — companion endpoint stable and consistent with check_featuremask results.
 === INVENTORY gladia ===
 # Inventory: threema
 
