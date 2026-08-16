@@ -21332,3 +21332,4 @@ testability: PASSIVE
 [RISK] sync: 40 — mediator/rendezvous uniform 403, high-entropy paths, WSS requires auth.
 [RISK] safe: 55 — credential-gated backup API, HSTS/Expect-CT inconsistency on OPTIONS 204 vs GET 400, Basic Auth.
 [RISK] desktop-src: 85 — Windows key-storage ACL bypass (6-path RAG), PoC not authored, gap = artifact + Windows runtime validation.
+## 2026-08-16 17:02:52 UTC [chat] (model bigpickle)
