@@ -3936,3 +3936,11 @@
 - CHANGED `reposcan-raw/threema-ch/threema-desktop/` directory exists but is EMPTY — source files (fs.ts, electron-main.ts, crypto.ts, inner/v3.ts, sqlite.ts, vite.config.ts, key-storage/index.ts) referenced in
 
 ## 2026-08-16 04:12:55 UTC
+
+## 2026-08-16 04:54:13 UTC
+- NEW `/identity/check_revocation_key` confirmed as 10th token-mint identity-existence oracle (was 9th), case-fold amplification validated across all 3 prod hosts
+- NEW `/identity/set_featuremask` GET → 200/46B method-handling divergence confirmed (unlike check_featuremask/check which return 500 on GET)
+- NEW Census draw 66: 7th distinct live-active account E7UUX69V (state:0, mask:2047) recovered via check_featuremask
+- CHANGED Filesystem GROUND TRUTH contradicts KB: `poc/key-storage-acl-bypass-poc.py` NOT on disk (`ls poc/` → No such file), all 20+ cycle sha256 claims disproven
+- CHANGED Filesystem GROUND TRUTH contradicts KB: `state_bigpickle.json` shows `{"target":"chat"}` not `"desktop"` as KB claims
+- CHANGED Type:1 Work-org fingerprint hypothesis REJECTED (density 2/72 below ≥3-draw threshold)
