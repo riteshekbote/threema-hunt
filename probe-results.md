@@ -2410,3 +2410,14 @@ https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
 https://apip.threema.ch/identity/set_featuremask` -> HTTP 404
 https://safe-01.threema.ch/backups/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef` -> HTTP 400
 https://apis.apip.threema.ch/identity/set_featuremask` -> ERR <urlopen error [Errno -2] Name or service not know
+
+## 2026-08-16 08:46:03 UTC
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/check_revocation_key -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/set_featuremask -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
+https://ds-apip.threema.ch/identity/set_featuremask` -> HTTP 404
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/set_featuremask -> 200 len=? type=application/json; charset=utf-8
+https://apip.threema.ch/identity/set_featuremask -> 200 len=? type=application/json; charset=utf-8
