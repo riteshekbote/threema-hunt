@@ -2325,3 +2325,15 @@ https://ds-apip.threema.ch/identity/check_revocation_key` -> HTTP 404
 https://ds-apip.threema.ch/identity/check -> HTTP 500
 https://apip.threema.ch/identity/check_featuremask -> HTTP 500
 https://api.threema.ch/identity/check_featuremask -> HTTP 500
+
+## 2026-08-16 04:54:16 UTC
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/check_revocation_key -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/set_featuremask -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
+https://ds-apip.threema.ch/identity/check_revocation_key` -> HTTP 404
+https://ds-apip.threema.ch/identity/set_featuremask` -> HTTP 404
+https://api.threema.ch/identity/set_featuremask` -> HTTP 404
+https://apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/check -> HTTP 500
+https://api.threema.ch/identity/check_featuremask -> HTTP 500
