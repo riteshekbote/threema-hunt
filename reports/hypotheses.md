@@ -6940,3 +6940,27 @@
 - LEARN: ACCEPTED OTHER @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 corrected to `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (co
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/create: Confirmed as token-mint existence oracle — POST `{"publicKey":"..."}` → 200/133B token + constant tokenRespK
 - LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: Filesystem shows `{"phase": "POC", "target": "chat"}` not `"desktop"` as KB claims — agent state divergence
+
+## RANKED HYPOTHESES 2026-08-16 07:21:20 UTC
+- [97] https://ds-apip.threema.ch/identity/{check_featuremask|fetch_bulk|set_featuremask|match_token|fetch_priv|check_revocation_key|create|check_license|match}: Unauthenticated identity census with live active-account discrimination via directory cluster (from reports/hypotheses-laguna.txt)
+- [97] https://ds-apip.threema.ch/identity/check_featuremask: Unauthenticated massive identity census with active-account discrimination via check_featuremask (from reports/hypotheses-nemotron3.txt)
+- [70] https://ds-apip.threema.ch/identity/check: Live-active cohort churn monitor (continue) (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2Y
+- NEXT(hypotheses-laguna.txt): PROBE: `curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2
+- NEXT(hypotheses-bigpickle.txt): PROBE: census draw 83 — single POST `{"identities":[400k seeded 36-alphabet IDs]}` (seed 2026081583) to https://api.threema.ch/identity/check_featuremask; then 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 10th token-mint existence oracle PASSIVE-verified — valid→200/133B token + constant tokenRespK
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200/46B method-handling divergence confirmed — accepts GET (unlike check_featuremask/check whic
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 15 census draws stable — 10 distinct live-active accounts (state:0 mask:2047), tri-state oracle b
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below ≥3-draw threshold — not firm enough to claim a fingerprint class
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ KB sha256 claims — s
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem shows `{"target":"chat"}` not `"desktop"` — agent state divergence persists
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) confirmed benchmark-only dummy in `determineKdfParams()`, `benchm
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (TODO DESK-79), L1240 comment incorrect per Electron docs, 0 dynamic sin
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/check_featuremask: Byte-stable this cycle — POST `{"identities":["5U8DM3J3","RFK5RDU6
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET+body confirmed as **only** token-mint endpoint accepting GET (returns 200/133B token for valid 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/identity/match_token: Byte-stable — POST `{"identity":"echoecho"}` → 200/133B token + constant tokenRespKeyPub
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: Filesystem GROUND TRUTH (`ls poc/` → No such file; `find` returns zero) disproves all 20+
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: Filesystem shows `{"phase": "POC", "target": "chat"}` not `{"target":"desktop"}` — agent state divergence p
+- LEARN: REJECTED MISCONFIG @ reposcan-raw/threema-ch/threema-desktop local clone: Directory exists but EMPTY (0 files) — RAG source verification is remote-only via WebF
+- LEARN: ACCEPTED OTHER @ apip.threema.ch/identity/check: response now confirmed to include `checkInterval:86400` alongside states/types/featureMasks (24h client recheck
+- LEARN: CONFIRMED IDOR @ apip.threema.ch/identity/check_featuremask: 12th seeded 400k-ID draw → 200 in 13.8s zero 429, density series 12-draw cumulative 7.42e-6; draw-1
