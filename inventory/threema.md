@@ -4362,3 +4362,5 @@
 - CHANGED `reposcan-raw/threema-ch/` local clone EMPTY — `find` returns 0 files across all 18 repo subdirectories; all "RAG-VERIFIED via direct git clone" claims unfulfilled; source evidence is WebFetch-only (r
 - CHANGED Crash family matrix now 15 endpoints × 3 hosts × GET+POST = 90 combos, all byte-stable 500/0B with ACAO `*`, zero 429, instant recovery
 - CHANGED `check_license` joins crash family — `version` as object → 500/0B (3-host parity), GET+text/plain preflight-free browser vector confirmed, only crash family with OPTIONS 200
+
+## 2026-08-16 16:51:56 UTC

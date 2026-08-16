@@ -1,13 +1,6 @@
-## 2026-08-16 16:26:35 UTC [web] (model nemotron3)
-[NEW] `/identity/revoke` (non-ws path) LIVE token-mint identity-existence oracle — POST `{"identity":"ECHOECHO"}` → 200/133B token + constant tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=`; GET no-body → 200/46B, GET+text/plain valid → 200/133B token
-[NEW] `/identity/create` crash family — POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod hosts + staging; batch `{"identities":[{}]} `→ 500/0B; 5x burst @0.5s all 500 no 429; recovery to 200/133B
-[CHANGED] Filesystem GROUND TRUTH: `poc/` directory does NOT exist (`ls poc/` → No such file, exit 2) — all 20+ cycle KB sha256 claims of on-disk PoC artifact disproven
-[CHANGED] `state_bigpickle.json` filesystem = `{"phase": "POC", "target": "chat"}` (sha256 `94bd1bd1…`) — NOT `{"target":"desktop"}` as KB/hypotheses claim; agent state divergence persists
-[CHANGED] `reposcan-raw/threema-ch/` local clone EMPTY — `find` returns 0 files across all 18 repo subdirectories; all "RAG-VERIFIED via direct git clone" claims unfulfilled; source evidence is WebFetch-only (remote)
-[CHANGED] Crash family matrix now 15 endpoints × 3 hosts × GET+POST = 90 combos, all byte-stable 500/0B with ACAO `*`, zero 429, instant recovery
-[CHANGED] `check_license` joins crash family — `version` as object → 500/0B (3-host parity), GET+text/plain preflight-free browser vector confirmed, only crash family with OPTIONS 200
-[PRIO] https://{ds-apip,api,apip}.threema.ch/identity/{create,check,check_featuremask,match_token,check_revocation_key,fetch_priv,set_featuremask,revoke,sfu_cred,blob_cred,update_work_info}, 95, attack=10, business=10, tech=9, gate=10, cloud=5, fresh=10
-[PRIO] https://{ds-apip,api,apip}.threema.ch/check_license, 95, attack=10, business=9, tech=9, gate=10, cloud=5, fresh=10
+## 2026-08-16 16:48:41 UTC [web] (model nemotron3)
+[PRIO] https://{ds-apip,api,apip}.threema.ch/identity/{create,check,check_featuremask,match_token,check_revocation_key,fetch_priv,set_featuremask,revoke,sfu_cred,blob_cred,update_work_info}, 97, attack=10, business=10, tech=9, gate=10, cloud=5, fresh=10
+[PRIO] https://{ds-apip,api,apip}.threema.ch/check_license, 97, attack=10, business=9, tech=9, gate=10, cloud=5, fresh=10
 [PRIO] https://{ds-apip,api,apip}.threema.ch/identity/revoke, 85, attack=9, business=8, tech=9, gate=10, cloud=5, fresh=10
 [HYP] Unauthenticated crash-family DoS with CORS-safelisted GET amplification on shared handler
 class: MISCONFIG
