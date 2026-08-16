@@ -1,4 +1,4 @@
-## 2026-08-16 04:49:59 UTC [web] (model nemotron3)
+## 2026-08-16 05:15:22 UTC [web] (model nemotron3)
 [NEW] `/identity/check_revocation_key` confirmed as 10th token-mint identity-existence oracle (was 9th), case-fold amplification validated across all 3 prod hosts
 [NEW] `/identity/set_featuremask` GET → 200/46B method-handling divergence confirmed (unlike check_featuremask/check which return 500 on GET)
 [NEW] Census draw 66: 7th distinct live-active account E7UUX69V (state:0, mask:2047) recovered via check_featuremask
@@ -8,7 +8,7 @@
 [PRIO] https://ds-apip.threema.ch/identity/check_featuremask, 97, attack=10 business=10 tech=9 gate=10 cloud=5 fresh=10
 [PRIO] https://ds-apip.threema.ch/identity/check_revocation_key, 95, attack=9 business=9 tech=9 gate=10 cloud=5 fresh=10
 [PRIO] https://ds-apip.threema.ch/identity/set_featuremask, 88, attack=9 business=8 tech=8 gate=10 cloud=5 fresh=10
-[PRIO] github.com/threema-ch/threema-desktop (Windows key-storage ACL bypass), 92, attack=9 business=9 tech=9 gate=5 cloud=3 fresh=10
+[PRIO] github.com/threema-ch/threema-desktop (Windows key-storage ACL bypass), 85, attack=9 business=9 tech=9 gate=5 cloud=3 fresh=10
 [HYP] Unauthenticated massive identity census with active-account discrimination via check_featuremask
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/check_featuremask
@@ -36,7 +36,7 @@ evidence_needed: Passive probe confirming GET 200 + token minting differential +
 verify_steps: PASSIVE: curl -s -X GET -H "Origin: https://evil.com" https://ds-apip.threema.ch/identity/set_featuremask — verify 200 (method divergence); curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/set_featuremask — verify 200/133B + token + constant tokenRespKeyPub; curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identity":"ZZZZZZZZ"}' https://ds-apip.threema.ch/identity/set_featuremask — verify 200/46B "Identity not found"; curl -s -X OPTIONS -H "Origin: https://evil.com" https://ds-apip.threema.ch/identity/set_featuremask — verify 200 CORS `*`; repeat on api.threema.ch + apip.threema.ch
 impact: Unauthenticated identity-existence oracle with GET+POST dual-path token minting; browser-viable CORS enables cross-origin drive-by enumeration; CVSS 3.1: 6.5 AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N
 testability: PASSIVE
-[PARKED] Windows key-storage ACL bypass enables full identity key + SQLCipher key extraction: confidence 92 but testability AUTH_HELPED requires Windows runtime validation; no passive verify path
+[PARKED] Windows key-storage ACL bypass enables full identity key + SQLCipher key extraction: confidence 85 but testability AUTH_HELPED requires Windows runtime validation; no passive verify path
 [PARKED] Live-active cohort churn monitor via check endpoint: confidence 70 but class overlaps with check_featuremask census; no new vulnerability class
 [PARKED] Request-shape sensitivity in fetch_priv: confidence 75 but verify_steps identical to existing match_token/check_revocation_key oracles — no new class
 [PARKED] Email→identity enumeration via match endpoint: confidence 70 but N-cost gating bounded <10 (N=10→429) reduces throughput to ≤1-9 hashes per multi-hour window — impact below threshold
