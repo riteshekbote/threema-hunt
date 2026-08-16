@@ -7026,3 +7026,28 @@
 - LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight but ABSENT on GET 400 for credential-gated `/backups/{64h
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Fresh probe confirms LIVE ACTIVE accounts (5U8DM3J3 + RFK5RDU6 → featureMask 2047, state:0) on al
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET+body confirmed as **only** token-mint endpoint accepting GET (returns 200/133B token for valid 
+
+## RANKED HYPOTHESES 2026-08-16 08:45:59 UTC
+- [97] https://ds-apip.threema.ch/identity/check_featuremask: Unauthenticated massive identity census with active-account discrimination via check_featuremask (from reports/hypotheses-nemotron3.txt)
+- [74] https://ds-apip.threema.ch/identity/check_featuremask: mask:2047 active-share bound refines census live-active estimate (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2Y
+- NEXT(hypotheses-laguna.txt): PROBE: `curl -s -D - -o /dev/null -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR",
+- NEXT(hypotheses-bigpickle.txt): PROBE: sibling-parity rate check — repeat 5× GET+body `{"identity":"echoecho"}` @ ~1 rps on https://api.threema.ch/identity/set_featuremask and https://apip.thr
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 10th token-mint existence oracle PASSIVE-verified — valid→200/133B token + constant tokenRespK
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200/46B method-handling divergence confirmed — accepts GET (unlike check_featuremask/check whic
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 15 census draws stable — 10 distinct live-active accounts (state:0 mask:2047), tri-state oracle b
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below ≥3-draw threshold — not firm enough to claim a fingerprint class
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ KB sha256 claims — s
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem shows `{"target":"chat"}` not `"desktop"` — agent state divergence persists
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) confirmed benchmark-only dummy in `determineKdfParams()`, `benchm
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (TODO DESK-79), L1240 comment incorrect per Electron docs, 0 dynamic sin
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Byte-stable fresh this cycle — POST `{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ","ECHOECHO"]}
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET+body confirmed as **only** token-mint endpoint accepting GET (returns 200/133B token for valid 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: Fresh this cycle — POST `{"identity":"echoecho"}` → 200/133B token + constant tokenRespKeyPub 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/match_token: Byte-stable fresh this cycle — POST `{"identity":"echoecho"}` → 200/133B token + constant tokenRespKeyP
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: Filesystem GROUND TRUTH this cycle (`ls poc/` → No such file; `find / -name "key-storage-
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: Filesystem shows `{"phase": "POC", "target": "chat"}` (sha256 `94bd1bd1…`) not `"desktop"` — agent state di
+- LEARN: REJECTED MISCONFIG @ reposcan-raw/threema-ch/threema-desktop: Directory exists but EMPTY (0 files) — RAG source verification is remote-only via WebFetch on GitH
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: PERMANENTLY DOWNGRADED to non-finding — 404 response has NO CORS headers, missing-key/invalid-key produ
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c7846…` (computed from literal; stale KB `52a0af98…` corrected) confirmed b
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight (full headers) but ABSENT on GET 400 response — byte-stab

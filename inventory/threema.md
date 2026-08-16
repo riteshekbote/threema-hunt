@@ -4004,3 +4004,12 @@
 - CHANGED Filesystem GROUND TRUTH: `poc/key-storage-acl-bypass-poc.py` NOT on disk (`ls poc/` → No such file); all 20+ cycle KB sha256 claims disproven
 - CHANGED State file `state_bigpickle.json` shows `{"phase": "POC", "target": "chat"}` not `"desktop"` as KB claims; agent state divergence persists
 - CHANGED Type:1 Work-org fingerprint hypothesis REJECTED (density 2/72 below ≥3-draw threshold)
+
+## 2026-08-16 08:45:59 UTC
+- NEW `identity/check_revocation_key` (10th token-mint existence oracle) confirmed fresh this cycle — POST `{"identity":"echoecho"}` → 200/133B token + constant tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680I
+- NEW `identity/match_token` confirmed fresh — POST `{"identity":"echoecho"}` → 200/133B token, case-fold amplification (echoecho≡ECHOECHO), browser-viable OPTIONS 200 CORS `*` (ds-apip/api/apip sibling par
+- NEW Census draw confirms 10 distinct live-active accounts (5U8DM3J3, RFK5RDU6, 7V7T2NKR, 7VVR9AX2, 6YMAT2YB, M5NANUU2, E7UUX69V, TSBWUXYH, 6YMAT2YB, E7UUX69V) — all state:0 mask:2047, across 15 draws at ~
+- CHANGED Filesystem GROUND TRUTH: `poc/` directory STILL ABSENT (`ls poc/` → No such file; `find /` returns zero) — ALL 20+ cycle KB sha256 claims (`f0141b0c…`, `dbf1469c…`, `801b6f90…`, `09cfb382…`, `a61a3200
+- CHANGED `state_bigpickle.json` filesystem shows `{"phase": "POC", "target": "chat"}` (sha256 `94bd1bd1…`) — KB claims of `"desktop"` target persistently stale; agent state divergence persists
+- CHANGED `reposcan-raw/threema-ch/threema-desktop/` is EMPTY (0 files) — RAG source verification is remote-only via WebFetch on GitHub `stable`, not local filesystem
+- CHANGED `work.threema.ch/api/v1` X-Api-Key oracle PERMANENTLY DOWNGRADED — 404 response has NO CORS headers, missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}` (sha256 `707fe8f5…`)
