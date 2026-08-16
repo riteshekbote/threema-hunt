@@ -20464,3 +20464,32 @@ impact: live-active population sizing + legacy-client phishing attribution (mask
 testability: PASSIVE
 [FINAL] 1. mask:2047 census (79) 2. batch-element widening (50) 3. process-level bound (45)
 [NEXT] PROBE: `curl -D - -X POST -H "Content-Type: application/json" -d '{"identities":[{}]}' https://ds-apip.threema.ch/identity/check` @1 rps — if 500, repeat on `/identity/check_featuremask` and `{"identities":[{"identity":{}}]}` to bound whether the unguarded-cast crash widens to batch/collection bodies (extends the just-proven cross-site DoS surface); if 200, surface is scalar-field-only and closed.
+## 2026-08-16 12:46:07 UTC [chat] (model bigpickle)
+[HYP] CORS-simple cross-site 500-triggering (batch-widened, limiter-exempt)
+class: MISCONFIG
+asset: https://{ds-apip,api,apip}.threema.ch/identity/{match_token,check_revocation_key,fetch_priv,set_featuremask,sfu_cred,blob_cred,update_work_info,check,check_featuremask,fetch_bulk,match}
+confidence: 93
+reasoning: object-typed identity/emailHash values → empty-body 500 on 11 endpoint families across 3 hosts (scalar object, batch object-element, nested object all crash); ACAO `*` + Allow-Methods present on every 500; text/plain POST is CORS-simple (zero preflight); crash path unthrottled — zero 429 on check/check_featuremask/fetch_bulk (35+ probes), and match crash fires before its limiter.
+evidence_needed: browser-context fetch() reading 500 status + ACAO `*` with text/plain body (no preflight fired); sustained-burst measurement.
+verify_steps: AUTH_HELPED — HUMAN: `fetch('https://ds-apip.threema.ch/identity/match_token',{method:'POST',headers:{'Content-Type':'text/plain'},body:'{"identity":{"x":1}}'}).then(r=>console.log(r.status,r.headers.get('access-control-allow-origin')))` → expect 500 + `*`, zero preflight.
+impact: any website deterministically generates production 500s on the public directory API from visitor browsers; crash path unrate-limited; no data leak (empty 500 bodies). CVSS 4.3.
+testability: AUTH_HELPED
+[HYP] mask:2047 active-share ~77% bounds live-active census estimate
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask (api/apip parity)
+confidence: 79
+reasoning: mask:2047 cohort 10 state:0 vs 3 state:1 = 77%; 15 draws plateau 7.5–15e-6; 10 distinct live-active accounts; ECHOECHO (mask 9, state:0) proves state:0 exists below 2047 → 77% understates active.
+evidence_needed: ≥5 more mask:2047 census hits cross-confirmed via /identity/check; ECHOECHO-class (mask<2047, state:0) rate.
+verify_steps: PASSIVE — periodic 400k-ID check_featuremask draws ≤1 rps; POST each mask:2047 hit to /identity/check; tally state:0 ratio.
+impact: live-active population sizing + legacy-client phishing attribution (mask fingerprint). CVSS 5.3.
+testability: PASSIVE
+[HYP] create endpoint shares unguarded-cast handler family (11th endpoint)
+class: MISCONFIG
+asset: https://ds-apip.threema.ch/identity/create
+confidence: 50
+reasoning: 11/11 probed directory endpoints crash on object-typed values; create is the only consumer route not yet tested; shared handler family implied by byte-identical empty 500 across endpoints.
+evidence_needed: `{"publicKey":{"x":1}}` and `{"publicKey":[{"x":1}]}` → 500/0B vs 200.
+verify_steps: PASSIVE — POST `{"publicKey":{"x":1}}` on ds-apip.threema.ch/identity/create @1 rps, then `{"publicKey":[{"x":1}]}`.
+impact: completes DoS-surface map; if crash → 12 endpoint families incl. registration path. CVSS 4.3 max.
+testability: PASSIVE
+[NEXT] PROBE: `curl -D - -o /dev/null -X POST -H "Content-Type: application/json" -d '{"publicKey":{"x":1}}' https://ds-apip.threema.ch/identity/create` @1 rps → if 500/0B, repeat `{"publicKey":[{"x":1}]}` and confirm sibling parity on api+apip; closes the 11th/12th endpoint-family map for the cross-site 500-triggering report.
