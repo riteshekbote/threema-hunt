@@ -2475,3 +2475,17 @@ https://safe-01.threema.ch/backups/...000` -> HTTP 403
 https://ds-apip.threema.ch/identity/{match_token,fetch_priv,check_revocation_key,sfu_cred,blob_cred,update_work_info,set_featuremask -> HTTP 404
 https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
 https://api.threema.ch/identity/{match_token,fetch_priv,check_revocation_key -> HTTP 404
+
+## 2026-08-16 10:42:12 UTC
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/check_revocation_key -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/set_featuremask -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/{match_token,fetch_priv,check_revocation_key -> HTTP 404
+https://apip.threema.ch/identity/{match_token,fetch_priv,check_revocation_key -> HTTP 404
+https://ds-apip.threema.ch/identity/{match_token,fetch_priv,check_revocation_key,set_featuremask,sfu_cred,blob_cred,update_work_info -> HTTP 404
+https://ds-apip.threema.ch/identity/match_token',{method:'POST',headers:{'Content-Type':'text/plain' -> HTTP 404
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/check_license` -> HTTP 404
+https://ds-apip.threema.ch/identity/* -> HTTP 404
+https://github.com/threema-ch/threema-desktop -> 200 len=? type=text/html; charset=utf-8

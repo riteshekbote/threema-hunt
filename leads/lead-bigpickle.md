@@ -20090,3 +20090,32 @@ verify_steps: PASSIVE — POST 4 bodies ({} / {licensePassword only} / {licenseU
 impact: if field-validation errors differ, confirms pre-validation order and possibly a username-existence side-channel (success-shape still AUTH_HELPED). CVSS 3.1 Low-Medium.
 testability: PASSIVE
 [NEXT] PROBE: check_license input-shape differential — `curl -s -X POST -H "Content-Type: application/json" -d '{}' https://ds-apip.threema.ch/check_license` then `-d '{"licensePassword":"x"}'`, `-d '{"licenseUsername":"x"}'`, `-d '{"licenseUsername":"A","licensePassword":"B","version":{},"arch":{}}'` @ 1 rps; diff status/body/`time_total` to expose field-validation order or timing side-channel.
+## 2026-08-16 10:40:45 UTC [chat] (model bigpickle)
+[HYP] check_license version-object 500: error-path robustness flaw, staging parity unverified
+class: MISCONFIG
+asset: https://{ds-apip,api,apip}.threema.ch/check_license
+confidence: 75
+reasoning: object-typed `version` → deterministic 500/0B on all 3 prod hosts (6+ repetitions, ACAO `*` on the 500, Content-Type text/html); `arch` object, ints, floats, arrays, null all 200/65B; 30B-vs-65B shape oracle shows no credential-validity differential (only completeness).
+evidence_needed: staging parity on ds-apip.test.threema.ch; root-cause (string-method call on object, e.g. version.length); whether nested-deep structures amplify to DoS.
+verify_steps: PASSIVE — POST `{"licenseUsername":"A","licensePassword":"B","version":{},"arch":"x64"}` on `https://ds-apip.test.threema.ch/check_license` @1 rps (expect 500 parity); then escalate to nested `{"version":{"a":{"b":[...]}}}` to bound exception depth; count 429.
+impact: unauthenticated deterministic 500 on production directory API = robustness/availability flaw; 0B body, no data leak. CVSS 4.3 Low-Medium.
+testability: PASSIVE
+[HYP] mask:2047 active-share ~77% bounds live-active census estimate
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask (api/apip parity)
+confidence: 79
+reasoning: mask:2047 cohort 10 state:0 vs 3 state:1 = 77%; 16 draws plateau 7.5–15e-6; 11 distinct live-active accounts; ECHOECHO (mask 9, state:0) proves state:0 exists below 2047, so 77% understates active.
+evidence_needed: ≥5 more mask:2047 census hits cross-confirmed via /identity/check; ECHOECHO-class (mask<2047, state:0) rate.
+verify_steps: PASSIVE — periodic 400k-ID check_featuremask draws ≤1 rps; POST each mask:2047 hit to /identity/check; tally state:0 ratio.
+impact: live-active population sizing + legacy-client phishing attribution (mask fingerprint). CVSS 5.3.
+testability: PASSIVE
+[HYP] safe backup API credentialed cross-origin exfil with HSTS gap
+class: IDOR
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 55
+reasoning: HTTP Basic (backupId:backupKey); OPTIONS 204 CORS `*` + Allow-Headers Authorization (credentialed cross-origin enabled); GET 400 ACAO `*` but NO HSTS/Expect-CT; route-existence oracle stable across 5 hosts behind 203.56.112.231.
+evidence_needed: valid backupId+backupKey to confirm 200 + body shape; HSTS-gap impact on downgrade.
+verify_steps: AUTH_HELPED — HUMAN: request program test backup credentials; then cross-origin GET /backups/{64hex} with Basic auth.
+impact: credential holder / phishing victim exfiltrates encrypted backup from attacker origin. CVSS 5.3.
+testability: AUTH_HELPED
+[NEXT] PROBE: `curl -s -X POST -H "Content-Type: application/json" -d '{"licenseUsername":"A","licensePassword":"B","version":{},"arch":"x64"}' https://ds-apip.test.threema.ch/check_license` @1 rps — confirm 500 parity on staging mirror (expected, per ds-apip.test mirror logic-identical evidence); then escalate nested-depth `{"version":{"a":{"b":{"c":"x"}}}}` on ds-apip.threema.ch to bound exception/DoS scope before reporting.
