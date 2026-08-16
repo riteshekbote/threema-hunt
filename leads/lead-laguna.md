@@ -19932,3 +19932,4 @@ testability: PASSIVE
 [RISK] sync: 40 — mediator/rendezvous-*.threema.ch return uniform 403 on HTTPS with high-entropy paths; WSS handshake requires auth; DNS shard→node map fully attributed but in-band surface closed; no passive divergence obtainable
 [RISK] safe: 55 — safe-*.threema.ch (5 hosts, single IP 203.56.112.231) expose credential-gated backup API with HSTS/Expect-CT header inconsistency (present on OPTIONS 204, absent on GET 400); HTTP Basic Auth + route-existence oracle (400 vs 404) + credentialed cross-origin CORS (Allow-Headers: Authorization) stable
 [RISK] chat: 30 — g-*.0.threema.ch chat services (203.56.112.202/.204) require authenticated login frame; passive TCP/TLS probes yield 0 bytes; DNS shard→node map fully attributed (g-{00..7f}→.202, g-{80..ff}→.204) but in-band surface closed; staging .test variants out of scope per scope.yml
+## 2026-08-16 14:31:22 UTC [desktop] (model laguna)
