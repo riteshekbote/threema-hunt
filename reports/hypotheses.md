@@ -7185,3 +7185,21 @@
 - LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: Filesystem GROUND TRUTH (`ls poc/` → No such file; `find /` returns zero) DISPROVES all 2
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed fr
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+
+## RANKED HYPOTHESES 2026-08-16 10:59:52 UTC
+- [97] https://ds-apip.threema.ch/identity/check_featuremask: Unauthenticated massive identity census with active-account discrimination via check_featuremask (from reports/hypotheses-nemotron3.txt)
+- [75] https://{ds-apip,api,apip}.threema.ch/check_license: check_license version-object 500: error-path robustness flaw, staging parity unverified (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-laguna.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2Y
+- NEXT(hypotheses-bigpickle.txt): PROBE: `curl -s -X POST -H "Content-Type: application/json" -d '{"licenseUsername":"A","licensePassword":"B","version":{},"arch":"x64"}' https://ds-apip.test.th
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 10th token-mint existence oracle PASSIVE-verified — valid→200/133B token + constant tokenRespK
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200/46B method-handling divergence confirmed — accepts GET (unlike check_featuremask/check whic
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 15 census draws stable — 10 distinct live-active accounts (state:0 mask:2047), tri-state oracle b
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below ≥3-draw threshold — not firm enough to claim a fingerprint class
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ KB sha256 claims — s
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem shows `{"target":"chat"}` not `"desktop"` — agent state divergence persists
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) confirmed benchmark-only dummy in `determineKdfParams()`, `benchm
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (TODO DESK-79), L1240 comment incorrect per Electron docs, 0 dynamic sin
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 10th token-mint existence oracle PASSIVE-verified — valid→200/133B token + constant tokenRespK
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200/46B method-handling divergence confirmed — accepts GET (unlike check_featuremask/check whic
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 10th token-mint existence oracle PASSIVE-verified — valid→200/133B token + constant tokenRespK
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200/46B method-handling divergence confirmed — accepts GET (unlike check_featuremask/check whic
