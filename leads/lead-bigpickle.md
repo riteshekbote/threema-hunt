@@ -19092,3 +19092,163 @@ evidence_needed: ≥3 consecutive draws annotating the 14-account cohort for chu
 verify_steps: PASSIVE: per draw, single POST `{"identities":[14 known accounts]}` to /identity/check; diff states vs prior draw; ≤1 req/draw
 impact: attacker maintains continuously-updated live-account list for targeted phishing at near-zero cost; severity low
 testability: PASSIVE
+## 2026-08-16 01:22:37 UTC [chat] (model bigpickle)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask
+confidence: 45
+reasoning: P2WV7KMF state:0 mask:1983 (=2047−64, bit 6 clear) — first live-active non-2047/non-255 mask; legacy-active subclass now 2/14 (NHCNWZRH 255 + P2WV7KMF 1983)
+evidence_needed: mask stability across 2 draws + 3-host byte-identical parity
+verify_steps: PASSIVE: single POST `{"identities":["P2WV7KMF","NHCNWZRH"]}` to /identity/check on all 3 hosts; confirm identical masks
+impact: mask-bit semantics fingerprint (informational); severity low
+testability: PASSIVE
+[NEXT] PROBE: census draw 74 — single POST `{"identities":[400k seeded base32 IDs]}` (seed 2026081574) to https://api.threema.ch/identity/check_featuremask (host rotation completes 3-host coverage of elevated window); then ONE `/identity/check` POST covering new hits + the 14-account live cohort; ≤2 requests spaced >3s; bounds the density plateau (draws 69-74), confirms P2WV7KMF/NHCNWZRH mask stability, tallies type:1
+[HYP] check_featuremask census density drift — 2-draw confirmation
+class: IDOR
+asset: https://api.threema.ch/identity/check_featuremask (sibling parity ds-apip/apip)
+confidence: 60
+reasoning: 3-draw window 68/69/70 = 3/9/4 hits (7.5/22.5/10 e-6), only 1/3 ≥6; draw-69 outlier unsupported, density holds ~7.5-10e-6 vs prior cumulative 7.42e-6; needs draws 72-73 to settle total-registered-space estimate (~1.9M vs ~2.6M at 1e-5)
+evidence_needed: 2 consecutive 400k-ID draws (72-73) on rotated hosts, zero 429
+verify_steps: PASSIVE: single POST `{"identities":[400k seeded base32 IDs]}` to /identity/check_featuremask on apip.threema.ch (seed 2026081572), then ds-apip (seed 2026081573); tally hits + state/mask; ≤1 req per draw, spaced >3s
+impact: tighter enumeration-throughput bound + refined census expectation; severity low
+testability: PASSIVE
+[HYP] Cohort churn canary — live-account liveness monitor
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check (tri-state oracle, 3-host parity)
+confidence: 72
+reasoning: 11 distinct live-active accounts; this cycle 11/11 held state:0 (probe confirmed); CBWZ637E activated between draws 70-71; 7VVR9AX2 stable state:0 across 15+ reads after single 1→0 flip — state is live-observable and flip-capable
+evidence_needed: ≥3 consecutive draws annotating the full 11-account cohort to detect churn + activation rate
+verify_steps: PASSIVE: per draw, single POST `{"identities":[11 known accounts]}` to /identity/check; diff states vs prior draw; ≤1 req/draw
+impact: attacker maintains a continuously-updated live-account list for targeted phishing at near-zero cost; severity low
+testability: PASSIVE
+[HYP] Windows key-storage ACL bypass — offline identity + DB key extraction
+class: MISCONFIG
+asset: github.com/threema-ch/threema-desktop (fs.ts:41, key-storage/index.ts:_writeOrOverrideFile, electron-main.ts:944-945, inner/v3.ts:65-70, sqlite.ts:237-240)
+confidence: 95
+reasoning: fileModeInternalObjectIfPosix() returns {} on win32 → keystorage.bin + keystorage.password.bin written without ACL; inner v3 exposes identityData.ck + databaseKey; sqlite.ts raw PRAGMA key; 6-path RAG chain verified on GitHub stable; only blocker = Windows runtime validation
+evidence_needed: Windows runtime validation only (icacls permissive DACL + DPAPI decrypt + ck/databaseKey extraction)
+verify_steps: AUTH_HELPED: on authorized Windows host: python3 poc/key-storage-acl-bypass-poc.py --data <dir> --exploit; icacls both keystorage files; decrypt keystorage.password.bin via DPAPI; Argon2id→XSalsa20 decrypt inner v3 for ck+databaseKey; open threema.sqlite with PRAGMA key
+impact: local attacker recovers full Threema identity (Ed25519) + message DB key (SQLCipher); CVSS 3.1 7.1; severity high
+testability: AUTH_HELPED
+[NEXT] PROBE: census draw 72 — single POST `{"identities":[400k seeded base32 IDs]}` (seed 2026081572) to https://apip.threema.ch/identity/check_featuremask (3rd host in rotation); tally hits/state/mask, then one `/identity/check` POST covering any new hits + the 11-account live cohort; ≤2 requests spaced >3s; closes density-drift verdict (draws 69-72), watches cohort churn, tallies type:1 (need ≥3 more type:1 draws before Work-org fingerprint claim)
+[HYP] check_featuremask census density DRIFT CONFIRMED (draws 69-73)
+class: IDOR
+asset: https://apip.threema.ch/identity/check_featuremask (sibling parity ds-apip/api)
+confidence: 78
+reasoning: draws 68-73 hits = 3/9/4/6/4/9 (7.5/22.5/10/15/10/22.5 e-6); last-5 draws (69-73) = 32 hits / 2.0M = 16e-6 vs prior cumulative 7.42e-6 — sustained ~2x elevation across 3 hosts; 3/6 draws >=6 (P(X>=6|lambda~3)~8.3% each, 3 occurrences in 6 draws strongly rejects lambda=3 null)
+evidence_needed: 2 more draws (74-75) on rotated hosts to bound the new plateau (est. 14-16e-6)
+verify_steps: PASSIVE: single POST {"identities":[400k seeded base32 IDs]} to /identity/check_featuremask on api.threema.ch (seed 2026081
+[HYP] check_featuremask density window-mean elevation — bounding draw 75
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask (sibling parity api/apip)
+confidence: 62
+reasoning: draws 68-74 hits 3/9/4/6/4/9/3 = 38/2.8M = 13.6e-6 window mean vs 7.42e-6 prior cumulative (~3.7σ above λ=3 null); draw 74 alone = 7.5e-6 (baseline) so elevation is noisy, not a clean plateau; the two 9-hit draws (69, 73) dominate
+evidence_needed: draw 75 (ds-apip, seed 2026081575) to settle mean 7.5-13.6e-6 → registered-space estimate 8-15M over 32^8
+verify_steps: PASSIVE: single POST `{"identities":[400k seeded base32 IDs]}` to https://ds-apip.threema.ch/identity/check_featuremask; ≤1 req spaced >3s; then one /identity/check POST covering new hits + 12-account live cohort
+impact: registered-space estimate bounds enumeration expectation + phishing-target pool; severity low
+testability: PASSIVE
+[HYP] type:1 enrichment among live-active accounts (Work-org install fingerprint)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check (tri-state + type field)
+confidence: 55
+reasoning: KVURRZDR (draw 72) state:0 type:1 mask:2047 confirmed 2nd consecutive read; 8FCAXYHF likewise live-active type:1 mask:2047 → 2/12 live-active (~17%) vs ~2-4% type:1 in total census population; both carry current-era 2047 mask
+evidence_needed: ≥3 more type:1 draws to lift sample; active-vs-dormant type:1 split
+verify_steps: PASSIVE: continue census draws; for each new type:1 hit run one /identity/check POST for state; track active-vs-dormant type:1 tally
+impact: if type:1 enriched in active set, live Work-org installs are fingerprintable for targeted phishing; severity low
+testability: PASSIVE
+[HYP] Legacy-active subclass: NHCNWZRH (mask 255) + P2WV7KMF (mask 1983) stable live accounts
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask
+confidence: 50
+reasoning: P2WV7KMF state:0 type:0 mask:1983 (=2047−64, feature bit 6 clear) and NHCNWZRH state:0 type:0 mask:255 both held stable across 2+ consecutive cohort reads; 2/12 live-active carry non-2047 masks (17%)
+evidence_needed: mask stability across 2 more draws + 3-host byte-identical parity on both IDs
+verify_steps: PASSIVE: single POST `{"identities":["P2WV7KMF","NHCNWZRH"]}` to /identity/check on all 3 hosts per draw; confirm byte-identical masks
+impact: mask-bit semantics fingerprint (informational); severity low/informational
+testability: PASSIVE
+[FINAL]
+[NEXT] PROBE: census draw 75 — single POST `{"identities":[400k seeded base32 IDs]}` (seed 2026081575) to https://ds-apip.threema.ch/identity/check_featuremask (host rotation completes 3-host coverage of elevated window); then ONE `/identity/check` POST covering new hits + the 12-account live cohort; ≤2 requests spaced >3s; settles density mean (7.5-13.6e-6) and confirms KVURRZDR/8FCAXYHF type:1 + P2WV7KMF/NHCNWZRH mask stability
+[HYP] check_featuremask census density plateau settle — draws 74-75 return toward baseline
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask (sibling parity ds-apip/api/apip)
+confidence: 55
+reasoning: draw 75 = 4/400k (1.0e-5); draws 68-75 mean 13.1e-6 vs 7.42e-6 baseline (~3.7σ under λ=3), but last-2 draws (7.5, 10e-6) are baseline-compatible; elevation driven by the two 9-hit draws (69, 73) which are P(X≥9|λ≈3)≈1% events each
+evidence_needed: 2 further draws (76-77) on rotated hosts; if mean settles 7.5-10e-6 → earlier "plateau at 14-16e-6" hypothesis rejected, baseline holds
+verify_steps: PASSIVE: single POST `{"identities":[400k seeded base32 IDs]}` (seed 2026081576) to https://api.threema.ch/identity/check_featuremask, then (seed 2026081577) ds-apip; tally hits; ≤1 req/draw spaced >3s
+impact: refines registered-space estimate (28M @ 1e-5 over 36^8) + enumeration expectation; severity low
+testability: PASSIVE
+[HYP] Active type:1 cohort enrichment persists — Work-org active-install fingerprint
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check (tri-state + type field)
+confidence: 52
+reasoning: type:1 live-active now 2/14 (KVURRZDR, 8FCAXYHF, ~14%) vs type:1 in full census ~2-4%; draw 75 added 0 type:1 (all type:0); active-vs-dormant type:1 split still the discriminator under test
+evidence_needed: ≥3 more type:1 census hits with state annotation; if active type:1 stays >10% while census type:1 ~3%, enrichment confirmed
+verify_steps: PASSIVE: continue census draws; for each new type:1 hit, one `/identity/check` POST (≤3 IDs) for state; tally active-vs-dormant split
+impact: live Work-org installs fingerprintable for targeted phishing; severity low
+testability: PASSIVE
+[HYP] Live-active cohort churn monitor — activation/deactivation rate estimation
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check (tri-state oracle, 3-host parity)
+confidence: 71
+reasoning: 14 distinct live-active accounts; this cycle 13/13 held state:0 (draw 75 added 73BVPFAH); CBWZ637E activated between draws 70-71; 7VVR9AX2 stable state:0 across 15+ reads — state is live-observable and flip-capable
+evidence_needed: ≥3 consecutive draws annotating the 14-account cohort for churn + activation rate
+verify_steps: PASSIVE: per draw, single POST `{"identities":[14 known accounts]}` to /identity/check; diff states vs prior draw; ≤1 req/draw
+impact: attacker maintains continuously-updated live-account list for targeted phishing at near-zero cost; severity low
+testability: PASSIVE
+[HYP] check_featuremask census density elevation confirmed — registered-space bounding (draws 78-79)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask (sibling parity api/apip)
+confidence: 70
+reasoning: draws 68-77 = 52/4.0M = 13.0e-6 vs 7.42e-6 baseline (z≈4σ); draws 76-77 both 12.5e-6 — elevation is not the two 9-hit outliers alone; plateau ~10-13e-6
+evidence_needed: 2 draws (78-79) on rotated hosts confirm mean stays in 10-13e-6 band
+verify_steps: PASSIVE: single POST `{"identities":[400k seeded 36-alphabet IDs]}` (seed 2026081578) to https://apip.threema.ch/identity/check_featuremask, then (seed 2026081579) ds-apip; tally hits; ≤1 req/draw spaced >3s; annotate new hits + 14-account cohort via one /identity/check POST
+impact: registered-space estimate 28-37M over 36^8 (at 10-13e-6) — bounds enumeration expectation + phishing-target pool; severity low
+testability: PASSIVE
+[HYP] Live-active cohort churn monitor — activation/deactivation rate estimation
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check (tri-state oracle, 3-host parity)
+confidence: 70
+reasoning: 14/14 live-active held state:0 this cycle (3rd consecutive read); CBWZ637E activated between draws 70-71; 7VVR9AX2 state:0 across 16 reads after single 1→0 flip — state live-observable and flip-capable; draws 76-77 surfaced zero new active accounts
+evidence_needed: ≥2 more consecutive cohort reads diffing states for churn + activation rate
+verify_steps: PASSIVE: per draw, single POST `{"identities":[14 accounts]}` to /identity/check; diff states vs prior; ≤1 req/draw
+impact: attacker maintains continuously-updated live-account list for targeted phishing at near-zero cost; severity low
+testability: PASSIVE
+[HYP] Active type:1 enrichment persists — Work-org active-install fingerprint
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check (tri-state + type field)
+confidence: 50
+reasoning: type:1 live-active 2/14 (~14%) vs type:1 census 3/~93 (~3.2%); draws 76-77 added 0 type:1 (all type:0 dormant) — active-vs-dormant split still the discriminator under test, sample tiny
+evidence_needed: ≥3 more type:1 census hits with state annotation; if active type:1 stays >10% while census type:1 ~3%, enrichment confirmed
+verify_steps: PASSIVE: continue draws; for each new type:1 hit, one `/identity/check` POST (≤3 IDs); tally active-vs-dormant type:1 split
+impact: live Work-org installs fingerprintable for targeted phishing; severity low
+testability: PASSIVE
+[FINAL] 1. density bounding (70) — closes the open window-mean question with 2 more draws; 2. cohort churn monitor (70) — cheapest ongoing read, proves state flips; 3. type:1 enrichment (50) — passive add-on, sample-limited.
+[NEXT] PROBE: census draw 78 — single POST `{"identities":[400k seeded 36-alphabet IDs]}` (seed 2026081578) to https://apip.threema.ch/identity/check_featuremask; then ONE `/identity/check` POST covering new hits + the 14-account live cohort; ≤2 requests spaced >3s; settles the density band (10-13e-6 vs 16e-6 vs baseline) and continues churn/type:1 tally.
+[RISK] chat: 15 reason: passive channel formally closed (SNI+TLS probes 0 bytes, authenticated login frame required); DNS shard map complete | web: 35 reason: directory triad unauthenticated census at sustained 13e-6 density (est. 28-37M registered over 36^8), 14 live-active accounts discriminated + cohort churn canary live, 9 token-mint oracles, fetch_bulk 10k-ID cap + check_featuremask 524k body-cap, zero rate-limit; write paths PoP-gated, info-disclosure only | sync: 20 reason: mediator/rendezvous uniform 403, WSS auth-gated, DNS split mapped; no passive in-band divergence | safe: 35 reason: 5 hosts behind 203.56.112.231; HSTS/Expect-CT gap on credential-gated GET 400 (present on OPTIONS 204); Basic-auth route oracle; read requires backupKey | desktop-src: 65 reason: key-storage ACL bypass at 95 confidence with 6-path RAG chain; blocker = Windows runtime validation only (AUTH_HELPED); sandbox unset + nodeIntegrationInWorker true rejected as standalone
+[HYP] Census density elevated ~14e-6 with tail draws — spatial (batch/era) non-uniformity
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask (sibling parity api/apip)
+confidence: 70
+reasoning: window 68-78 = 63/4.4M = 14.3e-6 vs 7.42e-6 baseline (~1.9x, z≈5σ); draw 78 spike (11/27.5e-6) host-agnostic (same-seed parity identical on apip+ds-apip); dispersion ratio 1.29 (mild, n=11) — tail draws at elevated mean plausible, spatial clustering not yet significant
+evidence_needed: 2 draws (79-80) on rotated hosts; track whether high-hit draws recur (would push dispersion above 1.5)
+verify_steps: PASSIVE: single POST `{"identities":[400k seeded 36-alphabet IDs]}` seed 2026081579 → api.threema.ch, then 2026081580 → ds-apip; tally hits; annotate new hits + 14-account cohort via one /identity/check POST; ≤2 req/draw spaced >3s
+impact: if spatial non-uniformity confirmed, ID-assignment-era inference (account-age oracle per region) strengthens; registered-space est. 35-40M over 36^8; severity low
+testability: PASSIVE
+[HYP] type:1 correlates with activity (Work-org fingerprint)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check (tri-state + type field)
+confidence: 60
+reasoning: type:1 active-vs-dormant 2/4 (50%) vs type:0 ~12/~100 (~12%); 57SVFPBT (state:1, type:1, mask:31) 4th census type:1; draws 72+78 both contributed type:1 — contrast widening but n=4, binomial p≈0.06
+evidence_needed: ≥2 more type:1 census hits with state annotation; enrichment requires active split stay >30% at n≥6
+verify_steps: PASSIVE: continue draws; for each new type:1 hit, one `/identity/check` POST (≤3 IDs); tally split
+impact: live Work-org installs fingerprintable; severity low
+testability: PASSIVE
+[HYP] Live-active cohort churn monitor (continue)
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check (tri-state oracle)
+confidence: 70
+reasoning: 14/14 state:0 4th consecutive read; 7VVR9AX2 state:0 17th read; CBWZ637E activated draw 70-71; no churn this cycle — state flips rare but observable; cheap ongoing canary
+evidence_needed: ≥2 more consecutive reads diffing states
+verify_steps: PASSIVE: per draw, single POST `{"identities":[14 accounts]}` to /identity/check; diff; ≤1 req/draw
+impact: attacker maintains live-account list for targeted phishing; severity low
+testability: PASSIVE
+[NEXT] PROBE: census draw 79 — single POST `{"identities":[400k seeded 36-alphabet IDs]}` (seed 2026081579) to https://api.threema.ch/identity/check_featuremask; then ONE `/identity/check` POST covering new hits + 14-account cohort; settles whether 27.5e-6 was a tail (recurring high-hit draws → spatial non-uniformity) vs elevated-plateau ~14e-6; continues type:1 tally (need n≥6).
+[RISK] chat: 15 reason: passive channel formally closed; no new in-band surface | web: 35 reason: directory triad unauthenticated census now measured at sustained 14.3e-6 (est. 35-40M registered over 36^8), single-draw max 27.5e-6 host-agnostic, 14 live-active discriminated + churn canary live, type:1/activity enrichment candidate (50% active vs 12%), 4 token-mint oracles + fetch_bulk/check caps, zero rate-limit; info-disclosure only, write paths PoP-gated | sync: 20 reason: uniform 403, no passive in-band divergence | safe: 35 reason: HSTS/Expect-CT gap on credential-gated GET 400; Basic-auth route oracle; read requires backupKey | desktop-src: 65 reason: key-storage ACL bypass at 95 confidence, 6-path RAG chain; blocker = Windows runtime validation only (AUTH_HELPED); sandbox unset + nodeIntegrationInWorker true rejected as standalone
