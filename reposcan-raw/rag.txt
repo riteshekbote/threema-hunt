@@ -1193,6 +1193,17 @@
 - 2026-08-16 REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) — all 20+ KB sha256 claims disproven; 6-path RAG chain remains remote-verified only; artifact not authored (no change).
 - 2026-08-16 REJECTED MISCONFIG @ state_bigpickle.json: filesystem = `{"phase":"POC","target":"chat"}` — KB desktop-target claims stale (20+ cycles); agent state divergence persists.
 - 2026-08-16 NO_NEW_CLASS: reposcan-latest "0 new hit lines" — 6656 files, 56 hits, all previously-rejected items (benchmark password, test fixtures, public DSNs, UserDefaults keys, redactions).
+- 2026-08-16 ACCEPTED IDOR @ ds-apip.threema.ch/identity/revoke: 11th unauthenticated identity-existence oracle — valid→200/133B token + constant tokenRespKeyPub, invalid→200/46B "Identity not found", case-agnostic shared mint handler; 3-host parity; OPTIONS 200 CORS `*` browser-viable; plain `/identity/revoke` is LIVE (KB previously only probed `/identity/ws/revoke` → 404, a distinct dead path — no contradiction)
+- 2026-08-16 ACCEPTED MISCONFIG @ {ds-apip,api,apip}.threema.ch/check_license: 15th crash family — `version` as object → 500/0B (3-host parity), GET+text/plain preflight-free browser vector confirmed, recovery normal; only crash family with OPTIONS 200.
+- 2026-08-16 REJECTED HYP @ g-{00,80}.0.threema.ch alternate ports: TCP sweep 80/5223/8080/8443/9090 all closed on both prod nodes (203.56.112.202/.204) — only 443+5222 open; alternative-port surface hypothesis closed, chat in-band remains formally closed.
+- 2026-08-16 CONFIRMED MISCONFIG @ crash family matrix now 15 endpoints × 3 hosts × GET+POST (90 combos), all byte-stable, zero 429, ACAO `*` on every 500.
+- 2026-08-16 ACCEPTED MISCONFIG @ {ds-apip,api,apip}.threema.ch/check_license: 15th crash family — `version` as object → 500/0B (3-host parity), GET+text/plain preflight-free browser vector confirmed, recovery normal; only crash family with OPTIONS 200.
+- 2026-08-16 REJECTED HYP @ g-{00,80}.0.threema.ch alternate ports: TCP sweep 80/5223/8080/8443/9090 all closed on both prod nodes (203.56.112.202/.204) — only 443+5222 open; alternative-port surface hypothesis closed, chat in-band remains formally closed.
+- 2026-08-16 CONFIRMED MISCONFIG @ crash family matrix now 15 endpoints × 3 hosts × GET+POST (90 combos), all byte-stable, zero 429, ACAO `*` on every 500.
+- 2026-08-16 ACCEPTED MISCONFIG @ {ds-apip,api,apip}.threema.ch/check_license: 15th crash family — `version` as object → 500/0B, 3-host parity via POST+json AND GET+text/plain (preflight-free), sole-trigger field confirmed, recovery normal; only crash family with OPTIONS 200.
+- 2026-08-16 REJECTED HYP @ g-{00,80}.0.threema.ch alternate ports: TCP sweep 80/5223/8080/8443/9090 all closed on both prod nodes (203.56.112.202/.204) — only 443+5222 open; alternative-port surface closed, chat in-band remains formally closed.
+- 2026-08-16 CONFIRMED MISCONFIG @ crash family matrix: now 15 endpoints × 3 hosts × GET+POST = 90 combos, byte-stable, zero 429, ACAO `*` on every 500, text/html 500 signature uniform.
+- 2026-08-16 CONFIRMED @ filesystem ground truth: `poc/` absent, state=`chat`, reposcan-raw 0 source files, grep-delta 0 new hits — no KB/filesystem divergence changes this cycle.
 === INVENTORY gladia ===
 # Inventory: threema
 
