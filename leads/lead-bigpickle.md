@@ -21411,3 +21411,4 @@ verify_steps: PASSIVE — periodic 400k-ID POST draws ≤1 rps; POST hits to /id
 impact: Bounds live-active Threema population (~2e7 upper bound at 36^8); legacy-client (mask<2047) fingerprinting for targeted phishing. CVSS 5.3.
 testability: PASSIVE
 [NEXT] HUMAN: Browser-context validation of the top-scored finding — load a page with fetch to `https://ds-apip.threema.ch/check_license` using GET + `Content-Type: text/plain` + body `{"version":{"x":1}}`, confirm HTTP 500 + `Access-Control-Allow-Origin: *` with ZERO OPTIONS preflight in the Network tab (4-host parity already server-verified); repeat once for `identity/revoke` GET+text/plain `{"identity":"ECHOECHO"}` vs `{"identity":"ZZZZZZZZ"}` to confirm the 133B-vs-46B zero-preflight mint differential.
+## 2026-08-16 17:55:52 UTC [chat] (model bigpickle)

@@ -2683,3 +2683,15 @@ https://ds-apip.threema.ch/identity/set_featuremask -> 200 len=? type=applicatio
 https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
 https://ds-apip.threema.ch/check_license',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
 https://ds-apip.threema.ch/check_license` -> HTTP 404
+
+## 2026-08-16 18:03:57 UTC
+https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/revoke',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
+https://ds-apip.threema.ch/check_license',{method:'POST',body:JSON.stringify({licenseUsername:'bigpickle',licensePassword:'wrong',version:'linux',arch:'x64' -> HTTP 404
+https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/set_featuremask -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/check_license',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/create -> 200 len=? type=application/json; charset=utf-8

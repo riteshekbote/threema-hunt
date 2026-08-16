@@ -4395,3 +4395,20 @@
 - NEW `check_license` joins crash family — `version` as object → 500/0B (3-host parity); GET+text/plain preflight-free browser vector confirmed; only crash family with OPTIONS 200; 4-host parity (ds-apip/ap
 - CHANGED Crash family matrix now 16 endpoint families × 3 prod hosts + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO *, zero 429, instant recovery
 - CHANGED Filesystem GROUND TRUTH: `poc/` absent (`ls poc/` → No such file); `state_bigpickle.json` = `{"phase":"POC","target":"chat"}`; `reposcan-raw/threema-ch/` EMPTY (`find` → 0 files across 18 repo dirs)
+
+## 2026-08-16 18:03:53 UTC
+- NEW `check_license` crash parity expanded to 4 hosts (ds-apip, api, apip, ds-apip.test) — POST `{"version":{}}` → 500/0B, GET+text/plain → 500/0B, OPTIONS 200 CORS `*` on all 4
+- NEW Crash family matrix now 16 endpoint families × 3 prod + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO `*`, zero 429, instant recovery
+- CHANGED Filesystem GROUND TRUTH re-verified: `poc/` absent (`ls poc/` → No such file), `state_bigpickle.json` = `{"phase":"POC","target":"chat"}`, `reposcan-raw/threema-ch/` EMPTY (`find` → 0 files across 18 
+- CHANGED `/identity/revoke` token-mint oracle re-confirmed: POST/GET+text/plain valid→200/133B token + constant tokenRespKeyPub, invalid→200/46B, 3-host parity byte-stable
+- CHANGED `/identity/create` crash family re-confirmed: POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod + staging; batch `{"identities":[{}]} `→ 500/0B; 5x burst @0.5s all 500 no 429
+- NEW /identity/revoke (non-ws path) LIVE token-mint identity-existence oracle — POST {"identity":"ECHOECHO"} → 200/133B token + constant tokenRespKeyPub; GET+text/plain valid → 200/133B token; GET no-body 
+- NEW /identity/create crash family — POST {"publicKey":{"x":1}} → 500/0B on all 3 prod + staging; batch {"identities":[{}]} → 500/0B; 5x burst @0.5s all 500 no 429; recovery to 200/133B
+- NEW check_license joins crash family — version as object → 500/0B (3-host parity); GET+text/plain preflight-free browser vector confirmed; only crash family with OPTIONS 200; 4-host parity (ds-apip/api/ap
+- CHANGED Crash family matrix now 16 endpoint families × 3 prod hosts + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO *, zero 429, instant recovery
+- CHANGED Filesystem GROUND TRUTH: poc/ absent (ls → No such file); state_bigpickle.json = {"phase":"POC","target":"chat"}; reposcan-raw/threema-ch/ EMPTY (find → 0 files across 18 repo dirs)
+- NEW /identity/revoke (non-ws path) LIVE token-mint identity-existence oracle — POST {"identity":"ECHOECHO"} → 200/133B token + constant tokenRespKeyPub; GET+text/plain valid → 200/133B token; GET no-body 
+- NEW /identity/create crash family — POST {"publicKey":{"x":1}} → 500/0B on all 3 prod + staging; batch {"identities":[{}]} → 500/0B; 5x burst @0.5s all 500 no 429; recovery to 200/133B
+- NEW check_license joins crash family — version as object → 500/0B (3-host parity); GET+text/plain preflight-free browser vector confirmed; only crash family with OPTIONS 200; 4-host parity (ds-apip/api/ap
+- CHANGED Crash family matrix now 16 endpoint families × 3 prod hosts + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO *, zero 429, instant recovery
+- CHANGED Filesystem GROUND TRUTH: poc/ absent (ls → No such file); state_bigpickle.json = {"phase":"POC","target":"chat"}; reposcan-raw/threema-ch/ EMPTY (find → 0 files across 18 repo dirs)
