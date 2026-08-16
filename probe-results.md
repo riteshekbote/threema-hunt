@@ -2357,3 +2357,8 @@ https://ds-apip.threema.ch/identity/set_featuremask -> 200 len=? type=applicatio
 https://api.threema.ch/identity/check_featuremask -> HTTP 500
 https://api.threema.ch/identity/check -> HTTP 500
 https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-16 06:06:54 UTC
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/check_revocation_key -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/set_featuremask -> 200 len=? type=application/json; charset=utf-8
