@@ -7742,3 +7742,69 @@
 - LEARN: CONFIRMED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke: GET+text/plain mint re-confirmed — valid→200/133B, invalid→200/46B, 3-host parity byte-stable; r
 - LEARN: CONFIRMED IDOR @ ds-apip.threema.ch/identity/check_featuremask: Draw-17 (seed 2026081680, 400k IDs, 4800016B) → 3 hits/400k = 7.5e-6 density; all3 state=1 type=
 - LEARN: CONFIRMED @ /identity/check dual-oracle stability: checkInterval=86400, states=[1,1,1], types=[0,0,0], masks=[127,15,31] — companion endpoint stable and consist
+
+## RANKED HYPOTHESES 2026-08-16 18:03:53 UTC
+- [97] <host/endpoint>: <title> (from reports/hypotheses-laguna.txt)
+- [95] https://{ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: check_license preflight-free cross-origin crash with 4-host parity (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-laguna.txt): PROBE: `curl -s -D - -o /dev/null -w "http_code=%{http_code} size=%{size_download}" -X GET -H "Origin: https://evil.com" -H "Content-Type: text/plain" -d '{"ide
+- LEARN: ACCEPTED @ crash family (3 prod + 1 staging hosts): All 16 endpoint families confirmed byte-stable 500/0B with ACAO `*` on malformed GET+text/plain + POST+json 
+- LEARN: ACCEPTED @ revoke + set_featuremask GET+text/plain token-mint: Own probes confirm valid→200/133B token + constant tokenRespKeyPub sha256 `c8005cca9…`; invalid→2
+- LEARN: ACCEPTED @ check_license credential oracle + crash: Own probes confirm POST fake creds→200/65B `{"success":false,"error":"This username or password is invalid."
+- LEARN: REJECTED @ poc/key-storage-acl-bypass-poc.py on-disk claims: Filesystem GROUND TRUTH (`ls poc/` → No such file, exit 2; `find / -name "key-storage-acl-bypass*"`
+- LEARN: REJECTED @ state_bigpickle.json KB claims: Filesystem shows `{"phase": "POC", "target": "chat"}` (sha256 `94bd1bd1…`) not `{"target":"desktop"}` as KB/hypothese
+- LEARN: REJECTED @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12`, computed from litera
+- LEARN: REJECTED @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (TODO DESK-79 at electron-main.ts:1255), `nodeIntegrationInWorker: true` (L125
+- LEARN: ACCEPTED @ crash family (3 prod + 1 staging hosts): All 16 endpoint families confirmed byte-stable 500/0B with ACAO `*` on malformed GET+text/plain + POST+json 
+- LEARN: ACCEPTED @ revoke + set_featuremask GET+text/plain token-mint: Own probes confirm valid→200/133B token + constant tokenRespKeyPub sha256 `c8005cca9…`; invalid→2
+- LEARN: ACCEPTED @ check_license credential oracle + crash: Own probes confirm POST fake creds→200/65B `{"success":false,"error":"This username or password is invalid."
+- LEARN: REJECTED @ poc/key-storage-acl-bypass-poc.py on-disk claims: Filesystem GROUND TRUTH (`ls poc/` → No such file, exit 2; `find / -name "key-storage-acl-bypass*"`
+- LEARN: REJECTED @ state_bigpickle.json KB claims: Filesystem shows `{"phase": "POC", "target": "chat"}` (sha256 `94bd1bd1…`) not `{"target":"desktop"}` as KB/hypothese
+- LEARN: REJECTED @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12`, computed from litera
+- LEARN: REJECTED @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (TODO DESK-79 at electron-main.ts:1255), `nodeIntegrationInWorker: true` (L125
+- LEARN: CONFIRMED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 4-host crash parity confirmed this cycle — POST `{"version":{"x":1}}` → 500/0B o
+- LEARN: CONFIRMED MISCONFIG @ {ds-apip,api,apip}.threema.ch/identity/revoke: POST `{"identity":{"x":1}}` → 500/0B with ACAO `*` on ALL 3 prod hosts — revoke confirmed a
+- LEARN: CONFIRMED MISCONFIG @ {ds-apip,api,apip}.threema.ch/identity/set_featuremask: POST `{"identity":{"x":1}}` → 500/0B on ALL 3 prod hosts — crash parity confirmed;
+- LEARN: CONFIRMED MISCONFIG @ crash family matrix: now 16 endpoint families × 3 prod hosts + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO `*`, ze
+- LEARN: CONFIRMED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke: GET+text/plain mint re-confirmed — valid→200/133B, invalid→200/46B, 3-host parity byte-stable; r
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/revoke: 11th unauthenticated identity-existence oracle — valid→200/133B token + constant tokenRespKeyPub, invalid→20
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.threema.ch/identity/create: Unauthenticated 500 crash on malformed publicKey input — POST {"publicKey":{"x":1}} → 500/0B, batch wid
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 4-host crash parity — POST {"version":{}} → 500/0B, GET+text/plain → 500/0B (pref
+- LEARN: ACCEPTED MISCONFIG @ crash family matrix: 16 endpoint families × 3 prod + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO *, zero 429, share
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (ls poc/ → No such file) disproves all 20+ KB sha256 claims — sou
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem shows {"target":"chat"} not {"target":"desktop"} — agent state divergence persists
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 (sha256 400c7846…) confirmed benchmark-only dummy in determineKdfParams(), benchmarkKey.
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: sandbox UNSET (TODO DESK-79), L1240 comment incorrect per Electron docs, 0 dynamic sinks
+- LEARN: CONFIRMED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 4-host crash parity confirmed this cycle — POST `{"version":{"x":1}}` → 500/0B o
+- LEARN: CONFIRMED MISCONFIG @ {ds-apip,api,apip}.threema.ch/identity/revoke: POST `{"identity":{"x":1}}` → 500/0B with ACAO `*` on ALL 3 prod hosts — revoke confirmed a
+- LEARN: CONFIRMED MISCONFIG @ {ds-apip,api,apip}.threema.ch/identity/set_featuremask: POST `{"identity":{"x":1}}` → 500/0B on ALL 3 prod hosts — crash parity confirmed;
+- LEARN: CONFIRMED MISCONFIG @ crash family matrix: now 16 endpoint families × 3 prod hosts + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO `*`, ze
+- LEARN: CONFIRMED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke: GET+text/plain mint re-confirmed — valid→200/133B, invalid→200/46B, 3-host parity byte-stable; r
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/revoke: 11th unauthenticated identity-existence oracle — valid→200/133B token + constant tokenRespKeyPub, invalid→20
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.threema.ch/identity/create: Unauthenticated 500 crash on malformed publicKey input — POST {"publicKey":{"x":1}} → 500/0B, batch wid
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 4-host crash parity — POST {"version":{}} → 500/0B, GET+text/plain → 500/0B (pref
+- LEARN: ACCEPTED MISCONFIG @ crash family matrix: 16 endpoint families × 3 prod + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO *, zero 429, share
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (ls poc/ → No such file) disproves all 20+ KB sha256 claims — sou
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem shows {"target":"chat"} not {"target":"desktop"} — agent state divergence persists
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 (sha256 400c7846…) confirmed benchmark-only dummy in determineKdfParams(), benchmarkKey.
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: sandbox UNSET (TODO DESK-79), L1240 comment incorrect per Electron docs, 0 dynamic sinks
+- LEARN: ACCEPTED @ crash family (3 prod + 1 staging hosts): All 16 endpoint families confirmed byte-stable 500/0B with ACAO `*` on malformed GET+text/plain + POST+json 
+- LEARN: ACCEPTED @ revoke + set_featuremask GET+text/plain token-mint: Own probes confirm valid→200/133B token + constant tokenRespKeyPub sha256 `c8005cca9…`; invalid→2
+- LEARN: ACCEPTED @ check_license credential oracle + crash: Own probes confirm POST fake creds→200/65B `{"success":false,"error":"This username or password is invalid."
+- LEARN: REJECTED @ poc/key-storage-acl-bypass-poc.py on-disk claims: Filesystem GROUND TRUTH (`ls poc/` → No such file, exit 2; `find / -name "key-storage-acl-bypass*"`
+- LEARN: REJECTED @ state_bigpickle.json KB claims: Filesystem shows `{"phase": "POC", "target": "chat"}` (sha256 `94bd1bd1…`) not `{"target":"desktop"}` as KB/hypothese
+- LEARN: REJECTED @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12`, computed from litera
+- LEARN: REJECTED @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (TODO DESK-79 at electron-main.ts:1255), `nodeIntegrationInWorker: true` (L125
+- LEARN: ACCEPTED @ crash family (4 hosts): All 16 endpoint families byte-stable 500/0B with ACAO `*` on malformed GET+text/plain + POST+json across ds-apip + api + apip
+- LEARN: ACCEPTED @ GET+text/plain token-mint cluster (revoke + set_featuremask): Valid→200/133B token + constant tokenRespKeyPub sha256 `c8005cca…`; invalid→200/46B; ca
+- LEARN: ACCEPTED @ check_license credential oracle + crash: POST fake creds→200/65B `{"success":false,"error":"This username or password is invalid."}` + ACAO `*` + All
+- LEARN: ACCEPTED @ check_featuremask census: POST `{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ","ECHOECHO"]}` → 200 `{"featureMasks":[2047,2047,null,9]}` byte-identi
+- LEARN: REJECTED @ poc/key-storage-acl-bypass-poc.py on-disk claims: Filesystem GROUND TRUTH (`ls poc/` → No such file) DISPROVES all 20+ cycle KB sha256 claims; 6-path
+- LEARN: REJECTED @ state_bigpickle.json KB `{"target":"desktop"}` claims: Filesystem shows `{"target":"chat"}` — agent state divergence persists across 20+ cycles; file
+- LEARN: REJECTED @ crypto.ts:223 benchmark password: sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` computed from literal `r3gGN9GDQ5NF6tM6`;
+- LEARN: REJECTED @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (TODO DESK-79 at electron-main.ts:1255), `nodeIntegrationInWorker: true` (L125
+- LEARN: REJECTED @ work.threema.ch/api/v1 X-Api-Key oracle: 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Ke
+- LEARN: REJECTED @ g-{00,80}.0.threema.ch alternate ports: TCP sweep 80/5223/8080/8443/9090 all closed on both prod nodes; only 443+5222 open; chat in-band surface form
+- LEARN: REJECTED @ saltyrtc-*.threema.ch: HTTP 426 on GET, NOT in scope per scope.yml — out of scope.
+- LEARN: REJECTED @ blob-mirror-*.threema.ch: Discovered in desktop source config.ts but NOT in scope per scope.yml — out of scope.
+- LEARN: REJECTED @ reposcan-raw/threema-ch/ local clone: EMPTY (0 files across 18 repo dirs); all "RAG-VERIFIED via direct git clone" claims unfulfilled; source evidenc
+- LEARN: REJECTED @ Type:1 Work-org fingerprint hypothesis: density 2/80+ below ≥3-draw threshold; not firm enough to claim a fingerprint class.
