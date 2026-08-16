@@ -1,64 +1,80 @@
 [0m
 > build · nemotron-3-ultra-free
 [0m
-### Classification Tables
-
-#### REAL_SECRET
-| File | Line | Secret (sha256) | Notes |
-|------|------|-----------------|-------|
-| *(none)* | | | No hardcoded live credentials found |
-
-#### TEST_OR_EXAMPLE
-| File | Line | Value (sha256) | Context |
-|------|------|----------------|---------|
-| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15 | `authToken` (test fixture) | Test auth token |
-| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 18 | `testPassword` | Test password |
-| threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | `password1` | Test fixture |
-| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift | 50,72,148 | `testPassword` | Test password (3 occurrences) |
-| threema-ios/ThreemaFrameworkTests/WorkDataAPICallerTests.swift | 13,37,103 | `testPassword`, `validPassword` | Test passwords |
-| threema-ios/ThreemaTests/SafeTests.swift | 67,76,105 | `shootdeathstar` (sha256 `8d969eef...`) | Test-only credential (ManuallyTests) |
-| threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift | 30,227 | `abcdefghijkl`, `ABcd!@#tgk092` | Test validator inputs |
-| threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift | 28,76,120 | `shootdeathstar` | Manual test fixture |
-| threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift | 38,83 | `shootdeathstar` | Manual test fixture |
-| threema-desktop/apps/desktop/src/common/test-data.ts | 62 | `CHANGE_ME` | Placeholder |
-| threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts | 223 | `r3gGN9GDQ5NF6tM6` (sha256 `400c7846...`) | **Benchmark-only dummy** in `determineKdfParams()`, purged at L233 — NOT used for real encryption (RAG-verified) |
-
-#### ENDPOINT_LEAK
-| File | Line | Endpoint | Type |
-|------|------|----------|------|
-| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7,917 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` | Staging directory servers (OpenAPI spec) |
-| threema-desktop/apps/desktop/config/vite.config.ts | 147,153,154 | `ds-apip.test.threema.ch`, `ds-apip-work.test.threema.ch`, `work.test.threema.ch` | Staging config (build-time) |
-| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 7,911 | `ds-apip-work.test.threema.ch`, `ds-apip.test.threema.ch` | Staging directory servers (OpenAPI spec) |
-| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 7,917 | `ds-apip-work.test.threema.ch`, `ds-apip.test.threema.ch` | Staging directory servers (OpenAPI spec) |
-| threema-android/domain/protocol/src/directory.openapi.yml | 7,911 | `ds-apip-work.test.threema.ch`, `ds-apip.test.threema.ch` | Staging directory servers (OpenAPI spec) |
-
-#### INTERESTING
-| File | Line | Finding | Notes |
-|------|------|---------|-------|
-| threema-ios/Threema/AppMigration.swift | 873 | `persistenceKeyLicensePassword = "Threema license password"` | **UserDefaults KEY name**, not a hardcoded password — false positive |
-| threema-desktop/apps/desktop/src/common/enum/index.ts | 3126,3162 | `LOAD_USER_PASSWORD`, `STORE_USER_PASSWORD` | IPC constant names (not secrets) |
-| threema-desktop/apps/desktop/src/enum/schema.ts | 983,1000 | Same IPC constants | Duplicate in schema |
-| threema-desktop/packages/webrtc/src/sdp/ice-password.ts | 12 | ICE password validation throw | Validation logic, not a secret |
-| threema-android/app/src/main/java/ch/threema/app/dialogs/PasswordEntryDialog.java | 47 | `KEY_PASSWORD = "password"` | Field name constant |
-| threema-android/app/src/main/java/ch/threema/app/notifications/NotificationChannels.kt | 52 | `NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"` | Notification channel ID |
-| threema-android/app/src/main/java/ch/threema/app/utils/IceCandidateParser.java | 43 | `TOKEN = "[a-zA-Z]+"` | Regex pattern |
-| threema-android/app/src/main/java/ch/threema/app/webclient/converter/ClientInfo.java | 37 | `PUSH_TOKEN = "pushToken"` | Field name constant |
-| threema-android/app/src/main/java/ch/threema/app/voip/groupcall/sfu/JoinResponse.kt | 70 | `toString()` leaks `icePassword='$icePassword'` | **Potential logcat leak** — low value (local-only, short-lived ICE creds), needs runtime validation |
-| threema-android/app/src/main/java/ch/threema/storage/databaseupdate/DatabaseUpdateToVersion37.java | 48 | `COLUMN_PUSH_TOKEN = "push_token"` | Column name |
-| threema-android/app/src/main/java/ch/threema/storage/models/WebClientSessionModel.java | 28 | `COLUMN_PUSH_TOKEN = "push_token"` | Column name (duplicate) |
-| threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt | 15,19 | Sentry public DSN keys (sha256 `3a826628...`, `3686395f...`) | **Public by design** — client-side identifiers |
+[0m$ [0mls -la reposcan-raw/threema-ch/
+total 72
+drwxr-xr-x 18 runner runner 4096 Aug 16 17:49 .
+drwxr-xr-x  3 runner runner 4096 Aug 16 17:49 ..
+drwxr-xr-x  7 runner runner 4096 Aug 16 17:49 app-remote-protocol
+drwxr-xr-x 10 runner runner 4096 Aug 16 17:49 compose-area
+drwxr-xr-x  7 runner runner 4096 Aug 16 17:49 push-relay
+drwxr-xr-x 14 runner runner 4096 Aug 16 17:49 threema-android
+drwxr-xr-x  8 runner runner 4096 Aug 16 17:49 threema-bot-sdk
+drwxr-xr-x 12 runner runner 4096 Aug 16 17:49 threema-desktop
+drwxr-xr-x 32 runner runner 4096 Aug 16 17:49 threema-ios
+drwxr-xr-x  6 runner runner 4096 Aug 16 17:49 threema-markup
+drwxr-xr-x  4 runner runner 4096 Aug 16 17:49 threema-msgapi-sdk-java
+drwxr-xr-x  5 runner runner 4096 Aug 16 17:49 threema-msgapi-sdk-php
+drwxr-xr-x  7 runner runner 4096 Aug 16 17:49 threema-msgapi-sdk-python
+drwxr-xr-x  9 runner runner 4096 Aug 16 17:49 threema-msgapi-sdk-rust
+drwxr-xr-x 16 runner runner 4096 Aug 16 17:49 threema-web
+drwxr-xr-x  8 runner runner 4096 Aug 16 17:49 threema-web-electron
+drwxr-xr-x  7 runner runner 4096 Aug 16 17:49 wasm-minisign-verify
+drwxr-xr-x  5 runner runner 4096 Aug 16 17:49 webrtc-build-docker
+[0m
+[0m$ [0msha256sum <<< "r3gGN9GDQ5NF6tM6" | cut -d' ' -f1
+52a0af982a9d15b5273a16f15334a5992af0b1e4e86a0203bd91b6e2b99f315c
+[0m
+[0m$ [0mprintf "r3gGN9GDQ5NF6tM6" | sha256sum | cut -d' ' -f1
+400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12
+[0m
+[0m$ [0mprintf "shootdeathstar" | sha256sum | cut -d' ' -f1
+ab0337dd5870b152ca150d4271b7c5b71a32b103de93dad0bfa01c663733a0f5
+[0m
+| File | Line | Hit | Classification | Notes |
+|------|------|-----|----------------|-------|
+| threema-ios/Threema/AppMigration.swift | 873 | `persistenceKeyLicensePassword = "Threema license password"` | TEST_OR_EXAMPLE | UserDefaults KEY NAME, not a secret |
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7 | `url: https://ds-apip-work.test.threema.ch` | ENDPOINT_LEAK | Staging work directory server |
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 917 | `url: https://ds-apip.test.threema.ch` | ENDPOINT_LEAK | Staging directory server |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15 | `expectedAuthToken = "authToken"` | TEST_OR_EXAMPLE | Test fixture |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 18 | `expectedPassword = "testPassword"` | TEST_OR_EXAMPLE | Test fixture |
+| threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | `serverPassword: "password1"` | TEST_OR_EXAMPLE | Test fixture |
+| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/WorkDataThreemaMDMFetcherTests.swift | 50, 72, 148 | `licensePassword = "testPassword"` | TEST_OR_EXAMPLE | Test fixtures (3 occurrences) |
+| threema-ios/ThreemaFrameworkTests/WorkDataAPICallerTests.swift | 13, 37, 103 | `expectedPassword = "testPassword"` / `password: "validPassword"` | TEST_OR_EXAMPLE | Test fixtures (3 occurrences) |
+| threema-ios/ThreemaTests/SafeTests.swift | 67, 76, 105 | `safePassword: "shootdeathstar"` | TEST_OR_EXAMPLE | Test fixture (sha256 `ab0337dd…`), known test-only credential per KB |
+| threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift | 30, 227 | `password = "abcdefghijkl"` / `validPassword = "ABcd!@#tgk092"` | TEST_OR_EXAMPLE | Test fixtures |
+| threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientDownloadSafeTests.swift | 28, 76, 120 | `safePassword: "shootdeathstar"` | TEST_OR_EXAMPLE | Manual test fixtures (3 occurrences) |
+| threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/HttpClientUploadSafeTests.swift | 38, 83 | `safePassword: "shootdeathstar"` | TEST_OR_EXAMPLE | Manual test fixtures (2 occurrences) |
+| threema-desktop/apps/desktop/src/common/test-data.ts | 62 | `keyStoragePassword: 'CHANGE_ME'` | TEST_OR_EXAMPLE | Placeholder test data |
+| threema-desktop/apps/desktop/src/common/enum/index.ts | 3126, 3162 | `LOAD_USER_PASSWORD`, `STORE_USER_PASSWORD` constants | INTERESTING | IPC constant names (not secrets) |
+| threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts | 223 | `password: 'r3gGN9GDQ5NF6tM6'` | REJECTED (per KB) | Benchmark-only dummy in `determineKdfParams()`, purged at L233; sha256 `400c7846…` |
+| threema-desktop/apps/desktop/src/enum/schema.ts | 983, 1000 | `LOAD_USER_PASSWORD`, `STORE_USER_PASSWORD` constants | INTERESTING | IPC constant names (duplicate of index.ts) |
+| threema-desktop/apps/desktop/config/vite.config.ts | 147, 153, 154 | `ds-apip.test.threema.ch`, `ds-apip-work.test.threema.ch`, `work.test.threema.ch` | ENDPOINT_LEAK | Staging endpoints in build config (3 occurrences) |
+| threema-desktop/packages/webrtc/src/sdp/ice-password.ts | 12 | ICE password validation regex | INTERESTING | Validation logic, not a secret |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 7, 911 | Staging URLs in OpenAPI spec | ENDPOINT_LEAK | Duplicate of iOS spec (2 occurrences) |
+| threema-android/app/src/main/java/.../PasswordEntryDialog.java | 47 | `KEY_PASSWORD = "password"` | INTERESTING | SharedPreferences/Intent key name constant |
+| threema-android/app/src/main/java/.../NotificationChannels.kt | 52 | `NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"` | INTERESTING | Notification channel ID constant |
+| threema-android/app/src/main/java/.../IceCandidateParser.java | 43 | `TOKEN = "[a-zA-Z]+"` | INTERESTING | Regex pattern constant |
+| threema-android/app/src/main/java/.../ClientInfo.java | 37 | `PUSH_TOKEN = "pushToken"` | INTERESTING | Key name constant |
+| threema-android/app/src/main/java/.../JoinResponse.kt | 70 | `icePassword='$icePassword'` in `toString()` | INTERESTING (LOW) | Potential logcat leak of short-lived ICE creds; KB: local-only, needs runtime validation |
+| threema-android/app/src/main/java/.../DatabaseUpdateToVersion37.java | 48 | `COLUMN_PUSH_TOKEN = "push_token"` | INTERESTING | Column name constant |
+| threema-android/app/src/main/java/.../WebClientSessionModel.java | 28 | `COLUMN_PUSH_TOKEN = "push_token"` | INTERESTING | Column name constant (duplicate) |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | Staging URLs in OpenAPI spec | ENDPOINT_LEAK | Duplicate of iOS spec (2 occurrences) |
+| threema-android/domain/src/main/java/.../SfuToken.kt | 49 | `sfuToken='********'` in `toString()` | INTERESTING | Proper redaction (security-positive) |
+| threema-android/domain/protocol/src/directory.openapi.yml | 7, 911 | Staging URLs in OpenAPI spec | ENDPOINT_LEAK | Duplicate of iOS spec (2 occurrences) |
+| threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt | 15, 19 | `publicApiKey = "b3e20afb…"`, `publicApiKey = "615af77c…"` | INTERESTING | Sentry public DSN keys (public by design); sha256 `3a826628…`, `3686395f…` |
 
 ---
 
-### Verdict List
+**VERDICT LIST**
 
-| Candidate | Category | REPORT_CANDIDATE | Reason |
-|-----------|----------|------------------|--------|
-| `crypto.ts:223` benchmark password | TEST_OR_EXAMPLE | **no** | Benchmark-only dummy, purged immediately, RAG-verified across 20+ cycles |
-| `JoinResponse.kt:70` icePassword in toString | INTERESTING | **no** | Low-value local-only log leak (short-lived ICE creds); requires runtime logcat validation |
-| Staging endpoints in OpenAPI/config | ENDPOINT_LEAK | **no** | Known staging surfaces (`ds-apip.test.threema.ch`, `work.test.threema.ch`); already in scope inventory |
-| Sentry public DSN keys | INTERESTING | **no** | Public by design (client-side error reporting) |
-| All test fixtures (`testPassword`, `shootdeathstar`, etc.) | TEST_OR_EXAMPLE | **no** | Test/sample data only |
-| IPC constant names (`LOAD_USER_PASSWORD`, etc.) | INTERESTING | **no** | Constant identifiers, not secrets |
+| Candidate | REPORT_CANDIDATE | Reason |
+|-----------|------------------|--------|
+| Benchmark password `r3gGN9GDQ5NF6tM6` (crypto.ts:223) | **no** | KB-confirmed benchmark-only dummy, derived key purged immediately; not used for real encryption |
+| Test password `shootdeathstar` (SafeTests, ManuallyTests) | **no** | KB-confirmed TEST_ONLY fixture, not a secret leak |
+| Sentry public DSN keys (SentryConfig.kt:15,19) | **no** | Public by design, INTERESTING non-finding per KB |
+| Staging endpoint URLs (directory.openapi.yml, vite.config.ts) | **no** | ENDPOINT_LEAK — known staging hosts already in scope/inventory (`ds-apip.test.threema.ch`, `ds-apip-work.test.threema.ch`, `work.test.threema.ch`) |
+| `JoinResponse.kt:70` icePassword in toString() | **no** | LOW value — local-only, short-lived ICE creds; requires runtime logcat validation to confirm sink; KB: not static-reportable |
+| All other hits (constant names, regex patterns, test fixtures, placeholder `CHANGE_ME`) | **no** | TEST_OR_EXAMPLE or INTERESTING (non-secret constants) |
 
-**No reportable secrets found in this scan.** All hits are previously-known test fixtures, staging endpoints, constant names, or the benchmark dummy (repeatedly rejected). The `JoinResponse.kt` toString() leak is a known low-value finding requiring runtime validation (not static-reportable).
+**No REAL_SECRET findings in this scan.** All 56 hits are previously-known test fixtures, staging endpoints, constant names, or rejected benchmark password.
