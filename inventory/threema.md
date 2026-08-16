@@ -3934,3 +3934,5 @@
 - CHANGED `poc/key-storage-acl-bypass-poc.py`: KB/hypotheses-laguna.txt (lines 6, 1049, 1054, 1055) + hypotheses-nemotron3.txt (line 14) + knowledge/index.md (lines 1049-1059) claim the artifact is GENUINELY on
 - CHANGED `state_bigpickle.json`: KB claims updated `{"phase": "POC", "target": "web"}` → `{"phase": "POC", "target": "desktop"}` to reflect active PoC authorship. Filesystem GROUND TRUTH shows file still conta
 - CHANGED `reposcan-raw/threema-ch/threema-desktop/` directory exists but is EMPTY — source files (fs.ts, electron-main.ts, crypto.ts, inner/v3.ts, sqlite.ts, vite.config.ts, key-storage/index.ts) referenced in
+
+## 2026-08-16 04:12:55 UTC
