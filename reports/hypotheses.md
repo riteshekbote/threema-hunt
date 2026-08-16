@@ -7808,3 +7808,14 @@
 - LEARN: REJECTED @ blob-mirror-*.threema.ch: Discovered in desktop source config.ts but NOT in scope per scope.yml — out of scope.
 - LEARN: REJECTED @ reposcan-raw/threema-ch/ local clone: EMPTY (0 files across 18 repo dirs); all "RAG-VERIFIED via direct git clone" claims unfulfilled; source evidenc
 - LEARN: REJECTED @ Type:1 Work-org fingerprint hypothesis: density 2/80+ below ≥3-draw threshold; not firm enough to claim a fingerprint class.
+
+## RANKED HYPOTHESES 2026-08-16 18:13:20 UTC
+- [98] https://{ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: check_license preflight-free cross-origin 500 — 4-host crash parity (server-confirmed) (from reports/hypotheses-bigpickle.txt)
+- [95] https://{ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: check_license preflight-free cross-origin crash with 4-host parity (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X GET -H "Origin: https://evil.com" -H "Content-Type: text/plain" -d '{"identity":{"x":1}}' https://ds-apip.threema.ch/identity/revoke — verify 
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 4-host crash parity — POST `{"version":{}}` → 500/0B, GET+text/plain → 500/0B (pr
+- LEARN: ACCEPTED MISCONFIG @ crash family matrix: 16 endpoint families × 3 prod + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO `*`, zero 429, sha
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ KB sha256 claims — s
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem shows `{"target":"chat"}` not `{"target":"desktop"}` — agent state divergence persists
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) confirmed benchmark-only dummy in `determineKdfParams()`, `benchm
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (TODO DESK-79), L1240 comment incorrect per Electron docs, 0 dynamic sin
