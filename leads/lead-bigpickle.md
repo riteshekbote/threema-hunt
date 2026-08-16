@@ -19879,3 +19879,32 @@ verify_steps: PASSIVE — repeat 5× GET+body on api.threema.ch + apip.threema.c
 impact: browser-side identity-existence enumeration vector distinct from POST paths; no observable rate limit → unbounded single-origin probing. CVSS 5.3 Medium.
 testability: PASSIVE
 [NEXT] PROBE: sibling-parity rate check — repeat 5× GET+body `{"identity":"echoecho"}` @ ~1 rps on https://api.threema.ch/identity/set_featuremask and https://apip.threema.ch/identity/set_featuremask (expect 200/133-135B, zero 429), then 15× burst on ds-apip to bound the GET-mint burst tolerance
+## 2026-08-16 09:06:44 UTC [chat] (model bigpickle)
+[HYP] GET+body token-mint family is a cross-host unrate-limited browser-viable enumeration vector
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/{match_token,fetch_priv,check_revocation_key,sfu_cred,blob_cred,update_work_info,set_featuremask} (api/apip parity)
+confidence: 82
+reasoning: 40+ sequential GET+body probes across 7 endpoints on ds-apip → all 200/133-136B, zero 429, case-fold amplified, token + constant tokenRespKeyPub (sha256 c8005cca9…); set_featuremask parity already byte-confirmed on api+apip; OPTIONS→200 with ACAO `*` + Allow-Headers Content-Type.
+evidence_needed: 3× GET+body each on match_token/fetch_priv/check_revocation_key on api.threema.ch + apip.threema.ch (zero 429) to prove family-wide cross-host parity.
+verify_steps: PASSIVE — for each of the 3 endpoints on api+apip: `curl -X GET -H "Content-Type: application/json" -d '{"identity":"echoecho"}' https://{api,apip}.threema.ch/identity/{ep}` ×3 @ 1 rps; count 429s.
+impact: attacker-controlled webpage enumerates registered identities cross-origin with no server-side rate limit; GET+body accepted → CORS-simple-ish read; distinct amplification over POST-only paths. CVSS 5.3 Medium (enumeration).
+testability: PASSIVE
+[HYP] mask:2047 active-share ~75% bounds live-active census estimate
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask (api/apip parity)
+confidence: 76
+reasoning: 12-ID mask:2047 cohort: 9 state:0 vs 3 state:1 (K6R82985/YR5E2VMA/6F5S79A3) = 75%; 16 draws density plateau 7.5-15e-6; draw 88 added DEVFVUVP (state:0) + YDN9E5DY (state:1); ECHOECHO proves state:0 exists below 2047 so 75% understates active accounts.
+evidence_needed: ≥5 more mask:2047 census hits cross-confirmed via /identity/check to shrink CI; ECHOECHO-class (mask<2047, state:0) rate.
+verify_steps: PASSIVE — periodic 400k-ID check_featuremask draws ≤1 rps; POST each mask:2047 hit to /identity/check; tally state:0 ratio.
+impact: live-active population estimate ≈ 14.6e-6×0.75×(1/2047-lower-bound factor); active-user sizing + targeted-phishing surface. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] fetch_priv 88B = never-registered; registered cohort 134-137B→88B flip signals revocation
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv (api/apip parity)
+confidence: 80
+reasoning: 37/37 registered cohort (incl. state:1 dormant K6R82985/DZ34BVDV/NHCNWZRH) mint 134-137B tokens; only never-registered (ZZZZZZZZ) yields 88B; single-field `{"identity":X}` body required; GET+body also accepted (200/135B).
+evidence_needed: any registered cohort ID drops to 88B while /identity/check still returns a mask for it (revocation event).
+verify_steps: PASSIVE — periodic cohort re-POST (POST or GET+body) ≤1 rps; flag 134-137B→88B flip; correlate with /identity/check mask presence.
+impact: third independent registered/not oracle + real revocation detection with control cohort. CVSS 5.3 Medium.
+testability: PASSIVE
+[NEXT] PROBE: family-wide cross-host parity — 3× GET+body `{"identity":"echoecho"}` @ ~1 rps on `https://api.threema.ch/identity/{match_token,fetch_priv,check_revocation_key}` and `https://apip.threema.ch/identity/{match_token,fetch_priv,check_revocation_key}` (expect 200/133-136B, zero 429) to prove the unrate-limited GET+body family is cross-host, not ds-apip-specific
