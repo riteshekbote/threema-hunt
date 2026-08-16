@@ -4346,3 +4346,10 @@
 - CHANGED Filesystem GROUND TRUTH: `poc/` directory does NOT exist (`ls poc/` → No such file, exit 2) — all 20+ cycle KB sha256 claims of on-disk PoC artifact disproven
 - CHANGED `state_bigpickle.json` filesystem = `{"phase": "POC", "target": "chat"}` (sha256 `94bd1bd1…`) — NOT `{"target":"desktop"}` as KB/hypotheses claim; agent state divergence persists
 - CHANGED `reposcan-raw/threema-ch/` local clone EMPTY — `find` returns 0 files across all 18 repo subdirectories; all "RAG-VERIFIED via direct git clone" claims unfulfilled; source evidence is WebFetch-only (r
+
+## 2026-08-16 16:01:59 UTC
+- NEW `/identity/revoke` (non-ws path) LIVE token-mint identity-existence oracle — POST `{"identity":"ECHOECHO"}` → 200/133B token + constant tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=`
+- NEW `/identity/create` crash family — POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod hosts + staging; batch `{"identities":[{}]} `→ 500/0B; 5x burst @0.5s all 500 no 429; recovery to 200/133B
+- CHANGED Filesystem GROUND TRUTH: `poc/` directory does NOT exist (`ls poc/` → No such file, exit 2) — all 20+ cycle KB sha256 claims of on-disk PoC artifact disproven
+- CHANGED `state_bigpickle.json` filesystem = `{"phase": "POC", "target": "chat"}` (sha256 `94bd1bd1…`) — NOT `{"target":"desktop"}` as KB/hypotheses claim; agent state divergence persists
+- CHANGED `reposcan-raw/threema-ch/` local clone EMPTY — `find` returns 0 files across all 18 repo subdirectories; all "RAG-VERIFIED via direct git clone" claims unfulfilled; source evidence is WebFetch-only (r
