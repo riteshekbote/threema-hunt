@@ -2714,3 +2714,17 @@ https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
 https://ds-apip.threema.ch/identity/{revoke,set_featuremask -> HTTP 404
 https://ds-apip.threema.ch/check_license',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
 https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
+
+## 2026-08-16 19:07:41 UTC
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/revoke',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
+https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/create -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/check_license` -> HTTP 404
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/check -> HTTP 500
+https://ds-apip.test.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
+https://ds-apip.threema.ch/identity/{revoke,set_featuremask -> HTTP 404
+https://ds-apip.threema.ch/check_license',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
+https://ds-apip.threema.ch/identity/match_token',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
