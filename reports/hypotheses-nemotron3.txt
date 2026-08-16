@@ -1,16 +1,16 @@
-## 2026-08-16 01:20:12 UTC [web] (model nemotron3)
+## 2026-08-16 02:37:34 UTC [web] (model nemotron3)
 [NEW] `/identity/check_revocation_key`: 9th unauthenticated token-mint identity-existence oracle (valid→200/133-136B token + constant tokenRespKeyPub, invalid→200/46B); case-fold confirmed
 [NEW] `/identity/set_featuremask` GET → 200 (method-handling divergence from check_featuremask/check which return 500 on GET)
 [NEW] `/identity/fetch_priv` request-shape sensitivity confirmed: single-field `{"identity":X}` body required; malformed bodies yield universal 88B
 [NEW] `/identity/match` N-cost-unit gating bounded <10 (N=10 emailHashes → 429/0B; >3d idle N=1 → 200/39B)
 [NEW] `/identity/fetch_bulk` pubkey provenance confirmed: 8/8 census identities return distinct genuine ed25519 pubkeys (featureLevel:3, mask:2047, state:0; 8FCAXYHF type:1)
-[NEW] Census draw 66: 7th distinct live-active account (E7UUX69V, state:0, mask:2047) recovered via 400k-ID POST to check_featuremask, 3-host byte-identical parity, density 1.5e-5
+[NEW] Census draw 66: 7th distinct live-active account (E7UUX69V, state:0, mask:2047) recovered via 400k-ID POST to check_featuremask, 3-host byte-identical parity
 [NEW] ds-apip.threema.ch — canonical directory server hostname (matches desktop client build config)
 [NEW] ds-apip-work.threema.ch — work-style directory server (401 on all paths, Basic auth required)
 [NEW] mediator-{prefix4}.threema.ch/{prefix8}/ — mediator WSS hostname pattern (in scope)
 [NEW] safe-{backupIdPrefix8}.threema.ch/ — backup safe hostname pattern (in scope)
 [NEW] rendezvous-{prefix4}.threema.ch/{prefix8}/ — rendezvous WSS hostname pattern (in scope)
-[CHANGED] `poc/key-storage-acl-bypass-poc.py`: filesystem GROUND TRUTH now confirms artifact GENUINELY on disk (34,228 B, sha256 `dbf1469c55cbf5ffd7bc772602ddbba490e42083f3ba546df66f47c1e9611171`); `python3 -c "import ast; ast.parse(open(...).read())"` PASS; `--dry-run` EXIT 0 on Linux
+[CHANGED] `poc/key-storage-acl-bypass-poc.py`: filesystem GROUND TRUTH now confirms artifact GENUINELY on disk (34,228 B, sha256 `dbf1469c55cbf5ffd7bc772602ddbba490e42083f3ba546df66f47c1e9611171`)
 [CHANGED] `poc/` directory: Created at workspace root (was absent 20+ consecutive cycles)
 [CHANGED] State file `state_bigpickle.json`: Updated `target` from "web" → "desktop" reflecting active PoC authorship on desktop key-storage ACL bypass
 [CHANGED] type:1 Work-org density: 2/72 (~2.8%), below ≥3-draw threshold — REJECTED as fingerprint class
@@ -18,8 +18,6 @@
 [PRIO] https://ds-apip.threema.ch/identity/check_revocation_key, 95, attack=10 business=9 tech=9 gate=10 cloud=5 fresh=10
 [PRIO] github.com/threema-ch/threema-desktop (Windows key-storage ACL bypass), 92, attack=9 business=9 tech=8 gate=10 cloud=5 fresh=10
 [PRIO] https://ds-apip.threema.ch/identity/set_featuremask, 88, attack=8 business=8 tech=8 gate=10 cloud=5 fresh=10
-[PRIO] https://ds-apip.threema.ch/identity/fetch_priv, 85, attack=8 business=8 tech=7 gate=10 cloud=5 fresh=10
-[PRIO] https://api.threema.ch/identity/check_featuremask, 80, attack=7 business=8 tech=8 gate=10 cloud=5 fresh=9
 [HYP] Unauthenticated identity-existence oracle via check_revocation_key token minting
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/check_revocation_key
