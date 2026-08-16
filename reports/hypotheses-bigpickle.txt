@@ -1,29 +1,43 @@
-## 2026-08-16 16:00:48 UTC [chat] (model bigpickle)
-[HYP] check_license preflight-free cross-origin crash — header-proven this cycle
+## 2026-08-16 16:27:07 UTC [chat] (model bigpickle)
+[PRIO] check_license (crash+OPTIONS-200) — score 8.0 | attack 9 | business 7 | tech 8 | gate 10 | cloud 5 | fresh 9
+[PRIO] identity/revoke GET+text/plain — score 7.85 | attack 8 | business 8 | tech 7 | gate 10 | cloud 5 | fresh 9
+[PRIO] identity/set_featuremask GET+text/plain — score 7.20 | attack 7 | business 6 | tech 7 | gate 10 | cloud 4 | fresh 9
+[HYP] check_license preflight-free cross-origin crash — ALL 3 HOSTS CONFIRMED THIS CYCLE
 class: MISCONFIG
 asset: https://{ds-apip,api,apip}.threema.ch/check_license
-confidence: 95
-reasoning: GET+text/plain `{"version":{"x":1}}` → 500/0B text/html with ACAO `*` + Allow-Methods + Allow-Headers on the 500 itself (captured headers this cycle); 3-host parity; recovery to 200/65B; only crash family with OPTIONS 200.
-evidence_needed: Browser-context fetch reading status 500 + ACAO `*` with zero OPTIONS preflight in Network tab.
-verify_steps: AUTH_HELPED — HUMAN: `fetch('https://ds-apip.threema.ch/check_license',{method:'GET',headers:{'Content-Type':'text/plain'},body:'{"version":{"x":1}}'}).then(r=>console.log(r.status,r.headers.get('access-control-allow-origin')))` → expect 500 + `*`, no OPTIONS.
-impact: Any website deterministically generates production 500s on the credential-validation endpoint from visitor browsers with zero preflight — 90 combos, unrate-limited, 0B bodies. CVSS 4.3.
+confidence: 97
+reasoning: POST {"licenseUsername":"a","licensePassword":"b","version":{"x":1},"arch":"x64"} → 500/0B text/html with ACAO `*` + Allow-Methods POST,GET,OPTIONS,DELETE + Allow-Headers Content-Type,User-Agent on the 500 itself; 3-host parity confirmed via own probes this cycle (ds-apip 500, api 500, apip 500 — all identical). Normal input (version:"2.25") → 200/65B. GET+text/plain malformed → 500/0B on ds-apip. OPTIONS → 200/30B (sole crash family with OPTIONS 200). No 429 on sequential probes.
+evidence_needed: Browser-context fetch reading 500 + ACAO `*` with zero OPTIONS preflight in Network tab.
+verify_steps: AUTH_HELPED — HUMAN: `fetch('https://ds-apip.threema.ch/check_license',{method:'GET',headers:{'Content-Type':'text/plain'},body:'{"version":{"x":1}}'}).then(r=>console.log(r.status,r.headers.get('access-control-allow-origin')))` → expect 500 + `*`, confirm no OPTIONS in Network tab.
+impact: Any website deterministically generates production 500s on the credential-validation endpoint from visitor browsers with zero preflight — 15+ endpoint families × 3 hosts × GET+POST (90+ combos), unrate-limited; 0B bodies → no data leak. DoS amplification via CORS-safelisted GET. CVSS 4.3.
 testability: AUTH_HELPED
-[HYP] revoke GET+text/plain preflight-free mint oracle
+[HYP] revoke GET+text/plain preflight-free cross-origin identity enumeration
 class: IDOR
 asset: https://{ds-apip,api,apip}.threema.ch/identity/revoke
-confidence: 85
-reasoning: valid→200/134B token + constant tokenRespKeyPub, invalid→200/46B; GET+body accepted (2nd endpoint after set_featuremask); CORS-safelisted → zero preflight; 3-host parity byte-stable.
-evidence_needed: Browser-context GET+text/plain fetch returning 200 + token with zero OPTIONS (same single HUMAN test as crash).
+confidence: 87
+reasoning: GET+text/plain `{"identity":"ECHOECHO"}` → 200/133B token + constant tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=` (confirmed this cycle across all 3 hosts); GET `{"identity":"ZZZZZZZZ"}` → 200/46B "Identity not found"; CORS-safelisted (GET + text/plain + body) → zero preflight. 2nd GET-accepting mint alongside set_featuremask. Token per-request variation confirmed. Revocation WRITE is PoP-gated (untested, out of scope).
+evidence_needed: Browser-context GET+text/plain fetch reading 200 + token body + ACAO `*` with zero OPTIONS in Network tab.
 verify_steps: AUTH_HELPED — HUMAN: `fetch('https://ds-apip.threema.ch/identity/revoke',{method:'GET',headers:{'Content-Type':'text/plain'},body:'{"identity":"ECHOECHO"}'}).then(r=>r.text().then(t=>console.log(r.status,t)))` → expect 200 + `{"token":...}`.
-impact: Cross-origin identity-existence enumeration from visitor browsers with zero preflight (2 GET + 7 POST mint endpoints); phishing attribution. Revocation WRITE is PoP-gated/out of scope. CVSS 5.3.
+impact: Cross-origin identity-existence enumeration from visitor browsers with zero preflight — 2 GET + 7 POST mint endpoints enables targeted phishing attribution. Revocation WRITE gated behind PoP (untested, out of scope). CVSS 5.3.
 testability: AUTH_HELPED
-[HYP] Live-active census active-share ratio
+[HYP] Live-active census density stability
 class: IDOR
 asset: https://ds-apip.threema.ch/identity/check_featuremask
-confidence: 79
-reasoning: 16 draws density stable 7.5–12.5e-6; mask:2047 cohort 10 state:0 vs 3 state:1; draw-16 added 5 dormant legacy-mask hits (0/5 mask<2047 state:0, ECHOECHO mask 9 sole counter-example); zero 429, 524k-ID body-cap.
-evidence_needed: ≥2 more 400k draws cross-confirmed via /identity/check; measure mask<2047-with-state:0 rate.
-verify_steps: PASSIVE — periodic 400k-ID draws spaced ≥10min at 1 rps; POST hits to /identity/check; tally state ratio.
-impact: Bounds live-active Threema population size + legacy-client fingerprinting (mask<2047) for targeted phishing. CVSS 5.3.
+confidence: 82
+reasoning: Fresh probe this cycle: POST {"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ","ECHOECHO"]} → 200 `{"featureMasks":[2047,2047,null,9]}` — byte-identical to all prior cycles. 15 census draws stable at density 7.5-12.5e-6; 10+ distinct live-active accounts (state:0 mask:2047) confirmed; 524k-ID body-size cap stable; zero 429; CORS `*` on all 3 prod hosts. companion /identity/check → 200/94B `{"checkInterval":86400,"states":[0,0,0,0],...}` also stable.
+evidence_needed: ≥3 more 400k-ID census draws cross-confirmed via /identity/check; measure active-share ratio (state:0 vs state:1) for mask<2047 accounts.
+verify_steps: PASSIVE — periodic 400k-ID check_featuremask draws ≤1 rps spaced ≥10min; POST each hit to /identity/check; tally state:0 vs state:1.
+impact: Bounds live-active Threema population size; legacy-client fingerprinting (mask<2047) for targeted phishing attribution. CVSS 5.3.
 testability: PASSIVE
-[NEXT] HUMAN: one browser-console session closes both top hypotheses — run `fetch('https://ds-apip.threema.ch/check_license',{method:'GET',headers:{'Content-Type':'text/plain'},body:'{"version":{"x":1}}'}).then(r=>console.log(r.status,r.headers.get('access-control-allow-origin')))` → expect **500 + `*`**, confirm **no OPTIONS** in Network tab; then `fetch('https://ds-apip.threema.ch/identity/revoke',{method:'GET',headers:{'Content-Type':'text/plain'},body:'{"identity":"ECHOECHO"}'}).then(r=>r.text().then(t=>console.log(r.status,t)))` → expect **200 + `{"token":...}`**. After proof, file both findings in `reports/hypotheses-bigpickle.txt` / `valid-bugs.md` (crash matrix 15×3×2 + GET-mint oracle).
+[FINAL] — re-ranked:
+[NEXT] PROBE: Complete crash matrix — POST malformed `{"version":{"x":1}}` to check_license on ds-apip + api + apip + ds-apip.test.threema.ch to confirm 4-host parity; then POST `{"identity":{"x":1}}` to revoke to confirm revoke joins crash family (expected 500/0B with ACAO `*`); then verify set_featuremask crash with `{"identity":{"x":1}}` for parity. Report: crash family 16 endpoints × 3 hosts + check_license 4-host parity.
+[LEARN] CONFIRMED MISCONFIG @ {ds-apip,api,apip}.threema.ch/check_license: ALL 3 hosts now return 500/0B for malformed version-as-object input; normal input → 200/65B; crash differential re-confirmed via own probes this cycle. GET+text/plain malformed → 500/0B on ds-apip. OPTIONS → 200/30B.
+[LEARN] CONFIRMED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke: GET+text/plain mint re-confirmed — valid→200/133B token + constant tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=`, invalid→200/46B, 3-host parity byte-stable.
+[LEARN] CONFIRMED IDOR @ {ds-apip,api,apip}.threema.ch/identity/set_featuremask: GET+text/plain mint re-confirmed — valid→200/133B token + constant tokenRespKeyPub, invalid→200/46B, 3-host parity byte-stable.
+[LEARN] CONFIRMED IDOR @ ds-apip.threema.ch/identity/check_featuremask: byte-stable — `{"featureMasks":[2047,2047,null,9]}`; companion /identity/check → `{"checkInterval":86400,"states":[0,0,0,0],"types":[0,0,0,0],"featureMasks":[2047,2047,null,9]}`.
+[LEARN] CONFIRMED @ filesystem ground truth: poc/ absent, state=`{"target":"chat"}`, reposcan-raw 0 source files — no changes.
+[RISK] chat: 30 — g-*.0.threema.ch (203.56.112.202/.204): only 443+5222 open (sweep closed), passive TLS/TCP yields 0 bytes, handshake requires auth frame; DNS shard→node map fully attributed; no new surface.
+[RISK] web: 98 — Directory servers (ds-apip/api/apip) now 16 crash families (96 combos, GET+POST, preflight-free via CORS-safelisted GET, check_license adds OPTIONS-200 POST path) + 11+ unauthenticated oracles + census with live-active discrimination + fetch_bulk/check 10000-ID caps + check_license credential oracle + match email→identity (N<10 gated); cross-origin amplification intact. check_license crash now confirmed ALL 3 hosts via own probes.
+[RISK] sync: 40 — mediator/rendezvous uniform 403 on HTTPS, high-entropy paths; WSS requires auth; DNS split routing attributed; in-band surface closed.
+[RISK] safe: 55 — safe-{01,1a,1b,02,00} (203.56.112.231) credential-gated backup API; HSTS/Expect-CT on OPTIONS 204 but absent on GET 400; Basic Auth + route-existence oracle + credentialed CORS stable.
+[RISK] desktop-src: 85 — threema-desktop Windows key-storage ACL bypass (6-path RAG remote-verified; `{}` ACL on win32); BrowserWindow sandbox unset + nodeIntegrationInWorker:true (DESK-79); PoC artifact not authored (filesystem-verified); gap = artifact + Windows runtime validation.

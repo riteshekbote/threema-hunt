@@ -7578,3 +7578,35 @@
 - LEARN: CONFIRMED IDOR @ set_featuremask GET+body: 3-host sibling parity byte-identical — valid→200/133B token + constant tokenRespKeyPub, invalid→200/46B; only token-m
 - LEARN: CONFIRMED IDOR @ check_featuremask census: byte-stable this cycle — 200/35B `{"featureMasks":[2047,2047,null,9]}`, live-active 5U8DM3J3+RFK5RDU6 confirmed; tri-
 - LEARN: NO_NEW_CLASS: reposcan-raw grep-delta "0 new hit lines" (6656 files, 56 hits all previously-rejected items); no new secret/hardcode findings in source scan
+
+## RANKED HYPOTHESES 2026-08-16 16:27:18 UTC
+- [97] https://{ds-apip,api,apip}.threema.ch/identity/{create,check,check_featuremask,match_token,check_revocation_key,fetch_priv,set_featuremask,revoke,sfu_cred,blob_cred,update_work_info,check_license}: Unauthenticated crash-family DoS with CORS-safelisted GET amplification across 15 endpoints (from reports/hypotheses-laguna.txt)
+- [97] https://{ds-apip,api,apip}.threema.ch/check_license: check_license preflight-free cross-origin crash — ALL 3 HOSTS CONFIRMED THIS CYCLE (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X GET -H "Origin: https://evil.com" -H "Content-Type: text/plain" -d '{"identity":{"x":1}}' https://ds-apip.threema.ch/identity/revoke — verify 
+- NEXT(hypotheses-laguna.txt): PROBE: `for ep in create check match_token check_revocation_key fetch_priv set_featuremask revoke sfu_cred blob_cred update_work_info check_license; do curl -s 
+- NEXT(hypotheses-bigpickle.txt): PROBE: Complete crash matrix — POST malformed `{"version":{"x":1}}` to check_license on ds-apip + api + apip + ds-apip.test.threema.ch to confirm 4-host parity;
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.threema.ch/identity/create: Unauthenticated 500 crash on malformed publicKey input — POST `{"publicKey":{"x":1}}` → 500/0B, batch w
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/revoke: 11th unauthenticated identity-existence oracle — valid→200/133B token + constant tokenRespKeyPub, invalid→20
+- LEARN: ACCEPTED MISCONFIG @ /identity/revoke GET divergence: 2nd token-mint endpoint accepting GET+body (valid→200/133B token) alongside set_featuremask; GET no-body→2
+- LEARN: CONFIRMED MISCONFIG @ crash family: revoke joins — POST + GET+text/plain malformed `{"identity":{"x":1}}` → 500/0B with ACAO `*`, zero 429, instant recovery to 
+- LEARN: CONFIRMED MISCONFIG @ {ds-apip,api,apip}.threema.ch crash family: GET-crash parity now byte-stable on all 3 prod hosts (apip match_token, api check_revocation_k
+- LEARN: CONFIRMED IDOR @ set_featuremask GET+body: 3-host sibling parity byte-identical — valid→200/133B token + constant tokenRespKeyPub, invalid→200/46B; only token-m
+- LEARN: CONFIRMED IDOR @ check_featuremask census: byte-stable this cycle — 200/35B `{"featureMasks":[2047,2047,null,9]}`, live-active 5U8DM3J3+RFK5RDU6 confirmed; tri-
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ KB sha256 claims — s
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem shows `{"target":"chat"}` not `"desktop"` — agent state divergence persists
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) confirmed benchmark-only dummy in `determineKdfParams()`, `benchm
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (TODO DESK-79), L1240 comment incorrect per Electron docs, 0 dynamic sin
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip}.threema.ch/check_license: 15th crash family — `version` as object → 500/0B (3-host parity), GET+text/plain preflight-fre
+- LEARN: NO_NEW_CLASS: reposcan-raw grep-delta "0 new hit lines" (6656 files, 56 hits all previously-rejected items); no new secret/hardcode findings in source scan
+- LEARN: ACCEPTED: crash family — 15 endpoint families (including check_license `{"version":[{"x":1}]}` array-widening) × 3 hosts × GET+POST = 90 byte-stable 500/0B comb
+- LEARN: ACCEPTED: check_featuremask census — 10+ distinct live-active accounts confirmed (5U8DM3J3, RFK5RDU6, 7V7T2NKR, 6YMAT2YB, E7UUX69V, M5NANUU2); density ~7.5e-6 s
+- LEARN: REJECTED: work.threema.ch/api/v1 X-Api-Key oracle PERMANENTLY — 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical `{"error":"Inva
+- LEARN: REJECTED: crypto.ts:223 benchmark password — sha256 `400c7846…` computed from literal `r3gGN9GDQ5NF6tM6`; confirmed benchmark-only dummy in `determineKdfParams(
+- LEARN: ACCEPTED: /identity/match N-cost-unit gating bounded <10 — N=10 emailHashes POST → 429/0B; bucket capacity <10, refill ≥1/multi-hour; email→identity oracle thro
+- LEARN: REJECTED: reposcan-raw/threema-ch local clone EMPTY — 0 files across 18 repo directories; all "RAG-VERIFIED via direct git clone" claims unfulfilled; source evi
+- LEARN: REJECTED: state_bigpickle.json KB claims — filesystem shows `{"phase":"POC","target":"chat"}` not `"desktop"`; agent state divergence persists
+- LEARN: CONFIRMED MISCONFIG @ {ds-apip,api,apip}.threema.ch/check_license: ALL 3 hosts now return 500/0B for malformed version-as-object input; normal input → 200/65B; 
+- LEARN: CONFIRMED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke: GET+text/plain mint re-confirmed — valid→200/133B token + constant tokenRespKeyPub `6DsxFgjFcMVU
+- LEARN: CONFIRMED IDOR @ {ds-apip,api,apip}.threema.ch/identity/set_featuremask: GET+text/plain mint re-confirmed — valid→200/133B token + constant tokenRespKeyPub, inv
+- LEARN: CONFIRMED IDOR @ ds-apip.threema.ch/identity/check_featuremask: byte-stable — `{"featureMasks":[2047,2047,null,9]}`; companion /identity/check → `{"checkInterva
+- LEARN: CONFIRMED @ filesystem ground truth: poc/ absent, state=`{"target":"chat"}`, reposcan-raw 0 source files — no changes.
