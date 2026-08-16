@@ -4720,3 +4720,16 @@
 - CHANGED fetch_bulk schema-strictness — object-element array `{"identities":[{"identity":...}]}` → 500/0B on all 3 prod hosts (consistent malformed-input handler)
 - CHANGED type:1 Work-org fingerprint WEAKENED → 4 consecutive zero-type:1 draws (19-22, 1.6M IDs); standalone class REJECTED
 - CHANGED Filesystem GROUND TRUTH re-verified — `poc/` ABSENT (22nd+ consecutive cycle); `state_bigpickle.json` = `{"phase":"POC","target":"chat"}` (NOT "desktop"); `reposcan-raw/threema-ch/` EMPTY (0 source fi
+
+## 2026-08-16 23:28:18 UTC
+- NEW GET+text/plain token-mint cluster confirmed on 8 endpoints × 3 prod hosts = 24 byte-stable combos (match_token, revoke, set_featuremask, check_revocation_key, blob_cred, sfu_cred, update_work_info, fe
+- NEW /identity/revoke (non-ws path) confirmed LIVE as 11th token-mint identity-existence oracle — GET+text/plain + POST both return 200/133B token (valid) vs 200/46B (invalid); case-fold amplification; 3-h
+- NEW /identity/create confirmed as 16th crash family member — POST {"publicKey":{"x":1}} → 500/0B on all 3 prod + staging; batch {"identities":[{}]} → 500/0B; 5x burst @0.5s all 500 no 429; recovery to 200
+- NEW check_license joins crash family at root path /check_license (not /identity/check_license) — POST {"version":{}} → 500/0B (3-host parity); GET+text/plain {"version":{}} → 500/0B (CORS-safelisted, pref
+- NEW apip-work.threema.ch hostname discovered — resolves to 203.56.112.209 (same as ds-apip-work); byte-identical 401 + ACAO:* + no HSTS/Expect-CT on all paths
+- NEW Shared-handler convergence proven — all 8 token-mint endpoints return IDENTICAL constant tokenRespKeyPub sha256 c8005cca9…; same handler mints tokens AND crashes on malformed input
+- NEW Census draw 22 — 11th distinct live-active account (4SKAD72F, state:0, mask:2047) recovered; density converged ~6.5e-6 over 22 draws; zero 429; 3-host byte-stable parity
+- NEW fetch_bulk schema-strictness — object-element array {"identities":[{"identity":...}]} → 500/0B on all 3 prod hosts (consistent malformed-input handler); flat-string array accepted
+- NEW type:1 Work-org fingerprint further WEAKENED — 4 consecutive zero-type:1 draws (19-22, 1.6M IDs); 2 distinct in 2/22 draws; standalone class REJECTED
+- CHANGED Crash family matrix now 16 endpoint families × 4 hosts (3 prod + 1 staging) × GET+POST = 128 combos, all byte-stable 500/0B with ACAO:* + zero 429 + instant recovery
+- CHANGED Filesystem GROUND TRUTH re-verified — poc/ ABSENT (22nd+ cycle); state_bigpickle.json = {"phase":"POC","target":"chat"}; reposcan-raw/threema-ch/ EMPTY
