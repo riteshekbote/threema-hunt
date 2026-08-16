@@ -8041,3 +8041,20 @@
 - LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: Filesystem shows `{"phase":"POC","target":"chat"}` — KB desktop-target claims stale; filesystem overrides a
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 `400c7846…` (computed from literal `r3gGN9GDQ5NF6tM6`) confirmed benchmark-only dummy in `determin
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: Conditional RCE requires separate renderer exploit chain (0 dynamic sinks require/import
+
+## RANKED HYPOTHESES 2026-08-16 20:55:01 UTC
+- [97] https://{ds-apip,api,apip}.threema.ch/identity/check_featuremask: Unauthenticated census via check_featuremask with type:1 Work-org fingerprint (from reports/hypotheses-laguna.txt)
+- [95] https://{ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,create,fetch_priv}: Preflight-free cross-origin identity enumeration via GET+text/plain token-mint cluster (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PASSIVE: census draw 20 — POST 400k random 8-char IDs (new seed 2026081690) to `https://ds-apip.threema.ch/identity/check_featuremask` at ≤1 rps; POST all hits 
+- NEXT(hypotheses-laguna.txt): PROBE: Census draw 20 — POST 400k random 8-char IDs (new seed 2026081690) to `https://ds-apip.threema.ch/identity/check_featuremask` at ≤1 rps; POST all hits to
+- LEARN: ACCEPTED IDOR @ check_featuremask census: type:1 Work-org fingerprint hypothesis FIRM — ≥3 independent draws with type:1 hits (DZ34BVDV + VK24BPYV); non-uniform
+- LEARN: ACCEPTED IDOR @ 8-endpoint GET+text/plain mint cluster: cluster-wide (not dual), 8 endpoints × 3 hosts = 24 byte-stable combos; zero-preflight browser-viable ve
+- LEARN: ACCEPTED MISCONFIG @ crash family: 16 endpoint families × 4 hosts × GET+POST = 104+ combos; ACAO `*` on every 500; zero 429; instant recovery
+- LEARN: ACCEPTED IDOR @ `/identity/revoke` (non-ws path): 11th token-mint identity-existence oracle — GET+text/plain + POST both return 200/133B token for valid, 200/46
+- LEARN: ACCEPTED MISCONFIG @ `/identity/create`: 16th crash family member — POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod + staging; batch `{"identities":[{}]} `→
+- LEARN: ACCEPTED MISCONFIG @ check_license: joins crash family — POST `{"version":{}}` → 500/0B (3-host parity); GET+text/plain `{"version":{}}` → 500/0B (CORS-safelist
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: ground truth ABSENT for 20+ cycles; all KB sha256 claims disproven
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json: filesystem = `{"target":"chat"}` — KB desktop-target claims stale
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password confirmed benchmark-only dummy, purged at L233
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox: conditional RCE requires separate renderer exploit chain, not standalone
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key oracle permanently downgraded — no CORS on 404, key not in desktop source
