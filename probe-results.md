@@ -2771,3 +2771,17 @@ https://api.threema.ch/identity/check_featuremask -> HTTP 500
 https://ds-apip.threema.ch/identity/revoke' -> HTTP 404
 https://ds-apip.threema.ch/check_license' -> HTTP 404
 https://api.threema.ch/identity/check_featuremask` -> HTTP 404
+
+## 2026-08-16 21:09:41 UTC
+https://ds-apip.threema.ch/identity/match_token',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
+https://ds-apip.threema.ch/check_license',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
+https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
+https://ds-apip.threema.ch/identity/lookup -> HTTP 404
+https://ds-apip-work.threema.ch/identity/lookup -> HTTP 401
+https://api.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/revoke' -> HTTP 404
+https://ds-apip.threema.ch/check_license' -> HTTP 404
+https://api.threema.ch/identity/check_featuremask` -> HTTP 404
+https://api.threema.ch/identity/check` -> HTTP 404
+https://apip.threema.ch/identity/check_featuremask` -> HTTP 404
+https://ds-apip.threema.ch/identity/revoke',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
