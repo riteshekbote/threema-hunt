@@ -7558,3 +7558,23 @@
 - LEARN: CONFIRMED IDOR @ set_featuremask GET+body: 3-host sibling parity byte-identical — valid→200/133B token + constant tokenRespKeyPub, invalid→200/46B; only token-m
 - LEARN: CONFIRMED IDOR @ check_featuremask census: byte-stable this cycle — 200/35B `{"featureMasks":[2047,2047,null,9]}`, live-active 5U8DM3J3+RFK5RDU6 confirmed; tri-
 - LEARN: NO_NEW_CLASS: reposcan-raw grep-delta "0 new hit lines" (6656 files, 56 hits all previously-rejected items); no new secret/hardcode findings in source scan
+
+## RANKED HYPOTHESES 2026-08-16 16:01:59 UTC
+- [95] https://{ds-apip,api,apip}.threema.ch/identity/{create,check,check_featuremask,match_token,check_revocation_key,fetch_priv,set_featuremask,revoke,sfu_cred,blob_cred,update_work_info}: Unauthenticated crash-family DoS with CORS-safelisted GET amplification on shared handler (from reports/hypotheses-laguna.txt)
+- [95] https://{ds-apip,api,apip}.threema.ch/check_license: check_license preflight-free cross-origin crash — header-proven this cycle (from reports/hypotheses-bigpickle.txt)
+- [85] https://{ds-apip,api,apip}.threema.ch/identity/revoke: Preflight-free cross-origin identity enumeration via GET+text/plain on revoke endpoint (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2Y
+- NEXT(hypotheses-laguna.txt): PROBE: Verify crash-family sibling parity expansion — `curl -s -o /dev/null -w "%{http_code}/%{size_download}" -X POST -H "Content-Type: application/json" -d '{
+- NEXT(hypotheses-bigpickle.txt): HUMAN: one browser-console session closes both top hypotheses — run `fetch('https://ds-apip.threema.ch/check_license',{method:'GET',headers:{'Content-Type':'tex
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.threema.ch/identity/create: Unauthenticated 500 crash on malformed publicKey input — POST {"publicKey":{"x":1}} → 500/0B, batch wid
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/revoke: 11th unauthenticated identity-existence oracle — valid→200/133B token + constant tokenRespKeyPub, invalid→20
+- LEARN: ACCEPTED MISCONFIG @ /identity/revoke GET divergence: 2nd token-mint endpoint accepting GET+body (valid→200/133B token) alongside set_featuremask; GET no-body→2
+- LEARN: CONFIRMED MISCONFIG @ crash family: revoke joins — POST + GET+text/plain malformed `{"identity":{"x":1}}` → 500/0B with ACAO *, zero 429, instant recovery to 20
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ KB sha256 claims — s
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem shows `{"target":"chat"}` not `"desktop"` — agent state divergence persists
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) confirmed benchmark-only dummy in `determineKdfParams()`, `benchm
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (TODO DESK-79), L1240 comment incorrect per Electron docs, 0 dynamic sin
+- LEARN: CONFIRMED MISCONFIG @ {ds-apip,api,apip}.threema.ch crash family: GET-crash parity now byte-stable on all 3 prod hosts (apip match_token, api check_revocation_k
+- LEARN: CONFIRMED IDOR @ set_featuremask GET+body: 3-host sibling parity byte-identical — valid→200/133B token + constant tokenRespKeyPub, invalid→200/46B; only token-m
+- LEARN: CONFIRMED IDOR @ check_featuremask census: byte-stable this cycle — 200/35B `{"featureMasks":[2047,2047,null,9]}`, live-active 5U8DM3J3+RFK5RDU6 confirmed; tri-
+- LEARN: NO_NEW_CLASS: reposcan-raw grep-delta "0 new hit lines" (6656 files, 56 hits all previously-rejected items); no new secret/hardcode findings in source scan
