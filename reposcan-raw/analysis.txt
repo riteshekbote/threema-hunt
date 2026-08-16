@@ -1,3 +1,96 @@
 [0m
 > build · nemotron-3-ultra-free
 [0m
+[0m$ [0mls -la reposcan-raw/threema-ch/
+total 72
+drwxr-xr-x 18 runner runner 4096 Aug 16 14:06 .
+drwxr-xr-x  3 runner runner 4096 Aug 16 14:06 ..
+drwxr-xr-x  7 runner runner 4096 Aug 16 14:07 app-remote-protocol
+drwxr-xr-x 10 runner runner 4096 Aug 16 14:07 compose-area
+drwxr-xr-x  7 runner runner 4096 Aug 16 14:07 push-relay
+drwxr-xr-x 14 runner runner 4096 Aug 16 14:07 threema-android
+drwxr-xr-x  8 runner runner 4096 Aug 16 14:07 threema-bot-sdk
+drwxr-xr-x 12 runner runner 4096 Aug 16 14:07 threema-desktop
+drwxr-xr-x 32 runner runner 4096 Aug 16 14:07 threema-ios
+drwxr-xr-x  6 runner runner 4096 Aug 16 14:07 threema-markup
+drwxr-xr-x  4 runner runner 4096 Aug 16 14:07 threema-msgapi-sdk-java
+drwxr-xr-x  5 runner runner 4096 Aug 16 14:07 threema-msgapi-sdk-php
+drwxr-xr-x  7 runner runner 4096 Aug 16 14:07 threema-msgapi-sdk-python
+drwxr-xr-x  9 runner runner 4096 Aug 16 14:07 threema-msgapi-sdk-rust
+drwxr-xr-x 16 runner runner 4096 Aug 16 14:07 threema-web
+drwxr-xr-x  8 runner runner 4096 Aug 16 14:07 threema-web-electron
+drwxr-xr-x  7 runner runner 4096 Aug 16 14:07 wasm-minisign-verify
+drwxr-xr-x  5 runner runner 4096 Aug 16 14:07 webrtc-build-docker
+[0m
+Based on the scan results and the knowledge base (which has extensively verified these findings across 20+ cycles), here's the classification:
+
+---
+
+### **REAL_SECRET** — *None found*
+| File | Line | SHA256 | Verdict |
+|------|------|--------|---------|
+| *(none)* | — | — | No hardcoded live credentials detected |
+
+The `crypto.ts:223` password `r3gGN9GDQ5NF6tM6` (sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12`) is **confirmed benchmark-only dummy** in `determineKdfParams()`, key purged at L233 — not used for real encryption (KB: REJECTED MISCONFIG, 20+ cycles verified).
+
+---
+
+### **TEST_OR_EXAMPLE** — Test/fixture data only
+| File | Line | Context |
+|------|------|---------|
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15, 18 | `expectedAuthToken = "authToken"`, `expectedPassword = "testPassword"` |
+| threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | `serverPassword: "password1"` |
+| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/*.swift | 50, 72, 148, 13, 37, 103 | Multiple `licensePassword = "testPassword"` / `password: "testPassword"` |
+| threema-ios/ThreemaTests/SafeTests.swift | 67, 76, 105 | `safePassword: "shootdeathstar"` (test fixture) |
+| threema-ios/ThreemaTests/MyProfile/ThreemaSafe/ThreemaSafePasswordValidatorTests.swift | 30, 227 | Test passwords `"abcdefghijkl"`, `"ABcd!@#tgk092"` |
+| threema-ios/ThreemaTests/ManuallyTests/ThreemaSafe/*.swift | 28, 38, 76, 83, 120 | `safePassword: "shootdeathstar"` (manual test fixture) |
+| threema-desktop/apps/desktop/src/common/test-data.ts | 62 | `keyStoragePassword: 'CHANGE_ME'` (placeholder) |
+
+---
+
+### **ENDPOINT_LEAK** — Staging/internal URLs in source
+| File | Line | Endpoint |
+|------|------|----------|
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
+| threema-desktop/apps/desktop/config/vite.config.ts | 147, 153, 154 | `DIRECTORY_SERVER_URL: 'https://ds-apip.test.threema.ch/'`, `WORK_SERVER_LEGACY_URL: 'https://ds-apip-work.test.threema.ch/'`, `WORK_SERVER_URL: 'https://work.test.threema.ch/'` |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 7, 911 | Same staging URLs |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | Same staging URLs |
+| threema-android/domain/protocol/src/directory.openapi.yml | 7, 911 | Same staging URLs |
+
+> **Note**: These staging endpoints (`ds-apip.test.threema.ch`, `ds-apip-work.test.threema.ch`, `work.test.threema.ch`) are **publicly reachable** and **confirmed live** (KB: ACCEPTED MISCONFIG/OTHER, 20+ cycles). They mirror production API surface but with HSTS/Expect-CT present (unlike prod).
+
+---
+
+### **INTERESTING** — Unusual but not secrets
+| File | Line | Finding |
+|------|------|---------|
+| threema-ios/AppMigration.swift | 873 | `persistenceKeyLicensePassword = "Threema license password"` — **UserDefaults key name**, not a password (KB: REJECTED MISCONFIG) |
+| threema-desktop/apps/desktop/src/common/enum/index.ts | 3126, 3162 | IPC constants `LOAD_USER_PASSWORD`, `STORE_USER_PASSWORD` |
+| threema-desktop/apps/desktop/src/enum/schema.ts | 983, 1000 | Same IPC constants (schema definition) |
+| threema-desktop/packages/webrtc/src/sdp/ice-password.ts | 12 | Validation error message template |
+| threema-android/app/src/main/java/.../PasswordEntryDialog.java | 47 | `KEY_PASSWORD = "password"` — **Intent/SharedPreferences key constant** |
+| threema-android/app/src/main/java/.../NotificationChannels.kt | 52 | Channel ID constant `NOTIFICATION_CHANNEL_REMOTE_SECRET` |
+| threema-android/app/src/main/java/.../IceCandidateParser.java | 43 | Regex token pattern `[a-zA-Z]+` |
+| threema-android/app/src/main/java/.../ClientInfo.java | 37 | `PUSH_TOKEN = "pushToken"` — constant key name |
+| threema-android/app/src/main/java/.../JoinResponse.kt | 70 | `toString()` includes `icePassword='$icePassword'` — **logs short-lived ICE creds** (local-only, low value, KB: needs runtime validation) |
+| threema-android/app/src/main/java/.../DatabaseUpdateToVersion37.java | 48 | Column name `COLUMN_PUSH_TOKEN = "push_token"` |
+| threema-android/app/src/main/java/.../WebClientSessionModel.java | 28 | Column name `COLUMN_PUSH_TOKEN = "push_token"` |
+| threema-android/domain/src/main/java/.../SfuToken.kt | 49 | `sfuToken='********'` — **proper redaction in toString()** (security-positive) |
+| threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt | 15, 19 | Sentry **public DSN keys** (`b3e20afbf356a8748bb62ac165aa780c`, `615af77cb3d980c41b3b04b07417cc7d`) — public by design |
+
+---
+
+### **SHORT VERDICT LIST**
+
+| Candidate | File | REPORT_CANDIDATE | Reason |
+|-----------|------|------------------|--------|
+| Benchmark password `r3gGN9GDQ5NF6tM6` | threema-desktop/.../crypto.ts:223 | **no** | Benchmark-only dummy, key purged immediately (KB verified 20+ cycles) |
+| `persistenceKeyLicensePassword` | threema-ios/.../AppMigration.swift:873 | **no** | UserDefaults key name, not a secret (KB verified) |
+| Staging URLs in OpenAPI/config | Multiple files | **no** | Publicly reachable staging endpoints, already documented in KB as ACCEPTED MISCONFIG/OTHER |
+| ICE password in `toString()` | threema-android/.../JoinResponse.kt:70 | **no** | Local-only, short-lived WebRTC creds; low value, needs runtime logcat validation (KB: INTERESTING) |
+| Sentry public DSN keys | threema-android/.../SentryConfig.kt:15,19 | **no** | Public identifiers by design (sha256 `3a826628...`, `3686395f...`) |
+| Test fixtures (`testPassword`, `shootdeathstar`, `CHANGE_ME`) | Multiple test files | **no** | Test/fixture data only |
+
+---
+
+**Summary**: No reportable secrets found in this scan. All hits are either test data, staging endpoint references (already known and publicly accessible), constant key names, or the benchmark dummy password (extensively verified as non-exploitable). The threema-desktop key-storage Windows ACL bypass (KB: ACCEPTED MISCONFIG) remains a valid finding but is a **code logic issue**, not a hardcoded secret — it requires Windows runtime validation (AUTH_HELPED) to complete the PoC chain.
