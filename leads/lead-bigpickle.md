@@ -19640,3 +19640,4 @@ verify_steps: PASSIVE — periodic cohort re-POST to fetch_priv ≤1 rps; flag a
 impact: third independent registered/not oracle + revocation detection with a control. CVSS 5.3 Medium (passive portion).
 testability: PASSIVE
 ## 2026-08-16 06:05:33 UTC [chat] (model bigpickle)
+## 2026-08-16 06:50:26 UTC [chat] (model bigpickle)

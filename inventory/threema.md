@@ -3968,3 +3968,10 @@
 - NEW 15th census draw on ds-apip.threema.ch/identity/check_featuremask (seed 2026081570, 400k IDs) → 4 hits including 10th distinct live-active account TSBWUXYH (state:0, mask:2047)
 - NEW Cross-host check_revocation_key sibling parity byte-identical — constant tokenRespKeyPub sha256 `c8005cca9…` across ds-apip/api/apip
 - NEW check_featuremask 15 census draws stable — 10 distinct live-active accounts (state:0 mask:2047), tri-state oracle byte-stable, zero 429, 524k-ID body-size cap, CORS `*` across all 3 hosts
+
+## 2026-08-16 06:50:38 UTC
+- NEW `/identity/set_featuremask` GET with body → 200/133B token minting (valid identity) vs 200/46B (invalid) — only token-mint endpoint accepting GET+body; check_featuremask/check return 500 on GET
+- NEW 15th census draw on `check_featuremask` (ds-apip.threema.ch, seed 2026081570, 400k IDs) → 4 hits including 10th distinct live-active account TSBWUXYH (state:0, mask:2047); 15 draws stable, 10 live-act
+- NEW Cross-host `check_revocation_key` sibling parity byte-identical — constant `tokenRespKeyPub` sha256 `c8005cca9…` across ds-apip/api/apip
+- CHANGED Filesystem GROUND TRUTH: `poc/key-storage-acl-bypass-poc.py` NOT on disk (`ls poc/` → No such file); all 20+ cycle KB sha256 claims disproven
+- CHANGED State file `state_bigpickle.json` shows `{"phase": "POC", "target": "chat"}` not `"desktop"` as KB claims; agent state divergence persists
