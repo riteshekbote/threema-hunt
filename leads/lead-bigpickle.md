@@ -20015,3 +20015,78 @@ evidence_needed: valid backupId+backupKey pair to confirm 200 + body shape; HSTS
 verify_steps: AUTH_HELPED — HUMAN: request program test backup credentials; then GET /backups/{64hex} with Basic auth from cross-origin context.
 impact: credential holder (or phishing victim) exfiltrates encrypted backup from attacker origin; HSTS gap weakens transport enforcement. CVSS 5.3 Medium.
 testability: AUTH_HELPED
+## 2026-08-16 10:11:32 UTC [chat] (model bigpickle)
+[HYP] fetch_priv 88B = never-registered; registered cohort 134-137B→88B flip signals revocation
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/fetch_priv (api/apip parity)
+confidence: 80
+reasoning: 37/37 registered cohort (incl. state:1 dormant K6R82985/DZ34BVDV/NHCNWZRH) mint 134-137B tokens; only never-registered (ZZZZZZZZ) yields 88B; single-field `{"identity":X}` body required; GET+body also accepted (200/135B).
+evidence_needed: any registered cohort ID drops to 88B while /identity/check still returns a mask for it (revocation event).
+verify_steps: PASSIVE — periodic cohort re-POST (POST or GET+body) ≤1 rps; flag 134-137B→88B flip; correlate with /identity/check mask presence.
+impact: third independent registered/not oracle + real revocation detection with control cohort. CVSS 5.3 Medium.
+testability: PASSIVE
+[NEXT] PROBE: family-wide cross-host parity — 3× GET+body `{"identity":"echoecho"}` @ ~1 rps on `https://api.threema.ch/identity/{match_token,fetch_priv,check_revocation_key}` and `https://apip.threema.ch/identity/{match_token,fetch_priv,check_revocation_key}` (expect 200/133-136B, zero 429) to prove the unrate-limited GET+body family is cross-host, not ds-apip-specific
+[NEXT] PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2YB","M5NANUU2","E7UUX69V","TSBWUXYH","ZZZZZZZZ","ECHOECHO"]}' https://ds-apip.threema.ch/identity/check_featuremask — verify 10 live-active accounts (state:0, mask:2047) in single 400k-ID census draw + CORS `*` + zero 429
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 10th token-mint existence oracle PASSIVE-verified — valid→200/133B token + constant tokenRespKeyPub, invalid→200/46B, case-fold amplification, CORS `*` browser-viable, sibling parity byte-identical
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200/46B method-handling divergence confirmed — accepts GET (unlike check_featuremask/check which return 500), POST token-mint oracle + case-fold + CORS `*` byte-stable across 3 prod hosts
+[HYP] CORS-simple silent cross-origin identity enumeration via 21 unrate-limited token-mint channels
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/{match_token,fetch_priv,check_revocation_key,set_featuremask,sfu_cred,blob_cred,update_work_info} (api/apip parity)
+confidence: 94
+reasoning: 7/7 endpoints on ds-apip + match_token on api/apip accept POST text/plain (CORS simple type, no preflight) → 200/133-135B token + ACAO `*` (valid) vs 200/46B (invalid); 18/18 GET+body probes zero 429; case-fold amplified; constant tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=` across endpoints+hosts.
+evidence_needed: full 7×3 simple-request matrix (api+apip remaining 6 endpoints) at zero 429; browser-context demonstration that no OPTIONS preflight fires for text/plain POST.
+verify_steps: PASSIVE — 14× POST `-H "Content-Type: text/plain" -H "Origin: https://evil.com" -d '{"identity":"echoecho"}'` on `https://{api,apip}.threema.ch/identity/{sfu_cred,blob_cred,update_work_info,set_featuremask,check_revocation_key,fetch_priv,match_token}` @ 1 rps; count 429 + confirm ACAO `*`.
+impact: any website silently enumerates registered-identity existence at scale (privacy breach), using visitor browsers as distributed scanners; no preflight, no rate limit, 21 parallel channels. CVSS 5.3 Medium (enumeration).
+testability: PASSIVE
+[HYP] mask:2047 active-share ~75% bounds live-active census estimate
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask (api/apip parity)
+confidence: 78
+reasoning: 12-ID mask:2047 cohort 9 state:0 vs 3 state:1 = 75%; 15+ draws density plateau 7.5-15e-6; 10 distinct live-active accounts (state:0 mask:2047); ECHOECHO (mask 9, state:0) proves state:0 exists below 2047 so 75% understates active.
+evidence_needed: ≥5 more mask:2047 census hits cross-confirmed via /identity/check; ECHOECHO-class (mask<2047, state:0) rate.
+verify_steps: PASSIVE — periodic 400k-ID check_featuremask draws ≤1 rps; POST each mask:2047 hit to /identity/check; tally state:0 ratio.
+impact: live-active population sizing + targeted-phishing attribution (legacy-client mask fingerprinting). CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] safe backup API allows credentialed cross-origin backup exfil with HSTS gap
+class: IDOR
+asset: https://safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}
+confidence: 55
+reasoning: HTTP Basic (backupId:backupKey); OPTIONS 204 CORS `*` + Allow-Headers Authorization (credentialed cross-origin enabled); GET 400 has ACAO `*` but NO HSTS/Expect-CT; route-existence oracle stable across 5 hosts behind 203.56.112.231.
+evidence_needed: valid backupId+backupKey pair to confirm 200 + body shape; HSTS gap impact on downgrade.
+verify_steps: AUTH_HELPED — HUMAN: request program test backup credentials; then GET /backups/{64hex} with Basic auth from cross-origin context.
+impact: credential holder (or phishing victim) exfiltrates encrypted backup from attacker origin; HSTS gap weakens transport enforcement. CVSS 5.3 Medium.
+testability: AUTH_HELPED
+class: IDOR
+asset: https://{ds-apip,api,apip}.threema.ch/identity/{sfu_cred,blob_cred,update_work_info,set_featuremask,check_revocation_key,fetch_priv,match_token} (7 endpoints x 3 hosts = 21 channels)
+confidence: 97
+impact: any website silently enumerates registered-identity existence using visitor browsers as distributed scanners; no preflight, no rate limit; privacy breach. CVSS 5.3.
+testability: PASSIVE
+[NEXT] PROBE: census draw 16 (seed 2026081675, 400k IDs) → 4 hits @1.0e-5 density; BCVAYXRV state:0 mask:2047 = 11th distinct live-active account; other 3 dormant state:1
+[HYP] CORS-simple silent cross-origin identity census via 21 unrate-limited token-mint channels (CONFIRMED, evidence ~complete)
+class: IDOR
+asset: https://{ds-apip,api,apip}.threema.ch/identity/{sfu_cred,blob_cred,update_work_info,set_featuremask,check_revocation_key,fetch_priv,match_token}
+confidence: 97
+reasoning: 14/14 POST text/plain + Origin evil.com on api+apip → 200/133-135B token + ACAO `*`, zero 429; negative → 200/46B + ACAO `*`; GET+body also accepted on api. text/plain is a CORS-simple request type → no OPTIONS preflight.
+evidence_needed: only browser-context demonstration remains (Fetch spec: text/plain simple-type → no preflight; ACAO `*` → response readable); server-side evidence complete.
+verify_steps: AUTH_HELPED — HUMAN: load attacker page making `fetch('https://ds-apip.threema.ch/identity/match_token',{method:'POST',headers:{'Content-Type':'text/plain'},body:'{"identity":"echoecho"}'})` and confirm token readable with no preflight.
+impact: any website enumerates registered-identity existence using visitor browsers as distributed scanners — no preflight, no rate limit, 21 parallel channels, case-fold amplified; privacy breach. CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] mask:2047 active-share ~77% bounds live-active census estimate
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask (api/apip parity)
+confidence: 79
+reasoning: mask:2047 cohort now 10 state:0 vs 3 state:1 = 77%; draw 16 added BCVAYXRV (state:0, mask:2047); 11 distinct live-active accounts; ECHOECHO (mask 9, state:0) proves state:0 exists below 2047 so 77% understates active.
+evidence_needed: ≥5 more mask:2047 census hits cross-confirmed via /identity/check; ECHOECHO-class (mask<2047, state:0) rate.
+verify_steps: PASSIVE — periodic 400k-ID check_featuremask draws ≤1 rps; POST each mask:2047 hit to /identity/check; tally state:0 ratio.
+impact: live-active population sizing + targeted-phishing attribution (legacy-client mask fingerprinting). CVSS 5.3 Medium.
+testability: PASSIVE
+[HYP] check_license input-shape differential reveals field-validation order / username enum
+class: AUTH
+asset: https://ds-apip.threema.ch/check_license (api/apip parity)
+confidence: 50
+reasoning: accepted oracle returns single combined error `{"success":false,"error":"This username or password is invalid."}` for fake creds; body schema `{licenseUsername,licensePassword,version,arch}` RAG-verified; success-shape `{"success":true}` requires valid Work license (unverified).
+evidence_needed: distinct error/status for missing-username vs missing-password vs non-string fields; timing delta on well-formed vs malformed license keys.
+verify_steps: PASSIVE — POST 4 bodies ({} / {licensePassword only} / {licenseUsername only} / {licenseUsername:"A",licensePassword:"B",version:{},arch:{}}) @ 1 rps on ds-apip; diff status+body byte-lengths + response time.
+impact: if field-validation errors differ, confirms pre-validation order and possibly a username-existence side-channel (success-shape still AUTH_HELPED). CVSS 3.1 Low-Medium.
+testability: PASSIVE
+[NEXT] PROBE: check_license input-shape differential — `curl -s -X POST -H "Content-Type: application/json" -d '{}' https://ds-apip.threema.ch/check_license` then `-d '{"licensePassword":"x"}'`, `-d '{"licenseUsername":"x"}'`, `-d '{"licenseUsername":"A","licensePassword":"B","version":{},"arch":{}}'` @ 1 rps; diff status/body/`time_total` to expose field-validation order or timing side-channel.
