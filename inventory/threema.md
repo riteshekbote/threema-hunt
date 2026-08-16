@@ -4416,3 +4416,12 @@
 ## 2026-08-16 18:13:20 UTC
 - NEW `check_license` crash parity expanded to 4 hosts (ds-apip, api, apip, ds-apip.test) — POST `{"version":{}}` → 500/0B, GET+text/plain → 500/0B, OPTIONS 200 CORS `*` on all 4
 - NEW Crash family matrix now 16 endpoint families × 3 prod + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO `*`, zero 429, instant recovery
+
+## 2026-08-16 18:47:54 UTC
+- NEW check_license crash parity expanded to 4 hosts (ds-apip, api, apip, ds-apip.test) — POST `{"version":{}}` → 500/0B, GET+text/plain → 500/0B, OPTIONS 200 CORS `*` on all 4
+- NEW /identity/revoke (non-ws path) LIVE token-mint identity-existence oracle — POST/GET+text/plain valid→200/133B token + constant tokenRespKeyPub, invalid→200/46B, 3-host parity
+- NEW /identity/create crash family — POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod + staging; batch `{"identities":[{}]} `→ 500/0B; 5x burst @0.5s all 500 no 429
+- NEW Crash family matrix now 16 endpoint families × 3 prod + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO `*`, zero 429, instant recovery
+- CHANGED Filesystem GROUND TRUTH re-verified: `poc/` absent (`ls poc/` → No such file), `state_bigpickle.json` = `{"phase":"POC","target":"chat"}`, `reposcan-raw/threema-ch/` EMPTY (`find` → 0 files across 18 
+- CHANGED `/identity/revoke` token-mint oracle re-confirmed: POST/GET+text/plain valid→200/133B token + constant tokenRespKeyPub, invalid→200/46B, 3-host parity byte-stable
+- CHANGED `/identity/create` crash family re-confirmed: POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod + staging; batch `{"identities":[{}]} `→ 500/0B; 5x burst @0.5s all 500 no 429
