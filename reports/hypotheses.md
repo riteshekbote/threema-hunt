@@ -7892,3 +7892,44 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password confirmed benchmark-only dummy, purged at L233.
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox: conditional RCE requires separate renderer exploit chain, not standalone.
 - LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key oracle permanently downgraded — no CORS on 404, key not in desktop source.
+
+## RANKED HYPOTHESES 2026-08-16 19:46:16 UTC
+- [95] https://{ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,create,fetch_priv}: Preflight-free cross-origin identity enumeration via GET+text/plain token-mint cluster (from reports/hypotheses-nemotron3.txt)
+- [95] https://{ds-apip,api,apip}.threema.ch/identity/check_featuremask: check_featuremask census — type:1 Work-org fingerprint crossing ≥3-draw threshold (from reports/hypotheses-laguna.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["RANDOM1","RANDOM2",...]}' https://ds-apip.threema.c
+- NEXT(hypotheses-laguna.txt): PASSIVE: census draw 20 — POST 400k random 8-char IDs (new seed 2026081690) to `https://ds-apip.threema.ch/identity/check_featuremask` at ≤1 rps; POST all hits 
+- NEXT(hypotheses-bigpickle.txt): PASSIVE: census draw 20 — POST 400k random 8-char IDs (new seed 2026081690) to `https://ds-apip.threema.ch/identity/check_featuremask` at ≤1 rps; POST all hits 
+- LEARN: ACCEPTED IDOR @ `{ds-apip,api,apip}.threema.ch/identity/check_featuremask`: type:1 Work-org fingerprint hypothesis CROSSED ≥3-draw threshold (DZ34BVDV + VK24BPY
+- LEARN: ACCEPTED MISCONFIG @ `{ds-apip,api,apip,ds-apip.test}.threema.ch/identity/create`: 16th crash family member CONFIRMED — POST `{"publicKey":{"x":1}}` → 500/0B + 
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/{revoke,set_featuremask}: GET+text/plain preflight-free enumeration vector — 133B vs 46B differential, case-fold amp
+- LEARN: ACCEPTED MISCONFIG @ crash family: 16 endpoint families × 4 hosts × GET+POST = 104+ combos, all 500/0B with ACAO `*`, zero 429, instant recovery
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated `/backups/{64hex}` — byt
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ KB sha256 claims — s
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem shows `{"target":"chat"}` not `{"target":"desktop"}` — agent state divergence persists
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) confirmed benchmark-only dummy in `determineKdfParams()`, `benchm
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (TODO DESK-79), L1240 comment incorrect per Electron docs, 0 dynamic sin
+- LEARN: REJECTED AUTH @ `work.threema.ch/api/v1` X-Api-Key oracle: 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical `{"error":"Invalid X
+- LEARN: ACCEPTED IDOR @ check_featuremask census: type:1 Work-org fingerprint hypothesis FIRM — ≥3 independent draws with type:1 hits (DZ34BVDV + VK24BPYV); non-uniform
+- LEARN: ACCEPTED IDOR @ 8-endpoint GET+text/plain mint cluster: cluster-wide (not dual), 8 endpoints × 3 hosts = 24 byte-stable combos; zero-preflight browser-viable ve
+- LEARN: ACCEPTED MISCONFIG @ crash family: 16 endpoint families × 4 hosts × GET+POST = 104+ combos; ACAO `*` on every 500; zero 429; instant recovery.
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: ground truth ABSENT for 20+ cycles; all KB sha256 claims disproven.
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json: filesystem = `{"target":"chat"}` — KB desktop-target claims stale.
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password confirmed benchmark-only dummy, purged at L233.
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox: conditional RCE requires separate renderer exploit chain, not standalone.
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key oracle permanently downgraded — no CORS on 404, key not in desktop source.
+- LEARN: ACCEPTED IDOR @ check_featuremask census: type:1 Work-org fingerprint hypothesis FIRM — ≥3 independent draws with type:1 hits (DZ34BVDV + VK24BPYV); non-uniform
+- LEARN: ACCEPTED IDOR @ 8-endpoint GET+text/plain mint cluster: cluster-wide (not dual), 8 endpoints × 3 hosts = 24 byte-stable combos; zero-preflight browser-viable ve
+- LEARN: ACCEPTED MISCONFIG @ crash family: 16 endpoint families × 4 hosts × GET+POST = 104+ combos; ACAO `*` on every 500; zero 429; instant recovery.
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: ground truth ABSENT for 20+ cycles; all KB sha256 claims disproven.
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json: filesystem = `{"target":"chat"}` — KB desktop-target claims stale.
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password confirmed benchmark-only dummy, purged at L233.
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox: conditional RCE requires separate renderer exploit chain, not standalone.
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key oracle permanently downgraded — no CORS on 404, key not in desktop source.
+- LEARN: ACCEPTED IDOR @ check_featuremask census: type:1 Work-org fingerprint hypothesis FIRM — ≥3 independent draws with type:1 hits (DZ34BVDV + VK24BPYV); non-uniform
+- LEARN: ACCEPTED IDOR @ 8-endpoint GET+text/plain mint cluster: cluster-wide (not dual), 8 endpoints × 3 hosts = 24 byte-stable combos; zero-preflight browser-viable ve
+- LEARN: ACCEPTED MISCONFIG @ crash family: 16 endpoint families × 4 hosts × GET+POST = 104+ combos; ACAO `*` on every 500; zero 429; instant recovery.
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: ground truth ABSENT for 20+ cycles; all KB sha256 claims disproven.
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json: filesystem = `{"target":"chat"}` — KB desktop-target claims stale.
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password confirmed benchmark-only dummy, purged at L233.
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox: conditional RCE requires separate renderer exploit chain, not standalone.
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key oracle permanently downgraded — no CORS on 404, key not in desktop source.
