@@ -1,9 +1,9 @@
-## 2026-08-16 17:27:01 UTC [web] (model nemotron3)
-[NEW] /identity/revoke (non-ws path) LIVE token-mint identity-existence oracle — POST {"identity":"ECHOECHO"} → 200/133B token + constant tokenRespKeyPub; GET+text/plain valid → 200/133B token; GET no-body → 200/46B; 3-host parity
-[NEW] /identity/create crash family — POST {"publicKey":{"x":1}} → 500/0B on all 3 prod + staging; batch {"identities":[{}]} → 500/0B; 5x burst @0.5s all 500 no 429; recovery to 200/133B
-[NEW] check_license joins crash family — version as object → 500/0B (3-host parity); GET+text/plain preflight-free browser vector confirmed; only crash family with OPTIONS 200; 4-host parity (ds-apip/api/apip/ds-apip.test)
+## 2026-08-16 17:43:35 UTC [web] (model nemotron3)
+[NEW] `/identity/revoke` (non-ws path) LIVE token-mint identity-existence oracle — POST `{"identity":"ECHOECHO"}` → 200/133B token + constant tokenRespKeyPub; GET+text/plain valid → 200/133B token; GET no-body → 200/46B; 3-host parity
+[NEW] `/identity/create` crash family — POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod + staging; batch `{"identities":[{}]} `→ 500/0B; 5x burst @0.5s all 500 no 429; recovery to 200/133B
+[NEW] `check_license` joins crash family — `version` as object → 500/0B (3-host parity); GET+text/plain preflight-free browser vector confirmed; only crash family with OPTIONS 200; 4-host parity (ds-apip/api/apip/ds-apip.test)
 [CHANGED] Crash family matrix now 16 endpoint families × 3 prod hosts + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO *, zero 429, instant recovery
-[CHANGED] Filesystem GROUND TRUTH: poc/ absent (ls → No such file); state_bigpickle.json = {"phase":"POC","target":"chat"}; reposcan-raw/threema-ch/ EMPTY (find → 0 files across 18 repo dirs)
+[CHANGED] Filesystem GROUND TRUTH: `poc/` absent (`ls poc/` → No such file); `state_bigpickle.json` = `{"phase":"POC","target":"chat"}`; `reposcan-raw/threema-ch/` EMPTY (`find` → 0 files across 18 repo dirs)
 [PRIO] https://{ds-apip,api,apip}.threema.ch/identity/revoke, 97, attack=10, business=10, tech=10, gate=10, cloud=5, fresh=10
 [PRIO] https://{ds-apip,api,apip}.threema.ch/identity/create, 96, attack=10, business=9, tech=10, gate=10, cloud=5, fresh=10
 [PRIO] https://{ds-apip,api,apip,ds-apip.test}.threema.ch/check_license, 95, attack=9, business=9, tech=9, gate=10, cloud=5, fresh=10
@@ -29,7 +29,7 @@ testability: PASSIVE
 class: MISCONFIG
 asset: https://{ds-apip,api,apip,ds-apip.test}.threema.ch/check_license
 confidence: 95
-reasoning: POST {"version":{}} → 500/0B on all 4 hosts; GET+text/plain with {"version":{}} also triggers 500/0B (CORS-safelisted, no preflight); only crash family endpoint with OPTIONS 200; sibling parity byte-identical; zero 429 on burst
+reasoning: POST `{"version":{}}` → 500/0B on all 4 hosts; GET+text/plain with `{"version":{}}` also triggers 500/0B (CORS-safelisted, no preflight); only crash family endpoint with OPTIONS 200; sibling parity byte-identical; zero 429 on burst
 evidence_needed: Passive probe confirming 500 on malformed version object + GET+text/plain preflight-free crash + OPTIONS 200 with CORS * + sibling parity across 4 hosts
 verify_steps: PASSIVE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"version":{}}' https://ds-apip.threema.ch/check_license — verify 500/0B + ACAO *; curl -s -X GET -H "Origin: https://evil.com" -H "Content-Type: text/plain" -d '{"version":{}}' https://ds-apip.threema.ch/check_license — verify 500/0B + no preflight; curl -s -X OPTIONS -H "Origin: https://evil.com" https://ds-apip.threema.ch/check_license — verify 200 + CORS *; repeat on api/apip/ds-apip.test
 impact: Preflight-free cross-origin crash via GET+text/plain; credential-validation endpoint DoS; CVSS 3.1: 6.5 AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L
