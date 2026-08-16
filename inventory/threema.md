@@ -4463,3 +4463,12 @@
 - CHANGED Crash family matrix now 16 endpoint families × 3 prod + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO `*`, zero 429, instant recovery
 - CHANGED Filesystem GROUND TRUTH re-verified: `poc/` absent, `state_bigpickle.json` = `{"phase":"POC","target":"chat"}`, `reposcan-raw/threema-ch/` EMPTY (0 files across 18 repo dirs)
 - CHANGED GET+text/plain mint cluster now confirmed cluster-wide (8 endpoints: revoke, set_featuremask, match_token, check_revocation_key, blob_cred, sfu_cred, create, fetch_priv) × 3 hosts = 24 byte-stable com
+
+## 2026-08-16 20:39:56 UTC
+- NEW `/identity/revoke` confirmed LIVE as 11th token-mint identity-existence oracle (GET+text/plain + POST) with case-fold amplification
+- NEW `/identity/create` confirmed as 16th crash family member (POST malformed publicKey → 500/0B on all 3 prod + staging)
+- NEW `check_license` joins crash family (malformed version-as-object → 500/0B on 4 hosts, GET+text/plain preflight-free, OPTIONS 200)
+- NEW Census draw 18 crosses ≥3-draw threshold for type:1 Work-org fingerprint (DZ34BVDV + VK24BPYV)
+- CHANGED Crash family matrix: 16 endpoint families × 4 hosts × GET+POST = 104+ combos, all 500/0B + ACAO `*`, zero 429
+- CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 hosts = 24 byte-stable combos
+- CHANGED Filesystem GROUND TRUTH: `poc/` absent, `state_bigpickle.json` = `{"phase":"POC","target":"chat"}`, `reposcan-raw/` empty
