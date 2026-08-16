@@ -6896,3 +6896,16 @@
 - LEARN: ACCEPTED OTHER @ /identity/match N-cost-unit gating: N=10 emailHashes POST → 429/0B (ACAO:*); N=1 after >3d idle → 200/39B — bucket capacity <10, refill ≥1/mult
 - LEARN: ACCEPTED OTHER @ apip.threema.ch/identity/check: response now confirmed to include `checkInterval:86400` alongside states/types/featureMasks (24h client recheck
 - LEARN: CONFIRMED IDOR @ apip.threema.ch/identity/check_featuremask: 12th seeded 400k-ID draw → 200 in 13.8s zero 429, density series 12-draw cumulative 7.42e-6; draw-1
+
+## RANKED HYPOTHESES 2026-08-16 05:45:04 UTC
+- [97] https://ds-apip.threema.ch/identity/check_featuremask: Unauthenticated massive identity census with active-account discrimination via check_featuremask (from reports/hypotheses-nemotron3.txt)
+- [87] https://api.threema.ch/identity/check_featuremask: Elevated-mean density is a real population shift, not seed variance — registered space ~30-40M (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X GET -H "Origin: https://evil.com" https://ds-apip.threema.ch/identity/set_featuremask — verify 200 (method divergence); curl -s -X POST -H "Or
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 10th token-mint existence oracle PASSIVE-verified — valid→200/133B token + constant tokenRespK
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200/46B method-handling divergence confirmed — accepts GET (unlike check_featuremask/check whic
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 15 census draws stable — 10 distinct live-active accounts (state:0 mask:2047), tri-state oracle b
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below ≥3-draw threshold — not firm enough to claim a fingerprint class
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ KB sha256 claims — s
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem shows `{"target":"chat"}` not `"desktop"` — agent state divergence persists
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) confirmed benchmark-only dummy in `determineKdfParams()`, `benchm
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (TODO DESK-79), L1240 comment incorrect per Electron docs, 0 dynamic sin
