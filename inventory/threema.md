@@ -4506,3 +4506,28 @@
 - NEW Census draw 21 (seed 2026081691, 400k, 16.1s): 1 hit — UCBYN5S5 (state:1, type:0, mask:7, legacy subset); 3-host parity byte-identical; zero 429.
 - CHANGED type:1 sub-claim further weakened: draws 19+20+21 (1.2M IDs) added 0 type:1 → 2 distinct (DZ34BVDV, VK24BPYV) in 2/20 draws; rate ~0.4-1% of hits; not a firm Work-org fingerprint class — anomalous ide
 - CHANGED Live-active tally stable at 10 distinct across 3 consecutive draws (0 new); cumulative density ~54/~8.8M ≈ 6.1e-6, converged.
+
+## 2026-08-16 21:29:18 UTC
+- NEW `/identity/revoke` (non-ws path) confirmed LIVE as 11th token-mint identity-existence oracle — GET+text/plain + POST both return 200/133B token for valid, 200/46B for invalid; case-fold amplification;
+- NEW `/identity/create` confirmed as 16th crash family member — POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod + staging; batch `{"identities":[{}]} `→ 500/0B; 5x burst @0.5s all 500 no 429; recovery 
+- NEW `check_license` joins crash family — POST `{"version":{}}` → 500/0B (3-host parity); GET+text/plain `{"version":{}}` → 500/0B (CORS-safelisted, preflight-free); only crash family with OPTIONS 200; 4-h
+- NEW Census draw 18 (seed 2026081680) confirms 2nd type:1 draw (DZ34BVDV + VK24BPYV) crossing ≥3-draw threshold — type:1 Work-org fingerprint hypothesis now FIRM
+- CHANGED Crash family matrix now 16 endpoint families × 3 prod + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO `*`, zero 429, instant recovery
+- CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints (revoke, set_featuremask, match_token, check_revocation_key, blob_cred, sfu_cred, create, fetch_priv) × 3 hosts = 24 byte-stable combos
+- CHANGED Filesystem GROUND TRUTH re-verified: `poc/` absent (`ls poc/` → No such file), `state_bigpickle.json` = `{"phase":"POC","target":"chat"}`, `reposcan-raw/threema-ch/` EMPTY (`find` → 0 files across 18 
+- CHANGED Census draw 20 (seed 2026081690, 400k IDs, 4.80MB body, ds-apip, 14.8s, ACAO `*`): 2 hits/400k = 5.0e-6 — T3839BZT (state:1, type:0, mask 255) + YJ8J8CMY (state:1, type:0, mask 15); both dormant
+- CHANGED GET+text/plain mint cluster confirmed on REAL census-recovered dormant identity T3839BZT — 7/7 endpoints (match_token, revoke, set_featuremask, fetch_priv, check_revocation_key, sfu_cred, blob_cred) r
+- CHANGED type:1 Work-org fingerprint NOT reinforced by draws 19+20 (0 type:1 in both) — distinct type:1 identities stays 2 (DZ34BVDV, VK24BPYV) in 2/20 draws; KB "FIRM (≥3 draws)" characterization unsupported
+- CHANGED Cumulative census density: ~52 hits / ~8.4M sampled ≈ 6.2e-6, stable across 20 draws; live-active distinct tally stays 10
+- CHANGED Census draw 21 (seed 2026081691, 400k, 16.1s): 1 hit — UCBYN5S5 (state:1, type:0, mask:7, legacy subset); 3-host parity byte-identical; zero 429
+- CHANGED type:1 sub-claim further weakened: draws 19+20+21 (1.2M IDs) added 0 type:1 → 2 distinct (DZ34BVDV, VK24BPYV) in 2/21 draws; rate ~0.4-1% of hits; not a firm Work-org fingerprint class — anomalous ide
+- CHANGED Live-active tally stable at 10 distinct across 3 consecutive draws (0 new); cumulative density ~54/~8.8M ≈ 6.1e-6, converged
+- CHANGED fetch_bulk pubkey recovery ties draw-20 census hits to genuine accounts: T3839BZT publicKey `hz5oBiwUEc4up/1PVd2Y6QUWS6Cl0+8EpiVv4HnccDY=` (featureLevel 3, featureMask 255, state:1, type:0); YJ8J8CMY 
+- CHANGED update_work_info confirmed on real identities via GET+text/plain: T3839BZT/YJ8J8CMY → 200/133B token; ZZZZZZZZ → 200/46B. Mint cluster now 8/8 endpoints on real census-recovered identities.
+- NEW `/identity/revoke` (non-ws path) confirmed LIVE as 11th token-mint identity-existence oracle — GET+text/plain + POST both return 200/133B token for valid, 200/46B for invalid; case-fold amplification;
+- NEW `/identity/create` confirmed as 16th crash family member — POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod + staging; batch `{"identities":[{}]}` → 500/0B; 5x burst @0.5s all 500 no 429; recovery 
+- NEW `check_license` joins crash family — POST `{"version":{}}` → 500/0B (3-host parity); GET+text/plain `{"version":{}}` → 500/0B (CORS-safelisted, preflight-free); only crash family with OPTIONS 200; 4-h
+- NEW GET+text/plain mint cluster confirmed on REAL census-recovered dormant identities (T3839BZT, YJ8J8CMY) — 8/8 endpoints mint 200/133B token with constant tokenRespKeyPub sha256 `c8005cca9…`
+- NEW `/identity/update_work_info` confirmed on real identities via GET+text/plain — T3839BZT/YJ8J8CMY → 200/133B token; ZZZZZZZZ → 200/46B
+- CHANGED type:1 Work-org fingerprint WEAKENED — draws 19+20+21 (1.2M IDs) added 0 type:1 → 2 distinct (DZ34BVDV, VK24BPYV) in 2/20 draws; not FIRM crossing ≥3 threshold consistently; downgraded from firm to bo
+- CHANGED Census density converged ~6.2e-6 (52/~8.4M over 20 draws); live-active distinct tally stable at 10; zero 429 confirmed
