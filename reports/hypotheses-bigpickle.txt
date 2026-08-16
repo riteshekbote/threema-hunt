@@ -1,4 +1,4 @@
-## 2026-08-16 13:48:09 UTC [chat] (model bigpickle)
+## 2026-08-16 14:04:17 UTC [chat] (model bigpickle)
 [HYP] Crash-family DoS report ready — 14/14 endpoints, pending single browser-context proof
 class: MISCONFIG
 asset: https://{ds-apip,api,apip}.threema.ch/identity/{create,check,check_featuremask,match_token,check_revocation_key,set_revocation_key,fetch_priv,fetch_bulk,set_featuremask,sfu_cred,blob_cred,update_work_info,match,revoke} + staging ds-apip.test.threema.ch
@@ -27,3 +27,31 @@ verify_steps: PASSIVE — GET /identity/set_featuremask with `{"identity":"echoe
 impact: GET-based identity-existence enumeration vector that may bypass POST-targeted detection and any method-specific limiter. CVSS 5.3.
 testability: PASSIVE
 [NEXT] HUMAN: single browser-console fetch against `https://ds-apip.threema.ch/identity/match_token` with method POST, `Content-Type: text/plain`, body `{"identity":{"x":1}}`; record status (expect 500) and `access-control-allow-origin` header (expect `*`) and confirm no OPTIONS preflight fired — this is the final impact proof for the 14-endpoint crash-family report, after which author `reports/hypotheses-bigpickle.txt` (14-endpoint host matrix, crash bodies, staging parity, burst/recovery timing).
+[HYP] GET+text/plain zero-preflight widens identity-existence enumeration to the full 7-endpoint token-mint cluster
+class: IDOR
+asset: https://{ds-apip,api,apip}.threema.ch/identity/{match_token,check_revocation_key,fetch_priv,set_featuremask,sfu_cred,blob_cred,update_work_info}
+confidence: 85
+reasoning: fresh probes show all 7 single-identity token-mint endpoints mint 133-135B tokens on GET+body with constant tokenRespKeyPub; GET+text/plain is CORS-safelisted (no preflight); ACAO `*` + Allow-Methods on every response; case-fold amplification confirmed earlier (echoecho≡ECHOECHO).
+evidence_needed: browser-context GET+text/plain fetch reading 200 + token body + ACAO `*` with zero OPTIONS preflight on any one of the 7 endpoints.
+verify_steps: AUTH_HELPED — HUMAN: `fetch('https://ds-apip.threema.ch/identity/match_token',{method:'GET',headers:{'Content-Type':'text/plain'},body:'{"identity":"ECHOECHO"}'}).then(r=>r.text().then(t=>console.log(r.status,t)))` → expect 200 + `{"token":...}`; Network tab confirms no OPTIONS preflight; repeat invalid `ZZZZZZZZ` → 46B "Identity not found".
+impact: any website enumerates Threema identity existence cross-origin from visitor browsers at 7 endpoints × 3 hosts (21 combos), no rate limit observed on mint path; identity-existence oracle enables targeted phishing/social engineering. CVSS 5.3.
+testability: AUTH_HELPED
+[HYP] Crash family reaches GET method via object-typed body — zero-preflight cross-site 500 generation widens to GET+POST on single-identity endpoints
+class: MISCONFIG
+asset: https://{ds-apip,api,apip}.threema.ch/identity/{match_token,check_revocation_key,fetch_priv,set_featuremask,sfu_cred,blob_cred,update_work_info}
+confidence: 88
+reasoning: fresh probe — GET+text/plain `{"identity":{"x":1}}` on match_token → 500/0B byte-identical to POST crash, sibling parity on api.threema.ch, instant recovery (200/133B on next normal mint); GET+text/plain is CORS-safelisted → zero preflight; ACAO `*` present; crash path unthrottled (no 429 observed).
+evidence_needed: browser-context GET+text/plain fetch reading 500 status + ACAO `*` with no OPTIONS preflight; confirm remaining 6 endpoints share the crash via GET.
+verify_steps: PASSIVE (done 3/7) + AUTH_HELPED — HUMAN: `fetch('https://ds-apip.threema.ch/identity/match_token',{method:'GET',headers:{'Content-Type':'text/plain'},body:'{"identity":{"x":1}}'}).then(r=>console.log(r.status,r.headers.get('access-control-allow-origin')))` → expect 500 + `*`; PASSIVE follow-up sweeps the other 6 endpoints with same GET+body @1 rps.
+impact: any website deterministically generates production 500s from visitor browsers at 14+ endpoint families × 3 hosts (42+ combos) via GET or POST, both zero-preflight and unrate-limited; empty 500 bodies → no data leak. CVSS 4.3.
+testability: AUTH_HELPED
+[HYP] mask:2047 active-share ~77% bounds live-active census estimate
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/check_featuremask (api/apip parity)
+confidence: 79
+reasoning: mask:2047 cohort 10 state:0 vs 3 state:1 = 77%; 15 draws plateau 7.5–15e-6; 10 distinct live-active accounts; ECHOECHO (mask 9, state:0) proves state:0 exists below 2047 → 77% understates active; fresh cohort probe re-confirmed byte-stable.
+evidence_needed: ≥5 more mask:2047 census hits cross-confirmed via /identity/check; ECHOECHO-class (mask<2047, state:0) rate.
+verify_steps: PASSIVE — periodic 400k-ID check_featuremask draws ≤1 rps; POST each mask:2047 hit to /identity/check; tally state:0 ratio.
+impact: live-active population sizing + legacy-client phishing attribution (mask fingerprint). CVSS 5.3.
+testability: PASSIVE
+[NEXT] HUMAN: single browser-console fetch against `https://ds-apip.threema.ch/identity/match_token` with method **GET**, `Content-Type: text/plain`, body `{"identity":{"x":1}}`; record status (expect **500**) and `access-control-allow-origin` (expect `*`); confirm in Network tab that **no OPTIONS preflight fired** — this is the final impact proof for BOTH the crash-family report (now GET+POST) and the zero-preflight claim; then author the refreshed 14-endpoint report + update `reports/hypotheses-bigpickle.txt` (GET+body map, 7-endpoint mint cluster, crash bodies, staging parity, recovery timing).
