@@ -4606,3 +4606,32 @@
 - NEW `/identity/update_work_info` confirmed on real identities via GET+text/plain — T3839BZT/YJ8J8CMY → 200/133B token; ZZZZZZZZ → 200/46B
 - CHANGED type:1 Work-org fingerprint WEAKENED — draws 19+20+21 (1.2M IDs) added 0 type:1 → 2 distinct (DZ34BVDV, VK24BPYV) in 2/20 draws; not FIRM crossing ≥3 threshold consistently; downgraded from firm to bo
 - CHANGED Census density converged ~6.2e-6 (52/~8.4M over 20 draws); live-active distinct tally stable at 10; zero 429 confirmed
+
+## 2026-08-16 22:05:04 UTC
+- NEW GET+text/plain preflight-free mint cluster confirmed on REAL census-recovered dormant identities (T3839BZT, YJ8J8CMY) — 8/8 endpoints mint 200/133B token with constant tokenRespKeyPub sha256 `c8005cca
+- NEW `/identity/update_work_info` confirmed on real identities via GET+text/plain — T3839BZT/YJ8J8CMY → 200/133B token; ZZZZZZZZ → 200/46B
+- NEW `/identity/revoke` (non-ws path) confirmed LIVE as 11th token-mint identity-existence oracle — GET+text/plain + POST both return 200/133B token for valid, 200/46B for invalid; case-fold amplification;
+- NEW `/identity/create` confirmed as 16th crash family member — POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod + staging; batch `{"identities":[{}]} `→ 500/0B; 5x burst @0.5s all 500 no 429; recovery 
+- NEW `check_license` joins crash family — POST `{"version":{}}` → 500/0B (3-host parity); GET+text/plain `{"version":{}}` → 500/0B (CORS-safelisted, preflight-free); only crash family with OPTIONS 200; 4-h
+- CHANGED Crash family matrix now 16 endpoint families × 3 prod + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO `*`, zero 429, instant recovery
+- CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints (revoke, set_featuremask, match_token, check_revocation_key, blob_cred, sfu_cred, create, fetch_priv) × 3 hosts = 24 byte-stable combos
+- CHANGED Census density converged ~6.2e-6 (52/~8.4M over 20 draws); live-active distinct tally stable at 10; zero 429 confirmed
+- CHANGED type:1 Work-org fingerprint WEAKENED — draws 19+20+21 (1.2M IDs) added 0 type:1 → 2 distinct (DZ34BVDV, VK24BPYV) in 2/21 draws; rate ~0.4-1% of hits; not a firm Work-org fingerprint class
+- CHANGED Filesystem GROUND TRUTH re-verified: `poc/` absent, `state_bigpickle.json` = `{"phase":"POC","target":"chat"}`, `reposcan-raw/threema-ch/` EMPTY
+- NEW `apip-work.threema.ch` hostname discovered — resolves to **same IP (203.56.112.209)** as `ds-apip-work.threema.ch` (work directory server); returns byte-identical 401 + ACAO:`*` + no HSTS/Expect-CT ac
+- NEW **Shared-handler convergence proven via fresh ground-truth probes** — all 8 token-mint endpoints (`match_token`, `revoke`, `set_featuremask`, `check_revocation_key`, `sfu_cred`, `blob_cred`, `update_w
+- NEW `check_license` crash+credential oracle confirmed at **root path** `/check_license` (not `/identity/check_license`) with 4-host parity across `ds-apip` + `api` + `apip` + `ds-apip.test` (POST `{"versi
+- CHANGED No staging/prod divergence re-confirmed on crash family — `ds-apip.test.threema.ch` returns byte-identical 500/0B + ACAO:`*` as prod (earlier "staging divergence" was malformed-body test artifact).
+- CHANGED `check_featuremask` + `check` tri-state oracle byte-stable — `/identity/check_featuremask` → 200/`{"featureMasks":[2047,2047,null,9]}`, `/identity/check` → 200/`{"checkInterval":86400,"states":[0,0],"
+- NEW fetch_bulk pubkey recovery ties draw-20 census hits to genuine accounts: T3839BZT publicKey `hz5oBiwUEc4up/1PVd2Y6QUWS6Cl0+8EpiVv4HnccDY=` (featureLevel 3, featureMask 255, state:1, type:0); YJ8J8CMY 
+- NEW update_work_info confirmed on real identities via GET+text/plain: T3839BZT/YJ8J8CMY → 200/133B token; ZZZZZZZZ → 200/46B. Mint cluster now 8/8 endpoints on real census-recovered identities.
+- NEW Census draw 21 (seed 2026081691, 400k, 16.1s): 1 hit — UCBYN5S5 (state:1, type:0, mask:7, legacy subset); 3-host parity byte-identical; zero 429.
+- CHANGED type:1 sub-claim further weakened: draws 19+20+21 (1.2M IDs) added 0 type:1 → 2 distinct (DZ34BVDV, VK24BPYV) in 2/20 draws; rate ~0.4-1% of hits; not a firm Work-org fingerprint class — anomalous ide
+- CHANGED Live-active tally stable at 10 distinct across 3 consecutive draws (0 new); cumulative density ~54/~8.8M ≈ 6.1e-6, converged.
+- NEW Census draw 22 (seed 2026081692, 400k IDs, 4.80MB body, ds-apip, 16.0s, ACAO `*`, Origin https://evil.example echoed): 6 hits/400k = 1.5e-5 — 4SKAD72F (state:0, type:0, mask:2047 → NEW live-active) + 
+- NEW fetch_bulk + GET /identity/{id} pubkey recovery for all 6 draw-22 hits (all featureLevel 3): 4SKAD72F `BJyU9SX+VxSCTcBqZS57W7kqEihma2HURkkSwgphoGM=`, RFZMCZT7 `mRcDODyC3qY3LPSblj8423yRPRGnZNarPnb7N+/K
+- NEW fetch_bulk schema-strictness: object-element array `{"identities":[{"identity":...}]}` → 500/0B on all 3 prod hosts (input-format reject, consistent with malformed-input handler behavior); flat-string
+- CHANGED Live-active tally 10→11 distinct (4SKAD72F added); draw 22 = first new live-active since draw 18. Cumulative density ~60/~9.2M ≈ 6.5e-6 — converged (draw-22 rate 1.5e-5 is a ~2.5% Poisson tail, 5/6 hi
+- CHANGED type:1 sub-signal now 4 consecutive zero draws (19-22, 1.6M IDs) → 2 anomalous distinct (DZ34BVDV, VK24BPYV) in 2/22 draws; standalone class REJECTED.
+- CHANGED Live-active tally 10→11 distinct (4SKAD72F added); draw 22 = first new live-active since draw 18. Cumulative density ~60/~9.2M ≈ 6.5e-6 — converged (draw-22 rate 1.5e-5 is a ~2.5% Poisson tail, 5/6 hi
+- CHANGED type:1 sub-signal now 4 consecutive zero draws (19-22, 1.6M IDs) → 2 anomalous distinct (DZ34BVDV, VK24BPYV) in 2/22 draws; standalone class REJECTED.

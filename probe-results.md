@@ -2803,3 +2803,12 @@ https://api.threema.ch/identity/check_featuremask` -> HTTP 404
 https://ds-apip.threema.ch/identity/check` -> HTTP 404
 https://ds-apip.threema.ch/identity/revoke` -> HTTP 404
 https://ds-apip.test.threema.ch/identity/check_featuremask` -> HTTP 404
+
+## 2026-08-16 22:05:07 UTC
+https://ds-apip.threema.ch/identity/match_token',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
+https://ds-apip.threema.ch/check_license',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
+https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
+https://apip-work.threema.ch -> HTTP 401
+https://ds-apip.threema.ch/identity/check` -> HTTP 404
+https://api.threema.ch/identity/check_featuremask` -> HTTP 404
+https://ds-apip.test.threema.ch/identity/check_featuremask` -> HTTP 404
