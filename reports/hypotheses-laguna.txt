@@ -1,10 +1,4 @@
-## 2026-08-16 07:21:10 UTC [desktop] (model laguna)
-[PRIO] ds-apip.threema.ch/api.threema.ch/apip.threema.ch directory cluster (/identity/*), score=9.8 — attack_surface=10 business=10 tech=10 gate_ease=10 cloud_surface=9 freshness=10
-[PRIO] threema-desktop key-storage ACL bypass (Windows), score=8.2 — attack_surface=8 business=9 tech=9 gate_ease=10 cloud=3 freshness=7
-[PRIO] safe-{01,1a,1b,02,00}.threema.ch backup service, score=6.2 — attack_surface=6 business=8 tech=5 gate_ease=4 cloud=7 freshness=6
-[HYP] Unauthenticated identity census with live active-account discrimination via directory cluster
-class: IDOR
-asset: https://ds-apip.threema.ch/identity/{check_featuremask|fetch_bulk|set_featuremask|match_token|fetch_priv|check_revocation_key|create|check_license|match} (sibling parity: api.threema.ch + apip.threema.ch)
+## 2026-08-16 07:51:56 UTC [desktop] (model laguna)
 confidence: 97
 reasoning: PASSIVE-verified this cycle: check_featuremask returns `{"featureMasks":[2047,2047,null,9]}` (state:0=active, null=never-registered, mask:9=dormant), fetch_bulk returns pubkey only for valid IDs (ECHOECHO verified), set_featuremask GET+body returns token, all byte-identical across all 3 prod hosts with CORS `*` + Allow-Methods POST,Get,OPTIONS,DELETE
 evidence_needed: Byte-identical response bodies + CORS headers across all 3 prod hosts for all 10 endpoints; ≥10 distinct live-active accounts recovered via census
