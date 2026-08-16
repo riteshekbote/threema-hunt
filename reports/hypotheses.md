@@ -7051,3 +7051,27 @@
 - LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: PERMANENTLY DOWNGRADED to non-finding — 404 response has NO CORS headers, missing-key/invalid-key produ
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c7846…` (computed from literal; stale KB `52a0af98…` corrected) confirmed b
 - LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 preflight (full headers) but ABSENT on GET 400 response — byte-stab
+
+## RANKED HYPOTHESES 2026-08-16 09:07:00 UTC
+- [97] https://ds-apip.threema.ch/identity/check_featuremask: Unauthenticated massive identity census with active-account discrimination via check_featuremask (from reports/hypotheses-nemotron3.txt)
+- [82] https://ds-apip.threema.ch/identity/{match_token,fetch_priv,check_revocation_key,sfu_cred,blob_cred,update_work_info,set_featuremask}: GET+body token-mint family is a cross-host unrate-limited browser-viable enumeration vector (from reports/hypotheses-bigpickle.txt)
+- [74] https://ds-apip.threema.ch/identity/check_featuremask: mask:2047 active-share bound refines census live-active estimate (from reports/hypotheses-laguna.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -X POST -H "Origin: https://evil.com" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","7V7T2NKR","7VVR9AX2","6YMAT2Y
+- NEXT(hypotheses-laguna.txt): PROBE: sibling-parity rate check — repeat 5× GET+body `{"identity":"echoecho"}` @ ~1 rps on https://api.threema.ch/identity/set_featuremask and https://apip.thr
+- NEXT(hypotheses-bigpickle.txt): PROBE: family-wide cross-host parity — 3× GET+body `{"identity":"echoecho"}` @ ~1 rps on `https://api.threema.ch/identity/{match_token,fetch_priv,check_revocati
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: 10th token-mint existence oracle PASSIVE-verified — valid→200/133B token + constant tokenRespK
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET→200/46B method-handling divergence confirmed — accepts GET (unlike check_featuremask/check whic
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_featuremask: 15 census draws stable — 10 distinct live-active accounts (state:0 mask:2047), tri-state oracle b
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: density 2/72 below ≥3-draw threshold — not firm enough to claim a fingerprint class
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.py on-disk claims: filesystem GROUND TRUTH (`ls poc/` → No such file) disproves all 20+ KB sha256 claims — s
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem shows `{"target":"chat"}` not `"desktop"` — agent state divergence persists
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) confirmed benchmark-only dummy in `determineKdfParams()`, `benchm
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (TODO DESK-79), L1240 comment incorrect per Electron docs, 0 dynamic sin
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch/identity/check_featuremask: Byte-stable fresh this cycle — POST `{"identities":["5U8DM3J3","RF
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/set_featuremask: GET+body returns token on all 3 prod hosts — POST `{"identity":"echoecho"}` → 200/133B token + cons
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/check_revocation_key: PASSIVE-verified fresh — POST `{"identity":"echoecho"}` → 200/133B token + constant tokenRespK
+- LEARN: ACCEPTED MISCONFIG @ safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT header inconsistency byte-stable — GET→400 has ACAO:* but NO HSTS/Expect-CT; OPTIONS→204 h
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc.{js,py} on-disk claims: Filesystem GROUND TRUTH (`ls poc/` → No such file or directory; `find / -name "key-s
+- LEARN: REJECTED MISCONFIG @ reposcan-raw/threema-ch repos: `find` returns 0 files across all 18 repo directories (threema-android, threema-ios, threema-desktop, etc.) 
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: Filesystem GROUND TRUTH = `{"phase": "POC", "target": "chat"}` (sha256 `94bd1bd1…`) — ALL KB claims of `"ta
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d69212f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed fro
