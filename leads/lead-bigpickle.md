@@ -21136,3 +21136,4 @@ testability: PASSIVE
 [RISK] sync: 40 — mediator/rendezvous uniform 403 on HTTPS, high-entropy paths; WSS requires auth; DNS split routing attributed; in-band surface closed.
 [RISK] safe: 55 — safe-{01,1a,1b,02,00} (203.56.112.231) credential-gated backup API; HSTS/Expect-CT on OPTIONS 204 but absent on GET 400; Basic Auth + route-existence oracle + credentialed CORS stable.
 [RISK] desktop-src: 85 — threema-desktop Windows key-storage ACL bypass (6-path RAG remote-verified; `{}` ACL on win32); BrowserWindow sandbox unset + nodeIntegrationInWorker:true (DESK-79); PoC artifact not authored (filesystem-verified); gap = artifact + Windows runtime validation.
+## 2026-08-16 15:46:37 UTC [chat] (model bigpickle)
