@@ -2503,3 +2503,11 @@ https://ds-apip.threema.ch/identity/match_token',{method:'POST',headers:{'Conten
 https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/check_license` -> HTTP 404
 https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
+
+## 2026-08-16 11:10:27 UTC
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/check_revocation_key -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/set_featuremask -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/check_license` -> HTTP 404
+https://ds-apip.threema.ch/identity/match_token` -> HTTP 404
+https://ds-apip.threema.ch/identity/set_featuremask',{method:'GET',body:'{ -> HTTP 404
