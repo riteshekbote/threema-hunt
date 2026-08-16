@@ -19978,3 +19978,15 @@ testability: PASSIVE
 [RISK] safe: 55 — safe-*.threema.ch (5 hosts, single IP 203.56.112.231) expose credential-gated backup API with HSTS/Expect-CT header inconsistency (present on OPTIONS 204, absent on GET 400); HTTP Basic Auth + route-existence oracle (400 vs 404) + credentialed cross-origin CORS (Allow-Headers: Authorization) stable
 [RISK] desktop-src: 85 — threema-desktop key-storage ACL bypass on Windows confirmed via 6-path RAG chain (WebFetch on GitHub stable); keystorage.bin + keystorage.password.bin written without ACL (fileModeInternalObjectIfPosix returns {} on win32); BrowserWindow sandbox unset + nodeIntegrationInWorker: true (TODO DESK-79); PoC artifact NOT authored (filesystem-verified absent despite 20+ cycle claims)
 ## 2026-08-16 15:03:23 UTC [desktop] (model laguna)
+## 2026-08-16 15:29:52 UTC [desktop] (model laguna)
+[PRIO] https://{ds-apip,api,apip}.threema.ch/identity/* (14 endpoints): score 9.4 — attack:10, business:9, tech:8, gate:10, cloud:7, freshness:10
+[PRIO] https://ds-apip.threema.ch/identity/check_featuremask: score 9.2 — attack:10, business:9, tech:7, gate:10, cloud:7, freshness:10
+[PRIO] https://ds-apip.threema.ch/identity/create crash family: score 8.6 — attack:9, business:8, tech:7, gate:10, cloud:7, freshness:9
+[PRIO] https://safe-{01,1a,1b,02,00}.threema.ch (backup API): score 6.8 — attack:7, business:7, tech:6, gate:6, cloud:6, freshness:7
+[HYP] Cross-origin crash amplification via CORS-safelisted malformed object input on shared handler
+class: MISCONFIG
+asset: https://{ds-apip,api,apip}.threema.ch/identity/{create,check,check_featuremask,match_token,check_revocation_key,fetch_priv,fetch_bulk,set_featuremask,sfu_cred,blob_cred,update_work_info,revoke}
+confidence: 95
+reasoning: POST `{"publicKey":{"x":1}}` on /identity/create → 500/0B on all 3 prod hosts + staging; `{"identities":[{}]}` batch widening → 500/0B + ACAO:*; 14/14 endpoint families crash identically on malformed object input; 5x rapid probes @0.5s all 500 with zero 429; recovery to 200/133B after burst; text/plain POST is CORS-safelisted (zero preflight)
+evidence_needed: 500/0B on malformed object input + ACAO:* on 500 + sibling parity across ds-apip/api/apip + staging + zero 429 across burst + recovery to 200 after burst
+verify_steps: PROBE: `for ep in create check check_featuremask match_token check_revocation_key fetch_priv fetch_bulk set_featuremask revoke sfu_cred blob_cred update_work_info; do curl -s -o /dev/null -w "{$ep}: HTTP:%{http_code} SIZE:%{size_download
