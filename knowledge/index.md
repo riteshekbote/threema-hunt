@@ -1289,3 +1289,4 @@
 - 2026-08-16 REJECTED MISCONFIG @ crypto.ts:223: Benchmark password confirmed benchmark-only dummy, purged at L233.
 - 2026-08-16 REJECTED class @ Desktop BrowserWindow sandbox: conditional RCE requires separate renderer exploit chain, not standalone.
 - 2026-08-16 REJECTED AUTH @ work.threema.ch/api/v1: X-Api-Key oracle permanently downgraded — no CORS on 404, key not in desktop source.
+- 2026-08-16 REJECTED AUTH @ `work.threema.ch/api/v1` X-Api-Key oracle: 404 response has NO CORS headers; missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`; key NOT in threema-desktop source (fetch-work.ts uses username/password exclusively)
