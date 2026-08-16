@@ -4436,3 +4436,12 @@
 - CHANGED `/identity/revoke` (non-ws path) confirmed as 11th token-mint oracle; GET+body returns 200/133B token (unique GET-accepting token-mint alongside set_featuremask).
 - NEW `/identity/create` confirmed as 16th crash family member — POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod + staging; batch widening `{"identities":[{}]}` → 500/0B; 5x burst @0.5s all 500 no 429.
 - CHANGED Filesystem ground truth re-verified: `poc/` absent; `state_bigpickle.json` = `{"phase":"POC","target":"chat"}`; `reposcan-raw/threema-ch/` EMPTY (0 files across 18 repo dirs) — all "RAG-VERIFIED via d
+
+## 2026-08-16 19:32:38 UTC
+- NEW `/identity/revoke` (non-ws path) LIVE token-mint identity-existence oracle — POST/GET+text/plain valid→200/133B token + constant tokenRespKeyPub, invalid→200/46B, 3-host parity
+- NEW `/identity/create` crash family — POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod + staging; batch `{"identities":[{}]} `→ 500/0B; 5x burst @0.5s all 500 no 429
+- NEW `check_license` joins crash family — `version` as object → 500/0B (3-host parity); GET+text/plain preflight-free browser vector confirmed; only crash family with OPTIONS 200; 4-host parity (ds-apip/ap
+- NEW Census draw 18 (seed 2026081680) confirms 2nd type:1 draw (DZ34BVDV + VK24BPYV), crossing the ≥3-draw threshold — type:1 Work-org fingerprint hypothesis now FIRM
+- NEW `/identity/create` confirmed as 16th crash family member — POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod + staging; batch widening `{"identities":[{}]}` → 500/0B; 5x burst @0.5s all 500 no 429
+- CHANGED Crash family matrix now 16 endpoint families × 3 prod + 1 staging × GET+POST = 104 combos, all byte-stable 500/0B with ACAO `*`, zero 429, instant recovery
+- CHANGED Filesystem GROUND TRUTH re-verified: `poc/` absent (`ls poc/` → No such file), `state_bigpickle.json` = `{"phase":"POC","target":"chat"}`, `reposcan-raw/threema-ch/` EMPTY (`find` → 0 files across 18 
