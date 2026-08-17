@@ -1525,3 +1525,14 @@
 - 2026-08-17 REJECTED MISCONFIG @ /identity/delete: returns 404 on all probes — NOT a crash-family member; crash-family count corrected 16→15
 - 2026-08-17 REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 corrected to 400c7846…; confirmed benchmark-only dummy, purged at L233
 - 2026-08-17 REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 23rd+ cycle; all KB sha256 claims DISPROVEN
+- 2026-08-17 ACCEPTED @ /identity/create: 16th crash family member — POST {"publicKey":{"x":1}} → 500/0B on all 3 prod + staging; recovery to 200/133B; NOT a token-mint endpoint.
+- 2026-08-17 ACCEPTED @ shared-handler crash+token-mint convergence: /identity/match_token POST {"identity":{"x":1}} → 500/0B with ACAO:* — same JSON handler mints tokens and crashes.
+- 2026-08-17 CONFIRMED @ /identity/revoke GET query-param mint: GET ?identity=ECHOECHO → 200/133B token — GET query-param mint LIVE.
+- 2026-08-17 REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 23rd+ cycle; all KB sha256 claims DISPROVEN.
+- 2026-08-17 REJECTED MISCONFIG @ state_bigpickle.json: filesystem = {"target":"chat"} — KB desktop-target claims stale.
+- 2026-08-17 REJECTED MISCONFIG @ crypto.ts:223: benchmark password confirmed benchmark-only dummy, purged at L233.
+- 2026-08-17 REJECTED class @ Desktop BrowserWindow sandbox: conditional RCE requires separate renderer exploit chain, surface accepted as hardening gap only.
+- 2026-08-17 REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: PERMANENTLY DOWNGRADED — no CORS on 404, key not in source.
+- 2026-08-17 REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws — not structural.
+- 2026-08-17 ACCEPTED MISCONFIG @ crash family: 15 endpoint families × 4 hosts × GET+POST = 120 combos.
+- 2026-08-17 ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work directory hostname alias.

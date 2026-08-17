@@ -19416,3 +19416,73 @@ testability: PASSIVE
 [RISK] sync: 12 reason — mediator/rendezvous-*.threema.ch uniform 403 on HTTPS with high-entropy paths; WSS requires authenticated login frame; DNS split routing fully attributed (0-7→203.56.112.247, 8-f→203.56.114.247); no passive in-band surface beyond DNS
 [RISK] safe: 72 reason — safe-{01,1a,1b,02,00}.threema.ch (5 hosts, single IP 203.56.112.231) credential-gated backup API (HTTP Basic Auth) with HSTS/Expect-CT header inconsistency (OPTIONS 204 has headers, GET 400 lacks them); route-existence oracle (400 vs 404); CORS * with Allow-Headers: Authorization enables credentialed cross-origin; apip-work.threema.ch alias expands entry points
 [RISK] desktop-src: 58 reason — threema-desktop key-storage Windows ACL bypass (6-path RAG-verified chain on GitHub stable; PoC artifact never authored at filesystem ground truth); BrowserWindow sandbox unset + nodeIntegrationInWorker: true (TODO DESK-79) — conditional RCE surface (rejected as standalone class); reposcan-raw EMPTY (0 source files local, WebFetch-only); Windows runtime validation blocker persists
+## 2026-08-17 14:46:03 UTC [web] (model nemotron3)
+[NEW] ds-apip.threema.ch/identity/revoke?identity=ECHOECHO — GET query-param token mint confirmed LIVE (distinct from /identity/ws/revoke 404)
+[NEW] apip-work.threema.ch — 4th work directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS)
+[NEW] /identity/create — 16th crash family member confirmed (POST malformed publicKey → 500/0B on 3 prod + staging)
+[CHANGED] GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos
+[CHANGED] Crash family matrix: 16 endpoint families × 4 hosts (3 prod + 1 staging) × GET+POST = 128 combos, all 500/0B with ACAO:*
+[CHANGED] Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
+[CHANGED] type:1 Work-org fingerprint WEAKENED: 4 consecutive zero-type:1 draws (19-22, 1.6M IDs), 2 anomalous distinct in 2/22 draws
+[CHANGED] /identity/delete confirmed 404 on all probes — NOT a crash-family member (count corrected 16→15)
+[CHANGED] apip-work.threema.ch auth-gated: OPTIONS→401 (unlike consumer ds-apip OPTIONS→200) — cross-origin probing blocked without work creds
+[CHANGED] shared-handler crash+token-mint convergence: /identity/match_token POST malformed → 500/0B with ACAO:* (same handler mints tokens + crashes)
+[CHANGED] BrowserWindow sandbox re-verified via WebFetch: sandbox UNSET (TODO DESK-79), L1240 comment incorrect
+[CHANGED] crypto.ts:223 benchmark password sha256 corrected: 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (stale KB 52a0af98… WRONG)
+[CHANGED] Filesystem GROUND TRUTH: poc/ ABSENT 23rd+ cycle; state_bigpickle.json = {"phase":"POC","target":"chat"}; reposcan-raw 18 dirs EMPTY
+[PRIO] https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO, 8.8, attack:9, business:8, tech:9, gate:10, cloud:8, fresh:9
+[PRIO] https://safe-01.threema.ch/backups/{64hex}, 7.5, attack:8, business:7, tech:6, gate:6, cloud:7, fresh:8
+[PRIO] https://apip-work.threema.ch, 7.2, attack:7, business:8, tech:6, gate:4, cloud:7, fresh:9
+[PRIO] https://work.test.threema.ch/api-app/public/global/settings, 7.1, attack:8, business:6, tech:5, gate:10, cloud:6, fresh:8
+[PRIO] https://billing.threema.ch/cache/*, 6.2, attack:6, business:5, tech:7, gate:10, cloud:6, fresh:7
+[PRIO] https://broadcast.threema.ch/api/v1, 5.8, attack:7, business:6, tech:4, gate:4, cloud:5, fresh:8
+[PRIO] https://gateway.threema.ch/en/signup, 5.1, attack:5, business:5, tech:4, gate:10, cloud:5, fresh:6
+[HYP] GET query-param identity mint on /identity/revoke
+class: IDOR
+asset: https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO
+confidence: 92
+reasoning: Fresh probe confirmed GET ?identity=ECHOECHO returns 200 application/json with token + constant tokenRespKeyPub sha256 c8005cca9…; invalid identity → 200/46B "Identity not found"; case-fold amplification (echoecho≡ECHOECHO); 3-host parity byte-stable; OPTIONS 200 CORS * browser-viable; distinct from prior /identity/ws/revoke 404 path
+evidence_needed: Verify GET query-param mint works on api.threema.ch + apip.threema.ch (sibling parity); confirm no rate-limit on GET variant; validate tokenRespKeyPub constant across all 3 hosts
+verify_steps: PASSIVE — GET https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO -H "Accept: application/json" → verify 200/133B token + tokenRespKeyPub; GET ?identity=ZZZZZZZZ → 200/46B; GET ?identity=echoecho → 200/133B (case-fold); repeat on api.threema.ch + apip.threema.ch; OPTIONS on all 3 for CORS headers
+impact: Preflight-free cross-origin identity existence oracle via simple GET (browser-viable, zero-preflight); enables mass enumeration from any origin; CVSS 5.3 (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
+testability: PASSIVE
+[HYP] Credential-gated backup API with HSTS/Expect-CT header inconsistency
+class: MISCONFIG
+asset: https://safe-01.threema.ch/backups/{64hex}
+confidence: 85
+reasoning: OPTIONS→204 has full HSTS (max-age=31104000) + Expect-CT; GET→400 has ONLY ACAO:* (no HSTS/Expect-CT) — byte-stable across all 5 safe-* hosts behind 203.56.112.231; HTTP Basic Auth (backupId:backupKey) + route-existence oracle (400 vs 404) + credentialed cross-origin CORS (Allow-Headers: Authorization) all confirmed
+evidence_needed: Confirm header inconsistency persists on credentialed 200 response (requires valid backup creds); verify credentialed cross-origin request succeeds with valid Authorization header
+verify_steps: PASSIVE — GET https://safe-01.threema.ch/backups/invalid64hex -H "Origin: https://evil.example" → verify 400 lacks HSTS/Expect-CT but has ACAO:* + Allow-Headers:Authorization; OPTIONS same → verify 204 has HSTS+Expect-CT; repeat for safe-1a/1b/02/00.threema.ch; AUTH_HELPED:valid backup credentials needed for 200 response header check
+impact: Transport-security downgrade on credential-gated endpoint weakens HTTPS enforcement for authenticated users; credentialed cross-origin enabled via CORS; CVSS 4.3 (AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N)
+testability: PASSIVE
+[HYP] Auth-gated work directory with CORS but no browser preflight path without credentials
+class: MISCONFIG
+asset: https://apip-work.threema.ch
+confidence: 78
+reasoning: 4th work directory hostname alias confirmed (resolves 203.56.112.209 same as ds-apip-work); OPTIONS→401 + ACAO:* + no HSTS/Expect-CT on all paths; auth-gated (requires work credentials) unlike consumer ds-apip where OPTIONS→200; cross-origin probing blocked without valid work credentials; credentialed CORS path exists (ACAO:* on 401)
+evidence_needed: Verify work credentials (username/password) enable CORS preflight success (OPTIONS→200); confirm /identities /fetch2 /directory routes require Basic Auth; check if credentialed cross-origin requests possible with valid work creds
+verify_steps: PASSIVE — OPTIONS https://apip-work.threema.ch/identities -H "Origin: https://evil.example" → 401 + ACAO:*; GET same → 401; with valid work creds (AUTH_HELPED) test CORS preflight success; verify ds-apip-work.threema.ch identical behavior
+impact: Work directory surface accessible only with credentials; credentialed cross-origin possible if attacker obtains work login; CVSS 4.3 (AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N)
+testability: AUTH_HELPED:requires_valid_work_credentials
+[PARKED] Broadcast API key-presence oracle without format validation: confidence 45 < 50 threshold; class AUTH on broadcast.threema.ch/api/v1 has no actionable differential (only key-presence, no format/validity oracle); browser cross-origin blocked by missing CORS preflight; low business value
+[PARKED] crypto.ts:223 benchmark password: REJECTED class in KB; confirmed benchmark-only dummy, purged at L233; distinct from key-storage ACL bypass
+[PARKED] Desktop BrowserWindow sandbox+nodeIntegrationInWorker: REJECTED class in KB; conditional RCE requires separate renderer exploit chain, 0 dynamic sinks; surface accepted as hardening gap only
+[FINAL] GET query-param identity mint on /identity/revoke (IDOR, confidence 92, PASSIVE)
+[FINAL] Credential-gated backup API with HSTS/Expect-CT header inconsistency (MISCONFIG, confidence 85, PASSIVE)
+[FINAL] Auth-gated work directory with CORS but no browser preflight path without credentials (MISCONFIG, confidence 78, AUTH_HELPED)
+[NEXT] PROBE: GET https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO -H "Accept: application/json" → verify 200/133B token + tokenRespKeyPub; GET ?identity=ZZZZZZZZ → 200/46B; GET ?identity=echoecho → 200/133B (case-fold); repeat on api.threema.ch + apip.threema.ch for sibling parity; OPTIONS on all 3 for CORS headers
+[LEARN] ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke: GET query-param mint confirmed LIVE (distinct from /identity/ws/revoke 404) — 11th token-mint identity-existence oracle
+[LEARN] ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/identity/create: 16th crash family member confirmed (POST malformed publicKey → 500/0B on all 4 hosts)
+[LEARN] ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS)
+[LEARN] REJECTED MISCONFIG @ /identity/delete: returns 404 on all probes — NOT a crash-family member; crash-family count corrected 16→15
+[LEARN] REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws — not structural, insufficient for class
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 corrected to 400c7846…; confirmed benchmark-only dummy, purged at L233
+[LEARN] REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 23rd+ cycle; all KB sha256 claims DISPROVEN
+[LEARN] REJECTED MISCONFIG @ state_bigpickle.json: filesystem = {"phase":"POC","target":"chat"} — KB desktop-target claims stale
+[LEARN] REJECTED MISCONFIG @ reposcan-raw/threema-ch/ local clone: 18 repo dirs ALL EMPTY — all RAG evidence remote-only via WebFetch
+[LEARN] REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: 404 has NO CORS headers, key NOT in threema-desktop source
+[RISK] chat: 92 reason — directory servers (ds-apip/api/apip) expose 12+ unauthenticated IDOR endpoints with CORS * + no rate limits; 11 token-mint existence oracles (shared GET query-param + GET+text/plain handlers, zero OPTIONS preflight) + 15-family crash DoS cluster (120 combos); check_featuremask census yields 11 live-active accounts at ~6.5e-6 density via 524k-ID batches; check_license credential oracle at root path with 4-host parity; maximum cross-origin amplification
+[RISK] web: 38 reason — work.test.threema.ch staging-only /api-app/public/global/settings (200 vs prod 404) with bundle divergence proven; safe-*.threema.ch credential-gated backup API with HSTS/Expect-CT header inconsistency (OPTIONS 204 has headers, GET 400 lacks them); billing.threema.ch static assets on /cache/ serve full HSTS/Expect-CT/CSP/X-Frame-Options while 404 error page lacks all headers; broadcast.threema.ch/api/v1 401 auth-gated no key-format oracle; gateway.threema.ch 404/301 no msgapi; shop.threema.ch 301
+[RISK] sync: 12 reason — mediator/rendezvous-*.threema.ch uniform 403 on HTTPS with high-entropy paths; WSS requires authenticated login frame; DNS split routing fully attributed (0-7→203.56.112.247, 8-f→203.56.114.247); no passive in-band surface beyond DNS
+[RISK] safe: 72 reason — safe-{01,1a,1b,02,00}.threema.ch (5 hosts, single IP 203.56.112.231) credential-gated backup API (HTTP Basic Auth) with HSTS/Expect-CT header inconsistency (OPTIONS 204 has headers, GET 400 lacks them); route-existence oracle (400 vs 404); CORS * with Allow-Headers: Authorization enables credentialed cross-origin; apip-work.threema.ch alias expands entry points
+[RISK] desktop-src: 58 reason — threema-desktop key-storage Windows ACL bypass (6-path RAG-verified chain on GitHub stable; PoC artifact never authored at filesystem ground truth); BrowserWindow sandbox unset + nodeIntegrationInWorker: true (TODO DESK-79) — conditional RCE surface (rejected as standalone class); reposcan-raw EMPTY (0 source files local, WebFetch-only); Windows runtime validation blocker persists

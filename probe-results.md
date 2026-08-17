@@ -3071,3 +3071,17 @@ https://apip-work.threema.ch -> HTTP 401
 https://apip-work.threema.ch/identities -> HTTP 401
 https://work.test.threema.ch/api-app/public/global/settings -> HTTP 400
 https://work.threema.ch/api-app/public/global/settings -> HTTP 404
+
+## 2026-08-17 15:00:25 UTC
+https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://apip-work.threema.ch -> HTTP 401
+https://work.test.threema.ch/api-app/public/global/settings -> HTTP 400
+https://billing.threema.ch/cache/* -> HTTP 404
+https://broadcast.threema.ch/api/v1 -> HTTP 401
+https://gateway.threema.ch/en/signup -> 200 len=? type=text/html; charset=UTF-8
+https://safe-01.threema.ch/backups/invalid64hex -> HTTP 400
+https://apip-work.threema.ch/identities -> HTTP 401
+https://ds-apip.threema.ch/identity/match_token?identity=ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/set_featuremask?identity=ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
