@@ -1,1 +1,28 @@
-## 2026-08-17 16:37:57 UTC [desktop] (model laguna)
+## 2026-08-17 17:04:37 UTC [desktop] (model laguna)
+[HYP] Directory server shared-handler crash DoS + zero-preflight identity-existence oracle
+class: MISCONFIG
+asset: https://{ds-apip,api,apip,ds-apip.test}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv} + /check_license + /identity/create
+confidence: 98
+reasoning: All 15 endpoint families crash 500/0B + ACAO:* on malformed object input via POST+json AND GET+text/plain across 4 hosts (verified fresh: match_token→500 on ds-apip+api+apip); 8 endpoints mint identity-existence tokens (POST text/plain → 200/133B valid vs 200/46B invalid) with constant tokenRespKeyPub sha256 `c8005cca9…` + per-request token variation; GET text/plain + Origin = CORS-safelisted → zero-preflight browser vector on BOTH crash and token-mint.
+evidence_needed: (1) POST text/plain `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 8 mint endpoints × 4 hosts; (2) POST text/plain `{"identity":"echoecho"}` → 200/133B token + constant pubkey on all 8; (3) POST `{"identity":"ZZZZZZZZ"}` → 200/46B on all 8; (4) create crash only on `{"publicKey":{"x":1}}` not `{"identity":...}` (confirmed).
+verify_steps: PASSIVE — (1) GET https://ds-apip.threema.ch/identity/match_token -H "Content-Type: text/plain" -H "Origin: https://evil.example" -d '{"identity":{"x":1}}' → verify 500/0B + ACAO:* + Allow-Methods; (2) POST same body to https://api.threema.ch/identity/set_featuremask → verify 500/0B; (3) POST text/plain {"identity":"echoecho"} to https://apip.threema.ch/identity/check_revocation_key → verify 200/133B + tokenRespKeyPub; (4) POST text/plain {"identity":"ZZZZZZZZ"} → 200/46B. ≤1 rps.
+impact: Zero-preflight unauthenticated crash DoS (any website) + identity-existence oracle (valid→token, invalid→46B) enabling drive-by cross-origin enumeration of registered Threema identities + ed25519 pubkey recovery via fetch_bulk. CVSS 7.8 (High).
+testability: PASSIVE
+[HYP] Anonymous census oracle via check_featuremask producing live-active identity list + client-capability fingerprinting
+class: IDOR
+asset: https://{ds-apip,api,apip}.threema.ch/identity/check_featuremask
+confidence: 95
+reasoning: POST `{"identities":[...]}` → 200/`{"featureMasks":[...]}` + ACAO:* + Allow-Methods across all 3 prod hosts (fresh-verified: `{"featureMasks":[2047,null]}` for [5U8DM3J3,ZZZZZZZZ]); tri-state oracle (mask=null=never registered, state:1+legacy mask=dormant, state:0+2047=live-active); ~524k-ID body-size cap, zero 429 across 35+ probes; census density ~6.5e-6 converged across 22 draws yields 11 distinct live-active accounts; fetch_bulk recovers real ed25519 pubkeys (ECHOECHO→`SmobNNzvFdQ8t03i/TYJG+mfu68SbQmdR9g9kZcSxys=`).
+evidence_needed: check_featuremask POST returns 2047 for active/null for unregistered + CORS *; /identity/check returns states=[0,...] for active + [1,...] for dormant; fetch_bulk returns valid pubkeys for census hits (8/8 distinct pubkeys confirmed); check_license 4-host crash parity; staging parity ds-apip.test.
+verify_steps: PASSIVE — (1) POST `{"identities":["5U8DM3J3","ZZZZZZZZ"]}` to https://ds-apip.threema.ch/identity/check_featuremask → 200/76B with featureMasks + ACAO:*; (2) POST `{"identities":["5U8DM3J3","ZZZZZZZZ"]}` to https://ds-apip.threema.ch/identity/fetch_bulk → 200 with real ed25519 pubkey for 5U8DM3J3 + only valid echoed; (3) POST same batch to api.threema.ch + apip.threema.ch → verify byte-identical. ≤1 rps.
+impact: Unauthenticated population census recovers real live-active Threema identities + ed25519 public keys + client-version fingerprinting (mask=last-used capability, 2047=current era vs legacy 255/63/15/9/3); ~150 identities per 10k-ID sample; full identity→pubkey→capability pipeline. CVSS 7.1 (High).
+testability: PASSIVE
+[HYP] check_license credential-validation oracle at root path + preflight-free crash DoS
+class: AUTH
+asset: https://{ds-apip,api,apip,ds-apip.test}.threema.ch/check_license
+confidence: 90
+reasoning: Root-path /check_license (not /identity/check_license); POST fake creds → 200/65B `{"success":false,"error":"This username or password is invalid."}` + ACAO:* + Allow-Headers Content-Type,User-Agent across all 4 hosts; OPTIONS→200 with CORS `*`; zero 429 across 7+ sequential POSTs; malformed `{"version":{"x":1}}` → 500/0B via GET+text/plain AND POST+json (crash family #16, preflight-free, 4-host parity including apip-work); RAG source fetch-work.ts:47-59 confirms body schema {licenseUsername,licensePassword,version,arch}.
+evidence_needed: Valid Work license → POST → 200 + {"success":true}; fake creds → 200/65B error + ACAO:* on all 4 hosts; crash via version-as-object across all 4; OPTIONS→200 + CORS `*`.
+verify_steps: AUTH_HELPED/HUMAN — (1) HUMAN: valid Work license → POST {"licenseUsername":X,"licensePassword":Y,"version":"2.28","arch":"x64"} to https://ds-apip.threema.ch/check_license → verify 200 + {"success":true}; (2) PASSIVE: POST {"licenseUsername":"fake","licensePassword":"fake","version":"2.28","arch":"x64"} → 200/65B + ACAO:* on all 4 hosts; (3) POST {"version":{"x":1}} → 500/0B + ACAO:* on all 4 (incl apip-work). ≤1 rps.
+impact: Cross-origin credential validation oracle — valid vs invalid Work license response differs, enabling credential brute-force with browser-viable preflight-free vector; crash DoS via malformed version field also zero-preflight. CVSS 6.5 (Medium).
+testability: AUTH_HELPED
