@@ -22919,3 +22919,4 @@ testability: AUTH_HELPED
 [LEARN] REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 24th+ cycle; all KB sha256 claims DISPROVEN; source verification ≠ artifact generation.
 [LEARN] REJECTED MISCONFIG @ state_bigpickle.json: filesystem = {"phase":"POC","target":"chat"} — KB desktop-target claims stale.
 [LEARN] REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: PERMANENTLY DOWNGRADED — 404 has NO CORS headers, key NOT in threema-desktop source.
+## 2026-08-17 17:54:30 UTC [desktop] (model laguna)

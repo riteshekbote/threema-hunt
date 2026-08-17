@@ -4983,3 +4983,9 @@
 - CHANGED work.test.threema.ch/api-app/public/global/settings — captcha error message now consistently "captcha_proof_expired" (was "captcha_proof_erred" at 16:12:00); still 400 + __HOST-HTTP-SESSIONID cookie +
 - CHANGED Crash family matrix corrected to 15 endpoint families (delete excluded 404) × 4 hosts × GET+POST = 120 combos; /identity/create confirmed as crash member (not token-mint).
 - CHANGED GET query-param mint on /identity/revoke?identity=ECHOECHO confirmed LIVE (200/133B) — resolves prior REJECTED/CONFIRMED contradiction.
+
+## 2026-08-17 17:56:16 UTC
+- NEW None — latest probes (17:07:40 UTC) only re-confirm existing surface
+- CHANGED work.test.threema.ch/api-app/public/global/settings — captcha error message now consistently "captcha_proof_expired" (was "captcha_proof_erred" at 16:12:00); still 400 + __HOST-HTTP-SESSIONID cookie +
+- CHANGED Crash family matrix corrected to 15 endpoint families (delete excluded 404) × 4 hosts × GET+POST = 120 combos; /identity/create confirmed as crash member (not token-mint)
+- CHANGED GET query-param mint on /identity/revoke?identity=ECHOECHO confirmed LIVE (200/133B) — resolves prior REJECTED/CONFIRMED contradiction
