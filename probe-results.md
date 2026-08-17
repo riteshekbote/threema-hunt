@@ -3015,3 +3015,17 @@ https://billing.threema.ch -> 200 len=? type=text/html; charset=utf-8
 https://billing.threema.ch/cache/billing_gui_theme_threema.css -> 200 len=41023 type=text/css
 https://billing.threema.ch/nonexistent -> HTTP 404
 https://billing.threema.ch/en/login -> HTTP 404
+
+## 2026-08-17 11:43:04 UTC
+https://ds-apip.threema.ch: -> HTTP 403
+https://api.threema.ch: -> HTTP 403
+https://apip.threema.ch: -> HTTP 403
+https://safe-01.threema.ch: -> HTTP 404
+https://gateway.threema.ch: -> 200 len=? type=text/html; charset=UTF-8
+https://shop.threema.ch: -> 200 len=? type=text/html; charset=UTF-8
+https://work.test.threema.ch: -> 200 len=? type=text/html; charset=UTF-8
+https://billing.threema.ch: -> 200 len=? type=text/html; charset=utf-8
+https://ds-apip.test.threema.ch: -> HTTP 403
+https://work.threema.ch: -> 200 len=? type=text/html; charset=UTF-8
+https://ds-apip.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv -> HTTP 404
+https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO -> 200 len=? type=application/json; charset=utf-8
