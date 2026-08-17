@@ -1,5 +1,5 @@
-## 2026-08-17 02:08:08 UTC [web] (model nemotron3)
-[NEW] NO_DELTA — surface stable since 2026-08-17 00:36:57 UTC; all probes re-confirm existing findings (8-endpoint GET+text/plain mint cluster, 16-family crash matrix, 22-draw census convergence, check_license root-path crash+credential oracle, apip-work.threema.ch 4th hostname)
+## 2026-08-17 03:11:05 UTC [web] (model nemotron3)
+[NEW] NO_DELTA — surface stable since 2026-08-17 00:36:57 UTC; all probes re-confirm existing findings (8-endpoint GET+text/plain mint cluster, 16-family crash matrix, 22-draw census convergence, check_license root-path crash+credential oracle, apip-work.threema.ch 4th work alias)
 [PRIO] https://{ds-apip,api,apip}.threema.ch/identity/{match_token,revoke,set_featuremask,check_revocation_key,sfu_cred,blob_cred,update_work_info,fetch_priv}: 91 | attack_surface=10 business_value=9 tech_exposure=9 gate_ease=10 cloud_surface=5 freshness=10
 [PRIO] https://{ds-apip,api,apip}.threema.ch/identity/check_featuremask: 82 | attack_surface=9 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=9
 [PRIO] https://{ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 79 | attack_surface=8 business_value=8 tech_exposure=8 gate_ease=10 cloud_surface=4 freshness=9
@@ -15,15 +15,6 @@ evidence_needed: Browser-context proof that GET+text/plain with Origin header tr
 verify_steps: HUMAN: In DevTools console: fetch('https://ds-apip.threema.ch/identity/match_token',{method:'GET',headers:{'Content-Type':'text/plain'},body:'{"identity":"ECHOECHO"}'}) → expect 200/133B token + ACAO:* and NO OPTIONS entry; body:'{"identity":"ZZZZZZZZ"}' → 200/46B; crash body:'{"identity":{"x":1}}' → 500/0B; repeat on revoke + set_featuremask + fetch_priv; screenshot Network tab
 impact: Cross-origin identity enumeration without preflight — attacker can probe any identity from victim's browser, recover existence + per-request challenge token; enables targeted phishing, account linking, census at scale. CVSS 7.1 (AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:N/A:N)
 testability: HUMAN_ONLY
-[HYP] Unauthenticated census yielding live-active accounts with client-version fingerprinting
-class: IDOR
-asset: https://{ds-apip,api,apip}.threema.ch/identity/check_featuremask
-confidence: 85
-reasoning: 22 census draws at ~400k IDs/req yield 11 distinct live-active accounts (state:0, mask:2047) at density ~6.5e-6; type:1 Work-org signal weakened — 4 consecutive draws (19-22) added 0 type:1, distinct identities stays 2 (DZ34BVDV, VK24BPYV) in 2/22 draws; masks reflect live client capability enabling targeted phishing attribution; staging logic-identical/data-disjoint confirmed; zero 429 across all draws; CORS * + Allow-Methods + Allow-Headers on all responses; 524k-ID body-size cap (NOT count-cap)
-evidence_needed: PASSIVE — ≥2 additional 400k-ID draws to confirm type:1 density stabilizes or further weakens; cross-confirmation via /identity/check companion endpoint state/type discrimination
-verify_steps: PASSIVE — POST 400k random 8-char IDs (new seed 2026081700) to /identity/check_featuremask at ≤1 rps; POST hits to /identity/check for state/type/featureMask; tally live-active vs dormant ratio + type:1 count; ≥10min cooldown between draws
-impact: Unauthenticated census recovers live Threema identities with client-version fingerprinting. Upper-bound live population ~2e7 (density 6.5e-6 × 36^8 ≈ 2.2e8 space). Legacy-client subset (mask<2047) enables targeted phishing. type:1 Work-org signal now borderline, not firm class. CVSS 5.3 (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
-testability: PASSIVE
 [HYP] check_license preflight-free cross-origin crash DoS at root path
 class: MISCONFIG
 asset: https://{ds-apip,api,apip,ds-apip.test}.threema.ch/check_license
@@ -33,6 +24,15 @@ evidence_needed: Browser-context preflight-free crash proof; valid Work license 
 verify_steps: HUMAN: Browser-console GET+text/plain malformed version crash: fetch('https://ds-apip.threema.ch/check_license',{method:'GET',headers:{'Content-Type':'text/plain'},body:'{"version":{"x":1}}'}) → expect 500/0B with zero OPTIONS preflight; AUTH_HELPED: need valid Work license username/password for credential oracle success path
 impact: Cross-origin credential validation oracle (valid Work license = account takeover prerequisite) + preflight-free 4-host crash DoS; success-shape requires valid license. CVSS 6.5 (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L)
 testability: AUTH_HELPED
+[HYP] Unauthenticated census yielding live-active accounts with client-version fingerprinting
+class: IDOR
+asset: https://{ds-apip,api,apip}.threema.ch/identity/check_featuremask
+confidence: 85
+reasoning: 22 census draws at ~400k IDs/req yield 11 distinct live-active accounts (state:0, mask:2047) at density ~6.5e-6; type:1 Work-org signal weakened — 4 consecutive draws (19-22) added 0 type:1, distinct identities stays 2 (DZ34BVDV, VK24BPYV) in 2/22 draws; masks reflect live client capability enabling targeted phishing attribution; staging logic-identical/data-disjoint confirmed; zero 429 across all draws; CORS * + Allow-Methods + Allow-Headers on all responses; 524k-ID body-size cap (NOT count-cap)
+evidence_needed: PASSIVE — ≥2 additional 400k-ID draws to confirm type:1 density stabilizes or further weakens; cross-confirmation via /identity/check companion endpoint state/type discrimination
+verify_steps: PASSIVE — POST 400k random 8-char IDs (new seed 2026081700) to /identity/check_featuremask at ≤1 rps; POST hits to /identity/check for state/type/featureMask; tally live-active vs dormant ratio + type:1 count; ≥10min cooldown between draws
+impact: Unauthenticated census recovers live Threema identities with client-version fingerprinting. Upper-bound live population ~2e7 (density 6.5e-6 × 36^8 ≈ 2.2e8 space). Legacy-client subset (mask<2047) enables targeted phishing. type:1 Work-org signal now borderline, not firm class. CVSS 5.3 (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
+testability: PASSIVE
 [PARKED] check_license credential validation oracle component: requires AUTH_HELPED with valid Work license unobtainable under passive-first rules; crash DoS component survives but lower business impact without credential validation; keeping as secondary
 [FINAL] 1. Preflight-free cross-origin identity enumeration via GET+text/plain token-mint cluster (confidence 95, HUMAN_ONLY)
 [FINAL] 2. check_license preflight-free cross-origin crash DoS (confidence 90, HUMAN_ONLY) — credential oracle component parked
