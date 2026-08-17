@@ -1538,6 +1538,15 @@
 - 2026-08-17 ACCEPTED MISCONFIG @ crash family: 15 endpoint families × 4 hosts × GET+POST = 120 combos.
 - 2026-08-17 ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work directory hostname alias.
 - 2026-08-17 ACCEPTED @ shared-handler crash+token-mint convergence: /identity/match_token POST malformed → 500/0B with ACAO:* — same JSON handler mints tokens + crashes.
+- 2026-08-17 ACCEPTED MISCONFIG @ crash family: 15 endpoint families × 4 hosts × GET+POST = 120 combos, all 500/0B with ACAO:* + zero 429 + instant recovery
+- 2026-08-17 ACCEPTED IDOR @ /identity/create: 16th crash family member — POST {"publicKey":{"x":1}} → 500/0B on all 3 prod + staging; recovery to 200/133B; NOT a token-mint endpoint
+- 2026-08-17 REJECTED @ /identity/revoke?identity=ECHOECHO GET query-param: Returns 46B `{"success":false,"error":"Identity not found"}` universally — query-param NOT a token-mint vector; token-mint is POST-body-only. Resolves 20+ cycle KB contradiction (PARKED claims of GET query-param mint were false). Source path: POST text/plain body required.
+- 2026-08-17 CONFIRMED @ All 8 token-mint endpoints return identical constant tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=` (sha256 `c8005cca9…`) — proves single shared handler; per-request token variation confirmed (3 distinct tokens across 3 calls); text/plain CORS-safelisted → zero-preflight browser vector.
+- 2026-08-17 CONFIRMED @ /identity/create is crash-family member but DIFFERENT trigger: POST `{"publicKey":{"x":1}}` → 500/0B (object vs string), but POST `{"identity":{"x":1}}` → 200/46B (no crash). create does NOT mint tokens (GET+body `{"identity":"ECHOECHO"}` → 200/46B "Identity not found" without token).
+- 2026-08-17 CONFIRMED @ /identity/fetch_priv returns 88B error body `{"success":false,"errorType":"invalid-identity","error":"Identity not found or revoked"}` vs 46B `{"success":false,"error":"Identity not found"}` for other 7 endpoints — shared handler with per-endpoint error routing (revocation-aware vs basic not-found).
+- 2026-08-17 CONFIRMED @ apip-work.threema.ch = 4th work-directory hostname alias — resolves to 203.56.112.209 (same as ds-apip-work); OPTIONS→401 (auth-gated preflight unlike consumer hosts where OPTIONS→200); CORS `*` on 401 response; no HSTS/Expect-CT. Cross-origin probing blocked without work credentials.
+- 2026-08-17 CHANGED @ work.test.threema.ch /api-app/public/global/settings now captcha-gated (400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie) — previously returned 200/299B unauthenticated. Staging-prod divergence intact (prod→404) but staging no longer raw unauthenticated oracle.
+- 2026-08-17 CONFIRMED @ /check_license GET+text/plain crash is zero-preflight browser-viable: GET `{"version":{"x":1}}` → 500/0B + ACAO:* (same as crash family). Only crash family with OPTIONS→200 (browser probe path). RAG source path fetch-work.ts:47-59 confirms body schema.
 === INVENTORY gladia ===
 # Inventory: threema
 
