@@ -4804,3 +4804,11 @@
 - CHANGED Crash family matrix now 16 endpoint families × 4 hosts (3 prod + 1 staging) × GET+POST = 128 combos, all byte-stable 500/0B with ACAO:* + zero 429 + instant recovery
 - CHANGED Census draw 22 confirmed — 11th distinct live-active account (4SKAD72F, state:0, mask:2047) recovered; density converged ~6.5e-6 over 22 draws; zero 429; 3-host byte-stable parity
 - CHANGED type:1 Work-org fingerprint WEAKENED → 4 consecutive zero-type:1 draws (19-22, 1.6M IDs); 2 anomalous distinct in 2/22 draws (~0.5%); standalone class REJECTED
+
+## 2026-08-17 07:47:01 UTC
+- CHANGED apip-work.threema.ch confirmed as 4th work directory hostname alias (resolves to 203.56.112.209, same IP as ds-apip-work.threema.ch; byte-identical 401 + ACAO:* + no HSTS/Expect-CT on all paths)
+- CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos (match_token, revoke, set_featuremask, check_revocation_key, blob_cred, sfu_cred, update_work_inf
+- CHANGED Crash family matrix now 16 endpoint families × 4 hosts (3 prod + 1 staging) × GET+POST = 128 combos, all byte-stable 500/0B with ACAO:* + zero 429 + instant recovery
+- CHANGED Census draw 22 confirmed — 11th distinct live-active account (4SKAD72F, state:0, mask:2047) recovered; density converged ~6.5e-6 over 22 draws; zero 429; 3-host byte-stable parity
+- CHANGED type:1 Work-org fingerprint WEAKENED → 4 consecutive zero-type:1 draws (19-22, 1.6M IDs); 2 anomalous distinct in 2/22 draws (~0.5%); standalone class REJECTED
+- CHANGED Filesystem GROUND TRUTH re-verified: `poc/` ABSENT (22nd+ consecutive cycle, all KB sha256 claims DISPROVEN); `state_bigpickle.json` = `{"phase":"POC","target":"chat"}` (NOT "desktop"); `reposcan-raw/
