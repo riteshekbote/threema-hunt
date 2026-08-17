@@ -4977,3 +4977,9 @@
 - CHANGED Census draw 22 — 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
 - CHANGED shared-handler crash+token-mint convergence — /identity/match_token POST malformed → 500/0B with ACAO:* confirmed same handler (last leads had this as CONFIRMED but now re-verified)
 - CHANGED crypto.ts:223 benchmark password sha256 corrected to 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (stale KB 52a0af98… was wrong)
+
+## 2026-08-17 17:30:24 UTC
+- NEW None — latest probes (17:07:40 UTC) only re-confirm existing surface: ds-apip/identity/revoke GET query-param mint, 8-endpoint GET+text/plain mint cluster, 15-family crash matrix (120 combos), 22-draw
+- CHANGED work.test.threema.ch/api-app/public/global/settings — captcha error message now consistently "captcha_proof_expired" (was "captcha_proof_erred" at 16:12:00); still 400 + __HOST-HTTP-SESSIONID cookie +
+- CHANGED Crash family matrix corrected to 15 endpoint families (delete excluded 404) × 4 hosts × GET+POST = 120 combos; /identity/create confirmed as crash member (not token-mint).
+- CHANGED GET query-param mint on /identity/revoke?identity=ECHOECHO confirmed LIVE (200/133B) — resolves prior REJECTED/CONFIRMED contradiction.
