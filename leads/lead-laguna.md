@@ -22349,3 +22349,4 @@ testability: PASSIVE
 [RISK] safe: 76 — safe-{01,1a,1b,02,00}.threema.ch (5 hosts, single IP 203.56.112.231) expose credential-gated backup API (HTTP Basic Auth) with HSTS/Expect-CT header inconsistency (present on OPTIONS 204, absent on GET 400); route-existence oracle (400 vs 404); CORS * with Allow-Headers: Authorization enables credentialed cross-origin.
 [RISK] desktop-src: 55 — threema-desktop key-storage Windows ACL bypass (6-path RAG-verified chain on GitHub stable via WebFetch, PoC absent on filesystem for 23rd cycle — requires Windows runtime validation); BrowserWindow sandbox unset + nodeIntegrationInWorker: true (TODO DESK-79) formally rejected as standalone class (conditional RCE, 0 dynamic sinks); reposcan-raw local clone EMPTY (0 source files across 18 dirs), source verification remote-only.
 ## 2026-08-17 04:42:08 UTC [desktop] (model laguna)
+## 2026-08-17 05:20:36 UTC [desktop] (model laguna)
