@@ -22560,3 +22560,4 @@ testability: AUTH_HELPED
 [RISK] sync: 12 — mediator/rendezvous *.threema.ch uniform 403 on HTTPS; WSS requires auth; DNS split attributed; alternate port sweep closed; no passive in-band surface
 [RISK] safe: 76 — 5 hosts behind single IP 203.56.112.231, credential-gated backup API, HSTS/Expect-CT inconsistency, route-existence oracle, CORS * with Allow-Headers: Authorization
 [RISK] desktop-src: 55 — key-storage Windows ACL bypass (6-path RAG chain, PoC artifact never at filesystem ground truth); BrowserWindow sandbox gap; Windows runtime validation blocker persists
+## 2026-08-17 11:42:43 UTC [chat] (model bigpickle)
