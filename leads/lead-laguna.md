@@ -22957,3 +22957,4 @@ testability: AUTH_HELPED
 [RISK] desktop-src: 40 reason | 6-path RAG source chain verified on GitHub `stable` (fs.ts:41 `{}` on win32, key-storage writes without ACL, inner/v3.ts exposes ck+databaseKey, sqlite.ts:237-240 raw PRAGMA key); BrowserWindow sandbox unset (TODO DESK-79), L1240 comment incorrect; conditional RCE requires separate renderer exploit chain; no local source clone (reposcan-raw EMPTY)
 ## 2026-08-17 19:01:25 UTC [desktop] (model laguna)
 ## 2026-08-17 19:34:59 UTC [desktop] (model laguna)
+## 2026-08-17 19:53:37 UTC [desktop] (model laguna)
