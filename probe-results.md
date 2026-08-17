@@ -3043,3 +3043,17 @@ https://billing.threema.ch: -> 200 len=? type=text/html; charset=utf-8
 https://work.threema.ch: -> 200 len=? type=text/html; charset=UTF-8
 https://ds-apip.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv -> HTTP 404
 https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-17 12:28:41 UTC
+https://work.test.threema.ch/api-app/public/global/settings -> HTTP 400
+https://work.threema.ch/api-app/public/global/settings -> HTTP 404
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://safe-01.threema.ch/backups/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -> HTTP 400
+https://broadcast.threema.ch/api/v1 -> HTTP 401
+https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/revoke?identity=ZZZZZZZZ -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/aaaa...aaaa -> HTTP 400
+https://safe-01.threema.ch/backup/x -> HTTP 404
+https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
