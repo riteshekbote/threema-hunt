@@ -4779,3 +4779,6 @@
 - CHANGED Crash family matrix now 16 endpoint families × 4 hosts (3 prod + 1 staging) × GET+POST = 128 combos, all byte-stable 500/0B with ACAO:* + zero 429 + instant recovery
 - CHANGED type:1 Work-org fingerprint WEAKENED → 4 consecutive zero-type:1 draws (19-22, 1.6M IDs); 2 distinct in 2/22 draws; standalone class REJECTED
 - CHANGED Filesystem GROUND TRUTH re-verified — poc/ ABSENT (22nd+ cycle); state_bigpickle.json = {"phase":"POC","target":"chat"}; reposcan-raw/threema-ch/ EMPTY
+
+## 2026-08-17 02:12:35 UTC
+- NEW NO_DELTA — surface stable since 2026-08-17 00:36:57 UTC; all probes re-confirm existing findings (8-endpoint GET+text/plain mint cluster, 16-family crash matrix, 22-draw census convergence, check_lice
