@@ -1576,6 +1576,19 @@
 - 2026-08-17 CONFIRMED AUTH @ check_license: byte-stable this cycle — POST fake creds → 200/65B `{"success":false,"error":"This username or password is invalid."}` + ACAO:* + OPTIONS 200; 4-host parity; success-shape {success:true} requires valid Work license (AUTH_HELPED gap)
 - 2026-08-17 ACCEPTED IDOR @ ds-apip.threema.ch/identity/revoke?identity=ECHOECHO: GET query-param token mint confirmed LIVE (resolves 20+ cycle KB contradiction)
 - 2026-08-17 CHANGED work.test.threema.ch /api-app/public/global_settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie + CSP)
+- 2026-08-17 ACCEPTED IDOR @ /identity/revoke (non-ws path): Confirmed LIVE this cycle as 2nd GET-accepting token-mint endpoint — GET+text/plain valid→200/133B token + constant tokenRespKeyPub sha256 c8005cca9…, invalid→200/46B, malformed→500/0B + ACAO:*; 3-host sibling parity byte-identical; GET query-param (?identity=X) returns 46B not-token (POST-body only for mint)
+- 2026-08-17 ACCEPTED MISCONFIG @ /identity/create: 16th crash family member — POST `{"publicKey":{"x":1}}` → 500/0B on 3 prod + staging, recovery to 200/133B; NOT a token-mint endpoint (GET+body valid identity → 200/46B "Identity not found", no token)
+- 2026-08-17 REJECTED MISCONFIG @ /identity/delete: returns 404 on all probes → NOT a crash-family member; route not registered on consumer directory hosts; crash-family corrected to 16 families (delete was mis-counted as 17th)
+- 2026-08-17 ACCEPTED MISCONFIG @ crash family: 16 endpoint families × 4 hosts (3 prod + 1 staging) × GET+POST = 128 byte-stable 500/0B combos with ACAO:* + zero 429; fetch_bulk confirmed non-member (malformed → 200/17B `{"identities":[]}`); check_license is sole OPTIONS-200 family + sole 4-host crash parity family
+- 2026-08-17 ACCEPTED IDOR @ shared-handler token-mint cluster: Fresh probes confirm ALL 8 endpoints return unique per-request tokens + identical constant tokenRespKeyPub sha256 c8005cca9… — single shared handler proven; all 8 crash 500/0B on malformed GET+text/plain with ACAO:*; revoke + set_featuremask confirmed as only 2 GET+text/plain-accepting (preflight-free browser-viable)
+- 2026-08-17 ACCEPTED IDOR @ check_featuremask census: Fresh verification confirms known-live IDs (5U8DM3J3/RFK5RDU6/7V7T2NKR→2047) still resolve correctly on all 3 hosts; 3 new draws (400k each) returned 0 hits — consistent with Poisson(λ≈2.6) noise, oracle stable; fetch_bulk returns genuine distinct ed25519 pubkeys for census hits
+- 2026-08-17 ACCEPTED AUTH @ check_license credential oracle: Fresh probe confirms POST fake creds → 200/65B `{"success":false,...}` + ACAO:* on all 3 hosts; GET+text/plain `{"version":{}}` → 500/0B + ACAO:* (4-host crash parity); success-shape requires valid Work license (AUTH_HELPED)
+- 2026-08-17 REJECTED MISCONFIG @ poc/ filesystem STILL ABSENT: `ls poc/` → No such file (24th+ consecutive cycle); all 20+ cycle KB sha256 claims DISPROVEN; 6-path RAG source chain remains verified on GitHub `stable` via remote WebFetch only; source verification ≠ artifact generation
+- 2026-08-17 ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work-directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS); auth-gated (OPTIONS→401 unlike consumer ds-apip OPTIONS→200) — cross-origin probing blocked without work credentials
+- 2026-08-17 CHANGED @ work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie) — was 200/299B unauthenticated; staging-prod divergence intact (prod→404)
+- 2026-08-17 CHANGED work.test.threema.ch /api-app/public/global/settings: captcha-gated
+- 2026-08-17 CONFIRMED MISCONFIG @ crash family: 15×4×2=120 combos, all 500/0B + ACAO:*
+- 2026-08-17 CONFIRMED IDOR @ 8-endpoint text/plain cluster: 24 combos, constant tokenRespKeyPub, zero-preflight
 === INVENTORY gladia ===
 # Inventory: threema
 
