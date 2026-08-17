@@ -9059,3 +9059,31 @@
 - LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws — not structural.
 - LEARN: ACCEPTED MISCONFIG @ crash family: 15 endpoint families × 4 hosts × GET+POST = 120 combos.
 - LEARN: ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work directory hostname alias.
+
+## RANKED HYPOTHESES 2026-08-17 15:41:16 UTC
+- [95] https://{ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv}: GET query-param identity-existence oracle cluster-wide confirmation (from reports/hypotheses-bigpickle.txt)
+- [92] https://{ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv}: Directory server shared-handler crash DoS + cross-origin identity-existence oracle (from reports/hypotheses-laguna.txt)
+- [92] https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO: GET query-param identity mint on /identity/revoke (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO -H "Accept: application/json" → verify 200/133B token + tokenRespKeyPub; GET ?identity=Z
+- NEXT(hypotheses-laguna.txt): PROBE: POST text/plain `{"identity":"ECHOECHO"}` -H "Origin: https://evil.example" to https://ds-apip.threema.ch/identity/fetch_priv → verify 200/134B token + A
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://ds-apip.threema.ch/identity/match_token?identity=ECHOECHO -H "Origin: https://evil.example" → verify 200/133B + ACAO:*; GET ?identity=ZZZZZZZ
+- LEARN: ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke: GET query-param mint confirmed LIVE (distinct from /identity/ws/revoke 404) — 11th token-mint ide
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/identity/create: 16th crash family member confirmed (POST malformed publicKey → 500/0B on all 4 
+- LEARN: ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS)
+- LEARN: REJECTED MISCONFIG @ /identity/delete: returns 404 on all probes — NOT a crash-family member; crash-family count corrected 16→15
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws — not structural, insufficient for class
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 corrected to 400c7846…; confirmed benchmark-only dummy, purged at L233
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 23rd+ cycle; all KB sha256 claims DISPROVEN
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json: filesystem = {"phase":"POC","target":"chat"} — KB desktop-target claims stale
+- LEARN: REJECTED MISCONFIG @ reposcan-raw/threema-ch/ local clone: 18 repo dirs ALL EMPTY — all RAG evidence remote-only via WebFetch
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: 404 has NO CORS headers, key NOT in threema-desktop source
+- LEARN: ACCEPTED MISCONFIG @ crash family: 15 endpoint families (delete excluded) × 4 hosts × GET+POST = 120 combos, all 500/0B with ACAO:* + zero 429 + instant recover
+- LEARN: ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work directory hostname alias (203.56.112.209, byte-identical 401+ACAO:*+no HSTS); auth-gated (OPTIONS→401 unlike
+- LEARN: CONFIRMED @ /identity/revoke GET query-param mint: GET ?identity=ECHOECHO → 200/133B token — GET query-param mint LIVE.
+- LEARN: ACCEPTED @ shared-handler crash+token-mint convergence: /identity/match_token POST malformed → 500/0B with ACAO:* — same JSON handler mints tokens + crashes.
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 23rd+ cycle; all KB sha256 claims DISPROVEN.
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json: filesystem = {"target":"chat"} — KB desktop-target claims stale.
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password confirmed benchmark-only dummy, purged at L233.
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox: conditional RCE requires separate renderer exploit chain, surface accepted as hardening gap only.
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: PERMANENTLY DOWNGRADED — no CORS on 404, key not in source.
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws — not structural.
