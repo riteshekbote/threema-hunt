@@ -3057,3 +3057,10 @@ https://safe-01.threema.ch/backups/aaaa...aaaa -> HTTP 400
 https://safe-01.threema.ch/backup/x -> HTTP 404
 https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+
+## 2026-08-17 13:09:31 UTC
+https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://apip-work.threema.ch -> HTTP 401
+https://apip-work.threema.ch/identities -> HTTP 401
+https://work.test.threema.ch/api-app/public/global/settings -> HTTP 400
+https://work.threema.ch/api-app/public/global/settings -> HTTP 404
