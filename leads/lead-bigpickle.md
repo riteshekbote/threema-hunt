@@ -22125,3 +22125,4 @@ testability: AUTH_HELPED
 [RISK] sync: 12 — mediator/rendezvous-*.threema.ch return uniform 403 on HTTPS; WSS requires authenticated login frame; DNS split routing fully attributed; alternate port sweep all closed; no passive in-band surface
 [RISK] safe: 76 — 5 hosts behind single IP, credential-gated backup API (HTTP Basic Auth), HSTS/Expect-CT header inconsistency (present on OPTIONS 204, absent on GET 400), route-existence oracle (400 vs 404), CORS `*` with Allow-Headers: Authorization
 [RISK] desktop-src: 55 — key-storage Windows ACL bypass (6-path RAG chain, PoC artifact never authored at filesystem ground truth), BrowserWindow sandbox hardening gap; Windows runtime validation blocker persists
+## 2026-08-17 04:49:34 UTC [chat] (model bigpickle)
