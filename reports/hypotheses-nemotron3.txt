@@ -1,7 +1,7 @@
-## 2026-08-17 13:08:58 UTC [web] (model nemotron3)
-[NEW] apip-work.threema.ch confirmed as 4th work directory hostname alias (resolves 203.56.112.209, byte-identical 401 + ACAO:* + no HSTS/Expect-CT)
-[NEW] /identity/create confirmed as 16th crash family member (POST malformed publicKey → 500/0B on 3 prod + staging, 5x burst @0.5s all 500 no 429)
-[NEW] ds-apip.threema.ch/identity/revoke?identity=ECHOECHO → 200 application/json (GET query-param token mint confirmed LIVE)
+## 2026-08-17 14:15:11 UTC [web] (model nemotron3)
+[NEW] ds-apip.threema.ch/identity/revoke?identity=ECHOECHO — GET query-param token mint confirmed LIVE (distinct from /identity/ws/revoke 404)
+[NEW] apip-work.threema.ch — 4th work directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS)
+[NEW] /identity/create — 16th crash family member confirmed (POST malformed publicKey → 500/0B on 3 prod + staging)
 [CHANGED] GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos
 [CHANGED] Crash family matrix: 16 endpoint families × 4 hosts (3 prod + 1 staging) × GET+POST = 128 combos, all 500/0B with ACAO:*
 [CHANGED] Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
@@ -12,8 +12,7 @@
 [CHANGED] BrowserWindow sandbox re-verified via WebFetch: sandbox UNSET (TODO DESK-79), L1240 comment incorrect
 [CHANGED] crypto.ts:223 benchmark password sha256 corrected: 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (stale KB 52a0af98… WRONG)
 [CHANGED] Filesystem GROUND TRUTH: poc/ ABSENT 23rd+ cycle; state_bigpickle.json = {"phase":"POC","target":"chat"}; reposcan-raw 18 dirs EMPTY
-[PRIO] ds-apip.threema.ch/identity/revoke (query-param), 8.8, attack:9, business:8, tech:9, gate:10, cloud:8, fresh:9
-[PRIO] ds-apip.threema.ch/identity/revoke (GET+text/plain body), 8.5, attack:9, business:8, tech:8, gate:10, cloud:8, fresh:8
+[PRIO] ds-apip.threema.ch/identity/revoke?identity=ECHOECHO, 8.8, attack:9, business:8, tech:9, gate:10, cloud:8, fresh:9
 [PRIO] apip-work.threema.ch (work directory auth-gated entry), 7.2, attack:7, business:8, tech:6, gate:4, cloud:7, fresh:9
 [PRIO] safe-01.threema.ch/backups/{64hex} (credential-gated backup API), 7.5, attack:8, business:7, tech:6, gate:6, cloud:7, fresh:8
 [PRIO] work.test.threema.ch/api-app/public/global/settings (staging-only public endpoint), 7.1, attack:8, business:6, tech:5, gate:10, cloud:6, fresh:8
@@ -26,7 +25,7 @@ asset: https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO
 confidence: 92
 reasoning: Fresh probe confirmed GET ?identity=ECHOECHO returns 200 application/json with token + constant tokenRespKeyPub sha256 c8005cca9…; invalid identity → 200/46B "Identity not found"; case-fold amplification (echoecho≡ECHOECHO); 3-host parity byte-stable; OPTIONS 200 CORS * browser-viable; distinct from prior /identity/ws/revoke 404 path
 evidence_needed: Verify GET query-param mint works on api.threema.ch + apip.threema.ch (sibling parity); confirm no rate-limit on GET variant; validate tokenRespKeyPub constant across all 3 hosts
-verify_steps: PASSIVE — GET https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO → 200/133B token; GET ?identity=ZZZZZZZZ → 200/46B; GET ?identity=echoecho → 200/133B (case-fold); repeat on api.threema.ch + apip.threema.ch; OPTIONS on all 3 for CORS
+verify_steps: PASSIVE — GET https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO → 200/133B token; GET ?identity=ZZZZZZZZ → 200/46B; GET ?identity=echoecho → 200/133B (case-fold); repeat on api.threema.ch + apip.threema.ch; OPTIONS on all 3 for CORS headers
 impact: Preflight-free cross-origin identity existence oracle via simple GET (browser-viable, zero-preflight); enables mass enumeration from any origin; CVSS 5.3 (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
 testability: PASSIVE
 [HYP] apip-work.threema.ch auth-gated work directory with CORS but no browser preflight path
@@ -51,8 +50,8 @@ testability: PASSIVE
 [PARKED] crypto.ts:223 benchmark password: REJECTED class in KB; confirmed benchmark-only dummy, purged at L233; distinct from key-storage ACL bypass
 [PARKED] Desktop BrowserWindow sandbox+nodeIntegrationInWorker: REJECTED class in KB; conditional RCE requires separate renderer exploit chain, 0 dynamic sinks; surface accepted as hardening gap only
 [FINAL] GET query-param identity mint on /identity/revoke (IDOR, confidence 92, PASSIVE)
-[FINAL] apip-work.threema.ch auth-gated work directory with CORS but no browser preflight path (MISCONFIG, confidence 78, AUTH_HELPED)
 [FINAL] Staging-only public API endpoint on work.test.threema.ch (IDOR, confidence 82, PASSIVE)
+[FINAL] apip-work.threema.ch auth-gated work directory with CORS but no browser preflight path (MISCONFIG, confidence 78, AUTH_HELPED)
 [NEXT] PROBE: GET https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO -H "Accept: application/json" → verify 200/133B token + tokenRespKeyPub; GET ?identity=ZZZZZZZZ → 200/46B; GET ?identity=echoecho → 200/133B (case-fold); repeat on api.threema.ch + apip.threema.ch for sibling parity; OPTIONS on all 3 for CORS headers
 [LEARN] ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke: GET query-param mint confirmed LIVE (distinct from /identity/ws/revoke 404) — 11th token-mint identity-existence oracle
 [LEARN] ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/identity/create: 16th crash family member confirmed (POST malformed publicKey → 500/0B on all 4 hosts)

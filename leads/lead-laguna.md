@@ -22637,3 +22637,4 @@ testability: PASSIVE
 [RISK] safe: 76 — 5 hosts/1 IP (203.56.112.231), credential-gated backup API (HTTP Basic Auth backupId:backupKey) with HSTS/Expect-CT header inconsistency (OPTIONS 204 has full headers, GET 400 has ONLY ACAO `*` + Allow-Headers: Authorization); route-existence oracle (400 vs 404); credentialed cross-origin CORS. Byte-stable.
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (6-path RAG-verified on GitHub stable via WebFetch, but PoC artifact absent at filesystem for 22+ cycles, mis-targeted per state={target:chat}); BrowserWindow sandbox gap rejected as standalone (conditional RCE requires separate renderer exploit chain, 0 dynamic sinks in worker/ tree); OnPrem config trust rejected; crypto.ts:223 benchmark password rejected; reposcan-raw local clone EMPTY (0 source files).
 ## 2026-08-17 13:06:48 UTC [desktop] (model laguna)
+## 2026-08-17 14:14:27 UTC [desktop] (model laguna)
