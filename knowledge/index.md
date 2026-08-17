@@ -1565,3 +1565,4 @@
 - 2026-08-17 CONFIRMED IDOR @ 8-endpoint GET+text/plain mint cluster: 24 byte-stable combos, constant tokenRespKeyPub sha256 c8005cca9…, zero-preflight browser-viable
 - 2026-08-17 REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws (1.6M+ IDs), not structural class
 - 2026-08-17 REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 24th+ cycle; source verification ≠ artifact generation
+- 2026-08-17 CHANGED work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie + CSP) — was 200/299B unauthenticated; staging-prod divergence intact (prod→404) but staging no longer raw unauthenticated oracle
