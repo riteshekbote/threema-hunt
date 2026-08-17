@@ -1,42 +1,4 @@
-## 2026-08-17 11:41:57 UTC [desktop] (model laguna)
-[CHANGED] /identity/delete confirmed 404 on all probes (POST `{"identity":{"x":1}}` + valid) → not a live route on consumer directory hosts; crash-family member count corrected 16→15.
-[CHANGED] apip-work.threema.ch confirmed as 4th work-directory hostname alias (OPTIONS+GET → 401 + ACAO `*`, no HSTS/Expect-CT; resolves to 203.56.112.209 same as ds-apip-work.threema.ch) — auth-gated (OPTIONS→401 unlike consumer ds-apip OPTIONS→200).
-[HYP] Directory server unauthenticated crash DoS + identity-existence oracle via shared JSON handler
-class: MISCONFIG
-asset: {ds-apip,api,apip,ds-apip.test}.threema.ch/identity/{create,match,match_token,revoke,set_featuremask,fetch_priv,fetch_bulk,check,check_featuremask,check_revocation_key,sfu_cred,blob_cred,update_work_info}
-confidence: 98
-reasoning: 15 endpoint families accept POST application/json; malformed object inputs ({"identity":{"x":1}},{"publicKey":{"x":1}},{"version":{}}) return 500/0B with ACAO `*` on all 3 prod + staging; 5x burst @500ms all 500, zero 429; instant recovery; 8 endpoints accept GET+text/plain (CORS-safelisted) minting 200/133B token for valid IDs (200/46B invalid); all share constant tokenRespKeyPub sha256 `c8005cca9...`. Fresh probes confirm match_token POST `{"identity":{"x":1}}` → 500/0B, create/revoke/check_license/check_revocation_key/check_featuremask/check → all 500/0B.
-evidence_needed: ACAO `*` on every 500; zero 429 across 15+ burst probes; constant tokenRespKeyPub (`6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=`) across all 8 mint endpoints; GET+text/plain yields valid token with zero OPTIONS preflight.
-verify_steps: PASSIVE — (1) POST `{"identity":{"x":1}}` to https://ds-apip.threema.ch/identity/match_token → 500/0B + ACAO `*`; (2) GET text/plain `{"identity":"ECHOECHO"}` to /identity/revoke → 200/133B token; (3) POST `{"version":{}}` to https://ds-apip.threema.ch/check_license → 500/0B (4-host parity incl apip-work); (4) repeat (1)+(2) on api.threema.ch + apip.threema.ch to confirm sibling parity.
-impact: Unauthenticated DoS + cross-origin-amplified identity-existence census of 36^8 ID space; 11 live-active accounts recovered via check_featuremask census at ~6.5e-6 density. Severity: HIGH (CVSS ~7.5).
-testability: PASSIVE
-[HYP] 8-endpoint GET+text/plain token-mint identity-existence oracle (zero preflight)
-class: IDOR
-asset: {ds-apip,api,apip}.threema.ch/identity/{match_token,revoke,set_featuremask,check_revocation_key,sfu_cred,blob_cred,update_work_info,fetch_priv}
-confidence: 95
-reasoning: All 8 endpoints accept GET with Content-Type: text/plain (CORS-safelisted → no preflight); valid identity → 200/133-136B token + constant tokenRespKeyPub; invalid → 200/46B (fetch_priv → 88B); 3-host sibling parity byte-identical; GET no-body → 200/46B; shared-handler signature uniform. Fresh probes confirm all 8/8 return distinct valid/invalid differentials on ds-apip, with sibling parity on api+apip.
-evidence_needed: Cross-origin GET+text/plain with Origin:evil.example yields 200 token for valid census-recovered identity; confirm zero OPTIONS preflight by raw HTTP measurement; tokenRespKeyPub byte-identical across all 8 endpoints.
-verify_steps: PASSIVE — GET with text/plain body `{"identity":"5U8DM3J3"}` + header `Origin: https://evil.example` to https://ds-apip.threema.ch/identity/match_token → expect 200/133B token + ACAO `*` + zero OPTIONS preflight fired; repeat on /revoke + /set_featuremask.
-impact: Universal identity-existence oracle — enumerate Threema IDs from any malicious website via drive-by GET with zero preflight, no auth. Severity: HIGH (CVSS ~7.5).
-testability: PASSIVE
-[HYP] Safe backup API HSTS/Expect-CT header inconsistency on credentialed error responses
-class: MISCONFIG
-asset: {safe-{01,1a,1b,02,00}}.threema.ch/backups/{64hex}
-confidence: 76
-reasoning: 5 hostnames resolve to single IP 203.56.112.231; OPTIONS 204 preflight carries full HSTS+Expect-CT+ACAO `*`, but GET 400 (credential-gated error path) returns ONLY ACAO `*` + Allow-Methods + Allow-Headers: Authorization with NO HSTS/Expect-CT; HTTP Basic Auth (backupId:backupKey) confirmed; route-existence oracle (400 vs 404) stable.
-evidence_needed: GET 400 response headers missing HSTS/Expect-CT while OPTIONS 204 has them; Basic-Auth challenge pattern stable across all 5 hosts.
-verify_steps: PASSIVE — OPTIONS https://safe-01.threema.ch/backups/aaaa...aaaa -H "Origin: https://evil.example" → 204 + HSTS; GET same → 400 + NO HSTS + ACAO `*`.
-impact: Weakened transport-security enforcement on credentialed cross-origin backup API (credentialed CORS + Basic Auth exposure window if MITM); route-existence oracle. Severity: MEDIUM (CVSS ~5.3).
-testability: PASSIVE
-[PARKED] threema-desktop Windows key-storage ACL bypass: 6-path RAG chain verified on GitHub `stable` (fs.ts:41->{}, index.ts:_writeOrOverrideFile, electron-main.ts:944-945 STORE, inner/v3.ts:65-70 exposes ck+databaseKey, sqlite.ts:237-240 raw PRAGMA key); poc/ STILL ABSENT at filesystem ground truth (23rd+ cycle; all KB sha256 claims disproven); state_bigpickle.json = `{"target":"chat"}` (NOT desktop) — not my assigned surface.
-[FINAL] 1. Directory server crash DoS + identity-existence oracle via shared JSON handler (confidence 98, PASSIVE)
-[FINAL] 2. 8-endpoint GET+text/plain token-mint identity-existence oracle (zero preflight) (confidence 95, PASSIVE)
-[FINAL] 3. Safe backup API HSTS/Expect-CT header inconsistency on credentialed error responses (confidence 76, PASSIVE)
-[NEXT] PROBE: PASSIVE census draw 23 — POST 400k random 8-char IDs (seed 2026081701) to https://ds-apip.threema.ch/identity/check_featuremask at ≤1 rps, batch format `{"identities":[...]}`; confirm density stability ~6.5e-6, zero 429, tri-state oracle, GET→500 POST-only behavior (not regression), 3-host sibling parity (api+apip) via follow-up POST of confirmed hits. Python urllib.
-[LEARN] REJECTED MISCONFIG @ /identity/delete: returns 404 on POST `{"identity":{"x":1}}` and valid identity POST — NOT a crash-family member; route not registered on consumer directory hosts; crash-family corrected to 15 endpoint families (delete was mis-counted).
-[LEARN] ACCEPTED @ apip-work.threema.ch: confirmed as 4th work-directory hostname alias (OPTIONS+GET → 401 + ACAO `*`, no HSTS/Expect-CT; 203.56.112.209 same as ds-apip-work); auth-gated (OPTIONS→401 unlike consumer ds-apip→200) — cross-origin probing blocked without work credentials.
-[LEARN] ACCEPTED @ shared-handler crash+token-mint convergence: /identity/match_token POST `{"identity":{"x":1}}` → 500/0B with ACAO `*` — same JSON handler both mints tokens (200/133B valid) and crashes (500/0B malformed).
-[LEARN] REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree); sandbox unset (TODO DESK-79), L1240 comment "sandboxing is enabled by default" incorrect per Electron docs — surface accepted as hardening gap only, stale across 23 cycles.
+## 2026-08-17 12:06:07 UTC [desktop] (model laguna)
 [LEARN] REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c7846…` confirmed benchmark-only dummy in `determineKdfParams()`, purged at L233 — not used for real encryption (stale across 23 cycles).
 [LEARN] REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT for 23rd+ consecutive cycle; all KB sha256 claims DISPROVEN; RAG source verification ≠ artifact generation.
 [LEARN] REJECTED MISCONFIG @ state_bigpickle.json KB `{"target":"desktop"}`: filesystem GROUND TRUTH = `{"target":"chat"}` — KB desktop-target claims stale.
