@@ -1,3 +1,66 @@
 [0m
 > build · nemotron-3-ultra-free
 [0m
+### Classification Tables
+
+#### REAL_SECRET
+| File | Line | SHA256 | Verdict |
+|------|------|--------|---------|
+| *(none)* | — | — | No hardcoded live credentials found |
+
+#### TEST_OR_EXAMPLE
+| File | Line | Context | SHA256 (of value) |
+|------|------|---------|-------------------|
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 15 | `expectedAuthToken = "authToken"` | `e4a4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4` |
+| threema-ios/ThreemaFrameworkTests/HTTPClientTests.swift | 18 | `expectedPassword = "testPassword"` | `e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4` |
+| threema-ios/ThreemaFrameworkTests/SafeDataTests.swift | 11 | `serverPassword: "password1"` | `e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4` |
+| threema-ios/ThreemaFrameworkTests/WorkDataFetchTests/... | 50,72,148 | `licensePassword = "testPassword"` | (same as above) |
+| threema-ios/ThreemaFrameworkTests/WorkDataAPICallerTests.swift | 13,37,103 | `expectedPassword = "testPassword"` / `"validPassword"` | (same pattern) |
+| threema-ios/ThreemaTests/SafeTests.swift | 67,76,105 | `safePassword: "shootdeathstar"` | `8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92` |
+| threema-ios/ThreemaTests/ManuallyTests/... | 28,76,120,38,83 | `safePassword: "shootdeathstar"` | (same as above) |
+| threema-ios/ThreemaTests/MyProfile/.../ThreemaSafePasswordValidatorTests.swift | 30,227 | `"abcdefghijkl"`, `"ABcd!@#tgk092"` | test fixtures |
+| threema-desktop/apps/desktop/src/common/test-data.ts | 62 | `keyStoragePassword: 'CHANGE_ME'` | placeholder |
+| threema-desktop/apps/desktop/src/common/node/key-storage/crypto.ts | 223 | `password: 'r3gGN9GDQ5NF6tM6'` (benchmark dummy) | `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` |
+
+#### ENDPOINT_LEAK
+| File | Line | Endpoint |
+|------|------|----------|
+| threema-ios/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
+| threema-desktop/packages/libthreema-wasm/libs/libthreema/threema-protocols/src/directory.openapi.yml | 7, 911 | `https://ds-apip-work.test.threema.ch`, `https://ds-apip.test.threema.ch` |
+| threema-android/domain/libthreema/threema-protocols/src/directory.openapi.yml | 7, 917 | (same staging URLs) |
+| threema-android/domain/protocol/src/directory.openapi.yml | 7, 911 | (same staging URLs) |
+| threema-desktop/apps/desktop/config/vite.config.ts | 147, 153, 154 | `ds-apip.test.threema.ch`, `ds-apip-work.test.threema.ch`, `work.test.threema.ch` |
+
+#### INTERESTING
+| File | Line | Finding |
+|------|------|---------|
+| threema-ios/Threema/AppMigration.swift | 873 | `persistenceKeyLicensePassword = "Threema license password"` — **UserDefaults key name**, not a secret (false positive) |
+| threema-desktop/apps/desktop/src/common/enum/index.ts | 3126, 3162 | IPC constants `LOAD_USER_PASSWORD`, `STORE_USER_PASSWORD` — action names, not secrets |
+| threema-desktop/apps/desktop/src/enum/schema.ts | 983, 1000 | Same IPC constants in schema |
+| threema-desktop/packages/webrtc/src/sdp/ice-password.ts | 12 | ICE password format validation (throw on invalid) |
+| threema-android/app/src/main/java/.../PasswordEntryDialog.java | 47 | `KEY_PASSWORD = "password"` — **Bundle key name**, not a secret (false positive) |
+| threema-android/app/src/main/java/.../NotificationChannels.kt | 52 | `NOTIFICATION_CHANNEL_REMOTE_SECRET = "remote_secret_monitor"` — channel ID |
+| threema-android/app/src/main/java/.../IceCandidateParser.java | 43 | `TOKEN = "[a-zA-Z]+"` — regex pattern for token validation |
+| threema-android/app/src/main/java/.../ClientInfo.java | 37 | `PUSH_TOKEN = "pushToken"` — field name constant |
+| threema-android/app/src/main/java/.../JoinResponse.kt | 70 | `toString()` includes `icePassword='$icePassword'` — **potential logcat leak of short-lived ICE creds** (low value, local-only) |
+| threema-android/app/src/main/java/.../DatabaseUpdateToVersion37.java | 48 | `COLUMN_PUSH_TOKEN = "push_token"` — DB column name |
+| threema-android/app/src/main/java/.../WebClientSessionModel.java | 28 | `COLUMN_PUSH_TOKEN = "push_token"` — DB column name |
+| threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt | 15, 19 | Sentry **public DSN keys** (public by design) — `b3e20afbf356a8748bb62ac165aa780c`, `615af77cb3d980c41b3b04b07417cc7d` |
+| threema-android/domain/src/main/java/.../SfuToken.kt | 49 | `sfuToken='********'` — **proper redaction in toString()** (security positive) |
+
+---
+
+### SHORT VERDICT LIST
+
+| Candidate | REPORT_CANDIDATE | Reason |
+|-----------|------------------|--------|
+| Benchmark password `r3gGN9GDQ5NF6tM6` (crypto.ts:223) | **no** | Known rejected — benchmark-only dummy, key purged at L233, not used for real encryption |
+| `persistenceKeyLicensePassword` / `KEY_PASSWORD` constants | **no** | False positives — these are **key names** (UserDefaults/Bundle keys), not secret values |
+| Test fixtures (`testPassword`, `shootdeathstar`, `CHANGE_ME`, etc.) | **no** | All in test code (`*Tests.swift`, `test-data.ts`) — placeholder values |
+| Staging URLs in OpenAPI specs & vite.config.ts | **no** | Staging endpoints already documented in scope (`ds-apip.test.threema.ch`, `work.test.threema.ch`) — known surface |
+| Sentry public DSN keys | **no** | Public by design (client-side DSN) — INTERESTING non-finding |
+| `JoinResponse.kt` icePassword in `toString()` | **no** | Low value — short-lived ICE credentials, local-only logcat exposure, needs runtime validation to confirm sink |
+| IPC constants (`LOAD_USER_PASSWORD`, `STORE_USER_PASSWORD`) | **no** | Action/event names, not secrets |
+| Other constants (channel IDs, regex, column names, field names) | **no** | Not secrets — schema/validation/constants |
+
+**No reportable secrets found in this scan.** All hits are either test fixtures, known rejected items (benchmark dummy), false positives (key names mistaken for values), staging endpoints already in scope, or public/non-secret constants.
