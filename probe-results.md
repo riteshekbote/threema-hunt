@@ -3228,3 +3228,10 @@ https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO -> 200 len=? type=a
 https://ds-apip.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv -> HTTP 404
 https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
 https://safe-01.threema.ch/backups/invalid64hex -> HTTP 400
+
+## 2026-08-17 21:11:09 UTC
+https://ds-apip.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv -> HTTP 404
+https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
