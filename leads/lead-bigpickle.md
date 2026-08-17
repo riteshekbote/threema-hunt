@@ -22615,3 +22615,4 @@ testability: AUTH_HELPED
 [RISK] safe: 76 | 5 hosts behind single IP 203.56.112.231, credential-gated backup API, HSTS/Expect-CT inconsistency, route-existence oracle, CORS * with Allow-Headers: Authorization
 [RISK] desktop-src: 55 | key-storage Windows ACL bypass (6-path RAG chain, PoC artifact never at filesystem ground truth); BrowserWindow sandbox gap; Windows runtime validation blocker persists
 ## 2026-08-17 13:09:13 UTC [chat] (model bigpickle)
+## 2026-08-17 14:18:36 UTC [chat] (model bigpickle)

@@ -3064,3 +3064,10 @@ https://apip-work.threema.ch -> HTTP 401
 https://apip-work.threema.ch/identities -> HTTP 401
 https://work.test.threema.ch/api-app/public/global/settings -> HTTP 400
 https://work.threema.ch/api-app/public/global/settings -> HTTP 404
+
+## 2026-08-17 14:18:53 UTC
+https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://apip-work.threema.ch -> HTTP 401
+https://apip-work.threema.ch/identities -> HTTP 401
+https://work.test.threema.ch/api-app/public/global/settings -> HTTP 400
+https://work.threema.ch/api-app/public/global/settings -> HTTP 404

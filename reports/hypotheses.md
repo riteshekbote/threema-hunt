@@ -9018,3 +9018,17 @@
 - LEARN: REJECTED MISCONFIG @ state_bigpickle.json: filesystem = {"phase":"POC","target":"chat"} — KB desktop-target claims stale
 - LEARN: REJECTED MISCONFIG @ reposcan-raw/threema-ch/ local clone: 18 repo dirs ALL EMPTY — all RAG evidence remote-only via WebFetch
 - LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: 404 has NO CORS headers, key NOT in threema-desktop source
+
+## RANKED HYPOTHESES 2026-08-17 14:18:50 UTC
+- [92] https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO: GET query-param identity mint on /identity/revoke (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://ds-apip.threema.ch/identity/revoke?identity=ECHOECHO -H "Accept: application/json" → verify 200/133B token + tokenRespKeyPub; GET ?identity=Z
+- LEARN: ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke: GET query-param mint confirmed LIVE (distinct from /identity/ws/revoke 404) — 11th token-mint ide
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/identity/create: 16th crash family member confirmed (POST malformed publicKey → 500/0B on all 4 
+- LEARN: ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS)
+- LEARN: REJECTED MISCONFIG @ /identity/delete: returns 404 on all probes — NOT a crash-family member; crash-family count corrected 16→15
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws — not structural, insufficient for class
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 corrected to 400c7846…; confirmed benchmark-only dummy, purged at L233
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 23rd+ cycle; all KB sha256 claims DISPROVEN
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json: filesystem = {"phase":"POC","target":"chat"} — KB desktop-target claims stale
+- LEARN: REJECTED MISCONFIG @ reposcan-raw/threema-ch/ local clone: 18 repo dirs ALL EMPTY — all RAG evidence remote-only via WebFetch
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: 404 has NO CORS headers, key NOT in threema-desktop source
