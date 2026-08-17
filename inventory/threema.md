@@ -5052,3 +5052,9 @@
 - CHANGED type:1 Work-org fingerprint WEAKENED: 6 consecutive zero-type:1 draws (19-24, 1.6M+ IDs); 2 anomalous distinct in 2/22 draws
 
 ## 2026-08-17 21:11:07 UTC
+
+## 2026-08-17 21:37:26 UTC
+- CHANGED `/identity/revoke` (non-ws path) confirmed as 2nd GET-accepting token-mint endpoint — GET+text/plain valid body → 200/134B token + constant tokenRespKeyPub sha256 `c8005cca9…`, GET no-body → 200/46B +
+- CHANGED `fetch_priv` error-body distinctness confirmed fresh — 88B `{"success":false,"errorType":"invalid-identity"..."}` vs 46B `{"success":false,"error":"Identity not found"}` for other 7 mint endpoints; sh
+- CHANGED Crash family scope refined — `fetch_bulk` malformed object input (`{"identities":{"x":1}}`) returns 200/17B `{"identities":[]}` NOT 500 — fetch_bulk is NOT a crash-family member (validates identity li
+- CHANGED `apip-work.threema.ch` confirmed as 4th work-directory hostname alias — resolves to 203.56.112.209 (same as ds-apip-work), returns 401 + ACAO:* on all paths, OPTIONS→401 (auth-gated preflight unlike c
