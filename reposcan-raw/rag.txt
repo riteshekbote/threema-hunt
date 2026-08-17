@@ -1459,6 +1459,21 @@
 - 2026-08-17 ACCEPTED @ apip-work.threema.ch: 4th work directory hostname alias — 203.56.112.209, 401 + ACAO:* + no HSTS on all paths
 - 2026-08-17 REJECTED class @ Desktop BrowserWindow sandbox: conditional RCE requires separate renderer exploit chain, surface accepted as hardening gap only
 - 2026-08-17 NO_DELTA — surface stable since 2026-08-17 00:36:57 UTC; all probes re-confirm existing findings (8-endpoint GET+text/plain mint cluster, 16-family crash matrix, 22-draw census convergence, check_license credential oracle); no new vulnerability classes opened this cycle
+- 2026-08-17 ACCEPTED IDOR @ work.test.threema.ch /api-app/public/global/settings: staging-only public endpoint confirmed (200 vs prod 404), bundle divergence proven
+- 2026-08-17 REJECTED AUTH @ broadcast.threema.ch/api/v1: key-format oracle disproven — 1/32/64-char keys all byte-identical 403; no CORS preflight; only key-presence observable
+- 2026-08-17 ACCEPTED MISCONFIG @ billing.threema.ch: static assets on /cache/ serve full HSTS/Expect-CT/CSP/X-Frame-Options; 404 error page lacks all headers — header divergence confirmed
+- 2026-08-17 REJECTED MISCONFIG @ work.threema.ch/api/v1 X-Api-Key oracle: 404 response has NO CORS headers; missing/invalid key byte-identical; key NOT in threema-desktop source (fetch-work.ts uses username/password)
+- 2026-08-17 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain; surface accepted as hardening gap only
+- 2026-08-17 REJECTED MISCONFIG @ crypto.ts:223: benchmark password confirmed benchmark-only dummy, purged at L233
+- 2026-08-17 REJECTED MISCONFIG @ state_bigpickle.json: Filesystem ground truth = `{"phase":"POC","target":"chat"}` — KB `{"target":"desktop"}` claims stale for 22+ consecutive cycles.
+- 2026-08-17 REJECTED MISCONFIG @ reposcan-raw/threema-ch/ local clone: 18 repo dirs ALL EMPTY (0 source files); `find` returns zero; `grep-delta.txt` = "0 new hit lines vs previous scan"; all source evidence remote-only via WebFetch.
+- 2026-08-17 REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 corrected to `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (stale KB `52a0af98…` was wrong); confirmed benchmark-only dummy in `determineKdfParams()`, purged at L233.
+- 2026-08-17 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: `sandbox` UNSET (not `false`, TODO DESK-79), L1240 "sandboxing is enabled by default" INCORRECT per Electron docs; 0 dynamic sinks in worker/ tree; conditional RCE requires separate renderer exploit chain — surface accepted as hardening gap only.
+- 2026-08-17 REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: PERMANENTLY DOWNGRADED — 404 response has NO CORS headers, missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}` (sha256 `707fe8f5…`), X-Api-Key NOT in threema-desktop source (fetch-work.ts uses username/password exclusively); browser cross-origin fully blocked.
+- 2026-08-17 ACCEPTED IDOR @ 8-endpoint GET+text/plain token-mint cluster: cluster-wide (not dual), 8 endpoints × 3 hosts = 24 byte-stable combos; zero-preflight browser-viable vector
+- 2026-08-17 REJECTED MISCONFIG @ poc/ filesystem claims: STILL ABSENT 23rd cycle; all KB sha256 claims DISPROVEN; source verification ≠ artifact generation
+- 2026-08-17 REJECTED MISCONFIG @ state_bigpickle.json: filesystem = `{"phase":"POC","target":"chat"}` — KB desktop-target claims stale
+- 2026-08-17 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain, surface accepted as hardening gap only
 === INVENTORY gladia ===
 # Inventory: threema
 
