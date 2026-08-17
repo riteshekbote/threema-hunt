@@ -22472,3 +22472,4 @@ testability: AUTH_HELPED
 [FINAL] 2. 8-endpoint GET+text/plain token-mint oracle (confidence 95, PASSIVE)
 [FINAL] 3. threema-desktop Windows key-storage ACL bypass (confidence 95, AUTH_HELPED)
 [NEXT] PROBE: PASSIVE probe of the directory server crash family on the 4th hostname `apip-work.threema.ch` to confirm crash parity — POST `{"identity":{"x":1}}` to `https://apip-work.threema.ch/identity/match_token` at ≤1 rps; expect 500/0B + ACAO `*` (if 401, the crash family is consumer-directory-only and apip-work joins check_license's auth-gated work branch).
+## 2026-08-17 10:46:54 UTC [desktop] (model laguna)

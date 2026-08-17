@@ -1473,3 +1473,4 @@
 - 2026-08-17 REJECTED MISCONFIG @ poc/ filesystem claims: STILL ABSENT 23rd cycle; all KB sha256 claims DISPROVEN; source verification ≠ artifact generation
 - 2026-08-17 REJECTED MISCONFIG @ state_bigpickle.json: filesystem = `{"phase":"POC","target":"chat"}` — KB desktop-target claims stale
 - 2026-08-17 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain, surface accepted as hardening gap only
+- 2026-08-17 NO_DELTA — surface stable since 2026-08-17 00:36:57 UTC; all probes re-confirm existing findings (8-endpoint GET+text/plain mint cluster, 16-family crash matrix, 22-draw census convergence, check_license credential oracle, apip-work.threema.ch 4th work alias)

@@ -1,11 +1,4 @@
-## 2026-08-17 10:17:41 UTC [chat] (model bigpickle)
-[PRIO] {ds-apip,api,apip}.threema.ch/identity/{8 endpoints} GET+text/plain token-mint cluster: score 9.6 | attack:10 business:9 tech:8 gate:10 cloud:8 fresh:9
-[PRIO] {ds-apip,api,apip}.threema.ch/identity/check_featuremask census: score 9.2 | attack:9 business:9 tech:6 gate:10 cloud:2 fresh:4
-[PRIO] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license credential oracle: score 9.1 | attack:7 business:9 tech:5 gate:7 cloud:2 fresh:3
-[HYP] Preflight-free cross-origin token-mint identity-existence oracle + crash DoS via shared GET+text/plain handler
-class: IDOR
-asset: https://{ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,fetch_priv,check_revocation_key,blob_cred,sfu_cred,update_work_info}
-confidence: 98
+## 2026-08-17 10:45:59 UTC [chat] (model bigpickle)
 reasoning: All 8 endpoints share one GET+text/plain handler (CORS-safelisted MIME type, zero OPTIONS preflight). Valid identity ECHOECHO → 200/133B token + constant tokenRespKeyPub; invalid → 200/46B; malformed → 500/0B. 8 endpoints × 3 hosts = 24 byte-stable combos with ACAO:*.
 evidence_needed: Browser Network tab proof showing zero OPTIONS preflight for GET+text/plain fetch to ≥3 endpoints, confirming 133B vs 46B differential with ACAO:*.
 verify_steps: PASSIVE — (1) POST {"identity":"ECHOECHO"} + {"identity":"ZZZZZZZZ"} to each endpoint with Origin: https://evil.example + Content-Type: text/plain; confirm differential + ACAO:* on all 3 hosts. (2) POST malformed {"identity":{"x":1}} to confirm 500/0B crash + ACAO:*. (3) Confirm tokenRespKeyPub byte-identical across all 8 endpoints (shared-handler proof).
