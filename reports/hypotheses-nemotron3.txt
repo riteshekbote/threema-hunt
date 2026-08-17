@@ -1,8 +1,9 @@
-## 2026-08-17 10:46:34 UTC [web] (model nemotron3)
+## 2026-08-17 11:05:01 UTC [web] (model nemotron3)
 [NEW] NO_DELTA — surface stable since 2026-08-17 00:36:57 UTC; all probes re-confirm existing findings (8-endpoint GET+text/plain mint cluster, 16-family crash matrix, 22-draw census convergence, check_license credential oracle, apip-work.threema.ch 4th work alias)
 [PRIO] https://gateway.threema.ch: 32 | attack_surface=3 business_value=4 tech_exposure=3 gate_ease=10 cloud_surface=3 freshness=5
 [PRIO] https://shop.threema.ch: 28 | attack_surface=2 business_value=3 tech_exposure=2 gate_ease=10 cloud_surface=3 freshness=5
 [PRIO] https://billing.threema.ch: 20 | attack_surface=2 business_value=2 tech_exposure=2 gate_ease=5 cloud_surface=3 freshness=3
+[PRIO] https://work.test.threema.ch: 25 | attack_surface=3 business_value=3 tech_exposure=2 gate_ease=10 cloud_surface=2 freshness=5
 [HYP] gateway.threema.ch hidden API endpoints behind signup flow
 class: IDOR
 asset: https://gateway.threema.ch
@@ -31,8 +32,6 @@ verify_steps: PASSIVE — GET https://billing.threema.ch/cache/billing_gui_theme
 impact: Defense-in-depth gap — error pages missing transport security headers; low direct exploitability; CVSS 2.6 (AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L)
 testability: PASSIVE
 [PARKED] billing.threema.ch header divergence on static vs error responses: confidence 35 < 40
-[PARKED] shop.threema.ch redirect target hosts live e-commerce attack surface: confidence 40 borderline; redirect target may be third-party (out of scope); no evidence of Threema-hosted app yet
-[PARKED] gateway.threema.ch hidden API endpoints behind signup flow: confidence 45 but verify_steps rely on signup flow analysis which may require AUTH_HELPED; no concrete unauthenticated vector yet
 [FINAL] 1. gateway.threema.ch hidden API endpoints behind signup flow (confidence 45, PASSIVE)
 [FINAL] 2. shop.threema.ch redirect target hosts live e-commerce attack surface (confidence 40, PASSIVE)
 [NEXT] PROBE: GET https://gateway.threema.ch/en/signup → analyze form action, JS, meta tags for API hints; GET https://gateway.threema.ch/v1/, /api/, /api/v2/, /graphql, /.well-known/ with Accept: application/json; GET https://shop.threema.ch → follow 301, capture final URL, then GET /, /api/, /checkout/, /account/ on destination
