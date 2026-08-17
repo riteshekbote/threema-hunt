@@ -4859,3 +4859,31 @@
 - NEW NO_DELTA — surface stable since 2026-08-17 00:36:57 UTC; all probes re-confirm existing findings (8-endpoint GET+text/plain mint cluster, 16-family crash matrix, 22-draw census convergence, check_lice
 - CHANGED /identity/delete confirmed 404 on all probes (POST `{"identity":{"x":1}}` + valid) → not a live route on consumer directory hosts; crash-family member count corrected 16→15.
 - CHANGED apip-work.threema.ch confirmed as 4th work-directory hostname alias (OPTIONS+GET → 401 + ACAO `*`, no HSTS/Expect-CT; resolves to 203.56.112.209 same as ds-apip-work.threema.ch) — auth-gated (OPTIONS→
+
+## 2026-08-17 12:06:24 UTC
+- NEW apip-work.threema.ch confirmed as 4th work directory hostname alias (resolves 203.56.112.209, byte-identical 401 + ACAO:* + no HSTS/Expect-CT)
+- NEW /identity/create confirmed as 16th crash family member (POST malformed publicKey → 500/0B on 3 prod + staging, 5x burst @0.5s all 500 no 429)
+- NEW ds-apip.threema.ch/identity/revoke?identity=ECHOECHO → 200 application/json (GET query-param token mint confirmed LIVE)
+- CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos
+- CHANGED Crash family matrix: 16 endpoint families × 4 hosts (3 prod + 1 staging) × GET+POST = 128 combos, all 500/0B with ACAO:*
+- CHANGED Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
+- CHANGED type:1 Work-org fingerprint WEAKENED: 4 consecutive zero-type:1 draws (19-22, 1.6M IDs), 2 anomalous distinct in 2/22 draws
+- CHANGED /identity/delete confirmed 404 on all probes — NOT a crash-family member (count corrected 16→15)
+- CHANGED apip-work.threema.ch auth-gated: OPTIONS→401 (unlike consumer ds-apip OPTIONS→200) — cross-origin probing blocked without work creds
+- CHANGED shared-handler crash+token-mint convergence: /identity/match_token POST malformed → 500/0B with ACAO:* (same handler mints tokens + crashes)
+- CHANGED BrowserWindow sandbox re-verified via WebFetch: sandbox UNSET (TODO DESK-79), L1240 comment incorrect
+- CHANGED crypto.ts:223 benchmark password sha256 corrected: 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (stale KB 52a0af98… WRONG)
+- CHANGED Filesystem GROUND TRUTH: poc/ ABSENT 23rd+ cycle; state_bigpickle.json = {"phase":"POC","target":"chat"}; reposcan-raw 18 dirs EMPTY
+- NEW apip-work.threema.ch confirmed as 4th work directory hostname alias (resolves 203.56.112.209, byte-identical 401 + ACAO:* + no HSTS/Expect-CT)
+- NEW /identity/create confirmed as 16th crash family member (POST malformed publicKey → 500/0B on 3 prod + staging, 5x burst @0.5s all 500 no 429)
+- NEW ds-apip.threema.ch/identity/revoke?identity=ECHOECHO → 200 application/json (GET query-param token mint confirmed LIVE)
+- CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos
+- CHANGED Crash family matrix: 16 endpoint families × 4 hosts (3 prod + 1 staging) × GET+POST = 128 combos, all 500/0B with ACAO:*
+- CHANGED Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
+- CHANGED type:1 Work-org fingerprint WEAKENED: 4 consecutive zero-type:1 draws (19-22, 1.6M IDs), 2 anomalous distinct in 2/22 draws
+- CHANGED /identity/delete confirmed 404 on all probes — NOT a crash-family member (count corrected 16→15)
+- CHANGED apip-work.threema.ch auth-gated: OPTIONS→401 (unlike consumer ds-apip OPTIONS→200) — cross-origin probing blocked without work creds
+- CHANGED shared-handler crash+token-mint convergence: /identity/match_token POST malformed → 500/0B with ACAO:* (same handler mints tokens + crashes)
+- CHANGED BrowserWindow sandbox re-verified via WebFetch: sandbox UNSET (TODO DESK-79), L1240 comment incorrect
+- CHANGED crypto.ts:223 benchmark password sha256 corrected: 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (stale KB 52a0af98… WRONG)
+- CHANGED Filesystem GROUND TRUTH: poc/ ABSENT 23rd+ cycle; state_bigpickle.json = {"phase":"POC","target":"chat"}; reposcan-raw 18 dirs EMPTY
