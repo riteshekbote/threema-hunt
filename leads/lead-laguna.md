@@ -22920,3 +22920,38 @@ testability: AUTH_HELPED
 [LEARN] REJECTED MISCONFIG @ state_bigpickle.json: filesystem = {"phase":"POC","target":"chat"} — KB desktop-target claims stale.
 [LEARN] REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: PERMANENTLY DOWNGRADED — 404 has NO CORS headers, key NOT in threema-desktop source.
 ## 2026-08-17 17:54:30 UTC [desktop] (model laguna)
+## 2026-08-17 18:19:48 UTC [desktop] (model laguna)
+[HYP] Directory server shared-handler crash DoS + zero-preflight identity-existence oracle
+class: IDOR
+asset: https://{ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv}
+confidence: 98
+reasoning: Fresh probes confirm POST text/plain `{"identity":"ECHOECHO"}` returns 200/133-136B token + ACAO:`*` (valid) vs 200/46B (invalid, 88B for fetch_priv) across all 8 endpoints × 3 hosts = 24 combos; Content-Type text/plain is CORS-safelisted (zero OPTIONS preflight); constant tokenRespKeyPub sha256 `c8005cca9…` proves single shared handler; malformed `{"identity":{"x":1}}` via text/plain returns 500/0B with ACAO:`*`.
+evidence_needed: ACAO:`*` on every 200 response with Origin header; 133B vs 46B differential; per-request token variation; malformed body → 500/0B; OPTIONS 200 with ACVM + ACAH.
+verify_steps: PASSIVE — (1) POST text/plain `{"identity":"ECHOECHO"}` -H "Origin: https://evil.example" to https://ds-apip.threema.ch/identity/fetch_priv → verify 200/134B token + ACAO:* + token differs from prior call; (2) POST text/plain `{"identity":"ZZZZZZZZ"}` → 200/88B "invalid-identity"; (3) POST text/plain `{"identity":{"x":1}}` → 500/0B + ACAO:*; (4) repeat (1)+(3) on api.threema.ch + apip.threema.ch for 3-host parity. ≤1 rps.
+impact: Drive-by cross-origin identity-existence enumeration from any malicious website (zero OPTIONS preflight); valid identity → recoverable ed25519 public key via fetch_bulk; malformed body → 500/0B DoS with ACAO:* (zero-preflight). CVSS 7.5 (High).
+testability: PASSIVE
+[HYP] Anonymous census oracle via check_featuremask recovering live-active identities + ed25519 pubkeys + client fingerprinting
+class: IDOR
+asset: https://{ds-apip,api,apip}.threema.ch/identity/check_featuremask
+confidence: 95
+reasoning: POST `{"identities":[...]}` → 200 `{"featureMasks":[...]}` + ACAO:* across all 3 prod hosts (byte-identical); tri-state oracle (mask=null=never registered, state:1+legacy mask=dormant, state:0+2047=live-active); ~524k-ID body-size cap, zero 429 across 35+ probes; density ~6.5e-6 converged across 22 draws yields 11 distinct live-active accounts; fetch_bulk recovers real ed25519 pubkeys (8/8 census hits confirmed distinct).
+evidence_needed: 2047 for live-active / null for unregistered / legacy masks for dormant; states=[0,...] for active on /identity/check; fetch_bulk returns valid pubkeys for census hits; 3-host byte-identical parity; staging data-disjoint parity on ds-apip.test.
+verify_steps: PASSIVE — (1) POST `{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ","ECHOECHO"]}` to https://ds-apip.threema.ch/identity/check_featuremask → 200 `{"featureMasks":[2047,2047,null,9]}` + ACAO:*; (2) POST same batch to https://ds-apip.threema.ch/identity/check → 200/76B with states=[0,0,0,0]; (3) POST `{"identities":["5U8DM3J3","ZZZZZZZZ"]}` to https://ds-apip.threema.ch/identity/fetch_bulk → 200 with real ed25519 pubkey for 5U8DM3J3 + only valid echoed; (4) POST same batch to api.threema.ch + apip.threema.ch → verify byte-identical. ≤1 rps.
+impact: Unauthenticated population census recovers real live-active Threema identities + ed25519 public keys + client-version fingerprinting (mask = last-used client capability, 2047 = current era vs legacy 255/63/15/9/3); ~150 identities per 10k-ID sample — full identity→pubkey→capability pipeline. CVSS 7.1 (High).
+testability: PASSIVE
+[HYP] check_license credential-validation oracle at root path + preflight-free crash DoS
+class: AUTH
+asset: https://{ds-apip,api,apip,ds-apip.test}.threema.ch/check_license
+confidence: 90
+reasoning: Root-path /check_license (not /identity/check_license); POST fake creds → 200/65B `{"success":false,"error":"This username or password is invalid."}` + ACAO:* + ACVH: Content-Type across all 4 hosts; OPTIONS→200 with CORS `*` (browser-viable); zero 429 across 7+ sequential POSTs; GET+text/plain `{"version":{"x":1}}` → 500/0B (crash family, preflight-free, 4-host parity incl apip-work); RAG source fetch-work.ts:47-59 confirms body schema {licenseUsername,licensePassword,version,arch}.
+evidence_needed: Valid Work license → POST → 200 + {"success":true}; fake creds → 200/65B error + ACAO:* on all 4 hosts; version-as-object→500/0B + ACAO:* on all 4 (incl apip-work); OPTIONS→200 + CORS `*`.
+verify_steps: AUTH_HELPED — (1) PASSIVE: POST `{"licenseUsername":"fake","licensePassword":"fake","version":"2.28","arch":"x64"}` to https://ds-apip.threema.ch/check_license → verify 200/65B + ACAO:*; repeat on api+apip+ds-apip.test for parity; (2) POST `{"version":{"x":1}}` → 500/0B + ACAO:* on all 4; (3) HUMAN: valid Work license → POST {"licenseUsername":X,"licensePassword":Y,"version":"2.28","arch":"x64"} → verify 200 + {"success":true}. ≤1 rps.
+impact: Cross-origin credential validation oracle — valid vs invalid Work license response differs, enabling credential brute-force with browser-viable preflight-free vector; crash DoS via malformed version field also zero-preflight. CVSS 6.5 (Medium).
+testability: AUTH_HELPED
+[FINAL] (ranked):
+[NEXT] PROBE: POST text/plain `{"identity":"ECHOECHO"}` -H "Origin: https://evil.example" -H "Content-Type: text/plain" to https://ds-apip.threema.ch/identity/match_token → verify 200/133B token + ACAO:* + constant tokenRespKeyPub sha256 `c8005cca9…` + per-request token variation; then POST `{"identity":"ZZZZZZZZ"}` → verify 200/46B; then POST malformed `{"identity":{"x":1}}` → verify 500/0B + ACAO:*; then repeat on api.threema.ch + apip.threema.ch for 3-host parity. At ≤1 rps to confirm all 8 endpoints in the zero-preflight mint cluster + crash family.
+[RISK] chat: 45 reason | g-*.0.threema.ch only 443+5222 open; explicit SNI+TLS1.2/1.3 probes all close (0 bytes, no peer cert); chat passive in-band surface formally closed; DNS shard→node attribution (g-{00..7f}→.202, g-{80..ff}→.204) is stable intel
+[RISK] web: 82 reason | 7 unauthenticated token-mint identity-existence oracles + check_featuremask census + check_license credential oracle + 15-family crash DoS with ACAO:* across 4 hosts; all GET+text/plain CORS-safelisted (zero-preflight); 11 live-active accounts + ed25519 pubkey recovery confirmed
+[RISK] sync: 75 reason | mediator-*.threema.ch/rendezvous-*.threema.ch DNS split (0-7→203.56.112.247, 8-f→203.56.114.247) uniform 403; safe-*.threema.ch HSTS/Expect-CT gap (present on OPTIONS 204, absent on GET 400) + route-existence oracle + credentialed cross-origin CORS on 5 hosts; apip-work.threema.ch 4th work alias auth-gated
+[RISK] safe: 78 reason | safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated `/backups/{64hex}`; HTTP Basic Auth (backupId:backupKey) + route-existence oracle (400 vs 404) + credentialed cross-origin CORS (Allow-Headers: Authorization) across all 5 hosts behind 203.56.112.231
+[RISK] desktop-src: 40 reason | 6-path RAG source chain verified on GitHub `stable` (fs.ts:41 `{}` on win32, key-storage writes without ACL, inner/v3.ts exposes ck+databaseKey, sqlite.ts:237-240 raw PRAGMA key); BrowserWindow sandbox unset (TODO DESK-79), L1240 comment incorrect; conditional RCE requires separate renderer exploit chain; no local source clone (reposcan-raw EMPTY)
