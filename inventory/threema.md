@@ -4968,3 +4968,12 @@
 - CHANGED BrowserWindow sandbox re-verified via WebFetch: sandbox UNSET (TODO DESK-79), L1240 comment incorrect
 - CHANGED crypto.ts:223 benchmark password sha256 corrected: 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (stale KB 52a0af98… WRONG)
 - CHANGED Filesystem GROUND TRUTH: poc/ ABSENT 23rd+ cycle; state_bigpickle.json = {"phase":"POC","target":"chat"}; reposcan-raw 18 dirs EMPTY
+
+## 2026-08-17 17:07:35 UTC
+- NEW ds-apip.threema.ch/identity/revoke?identity=ECHOECHO — GET query-param token mint confirmed LIVE (resolves last leads contradiction: was both REJECTED and CONFIRMED)
+- CHANGED work.test.threema.ch/api-app/public/global/settings — captcha error message corrected to "captcha_proof_expired" (was "captcha_proof_erred" at 16:12:00)
+- CHANGED apip-work.threema.ch — confirmed as 4th work directory hostname alias (was PARKED in last leads)
+- CHANGED Crash family matrix — /identity/create added as 16th member, /identity/delete excluded (404), net 15 endpoint families × 4 hosts × GET+POST = 120 combos (last leads had inconsistent 16th member but 15
+- CHANGED Census draw 22 — 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
+- CHANGED shared-handler crash+token-mint convergence — /identity/match_token POST malformed → 500/0B with ACAO:* confirmed same handler (last leads had this as CONFIRMED but now re-verified)
+- CHANGED crypto.ts:223 benchmark password sha256 corrected to 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 (stale KB 52a0af98… was wrong)
