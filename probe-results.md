@@ -2973,3 +2973,17 @@ https://billing.threema.ch -> 200 len=? type=text/html; charset=utf-8
 https://billing.threema.ch/cache/billing_gui_theme_threema.css -> 200 len=41023 type=text/css
 https://billing.threema.ch/nonexistent -> HTTP 404
 https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-17 10:18:07 UTC
+https://gateway.threema.ch: -> 200 len=? type=text/html; charset=UTF-8
+https://shop.threema.ch: -> 200 len=? type=text/html; charset=UTF-8
+https://work.threema.ch/api/v1: -> HTTP 404
+https://broadcast.threema.ch/api/v1: -> HTTP 404
+https://billing.threema.ch: -> 200 len=? type=text/html; charset=utf-8
+https://gateway.threema.ch -> 200 len=? type=text/html; charset=UTF-8
+https://gateway.threema.ch/en/signup -> 200 len=? type=text/html; charset=UTF-8
+https://gateway.threema.ch/v1/ -> HTTP 404
+https://shop.threema.ch -> 200 len=? type=text/html; charset=UTF-8
+https://work.threema.ch/api/v1 -> HTTP 401
+https://work.threema.ch/api/v1/users -> HTTP 401
+https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8

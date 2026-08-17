@@ -4836,3 +4836,6 @@
 - CHANGED state_bigpickle.json filesystem ground truth = `{"phase":"POC","target":"chat"}` — KB `{"target":"desktop"}` claims stale (22+ cycles)
 - CHANGED reposcan-raw/threema-ch/ 18 repo dirs ALL EMPTY (0 source files); all "RAG-VERIFIED via direct git clone" claims unfulfilled (remote-only via WebFetch)
 - CHANGED poc/ directory STILL ABSENT (`ls poc/` → No such file); all KB sha256 claims DISPROVEN (22nd+ cycle)
+
+## 2026-08-17 10:17:56 UTC
+- NEW NO_DELTA — surface stable since 2026-08-17 00:36:57 UTC; all probes re-confirm existing findings (8-endpoint GET+text/plain mint cluster, 16-family crash matrix, 22-draw census convergence, check_lice
