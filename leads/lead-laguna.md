@@ -23418,3 +23418,4 @@ testability: AUTH_HELPED
 [RISK] sync: 5 — mediator/rendezvous/{prefix4} uniform 403 on HTTPS; TCP 5222 handshake requires authenticated login frame; DNS split routing fully attributed; no passive in-band surface
 [RISK] safe: 30 — safe-{01,1a,1b,02,00}.threema.ch (5 hosts, IP 203.56.112.231) credential-gated (HTTP Basic Auth) with HSTS/Expect-CT header inconsistency (OPTIONS 204 has headers, GET 400 lacks); route-existence oracle (400 vs 404); credentialed cross-origin CORS (Allow-Headers: Authorization)
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (6-path RAG chain verified on GitHub stable via WebFetch; PoC artifact never authored at filesystem ground truth — 23+ cycle contradiction); BrowserWindow sandbox unset + nodeIntegrationInWorker: true (TODO DESK-79 — conditional RCE, not standalone class); reposcan-raw local clone EMPTY (0 files); OnPrem config trust verified safe
+## 2026-08-17 21:51:18 UTC [desktop] (model laguna)
