@@ -9112,3 +9112,28 @@
 - LEARN: CONFIRMED @ apip-work.threema.ch = 4th work-directory hostname alias — resolves to 203.56.112.209 (same as ds-apip-work); OPTIONS→401 (auth-gated preflight unli
 - LEARN: CHANGED @ work.test.threema.ch /api-app/public/global/settings now captcha-gated (400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie) — pr
 - LEARN: CONFIRMED @ /check_license GET+text/plain crash is zero-preflight browser-viable: GET `{"version":{"x":1}}` → 500/0B + ACAO:* (same as crash family). Only crash
+
+## RANKED HYPOTHESES 2026-08-17 16:43:30 UTC
+- [92] https://{ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv}: Directory server shared-handler crash DoS + cross-origin identity-existence oracle (from reports/hypotheses-bigpickle.txt)
+- [85] https://safe-01.threema.ch/backups/{64hex}: Credential-gated backup API with HSTS/Expect-CT header inconsistency enables transport-security downgrade on authenticated requests (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://safe-01.threema.ch/backups/invalid64hex -H "Origin: https://evil.example" → verify 400 lacks HSTS/Expect-CT but has ACAO:* + Allow-Headers:Au
+- NEXT(hypotheses-bigpickle.txt): PROBE: POST text/plain `{"identity":"ECHOECHO"}` -H "Origin: https://evil.example" to https://ds-apip.threema.ch/identity/fetch_priv → verify 200/134B token + A
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws — not structural, insufficient for class
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 corrected to 400c7846…; confirmed benchmark-only dummy, purged at L233
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 23rd+ cycle; all KB sha256 claims DISPROVEN
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json: filesystem = {"target":"chat"} — KB desktop-target claims stale
+- LEARN: REJECTED MISCONFIG @ reposcan-raw/threema-ch/ local clone: 18 repo dirs ALL EMPTY — all RAG evidence remote-only via WebFetch
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: 404 has NO CORS headers, key NOT in threema-desktop source
+- LEARN: REJECTED CLASS @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain, 0 dynamic sinks
+- LEARN: ACCEPTED MISCONFIG @ crash family: 15 endpoint families × 4 hosts × GET+POST = 120 combos, all 500/0B with ACAO:* + zero 429 + instant recovery
+- LEARN: ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work directory hostname alias (203.56.112.209, byte-identical 401+ACAO:*+no HSTS); auth-gated (OPTIONS→401 unlike
+- LEARN: ACCEPTED IDOR @ /identity/create: 16th crash family member — POST {"publicKey":{"x":1}} → 500/0B on all 3 prod + staging; recovery to 200/133B; NOT a token-mint
+- LEARN: ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke: GET query-param mint confirmed LIVE (distinct from /identity/ws/revoke 404) — 11th token-mint ide
+- LEARN: ACCEPTED @ shared-handler crash+token-mint convergence: /identity/match_token POST malformed → 500/0B with ACAO:* — same JSON handler mints tokens + crashes
+- LEARN: REJECTED @ /identity/revoke?identity=ECHOECHO GET query-param: Returns 46B `{"success":false,"error":"Identity not found"}` universally — query-param NOT a toke
+- LEARN: CONFIRMED @ All 8 token-mint endpoints return identical constant tokenRespKeyPub `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=` (sha256 `c8005cca9…`) — proves s
+- LEARN: CONFIRMED @ /identity/create is crash-family member but DIFFERENT trigger: POST `{"publicKey":{"x":1}}` → 500/0B (object vs string), but POST `{"identity":{"x":
+- LEARN: CONFIRMED @ /identity/fetch_priv returns 88B error body `{"success":false,"errorType":"invalid-identity","error":"Identity not found or revoked"}` vs 46B `{"suc
+- LEARN: CONFIRMED @ apip-work.threema.ch = 4th work-directory hostname alias — resolves to 203.56.112.209 (same as ds-apip-work); OPTIONS→401 (auth-gated preflight unli
+- LEARN: CHANGED @ work.test.threema.ch /api-app/public/global_settings now captcha-gated (400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie) — pr
+- LEARN: CONFIRMED @ /check_license GET+text/plain crash is zero-preflight browser-viable: GET `{"version":{"x":1}}` → 500/0B + ACAO:* (same as crash family). Only crash
