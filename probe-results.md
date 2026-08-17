@@ -3239,3 +3239,7 @@ https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/jso
 ## 2026-08-17 21:37:27 UTC
 https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+
+## 2026-08-17 21:53:30 UTC
+https://ds-apip.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv -> HTTP 404
+https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8

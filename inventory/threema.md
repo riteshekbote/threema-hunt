@@ -5058,3 +5058,5 @@
 - CHANGED `fetch_priv` error-body distinctness confirmed fresh — 88B `{"success":false,"errorType":"invalid-identity"..."}` vs 46B `{"success":false,"error":"Identity not found"}` for other 7 mint endpoints; sh
 - CHANGED Crash family scope refined — `fetch_bulk` malformed object input (`{"identities":{"x":1}}`) returns 200/17B `{"identities":[]}` NOT 500 — fetch_bulk is NOT a crash-family member (validates identity li
 - CHANGED `apip-work.threema.ch` confirmed as 4th work-directory hostname alias — resolves to 203.56.112.209 (same as ds-apip-work), returns 401 + ACAO:* on all paths, OPTIONS→401 (auth-gated preflight unlike c
+
+## 2026-08-17 21:53:28 UTC
