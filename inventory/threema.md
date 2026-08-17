@@ -5041,3 +5041,12 @@
 - CHANGED apip-work.threema.ch confirmed as 4th work directory hostname alias (203.56.112.209, byte-identical 401+ACAO:*+no HSTS); auth-gated (OPTIONS→401 unlike consumer ds-apip OPTIONS→200)
 - CHANGED Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
 - CHANGED type:1 Work-org fingerprint WEAKENED: 6 consecutive zero-type:1 draws (19-24, 1.6M+ IDs); 2 anomalous distinct in 2/22 draws
+
+## 2026-08-17 20:49:51 UTC
+- NEW work.test.threema.ch/api-app/public/global/settings now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie + CSP) — previously returned 200/299B unauthenticat
+- NEW /identity/revoke?identity=ECHOECHO GET query-param token mint confirmed LIVE (200/133B) — distinct from /identity/ws/revoke 404; resolves 20+ cycle KB contradiction
+- CHANGED Crash family matrix corrected to 15 endpoint families (delete excluded 404) × 4 hosts × GET+POST = 120 combos; /identity/create confirmed as crash member (not token-mint)
+- CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos
+- CHANGED apip-work.threema.ch confirmed as 4th work directory hostname alias (203.56.112.209, byte-identical 401+ACAO:*+no HSTS); auth-gated (OPTIONS→401 unlike consumer ds-apip OPTIONS→200)
+- CHANGED Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
+- CHANGED type:1 Work-org fingerprint WEAKENED: 6 consecutive zero-type:1 draws (19-24, 1.6M+ IDs); 2 anomalous distinct in 2/22 draws
