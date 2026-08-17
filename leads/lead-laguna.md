@@ -22956,3 +22956,4 @@ testability: AUTH_HELPED
 [RISK] safe: 78 reason | safe-{01,1a,1b,02,00}.threema.ch: HSTS/Expect-CT present on OPTIONS 204 but ABSENT on GET 400 for credential-gated `/backups/{64hex}`; HTTP Basic Auth (backupId:backupKey) + route-existence oracle (400 vs 404) + credentialed cross-origin CORS (Allow-Headers: Authorization) across all 5 hosts behind 203.56.112.231
 [RISK] desktop-src: 40 reason | 6-path RAG source chain verified on GitHub `stable` (fs.ts:41 `{}` on win32, key-storage writes without ACL, inner/v3.ts exposes ck+databaseKey, sqlite.ts:237-240 raw PRAGMA key); BrowserWindow sandbox unset (TODO DESK-79), L1240 comment incorrect; conditional RCE requires separate renderer exploit chain; no local source clone (reposcan-raw EMPTY)
 ## 2026-08-17 19:01:25 UTC [desktop] (model laguna)
+## 2026-08-17 19:34:59 UTC [desktop] (model laguna)
