@@ -22350,3 +22350,4 @@ testability: PASSIVE
 [RISK] desktop-src: 55 — threema-desktop key-storage Windows ACL bypass (6-path RAG-verified chain on GitHub stable via WebFetch, PoC absent on filesystem for 23rd cycle — requires Windows runtime validation); BrowserWindow sandbox unset + nodeIntegrationInWorker: true (TODO DESK-79) formally rejected as standalone class (conditional RCE, 0 dynamic sinks); reposcan-raw local clone EMPTY (0 source files across 18 dirs), source verification remote-only.
 ## 2026-08-17 04:42:08 UTC [desktop] (model laguna)
 ## 2026-08-17 05:20:36 UTC [desktop] (model laguna)
+## 2026-08-17 05:54:54 UTC [desktop] (model laguna)
