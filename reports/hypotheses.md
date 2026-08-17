@@ -8761,3 +8761,18 @@
 - LEARN: REJECTED AUTH @ work.threema.ch/api/v1: PERMANENTLY DOWNGRADED — no CORS on 404, missing/invalid-key byte-identical, key NOT in desktop source
 - LEARN: ACCEPTED @ apip-work.threema.ch: 4th work directory hostname alias — 203.56.112.209, 401 + ACAO:* + no HSTS on all paths
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox: conditional RCE requires separate renderer exploit chain, surface accepted as hardening gap only
+
+## RANKED HYPOTHESES 2026-08-17 09:11:54 UTC
+- [95] threema-desktop: Windows key-storage ACL bypass enabling identity + database key recovery (from reports/hypotheses-laguna.txt)
+- [95] https://{ds-apip,api,apip}.threema.ch/identity/{match_token,revoke,set_featuremask,check_revocation_key,sfu_cred,blob_cred,update_work_info,fetch_priv}: Preflight-free cross-origin identity enumeration via GET+text/plain token-mint cluster (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): HUMAN: browser-console zero-preflight proof for the mint cluster — in DevTools Network tab: fetch('https://ds-apip.threema.ch/identity/match_token',{method:'GET
+- NEXT(hypotheses-laguna.txt): PROBE: Author PoC artifact `poc/key-storage-acl-bypass-poc.py` documenting the verified 6-step attack chain (read keystorage.password.bin → DPAPI decryptString 
+- LEARN: ACCEPTED IDOR @ 8-endpoint GET+text/plain mint cluster: cluster-wide (not dual), 8 endpoints × 3 hosts = 24 byte-stable combos; zero-preflight browser-viable ve
+- LEARN: ACCEPTED MISCONFIG @ crash family: 16 endpoint families × 4 hosts × GET+POST = 104+ combos; ACAO * on every 500; zero 429; instant recovery
+- LEARN: ACCEPTED IDOR @ /identity/revoke (non-ws path): 11th token-mint identity-existence oracle — GET+text/plain + POST both return 200/133B token for valid, 200/46B 
+- LEARN: ACCEPTED MISCONFIG @ /identity/create: 16th crash family member — POST {"publicKey":{"x":1}} → 500/0B on all 3 prod + staging; batch {"identities":[{}]} → 500/0
+- LEARN: ACCEPTED MISCONFIG @ check_license: joins crash family — POST {"version":{}} → 500/0B (3-host parity); GET+text/plain {"version":{}} → 500/0B (CORS-safelisted, 
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: ground truth ABSENT for 20+ cycles; all KB sha256 claims disproven
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json: filesystem = {"phase":"POC","target":"chat"} — KB desktop-target claims stale
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password confirmed benchmark-only dummy, purged at L233
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox: conditional RCE requires

@@ -22375,3 +22375,4 @@ testability: AUTH_HELPED
 [RISK] chat: 98 — Directory servers expose 12+ unauthenticated IDOR endpoints with CORS `*` + no rate limits; 8 token-mint existence oracles share GET+text/plain handler (zero OPTIONS preflight, 24 browser-viable combos) + 16-endpoint crash DoS cluster (128 combos); check_featuremask census yields 11 live-active accounts at ~6.5e-6 via 524k-ID batches; check_license credential oracle at root path with 4-host parity — maximum cross-origin amplification, full prod+staging parity
 [RISK] web: 15 — Static hosts (broadcast 401, gateway 404/301, billing 301→threema.ch); billing serves jQuery+CSS with header divergence; no live app routes
 [RISK] sync: 12 — mediator/rendezvous *.threema.ch uniform 403 on HTTPS; WSS requires auth; DNS split attributed; alternate port sweep closed; no passive in-band surface
+## 2026-08-17 09:11:38 UTC [chat] (model bigpickle)

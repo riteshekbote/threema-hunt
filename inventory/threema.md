@@ -4814,3 +4814,10 @@
 - CHANGED Filesystem GROUND TRUTH re-verified: `poc/` ABSENT (22nd+ consecutive cycle, all KB sha256 claims DISPROVEN); `state_bigpickle.json` = `{"phase":"POC","target":"chat"}` (NOT "desktop"); `reposcan-raw/
 
 ## 2026-08-17 08:23:48 UTC
+
+## 2026-08-17 09:11:54 UTC
+- NEW Desktop key-storage Windows ACL bypass: 6-path RAG chain verified via WebFetch on GitHub stable this cycle — all source paths confirmed live (fs.ts:41→`{}` on win32, key-storage/index.ts:257→`{...file
+- CHANGED crypto.ts:223 benchmark password sha256 corrected — KB's stale `52a0af98…` claim was WRONG; correct sha256 = `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` (computed directly from 
+- CHANGED state_bigpickle.json filesystem ground truth = `{"phase":"POC","target":"chat"}` (sha256 `94bd1bd1…`), NOT `"target":"desktop"` as 20+ cycles of KB claims asserted. Agent targeting is chat directory s
+- CHANGED reposcan-raw/threema-ch/ 18 repo directories ALL EMPTY (0 source files confirmed via `find`). grep-hits.txt is stale metadata referencing paths not present locally. All "RAG-VERIFIED via direct git cl
+- CHANGED BrowserWindow sandbox (electron-main.ts:1234-1268) RE-VERIFIED via WebFetch: `sandbox` UNSET (not `false`), `// TODO(DESK-79): Enable sandbox: true` at L1255, `nodeIntegrationInWorker: true` at L1252,
