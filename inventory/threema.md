@@ -4949,3 +4949,6 @@
 - CHANGED Filesystem GROUND TRUTH: poc/ ABSENT 23rd+ cycle; state_bigpickle.json = {"phase":"POC","target":"chat"}; reposcan-raw 18 dirs EMPTY
 
 ## 2026-08-17 15:41:16 UTC
+
+## 2026-08-17 16:12:00 UTC
+- CHANGED /api-app/public/global/settings on work.test.threema.ch → now returns HTTP 400 `{"error":"captcha_proof_erred"}` with `__HOST-HTTP-SESSIONID` cookie (Secure/HttpOnly/SameSite=Strict), CSP `default-src
