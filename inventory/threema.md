@@ -5102,3 +5102,23 @@
 - CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos
 - CHANGED Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
 - CHANGED type:1 Work-org fingerprint WEAKENED: 6 consecutive zero-type:1 draws (19-24, 1.6M+ IDs); 2 anomalous distinct in 2/22 draws
+
+## 2026-08-17 23:55:53 UTC
+- NEW `/identity/revoke` (non-ws path) confirmed as 2nd GET-accepting token-mint endpoint — GET+text/plain valid body → 200/134B token + constant tokenRespKeyPub sha256 `c8005cca9…`, GET no-body → 200/46B
+- NEW `fetch_priv` error-body distinctness confirmed fresh — 88B `{"success":false,"errorType":"invalid-identity"..."}` vs 46B `{"success":false,"error":"Identity not found"}` for other 7 mint endpoints
+- NEW Crash family scope refined — `fetch_bulk` malformed object input (`{"identities":{"x":1}}`) returns 200/17B `{"identities":[]}` NOT 500 — fetch_bulk is NOT a crash-family member
+- NEW `apip-work.threema.ch` confirmed as 4th work-directory hostname alias — resolves to 203.56.112.209 (same as ds-apip-work), returns 401 + ACAO:* on all paths, OPTIONS→401 (auth-gated preflight unlike c
+- CHANGED work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie + CSP) — previously returned 200/299B unauthentica
+- CHANGED Crash family matrix corrected to 15 endpoint families (delete excluded 404) × 4 hosts × GET+POST = 120 combos; /identity/create confirmed as crash member (not token-mint)
+- CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos
+- CHANGED Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
+- CHANGED type:1 Work-org fingerprint WEAKENED: 6 consecutive zero-type:1 draws (19-24, 1.6M+ IDs); 2 anomalous distinct in 2/22 draws
+- NEW `/identity/revoke` (non-ws path) confirmed as 2nd GET-accepting token-mint endpoint — GET+text/plain valid body → 200/134B token + constant tokenRespKeyPub sha256 `c8005cca9…`, GET no-body → 200/46B
+- NEW `fetch_priv` error-body distinctness confirmed fresh — 88B `{"success":false,"errorType":"invalid-identity"..."}` vs 46B `{"success":false,"error":"Identity not found"}` for other 7 mint endpoints
+- NEW Crash family scope refined — `fetch_bulk` malformed object input (`{"identities":{"x":1}}`) returns 200/17B `{"identities":[]}` NOT 500 — fetch_bulk is NOT a crash-family member
+- NEW `apip-work.threema.ch` confirmed as 4th work-directory hostname alias — resolves to 203.56.112.209 (same as ds-apip-work), returns 401 + ACAO:* on all paths, OPTIONS→401 (auth-gated preflight unlike c
+- CHANGED work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie + CSP) — previously returned 200/299B unauthentica
+- CHANGED Crash family matrix corrected to 15 endpoint families (delete excluded 404) × 4 hosts × GET+POST = 120 combos; /identity/create confirmed as crash member (not token-mint)
+- CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos
+- CHANGED Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
+- CHANGED type:1 Work-org fingerprint WEAKENED: 6 consecutive zero-type:1 draws (19-24, 1.6M+ IDs); 2 anomalous distinct in 2/22 draws
