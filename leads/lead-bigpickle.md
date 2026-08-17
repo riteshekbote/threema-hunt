@@ -23039,3 +23039,4 @@ testability: AUTH_HELPED
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (PoC authored, needs Windows validation); BrowserWindow sandbox unset (conditional RCE, not standalone); OnPrem config trust verified safe
 ## 2026-08-17 21:36:47 UTC [chat] (model bigpickle)
 ## 2026-08-17 21:51:24 UTC [chat] (model bigpickle)
+## 2026-08-17 22:10:47 UTC [chat] (model bigpickle)
