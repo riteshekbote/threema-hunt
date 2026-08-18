@@ -5665,3 +5665,23 @@
 - CHANGED /identity/delete: Crash-family membership corrected — returns 404 (NOT a member); crash-family = 15 endpoint families x 4 hosts x GET+POST = 120 combos
 - CHANGED /identity/fetch_bulk: Confirmed NOT crash-family member — malformed {"identities":{}} -> 200/17B {"identities":[]} (graceful validation)
 - CHANGED work.test.threema.ch /api-app/public/global_settings: Now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/299B unauthenticated
+
+## 2026-08-18 20:03:37 UTC
+- NEW work.test.threema.ch /api-app/public/global_settings: Now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/299B unauthenticated
+- NEW apip-work.threema.ch: 4th work-directory hostname alias confirmed live (203.56.112.209 same as ds-apip-work; OPTIONS+GET -> 401 + ACAO:* + no HSTS/Expect-CT; auth-gated preflight)
+- NEW /identity/revoke (non-ws path) confirmed as 11th token-mint oracle — GET+text/plain + POST return 200/133B token for valid, 200/46B for invalid; case-fold amplification; sibling parity byte-identical
+- NEW /identity/fetch_priv confirmed as 16th crash-family member (POST {"identity":{"x":1}} -> 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence; 88B error-body distinct
+- NEW check_license crash confirmed on all 4 hosts (POST {"version":{}} -> 500/0B; GET+text/plain -> 500/0B; OPTIONS -> 200 CORS *; only crash family with 4-host parity + OPTIONS-200)
+- CHANGED /identity/delete: Crash-family membership corrected — returns 404 (NOT a member); crash-family = 15 endpoint families x 4 hosts x GET+POST = 120 combos
+- CHANGED /identity/fetch_bulk: Confirmed NOT crash-family member — malformed {"identities":{}} -> 200/17B {"identities":[]} (graceful validation)
+- NEW work.threema.ch: Now responds with 301 to /en/login with PHP session cookie, CSP, Sentry reporting
+- NEW shop.threema.ch: Now responds with 301 to /en with CSP, Sentry, hCaptcha subdomain
+- NEW broadcast.threema.ch: Now responds 301 to /en/login (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+- NEW gateway.threema.ch: Now responds 302 to /en (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+- NEW billing.threema.ch: Now responds 301 to threema.ch (was TIMEOUT, now redirects to main site)
+- NEW api.threema.ch: Returns 403 with same permissive CORS headers as apip.threema.ch
+- NEW safe.threema.ch: Timeout/no response (backup service pattern candidate)
+- NEW ds-apip.test.threema.ch: Leaked test/staging directory server reachable (static + live 200)
+- NEW `/identity/revoke` (non-ws path) confirmed as 11th token-mint identity-existence oracle — GET+text/plain + POST return 200/133B token for valid identities, 200/46B for invalid; case-fold amplification
+- NEW `apip-work.threema.ch` — 4th work-directory hostname alias confirmed (resolves to 203.56.112.209 same as ds-apip-work); OPTIONS+GET → 401 + ACAO:* + no HSTS/Expect-CT; auth-gated preflight (unlike con
+- CHANGED `work.test.threema.ch /api-app/public/global/settings` — now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie + CSP); was 200/299B unauthenticated. Staging-
