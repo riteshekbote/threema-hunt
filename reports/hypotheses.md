@@ -9842,3 +9842,24 @@
 - LEARN: REJECTED MISCONFIG @ state_bigpickle.json: filesystem = `{"target":"chat"}` not `"desktop"` — agent targeting is chat directory servers correctly
 - LEARN: ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/fetch_priv: 8th endpoint in zero-preflight identity-existence oracle cluster CONFIRMED via own probes thi
 - LEARN: NO_NEW_CLASS — all previously accepted findings byte-stable; fetch_priv closes the 8th-endpoint parity gap from prior cycles
+
+## RANKED HYPOTHESES 2026-08-18 04:48:02 UTC
+- [95] https://{ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv}: Shared-handler token-mint oracle + crash DoS on directory identity endpoints (from reports/hypotheses-laguna.txt)
+- [95] https://{ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv}: Cross-origin identity-existence oracle via 8-endpoint text/plain cluster (from reports/hypotheses-bigpickle.txt)
+- [90] https://{ds-apip,api,apip}.threema.ch/identity/revoke?identity=: GET query-param token mint on /identity/revoke enables preflight-free cross-origin identity enumeration (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://api.threema.ch/identity/revoke?identity=ECHOECHO -H "Origin: https://evil.example" → verify 200/133B token + ACAO:* sibling parity; GET same 
+- NEXT(hypotheses-bigpickle.txt): PROBE: POST text/plain `{"identity":"ECHOECHO"}` -H "Origin: https://evil.example" -H "Content-Type: text/plain" to https://ds-apip.threema.ch/identity/fetch_pr
+- LEARN: ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke?identity=: GET query-param token mint confirmed LIVE (resolves 20+ cycle KB contradiction)
+- LEARN: ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work-directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS); auth-gated (OPTIONS→
+- LEARN: ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/fetch_priv: 88B error-body distinctness confirmed (revocation-aware vs 46B for other 7 mint endpoints)
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk: malformed input returns 200/17B NOT 500 — NOT a crash-family member
+- LEARN: REJECTED MISCONFIG @ /identity/delete: returns 404 on all probes — NOT a crash-family member (count corrected 16→15)
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws (1.6M+ IDs) — not structural, insufficient for class
+- LEARN: CHANGED work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie +
+- LEARN: NO_NEW_CLASS — all previously accepted findings byte-stable; no new vulnerability classes opened this cycle
+- LEARN: CONFIRMED MISCONFIG @ crash family: 15 endpoint families × 4 hosts × GET+POST = 120 combos, all 500/0B with ACAO:* + zero 429, byte-stable
+- LEARN: CONFIRMED IDOR @ 8-endpoint GET+text/plain mint cluster: 24 byte-stable combos, constant tokenRespKeyPub sha256 c8005cca9…, zero-preflight browser-viable
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws (1.6M+ IDs), not structural class
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 24th+ cycle; source verification ≠ artifact generation
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json: filesystem = {"phase":"POC","target":"chat"} — KB desktop-target claims stale
+- LEARN: CHANGED work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie +
