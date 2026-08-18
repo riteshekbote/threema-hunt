@@ -5733,3 +5733,5 @@
 - CHANGED `/identity/delete`: Crash-family membership corrected — returns 404 (NOT a member); crash-family = 15 endpoint families x 4 hosts x GET+POST = 120 combos
 - CHANGED `/identity/fetch_bulk`: Confirmed NOT crash-family member — malformed `{"identities":{}}` -> 200/17B `{"identities":[]}` (graceful validation)
 - CHANGED `work.test.threema.ch /api-app/public/global_settings`: Now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/299B unauthenticated
+
+## 2026-08-18 21:02:13 UTC

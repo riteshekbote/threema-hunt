@@ -1,9 +1,12 @@
-## 2026-08-18 20:43:51 UTC [chat] (model bigpickle)
+## 2026-08-18 21:01:58 UTC [chat] (model bigpickle)
+[PRIO] ds-apip.threema.ch/identity/{8 endpoints}  score=8.3  attack=9 business=9 tech=8 gate=10 cloud=4 fresh=5
+[PRIO] ds-apip.threema.ch/identity/check_featuremask  score=8.1  attack=9 business=8 tech=7 gate=10 cloud=4 fresh=5
+[PRIO] ds-apip.threema.ch/check_license  score=7.8  attack=8 business=9 tech=7 gate=10 cloud=4 fresh=5
 [HYP] gzip compression bypass of 524k body-size cap on check_featuremask
 class: IDOR
 asset: ds-apip.threema.ch/identity/check_featuremask
 confidence: 25
-reasoning: current cap ~524k IDs (5.77MB JSON); gzip compression of 8-char identity arrays achieves ~5:1 ratio potentially fitting 2M+ IDs per request; census throughput would 4x.
+reasoning: Current cap ~524k IDs (5.77MB JSON); gzip compression of 8-char identity arrays achieves ~5:1 ratio potentially fitting 2M+ IDs per request; census throughput would 4x.
 evidence_needed: HTTP 200 on gzip-compressed request body exceeding 5.77MB uncompressed
 verify_steps: AUTH_HELPED — requires crafting gzip body >5.77MB and sending with Content-Encoding: gzip; passive-only not possible (must send request)
 impact: Census throughput increase from ~524k to ~2M+ IDs/req — LOW-MEDIUM (amplifies existing IDOR, not new)
