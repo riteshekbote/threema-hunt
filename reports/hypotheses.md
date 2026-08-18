@@ -10547,3 +10547,20 @@
 - LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
 - LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 25+ cycles; source verification ≠ artifact generation
 - LEARN: CHANGED work.test.threema.ch /api-app/public/global/settings: captcha-gated persists
+
+## RANKED HYPOTHESES 2026-08-18 16:54:11 UTC
+- [97] {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv,create,check_license}: 11 token-mint identity-existence oracles cluster-wide (from reports/hypotheses-laguna.txt)
+- [75] work.test.threema.ch/api-app/public/global_settings: work.test staging public endpoint captcha-gating bypass (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://work.test.threema.ch/api-app/public/global_settings -H "Origin: https://evil.example" -H "Accept: application/json" — capture full 400 respon
+- NEXT(hypotheses-laguna.txt): PROBE: POST https://api.threema.ch/identity/match_token -H "Content-Type: text/plain" -H "Origin: https://evil.example" -d '{"identity":{"x":1}}' — verify 500/0
+- LEARN: ACCEPTED MISCONFIG @ work.test.threema.ch /api-app/public/global_settings: captcha-gated change persists (HTTP 400 `captcha_proof_expired` + session cookie + CS
+- LEARN: ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work-directory hostname alias persists (203.56.112.209, OPTIONS→401 auth-gated)
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs) — not structural class
+- LEARN: ACCEPTED IDOR @ check_featuremask census: 11 distinct live-active accounts confirmed; tri-state oracle byte-stable; density ~6.5e-6 converged across 22 draws
+- LEARN: ACCEPTED MISCONFIG @ crash family: 15 endpoint families × 4 hosts × GET+POST = 120 combos, all 500/0B with ACAO:* + zero 429 + instant recovery
+- LEARN: ACCEPTED IDOR @ 8-endpoint GET+text/plain mint cluster: 24 byte-stable combos; constant tokenRespKeyPub sha256 c8005cca9…; zero-preflight browser-viable
+- LEARN: CONFIRMED — all prior findings byte-stable this cycle; no regressions
+- LEARN: ACCEPTED IDOR @ /identity/revoke?identity=: GET query-param token mint confirmed LIVE (resolves 20+ cycle KB contradiction)
+- LEARN: ACCEPTED MISCONFIG @ /identity/fetch_priv: 16th crash-family member confirmed — POST `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 3 prod + staging; completes
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, not 500; NOT a crash-family memb
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash family membership: returns 404 on all probes; NOT a member; crash-family count corrected 16→15 endpoint families (15

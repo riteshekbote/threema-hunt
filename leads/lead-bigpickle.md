@@ -23846,3 +23846,4 @@ testability: PASSIVE
 [RISK] sync: 5 — mediator/rendezvous WSS uniformly 403; TCP 5222 handshake requires auth
 [RISK] safe: 30 — Credential-gated (HTTP Basic Auth) with HSTS/Expect-CT gap; credentialed CORS; route oracle
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (RAG-verified, PoC authored, needs Windows runtime validation)
+## 2026-08-18 16:50:44 UTC [chat] (model bigpickle)
