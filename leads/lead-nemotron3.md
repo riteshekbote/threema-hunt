@@ -21352,3 +21352,66 @@ testability: PASSIVE
 [RISK] sync: 12 reason — mediator/rendezvous-*.threema.ch uniform 403 on HTTPS with high-entropy paths; WSS requires authenticated login frame; DNS split routing fully attributed (0-7→203.56.112.247, 8-f→203.56.114.247); no passive in-band surface beyond DNS
 [RISK] safe: 72 reason — safe-{01,1a,1b,02,00}.threema.ch (5 hosts, single IP 203.56.112.231) credential-gated backup API (HTTP Basic Auth) with HSTS/Expect-CT header inconsistency (OPTIONS 204 has headers, GET 400 lacks them); route-existence oracle (400 vs 404); CORS * with Allow-Headers: Authorization enables credentialed cross-origin; apip-work.threema.ch alias expands entry points
 [RISK] desktop-src: 58 reason — threema-desktop key-storage Windows ACL bypass (6-path RAG-verified chain on GitHub stable; PoC artifact never authored at filesystem ground truth); BrowserWindow sandbox unset + nodeIntegrationInWorker: true (TODO DESK-79) — conditional RCE surface (rejected as standalone class); reposcan-raw EMPTY (0 source files local, WebFetch-only); Windows runtime validation blocker persists
+## 2026-08-18 08:06:52 UTC [web] (model nemotron3)
+[NEW] work.test.threema.ch /api-app/public/global/settings now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie + CSP) — was 200/299B unauthenticated
+[NEW] /identity/revoke?identity=ECHOECHO GET query-param token mint confirmed LIVE (resolves 20+ cycle KB contradiction)
+[NEW] apip-work.threema.ch confirmed as 4th work-directory hostname alias (203.56.112.209, byte-identical 401+ACAO:*+no HSTS, OPTIONS→401 auth-gated preflight)
+[NEW] fetch_priv error-body distinctness confirmed: 88B `{"success":false,"errorType":"invalid-identity","error":"Identity not found or revoked"}` vs 46B for other 7 mint endpoints
+[CHANGED] Crash family scope refined: fetch_bulk malformed input returns 200/17B NOT 500 — NOT a crash-family member
+[CHANGED] Crash family matrix corrected: /identity/delete returns 404 on all probes — NOT a member; crash-family count corrected 16→15 endpoint families (15×4×2=120 combos)
+[CHANGED] GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos (revoke, set_featuremask, match_token, check_revocation_key, blob_cred, sfu_cred, update_work_info, fetch_priv)
+[CHANGED] Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
+[CHANGED] type:1 Work-org fingerprint WEAKENED: 6 consecutive zero-type:1 draws (19-24, 1.6M+ IDs); 2 anomalous distinct in 2/22 draws (~0.5% rate); not structural
+[PRIO] https://work.test.threema.ch/api-app/public/global_settings, 7.00, attack_surface:7, business_value:7, tech_exposure:6, gate_ease:8, cloud_surface:5, freshness:9
+[PRIO] https://safe-01.threema.ch/backups/{64hex}, 6.90, attack_surface:7, business_value:8, tech_exposure:7, gate_ease:6, cloud_surface:6, freshness:8
+[PRIO] https://billing.threema.ch/cache/, 5.75, attack_surface:6, business_value:6, tech_exposure:8, gate_ease:10, cloud_surface:5, freshness:7
+[PRIO] https://apip-work.threema.ch, 5.50, attack_surface:5, business_value:6, tech_exposure:7, gate_ease:5, cloud_surface:6, freshness:8
+[PRIO] https://ds-apip.threema.ch/identity/revoke?identity=, 5.25, attack_surface:6, business_value:5, tech_exposure:8, gate_ease:10, cloud_surface:4, freshness:9
+[HYP] Staging-only public API endpoint captcha-gated but prod returns 404 — bundle divergence confirms code-path difference
+class: IDOR
+asset: https://work.test.threema.ch/api-app/public/global_settings
+confidence: 75
+reasoning: Staging returns 400 captcha-gated (previously 200 unauthenticated), prod returns 404; work_public.js v2.25.1 staging build (sha256 e48e18f7…) implements /public/* routes, prod build (sha256 96501e21…) has ZERO /public/* handlers — bundle divergence proven; captcha adds auth gate but endpoint logic remains staging-only
+evidence_needed: Verify captcha bypass or valid captcha flow to reach endpoint logic; confirm no equivalent prod route exists under different path
+verify_steps: PASSIVE — GET https://work.test.threema.ch/api-app/public/global_settings -H "Origin: https://evil.example" → verify 400 captcha_proof_expired + CSP + __HOST-HTTP-SESSIONID cookie; GET https://work.threema.ch/api-app/public/global_settings → verify 404; compare work_public.js bundles for /public/* route handlers
+impact: Staging-only public API surface with divergent code paths; if captcha bypassed, exposes appLinkHost + app-download URLs; CVSS 4.3 (AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:N/A:N)
+testability: PASSIVE
+[HYP] Safe backup API HSTS/Expect-CT header inconsistency enables credentialed cross-origin requests without transport security enforcement on error path
+class: MISCONFIG
+asset: https://safe-01.threema.ch/backups/{64hex}
+confidence: 80
+reasoning: OPTIONS preflight returns 204 with HSTS (max-age=31104000) + Expect-CT + ACAO:* + Allow-Headers:Authorization; GET /backups/{64hex} returns 400 credential-gated with ACAO:* + write-capable methods but NO HSTS/Expect-CT — header inconsistency on error path weakens transport-security enforcement for credentialed cross-origin requests
+evidence_needed: Confirm browser enforces HSTS on preflight but not on credentialed GET; test credentialed cross-origin request from HTTPS origin
+verify_steps: PASSIVE — OPTIONS https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000 -H "Origin: https://evil.example" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: Authorization" → verify HSTS+Expect-CT on 204; GET same URL with Authorization:Basic → verify 400 lacks HSTS/Expect-CT
+impact: Credentialed cross-origin requests to backup API may traverse without HSTS upgrade on error responses; weakens transport security for Basic Auth credentials; CVSS 5.3 (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
+testability: PASSIVE
+[HYP] Billing static assets serve full security headers (HSTS/Expect-CT/CSP/X-Frame-Options) but 404 error page lacks all headers — header divergence on error path
+class: MISCONFIG
+asset: https://billing.threema.ch/cache/
+confidence: 70
+reasoning: Static assets (jQuery 3.7.1, custom CSS) on /cache/ paths serve with full security headers; 404 error page (nginx catch-all) carries none — security-header divergence confirmed; no credential handling on error path but defense-in-depth gap for any future error-path credential exposure
+evidence_needed: Verify no sensitive endpoints exist under billing.threema.ch that could leak via error path; confirm header policy is intentional
+verify_steps: PASSIVE — GET https://billing.threema.ch/cache/billing_gui_theme_threema.css → verify HSTS+Expect-CT+CSP+X-Frame-Options; GET https://billing.threema.ch/nonexistent → verify 404 lacks all security headers; enumerate /cache/ directory listing if available
+impact: Inconsistent security header application; error pages lack transport security enforcement; CVSS 3.7 (AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N)
+testability: PASSIVE
+[PARKED] GET query-param token mint on /identity/revoke enables preflight-free cross-origin identity enumeration: confidence 90 but target is chat (directory servers), not web — my phase target is web
+[PARKED] fetch_priv revocation-aware error body enables 3-state identity discrimination: confidence 85 but target is chat, not web — requires AUTH_HELPED for revoked identity proof
+[PARKED] apip-work.threema.ch credentialed cross-origin probing: confidence 75 but requires AUTH_HELPED for valid work credentials; cannot verify passively
+[FINAL] 1. Staging-only public API endpoint captcha-gated but prod returns 404 — bundle divergence confirms code-path difference (IDOR, confidence 75, PASSIVE)
+[FINAL] 2. Safe backup API HSTS/Expect-CT header inconsistency enables credentialed cross-origin requests without transport security enforcement on error path (MISCONFIG, confidence 80, PASSIVE)
+[FINAL] 3. Billing static assets serve full security headers but 404 error page lacks all headers — header divergence on error path (MISCONFIG, confidence 70, PASSIVE)
+[NEXT] PROBE: GET https://work.test.threema.ch/api-app/public/global_settings -H "Origin: https://evil.example" → verify 400 captcha_proof_expired + CSP + __HOST-HTTP-SESSIONID cookie; GET https://work.threema.ch/api-app/public/global_settings → verify 404; diff work_public.js bundles for /public/* handlers
+[LEARN] ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke?identity=: GET query-param token mint confirmed LIVE (resolves 20+ cycle KB contradiction)
+[LEARN] ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work-directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS); auth-gated (OPTIONS→401 unlike consumer ds-apip OPTIONS→200)
+[LEARN] ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/fetch_priv: 88B error-body distinctness confirmed (revocation-aware vs 46B for other 7 mint endpoints)
+[LEARN] REJECTED MISCONFIG @ /identity/fetch_bulk: malformed input returns 200/17B NOT 500 — NOT a crash-family member
+[LEARN] REJECTED MISCONFIG @ /identity/delete: returns 404 on all probes — NOT a crash-family member (count corrected 16→15)
+[LEARN] REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws (1.6M+ IDs) — not structural, insufficient for class
+[LEARN] CHANGED work.test.threema.ch /api-app/public/global_settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie + CSP) — was 200/299B unauthenticated
+[LEARN] CONFIRMED MISCONFIG @ crash family: 15 endpoint families × 4 hosts × GET+POST = 120 combos, all 500/0B with ACAO:* + zero 429, byte-stable
+[LEARN] CONFIRMED IDOR @ 8-endpoint GET+text/plain mint cluster: 24 byte-stable combos, constant tokenRespKeyPub sha256 c8005cca9…, zero-preflight browser-viable
+[RISK] chat: 92 reason — directory servers (ds-apip/api/apip) expose 12+ unauthenticated IDOR endpoints with CORS * + no rate limits; 11 token-mint existence oracles (shared GET query-param + GET+text/plain handlers, zero OPTIONS preflight) + 15-family crash DoS cluster (120 combos); check_featuremask census yields 11 live-active accounts at ~6.5e-6 density via 524k-ID batches; check_license credential oracle at root path with 4-host parity; maximum cross-origin amplification
+[RISK] web: 38 reason — work.test.threema.ch staging-only /api-app/public/global_settings (captcha-gated 400 vs prod 404) with bundle divergence proven; safe-*.threema.ch credential-gated backup API with HSTS/Expect-CT header inconsistency (OPTIONS 204 has headers, GET 400 lacks them); billing.threema.ch static assets on /cache/ serve full HSTS/Expect-CT/CSP/X-Frame-Options while 404 error page lacks all headers; broadcast.threema.ch/api/v1 401 auth-gated no key-format oracle; gateway.threema.ch 404/301 no msgapi; shop.threema.ch 301
+[RISK] sync: 12 reason — mediator/rendezvous-*.threema.ch uniform 403 on HTTPS with high-entropy paths; WSS requires authenticated login frame; DNS split routing fully attributed (0-7→203.56.112.247, 8-f→203.56.114.247); no passive in-band surface beyond DNS
+[RISK] safe: 72 reason — safe-{01,1a,1b,02,00}.threema.ch (5 hosts, single IP 203.56.112.231) credential-gated backup API (HTTP Basic Auth) with HSTS/Expect-CT header inconsistency (OPTIONS 204 has headers, GET 400 lacks them); route-existence oracle (400 vs 404); CORS * with Allow-Headers: Authorization enables credentialed cross-origin; apip-work.threema.ch alias expands entry points
+[RISK] desktop-src: 58 reason — threema-desktop key-storage Windows ACL bypass (6-path RAG-verified chain on GitHub stable; PoC artifact never authored at filesystem ground truth); BrowserWindow sandbox unset + nodeIntegrationInWorker: true (TODO DESK-79) — conditional RCE surface (rejected as standalone class); reposcan-raw EMPTY (0 source files local, WebFetch-only); Windows runtime validation blocker persists
