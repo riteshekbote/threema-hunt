@@ -3530,3 +3530,9 @@ https://ds-apip.threema.ch/identity/5U8DM3J3 -> 200 len=? type=application/json;
 https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/fetch_priv?id=$(curl -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-18 14:13:07 UTC
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
+https://apip-work.threema.ch/identities -> HTTP 401
+https://work.test.threema.ch/api-app/public/global_settings -> HTTP 404
+https://work.threema.ch/api-app/public/global_settings -> HTTP 404
