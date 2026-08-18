@@ -9747,3 +9747,63 @@
 - LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT (`ls poc/` → No such file); all 20+ cycle KB sha256 claims DISPROVEN; 6-path RAG source chain verified on Git
 - LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem GROUND TRUTH = `{"phase": "POC", "target": "chat"}` (sha256 `94bd1bd1…`) — KB claims of `{"targe
 - LEARN: REJECTED MISCONFIG @ reposcan-raw/threema-ch/ local clone: 18 repo directories ALL EMPTY (0 source files); all "RAG-VERIFIED via direct git clone" claims unfulf
+
+## RANKED HYPOTHESES 2026-08-18 03:33:47 UTC
+- [95] https://{ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv}: Shared-handler token-mint + crash DoS convergence on 8 directory endpoints (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://ds-apip.threema.ch/identity/revoke -H "Content-Type: text/plain" -H "Origin: https://evil.example" -d '{"identity":{"x":1}}' → verify 500/0B 
+- NEXT(hypotheses-laguna.txt): PROBE: GET `https://ds-apip.threema.ch/identity/match_token` -H "Content-Type: text/plain" -H "Origin: https://evil.example" -d '{"identity":{"x":1}}' → verify 
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_p
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/revoke?identity=ECHOECHO: GET query-param token mint confirmed LIVE (resolves 20+ cycle KB contradiction)
+- LEARN: ACCEPTED MISCONFIG @ /identity/create: 16th crash family member — POST malformed publicKey → 500/0B on 3 prod + staging, NOT a token-mint endpoint
+- LEARN: REJECTED MISCONFIG @ /identity/delete: returns 404 on all probes — NOT a crash-family member (count corrected 16→15)
+- LEARN: ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS); auth-gated (OPTIONS→
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws — not structural, insufficient for class
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 23rd+ cycle; all KB sha256 claims DISPROVEN
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json: filesystem = {"phase":"POC","target":"chat"} — KB desktop-target claims stale
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: PERMANENTLY DOWNGRADED — 404 has NO CORS headers, key NOT in threema-desktop source
+- LEARN: CHANGED work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie +
+- LEARN: NO_NEW_CLASS — all previously accepted findings byte-stable; no new vulnerability classes opened this cycle
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip}.threema.ch/identity/{8 endpoints}: shared-handler crash+token-mint convergence byte-stable this cycle — 8 endpoints × 3 
+- LEARN: ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/check_featuremask: census byte-stable fresh — POST `{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ","ECHO
+- LEARN: ACCEPTED MISCONFIG @ /identity/create: 16th crash family member (POST malformed publicKey → 500/0B on 3 prod + staging), NOT a token-mint endpoint (GET+body val
+- LEARN: REJECTED MISCONFIG @ /identity/delete: returns 404 on all probes → NOT a crash-family member (count corrected 16→15).
+- LEARN: CHANGED @ work.test.threema.ch /api-app/public/global_settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` confirmed be
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws (1.6M+ IDs) — anomalous identities, not structural class.
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT (`ls poc/` → No such file); all 20+ cycle KB sha256 claims DISPROVEN; 6-path RAG source chain verified on Git
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem GROUND TRUTH = `{"phase": "POC", "target": "chat"}` (sha256 `94bd1bd1…`) — KB claims of `{"targe
+- LEARN: REJECTED MISCONFIG @ reposcan-raw/threema-ch/ local clone: 18 repo directories ALL EMPTY (0 source files); all "RAG-VERIFIED via direct git clone" claims unfulf
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip}.threema.ch/identity/{8 endpoints}: shared-handler crash+token-mint convergence byte-stable this cycle — 8 endpoints × 3 
+- LEARN: ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/check_featuremask: census byte-stable fresh — POST `{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ","ECHO
+- LEARN: ACCEPTED MISCONFIG @ /identity/create: 16th crash family member (POST malformed publicKey → 500/0B on 3 prod + staging), NOT a token-mint endpoint (GET+body val
+- LEARN: REJECTED MISCONFIG @ /identity/delete: returns 404 on all probes → NOT a crash-family member (count corrected 16→15).
+- LEARN: CHANGED @ work.test.threema.ch /api-app/public/global_settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` confirmed be
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws (1.6M+ IDs) — anomalous identities, not structural class.
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT (`ls poc/` → No such file); all 20+ cycle KB sha256 claims DISPROVEN; 6-path RAG source chain verified on Git
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem GROUND TRUTH = `{"phase": "POC", "target": "chat"}` (sha256 `94bd1bd1…`) — KB claims of `{"targe
+- LEARN: REJECTED MISCONFIG @ reposcan-raw/threema-ch/ local clone: 18 repo directories ALL EMPTY (0 source files); all "RAG-VERIFIED via direct git clone" claims unfulf
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_p
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/revoke?identity=ECHOECHO: GET query-param token mint confirmed LIVE (resolves 20+ cycle KB contradiction)
+- LEARN: ACCEPTED MISCONFIG @ /identity/create: 16th crash family member — POST malformed publicKey → 500/0B on 3 prod + staging, NOT a token-mint endpoint
+- LEARN: REJECTED MISCONFIG @ /identity/delete: returns 404 on all probes — NOT a crash-family member (count corrected 16→15)
+- LEARN: ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS); auth-gated (OPTIONS→
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws — not structural, insufficient for class
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 23rd+ cycle; all KB sha256 claims DISPROVEN
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json: filesystem = {"phase":"POC","target":"chat"} — KB desktop-target claims stale
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: PERMANENTLY DOWNGRADED — 404 has NO CORS headers, key NOT in threema-desktop source
+- LEARN: CHANGED work.test.threema.ch /api-app/public/global_settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie +
+- LEARN: NO_NEW_CLASS — all previously accepted findings byte-stable; no new vulnerability classes opened this cycle
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip}.threema.ch/identity/{8 endpoints}: shared-handler crash+token-mint convergence byte-stable this cycle — 8 endpoints × 3 
+- LEARN: ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/check_featuremask: census byte-stable fresh — POST `{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ","ECHO
+- LEARN: ACCEPTED MISCONFIG @ /identity/create: 16th crash family member (POST malformed publicKey → 500/0B on 3 prod + staging), NOT a token-mint endpoint (GET+body val
+- LEARN: REJECTED MISCONFIG @ /identity/delete: returns 404 on all probes → NOT a crash-family member (count corrected 16→15).
+- LEARN: CHANGED @ work.test.threema.ch /api-app/public/global_settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12` confirmed be
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws (1.6M+ IDs) — anomalous identities, not structural class.
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT (`ls poc/` → No such file); all 20+ cycle KB sha256 claims DISPROVEN; 6-path RAG source chain verified on Git
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB claims: filesystem GROUND TRUTH = `{"phase": "POC", "target": "chat"}` (sha256 `94bd1bd1…`) — KB claims of `{"targe
+- LEARN: REJECTED MISCONFIG @ reposcan-raw/threema-ch/ local clone: 18 repo directories ALL EMPTY (0 source files); all "RAG-VERIFIED via direct git clone" claims unfulf

@@ -3303,3 +3303,10 @@ https://work.test.threema.ch/api-app/public/global/settings -> HTTP 400
 https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
 https://ds-apip.threema.ch/identity/match_token` -> HTTP 404
+
+## 2026-08-18 03:33:50 UTC
+https://apip-work.threema.ch -> HTTP 401
+https://work.test.threema.ch/api-app/public/global/settings -> HTTP 400
+https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/match_token` -> HTTP 404
