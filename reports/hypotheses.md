@@ -10230,3 +10230,42 @@
 - LEARN: CONFIRMED IDOR @ check_featuremask census: Byte-stable this cycle; 11 distinct live-active accounts; tri-state oracle; density ~6.5e-6 converged.
 - LEARN: CHANGED work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie +
 - LEARN: NO_NEW_CLASS — all previously accepted findings byte-stable; no new vulnerability classes opened this cycle; fetch_priv crash gap is extension of existing crash
+
+## RANKED HYPOTHESES 2026-08-18 10:51:12 UTC
+- [95] https://{ds-apip,api,apip}.threema.ch/identity/check_featuremask: check_featuremask census oracle yielding live-active identities + pubkeys (from reports/hypotheses-laguna.txt)
+- [85] https://ds-apip.threema.ch/identity/fetch_priv: fetch_priv graceful degradation vs crash family convergence (from reports/hypotheses-bigpickle.txt)
+- [75] safe-01.threema.ch: Credential-gated backup API exposes route-existence oracle via HSTS/Expect-CT header inconsistency (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000 -H "Origin: https://evil.example" — verify 400 la
+- NEXT(hypotheses-laguna.txt): PROBE: Fresh 3-shot sequence at ≤1 rps:
+- NEXT(hypotheses-bigpickle.txt): PROBE: POST text/plain `{"identity":{"x":1}}` -H "Origin: https://evil.example" -H "Content-Type: text/plain" to https://ds-apip.threema.ch/identity/fetch_priv 
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, not 500; NOT a crash-family memb
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash family membership: returns 404 on all probes; NOT a member; crash-family count = 15 (not 16)
+- LEARN: REJECTED MISCONFIG @ /identity/revoke?identity=ECHOECHO GET query-param mint: returns 46B universally; query-param NOT a token-mint vector (POST-body only)
+- LEARN: ACCEPTED IDOR @ /identity/revoke GET+text/plain body mint: confirmed LIVE as 2nd GET-accepting token-mint endpoint (after set_featuremask)
+- LEARN: ACCEPTED IDOR @ GET+text/plain token-mint cluster: revoke + set_featuremask uniquely accept GET (check/check_featuremask return 500 on GET); GET+text/plain is C
+- LEARN: ACCEPTED MISCONFIG @ shared-handler crash+token-mint convergence: same JSON handler both mints tokens (200/133B valid) AND crashes (500/0B malformed) on identic
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); 2 anomalous distinct in 2/22 draws (~0.5%); not a structural fingerpri
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem claims: STILL ABSENT 25th+ consecutive cycle (`ls poc/` → No such file); all 20+ KB sha256 claims DISPROVEN; 6-path RAG sou
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB `{"target":"desktop"}` claims: filesystem GROUND TRUTH = `{"phase":"POC","target":"chat"}` (sha256 94bd1bd1…) acros
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223 benchmark password: confirmed benchmark-only dummy in determineKdfParams(), purged at L233, NOT used for real encryption
+- LEARN: REJECTED CLASS @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle PERMANENTLY: 404 response has NO CORS headers, missing-key/invalid-key produce byte-identical 404, key N
+- LEARN: ACCEPTED OTHER @ apip-work.threema.ch: 4th work-directory hostname alias — resolves to 203.56.112.209 (same as ds-apip-work); OPTIONS→401 (auth-gated preflight 
+- LEARN: ACCEPTED MISCONFIG @ fetch_priv error-body distinctness: 88B `{"success":false,"errorType":"invalid-identity","error":"Identity not found or revoked"}` vs 46B f
+- LEARN: ACCEPTED HYP @ fetch_priv crash membership: NEW gap identified — 7/8 token-mint endpoints confirmed crashing on malformed identity object; fetch_priv unconfirme
+- LEARN: REJECTED: crypto.ts:223 benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12`) — confirmed benchmark-
+- LEARN: REJECTED: Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE — `sandbox` UNSET (TODO DESK-79 at electron-main.ts:1255), `nodeIntegrationInW
+- LEARN: REJECTED: work.threema.ch/api/v1 X-Api-Key oracle — PERMANENTLY DOWNGRADED — 404 response has NO CORS headers (neither GET nor OPTIONS); missing-key/invalid-key
+- LEARN: REJECTED: type:1 Work-org fingerprint class — 6 consecutive zero-type:1 draws (1.6M+ IDs, draws 19-24); 2 anomalous distinct (DZ34BVDV, VK24BPYV) in 2/22 draws 
+- LEARN: ACCEPTED: /identity/fetch_bulk NOT a crash-family member — malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, not 500; pure IDOR oracle with valid 100
+- LEARN: REJECTED: /identity/delete NOT a crash-family member — returns 404 on all probes (POST `{"identity":{"x":1}}` → 404, valid identity POST → 404) — route not regi
+- LEARN: ACCEPTED: /identity/revoke (non-ws path) confirmed as 11th token-mint existence oracle — GET+text/plain `{"identity":"echoecho"}` → 200/134B token + constant to
+- LEARN: REJECTED: state_bigpickle.json KB `{"target":"desktop"}` claims — filesystem GROUND TRUTH = `{"phase":"POC","target":"chat"}` (sha256 `94bd1bd1…`) across 27th+ 
+- LEARN: REJECTED: poc/key-storage-acl-bypass-poc.py on-disk claims — `ls poc/` → No such file (exit 2); `find / -name "key-storage-acl-bypass*"` returns zero — ALL 20+ 
+- LEARN: ACCEPTED: shared-handler crash+token-mint convergence — fresh probes confirm SAME JSON handler both mints tokens (GET+text/plain valid → 200/134B) AND crashes (
+- LEARN: REJECTED: reposcan-raw/threema-ch/ local clone EMPTY — `find` returns 0 source files across all 18 repo directories (threema-android, threema-ios, threema-deskt
+- LEARN: ACCEPTED HYP @ fetch_priv crash membership: NEW gap identified — 7/8 token-mint endpoints confirmed crashing on malformed identity object; fetch_priv unconfirme
+- LEARN: CONFIRMED IDOR @ 8-endpoint GET+text/plain mint cluster: 24 byte-stable combos re-confirmed this cycle; constant tokenRespKeyPub sha256 c8005cca…; zero-prefligh
+- LEARN: CONFIRMED IDOR @ check_featuremask census: Byte-stable this cycle; 11 distinct live-active accounts; tri-state oracle; density ~6.5e-6 converged.
+- LEARN: CHANGED work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie +
+- LEARN: NO_NEW_CLASS — all previously accepted findings byte-stable; no new vulnerability classes opened this cycle; fetch_priv crash gap is extension of existing crash

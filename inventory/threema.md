@@ -5400,3 +5400,18 @@
 - CHANGED GET+text/plain token-mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos (revoke, set_featuremask, match_token, check_revocation_key, blob_cred, sfu_cred, update_wo
 - CHANGED Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
 - CHANGED type:1 Work-org fingerprint WEAKENED: 6 consecutive zero-type:1 draws (19-24, 1.6M+ IDs); 2 anomalous distinct in 2/22 draws (~0.5% rate); not structural
+
+## 2026-08-18 10:51:12 UTC
+- NEW work.test.threema.ch /api-app/public/global/settings now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie + CSP) — was 200/299B unauthenticated
+- CHANGED /identity/fetch_bulk crash family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}` — NOT a crash-family member (pure IDOR oracle, 10000-ID count-cap)
+- CHANGED /identity/delete crash family membership: returns 404 on all probes — NOT a member; crash-family count corrected 16→15 endpoint families (15×4×2=120 combos)
+- CHANGED GET+text/plain token-mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos (revoke, set_featuremask, match_token, check_revocation_key, blob_cred, sfu_cred, update_wo
+- CHANGED Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
+- CHANGED type:1 Work-org fingerprint WEAKENED: 6 consecutive zero-type:1 draws (19-24, 1.6M+ IDs); 2 anomalous distinct in 2/22 draws (~0.5% rate); not structural
+- NEW apip-work.threema.ch: 4th work-directory hostname alias (resolves to 203.56.112.209, same as ds-apip-work; OPTIONS→401 auth-gated preflight unlike consumer ds-apip OPTIONS→200; byte-identical 401 + AC
+- NEW /identity/revoke (non-ws path): Confirmed LIVE as token-mint identity-existence oracle — POST `{"identity":"echoecho"}` → 200/133B token + constant tokenRespKeyPub sha256 `c8005cca9…`; invalid → 200/4
+- NEW shared-handler crash+token-mint convergence: Own probes confirm SAME handler both mints tokens (POST/GET+text/plain → 200/133B valid) AND crashes (malformed `{"identity":{"x":1}}` → 500/0B + ACAO:*) o
+- CHANGED work.test.threema.ch /api-app/public/global/settings: NOW captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie + CSP) — was 200/299B unauthenticated; staging-pr
+- CHANGED Crash family matrix: /identity/fetch_bulk malformed `{"identities":{}}` → 200/17B `{"identities":[]}` NOT 500 — NOT a crash-family member; /identity/delete returns 404 on all probes — NOT a member; cr
+- CHANGED GET+text/plain token-mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos (revoke, set_featuremask, match_token, check_revocation_key, blob_cred, sfu_cred, update_wo
+- CHANGED type:1 Work-org fingerprint: WEAKENED — 6 consecutive zero-type:1 draws (19-24, 1.6M+ IDs); 2 anomalous distinct in 2/22 draws (~0.5%); not a structural fingerprint class; anomalous identities only.
