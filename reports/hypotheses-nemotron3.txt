@@ -1,25 +1,25 @@
-## 2026-08-18 22:46:51 UTC [web] (model nemotron3)
+## 2026-08-18 23:03:34 UTC [web] (model nemotron3)
 [NEW] apip-work.threema.ch — 4th work-directory hostname alias (203.56.112.209, OPTIONS+GET→401 + ACAO:* + no HSTS/Expect-CT; auth-gated preflight)
-[NEW] /identity/revoke (non-ws path) — 11th token-mint existence oracle (GET+text/plain+POST return 200/133B token for valid, 200/46B for invalid; case-fold amplification; GET query-param variant returns 46B)
-[NEW] /identity/fetch_priv crash membership — confirmed as 16th crash-family member (POST `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence; 88B rev-aware error body
-[NEW] check_license crash family 4-host parity — POST `{"version":{}}` → 500/0B on all 4 hosts (ds-apip+api+apip+ds-apip.test); GET+text/plain→500/0B; sole crash family with OPTIONS→200; sole 4-host crash parity
-[NEW] check_license credential oracle — POST fake creds → 200/65B `{"success":false,"error":"This username or password is invalid."}` + ACAO:* + Allow-Headers Content-Type,User-Agent; OPTIONS→200 CORS `*`
+[NEW] /identity/revoke (non-ws path) — 11th token-mint existence oracle (GET+text/plain+POST return 200/133B token for valid, 200/46B for invalid; case-fold amplification; GET query-param returns 46B)
+[NEW] /identity/fetch_priv — confirmed 16th crash-family member (POST `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence; 88B rev-aware error body
+[NEW] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license — 16th crash family member (POST `{"version":{}}` → 500/0B on all 4; GET+text/plain→500/0B; sole crash family with OPTIONS→200; sole 4-host parity)
+[NEW] check_license credential oracle — POST fake creds → 200/65B `{"success":false,"error":"This username or password is invalid."}` + ACAO:* + Allow-Headers; OPTIONS→200 CORS `*`; 4-host parity; success-shape requires valid Work license
 [CHANGED] work.test.threema.ch/api-app/public/global_settings — now captcha-gated (HTTP 400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` cookie + CSP); was 200/299B unauthenticated oracle
 [CHANGED] broadcast.threema.ch — now accessible (was TIMEOUT); 301 to /en/login with session cookie, CSP, Sentry
 [CHANGED] gateway.threema.ch — now accessible (was TIMEOUT); 302 to /en with session cookie, CSP, Sentry
-[CHANGED] billing.threema.ch — now accessible (was TIMEOUT); 301 to threema.ch; static assets serve with full HSTS/Expect-CT/CSP/X-Frame-Options but 404 page lacks all headers
+[CHANGED] billing.threema.ch — now accessible (was TIMEOUT); 301 to threema.ch; static assets serve full HSTS/Expect-CT/CSP/X-Frame-Options but 404 page lacks all headers
 [CHANGED] work.threema.ch — now accessible; 301 to /en/login with PHP session cookie, CSP, Sentry
 [CHANGED] shop.threema.ch — now accessible; 301 to /en with CSP, Sentry, hCaptcha subdomain
 [CHANGED] /identity/delete crash membership — corrected: returns 404 (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
 [CHANGED] /identity/fetch_bulk crash membership — confirmed NOT crash-family member (malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, graceful validation)
-[CHANGED] /identity/revoke query-param variant — confirmed returns 46B universally (not a token-mint vector); POST-body required for mint
-[PRIO] work.test.threema.ch/api-app/public/global_settings, 52, attack_surface:6 business_value:5 tech_exposure:5 gate_ease:6 cloud_surface:4 freshness:9
-[PRIO] broadcast.threema.ch, 48, attack_surface:6 business_value:6 tech_exposure:5 gate_ease:8 cloud_surface:4 freshness:8
-[PRIO] gateway.threema.ch, 45, attack_surface:6 business_value:5 tech_exposure:5 gate_ease:8 cloud_surface:4 freshness:8
-[PRIO] apip-work.threema.ch, 42, attack_surface:5 business_value:5 tech_exposure:4 gate_ease:7 cloud_surface:4 freshness:9
-[PRIO] ds-apip.threema.ch/identity/revoke, 40, attack_surface:7 business_value:4 tech_exposure:4 gate_ease:8 cloud_surface:3 freshness:7
-[PRIO] ds-apip.threema.ch/identity/fetch_priv, 38, attack_surface:7 business_value:3 tech_exposure:6 gate_ease:8 cloud_surface:3 freshness:6
-[PRIO] ds-apip.threema.ch/check_license, 36, attack_surface:6 business_value:4 tech_exposure:5 gate_ease:8 cloud_surface:3 freshness:5
+[CHANGED] /identity/revoke query-param variant — confirmed returns 46B universally (not token-mint vector); POST-body required for mint
+[PRIO] work.test.threema.ch/api-app/public/global_settings, 54, attack_surface:6 business_value:6 tech_exposure:6 gate_ease:7 cloud_surface:4 freshness:9
+[PRIO] broadcast.threema.ch, 50, attack_surface:6 business_value:6 tech_exposure:5 gate_ease:8 cloud_surface:4 freshness:8
+[PRIO] gateway.threema.ch, 47, attack_surface:6 business_value:5 tech_exposure:5 gate_ease:8 cloud_surface:4 freshness:8
+[PRIO] apip-work.threema.ch, 43, attack_surface:5 business_value:5 tech_exposure:4 gate_ease:7 cloud_surface:4 freshness:9
+[PRIO] ds-apip.threema.ch/identity/revoke, 41, attack_surface:7 business_value:4 tech_exposure:4 gate_ease:8 cloud_surface:3 freshness:7
+[PRIO] ds-apip.threema.ch/check_license, 38, attack_surface:6 business_value:4 tech_exposure:5 gate_ease:8 cloud_surface:3 freshness:5
+[PRIO] ds-apip.threema.ch/identity/fetch_priv, 36, attack_surface:7 business_value:3 tech_exposure:6 gate_ease:8 cloud_surface:3 freshness:6
 [HYP] work.test.threema.ch captcha-gating bypass on public settings endpoint
 class: AUTH
 asset: work.test.threema.ch/api-app/public/global_settings
@@ -32,7 +32,7 @@ testability: PASSIVE
 [HYP] broadcast.threema.ch session fixation via redirect cookie
 class: AUTH
 asset: broadcast.threema.ch
-confidence: 70
+confidence: 65
 reasoning: Now accessible with session cookie + CSP + Sentry on 301 redirect to /en/login; previously TIMEOUT suggests new deployment; session cookie on unauthenticated redirect may enable fixation if cookie not rotated post-login
 evidence_needed: Verify if session cookie set on 301 response is reused after login; check if cookie has Secure/HttpOnly/SameSite attributes
 verify_steps: PASSIVE: GET https://broadcast.threema.ch -H "Origin: https://evil.example" — capture Set-Cookie headers on 301 response; check cookie attributes; GET https://broadcast.threema.ch/en/login with captured cookie to observe behavior
@@ -41,14 +41,14 @@ testability: PASSIVE
 [HYP] gateway.threema.ch information disclosure via newly accessible endpoints
 class: MISCONFIG
 asset: gateway.threema.ch
-confidence: 65
+confidence: 55
 reasoning: Now accessible with session cookie + CSP + Sentry on 302 redirect to /en; previously TIMEOUT; /en paths may expose internal routes, version info, or debug endpoints
 evidence_needed: Map all accessible paths under /en; probe for debug endpoints (/actuator, /health, /metrics, /api-docs); check Sentry DSN exposure in JS bundles
 verify_steps: PASSIVE: GET https://gateway.threema.ch/en -H "Origin: https://evil.example" — capture response headers, body; GET https://gateway.threema.ch/en/login; probe common admin/debug paths; fetch JS bundles for Sentry DSN
 impact: Internal API surface mapping, version disclosure, potential admin panel exposure
 testability: PASSIVE
-[PARKED] broadcast.threema.ch session fixation via redirect cookie: confidence 70 but verify_steps rely on login flow interaction (POST to /en/login) which may exceed passive-only; session fixation requires auth-helped validation
-[PARKED] gateway.threema.ch information disclosure via newly accessible endpoints: confidence 65 but generic error-path probing; no specific vulnerability indicator beyond "now accessible"; low signal
+[PARKED] broadcast.threema.ch session fixation via redirect cookie: confidence 65 but verify_steps rely on login flow interaction (POST to /en/login) which may exceed passive-only; session fixation requires auth-helped validation
+[PARKED] gateway.threema.ch information disclosure via newly accessible endpoints: confidence 55 but generic error-path probing; no specific vulnerability indicator beyond "now accessible"; low signal
 [FINAL] 1. work.test.threema.ch/api-app/public/global_settings captcha-gating bypass (75) — staging-only public endpoint with captcha gate; concrete passive verify steps; clear impact if bypassable
 [NEXT] PROBE: GET https://work.test.threema.ch/api-app/public/global_settings -H "Origin: https://evil.example" -H "Accept: application/json" — capture full 400 response headers/body, extract __HOST-HTTP-SESSIONID cookie, replay request with identical cookie to test if captcha_proof_expired is session-bound or reusable
 [LEARN] ACCEPTED MISCONFIG @ broadcast.threema.ch: Now accessible (was TIMEOUT) — 301 to /en/login with session cookie, CSP, Sentry
