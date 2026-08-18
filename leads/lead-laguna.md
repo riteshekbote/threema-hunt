@@ -26208,3 +26208,4 @@ testability: PASSIVE
 [RISK] safe: 25 | reason — safe-*.threema.ch backup API credential-gated (HTTP Basic Auth) with route-existence oracle (400 vs 404) + HSTS/Expect-CT gap on GET 400; 5 hosts behind single IP
 [RISK] desktop-src: 40 | reason — threema-desktop key-storage Windows ACL bypass (6-path RAG chain verified on GitHub stable, PoC artifact not authored — filesystem confirms absent); BrowserWindow sandbox unset + nodeIntegrationInWorker (TODO DESK-79); OnPrem config trust verified safe; crypto.ts:223 benchmark dummy confirmed benign
 ## 2026-08-18 17:43:26 UTC [desktop] (model laguna)
+## 2026-08-18 18:03:05 UTC [desktop] (model laguna)
