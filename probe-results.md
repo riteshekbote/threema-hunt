@@ -3536,3 +3536,16 @@ https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/jso
 https://apip-work.threema.ch/identities -> HTTP 401
 https://work.test.threema.ch/api-app/public/global_settings -> HTTP 404
 https://work.threema.ch/api-app/public/global_settings -> HTTP 404
+
+## 2026-08-18 14:28:23 UTC
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
+https://apip-work.threema.ch/identities -> HTTP 401
+https://work.test.threema.ch/api-app/public/global_settings -> HTTP 404
+https://work.threema.ch/api-app/public/global_settings -> HTTP 404
+https://ds-apip.threema.ch/identity/revoke` -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/check_license` -> HTTP 404
+https://api.threema.ch/identity/check_featuremask` -> HTTP 404
+https://ds-apip.threema.ch/identity/5U8DM3J3` -> HTTP 404
+https://ds-apip.threema.ch/check_license` -> HTTP 404
