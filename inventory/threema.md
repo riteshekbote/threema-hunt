@@ -5644,3 +5644,24 @@
 - CHANGED /identity/delete crash-family membership corrected: returns 404 (NOT a member); crash-family = 15 endpoint families x 4 hosts x GET+POST = 120 combos
 - CHANGED /identity/fetch_bulk confirmed NOT crash-family member: malformed {"identities":{}} -> 200/17B {"identities":[]} (graceful validation)
 - CHANGED work.test.threema.ch `/api-app/public/global_settings` now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/299B unauthenticated
+
+## 2026-08-18 19:47:23 UTC
+- NEW work.threema.ch: Now responds with 301 to /en/login with PHP session cookie, CSP, Sentry reporting (was 301, now detailed)
+- NEW shop.threema.ch: Now responds with 301 to /en with CSP, Sentry, hCaptcha subdomain (was 301, now detailed)
+- NEW broadcast.threema.ch: Now responds 301 to /en/login (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+- NEW gateway.threema.ch: Now responds 302 to /en (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+- NEW billing.threema.ch: Now responds 301 to threema.ch (was TIMEOUT, now redirects to main site)
+- NEW api.threema.ch: Returns 403 with same permissive CORS headers as apip.threema.ch (likely related ID service)
+- NEW safe.threema.ch: Timeout/no response (backup service pattern candidate)
+- NEW ds-apip.threema.ch: Canonical directory server hostname from config/vite.config.ts + OpenAPI; public GET /identity/{id} returns 200/404 oracle
+- NEW mediator-{X}.threema.ch/{XX}/: Hostname pattern (WSS sync server) from client config
+- NEW safe-{XX}.threema.ch/: Hostname pattern (backup safe) from client config
+- NEW rendezvous-{X}.threema.ch/{XX}/: Hostname pattern (WSS linking server) from client config
+- NEW ds-apip.test.threema.ch: Leaked test/staging directory server reachable (static + live 200)
+- NEW apip-work.threema.ch: 4th work-directory hostname alias (203.56.112.209 same as ds-apip-work; OPTIONS+GET -> 401 + ACAO:* + no HSTS/Expect-CT; auth-gated preflight)
+- NEW /identity/revoke (non-ws path): 11th token-mint oracle — GET+text/plain + POST return 200/133B token for valid, 200/46B for invalid; case-fold amplification; sibling parity byte-identical
+- NEW /identity/fetch_priv: 16th crash-family member (POST {"identity":{"x":1}} -> 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence; 88B error-body distinct
+- NEW check_license crash: Confirmed on all 4 hosts (POST {"version":{}} -> 500/0B; GET+text/plain -> 500/0B; OPTIONS -> 200 CORS *; only crash family with 4-host parity + OPTIONS-200)
+- CHANGED /identity/delete: Crash-family membership corrected — returns 404 (NOT a member); crash-family = 15 endpoint families x 4 hosts x GET+POST = 120 combos
+- CHANGED /identity/fetch_bulk: Confirmed NOT crash-family member — malformed {"identities":{}} -> 200/17B {"identities":[]} (graceful validation)
+- CHANGED work.test.threema.ch /api-app/public/global_settings: Now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/299B unauthenticated

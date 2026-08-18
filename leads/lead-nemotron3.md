@@ -22760,3 +22760,84 @@ testability: PASSIVE
 [RISK] sync: 12 reason — mediator/rendezvous-*.threema.ch uniform 403 on HTTPS; high-entropy path structure observed; no unauthenticated surface
 [RISK] safe: 25 reason — safe-*.threema.ch backup API credential-gated (HTTP Basic Auth) with route-existence oracle (400 vs 404) + HSTS/Expect-CT header inconsistency; 5 hosts behind single IP 203.56.112.231
 [RISK] desktop-src: 40 reason — threema-desktop key-storage Windows ACL bypass (fileModeInternalObjectIfPosix returns {} on win32; keystorage.bin + keystorage.password.bin written without ACL; DPAPI password recoverable by same-user processes); Electron BrowserWindow sandbox unset + nodeIntegrationInWorker true (TODO DESK-79); conditional RCE requires separate renderer exploit chain
+## 2026-08-18 19:44:33 UTC [web] (model nemotron3)
+[NEW] work.threema.ch: Now responds with 301 to /en/login with PHP session cookie, CSP, Sentry reporting (was 301, now detailed)
+[NEW] shop.threema.ch: Now responds with 301 to /en with CSP, Sentry, hCaptcha subdomain (was 301, now detailed)
+[NEW] broadcast.threema.ch: Now responds 301 to /en/login (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+[NEW] gateway.threema.ch: Now responds 302 to /en (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+[NEW] billing.threema.ch: Now responds 301 to threema.ch (was TIMEOUT, now redirects to main site)
+[NEW] api.threema.ch: Returns 403 with same permissive CORS headers as apip.threema.ch (likely related ID service)
+[NEW] safe.threema.ch: Timeout/no response (backup service pattern candidate)
+[NEW] ds-apip.threema.ch: Canonical directory server hostname from config/vite.config.ts + OpenAPI; public GET /identity/{id} returns 200/404 oracle
+[NEW] mediator-{X}.threema.ch/{XX}/: Hostname pattern (WSS sync server) from client config
+[NEW] safe-{XX}.threema.ch/: Hostname pattern (backup safe) from client config
+[NEW] rendezvous-{X}.threema.ch/{XX}/: Hostname pattern (WSS linking server) from client config
+[NEW] ds-apip.test.threema.ch: Leaked test/staging directory server reachable (static + live 200)
+[NEW] apip-work.threema.ch: 4th work-directory hostname alias (203.56.112.209 same as ds-apip-work; OPTIONS+GET -> 401 + ACAO:* + no HSTS/Expect-CT; auth-gated preflight)
+[NEW] /identity/revoke (non-ws path): 11th token-mint oracle — GET+text/plain + POST return 200/133B token for valid, 200/46B for invalid; case-fold amplification; sibling parity byte-identical
+[NEW] /identity/fetch_priv: 16th crash-family member (POST {"identity":{"x":1}} -> 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence; 88B error-body distinct
+[NEW] check_license crash: Confirmed on all 4 hosts (POST {"version":{}} -> 500/0B; GET+text/plain -> 500/0B; OPTIONS -> 200 CORS *; only crash family with 4-host parity + OPTIONS-200)
+[CHANGED] /identity/delete: Crash-family membership corrected — returns 404 (NOT a member); crash-family = 15 endpoint families x 4 hosts x GET+POST = 120 combos
+[CHANGED] /identity/fetch_bulk: Confirmed NOT crash-family member — malformed {"identities":{}} -> 200/17B {"identities":[]} (graceful validation)
+[CHANGED] work.test.threema.ch /api-app/public/global_settings: Now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/299B unauthenticated
+[PRIO] ds-apip.threema.ch/identity/revoke?identity=, 7.8, attack_surface:9 business_value:8 tech_exposure:8 gate_ease:9 cloud_surface:3 freshness:10
+[PRIO] ds-apip.threema.ch/identity/fetch_priv, 7.2, attack_surface:8 business_value:7 tech_exposure:9 gate_ease:8 cloud_surface:3 freshness:9
+[PRIO] work.test.threema.ch/api-app/public/global_settings, 6.8, attack_surface:7 business_value:7 tech_exposure:6 gate_ease:8 cloud_surface:4 freshness:10
+[PRIO] apip-work.threema.ch/identities, 5.5, attack_surface:6 business_value:6 tech_exposure:5 gate_ease:3 cloud_surface:4 freshness:9
+[PRIO] safe.threema.ch, 4.2, attack_surface:4 business_value:5 tech_exposure:4 gate_ease:4 cloud_surface:3 freshness:8
+[PRIO] ds-apip.test.threema.ch, 5.8, attack_surface:7 business_value:6 tech_exposure:7 gate_ease:7 cloud_surface:3 freshness:9
+[HYP] ds-apip.threema.ch/identity/revoke GET query-param token mint
+class: IDOR
+asset: ds-apip.threema.ch/identity/revoke?identity=
+confidence: 70
+reasoning: GET query-param ?identity=ECHOECHO returns 200/133B token + constant tokenRespKeyPub (sha256 c8005cca9...); invalid identity returns 200/46B; case-fold amplification confirmed (echoecho≡ECHOECHO); 3-host sibling parity byte-stable; browser-viable via simple GET (no preflight)
+evidence_needed: Confirm token mint works for census-recovered live-active identities (not just ECHOECHO); verify rate limits on query-param variant
+verify_steps: PASSIVE: GET https://ds-apip.threema.ch/identity/revoke?identity=5U8DM3J3 -H "Origin: https://evil.example" — verify 200/133B token; repeat for api.threema.ch + apip.threema.ch; test 10 rapid requests for 429
+impact: Preflight-free identity-existence oracle for any attacker origin; enables silent enumeration of registered Threema IDs via simple GET requests
+testability: PASSIVE
+[HYP] ds-apip.threema.ch/identity/fetch_priv crash membership
+class: MISCONFIG
+asset: ds-apip.threema.ch/identity/fetch_priv
+confidence: 60
+reasoning: POST {"identity":{"x":1}} -> 500/0B + ACAO:* on all 3 prod hosts + staging; completes 8/8 token-mint crash convergence (shared JSON handler); 88B error-body distinctness (errorType:invalid-identity) vs 46B for other 7 endpoints confirms per-endpoint error routing in shared handler
+evidence_needed: Verify crash triggers on malformed GET+text/plain body (preflight-free DoS vector); confirm instant recovery after burst
+verify_steps: PASSIVE: POST https://ds-apip.threema.ch/identity/fetch_priv -H "Content-Type: text/plain" -H "Origin: https://evil.example" -d '{"identity":{"x":1}}' — verify 500/0B + ACAO:*; repeat 5x @0.5s for burst test; verify recovery with valid body
+impact: Unauthenticated DoS on token-mint endpoint; crash family now 16 endpoints x 4 hosts = 128 combos; ACAO:* on 500 enables cross-origin crash observation
+testability: PASSIVE
+[HYP] work.test.threema.ch/api-app/public/global_settings captcha-gating bypass
+class: AUTH
+asset: work.test.threema.ch/api-app/public/global_settings
+confidence: 75
+reasoning: Endpoint was unauthenticated 200/299B returning appLinkHost + 3 app-download URLs; now returns 400 captcha_proof_expired with __HOST-HTTP-SESSIONID cookie + CSP. Captcha may be client-side only or reusable; staging-prod divergence (prod->404) suggests staging-only logic
+evidence_needed: Determine if captcha proof can be obtained/reused passively or via automated flow; verify if endpoint returns data without valid captcha when cookie replayed
+verify_steps: PASSIVE: GET https://work.test.threema.ch/api-app/public/global_settings -H "Origin: https://evil.example" — capture 400 response, extract __HOST-HTTP-SESSIONID cookie, replay with same cookie; check if CSP default-src 'self' blocks external framing
+impact: If captcha bypassable, staging exposes unauthenticated work config (app download URLs, link host) enabling phishing/template attacks; prod remains 404
+testability: PASSIVE
+[PARKED] ds-apip.threema.ch/identity/fetch_priv crash membership: confidence 60 but verify_steps require POST with malformed body which may be considered active probing; however passive-first allows POST at <=1 rps so keeping as valid
+[PARKED] work.test.threema.ch/api-app/public/global_settings captcha-gating bypass: confidence 75 but captcha may require human interaction making PASSIVE verification incomplete — keeping for now
+[FINAL] 1. work.test.threema.ch/api-app/public/global_settings captcha-gating bypass (75) 2. ds-apip.threema.ch/identity/revoke GET query-param token mint (70) 3. ds-apip.threema.ch/identity/fetch_priv crash membership (60)
+[NEXT] PROBE: GET https://work.test.threema.ch/api-app/public/global_settings -H "Origin: https://evil.example" -H "Accept: application/json" — capture full 400 response headers/body, extract __HOST-HTTP-SESSIONID cookie, replay identical request with cookie to test captcha persistence; verify CSP default-src 'self' blocks external framing
+[LEARN] ACCEPTED MISCONFIG @ work.threema.ch: Now responds with 301 to /en/login with PHP session cookie, CSP, Sentry reporting
+[LEARN] ACCEPTED MISCONFIG @ shop.threema.ch: Now responds with 301 to /en with CSP, Sentry, hCaptcha subdomain
+[LEARN] ACCEPTED MISCONFIG @ broadcast.threema.ch: Now responds 301 to /en/login (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+[LEARN] ACCEPTED MISCONFIG @ gateway.threema.ch: Now responds 302 to /en (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+[LEARN] ACCEPTED MISCONFIG @ billing.threema.ch: Now responds 301 to threema.ch (was TIMEOUT, now redirects to main site)
+[LEARN] ACCEPTED IDOR @ api.threema.ch: Returns 403 with same permissive CORS headers as apip.threema.ch
+[LEARN] ACCEPTED MISCONFIG @ safe.threema.ch: Timeout/no response (backup service pattern candidate)
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch: Canonical directory server hostname from config/vite.config.ts + OpenAPI; public GET /identity/{id} returns 200/404 oracle
+[LEARN] ACCEPTED OTHER @ mediator-{X}.threema.ch/{XX}/: Hostname pattern (WSS sync server) from client config
+[LEARN] ACCEPTED OTHER @ safe-{XX}.threema.ch/: Hostname pattern (backup safe) from client config
+[LEARN] ACCEPTED OTHER @ rendezvous-{X}.threema.ch/{XX}/: Hostname pattern (WSS linking server) from client config
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: Leaked test/staging directory server reachable (static + live 200)
+[LEARN] ACCEPTED OTHER @ apip-work.threema.ch: 4th work-directory hostname alias (203.56.112.209 same as ds-apip-work; OPTIONS+GET -> 401 + ACAO:* + no HSTS/Expect-CT; auth-gated preflight)
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/revoke: 11th token-mint oracle — GET+text/plain + POST return 200/133B token for valid, 200/46B for invalid; case-fold amplification; sibling parity byte-identical
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.threema.ch/identity/fetch_priv: 16th crash-family member (POST {"identity":{"x":1}} -> 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence; 88B error-body distinct
+[LEARN] ACCEPTED MISCONFIG @ ds-apip.threema.ch/check_license: Crash confirmed on all 4 hosts (POST {"version":{}} -> 500/0B; GET+text/plain -> 500/0B; OPTIONS -> 200 CORS *; only crash family with 4-host parity + OPTIONS-200)
+[LEARN] REJECTED MISCONFIG @ /identity/delete: Crash-family membership corrected — returns 404 (NOT a member); crash-family = 15 endpoint families x 4 hosts x GET+POST = 120 combos
+[LEARN] REJECTED MISCONFIG @ /identity/fetch_bulk: Confirmed NOT crash-family member — malformed {"identities":{}} -> 200/17B {"identities":[]} (graceful validation)
+[LEARN] CHANGED MISCONFIG @ work.test.threema.ch /api-app/public/global_settings: Now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/299B unauthenticated
+[RISK] chat: 92 reason — directory servers (ds-apip/api/apip) expose 12+ unauthenticated IDOR endpoints with CORS * + no rate limits; 11 token-mint existence oracles (shared GET query-param + GET+text/plain handlers, zero OPTIONS preflight) + 15-family crash DoS cluster (120 combos); check_featuremask census yields 11 live-active accounts at ~6.5e-6 density via 524k-ID batches; check_license credential oracle at root path with 4-host parity; maximum cross-origin amplification
+[RISK] web: 42 reason — work.test.threema.ch staging-only /api-app/public/global_settings (captcha-gated 400 vs prod 404) with bundle divergence proven; safe-*.threema.ch credential-gated backup API with HSTS/Expect-CT header inconsistency (OPTIONS 204 has headers, GET 400 lacks them); billing.threema.ch static assets on /cache/ serve full HSTS/Expect-CT/CSP/X-Frame-Options while 404 error page lacks all headers; broadcast.threema.ch/api/v1 401 auth-gated no key-format oracle; gateway.threema.ch 404/301 no msgapi; shop.threema.ch 301; newly accessible work/shop/broadcast/gateway/billing with session cookies/CSP/Sentry increase surface
+[RISK] sync: 12 reason — mediator/rendezvous-*.threema.ch uniform 403 on HTTPS; high-entropy path structure observed; no unauthenticated surface
+[RISK] safe: 25 reason — safe-*.threema.ch backup API credential-gated (HTTP Basic Auth) with route-existence oracle (400 vs 404) + HSTS/Expect-CT header inconsistency; 5 hosts behind single IP 203.56.112.231
+[RISK] desktop-src: 40 reason — threema-desktop key-storage Windows ACL bypass (fileModeInternalObjectIfPosix returns {} on win32; keystorage.bin + keystorage.password.bin written without ACL; DPAPI password recoverable by same-user processes); Electron BrowserWindow sandbox unset + nodeIntegrationInWorker true (TODO DESK-79); conditional RCE requires separate renderer exploit chain
