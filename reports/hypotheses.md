@@ -10848,3 +10848,51 @@
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker — conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tr
 - LEARN: REJECTED MISCONFIG @ poc/ filesystem — STILL ABSENT (25+ cycles); source verification ≠ artifact generation.
 - LEARN: REJECTED AUTH @ work.threema.ch/api/v1 — PERMANENTLY DOWNGRADED; 404 has NO CORS headers; key NOT in threema-desktop source.
+
+## RANKED HYPOTHESES 2026-08-18 20:46:01 UTC
+- [98] {ds-apip,api,apip,ds-apip.test}.threema.ch/identity/{15: Unauthenticated identity-existence oracle cluster + DoS crash family on directory servers (from reports/hypotheses-laguna.txt)
+- [85] ds-apip.threema.ch/identity/revoke: ds-apip.threema.ch/identity/revoke GET+text/plain token-mint oracle (from reports/hypotheses-nemotron3.txt)
+- [25] ds-apip.threema.ch/identity/check_featuremask: gzip compression bypass of 524k body-size cap on check_featuremask (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://ds-apip.threema.ch/identity/revoke -H "Origin: https://evil.example" -H "Content-Type: text/plain" -d '{"identity":"5U8DM3J3"}' — verify 200
+- NEXT(hypotheses-laguna.txt): PROBE: `curl -X GET -H "Origin: https://evil.example" "https://ds-apip.test.threema.ch/identity/revoke?identity=5U8DM3J3"` -- confirm revoke crash parity on 4th
+- NEXT(hypotheses-bigpickle.txt): NO_NEW_ACTION — directory server surface exhaustively mapped across 26+ cycles; all findings byte-stable; no new vulnerability classes opened; staging debug sur
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/revoke: 11th token-mint oracle — GET+text/plain + POST return 200/133B token for valid, 200/46B for invalid; case-fo
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.threema.ch/identity/fetch_priv: 16th crash-family member (POST {"identity":{"x":1}} → 500/0B + ACAO:* on all 3 prod + staging); com
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.threema.ch/check_license: Crash confirmed on all 4 hosts (POST {"version":{}} → 500/0B; GET+text/plain → 500/0B; OPTIONS → 200 CORS
+- LEARN: REJECTED MISCONFIG @ /identity/delete: Crash-family membership corrected — returns 404 (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POST 
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk: Confirmed NOT crash-family member — malformed {"identities":{}} → 200/17B {"identities":[]} (graceful validation)
+- LEARN: REJECTED IDOR @ ds-apip.threema.ch/identity/revoke?identity=: GET query-param variant returns 46B universally; not a token-mint vector
+- LEARN: ACCEPTED MISCONFIG @ work.test.threema.ch /api-app/public/global_settings: Now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/2
+- LEARN: ACCEPTED OTHER @ apip-work.threema.ch: 4th work-directory hostname alias (203.56.112.209 same as ds-apip-work; OPTIONS+GET → 401 + ACAO:* + no HSTS/Expect-CT; a
+- LEARN: ACCEPTED MISCONFIG @ work.threema.ch: Now responds with 301 to /en/login with PHP session cookie, CSP, Sentry reporting
+- LEARN: ACCEPTED MISCONFIG @ shop.threema.ch: Now responds with 301 to /en with CSP, Sentry, hCaptcha subdomain
+- LEARN: ACCEPTED MISCONFIG @ broadcast.threema.ch: Now responds 301 to /en/login (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+- LEARN: ACCEPTED MISCONFIG @ gateway.threema.ch: Now responds 302 to /en (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+- LEARN: ACCEPTED MISCONFIG @ billing.threema.ch: Now responds 301 to threema.ch (was TIMEOUT, now redirects to main site)
+- LEARN: ACCEPTED IDOR @ api.threema.ch: Returns 403 with same permissive CORS headers as apip.threema.ch
+- LEARN: ACCEPTED MISCONFIG @ safe.threema.ch: Timeout/no response (backup service pattern candidate)
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch: Canonical directory server hostname from config/vite.config.ts + OpenAPI; public GET /identity/{id} returns 200/404 oracle
+- LEARN: ACCEPTED OTHER @ mediator-{X}.threema.ch/{XX}/: Hostname pattern (WSS sync server) from client config
+- LEARN: ACCEPTED OTHER @ safe-{XX}.threema.ch/: Hostname pattern (backup safe) from client config
+- LEARN: ACCEPTED OTHER @ rendezvous-{X}.threema.ch/{XX}/: Hostname pattern (WSS linking server) from client config
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: Leaked test/staging directory server reachable (static + live 200)
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12`, computed f
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs, draws 19-24); 2 anomalous distinct (DZ34BVDV, VK24BPYV) in 2/22 draws (
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes (POST `{"identity":{"x":1}}` → 404); route not registered on consumer d
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}` (graceful validation); NOT a cras
+- LEARN: REJECTED MISCONFIG @ /identity/match crash-family membership: POST `{"identity":{"x":1}}` → 200/39B `{"checkInterval":86400,"identities":[]}`; does NOT crash (d
+- LEARN: REJECTED MISCONFIG @ /identity/revoke?identity= GET query-param mint: returns 46B universally for query-param variant; token-mint requires POST-body (text/plain
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts (POST `{"version":{}}` -> 5
+- LEARN: ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke: 11th token-mint oracle — GET+text/plain + POST return 200/133B token for valid, 200/46B for inval
+- LEARN: REJECTED MISCONFIG @ poc/key-storage-acl-bypass-poc local clone: Filesystem confirms ABSENT (`ls poc/` -> No such file; `find /` returns zero); all 20+ cycle KB
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs, draws 19-24); 2 anomalous distinct (DZ34BVDV, VK24BPYV) in 2/22 draws (
+- LEARN: CONFIRMED — 8-endpoint token-mint cluster byte-stable across 25+ cycles; 15-family crash matrix 120 combos stable; census 11 live-active accounts confirmed.
+- LEARN: CONFIRMED — safe-{01,1a,1b,02,00}.threema.ch HSTS/Expect-CT gap byte-stable; route-oracle + Basic Auth + credentialed CORS stable.
+- LEARN: CONFIRMED — apip-work.threema.ch 4th work-directory alias stable (203.56.112.209, OPTIONS→401 auth-gated).
+- LEARN: CONFIRMED — ds-apip.test.threema.ch has no debug/admin/metrics/status/health endpoints (all 404/0B); staging surface is API-only, no observability endpoints exp
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint — 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class.
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `400c7846…` confirmed benchmark-only dummy in determineKdfParams(), purged at L233 — not used for 
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker — conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tr
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem — STILL ABSENT (25+ cycles); source verification ≠ artifact generation.
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 — PERMANENTLY DOWNGRADED; 404 has NO CORS headers; key NOT in threema-desktop source.
