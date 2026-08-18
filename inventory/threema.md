@@ -5747,3 +5747,18 @@
 - CHANGED Crash-family count corrected: 15 endpoint families × 4 hosts × GET+POST = 120 combos (fetch_priv is 16th crash member but NOT a token-mint endpoint; delete/fetch_bulk/match/revoke-query-param excluded
 
 ## 2026-08-18 21:48:30 UTC
+
+## 2026-08-18 22:03:21 UTC
+- NEW apip-work.threema.ch — 4th work-directory hostname alias (203.56.112.209, same as ds-apip-work; OPTIONS+GET→401 + ACAO:* + no HSTS/Expect-CT; auth-gated preflight unlike consumer hosts)
+- NEW /identity/revoke (non-ws path) — 11th token-mint existence oracle (GET+text/plain+POST return 200/133B token for valid, 200/46B for invalid; case-fold amplification; GET query-param variant returns 46
+- NEW /identity/fetch_priv crash membership — confirmed as 16th crash-family member (POST `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence; 88B r
+- NEW check_license crash family 4-host parity — POST `{"version":{}}` → 500/0B on all 4 hosts (ds-apip+api+apip+ds-apip.test); GET+text/plain→500/0B; sole crash family with OPTIONS→200; sole 4-host crash p
+- NEW check_license credential oracle — POST fake creds → 200/65B `{"success":false,"error":"This username or password is invalid."}` + ACAO:* + Allow-Headers Content-Type,User-Agent; OPTIONS→200 CORS `*` (
+- CHANGED work.test.threema.ch /api-app/public/global_settings — now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie + CSP); was 200/299B unauthenticated oracle; sta
+- CHANGED broadcast.threema.ch — now accessible (was TIMEOUT at baseline); 301 to /en/login with session cookie, CSP, Sentry (key-format oracle already DISPROVEN)
+- CHANGED gateway.threema.ch — now accessible (was TIMEOUT); 302 to /en with session cookie, CSP, Sentry
+- CHANGED billing.threema.ch — now accessible (was TIMEOUT); 301 to threema.ch; static assets (jQuery 3.7.1 + CSS) serve with full HSTS/Expect-CT/CSP/X-Frame-Options but 404 page lacks all headers
+- CHANGED work.threema.ch — now accessible; 301 to /en/login with PHP session cookie, CSP, Sentry
+- CHANGED shop.threema.ch — now accessible; 301 to /en with CSP, Sentry, hCaptcha subdomain
+- CHANGED /identity/delete crash membership — corrected: returns 404 (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- CHANGED /identity/fetch_bulk crash membership — confirmed NOT crash-family member (malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, graceful validation)
