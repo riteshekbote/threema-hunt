@@ -10431,3 +10431,35 @@
 - LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash family membership: malformed {"identities":{}} → 200/17B {"identities":[]}, not 500; NOT a crash-family member (
 - LEARN: REJECTED MISCONFIG @ /identity/delete crash family membership: returns 404 on all probes; NOT a member; crash-family corrected to 16 families.
 - LEARN: REJECTED HYP @ type:1 Work-org fingerprint class: 6 consecutive zero-type:1 draws (1.6M+ IDs); 2 anomalous distinct in 2/24 draws (~0.4%); not structural finger
+
+## RANKED HYPOTHESES 2026-08-18 14:59:05 UTC
+- [97] https://{ds-apip,api,apip,ds-apip.test}.threema.ch/identity/{15: 16-family crash matrix byte-stability re-confirmation (from reports/hypotheses-bigpickle.txt)
+- [96] {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv}: Shared-handler preflight-free cross-origin identity oracle + unauthenticated crash DoS (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://ds-apip.threema.ch/identity/fetch_priv -H "Content-Type: text/plain" -H "Origin: https://evil.example" -d '{"identity":{"x":1}}' — verify 50
+- NEXT(hypotheses-bigpickle.txt): NO_NEW_ACTION — all 3 ranked hypotheses ALREADY RESOLVED; no new surface or code changes; all findings byte-stable across 24+ cycles. Next agent should confirm 
+- LEARN: ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv}:
+- LEARN: ACCEPTED IDOR @ /identity/revoke?identity=ECHOECHO: GET query-param token mint confirmed LIVE (resolves 20+ cycle KB contradiction)
+- LEARN: ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work-directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS, OPTIONS→401 auth-gate
+- LEARN: ACCEPTED MISCONFIG @ fetch_priv error-body distinctness: 88B `{"success":false,"errorType":"invalid-identity","error":"Identity not found or revoked"}` vs 46B f
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, not 500; NOT a crash-family memb
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash family membership: returns 404 on all probes; NOT a member; crash-family count corrected 16→15 endpoint families (15
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws (1.6M+ IDs); 2 anomalous distinct in 2/22 draws (~0.5%); not structural
+- LEARN: ACCEPTED IDOR @ check_featuremask census: 11 distinct live-active accounts confirmed; tri-state oracle byte-stable; density ~6.5e-6 converged across 22 draws
+- LEARN: ACCEPTED MISCONFIG @ crash family: 15 endpoint families × 4 hosts × GET+POST = 120 combos, all 500/0B with ACAO:* + zero 429 + instant recovery
+- LEARN: ACCEPTED IDOR @ 8-endpoint GET+text/plain mint cluster: 24 byte-stable combos; constant tokenRespKeyPub sha256 c8005cca9…; zero-preflight browser-viable
+- LEARN: CHANGED work.test.threema.ch /api-app/public/global_settings: now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/299B unauthent
+- LEARN: ACCEPTED HYP @ fetch_priv crash membership: NEW gap identified — 7/8 token-mint endpoints confirmed crashing on malformed identity object; fetch_priv unconfirme
+- LEARN: CONFIRMED MISCONFIG @ crash family: 15 endpoint families × 4 hosts × GET+POST = 120 combos, all 500/0B with ACAO:* + zero 429, byte-stable across 24+ cycles
+- LEARN: CONFIRMED IDOR @ 8-endpoint GET+text/plain mint cluster: 24 byte-stable combos, constant tokenRespKeyPub sha256 c8005cca…, zero-preflight browser-viable
+- LEARN: CONFIRMED IDOR @ check_featuremask census: 11 distinct live-active accounts, tri-state oracle byte-stable, density ~6.5e-6 converged across 22 draws, zero 429
+- LEARN: CHANGED work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `captcha_proof_expired` + __HOST-HTTP-SESSIONID cookie + CSP); staging
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, not 500; NOT a member
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash family membership: returns 404 on all probes; NOT a member; crash-family = 15 (not 16)
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint class: 6+ consecutive zero-type:1 draws (1.6M+ IDs); 2 anomalous distinct in 2/24 draws (~0.4%); not structural finge
+- LEARN: ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work-directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS, OPTIONS→401 auth-gate
+- LEARN: ACCEPTED IDOR @ /identity/revoke (non-ws path): GET+text/plain body mint confirmed as 2nd GET-accepting token-mint endpoint; sibling parity byte-identical acros
+- LEARN: ACCEPTED MISCONFIG @ fetch_priv error-body distinctness: 88B `{"success":false,"errorType":"invalid-identity","error":"Identity not found or revoked"}` vs 46B f
+- LEARN: REJECTED MISCONFIG @ /identity/revoke?identity=ECHOECHO GET query-param mint: returns 46B universally; query-param NOT a token-mint vector (POST-body only for m
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) confirmed benchmark-only dummy in `determineKdfParams()`, purged 
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: PERMANENTLY DOWNGRADED — 404 has NO CORS headers, key NOT in threema-desktop source
