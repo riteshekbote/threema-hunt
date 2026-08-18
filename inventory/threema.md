@@ -5735,3 +5735,13 @@
 - CHANGED `work.test.threema.ch /api-app/public/global_settings`: Now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/299B unauthenticated
 
 ## 2026-08-18 21:02:13 UTC
+
+## 2026-08-18 21:27:58 UTC
+- NEW broadcast.threema.ch: Now accessible (was TIMEOUT) — responds 301 to /en/login with session cookie, CSP, Sentry headers
+- NEW gateway.threema.ch: Now accessible (was TIMEOUT) — responds 302 to /en with session cookie, CSP, Sentry headers
+- NEW billing.threema.ch: Now accessible (was TIMEOUT) — responds 301 to threema.ch
+- NEW work.threema.ch: Enhanced headers — 301 to /en/login now includes PHP session cookie, CSP, Sentry reporting
+- NEW shop.threema.ch: Enhanced headers — 301 to /en now includes CSP, Sentry, hCaptcha subdomain
+- CHANGED work.test.threema.ch/api-app/public/global_settings: Now captcha-gated (HTTP 400 captcha_proof_expired + __HOST-HTTP-SESSIONID cookie + CSP) — was 200/299B unauthenticated
+- CHANGED /identity/revoke query-param variant: Confirmed returns 46B universally (not a token-mint vector); POST-body required for mint
+- CHANGED Crash-family count corrected: 15 endpoint families × 4 hosts × GET+POST = 120 combos (fetch_priv is 16th crash member but NOT a token-mint endpoint; delete/fetch_bulk/match/revoke-query-param excluded
