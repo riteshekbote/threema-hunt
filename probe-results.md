@@ -3730,3 +3730,10 @@ https://broadcast.threema.ch -> 200 len=? type=text/html; charset=UTF-8
 https://broadcast.threema.ch/en/login -> 200 len=? type=text/html; charset=UTF-8
 https://gateway.threema.ch/en -> 200 len=? type=text/html; charset=UTF-8
 https://gateway.threema.ch/en/login -> 200 len=? type=text/html; charset=UTF-8
+
+## 2026-08-18 22:53:36 UTC
+https://work.test.threema.ch/api-app/public/global_settings -> HTTP 404
+https://broadcast.threema.ch -> 200 len=? type=text/html; charset=UTF-8
+https://broadcast.threema.ch/en/login -> 200 len=? type=text/html; charset=UTF-8
+https://gateway.threema.ch/en -> 200 len=? type=text/html; charset=UTF-8
+https://gateway.threema.ch/en/login -> 200 len=? type=text/html; charset=UTF-8
