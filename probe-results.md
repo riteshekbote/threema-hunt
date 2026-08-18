@@ -3458,3 +3458,8 @@ https://billing.threema.ch/nonexistent -> HTTP 404
 https://ds-apip.threema.ch/identity/revoke` -> HTTP 404
 https://api.threema.ch/identity/check_revocation_key` -> HTTP 404
 https://api.threema.ch/identity/check_featuremask` -> HTTP 404
+
+## 2026-08-18 10:18:59 UTC
+https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8

@@ -5392,3 +5392,11 @@
 - CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos (revoke, set_featuremask, match_token, check_revocation_key, blob_cred, sfu_cred, update_work_inf
 - CHANGED Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
 - CHANGED type:1 Work-org fingerprint WEAKENED: 6 consecutive zero-type:1 draws (1.6M+ IDs); 2 anomalous distinct in 2/22 draws (~0.5% rate); not structural
+
+## 2026-08-18 10:18:57 UTC
+- CHANGED work.test.threema.ch /api-app/public/global/settings now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie + CSP `default-src 'self'`) — was 200/299B unauthe
+- CHANGED /identity/fetch_bulk crash family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}` — NOT a crash-family member (pure IDOR oracle, 10000-ID count-cap)
+- CHANGED /identity/delete crash family membership: returns 404 on all probes — NOT a member; crash-family count corrected 16→15 endpoint families (15×4×2=120 combos)
+- CHANGED GET+text/plain token-mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos (revoke, set_featuremask, match_token, check_revocation_key, blob_cred, sfu_cred, update_wo
+- CHANGED Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
+- CHANGED type:1 Work-org fingerprint WEAKENED: 6 consecutive zero-type:1 draws (19-24, 1.6M+ IDs); 2 anomalous distinct in 2/22 draws (~0.5% rate); not structural
