@@ -10302,3 +10302,24 @@
 - LEARN: REJECTED MISCONFIG @ /identity/delete crash family membership: returns 404 on all probes; NOT a member; crash-family count = 15 (not 16)
 - LEARN: CHANGED work.test.threema.ch /api-app/public/global_settings: now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/299B unauthent
 - LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws (1.6M+ IDs); 2 anomalous distinct in 2/22 draws (~0.5%); not structural
+
+## RANKED HYPOTHESES 2026-08-18 11:58:19 UTC
+- [85] https://ds-apip.threema.ch/identity/fetch_priv: fetch_priv graceful degradation vs crash family convergence (from reports/hypotheses-bigpickle.txt)
+- [75] apip-work.threema.ch: Work directory auth-gated preflight blocks cross-origin probing (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://ds-apip.threema.ch/identity/fetch_priv -H "Content-Type: text/plain" -H "Origin: https://evil.example" -d '{"identity":{"x":1}}' — verify 50
+- NEXT(hypotheses-bigpickle.txt): PROBE: POST text/plain `{"identity":{"x":1}}` -H "Origin: https://evil.example" -H "Content-Type: text/plain" to https://ds-apip.threema.ch/identity/fetch_priv 
+- LEARN: ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work-directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS, OPTIONS→401 auth-gate
+- LEARN: ACCEPTED MISCONFIG @ fetch_priv error-body distinctness: 88B `{"success":false,"errorType":"invalid-identity","error":"Identity not found or revoked"}` vs 46B f
+- LEARN: ACCEPTED IDOR @ /identity/revoke?identity=ECHOECHO: GET query-param token mint confirmed LIVE (resolves 20+ cycle KB contradiction)
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, not 500; NOT a crash-family memb
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash family membership: returns 404 on all probes; NOT a member; crash-family count = 15 (not 16)
+- LEARN: CHANGED work.test.threema.ch /api-app/public/global_settings: now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/299B unauthent
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws (1.6M+ IDs); 2 anomalous distinct in 2/22 draws (~0.5%); not structural
+- LEARN: ACCEPTED IDOR @ check_featuremask census: 11 distinct live-active accounts confirmed; tri-state oracle byte-stable; density ~6.5e-6 converged across 22 draws
+- LEARN: ACCEPTED MISCONFIG @ crash family: 15 endpoint families × 4 hosts × GET+POST = 120 combos, all 500/0B with ACAO:* + zero 429 + instant recovery
+- LEARN: ACCEPTED IDOR @ 8-endpoint GET+text/plain mint cluster: 24 byte-stable combos; constant tokenRespKeyPub sha256 c8005cca9…; zero-preflight browser-viable
+- LEARN: ACCEPTED HYP @ fetch_priv crash membership: NEW gap identified — 7/8 token-mint endpoints confirmed crashing on malformed identity object; fetch_priv unconfirme
+- LEARN: CONFIRMED IDOR @ 8-endpoint GET+text/plain mint cluster: 24 byte-stable combos re-confirmed this cycle; constant tokenRespKeyPub sha256 c8005cca…; zero-prefligh
+- LEARN: CONFIRMED IDOR @ check_featuremask census: Byte-stable this cycle; 11 distinct live-active accounts; tri-state oracle; density ~6.5e-6 converged.
+- LEARN: CHANGED work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie +
+- LEARN: NO_NEW_CLASS — all previously accepted findings byte-stable; no new vulnerability classes opened this cycle; fetch_priv crash gap is extension of existing crash
