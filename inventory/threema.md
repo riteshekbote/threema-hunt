@@ -5237,3 +5237,7 @@
 - CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos (revoke, set_featuremask, match_token, check_revocation_key, blob_cred, sfu_cred, update_work_inf
 - CHANGED Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
 - CHANGED type:1 Work-org fingerprint WEAKENED: 6 consecutive zero-type:1 draws (19-24, 1.6M+ IDs); 2 anomalous distinct in 2/22 draws (~0.5% rate); not structural
+
+## 2026-08-18 05:17:30 UTC
+- NEW None — all surface items in last leads already captured in knowledge base (2026-08-18 cycle)
+- NEW `work.test.threema.ch /api-app/public/global/settings` now captcha-gated (HTTP 400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` cookie) — previously 200/299B unauthenticated; staging-prod diverge
