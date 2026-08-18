@@ -11237,3 +11237,32 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223 — benchmark-only dummy, purged at L233.
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker — conditional RCE requires separate renderer exploit chain; surface accepted as hardening
 - LEARN: REJECTED MISCONFIG @ poc/ filesystem — STILL ABSENT 25+ cycles; source verification ≠ artifact generation.
+
+## RANKED HYPOTHESES 2026-08-18 23:46:07 UTC
+- [92] {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask}: preflight-free unauthenticated identity enumeration via CORS-safelisted GET+text/plain (from reports/hypotheses-laguna.txt)
+- [75] work.test.threema.ch/api-app/public/global_settings: work.test.threema.ch captcha-gating bypass on public settings endpoint (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://work.test.threema.ch/api-app/public/global_settings -H "Origin: https://evil.example" -H "Accept: application/json" — capture full 400 respon
+- NEXT(hypotheses-laguna.txt): PROBE: Verify GET+text/plain preflight-free enumeration on `set_featuremask` sibling parity — `curl -s -H "Origin: https://evil.example" -H "Content-Type: text/
+- LEARN: ACCEPTED MISCONFIG @ broadcast.threema.ch: Now accessible (was TIMEOUT) — 301 to /en/login with session cookie, CSP, Sentry
+- LEARN: ACCEPTED MISCONFIG @ gateway.threema.ch: Now accessible (was TIMEOUT) — 302 to /en with session cookie, CSP, Sentry
+- LEARN: ACCEPTED MISCONFIG @ billing.threema.ch: Now accessible (was TIMEOUT) — 301 to threema.ch; static assets serve full HSTS/Expect-CT/CSP/X-Frame-Options but 404 p
+- LEARN: ACCEPTED MISCONFIG @ work.threema.ch: Enhanced headers on 301 redirect — PHP session cookie, CSP, Sentry
+- LEARN: ACCEPTED MISCONFIG @ shop.threema.ch: Enhanced headers on 301 redirect — CSP, Sentry, hCaptcha subdomain
+- LEARN: ACCEPTED MISCONFIG @ work.test.threema.ch/api-app/public/global_settings: Now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/29
+- LEARN: REJECTED IDOR @ ds-apip.threema.ch/identity/revoke?identity=: GET query-param variant returns 46B universally; not a token-mint vector
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes; crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed {"identities":{}} -> 200/17B {"identities":[]} (graceful validation); NOT a crash-f
+- LEARN: ACCEPTED MISCONFIG @ /identity/fetch_priv: 16th crash-family member (POST {"identity":{"x":1}} → 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-m
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223 benchmark password sha256 `400c7846…` confirmed benchmark-only dummy in determineKdfParams(), purged at L233 — not used for r
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT (25+ cycles); source verification ≠ artifact generation
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB desktop-target claims: filesystem GROUND TRUTH = {"target":"chat"} — KB desktop-target claims stale
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: PERMANENTLY DOWNGRADED; 404 has NO CORS headers; key NOT in threema-desktop source
+- LEARN: ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask}: Fresh live probe confirms GET+text/plain preflight-free enumeration byte-stable
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip}.threema.ch crash family: Fresh probe confirms 500/0B + ACAO:* on revoke/get+text/plain malformed (HTTP 500, Access-Contr
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223 — fresh filesystem check: reposcan-raw/analysis.txt verdict "No reportable secrets found in this scan"; benchmark password sh
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE — `sandbox` UNSET (TODO DESK-79 at electron-main.ts:1255), 0 dynamic si
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle — 404 response has NO CORS headers, missing-key/invalid-key produce byte-identical `{"error":"Invalid X-
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint — 6+ consecutive zero-type:1 draws (1.6M+ IDs, draws 19-24); 2 anomalous distinct (DZ34BVDV, VK24BPYV) in 2/22 draws 
