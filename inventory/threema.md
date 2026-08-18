@@ -5794,3 +5794,28 @@
 - CHANGED /identity/delete crash membership — corrected: returns 404 (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
 - CHANGED /identity/fetch_bulk crash membership — confirmed NOT crash-family member (malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, graceful validation)
 - CHANGED /identity/revoke query-param variant — confirmed returns 46B universally (not a token-mint vector); POST-body required for mint
+
+## 2026-08-18 23:07:09 UTC
+- NEW apip-work.threema.ch — 4th work-directory hostname alias (203.56.112.209, OPTIONS+GET→401 + ACAO:* + no HSTS/Expect-CT; auth-gated preflight)
+- NEW /identity/revoke (non-ws path) — 11th token-mint existence oracle (GET+text/plain+POST return 200/133B token for valid, 200/46B for invalid; case-fold amplification; GET query-param returns 46B)
+- NEW /identity/fetch_priv — confirmed 16th crash-family member (POST `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence; 88B rev-aware error body
+- NEW {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license — 16th crash family member (POST `{"version":{}}` → 500/0B on all 4; GET+text/plain→500/0B; sole crash family with OPTIONS→200; sole 4-host par
+- NEW check_license credential oracle — POST fake creds → 200/65B `{"success":false,"error":"This username or password is invalid."}` + ACAO:* + Allow-Headers; OPTIONS→200 CORS `*`; 4-host parity; success-s
+- CHANGED work.test.threema.ch/api-app/public/global_settings — now captcha-gated (HTTP 400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` cookie + CSP); was 200/299B unauthenticated oracle
+- CHANGED broadcast.threema.ch — now accessible (was TIMEOUT); 301 to /en/login with session cookie, CSP, Sentry
+- CHANGED gateway.threema.ch — now accessible (was TIMEOUT); 302 to /en with session cookie, CSP, Sentry
+- CHANGED billing.threema.ch — now accessible (was TIMEOUT); 301 to threema.ch; static assets serve full HSTS/Expect-CT/CSP/X-Frame-Options but 404 page lacks all headers
+- CHANGED work.threema.ch — now accessible; 301 to /en/login with PHP session cookie, CSP, Sentry
+- CHANGED shop.threema.ch — now accessible; 301 to /en with CSP, Sentry, hCaptcha subdomain
+- CHANGED /identity/delete crash membership — corrected: returns 404 (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- CHANGED /identity/fetch_bulk crash membership — confirmed NOT crash-family member (malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, graceful validation)
+- CHANGED /identity/revoke query-param variant — confirmed returns 46B universally (not token-mint vector); POST-body required for mint
+- CHANGED work.test.threema.ch/api-app/public/global/settings — now captcha-gated (HTTP 400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` cookie + CSP), was 200/299B unauthenticated oracle (2026-08-17 confi
+- CHANGED broadcast.threema.ch — now accessible (was TIMEOUT at 2026-08-07 baseline); 301→/en/login with session cookie, CSP, Sentry; auth-gated /api/v1 → 401
+- CHANGED gateway.threema.ch — now accessible (was TIMEOUT); 302→/en with session cookie, CSP, Sentry
+- CHANGED billing.threema.ch — now accessible (was TIMEOUT/NAME_ERROR); 301→threema.ch; serves static assets (jQuery 3.7.1+CSS) on /cache/ with full HSTS/Expect-CT/CSP/X-Frame-Options, 404 page lacks headers
+- CHANGED work.threema.ch /api/v1 — confirmed live X-Api-Key authenticated API with /users + /contacts routes (401 not 404); no CORS on 404, browser-viable cross-origin blocked
+- CHANGED ds-apip-test.threema.ch /identity/revoke — confirmed non-ws path is LIVE (11th token-mint oracle, 200/133B for valid), distinct from /identity/ws/revoke → 404
+- CHANGED /identity/fetch_priv — confirmed 16th crash-family member (POST `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 3 prod + staging); 88B error-body distinctness confirmed (revocation-aware `errorType:in
+- CHANGED /identity/delete — corrected NOT a crash-family member (returns 404 on all probes); crash-family count = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- CHANGED /identity/fetch_bulk — confirmed NOT crash-family member (malformed `{"identities":{}}` → 200/17B `{"identities":[]}`); pure IDOR oracle (10000-ID count-cap + pubkey oracle + silent invalid-ID omissio
