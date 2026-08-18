@@ -1,8 +1,7 @@
-## 2026-08-18 15:27:14 UTC [chat] (model bigpickle)
-[LEARN] CONFIRMED — all prior findings byte-stable this cycle; no regressions
-[LEARN] ACCEPTED MISCONFIG @ work.test.threema.ch /api-app/public/global/settings: captcha-gated change persists (HTTP 400 `captcha_proof_expired` + session cookie + CSP)
-[LEARN] ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work-directory hostname alias persists (203.56.112.209, OPTIONS→401 auth-gated)
-[LEARN] REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs) — not structural class
+## 2026-08-18 15:56:54 UTC [chat] (model bigpickle)
+[PRIO] crash-family (15 families × 4 hosts × GET+POST = 120 combos) score=8.65 | A=9 B=7 T=6 G=10 C=4 F=10
+[PRIO] 8-endpoint zero-preflight mint cluster (24 combos) score=8.55 | A=9 B=8 T=5 G=10 C=4 F=10
+[PRIO] check_featuremask census (11 live identities + pubkeys) score=8.30 | A=9 B=9 T=5 G=10 C=3 F=10
 [HYP] 16-family crash matrix byte-stability re-confirmation
 class: MISCONFIG
 asset: https://{ds-apip,api,apip,ds-apip.test}.threema.ch/identity/{15 families}
@@ -37,6 +36,10 @@ testability: PASSIVE
 [FINAL] 2. [97] 16-family crash matrix (MISCONFIG, PASSIVE) — 120 DoS combos
 [FINAL] 3. [90] check_featuremask census (IDOR, PASSIVE) — 11 live-active accounts recovered
 [NEXT] NO_NEW_ACTION — all 3 ranked hypotheses ALREADY RESOLVED; no new surface or code changes; all findings byte-stable across 25+ cycles. Next agent should confirm byte-stability of existing findings OR explore new surfaces outside the current directory-server scope (e.g., chat server handshake protocol, broadcast/gateway deeper enumeration, or mobile client static analysis).
+[LEARN] CONFIRMED — all prior findings byte-stable this cycle; no regressions
+[LEARN] ACCEPTED MISCONFIG @ work.test.threema.ch /api-app/public/global/settings: captcha-gated change persists (HTTP 400 `captcha_proof_expired` + session cookie + CSP)
+[LEARN] ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work-directory hostname alias persists (203.56.112.209, OPTIONS→401 auth-gated)
+[LEARN] REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs) — not structural class
 [RISK] chat: 98 — 15 endpoint families × 4 hosts × GET+POST = 120 crash combos (500/0B + ACAO:*); 8-endpoint zero-preflight identity-existence oracle (133B vs 46B differential, 24 combos); check_featuremask census yields 11 live-active identities + ed25519 pubkeys + featureMask client fingerprinting; check_license credential oracle with 4-host parity; fetch_bulk 10k-ID enumeration; full prod+staging parity; maximum cross-origin amplification
 [RISK] web: 15 — Static redirect/error hosts only; no live app routes or credential handling
 [RISK] sync: 5 — mediator/rendezvous WSS uniformly 403; TCP 5222 handshake requires authenticated login frame

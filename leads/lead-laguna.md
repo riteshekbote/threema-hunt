@@ -25977,3 +25977,4 @@ testability: AUTH_HELPED
 [RISK] sync: 12 — mediator/rendezvous uniform 403 on HTTPS; high-entropy paths; DNS split routing; WSS requires authenticated login frame; TCP sweep confirms only 443+5222 open
 [RISK] safe: 15 — 5 safe-* hosts (203.56.112.231); credential-gated backup API (HTTP Basic Auth); HSTS/Expect-CT header inconsistency (OPTIONS 204 full, GET 400 absent); route-existence oracle + credentialed cross-origin CORS
 [RISK] desktop-src: 42 — key-storage ACL bypass on Windows (`fileModeInternalObjectIfPosix()`→`{}` on win32 → no ACL on keystorage.bin + keystorage.password.bin; DPAPI recoverable) — RAG-verified 6-path chain on GitHub stable; BrowserWindow sandbox UNSET + nodeIntegrationInWorker:true (TODO DESK-79); crypto.ts:223 benchmark password confirmed dummy; OnPrem trust verified (not vulnerable)
+## 2026-08-18 15:58:40 UTC [desktop] (model laguna)

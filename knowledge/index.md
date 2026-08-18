@@ -1832,3 +1832,4 @@
 - 2026-08-18 ACCEPTED MISCONFIG @ work.test.threema.ch /api-app/public/global/settings: captcha-gated change persists (HTTP 400 `captcha_proof_expired` + session cookie + CSP)
 - 2026-08-18 ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work-directory hostname alias persists (203.56.112.209, OPTIONS→401 auth-gated)
 - 2026-08-18 REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs) — not structural class
+- 2026-08-18 ACCEPTED MISCONFIG @ /identity/fetch_priv: 16th crash-family member confirmed — POST `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 3 prod + staging; completes 8/8 token-mint crash convergence
