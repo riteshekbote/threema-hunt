@@ -23907,3 +23907,4 @@ testability: HUMAN_ONLY
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (RAG-verified, PoC authored, needs Windows runtime validation); BrowserWindow sandbox unset (conditional RCE, not standalone)
 [RISK] broadcast: 10 — auth-gated, strong security posture, no undocumented endpoints
 [RISK] gateway: 10 — auth-gated, no info leaks, no undocumented endpoints
+## 2026-08-18 18:04:54 UTC [chat] (model bigpickle)

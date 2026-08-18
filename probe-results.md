@@ -3607,3 +3607,8 @@ https://ds-apip.threema.ch/identity/create -> 200 len=? type=application/json; c
 https://work.test.threema.ch/api-app/public/global_settings -> HTTP 404
 https://ds-apip.threema.ch/identity/revoke?identity=5U8DM3J3 -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-18 18:05:23 UTC
+https://work.test.threema.ch/api-app/public/global_settings -> HTTP 404
+https://ds-apip.threema.ch/identity/revoke?identity=5U8DM3J3 -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
