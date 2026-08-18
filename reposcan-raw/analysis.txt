@@ -4,18 +4,9 @@
 [0m← [0mWrite triage-report.md
 Wrote file successfully.
 [0m
-**Triage complete.** No reportable secrets found.
+Done. Wrote full triage report to `triage-report.md`.
 
-| Category | Count | Disposition |
-|----------|-------|-------------|
-| REAL_SECRET | 0 | — |
-| TEST_OR_EXAMPLE | 28 | Test fixtures, placeholders, constant key names |
-| ENDPOINT_LEAK | 11 | Staging URLs (`ds-apip.test.threema.ch`, `ds-apip-work.test.threema.ch`, `work.test.threema.ch`) — already in scope & probed |
-| INTERESTING | 8 | Benchmark dummy (RAG-verified inert), ICE password log leak (low value, local-only), Sentry public DSNs, security-positive redaction |
-
-**Key findings:**
-- `crypto.ts:223` benchmark password `r3gGN9GDQ5NF6tM6` — **RAG-verified** as benchmark-only dummy in `determineKdfParams()`, `benchmarkKey.purge()` at L233, NOT used for real encryption (sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12`)
-- `JoinResponse.kt:70` logs `icePassword` in `toString()` — low-value local-only leak, needs runtime logcat validation
-- All staging endpoints already mapped and probed in prior cycles
-
-Full report written to `triage-report.md`.
+**Bottom line:** **0 reportable secrets** — all 56 hits are benign:
+- 48 `TEST_OR_EXAMPLE` (test fixtures, constant names, benchmark dummy `r3gGN9GDQ5NF6tM6` confirmed purged at L233)
+- 11 `ENDPOINT_LEAK` (staging URLs `*.test.threema.ch` duplicated in OpenAPI specs — publicly documented, confirmed live)
+- 3 `INTERESTING` (2 Sentry public DSNs, 1 potential ICE password logcat leak in `JoinResponse.kt:70` — low value, needs runtime validation)
