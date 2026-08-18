@@ -1991,6 +1991,12 @@
 - 2026-08-18 REJECTED MISCONFIG @ crypto.ts:223 — benchmark-only dummy, purged at L233.
 - 2026-08-18 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker — conditional RCE requires separate renderer exploit chain; surface accepted as hardening gap only.
 - 2026-08-18 REJECTED MISCONFIG @ poc/ filesystem — STILL ABSENT 25+ cycles; source verification ≠ artifact generation.
+- 2026-08-18 ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask}: Fresh live probe confirms GET+text/plain preflight-free enumeration byte-stable — revoke GET+text/plain valid→200/134B, set_featuremask GET+text/plain valid→200/133B, both with ACAO:* + Allow-Methods POST,GET,OPTIONS,DELETE; invalid→200/46B; invalid+malformed→500/0B crash family. Sibling parity confirmed (api=134B, apip=135B = base64 padding variant).
+- 2026-08-18 ACCEPTED MISCONFIG @ {ds-apip,api,apip}.threema.ch crash family: Fresh probe confirms 500/0B + ACAO:* on revoke/get+text/plain malformed (HTTP 500, Access-Control-Allow-Origin*, Access-Control-Allow-Methods POST,Get,OPTIONS,DELETE, Access-Control-Allow-Headers Content-Type,User-Agent); check_featuremask GET→500/0B (POST-only expected); check_license GET+text/plain malformed→500/0B. 4-host crash parity byte-stable.
+- 2026-08-18 REJECTED MISCONFIG @ crypto.ts:223 — fresh filesystem check: reposcan-raw/analysis.txt verdict "No reportable secrets found in this scan"; benchmark password sha256 `400c7846…` confirmed dummy in determineKdfParams(), purged at L233; not used for real encryption (stable across 25+ cycles).
+- 2026-08-18 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE — `sandbox` UNSET (TODO DESK-79 at electron-main.ts:1255), 0 dynamic sinks in worker/ tree; requires separate renderer exploit chain; surface accepted as hardening gap only (stable).
+- 2026-08-18 REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle — 404 response has NO CORS headers, missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}` (sha256 `707fe8f5…`), key NOT in threema-desktop source (fetch-work.ts uses username/password) — browser cross-origin fully blocked, server-side only (stable across cycles).
+- 2026-08-18 REJECTED HYP @ type:1 Work-org fingerprint — 6+ consecutive zero-type:1 draws (1.6M+ IDs, draws 19-24); 2 anomalous distinct (DZ34BVDV, VK24BPYV) in 2/22 draws (~0.5%); anomalous identities, not structural fingerprint class — below ≥3-draw threshold, REJECTED.
 === INVENTORY gladia ===
 # Inventory: threema
 
