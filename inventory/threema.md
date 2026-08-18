@@ -5171,3 +5171,17 @@
 - CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos (revoke, set_featuremask, match_token, check_revocation_key, blob_cred, sfu_cred, update_work_inf
 - CHANGED Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
 - CHANGED type:1 Work-org fingerprint WEAKENED: 6 consecutive zero-type:1 draws (19-24, 1.6M+ IDs); 2 anomalous distinct in 2/22 draws (~0.5% rate); not structural
+
+## 2026-08-18 02:48:15 UTC
+- NEW `/identity/revoke?identity=ECHOECHO` GET query-param token mint confirmed LIVE (resolves 20+ cycle KB contradiction — previously only POST body mint known)
+- NEW `apip-work.threema.ch` confirmed as 4th work-directory hostname alias (203.56.112.209, byte-identical 401+ACAO:*+no HSTS, OPTIONS→401 auth-gated preflight)
+- CHANGED work.test.threema.ch `/api-app/public/global/settings` now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie + CSP) — previously returned 200/299B unauthenti
+- CHANGED Crash family scope refined: `fetch_bulk` malformed input (`{"identities":{"x":1}}`) returns 200/17B `{"identities":[]}` NOT 500 — fetch_bulk is NOT a crash-family member (validates identity list, retu
+- CHANGED Crash family matrix corrected: `/identity/delete` returns 404 on all probes — NOT a member; crash-family count corrected 16→15 endpoint families (15×4×2=120 combos)
+- CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos (revoke, set_featuremask, match_token, check_revocation_key, blob_cred, sfu_cred, update_work_inf
+- CHANGED Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
+- CHANGED type:1 Work-org fingerprint WEAKENED: 6 consecutive zero-type:1 draws (19-24, 1.6M+ IDs); 2 anomalous distinct in 2/22 draws (~0.5% rate); not structural
+- CHANGED work.test.threema.ch `/api-app/public/global_settings` now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie + CSP) — previously returned 200/299B unauthenti
+- CHANGED Crash family matrix corrected: `/identity/delete` returns 404 on all probes — NOT a member; crash-family count corrected 16→15 endpoint families (15×4×2=120 combos). `/identity/fetch_bulk` malformed i
+- CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos; 2 endpoints (revoke, set_featuremask) accept GET+text/plain (preflight-free browser-viable).
+- CHANGED `apip-work.threema.ch` confirmed as 4th work-directory hostname alias (203.56.112.209, byte-identical 401+ACAO:*+no HSTS, OPTIONS→401 auth-gated preflight).
