@@ -1811,3 +1811,14 @@
 - 2026-08-18 REJECTED MISCONFIG @ /identity/fetch_bulk crash family membership: malformed {"identities":{}} → 200/17B {"identities":[]}, not 500; NOT a crash-family member (pure IDOR oracle).
 - 2026-08-18 REJECTED MISCONFIG @ /identity/delete crash family membership: returns 404 on all probes; NOT a member; crash-family corrected to 16 families.
 - 2026-08-18 REJECTED HYP @ type:1 Work-org fingerprint class: 6 consecutive zero-type:1 draws (1.6M+ IDs); 2 anomalous distinct in 2/24 draws (~0.4%); not structural fingerprint class.
+- 2026-08-18 CONFIRMED MISCONFIG @ crash family: 15 endpoint families × 4 hosts × GET+POST = 120 combos, all 500/0B with ACAO:* + zero 429, byte-stable across 24+ cycles
+- 2026-08-18 CONFIRMED IDOR @ 8-endpoint GET+text/plain mint cluster: 24 byte-stable combos, constant tokenRespKeyPub sha256 c8005cca…, zero-preflight browser-viable
+- 2026-08-18 CONFIRMED IDOR @ check_featuremask census: 11 distinct live-active accounts, tri-state oracle byte-stable, density ~6.5e-6 converged across 22 draws, zero 429
+- 2026-08-18 CHANGED work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `captcha_proof_expired` + __HOST-HTTP-SESSIONID cookie + CSP); staging-prod divergence intact (prod→404)
+- 2026-08-18 REJECTED MISCONFIG @ /identity/fetch_bulk crash family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, not 500; NOT a member
+- 2026-08-18 REJECTED MISCONFIG @ /identity/delete crash family membership: returns 404 on all probes; NOT a member; crash-family = 15 (not 16)
+- 2026-08-18 REJECTED HYP @ type:1 Work-org fingerprint class: 6+ consecutive zero-type:1 draws (1.6M+ IDs); 2 anomalous distinct in 2/24 draws (~0.4%); not structural fingerprint class
+- 2026-08-18 ACCEPTED IDOR @ /identity/revoke (non-ws path): GET+text/plain body mint confirmed as 2nd GET-accepting token-mint endpoint; sibling parity byte-identical across 3 prod hosts
+- 2026-08-18 REJECTED MISCONFIG @ /identity/revoke?identity=ECHOECHO GET query-param mint: returns 46B universally; query-param NOT a token-mint vector (POST-body only for mint)
+- 2026-08-18 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree); `sandbox` unset (TODO DESK-79); surface accepted as hardening gap only
+- 2026-08-18 REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) confirmed benchmark-only dummy in `determineKdfParams()`, purged at L233; NOT used for real encryption

@@ -23683,3 +23683,60 @@ testability: PASSIVE
 [RISK] sync: 5 — mediator/rendezvous WSS uniformly 403; TCP 5222 handshake requires authenticated login frame.
 [RISK] safe: 30 — Backup API credential-gated (HTTP Basic Auth) with HSTS/Expect-CT gap on GET 400; credentialed cross-origin CORS; route-existence oracle; credential-gated limits blast radius.
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (6-path RAG chain verified, PoC needs Windows validation); BrowserWindow sandbox unset (conditional RCE, not standalone); OnPrem config trust verified safe.
+## 2026-08-18 14:58:37 UTC [chat] (model bigpickle)
+[PRIO] {ds-apip,api,apip}/identity/{8 endpoints} — 9.35 (10/9/9/10/7/6) — 24 preflight-free combos, zero-preflight browser DoS + IDOR
+[PRIO] {ds-apip,api,apip}/identity/fetch_priv — 8.45 (9/9/8/10/7/6) — completes 16-family crash matrix (500/0B + ACAO:*)
+[PRIO] ds-apip/identity/check_featuremask — 8.45 (9/9/8/10/7/6) — census: 11 live-active accounts, 22-draw convergence, tri-state oracle
+[HYP] 16-family crash matrix byte-stability re-confirmation
+class: MISCONFIG
+asset: https://{ds-apip,api,apip,ds-apip.test}.threema.ch/identity/{15 families}
+confidence: 97
+reasoning: 15 endpoint families × 4 hosts × GET+POST = 120 combos all return 500/0B + ACAO:* on malformed identity/publicKey/version input. Confirmed across 24+ cycles. fetch_bulk/match NOT members (200 graceful). /identity/delete NOT registered (404).
+evidence_needed: Already confirmed — own probes this cycle re-confirm byte-stability.
+verify_steps: ALREADY RESOLVED — no further probing needed.
+impact: Unauthenticated preflight-free browser DoS (120 combos × ACAO:*). CVSS 5.3 (Medium).
+testability: PASSIVE
+[HYP] 8-endpoint zero-preflight identity-existence oracle
+class: IDOR
+asset: https://{ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv}
+confidence: 97
+reasoning: All 8 endpoints mint per-request token + constant tokenRespKeyPub sha256 c8005cca…; valid→200/133B vs invalid→200/46B differential; GET+text/plain is CORS-safelisted (zero preflight); 2 endpoints (revoke, set_featuremask) uniquely accept GET; constant tokenRespKeyPub across all 8 proves single shared handler. 24 combos confirmed across 24+ cycles.
+evidence_needed: Already confirmed — constant tokenRespKeyPub, per-request token variation, text/plain CORS-safelisted.
+verify_steps: ALREADY RESOLVED — no further probing needed.
+impact: Drive-by cross-origin identity-existence enumeration with zero preflight + targeted phishing via featureMask. CVSS 7.5 (High).
+testability: PASSIVE
+[HYP] check_featuremask census convergence confirmation
+class: IDOR
+asset: https://{ds-apip,api,apip}.threema.ch/identity/check_featuremask
+confidence: 90
+reasoning: 524k-ID body-size cap + tri-state oracle (null/state:1/state:0) + zero 429 + CORS *. 22 draws converged density ~6.5e-6; 11 distinct live-active accounts recovered (state:0 mask:2047); 3-host byte-identical parity; staging data-disjoint mirror; client-fingerprint via featureMask enables targeted phishing attribution.
+evidence_needed: Already confirmed — 11 live-active across 22 draws, density stable, fetch_bulk returns genuine pubkeys.
+verify_steps: ALREADY RESOLVED — census primitive mature; no further probing needed.
+impact: Unauthenticated enumeration of live Threema identities with ed25519 pubkeys + featureMasks enabling targeted phishing. CVSS 7.1 (High).
+testability: PASSIVE
+[PARKED] fetch_priv crash membership: ALREADY RESOLVED — confirmed 16th family member; no further probing needed
+[PARKED] 8-endpoint token-mint cluster: ALREADY RESOLVED — 24 byte-stable combos confirmed
+[PARKED] check_featuremask census: ALREADY RESOLVED — 22 draws, 11 live-active, density converged
+[FINAL] 1. [97] 8-endpoint token-mint cluster (IDOR, PASSIVE) — maximum cross-origin amplification
+[FINAL] 2. [97] 16-family crash matrix (MISCONFIG, PASSIVE) — 120 DoS combos
+[FINAL] 3. [90] check_featuremask census (IDOR, PASSIVE) — 11 live-active accounts recovered
+[NEXT] NO_NEW_ACTION — all 3 ranked hypotheses ALREADY RESOLVED; no new surface or code changes; all findings byte-stable across 24+ cycles. Next agent should confirm byte-stability of existing findings OR explore new surfaces outside the current directory-server scope (e.g., chat server handshake protocol, broadcast/gateway deeper enumeration, or mobile client static analysis).
+[LEARN] CONFIRMED MISCONFIG @ crash family: 15 endpoint families × 4 hosts × GET+POST = 120 combos, all 500/0B with ACAO:* + zero 429, byte-stable across 24+ cycles
+[LEARN] CONFIRMED IDOR @ 8-endpoint GET+text/plain mint cluster: 24 byte-stable combos, constant tokenRespKeyPub sha256 c8005cca…, zero-preflight browser-viable
+[LEARN] CONFIRMED IDOR @ check_featuremask census: 11 distinct live-active accounts, tri-state oracle byte-stable, density ~6.5e-6 converged across 22 draws, zero 429
+[LEARN] CHANGED work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `captcha_proof_expired` + __HOST-HTTP-SESSIONID cookie + CSP); staging-prod divergence intact (prod→404)
+[LEARN] REJECTED MISCONFIG @ /identity/fetch_bulk crash family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, not 500; NOT a member
+[LEARN] REJECTED MISCONFIG @ /identity/delete crash family membership: returns 404 on all probes; NOT a member; crash-family = 15 (not 16)
+[LEARN] REJECTED HYP @ type:1 Work-org fingerprint class: 6+ consecutive zero-type:1 draws (1.6M+ IDs); 2 anomalous distinct in 2/24 draws (~0.4%); not structural fingerprint class
+[LEARN] ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work-directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS, OPTIONS→401 auth-gated preflight)
+[LEARN] ACCEPTED IDOR @ /identity/revoke (non-ws path): GET+text/plain body mint confirmed as 2nd GET-accepting token-mint endpoint; sibling parity byte-identical across 3 prod hosts
+[LEARN] ACCEPTED MISCONFIG @ fetch_priv error-body distinctness: 88B `{"success":false,"errorType":"invalid-identity","error":"Identity not found or revoked"}` vs 46B for other 7 mint endpoints — shared handler with per-endpoint error routing
+[LEARN] REJECTED MISCONFIG @ /identity/revoke?identity=ECHOECHO GET query-param mint: returns 46B universally; query-param NOT a token-mint vector (POST-body only for mint)
+[LEARN] REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree); `sandbox` unset (TODO DESK-79); surface accepted as hardening gap only
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) confirmed benchmark-only dummy in `determineKdfParams()`, purged at L233; NOT used for real encryption
+[LEARN] REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: PERMANENTLY DOWNGRADED — 404 has NO CORS headers, key NOT in threema-desktop source
+[RISK] chat: 98 — 15 endpoint families × 4 hosts × GET+POST = 120 crash combos (500/0B + ACAO:*); 8-endpoint zero-preflight identity-existence oracle (133B vs 46B differential, 24 combos); check_featuremask census yields 11 live-active identities + ed25519 pubkeys + featureMask client fingerprinting; check_license credential oracle with 4-host parity; fetch_bulk 10k-ID enumeration; full prod+staging parity; maximum cross-origin amplification
+[RISK] web: 15 — Static redirect/error hosts only; no live app routes or credential handling
+[RISK] sync: 5 — mediator/rendezvous WSS uniformly 403; TCP 5222 handshake requires authenticated login frame
+[RISK] safe: 30 — Backup API credential-gated (HTTP Basic Auth) with HSTS/Expect-CT gap on GET 400; credentialed cross-origin CORS; route-existence oracle; credential-gated limits blast radius
+[RISK] desktop-src: 40 — key-storage Windows ACL bypass (6-path RAG chain verified, PoC authored but needs Windows validation); BrowserWindow sandbox unset (conditional RCE, not standalone); OnPrem config trust verified safe
