@@ -11025,3 +11025,28 @@
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker — conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tr
 - LEARN: REJECTED MISCONFIG @ poc/ filesystem — STILL ABSENT (25+ cycles); source verification ≠ artifact generation.
 - LEARN: REJECTED AUTH @ work.threema.ch/api/v1 — PERMANENTLY DOWNGRADED; 404 has NO CORS headers; key NOT in threema-desktop source.
+
+## RANKED HYPOTHESES 2026-08-18 22:20:52 UTC
+- [75] work.test.threema.ch/api-app/public/global_settings: work.test.threema.ch captcha-gating bypass on public settings endpoint (from reports/hypotheses-nemotron3.txt)
+- [25] ds-apip.threema.ch/identity/check_featuremask: gzip compression bypass of 524k body-size cap on check_featuremask (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://work.test.threema.ch/api-app/public/global_settings -H "Origin: https://evil.example" -H "Accept: application/json" — capture full 400 respon
+- NEXT(hypotheses-bigpickle.txt): NO_NEW_ACTION — directory server surface exhaustively mapped across 26+ cycles; all findings byte-stable; no new vulnerability classes opened; staging debug sur
+- LEARN: ACCEPTED MISCONFIG @ broadcast.threema.ch: Now accessible (was TIMEOUT) — 301 to /en/login with session cookie, CSP, Sentry
+- LEARN: ACCEPTED MISCONFIG @ gateway.threema.ch: Now accessible (was TIMEOUT) — 302 to /en with session cookie, CSP, Sentry
+- LEARN: ACCEPTED MISCONFIG @ billing.threema.ch: Now accessible (was TIMEOUT) — 301 to threema.ch
+- LEARN: ACCEPTED MISCONFIG @ work.threema.ch: Enhanced headers on 301 redirect — PHP session cookie, CSP, Sentry
+- LEARN: ACCEPTED MISCONFIG @ shop.threema.ch: Enhanced headers on 301 redirect — CSP, Sentry, hCaptcha subdomain
+- LEARN: ACCEPTED MISCONFIG @ work.test.threema.ch/api-app/public/global_settings: Now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/29
+- LEARN: REJECTED IDOR @ ds-apip.threema.ch/identity/revoke?identity=: GET query-param variant returns 46B universally; not a token-mint vector
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes; crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed {"identities":{}} -> 200/17B {"identities":[]} (graceful validation); NOT a crash-f
+- LEARN: CONFIRMED — 8-endpoint token-mint cluster byte-stable across 25+ cycles; 15-family crash matrix 120 combos stable; census 11 live-active accounts confirmed.
+- LEARN: CONFIRMED — safe-{01,1a,1b,02,00}.threema.ch HSTS/Expect-CT gap byte-stable; route-oracle + Basic Auth + credentialed CORS stable.
+- LEARN: CONFIRMED — apip-work.threema.ch 4th work-directory alias stable (203.56.112.209, OPTIONS→401 auth-gated).
+- LEARN: CONFIRMED — ds-apip.test.threema.ch has no debug/admin/metrics/status/health endpoints (all 404/0B); staging surface is API-only, no observability endpoints exp
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint — 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class.
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `400c7846…` confirmed benchmark-only dummy in determineKdfParams(), purged at L233 — not used for 
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker — conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tr
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem — STILL ABSENT (25+ cycles); source verification ≠ artifact generation.
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 — PERMANENTLY DOWNGRADED; 404 has NO CORS headers; key NOT in threema-desktop source.
