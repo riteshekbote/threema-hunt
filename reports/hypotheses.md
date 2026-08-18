@@ -9938,3 +9938,18 @@
 - LEARN: CHANGED work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie +
 - LEARN: CONFIRMED MISCONFIG @ crash family: 15 endpoint families × 4 hosts × GET+POST = 120 combos, all 500/0B with ACAO:* + zero 429, byte-stable
 - LEARN: CONFIRMED IDOR @ 8-endpoint GET+text/plain mint cluster: 24 byte-stable combos, constant tokenRespKeyPub sha256 c8005cca9…, zero-preflight browser-viable
+
+## RANKED HYPOTHESES 2026-08-18 07:03:08 UTC
+- [95] https://{ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv}: GET+text/plain token-mint identity-existence oracle cluster (8 endpoints x 3 hosts, preflight-free) (from reports/hypotheses-laguna.txt)
+- [75] https://work.test.threema.ch/api-app/public/global/settings: Staging-only public API endpoint captcha-gated but prod returns 404 — bundle divergence confirms code-path difference (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://work.test.threema.ch/api-app/public/global/settings -H "Origin: https://evil.example" → verify 400 captcha_proof_expired + CSP + __HOST-HTTP-
+- NEXT(hypotheses-laguna.txt): PROBE: `GET https://ds-apip.threema.ch/identity/revoke -H "Origin: https://evil.example" -H "Content-Type: text/plain" -d '{"identity":"5U8DM3J3"}' && GET https
+- LEARN: ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke?identity=: GET query-param token mint confirmed LIVE (resolves 20+ cycle KB contradiction)
+- LEARN: ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work-directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS); auth-gated (OPTIONS→
+- LEARN: ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/fetch_priv: 88B error-body distinctness confirmed (revocation-aware vs 46B for other 7 mint endpoints)
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk: malformed input returns 200/17B NOT 500 — NOT a crash-family member
+- LEARN: REJECTED MISCONFIG @ /identity/delete: returns 404 on all probes — NOT a crash-family member (count corrected 16→15)
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws (1.6M+ IDs) — not structural, insufficient for class
+- LEARN: CHANGED work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie +
+- LEARN: CONFIRMED MISCONFIG @ crash family: 15 endpoint families × 4 hosts × GET+POST = 120 combos, all 500/0B with ACAO:* + zero 429, byte-stable
+- LEARN: CONFIRMED IDOR @ 8-endpoint GET+text/plain mint cluster: 24 byte-stable combos, constant tokenRespKeyPub sha256 c8005cca9…, zero-preflight browser-viable
