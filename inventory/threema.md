@@ -5601,3 +5601,46 @@
 - CHANGED GET+text/plain mint cluster confirmed cluster-wide: 8 endpoints × 3 prod hosts = 24 byte-stable combos
 - CHANGED Census draw 22: 11th distinct live-active account (4SKAD72F, state:0, mask:2047); density ~6.5e-6 converged
 - CHANGED type:1 Work-org fingerprint WEAKENED: 6 consecutive zero-type:1 draws (1.6M+ IDs); 2 anomalous distinct in 2/22 draws (~0.5% rate); not structural
+
+## 2026-08-18 19:26:57 UTC
+- CHANGED work.threema.ch: Now responds with 301 to /en/login (was 301, now confirmed PHP session cookie, CSP, Sentry reporting)
+- CHANGED shop.threema.ch: Now responds with 301 to /en (was 301, now confirmed CSP, Sentry, hCaptcha subdomain)
+- CHANGED broadcast.threema.ch: Now responds 301 to /en/login (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+- CHANGED gateway.threema.ch: Now responds 302 to /en (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+- CHANGED billing.threema.ch: Now responds 301 to threema.ch (was TIMEOUT, now redirects to main site)
+- CHANGED apip.threema.ch: Confirmed 403 with CORS headers allowing POST/GET/OPTIONS/DELETE (was 403, now detailed)
+- NEW api.threema.ch: Returns 403 with same CORS headers as apip.threema.ch (likely related ID service)
+- NEW safe.threema.ch: Timeout/no response (backup service pattern candidate)
+- NEW `ds-apip.threema.ch` — canonical directory server hostname (source `config/vite.config.ts` + OpenAPI); public `GET /identity/{id}` returns 200/404 oracle.
+- NEW `mediator-{X}.threema.ch/{XX}/` hostname pattern (WSS sync server) — `mediator-*.threema.ch` in scope, pattern confirmed from client config.
+- NEW `safe-{XX}.threema.ch/` hostname pattern (backup safe) — `safe-*.threema.ch` in scope, pattern confirmed from client config.
+- NEW `rendezvous-{X}.threema.ch/{XX}/` hostname pattern (WSS linking server) — `rendezvous-*.threema.ch` in scope, pattern confirmed from client config.
+- NEW `api.threema.ch` — 403 + same permissive CORS as apip (candidate ID/directory sibling).
+- CHANGED `apip.threema.ch` — was 403 on `/`; now verified 200 on `/identity/ECHOECHO`, 404 on invalid, CORS `*`.
+- CHANGED `work.threema.ch` / `shop.threema.ch` / `broadcast.threema.ch` / `gateway.threema.ch` — 301/302 now with session cookie, CSP, Sentry (was TIMEOUT/301).
+- CHANGED `billing.threema.ch` — 301 → `threema.ch`.
+- NEW `ds-apip.test.threema.ch` — leaked test/staging directory server reachable (static + live 200).
+- CHANGED work.threema.ch: Now responds with 301 to /en/login (was 301, now confirmed PHP session cookie, CSP, Sentry reporting)
+- CHANGED shop.threema.ch: Now responds with 301 to /en (was 301, now confirmed CSP, Sentry, hCaptcha subdomain)
+- CHANGED broadcast.threema.ch: Now responds 301 to /en/login (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+- CHANGED gateway.threema.ch: Now responds 302 to /en (was TIMEOUT, now accessible with session cookie, CSP, Sentry)
+- CHANGED billing.threema.ch: Now responds 301 to threema.ch (was TIMEOUT, now redirects to main site)
+- CHANGED apip.threema.ch: Confirmed 403 with CORS headers allowing POST/GET/OPTIONS/DELETE (was 403, now detailed)
+- NEW api.threema.ch: Returns 403 with same CORS headers as apip.threema.ch (likely related ID service)
+- NEW safe.threema.ch: Timeout/no response (backup service pattern candidate)
+- NEW `ds-apip.threema.ch` — canonical directory server hostname (source `config/vite.config.ts` + OpenAPI); public `GET /identity/{id}` returns 200/404 oracle.
+- NEW `mediator-{X}.threema.ch/{XX}/` hostname pattern (WSS sync server) — `mediator-*.threema.ch` in scope, pattern confirmed from client config.
+- NEW `safe-{XX}.threema.ch/` hostname pattern (backup safe) — `safe-*.threema.ch` in scope, pattern confirmed from client config.
+- NEW `rendezvous-{X}.threema.ch/{XX}/` hostname pattern (WSS linking server) — `rendezvous-*.threema.ch` in scope, pattern confirmed from client config.
+- NEW `api.threema.ch` — 403 + same permissive CORS as apip (candidate ID/directory sibling).
+- CHANGED `apip.threema.ch` — was 403 on `/`; now verified 200 on `/identity/ECHOECHO`, 404 on invalid, CORS `*`.
+- CHANGED `work.threema.ch` / `shop.threema.ch` / `broadcast.threema.ch` / `gateway.threema.ch` — 301/302 now with session cookie, CSP, Sentry (was TIMEOUT/301).
+- CHANGED `billing.threema.ch` — 301 → `threema.ch`.
+- NEW `ds-apip.test.threema.ch` — leaked test/staging directory server reachable (static + live 200).
+- NEW `apip-work.threema.ch` — 4th work-directory hostname alias confirmed live (203.56.112.209 same as ds-apip-work; OPTIONS+GET -> 401 + ACAO:* + no HSTS/Expect-CT; auth-gated preflight)
+- NEW `/identity/revoke` (non-ws path) confirmed as 11th token-mint oracle — GET+text/plain + POST return 200/133B token for valid, 200/46B for invalid; case-fold amplification; sibling parity byte-identica
+- NEW `/identity/fetch_priv` confirmed as 16th crash-family member (POST {"identity":{"x":1}} -> 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence; 88B error-body distinct
+- NEW `check_license` crash confirmed on all 4 hosts (POST {"version":{}} -> 500/0B; GET+text/plain -> 500/0B; OPTIONS -> 200 CORS *; only crash family with 4-host parity + OPTIONS-200)
+- CHANGED /identity/delete crash-family membership corrected: returns 404 (NOT a member); crash-family = 15 endpoint families x 4 hosts x GET+POST = 120 combos
+- CHANGED /identity/fetch_bulk confirmed NOT crash-family member: malformed {"identities":{}} -> 200/17B {"identities":[]} (graceful validation)
+- CHANGED work.test.threema.ch `/api-app/public/global_settings` now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/299B unauthenticated
