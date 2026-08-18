@@ -3570,3 +3570,12 @@ https://ds-apip.threema.ch/check_license` -> HTTP 404
 https://ds-apip.threema.ch/identity/revoke?identity=5U8DM3J3 -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
 https://apip-work.threema.ch/identities -> HTTP 401
+
+## 2026-08-18 16:20:06 UTC
+https://work.test.threema.ch/api-app/public/global_settings -> HTTP 404
+https://apip-work.threema.ch/ -> HTTP 401
+https://apip-work.threema.ch/identities -> HTTP 401
+https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000 -> HTTP 400
+https://safe-01.threema.ch/backups/000 -> HTTP 400
+https://ds-apip.threema.ch/identity/revoke?identity=5U8DM3J3 -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
