@@ -5745,3 +5745,5 @@
 - CHANGED work.test.threema.ch/api-app/public/global_settings: Now captcha-gated (HTTP 400 captcha_proof_expired + __HOST-HTTP-SESSIONID cookie + CSP) — was 200/299B unauthenticated
 - CHANGED /identity/revoke query-param variant: Confirmed returns 46B universally (not a token-mint vector); POST-body required for mint
 - CHANGED Crash-family count corrected: 15 endpoint families × 4 hosts × GET+POST = 120 combos (fetch_priv is 16th crash member but NOT a token-mint endpoint; delete/fetch_bulk/match/revoke-query-param excluded
+
+## 2026-08-18 21:48:30 UTC
