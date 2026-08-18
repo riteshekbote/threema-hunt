@@ -23351,3 +23351,4 @@ testability: AUTH_HELPED
 [RISK] safe: 30 — Backup API credential-gated (HTTP Basic Auth) with HSTS/Expect-CT gap on GET 400; credentialed cross-origin CORS; route-existence oracle; but credential-gated limits blast radius
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (PoC authored, needs Windows validation); BrowserWindow sandbox unset (conditional RCE, not standalone); OnPrem config trust verified safe
 ## 2026-08-18 05:53:41 UTC [chat] (model bigpickle)
+## 2026-08-18 06:04:35 UTC [chat] (model bigpickle)
