@@ -23847,3 +23847,22 @@ testability: PASSIVE
 [RISK] safe: 30 — Credential-gated (HTTP Basic Auth) with HSTS/Expect-CT gap; credentialed CORS; route oracle
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (RAG-verified, PoC authored, needs Windows runtime validation)
 ## 2026-08-18 16:50:44 UTC [chat] (model bigpickle)
+## 2026-08-18 17:18:52 UTC [chat] (model bigpickle)
+[NEXT] NO_NEW_ACTION — directory server surface exhaustively mapped. To produce genuine new value, explore:
+[LEARN] CONFIRMED — all 8-endpoint token-mint cluster byte-stable across 25+ cycles; 16-family crash matrix 120 combos stable; census 11 live-active accounts confirmed
+[LEARN] REJECTED — poc/ filesystem STILL ABSENT; state_bigpickle.json = chat (not desktop); crypto.ts benchmark dummy; BrowserWindow sandbox standalone class; type:1 Work-org fingerprint
+[RISK] chat: 98 — 15 crash families × 4 hosts × GET+POST = 120 DoS combos (ACAO:*); 8-endpoint zero-preflight identity oracle (24 combos); census yields 11 live identities + pubkeys + featureMask fingerprinting; check_license credential oracle; full prod+staging parity
+[RISK] web: 15 — Static redirects only; no live app routes
+[RISK] sync: 5 — mediator/rendezvous WSS uniformly 403; TCP 5222 handshake requires auth
+[RISK] safe: 30 — Credential-gated (HTTP Basic Auth) with HSTS/Expect-CT gap; credentialed CORS; route oracle
+[RISK] desktop-src: 40 — key-storage Windows ACL bypass (RAG-verified, PoC authored, needs Windows runtime validation)
+[NEXT] NO_NEW_ACTION — directory server surface exhaustively mapped; broadcast/gateway surfaces auth-gated with no undocumented endpoints; all ranked findings FINAL and byte-stable across 25+ cycles.
+[LEARN] CONFIRMED — broadcast.threema.ch: auth-gated `/api/v1/`, HSTS+CSP+XFO security headers, static JS bundle accessible
+[LEARN] CONFIRMED — gateway.threema.ch: auth-gated `/api/*` (403), no info leaks, no undocumented endpoints
+[RISK] chat: 98 — unchanged
+[RISK] web: 15 — unchanged
+[RISK] sync: 5 — unchanged
+[RISK] safe: 30 — unchanged
+[RISK] desktop-src: 40 — unchanged
+[RISK] broadcast: 10 — auth-gated, strong security posture, no undocumented endpoints
+[RISK] gateway: 10 — auth-gated, no info leaks, no undocumented endpoints
