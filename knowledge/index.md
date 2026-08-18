@@ -1838,3 +1838,4 @@
 - 2026-08-18 REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
 - 2026-08-18 REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 25+ cycles; source verification ≠ artifact generation
 - 2026-08-18 CHANGED work.test.threema.ch /api-app/public/global/settings: captcha-gated persists
+- 2026-08-18 ACCEPTED IDOR @ /identity/revoke?identity=: GET query-param token mint confirmed LIVE (resolves 20+ cycle KB contradiction)

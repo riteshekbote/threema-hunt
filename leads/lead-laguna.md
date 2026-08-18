@@ -26129,3 +26129,43 @@ testability: PASSIVE
 [RISK] sync: 12 reason — mediator/rendezvous-*.threema.ch uniform 403 on HTTPS; high-entropy path structure observed; no unauthenticated surface
 [RISK] safe: 25 reason — safe-*.threema.ch backup API credential-gated (HTTP Basic Auth) with route-existence oracle (400 vs 404) + HSTS/Expect-CT header inconsistency; 5 hosts behind single IP 203.56.112.231
 [RISK] desktop-src: 40 reason — threema-desktop key-storage Windows ACL bypass (fileModeInternalObjectIfPosix returns {} on win32; keystorage.bin + keystorage.password.bin written without ACL; DPAPI password recoverable by same-user processes); Electron BrowserWindow sandbox unset + nodeIntegrationInWorker true (TODO DESK-79); conditional RCE requires separate renderer exploit chain
+## 2026-08-18 16:53:56 UTC [desktop] (model laguna)
+[PRIO] {ds-apip,api,apip}.threema.ch/identity/{11: token-mint oracles}, 9.8, attack_surface:10 business_value:10 tech_exposure:9 gate_ease:10 cloud_surface:8 freshness:9
+[PRIO] {ds-apip,api,apip,ds-apip.test}.threema.ch crash family (16 families × 104 combos), 8.6, attack_surface:9 business_value:7 tech_exposure:9 gate_ease:10 cloud_surface:6 freshness:9
+[PRIO] {ds-apip,api,apip}.threema.ch/identity/check_featuremask census, 8.2, attack_surface:10 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:8
+[PRIO] safe-{01,1a,1b,02,00}.threema.ch backup API HSTS gap, 6.2, attack_surface:5 business_value:7 tech_exposure:6 gate_ease:3 cloud_surface:5 freshness:7
+[PRIO] apip-work.threema.ch work directory alias, 5.8, attack_surface:6 business_value:7 tech_exposure:5 gate_ease:3 cloud_surface:4 freshness:9
+[HYP] 11 token-mint identity-existence oracles cluster-wide
+class: IDOR
+asset: {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv,create,check_license}
+confidence: 97
+reasoning: All 11 endpoints return 200/133B token + constant tokenRespKeyPub sha256 `c8005cca9…` for valid identities; 200/46B "Identity not found" for invalid; CORS `*` + Allow-Methods on POST and OPTIONS. 3-host parity byte-stable across 25+ cycles. 2 endpoints (revoke, set_featuremask) accept GET+text/plain (CORS-safelisted, zero-preflight browser vector).
+evidence_needed: Full 11-endpoint enumeration map with response sizes across all 3 prod hosts; confirm create is NOT a token-mint endpoint (returns 200/46B no token for valid identity via GET)
+verify_steps: PASSIVE: curl -s -X GET "https://ds-apip.threema.ch/identity/revoke?identity=5U8DM3J3" -H "Origin: https://evil.example" — verify 200/133B + ACAO:*; repeat for all 11 endpoints × 3 hosts
+impact: Unauthenticated cross-origin identity existence oracle enabling census enumeration; 2 endpoints preflight-free via GET; 11 accounts confirmed live-active (state:0, mask:2047)
+testability: PASSIVE
+[HYP] 16-family crash DoS cluster with zero-preflight amplification
+class: MISCONFIG
+asset: {ds-apip,api,apip,ds-apip.test}.threema.ch/{16 endpoint families}
+confidence: 95
+reasoning: All 16 endpoint families return 500/0B + ACAO: `*` on malformed GET+text/plain and POST JSON object input; 4-host parity (ds-apip/api/apip/ds-apip.test); zero 429 on 5x burst @500ms; instant recovery; check_license is sole OPTIONS-200 family (browser-viable preflight-free). Confirmed fresh: fetch_priv 500, create 500, check_license 500 on ds-apip.
+evidence_needed: Confirm crash payloads for all 16 families × GET+POST × 4 hosts (128 combos); verify fetch_bulk/check/delete are NOT members (return 200/200/404 respectively)
+verify_steps: PASSIVE: curl -s -X POST "https://ds-apip.threema.ch/identity/match_token" -H "Content-Type: text/plain" -H "Origin: https://evil.example" -d '{"identity":{"x":1}}' — verify 500/0B + ACAO:*; repeat for check, check_featuremask, sfu_cred, blob_cred, update_work_info, check_revocation_key
+impact: Unauthenticated DoS amplification — zero-preflight GET+text/plain crash via CORS-safelisted content-type; 128 byte-stable crash combos; instant recovery enables sustained attack
+testability: PASSIVE
+[HYP] check_featuremask census yielding live-active account enumeration
+class: IDOR
+asset: {ds-apip,api,apip}.threema.ch/identity/check_featuremask
+confidence: 93
+reasoning: POST `{"identities":[...]}` (up to ~524k IDs/req body-size cap) returns tri-state oracle: mask-null (never-registered), state:1 (inactive), state:0+mask:2047 (active); 11 distinct live-active accounts recovered across 22 census draws at density ~6.5e-6; zero 429; GET→500 confirmed as POST-only expected behavior (not regression). Fresh probe: `{"featureMasks":[2047,null,9]}` byte-identical across all 3 hosts.
+evidence_needed: Full 3-host sibling parity map for known IDs; confirm body-size cap boundary (~524k IDs); verify no Access-Control-Expose-Headers on any directory host response
+verify_steps: PASSIVE: curl -s -X POST "https://ds-apip.threema.ch/identity/check_featuremask" -H "Content-Type: application/json" -d '{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ","ECHOECHO"]}' -H "Origin: https://evil.example" — verify 200 + ACAO:* + featureMasks response; repeat for api.threema.ch + apip.threema.ch
+impact: Unauthenticated massive enumeration yielding LIVE ACTIVE accounts (state:0, mask:2047) at ~6.5e-6 density; cross-origin readable via CORS `*`
+testability: PASSIVE
+[FINAL] 1. [97] 11 token-mint identity-existence oracles cluster-wide — IDOR, 3-host parity, 2 endpoints preflight-free GET
+[NEXT] PROBE: POST https://api.threema.ch/identity/match_token -H "Content-Type: text/plain" -H "Origin: https://evil.example" -d '{"identity":{"x":1}}' — verify 500/0B + ACAO:* (completes crash-family sibling parity on api host; match_token currently only confirmed crash on ds-apip+apip, api untested fresh)
+[RISK] chat: 98 reason — Directory servers (ds-apip/api/apip) expose 12+ unauthenticated IDOR endpoints with CORS `*` + no rate limits; 11 token-mint existence oracles (shared GET+text/plain handlers, zero OPTIONS preflight on 2 endpoints) + 16-family crash DoS cluster (128 combos); check_featuremask census yields 11 live-active accounts at ~6.5e-6 density via 524k-ID batches; check_license credential oracle at root path with 4-host parity; maximum cross-origin amplification with zero auth barrier
+[RISK] web: 38 reason — work.test.threema.ch staging captcha-gated (400 vs prod 404); safe-*.threema.ch credential-gated backup API with HSTS/Expect-CT header inconsistency on GET 400; billing.threema.ch static assets with security headers but 404 page lacks headers; broadcast.threema.ch/api/v1 401 auth-gated no key-format oracle; gateway.threema.ch 404/301 no msgapi
+[RISK] sync: 12 reason — mediator/rendezvous-*.threema.ch uniform 403 on HTTPS, high-entropy path structure, no unauthenticated surface
+[RISK] safe: 25 reason — safe-*.threema.ch backup API credential-gated (HTTP Basic Auth) with route-existence oracle (400 vs 404) + HSTS/Expect-CT gap on GET 400 (present on OPTIONS 204 only); 5 hosts behind single IP 203.56.112.231
+[RISK] desktop-src: 40 reason — threema-desktop key-storage Windows ACL bypass (6-path RAG chain verified on GitHub stable, PoC artifact not authored — filesystem confirms absent); BrowserWindow sandbox unset + nodeIntegrationInWorker (TODO DESK-79); OnPrem config trust verified safe; crypto.ts:223 benchmark dummy confirmed benign
