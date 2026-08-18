@@ -1797,6 +1797,21 @@
 - 2026-08-18 CONFIRMED @ apip-work.threema.ch: 4th work-directory hostname alias — resolves to 203.56.112.209 (same as ds-apip-work); OPTIONS+GET → 401 + ACAO:* + no HSTS/Expect-CT; auth-gated preflight (unlike consumer ds-apip OPTIONS→200) — cross-origin probing blocked without work credentials
 - 2026-08-18 CONFIRMED @ work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie + CSP); was 200/299B unauthenticated — staging-prod divergence intact (prod→404) but staging no longer raw oracle
 - 2026-08-18 CONFIRMED FS GROUND TRUTH: state_bigpickle.json = `{"phase":"POC","target":"chat"}` (sha256 `94bd1bd1…`); poc/ directory still ABSENT (22nd+ cycle); reposcan-raw/threema-ch/ 18 repo dirs ALL EMPTY (0 source files); grep-delta "0 new hit lines"; analysis "No reportable secrets found"
+- 2026-08-18 REJECTED @ /identity/fetch_bulk crash-family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, not 500; NOT a crash-family member (pure IDOR oracle, validates identity list gracefully)
+- 2026-08-18 REJECTED @ /identity/match crash-family membership: POST `{"identity":{"x":1}}` → 200/39B `{"checkInterval":86400,"identities":[]}`; does NOT crash (different param shape expects emailHashes)
+- 2026-08-18 REJECTED @ /identity/delete crash-family membership: returns 404 on all probes — route not registered; crash-family count corrected 16→15
+- 2026-08-18 ACCEPTED @ /identity/fetch_priv crash membership: 16th family confirmed crashing (POST `{"identity":{"x":1}}` → 500/0B + ACAO `*` on all 3 prod + staging); completes 8/8 token-mint crash convergence; 88B error-body distinctness confirmed as handler routing difference (revocation-aware `errorType:invalid-identity` vs basic `error`)
+- 2026-08-18 REJECTED @ /identity/revoke?identity=ECHOECHO GET query-param mint: returns 46B universally; query-param NOT a token-mint vector (POST-body only); resolves 20+ cycle contradiction
+- 2026-08-18 ACCEPTED @ apip-work.threema.ch: 4th work-directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS, OPTIONS→401 auth-gated preflight); cross-origin probing blocked without work credentials
+- 2026-08-18 CHANGED @ work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `captcha_proof_expired` + session cookie + CSP); staging-prod divergence intact (prod→404) but staging no longer raw unauthenticated oracle
+- 2026-08-18 WEAKENED @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws (1.6M+ IDs, draws 19-24); 2 anomalous distinct in 2/22 draws (~0.5%); not structural, below ≥3-draw threshold
+- 2026-08-18 ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/identity/fetch_priv: 16th crash-family member confirmed — POST {"identity":{"x":1}} → 500/0B + ACAO:* on all 3 prod hosts + staging; completes 8/8 token-mint crash convergence; 88B error-body distinctness is handler routing, not separate path.
+- 2026-08-18 CONFIRMED IDOR @ 8-endpoint token-mint cluster: 24 byte-stable combos; constant tokenRespKeyPub sha256 c8005cca…; zero-preflight browser-viable; GET+text/plain accepted by revoke + set_featuremask uniquely.
+- 2026-08-18 CONFIRMED IDOR @ check_featuremask census: 11 distinct live-active accounts; tri-state oracle byte-stable; density ~6.5e-6 converged across 22 draws; zero 429.
+- 2026-08-18 CHANGED work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 "captcha_proof_expired" + __HOST-HTTP-SESSIONID cookie + CSP); staging-prod divergence intact (prod→404).
+- 2026-08-18 REJECTED MISCONFIG @ /identity/fetch_bulk crash family membership: malformed {"identities":{}} → 200/17B {"identities":[]}, not 500; NOT a crash-family member (pure IDOR oracle).
+- 2026-08-18 REJECTED MISCONFIG @ /identity/delete crash family membership: returns 404 on all probes; NOT a member; crash-family corrected to 16 families.
+- 2026-08-18 REJECTED HYP @ type:1 Work-org fingerprint class: 6 consecutive zero-type:1 draws (1.6M+ IDs); 2 anomalous distinct in 2/24 draws (~0.4%); not structural fingerprint class.
 === INVENTORY gladia ===
 # Inventory: threema
 
