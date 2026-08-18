@@ -10269,3 +10269,16 @@
 - LEARN: CONFIRMED IDOR @ check_featuremask census: Byte-stable this cycle; 11 distinct live-active accounts; tri-state oracle; density ~6.5e-6 converged.
 - LEARN: CHANGED work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `{"error":"captcha_proof_expired"}` + `__HOST-HTTP-SESSIONID` cookie +
 - LEARN: NO_NEW_CLASS — all previously accepted findings byte-stable; no new vulnerability classes opened this cycle; fetch_priv crash gap is extension of existing crash
+
+## RANKED HYPOTHESES 2026-08-18 11:06:38 UTC
+- [96] https://{ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv}: shared-handler preflight-free cross-origin identity oracle + unauthenticated crash DoS (from reports/hypotheses-laguna.txt)
+- [75] apip-work.threema.ch: Work directory auth-gated preflight blocks cross-origin probing (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://ds-apip.threema.ch/identity/fetch_priv -H "Content-Type: text/plain" -H "Origin: https://evil.example" -d '{"identity":{"x":1}}' — verify 50
+- NEXT(hypotheses-laguna.txt): PROBE: `curl -s -D- -H "Origin: https://evil.example" -H "Content-Type: text/plain" -d '{"identity":"5U8DM3J3"}' https://ds-apip.threema.ch/identity/revoke` — v
+- LEARN: ACCEPTED MISCONFIG @ apip-work.threema.ch: 4th work-directory hostname alias confirmed (203.56.112.209, byte-identical 401+ACAO:*+no HSTS, OPTIONS→401 auth-gate
+- LEARN: ACCEPTED MISCONFIG @ fetch_priv error-body distinctness: 88B `{"success":false,"errorType":"invalid-identity","error":"Identity not found or revoked"}` vs 46B f
+- LEARN: ACCEPTED IDOR @ /identity/revoke?identity=ECHOECHO: GET query-param token mint confirmed LIVE (resolves 20+ cycle KB contradiction)
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, not 500; NOT a crash-family memb
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash family membership: returns 404 on all probes; NOT a member; crash-family count = 15 (not 16)
+- LEARN: CHANGED work.test.threema.ch /api-app/public/global_settings: now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/299B unauthent
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6 consecutive zero-type:1 draws (1.6M+ IDs); 2 anomalous distinct in 2/22 draws (~0.5%); not structural
