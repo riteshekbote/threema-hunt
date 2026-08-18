@@ -10896,3 +10896,18 @@
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker — conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tr
 - LEARN: REJECTED MISCONFIG @ poc/ filesystem — STILL ABSENT (25+ cycles); source verification ≠ artifact generation.
 - LEARN: REJECTED AUTH @ work.threema.ch/api/v1 — PERMANENTLY DOWNGRADED; 404 has NO CORS headers; key NOT in threema-desktop source.
+
+## RANKED HYPOTHESES 2026-08-18 21:02:13 UTC
+- [98] {ds-apip,api,apip,ds-apip.test}.threema.ch/identity/{16: Unauthenticated directory-server identity-existence oracle cluster + DoS crash family (from reports/hypotheses-laguna.txt)
+- [25] ds-apip.threema.ch/identity/check_featuremask: gzip compression bypass of 524k body-size cap on check_featuremask (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-laguna.txt): PROBE: `curl -X GET -H "Origin: https://evil.example" -H "Content-Type: text/plain" -d '{"identity":{"x":1}}' https://ds-apip.threema.ch/identity/revoke` -- con
+- NEXT(hypotheses-bigpickle.txt): NO_NEW_ACTION — directory server surface exhaustively mapped across 26+ cycles; all findings byte-stable; no new vulnerability classes opened; staging debug sur
+- LEARN: CONFIRMED — 8-endpoint token-mint cluster byte-stable across 25+ cycles; 15-family crash matrix 120 combos stable; census 11 live-active accounts confirmed.
+- LEARN: CONFIRMED — safe-{01,1a,1b,02,00}.threema.ch HSTS/Expect-CT gap byte-stable; route-oracle + Basic Auth + credentialed CORS stable.
+- LEARN: CONFIRMED — apip-work.threema.ch 4th work-directory alias stable (203.56.112.209, OPTIONS→401 auth-gated).
+- LEARN: CONFIRMED — ds-apip.test.threema.ch has no debug/admin/metrics/status/health endpoints (all 404/0B); staging surface is API-only, no observability endpoints exp
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint — 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class.
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 `400c7846…` confirmed benchmark-only dummy in determineKdfParams(), purged at L233 — not used for 
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker — conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tr
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem — STILL ABSENT (25+ cycles); source verification ≠ artifact generation.
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 — PERMANENTLY DOWNGRADED; 404 has NO CORS headers; key NOT in threema-desktop source.

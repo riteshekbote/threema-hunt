@@ -3673,3 +3673,12 @@ https://safe-01.threema.ch/backups/abc123 -> HTTP 400
 https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/apps/desktop/src/common/node/fs.ts -> 200 len=1600 type=text/plain; charset=utf-8
 https://raw.githubusercontent.com/threema-ch/threema-desktop/stable/apps/desktop/src/common/key-storage/layers/inner/v3.ts -> 200 len=6695 type=text/plain; charset=utf-8
 https://ds-apip.test.threema.ch/identity/revoke?identity=5U8DM3J3 -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-18 21:02:17 UTC
+https://ds-apip.threema.ch/identity/revoke` -> HTTP 404
+https://ds-apip.test.threema.ch/identity/fetch_priv` -> HTTP 404
+https://api.threema.ch/identity/check_featuremask` -> HTTP 404
+https://api.threema.ch/identity/set_featuremask` -> HTTP 404
+https://apip.threema.ch/identity/match_token` -> HTTP 404
+https://ds-apip.threema.ch/identity/check_featuremask` -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
