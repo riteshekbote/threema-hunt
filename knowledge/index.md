@@ -1850,3 +1850,8 @@
 - 2026-08-18 REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 25+ cycles; all KB sha256 claims DISPROVEN; source verification ≠ artifact generation
 - 2026-08-18 CHANGED work.test.threema.ch /api-app/public/global/settings: captcha-gated persists (HTTP 400 captcha_proof_expired + session cookie + CSP)
 - 2026-08-18 ACCEPTED OTHER @ apip-work.threema.ch: 4th work-directory hostname alias (203.56.112.209, OPTIONS→401 auth-gated)
+- 2026-08-18 CONFIRMED — 8-endpoint token-mint cluster byte-stable across 25+ cycles; 15-family crash matrix 120 combos stable; census 11 live-active accounts confirmed
+- 2026-08-18 CONFIRMED — safe-{01,1a,1b,02,00}.threema.ch HSTS/Expect-CT gap byte-stable; route-oracle + Basic Auth + credentialed CORS stable
+- 2026-08-18 CONFIRMED — apip-work.threema.ch 4th work-directory alias stable (203.56.112.209, OPTIONS→401 auth-gated)
+- 2026-08-18 REJECTED HYP @ type:1 Work-org fingerprint — 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
+- 2026-08-18 CONFIRMED — ds-apip.test.threema.ch has no debug/admin/metrics/status/health endpoints (all 404/0B); staging surface is API-only, no observability endpoints exposed.
