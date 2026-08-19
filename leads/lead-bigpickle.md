@@ -24522,3 +24522,4 @@ testability: HUMAN_ONLY
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (RAG-verified, PoC authored on disk, needs Windows runtime validation); BrowserWindow sandbox unset + nodeIntegrationInWorker true (conditional RCE, not standalone class); crypto.ts benchmark dummy confirmed non-secret.
 ## 2026-08-19 03:16:20 UTC [chat] (model bigpickle)
 ## 2026-08-19 04:00:29 UTC [chat] (model bigpickle)
+## 2026-08-19 04:37:38 UTC [chat] (model bigpickle)
