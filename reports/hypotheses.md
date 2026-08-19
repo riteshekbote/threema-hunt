@@ -11300,3 +11300,20 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223 — benchmark-only dummy, purged at L233.
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker — conditional RCE requires separate renderer exploit chain; surface accepted as hardening
 - LEARN: REJECTED MISCONFIG @ poc/ filesystem — STILL ABSENT 25+ cycles; source verification ≠ artifact generation.
+
+## RANKED HYPOTHESES 2026-08-19 01:07:07 UTC
+- [92] {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask}: preflight-free identity enumeration via CORS-safelisted GET+text/plain (from reports/hypotheses-laguna.txt)
+- [85] ds-apip.threema.ch/identity/revoke: Preflight-free identity enumeration via GET+text/plain on revoke endpoint (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/revok
+- NEXT(hypotheses-laguna.txt): PROBE: `curl -s -D - -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET -d '{"identity":"echoecho"}' https://ds-apip.threema.ch/identity/rev
+- LEARN: ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke: GET+text/plain preflight-free identity enumeration confirmed byte-stable across 26 cycles
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes; crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed {"identities":{}} → 200/17B {"identities":[]} (graceful validation); NOT a crash-fa
+- LEARN: ACCEPTED MISCONFIG @ /identity/fetch_priv: 16th crash-family member (POST {"identity":{"x":1}} → 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-m
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223 benchmark password sha256 `400c7846…` confirmed benchmark-only dummy in determineKdfParams(), purged at L233 — not used for r
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT (25+ cycles); source verification ≠ artifact generation
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB desktop-target claims: filesystem GROUND TRUTH = {"target":"chat"} — KB desktop-target claims stale
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: PERMANENTLY DOWNGRADED; 404 has NO CORS headers; key NOT in threema-desktop source
