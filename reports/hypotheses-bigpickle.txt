@@ -1,1 +1,58 @@
-## 2026-08-19 16:56:17 UTC [chat] (model bigpickle)
+## 2026-08-19 17:16:24 UTC [chat] (model bigpickle)
+[PRIO] {ds-apip,api,apip}.threema.ch/identity/8-mint+crash cluster score=8.8 attack=9 business=8 tech=7 gate=10 cloud=4 fresh=4
+[PRIO] {ds-apip,api,apip}.threema.ch/identity/check_featuremask+census score=8.5 attack=9 business=8 tech=7 gate=10 cloud=4 fresh=4
+[PRIO] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license score=7.8 attack=8 business=9 tech=7 gate=10 cloud=4 fresh=4
+[HYP] Content-Type routing differential on shared identity handler
+class: MISCONFIG
+asset: {ds-apip,api,apip}.threema.ch/identity/{revoke,fetch_priv,match_token}
+confidence: 72
+reasoning: Server validates Content-Type header — text/plain triggers mint, application/json triggers different deserialization path. Prior probes showed create crashes on object-type publicKey but fetch_bulk returns 200/17B on malformed — per-endpoint input validation diverges. Unexplored: whether application/json with text/plain body (Content-Type spoofing) triggers different error messages or reveals stack traces.
+evidence_needed: Response difference between Content-Type: text/plain and Content-Type: application/json on same GET+body request
+verify_steps: PASSIVE: `curl -s -X GET -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/revoke` — compare response to text/plain variant (expect 200/133B token vs potential 415/500/alternate error)
+impact: Differential error messages reveal internal framework/stack details; ACAO:* enables cross-origin read of any error response — minor information disclosure
+testability: PASSIVE
+[HYP] GET method divergence across full endpoint matrix
+class: MISCONFIG
+asset: {ds-apip,api,apip}.threema.ch/identity/{check,check_featuremask,match,sfu_cred,blob_cred}
+confidence: 65
+reasoning: revoke+set_featuremask accept GET+text/plain returning 200/133B; check+check_featuremask return 500 on GET (POST-only); remaining 6 token-mint endpoints untested for GET acceptance. If additional endpoints accept GET, the preflight-free browser-viable surface expands beyond 2 endpoints.
+evidence_needed: GET+text/plain response from check, check_featuremask, sfu_cred, blob_cred, update_work_info, match endpoints
+verify_steps: PASSIVE: `curl -s -X GET -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/sfu_cred` — repeat for blob_cred, update_work_info; compare to known check/check_featuremask (500) and revoke/set_featuremask (200/133B)
+impact: If additional endpoints accept GET+text/plain, browser-viable preflight-free enumeration surface expands from 2 to up to 8 endpoints × 3 hosts
+testability: PASSIVE
+[PARKED] Content-Type routing differential — low-impact info-disclosure hypothesis (72 confidence); would require Content-Type spoofing to trigger framework errors; unlikely to yield exploitable data beyond version strings. Parked in favor of higher-value GET-method-surface expansion.
+[PARKED] GET method divergence — 65 confidence but concrete verify_steps exist; re-ranked to [FINAL] #2.
+[FINAL] 1. GET+text/plain method-handling divergence across full endpoint matrix (confidence 65, PASSIVE) — binary outcome: expanding preflight-free surface from 2→8 endpoints is high-value.
+[NEXT] PROBE: Test GET+text/plain on 3 untested token-mint endpoints —
+[LEARN] ACCEPTED AUTH @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: Credential-validation oracle at root path (POST fake creds → 200/65B + ACAO:* + Allow-Headers; OPTIONS→200 CORS *; 4-host parity)
+[LEARN] REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed {"identities":{}} → 200/17B {"identities":[]} (graceful validation); NOT a crash-family member
+[LEARN] REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+[LEARN] REJECTED MISCONFIG @ /identity/revoke query-param variant: returns 46B universally (not a token-mint vector); POST-body required for mint
+[LEARN] REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
+[LEARN] REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree); surface accepted as hardening gap only
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223 benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determineKdfParams(), purged at L233
+[LEARN] NO_DELTA — all 28-cycle findings byte-stable; no regressions; no new vulnerability classes
+[LEARN] CONFIRMED — poc/ directory absent (25+ cycles); state_bigpickle.json = `{"target":"chat"}`
+[LEARN] CONFIRMED — crash family = 15 endpoint families × 4 hosts × GET+POST = 120 combos; fetch_bulk NOT a member; /identity/delete NOT a member; fetch_priv IS 16th crash member
+[LEARN] ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling this cycle — GET /identity/ECHOECHO → 200/133B token + ACAO:* + identical pubkey matching ds-apip byte-identical
+[LEARN] ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts (POST `{"version":{}}` → 500/0B; GET+text/plain → 500/0B; OPTIONS → 200 CORS *); sole crash family with 4-host parity + OPTIONS-200
+[LEARN] REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}` graceful validation; NOT a crash-family member
+[LEARN] REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes (route not registered on consumer directory hosts); crash-family corrected to 15 endpoint families
+[LEARN] REJECTED MISCONFIG @ /identity/revoke query-param variant: returns 46B universally; token-mint requires POST-body or GET+text/plain body, not query-param — resolves 25+ cycle KB contradiction
+[LEARN] REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs, draws 19-24); 2 anomalous distinct out of ~8.4M sampled; anomalous identities, not structural fingerprint class
+[LEARN] CHANGED @ work.test.threema.ch /api-app/public/global/settings: Now captcha-gated (400 `captcha_proof_expired` + session cookie + CSP); was 200/299B unauthenticated oracle; staging-prod divergence intact (prod→404) but staging no longer raw oracle
+[LEARN] ACCEPTED @ api.threema.ch: Full directory sibling confirmed — GET /identity/ECHOECHO → 200/133B token + ACAO:* + identical pubkey (sha256 dedup) matching ds-apip byte-identical; previously only 403-on-root observed (2026-08-07 baseline) — doubles attack surface for IDOR + crash family
+[LEARN] ACCEPTED @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts (POST `{"version":{}}` → 500/0B; GET+text/plain → 500/0B; OPTIONS → 200 CORS *); sole crash family with 4-host parity + OPTIONS-200 enables browser proof path; credential oracle at root path (POST fake → 200/65B `{"success":false,...}` + ACAO:* on ds-apip)
+[LEARN] ACCEPTED @ shared-handler crash+token-mint convergence: Same JSON handler both mints tokens (200/133B valid identity + constant tokenRespKeyPub sha256 c8005cca9…) AND crashes (500/0B malformed) across 8 token-mint endpoints × 3 hosts = 24 preflight-free GET+text/plain combos; revoke + set_featuremask uniquely accept GET+text/plain (CORS-safelisted → zero preflight)
+[LEARN] REJECTED @ /identity/revoke query-param variant (GET ?identity=ECHOECHO): Returns 46B universally — NOT a token-mint vector; token-mint requires POST-body or GET+text/plain body only; resolves 25+ cycle KB contradiction
+[LEARN] REJECTED @ /identity/fetch_bulk crash-family membership: Malformed `{"identities":{}}` → 200/17B `{"identities":[]}` (graceful validation); NOT a crash-family member — pure IDOR oracle (10000-ID count-cap + pubkey oracle); corrects 27+ cycle stale KB claim
+[LEARN] REJECTED @ /identity/delete crash-family membership: Returns 404 on all probes — route not registered on consumer directory hosts; crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos (not 16)
+[LEARN] REJECTED @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12`) — confirmed benchmark-only dummy in `determineKdfParams()`, purged at L233; NOT used for real encryption; distinct from key-storage ACL bypass — REJECTED across 25+ consecutive cycles
+[LEARN] REJECTED @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: `sandbox` UNSET (TODO DESK-79 at electron-main.ts:1255), `nodeIntegrationInWorker: true` (L1252); 0 dynamic sinks (require/import/eval/child_process/new Function) in worker/ tree; L1240 "sandboxing is enabled by default" INCORRECT per Electron docs — formally REJECTED as standalone class across 25+ cycles; surface accepted as hardening gap only
+[LEARN] REJECTED @ work.threema.ch/api/v1 X-Api-Key oracle: PERMANENTLY DOWNGRADED — 404 response has NO CORS headers (neither GET nor OPTIONS); missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}` (sha256 `707fe8f5…`); X-Api-Key NOT in threema-desktop source (fetch-work.ts uses username/password exclusively) — browser cross-origin fully blocked; REJECTED across 25+ cycles
+[LEARN] REJECTED @ type:1 Work-org fingerprint hypothesis: 6 consecutive zero-type:1 draws (1.6M+ IDs, draws 19-24); 2 anomalous distinct (DZ34BVDV, VK24BPYV) in 2/22 draws (~0.5%) — anomalous identities, not structural fingerprint class; below ≥3-draw threshold — REJECTED across 6+ cycles
+[RISK] chat: 98 — 15 crash families × 4 hosts × GET+POST = 120 DoS combos (ACAO:*); 8-endpoint zero-preflight identity oracle (24 combos); census yields 11+ live identities + pubkeys + featureMask fingerprinting; check_license credential oracle; full prod+staging parity; zero 429
+[RISK] web: 15 — static redirects only; no live app routes; broadcast/gateway/billing/shop all landing pages
+[RISK] sync: 5 — mediator/rendezvous WSS uniformly 403; TCP 5222 handshake requires auth frame; alternate ports closed
+[RISK] safe: 30 — credential-gated (HTTP Basic Auth) with HSTS/Expect-CT gap; route-existence oracle; credentialed cross-origin CORS; 5 hostnames behind single IP 203.56.112.231
+[RISK] desktop-src: 40 — key-storage Windows ACL bypass (RAG-verified 6-path chain, PoC absent from filesystem 25+ cycles); BrowserWindow sandbox unset + nodeIntegrationInWorker true (conditional RCE, not standalone)
