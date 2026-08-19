@@ -24521,3 +24521,4 @@ testability: HUMAN_ONLY
 [RISK] safe: 30 — credential-gated (HTTP Basic Auth) with HSTS/Expect-CT gap; credentialed cross-origin CORS; route-existence oracle (400 vs 404); limited blast radius (5 hostnames behind single IP 203.56.112.231).
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (RAG-verified, PoC authored on disk, needs Windows runtime validation); BrowserWindow sandbox unset + nodeIntegrationInWorker true (conditional RCE, not standalone class); crypto.ts benchmark dummy confirmed non-secret.
 ## 2026-08-19 03:16:20 UTC [chat] (model bigpickle)
+## 2026-08-19 04:00:29 UTC [chat] (model bigpickle)
