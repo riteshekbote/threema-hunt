@@ -1,25 +1,7 @@
-## 2026-08-19 02:22:59 UTC [web] (model nemotron3)
-[NEW] api.threema.ch: Returns 403 with same permissive CORS headers as apip.threema.ch (likely related ID service)
-[NEW] safe.threema.ch: Timeout/no response (backup service pattern candidate)
-[NEW] apip-work.threema.ch: 4th work-directory hostname alias (203.56.112.209, OPTIONS+GET→401 + ACAO:* + no HSTS/Expect-CT; auth-gated preflight)
-[NEW] /identity/revoke (non-ws path): 11th token-mint existence oracle (GET+text/plain+POST return 200/133B token for valid, 200/46B for invalid; case-fold amplification; GET query-param returns 46B)
-[NEW] /identity/fetch_priv crash membership: 16th crash-family member (POST `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence
-[NEW] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member (POST `{"version":{}}` → 500/0B on all 4; GET+text/plain→500/0B; sole crash family with OPTIONS→200; sole 4-host parity)
-[NEW] check_license credential oracle: POST fake creds → 200/65B `{"success":false,"error":"This username or password is invalid."}` + ACAO:* + Allow-Headers Content-Type,User-Agent; OPTIONS→200 CORS `*`
-[CHANGED] work.test.threema.ch/api-app/public/global_settings: now captcha-gated (HTTP 400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` cookie + CSP); was 200/299B unauthenticated oracle
-[CHANGED] broadcast.threema.ch: now accessible (was TIMEOUT); 301 to /en/login with session cookie, CSP, Sentry
-[CHANGED] gateway.threema.ch: now accessible (was TIMEOUT); 302 to /en with session cookie, CSP, Sentry
-[CHANGED] billing.threema.ch: now accessible (was TIMEOUT); 301 to threema.ch; static assets serve full HSTS/Expect-CT/CSP/X-Frame-Options but 404 page lacks all headers
-[CHANGED] work.threema.ch: now accessible; 301 to /en/login with PHP session cookie, CSP, Sentry
-[CHANGED] shop.threema.ch: now accessible; 301 to /en with CSP, Sentry, hCaptcha subdomain
-[CHANGED] /identity/delete crash membership: corrected — returns 404 (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
-[CHANGED] /identity/fetch_bulk crash membership: confirmed NOT crash-family member (malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, graceful validation)
-[CHANGED] /identity/revoke query-param variant: confirmed returns 46B universally (not a token-mint vector); POST-body required for mint
+## 2026-08-19 03:15:52 UTC [web] (model nemotron3)
 [PRIO] ds-apip.threema.ch/identity/revoke, 7.20, attack_surface:8 business_value:7 tech_exposure:6 gate_ease:9 cloud_surface:4 freshness:8
 [PRIO] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license, 6.95, attack_surface:7 business_value:7 tech_exposure:6 gate_ease:9 cloud_surface:4 freshness:8
 [PRIO] ds-apip.threema.ch/identity/fetch_priv, 6.70, attack_surface:7 business_value:6 tech_exposure:6 gate_ease:9 cloud_surface:4 freshness:8
-[PRIO] work.test.threema.ch/api-app/public/global_settings, 5.55, attack_surface:5 business_value:6 tech_exposure:5 gate_ease:5 cloud_surface:4 freshness:9
-[PRIO] apip-work.threema.ch, 4.40, attack_surface:4 business_value:5 tech_exposure:4 gate_ease:3 cloud_surface:4 freshness:7
 [HYP] Preflight-free identity enumeration via GET+text/plain on revoke endpoint
 class: IDOR
 asset: ds-apip.threema.ch/identity/revoke
