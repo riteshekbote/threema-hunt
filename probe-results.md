@@ -3884,3 +3884,17 @@ https://api.threema.ch/identity/match_token -> 200 len=? type=application/json; 
 https://api.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.test.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/revoke' -> HTTP 404
+
+## 2026-08-19 07:38:18 UTC
+https://api.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/revoke' -> HTTP 404
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/identity/create -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://safe.threema.ch/ -> ERR <urlopen error [Errno -2] Name or service not know
+https://ds-apip.threema.ch/identity/revoke',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404

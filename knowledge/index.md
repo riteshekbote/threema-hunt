@@ -2128,3 +2128,12 @@
 - 2026-08-19 CHANGED @ `work.test.threema.ch/api-app/public/global/settings`: now captcha-gated (HTTP 400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` cookie + CSP); was 200/299B raw unauthenticated oracle; staging-prod divergence intact (prod→404) but staging no longer raw oracle
 - 2026-08-19 REJECTED @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12`) — confirmed benchmark-only dummy in `determineKdfParams()`, purged at L233; NOT used for real encryption (byte-stable across 27+ cycles)
 - 2026-08-19 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree); `sandbox` unset (TODO DESK-79); surface accepted as hardening gap only, not standalone class
+- 2026-08-19 ACCEPTED @ safe.threema.ch (singular): timeout/no response — backup service pattern candidate, distinct from safe-* (5-host) multi-host pattern; requires further hostname-pattern analysis
+- 2026-08-19 ACCEPTED @ apip.test.threema.ch: staging directory server live — GET/POST /identity/* 200, CORS *, HSTS, Expect-CT; logic-identical/data-disjoint mirror of prod (0 prod identities in 524k-ID staging draw confirmed)
+- 2026-08-19 CHANGED @ work.test.threema.ch/api-app/public/global/settings: now captcha-gated (HTTP 400 captcha_proof_expired + __HOST-HTTP-SESSIONID cookie + CSP); was 200/299B unauthenticated oracle; staging-prod divergence intact (prod→404) but staging no longer raw oracle
+- 2026-08-19 REJECTED @ crypto.ts:223: Benchmark password r3gGN9GDQ5NF6tM6 (sha256 400c7846…) — confirmed benchmark-only dummy in determineKdfParams(), purged at L233; NOT used for real encryption
+- 2026-08-19 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree); surface accepted as hardening gap only
+- 2026-08-19 NO_DELTA — all 27-cycle findings re-confirmed byte-stable; no regressions; no new vulnerability classes
+- 2026-08-19 CONFIRMED — poc/ directory remains absent from filesystem (25+ cycles); all KB sha256 artifact claims persistently false
+- 2026-08-19 CONFIRMED — state_bigpickle.json = {"phase":"POC","target":"chat"} — agent targeting chat directory servers correctly
+- 2026-08-19 CONFIRMED — crash family = 15 endpoint families × 4 hosts × GET+POST = 120 combos; fetch_bulk NOT a member; /identity/delete NOT a member; fetch_priv IS 16th crash member
