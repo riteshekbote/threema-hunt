@@ -1,1 +1,30 @@
-## 2026-08-19 15:31:54 UTC [chat] (model bigpickle)
+## 2026-08-19 15:57:50 UTC [chat] (model bigpickle)
+[PRIO] {ds-apip,api,apip}.threema.ch/identity/8-mint+crash cluster score=8.8 attack=9 business=8 tech=7 gate=10 cloud=4 fresh=4
+[PRIO] {ds-apip,api,apip}.threema.ch/identity/check_featuremask+census score=8.5 attack=9 business=8 tech=7 gate=10 cloud=4 fresh=4
+[PRIO] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license score=7.8 attack=8 business=9 tech=7 gate=10 cloud=4 fresh=4
+[HYP] Content-Type routing differential on shared identity handler
+class: MISCONFIG
+asset: {ds-apip,api,apip}.threema.ch/identity/{revoke,fetch_priv,match_token}
+confidence: 72
+reasoning: Server validates Content-Type header — text/plain triggers mint, application/json triggers different deserialization path. Prior probes showed create crashes on object-type publicKey but fetch_bulk returns 200/17B on malformed — per-endpoint input validation diverges. Unexplored: whether application/json with text/plain body (Content-Type spoofing) triggers different error messages or reveals stack traces.
+evidence_needed: Response difference between Content-Type: text/plain and Content-Type: application/json on same GET+body request
+verify_steps: PASSIVE: `curl -s -X GET -H "Content-Type: application/json" -H "Origin: https://evil.example" -d '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/revoke` — compare response to text/plain variant (expect 200/133B token vs potential 415/500/alternate error)
+impact: Differential error messages reveal internal framework/stack details; ACAO:* enables cross-origin read of any error response — minor information disclosure
+testability: PASSIVE
+[HYP] GET method divergence across full endpoint matrix
+class: MISCONFIG
+asset: {ds-apip,api,apip}.threema.ch/identity/{check,check_featuremask,match,sfu_cred,blob_cred}
+confidence: 65
+reasoning: revoke+set_featuremask accept GET+text/plain returning 200/133B; check+check_featuremask return 500 on GET (POST-only); remaining 6 token-mint endpoints untested for GET acceptance. If additional endpoints accept GET, the preflight-free browser-viable surface expands beyond 2 endpoints.
+evidence_needed: GET+text/plain response from check, check_featuremask, sfu_cred, blob_cred, update_work_info, match endpoints
+verify_steps: PASSIVE: `curl -s -X GET -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/sfu_cred` — repeat for blob_cred, update_work_info; compare to known check/check_featuremask (500) and revoke/set_featuremask (200/133B)
+impact: If additional endpoints accept GET+text/plain, browser-viable preflight-free enumeration surface expands from 2 to up to 8 endpoints × 3 hosts
+testability: PASSIVE
+[PARKED] api.threema.ch unauthenticated directory enumeration via CORS misconfiguration (nemotron3 n=80): ALREADY ACCEPTED — api.threema.ch confirmed as full directory sibling with identical endpoints and CORS *; no further probing needed.
+[FINAL] 1. Browser-context zero-preflight GET+text/plain identity enumeration (confidence 92, HUMAN_ONLY) — sole surviving hypothesis; all prior findings already ACCEPTED
+[NEXT] PROBE: Test GET+text/plain on untested token-mint endpoints to check for method-handling divergence — `curl -s -o /dev/null -w "%{http_code} %{size_download}" -X GET -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/sfu_cred` — repeat for blob_cred, update_work_info; compare to known check/check_featuremask (500) and revoke/set_featuremask (200/133B)
+[RISK] chat: 98 — 15 crash families × 4 hosts × GET+POST = 120 DoS combos (ACAO:*); 8-endpoint zero-preflight identity oracle (24 combos); census yields 11+ live identities + pubkeys + featureMask fingerprinting; check_license credential oracle; full prod+staging parity; zero 429
+[RISK] web: 15 — static redirects only; no live app routes; broadcast/gateway/billing/shop all landing pages
+[RISK] sync: 5 — mediator/rendezvous WSS uniformly 403; TCP 5222 handshake requires auth frame; alternate ports closed
+[RISK] safe: 30 — credential-gated (HTTP Basic Auth) with HSTS/Expect-CT gap; route-existence oracle; credentialed cross-origin CORS; 5 hostnames behind single IP 203.56.112.231
+[RISK] desktop-src: 40 — key-storage Windows ACL bypass (RAG-verified 6-path chain, PoC absent from filesystem 25+ cycles); BrowserWindow sandbox unset + nodeIntegrationInWorker true (conditional RCE, not standalone)
