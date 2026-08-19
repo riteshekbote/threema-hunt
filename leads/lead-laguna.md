@@ -29502,3 +29502,4 @@ testability: PASSIVE
 [RISK] sync: 90 reason: 4 prod+staging directory servers with 12+ unauthenticated endpoints, permissive CORS *, no rate limits, identity enumeration, token-mint, credential oracle, crash DoS
 [RISK] safe: 40 reason: 5-host backup cluster + 1 singleton with Basic Auth + route oracle; HSTS/Expect-CT gap on GET 400; credential-gated API limits exposure
 [RISK] desktop-src: 60 reason: Windows key-storage ACL bypass (DPAPI password + keystorage files world-readable) confirmed via source; PoC artifact absent; Electron sandbox gap (conditional RCE)
+## 2026-08-19 15:28:24 UTC [desktop] (model laguna)

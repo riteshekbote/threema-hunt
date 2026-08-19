@@ -6291,3 +6291,5 @@
 - CHANGED /identity/revoke query-param variant confirmed returns 46B universally — not a token-mint vector (POST-body or GET+text/plain body required)
 - CHANGED /identity/fetch_bulk confirmed NOT crash-family member — malformed input returns 200/17B graceful validation
 - CHANGED /identity/delete crash membership corrected — returns 404 on all probes; crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+
+## 2026-08-19 15:32:12 UTC
