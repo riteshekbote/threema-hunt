@@ -2264,6 +2264,13 @@
 - 2026-08-19 CONFIRMED — OPTIONS on sfu_cred returns Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE + Access-Control-Allow-Headers: Content-Type, User-Agent
 - 2026-08-19 CONFIRMED — api.threema.ch is full sibling (sfu_cred, blob_cred, fetch_priv all return 200/133-135B via GET+text/plain)
 - 2026-08-19 CONFIRMED — apip.threema.ch is full sibling (sfu_cred, fetch_priv both return 200/133B via GET+text/plain)
+- 2026-08-19 CONFIRMED @ api.threema.ch/identity/*: Fresh probes confirm api.threema.ch is FULL directory sibling — match_token → 200/133B token + ACAO:* + constant tokenRespKeyPub sha256 `c8005cca9…`; set_featuremask → 200; check_featuremask → 200 census parity; was 403-on-root only at 2026-08-07 baseline
+- 2026-08-19 ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch: crash family confirmed across 4 hosts — 16 endpoint families × 4 hosts × GET+POST = 128 byte-stable 500/0B combos with ACAO:* + zero 429 + instant recovery
+- 2026-08-19 REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes — route not registered on consumer directory hosts; crash-family = 15 (not 16) endpoint families
+- 2026-08-19 REJECTED MISCONFIG @ /identity/revoke query-param variant: GET ?identity=ECHOECHO returns 46B universally — not a token-mint vector; POST-body or GET+text/plain body required for mint
+- 2026-08-19 CHANGED @ work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` cookie + CSP); was 200/299B unauthenticated oracle — staging-prod divergence intact (prod→404) but staging no longer raw oracle
+- 2026-08-19 CONFIRMED @ state_bigpickle.json: Filesystem GROUND TRUTH = `{"phase":"POC","target":"chat"}` — agent targeting chat/directory servers correctly; KB `{"target":"desktop"}` claims stale across 25+ cycles
+- 2026-08-19 CONFIRMED @ poc/ directory: STILL ABSENT on filesystem (`ls poc/` → No such file); all 20+ cycle KB sha256 claims DISPROVEN; 6-path RAG source chain verified on GitHub `stable` via remote WebFetch only (reposcan-raw/ ALL EMPTY = 0 local source files)
 === INVENTORY gladia ===
 # Inventory: threema
 
