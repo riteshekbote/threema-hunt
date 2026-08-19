@@ -30079,3 +30079,4 @@ testability: CONFIRMED
 [LEARN] CONFIRMED — Content-Type not validated on token-mint endpoints (revoke returns same 200/133B for text/plain and application/json)
 [LEARN] CONFIRMED — /identity/match GET returns 39B rate-limit shape (checkInterval:86400, empty identities) vs POST identities
 [RISK] chat: 99 — preflight-free surface expanded from 6→21 combos (7 endpoints × 3 hosts); 15 crash families × 4 hosts = 120 DoS combos; census yields 11+ live identities; check_license credential oracle; match GET rate-limit oracle
+## 2026-08-19 20:29:42 UTC [desktop] (model laguna)
