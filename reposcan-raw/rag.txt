@@ -2047,6 +2047,10 @@
 - 2026-08-19 REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle — PERMANENTLY DOWNGRADED; 404 has NO CORS headers; missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`; key NOT in threema-desktop source (fetch-work.ts uses username/password)
 - 2026-08-19 CONFIRMED @ safe-{01,1a,1b,02,00}.threema.ch HSTS/Expect-CT gap — OPTIONS has full HSTS+Expect-CT, GET 400 has ONLY ACAO:*; byte-stable across 5 hosts behind 203.56.112.231
 - 2026-08-19 CONFIRMED @ apip-work.threema.ch — 4th work-directory hostname alias (203.56.112.209 same as ds-apip-work); OPTIONS→401 auth-gated (unlike consumer ds-apip OPTIONS→200); cross-origin probing blocked without work credentials
+- 2026-08-19 REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 `400c7846…` confirmed benchmark-only dummy in `determineKdfParams()`, purged at L233, NOT used for real encryption (byte-stable across 26+ cycles)
+- 2026-08-19 REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: PERMANENTLY DOWNGRADED; 404 has NO CORS headers; missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`; key NOT in threema-desktop source (fetch-work.ts uses username/password)
+- 2026-08-19 ACCEPTED IDOR @ {ds-apip,api,apip,ds-apip.test}.threema.ch/identity/{revoke,set_featuremask}: GET+text/plain preflight-free token-mint enumeration confirmed byte-stable across 26 cycles; 3-host sibling parity byte-identical
+- 2026-08-19 ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch crash family: 16 endpoint families × 4 hosts (3 prod + 1 staging) × GET+POST = 128 combos, all 500/0B with ACAO:* + zero 429 + instant recovery; fetch_bulk NOT a member (graceful 200/17B)
 === INVENTORY gladia ===
 # Inventory: threema
 
