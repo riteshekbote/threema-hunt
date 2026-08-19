@@ -5934,3 +5934,14 @@
 - CHANGED /identity/delete crash membership corrected — returns 404 on all probes (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
 - CHANGED /identity/fetch_bulk confirmed NOT crash-family member (malformed input → 200/17B graceful validation)
 - CHANGED /identity/revoke query-param variant confirmed returns 46B universally (not a token-mint vector); POST-body required for mint
+
+## 2026-08-19 05:10:24 UTC
+- NEW safe.threema.ch — backup service returns timeout/no response (newly observed pattern)
+- NEW api.threema.ch — returns 403 with permissive CORS headers identical to apip.threema.ch (likely related ID service)
+- CHANGED work.test.threema.ch/api-app/public/global_settings — now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+- CHANGED broadcast.threema.ch/gateway.threema.ch/billing.threema.ch/work.threema.ch/shop.threema.ch — previously TIMEOUT, now accessible with redirects + session cookies + CSP + Sentry
+- CHANGED /identity/fetch_priv — confirmed as 16th crash-family member completing 8/8 token-mint crash convergence
+- CHANGED {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license — confirmed as 16th crash family member with 4-host parity + OPTIONS→200
+- CHANGED /identity/delete — crash membership corrected: returns 404 on all probes (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- CHANGED /identity/fetch_bulk — confirmed NOT crash-family member (malformed input → 200/17B graceful validation)
+- CHANGED /identity/revoke query-param variant — confirmed returns 46B universally (not a token-mint vector); POST-body required for mint
