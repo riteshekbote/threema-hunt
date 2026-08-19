@@ -30153,3 +30153,4 @@ testability: PASSIVE
 [FINAL] 3. safe-*.threema.ch HSTS/Expect-CT header gap + credentialed cross-origin CORS — 80 confidence, PASSIVE, ACAO:* + Allow-Headers Authorization on credential-gated GET 400 with NO HSTS/Expect-CT (OPTIONS 204 has full headers); route-existence oracle (400 vs 404); severity MEDIUM
 [NEXT] PROBE: `curl -s -X POST -H "Content-Type: text/plain" -d '{"identity":{"x":1}}' https://api.threema.ch/identity/match_token` — verify 500/0B + ACAO:* crash on the newly-confirmed api.threema.ch sibling host (closes the 4-host crash-family parity proof gap: all 15 families × 3 prod + staging must crash byte-identically; api.threema.ch match_token currently only verified as token-mint, not crash).
 ## 2026-08-19 21:45:43 UTC [desktop] (model laguna)
+## 2026-08-19 21:59:24 UTC [desktop] (model laguna)
