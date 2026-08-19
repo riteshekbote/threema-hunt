@@ -12212,3 +12212,41 @@
 - LEARN: NO_DELTA — all 28-cycle findings byte-stable; no regressions; no new vulnerability classes
 - LEARN: CONFIRMED — poc/ directory absent (25+ cycles); state_bigpickle.json = `{"target":"chat"}`
 - LEARN: CONFIRMED — crash family = 15 endpoint families × 4 hosts × GET+POST = 120 combos; fetch_bulk NOT a member; /identity/delete NOT a member; fetch_priv IS 16th cr
+
+## RANKED HYPOTHESES 2026-08-19 19:09:13 UTC
+- [85] api.threema.ch/identity/*: Unauthenticated directory enumeration via api.threema.ch CORS misconfiguration (from reports/hypotheses-nemotron3.txt)
+- [65] {ds-apip,api,apip}.threema.ch/identity/{sfu_cred,blob_cred,update_work_info,match,check,check_featuremask}: GET method divergence across full endpoint matrix (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -H "Origin: https://evil.example" -X GET https://api.threema.ch/identity/ECHOECHO — verify 200/404 + ACAO:*
+- NEXT(hypotheses-laguna.txt): PROBE: `curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" --data-binary '{"identity":"echoecho"}' -X GET https://ds-apip.test.threema.ch/i
+- NEXT(hypotheses-bigpickle.txt): PROBE: Test GET+text/plain on 3 untested token-mint endpoints — `curl -s -X GET -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://ds-apip.three
+- LEARN: ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling — GET /identity/ECHOECHO → 200/133B token + ACAO:* + identical pubkey matching ds-apip byte-ide
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts (POST {"version":{}} → 500/
+- LEARN: ACCEPTED AUTH @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: Credential-validation oracle at root path (POST fake creds → 200/65B + ACAO:* + Allow-
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed {"identities":{}} → 200/17B {"identities":[]} (graceful validation); NOT a crash-fa
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POS
+- LEARN: REJECTED MISCONFIG @ /identity/revoke query-param variant: returns 46B universally (not a token-mint vector); POST-body required for mint
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223 benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determin
+- LEARN: NO_DELTA — all 28-cycle findings byte-stable; no regressions; no new vulnerability classes
+- LEARN: CONFIRMED — poc/ directory absent (25+ cycles); state_bigpickle.json = `{"target":"chat"}`
+- LEARN: CONFIRMED — crash family = 15 endpoint families × 4 hosts × GET+POST = 120 combos; fetch_bulk NOT a member; /identity/delete NOT a member; fetch_priv IS 16th cr
+- LEARN: ACCEPTED @ api.threema.ch: Confirmed as full directory sibling today — GET /identity/revoke+text/plain valid → 200/134B token + constant tokenRespKeyPub `c8005c
+- LEARN: ACCEPTED @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts (POST `{"version":{}}` → 500/0B; GET+
+- LEARN: ACCEPTED @ {ds-apip,api,apip,ds-apip.test}.threema.ch/identity/{8 endpoints}: shared-handler crash+token-mint convergence byte-stable across 4 hosts — 8 endpoin
+- LEARN: ACCEPTED @ apip-work.threema.ch: 4th work-directory hostname alias confirmed byte-stable — resolves to 203.56.112.209 (same as ds-apip-work); OPTIONS→401 auth-g
+- LEARN: CHANGED @ work.test.threema.ch/api-app/public/global/settings: Now captcha-gated (HTTP 400 `captcha_proof_expired` + 33B) — was 200/299B raw unauthenticated ora
+- LEARN: CHANGED @ safe.threema.ch (singular): timeout/no response confirmed — backup service pattern candidate distinct from safe-* 5-host cluster; requires hostname-pa
+- LEARN: REJECTED @ /identity/fetch_bulk crash-family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}` (graceful validation); pure IDOR oracle, NO
+- LEARN: REJECTED @ /identity/delete crash-family membership: returns 404 on all probes (POST `{"identity":{"x":1}}` → 404); route not registered on consumer directory h
+- LEARN: REJECTED @ crypto.ts:223 benchmark password: sha256 `52a0af98…` (with `<<<` trailing newline) / `400c7846…` (without newline) confirmed benchmark-only dummy in 
+- LEARN: REJECTED @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); 2 anomalous distinct in 2/22 draws (~0.5%); anomalous identities, not stru
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED @ poc/ filesystem claims: STILL ABSENT 26th consecutive cycle (`ls poc/` → exit 2); all 20+ cycle KB sha256 claims DISPROVEN; 6-path RAG source chain v
+- LEARN: REJECTED @ state_bigpickle.json KB `{"target":"desktop"}` claims: filesystem GROUND TRUTH = `{"phase":"POC","target":"chat"}` (sha256 `94bd1bd1…`) — agent targe
+- LEARN: NO_DELTA — all 28-cycle findings byte-stable; no regressions; no new vulnerability classes
+- LEARN: CONFIRMED — poc/ directory absent (25+ cycles); state_bigpickle.json = `{"target":"chat"}`
+- LEARN: CONFIRMED — crash family = 15 endpoint families × 4 hosts × GET+POST = 120 combos; fetch_bulk NOT a member; /identity/delete NOT a member; fetch_priv IS 16th cr
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223 benchmark password — benchmark-only dummy in determineKdfParams(), purged at L233
