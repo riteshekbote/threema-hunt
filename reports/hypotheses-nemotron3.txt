@@ -1,7 +1,25 @@
-## 2026-08-19 01:06:52 UTC [web] (model nemotron3)
-[PRIO] ds-apip.threema.ch/identity/revoke, 6.60, attack_surface:8 business_value:7 tech_exposure:6 gate_ease:9 cloud_surface:4 freshness:8
-[PRIO] ds-apip.threema.ch/identity/set_featuremask, 6.45, attack_surface:8 business_value:6 tech_exposure:6 gate_ease:9 cloud_surface:4 freshness:8
-[PRIO] work.test.threema.ch/api-app/public/global_settings, 6.25, attack_surface:6 business_value:6 tech_exposure:6 gate_ease:7 cloud_surface:4 freshness:9
+## 2026-08-19 02:22:59 UTC [web] (model nemotron3)
+[NEW] api.threema.ch: Returns 403 with same permissive CORS headers as apip.threema.ch (likely related ID service)
+[NEW] safe.threema.ch: Timeout/no response (backup service pattern candidate)
+[NEW] apip-work.threema.ch: 4th work-directory hostname alias (203.56.112.209, OPTIONS+GET→401 + ACAO:* + no HSTS/Expect-CT; auth-gated preflight)
+[NEW] /identity/revoke (non-ws path): 11th token-mint existence oracle (GET+text/plain+POST return 200/133B token for valid, 200/46B for invalid; case-fold amplification; GET query-param returns 46B)
+[NEW] /identity/fetch_priv crash membership: 16th crash-family member (POST `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence
+[NEW] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member (POST `{"version":{}}` → 500/0B on all 4; GET+text/plain→500/0B; sole crash family with OPTIONS→200; sole 4-host parity)
+[NEW] check_license credential oracle: POST fake creds → 200/65B `{"success":false,"error":"This username or password is invalid."}` + ACAO:* + Allow-Headers Content-Type,User-Agent; OPTIONS→200 CORS `*`
+[CHANGED] work.test.threema.ch/api-app/public/global_settings: now captcha-gated (HTTP 400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` cookie + CSP); was 200/299B unauthenticated oracle
+[CHANGED] broadcast.threema.ch: now accessible (was TIMEOUT); 301 to /en/login with session cookie, CSP, Sentry
+[CHANGED] gateway.threema.ch: now accessible (was TIMEOUT); 302 to /en with session cookie, CSP, Sentry
+[CHANGED] billing.threema.ch: now accessible (was TIMEOUT); 301 to threema.ch; static assets serve full HSTS/Expect-CT/CSP/X-Frame-Options but 404 page lacks all headers
+[CHANGED] work.threema.ch: now accessible; 301 to /en/login with PHP session cookie, CSP, Sentry
+[CHANGED] shop.threema.ch: now accessible; 301 to /en with CSP, Sentry, hCaptcha subdomain
+[CHANGED] /identity/delete crash membership: corrected — returns 404 (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+[CHANGED] /identity/fetch_bulk crash membership: confirmed NOT crash-family member (malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, graceful validation)
+[CHANGED] /identity/revoke query-param variant: confirmed returns 46B universally (not a token-mint vector); POST-body required for mint
+[PRIO] ds-apip.threema.ch/identity/revoke, 7.20, attack_surface:8 business_value:7 tech_exposure:6 gate_ease:9 cloud_surface:4 freshness:8
+[PRIO] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license, 6.95, attack_surface:7 business_value:7 tech_exposure:6 gate_ease:9 cloud_surface:4 freshness:8
+[PRIO] ds-apip.threema.ch/identity/fetch_priv, 6.70, attack_surface:7 business_value:6 tech_exposure:6 gate_ease:9 cloud_surface:4 freshness:8
+[PRIO] work.test.threema.ch/api-app/public/global_settings, 5.55, attack_surface:5 business_value:6 tech_exposure:5 gate_ease:5 cloud_surface:4 freshness:9
+[PRIO] apip-work.threema.ch, 4.40, attack_surface:4 business_value:5 tech_exposure:4 gate_ease:3 cloud_surface:4 freshness:7
 [HYP] Preflight-free identity enumeration via GET+text/plain on revoke endpoint
 class: IDOR
 asset: ds-apip.threema.ch/identity/revoke
@@ -11,34 +29,35 @@ evidence_needed: Browser-context proof that GET+text/plain works cross-origin wi
 verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/revoke — capture response headers/body; verify ACAO:* + 200/133B token; repeat with invalid identity ZZZZZZZZ → 200/46B
 impact: Unauthenticated cross-origin identity existence oracle enabling enumeration/phishing; browser-viable without preflight; impacts all 3 production directory hosts
 testability: PASSIVE
-[HYP] Preflight-free identity enumeration via GET+text/plain on set_featuremask endpoint
-class: IDOR
-asset: ds-apip.threema.ch/identity/set_featuremask
-confidence: 80
-reasoning: GET+text/plain with body `{"identity":"ECHOECHO"}` returns 200/133B token + constant tokenRespKeyPub; invalid returns 200/46B; only 2 endpoints (revoke, set_featuremask) accept GET+text/plain (check/check_featuremask return 500 on GET); 3-host sibling parity byte-identical; malformed body crashes to 500/0B with ACAO:*
-evidence_needed: Browser-context proof that GET+text/plain works cross-origin without preflight on this second endpoint
-verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/set_featuremask — capture response headers/body; verify ACAO:* + 200/133B token; repeat with invalid identity ZZZZZZZZ → 200/46B
-impact: Second preflight-free enumeration vector confirming handler convergence; enables credentialless identity validation from any origin
-testability: PASSIVE
-[HYP] Captcha bypass on work.test.threema.ch public settings endpoint
+[HYP] check_license credential validation oracle with 4-host crash parity
 class: AUTH
-asset: work.test.threema.ch/api-app/public/global_settings
-confidence: 75
-reasoning: Endpoint was unauthenticated 200/299B returning appLinkHost + 3 app-download URLs; now returns 400 captcha_proof_expired with __HOST-HTTP-SESSIONID cookie + CSP; staging-prod divergence (prod→404) suggests staging-only logic; captcha may be client-side only or reusable
-evidence_needed: Determine if captcha proof can be obtained/reused passively or via automated flow; verify if endpoint returns data without valid captcha when cookie replayed
-verify_steps: PASSIVE: GET https://work.test.threema.ch/api-app/public/global_settings -H "Origin: https://evil.example" -H "Accept: application/json" — capture full 400 response headers/body, extract __HOST-HTTP-SESSIONID cookie, replay request with identical cookie to test if captcha_proof_expired is session-bound or reusable
-impact: If captcha bypassable, staging exposes unauthenticated work config (app download URLs, link host) enabling phishing/template attacks; prod remains 404
+asset: {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license
+confidence: 80
+reasoning: Root path `/check_license` (not `/identity/check_license`) accepts POST `{licenseUsername,licensePassword,version,arch}`; fake creds return 200/65B `{"success":false,"error":"..."}` with ACAO:* + Allow-Headers Content-Type,User-Agent; OPTIONS→200 CORS `*`; 4-host parity (ds-apip+api+apip+ds-apip.test); malformed `version` object crashes all 4 hosts to 500/0B with ACAO:*; GET+text/plain malformed also crashes (preflight-free DoS vector)
+evidence_needed: Valid Work license to confirm success-shape `{"success":true}` and distinguish from credential oracle; verify 4-host byte-identical crash on malformed version
+verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -H "Content-Type: application/json" -X POST -d '{"licenseUsername":"x","licensePassword":"y","version":"2.0","arch":"x64"}' https://ds-apip.threema.ch/check_license — verify 200/65B + ACAO:*; curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET -d '{"version":{"x":1}}' https://ds-apip.threema.ch/check_license — verify 500/0B + ACAO:*; repeat on api.threema.ch + apip.threema.ch + ds-apip.test.threema.ch
+impact: Cross-origin Work credential validation oracle enabling brute-force; 4-host crash parity DoS via CORS-safelisted GET+text/plain; preflight-free browser vector
 testability: PASSIVE
+[HYP] /identity/fetch_priv crash DoS completing token-mint crash convergence
+class: MISCONFIG
+asset: {ds-apip,api,apip,ds-apip.test}.threema.ch/identity/fetch_priv
+confidence: 75
+reasoning: 16th crash-family member confirmed — POST `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 3 prod + staging; completes 8/8 token-mint crash convergence (all 8 mint endpoints now crash on malformed identity object); distinct 88B error body `{"success":false,"errorType":"invalid-identity","error":"Identity not found or revoked"}` vs 46B for other 7 endpoints proves shared handler with per-endpoint error routing; zero 429 on burst; instant recovery to 200/134B token for valid identity
+evidence_needed: Confirm crash on all 4 hosts with malformed identity object; verify 88B error body distinctness; confirm zero rate-limit on crash bursts
+verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -H "Content-Type: application/json" -X POST -d '{"identity":{"x":1}}' https://ds-apip.threema.ch/identity/fetch_priv — verify 500/0B + ACAO:*; repeat on api.threema.ch, apip.threema.ch, ds-apip.test.threema.ch; curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET -d '{"identity":{"x":1}}' https://ds-apip.threema.ch/identity/fetch_priv — verify 500/0B + ACAO:* (CORS-safelisted crash); burst 5 requests @0.5s — verify all 500, no 429
+impact: Unauthenticated DoS on 16th endpoint completing full token-mint crash matrix (120+ combos); shared-handler proof enables cross-endpoint crash amplification; preflight-free via GET+text/plain on revoke+set_featuremask
+testability: PASSIVE
+[PARKED] Captcha bypass on work.test.threema.ch public settings endpoint: verify_steps require cookie replay which may need session interaction; if captcha is server-validated hCaptcha, bypass is HUMAN_ONLY not PASSIVE — downgrade testability below threshold
 [PARKED] Preflight-free identity enumeration via GET+text/plain on set_featuremask endpoint: confidence 80 but duplicates revoke hypothesis (same handler, same impact); keeping only highest-confidence unique vector
-[PARKED] Captcha bypass on work.test.threema.ch public settings endpoint: verify_steps require cookie replay which may need session interaction; if captcha is server-validated hCaptcha, bypass is HUMAN_ONLY not PASSIVE — downgrade testability
 [FINAL] 1. Preflight-free identity enumeration via GET+text/plain on revoke endpoint (85) — ds-apip.threema.ch/identity/revoke, browser-viable cross-origin enumeration without preflight
-[FINAL] 2. Captcha bypass on work.test.threema.ch public settings endpoint (75) — staging-only public endpoint with captcha gate; concrete passive verify steps; clear impact if bypassable
+[FINAL] 2. check_license credential validation oracle with 4-host crash parity (80) — {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license, cross-origin credential oracle + preflight-free DoS
+[FINAL] 3. /identity/fetch_priv crash DoS completing token-mint crash convergence (75) — {ds-apip,api,apip,ds-apip.test}.threema.ch/identity/fetch_priv, 16th crash member completing 8/8 convergence
 [NEXT] PROBE: curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/revoke — capture response headers/body; verify ACAO:* + 200/133B token; repeat with invalid identity ZZZZZZZZ → 200/46B
 [LEARN] ACCEPTED IDOR @ {ds-apip,api,apip}.threema.ch/identity/revoke: GET+text/plain preflight-free identity enumeration confirmed byte-stable across 26 cycles
 [LEARN] ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts
+[LEARN] ACCEPTED MISCONFIG @ /identity/fetch_priv: 16th crash-family member (POST `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence; 88B error-body distinctness confirmed
 [LEARN] REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes; crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
-[LEARN] REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed {"identities":{}} → 200/17B {"identities":[]} (graceful validation); NOT a crash-family member
-[LEARN] ACCEPTED MISCONFIG @ /identity/fetch_priv: 16th crash-family member (POST {"identity":{"x":1}} → 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence; 88B error-body distinctness confirmed
+[LEARN] REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}` (graceful validation); NOT a crash-family member
 [LEARN] REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
 [LEARN] REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree); surface accepted as hardening gap only
 [LEARN] REJECTED MISCONFIG @ crypto.ts:223 benchmark password sha256 `400c7846…` confirmed benchmark-only dummy in determineKdfParams(), purged at L233 — not used for real encryption

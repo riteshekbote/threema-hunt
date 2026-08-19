@@ -28052,3 +28052,4 @@ testability: PASSIVE
 [RISK] sync: 12 — mediator-/rendezvous-*.threema.ch uniform 403 HTTPS; TCP 5222 requires authenticated login frame; chat passive in-band channel closed
 [RISK] safe: 25 — safe-*.threema.ch credential-gated (HTTP Basic Auth, HSTS/Expect-CT gap on GET 400, credentialed cross-origin CORS); apip-work.threema.ch 4th alias auth-gated (OPTIONS→401, cross-origin blocked)
 [RISK] desktop-src: 33 — key-storage Windows ACL bypass (6-path RAG chain verified on GitHub stable); BrowserWindow sandbox unset as hardening gap only (not standalone RCE); benchmark password rejected
+## 2026-08-19 02:25:52 UTC [desktop] (model laguna)
