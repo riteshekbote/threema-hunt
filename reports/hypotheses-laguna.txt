@@ -1,1 +1,35 @@
-## 2026-08-19 10:45:30 UTC [desktop] (model laguna)
+## 2026-08-19 11:05:32 UTC [desktop] (model laguna)
+[HYP] Zero-preflight browser identity enumeration + crash DoS (shared handler)
+class: IDOR
+asset: {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask}
+confidence: 94
+reasoning: GET+text/plain is CORS-safelisted (text/plain) → zero OPTIONS preflight. Validated live: revoke GET+text/plain valid→200/134B token `{"token":"...","tokenRespKeyPub":"6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y="}`, invalid→200/46B `{"success":false,"error":"Identity not found"}`. ACAO:* + Allow-Methods GET on both responses. Per-request token variation confirmed (3 distinct tokens across 3 calls, same constant pubkey sha256 c8005cca9…). Malformed `{"identity":{"x":1}}` → 500/0B + ACAO:* (crash family). check_featuremask/check return 500 on GET (POST-only) — revoke+set_featuremask are the unique 2 endpoints accepting GET+text/plain.
+evidence_needed: Browser fetch() No-Pre flight proof — Origin header on GET+text/plain returns token without OPTIONS preflight in devtools Network tab.
+verify_steps: PASSIVE: curl -s -D- -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data-raw '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/revoke ; curl -s -D- -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data-raw '{"identity":{"x":1}}' https://ds-apip.threema.ch/identity/revoke
+impact: Silent cross-origin identity existence enumeration from any website with zero preflight; per-request challenge tokens enable replay-free probing; crash DoS amplifies via same endpoint (128 combos 500/0B across 4 hosts). Attack surface = 11 token-mint endpoints × 3 prod hosts.
+testability: PASSIVE
+[HYP] check_license browser-viable cross-origin credential oracle
+class: AUTH
+asset: {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license (root path)
+confidence: 82
+reasoning: Root path /check_license (NOT /identity/). POST fake creds → 200/65B `{"success":false,"error":"This username or password is invalid."}` + ACAO:* + Allow-Methods GET,POST,OPTIONS,DELETE across all 4 hosts (verified live). OPTIONS → 200/30B CORS * (browser-viable preflight path — only crash family with OPTIONS 200). Per fetch-work.ts RAG source, body schema = {licenseUsername,licensePassword,version,arch}; malformed `{"version":{"x":1}}` → 500/0B crash family on all 4 hosts.
+evidence_needed: Valid Threema Work license to confirm success-shape `{"success":true}`; verify 4-host byte-identical crash on malformed version.
+verify_steps: PASSIVE: curl -s -D- -X POST -H "Origin: https://evil.example" -H "Content-Type: application/json" -d '{"licenseUsername":"fake","licensePassword":"fake","version":"2.0","arch":"x64"}' https://ds-apip.threema.ch/check_license ; curl -s -D- -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" https://ds-apip.threema.ch/check_license
+impact: Unauthenticated cross-origin Work license credential brute-force oracle; zero 429 across 7+ sequential POSTs (no rate limit); crash DoS via 4-host parity on malformed version. Attacker gets license validity oracle (valid/invalid creds).
+testability: PASSIVE
+[HYP] api.threema.ch full directory surface mirror
+class: IDOR
+asset: api.threema.ch/identity/*
+confidence: 75
+reasoning: api.threema.ch returns 403 on / but identical ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE as apip.threema.ch. GET /identity/ECHOECHO → 200 + ACAO:* confirmed live (verified this cycle). Mirrors ds-apip.pubkey oracle + fetch_bulk + the 8 token-mint endpoints. Not previously enumerated at endpoint-granularity in KB — new host surface.
+evidence_needed: Confirm all 8 token-mint endpoints + fetch_bulk + check_featuremask on api.threema.ch return identical behavior to ds-apip.
+verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data-raw '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/revoke ; curl -s -H "Origin: https://evil.example" -X POST -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://api.threema.ch/identity/fetch_bulk
+impact: Tripled enumeration surface (3 prod hosts all serving identical unauthenticated IDOR + oracle). Adds api.threema.ch to the 11-endpoint token-mint cluster.
+testability: PASSIVE
+[FINAL] [94] Zero-preflight browser identity enumeration + crash DoS — {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask}
+[FINAL] [82] check_license browser-viable cross-origin credential oracle — {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license
+[FINAL] [75] api.threema.ch full directory surface mirror — api.threema.ch/identity/*
+[PARKED] threemia-desktop Windows key-storage ACL bypass: Confidence 95 but testability AUTH_HELPED — PoC artifact absent on filesystem (25th+ cycle, all KB sha256 claims DISPROVEN); RAG source chain verified via remote WebFetch only (reposcan-raw/ EMPTY = 0 local files). Not actionable without artifact + Windows runtime validation.
+[PARKED] Broadcast/gateway/billing/shop reachable surface: accessible with redirects + session cookies + CSP/Sentry but no live public app routes (landing pages only, 404 catch-alls) — below threshold.
+[PARKED] Work.test.threema.ch global_settings captcha-gated: downgraded from raw oracle to gated — impact reduced below hypothesis threshold.
+[NEXT] PROBE: Ground-truth the browser-context zero-preflight proof — confirm `Origin: https://evil.example` header + `Content-Type: text/plain` on GET to `/identity/revoke` produces token without an OPTIONS preflight by capturing full response headers (verify `Access-Control-Allow-Origin: *` + no preflight trigger for text/plain content-type), and confirm the 134B-vs-46B validity differential is CORS-exposed on both 200 responses. Exact: `curl -s -D- -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data-raw '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/revoke`
