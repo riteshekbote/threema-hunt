@@ -1,16 +1,11 @@
-## 2026-08-19 07:29:02 UTC [web] (model nemotron3)
-[NEW] api.threema.ch returns 403 with permissive CORS headers (ACAO:*, POST/GET/OPTIONS/DELETE) identical to apip.threema.ch — likely mirrors full identity endpoint surface
+## 2026-08-19 08:02:49 UTC [web] (model nemotron3)
 [NEW] safe.threema.ch returns timeout/no response (backup service pattern candidate, distinct from safe-* 5-host pattern)
+[NEW] api.threema.ch returns 403 with permissive CORS headers (ACAO:*, POST/GET/OPTIONS/DELETE) identical to apip.threema.ch — likely mirrors full identity endpoint surface
 [NEW] apip-work.threema.ch confirmed as 4th work-directory hostname alias (resolves to 203.56.112.209, OPTIONS→401 auth-gated preflight unlike consumer ds-apip)
-[NEW] /identity/revoke (non-ws path) confirmed as 11th token-mint existence oracle — GET+text/plain + POST return 200/133B token for valid, 200/46B for invalid; case-fold amplification; GET query-param returns 46B universally
+[NEW] /identity/revoke (non-ws path) confirmed as 11th token-mint existence oracle — GET+text/plain + POST return 200/133B token for valid, 200/46B for invalid; case-fold amplification
 [NEW] /identity/fetch_priv confirmed as 16th crash-family member — POST {"identity":{"x":1}} → 500/0B + ACAO:* on all 3 prod + staging; completes 8/8 token-mint crash convergence; 88B rev-aware error body distinct
-[NEW] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license confirmed as 16th crash family member — POST {"version":{}} → 500/0B on all 4; GET+text/plain→500/0B; sole crash family with OPTIONS→200 CORS *; sole 4-host crash parity
+[NEW] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license confirmed as 16th crash family member — POST {"version":{}} → 500/0B on all 4; GET+text/plain→500/0B; sole crash family with OPTIONS→200 CORS *
 [NEW] check_license credential oracle at root path — POST fake creds → 200/65B {"success":false,"error":"..."} + ACAO:* + Allow-Headers Content-Type,User-Agent; OPTIONS→200 CORS *; 4-host parity
-[CHANGED] work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
-[CHANGED] broadcast.threema.ch/gateway.threema.ch/billing.threema.ch/work.threema.ch/shop.threema.ch previously TIMEOUT, now accessible with redirects + session cookies + CSP + Sentry
-[CHANGED] /identity/delete crash membership corrected — returns 404 on all probes (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
-[CHANGED] /identity/fetch_bulk confirmed NOT crash-family member (malformed input → 200/17B graceful validation)
-[CHANGED] /identity/revoke query-param variant confirmed returns 46B universally (not a token-mint vector); POST-body or GET+text/plain body required for mint
 [NEW] apip.test.threema.ch — staging directory server live: GET/POST /identity/* 200, CORS *, HSTS, Expect-CT
 [NEW] ds-apip-work.threema.ch — work directory (prod) live: 401 on /identity/*, CORS *, no HSTS/Expect-CT
 [NEW] ds-apip-work.test.threema.ch — work directory (staging) live: 401 on /identity/*, CORS *, no HSTS/Expect-CT
@@ -18,13 +13,13 @@
 [NEW] safe-01.threema.ch — backup server live: 404 on /, CORS *, methods GET/HEAD/PUT/PATCH/POST/DELETE, HSTS, Expect-CT
 [CHANGED] apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
 [CHANGED] Production directory servers (ds-apip, apip, api) all lack HSTS/Expect-CT; staging counterparts have both
-[PRIO] {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv}, 9.20, attack_surface:10 business_value:9 tech_exposure:8 gate_ease:10 cloud_surface:5 freshness:10
-[PRIO] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license, 8.60, attack_surface:9 business_value:9 tech_exposure:8 gate_ease:10 cloud_surface:4 freshness:9
+[CHANGED] work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+[CHANGED] broadcast.threema.ch/gateway.threema.ch/billing.threema.ch/work.threema.ch/shop.threema.ch previously TIMEOUT, now accessible with redirects + session cookies + CSP + Sentry
 [PRIO] api.threema.ch/identity/*, 8.15, attack_surface:9 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:5 freshness:9
-[PRIO] safe-{01,1a,1b,02,00}.threema.ch/backups/{64hex}, 6.85, attack_surface:7 business_value:7 tech_exposure:6 gate_ease:9 cloud_surface:5 freshness:7
-[PRIO] safe.threema.ch, 6.85, attack_surface:7 business_value:7 tech_exposure:6 gate_ease:9 cloud_surface:5 freshness:7
-[PRIO] work.test.threema.ch/api-app/public/global_settings, 6.20, attack_surface:7 business_value:6 tech_exposure:6 gate_ease:8 cloud_surface:4 freshness:7
-[PRIO] threema-desktop key-storage (Windows), 5.95, attack_surface:6 business_value:7 tech_exposure:7 gate_ease:5 cloud_surface:3 freshness:8
+[PRIO] {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv}, 7.85, attack_surface:8 business_value:8 tech_exposure:8 gate_ease:10 cloud_surface:5 freshness:9
+[PRIO] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license, 7.70, attack_surface:8 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:4 freshness:9
+[PRIO] apip-work.threema.ch, 5.95, attack_surface:6 business_value:6 tech_exposure:5 gate_ease:4 cloud_surface:4 freshness:8
+[PRIO] safe.threema.ch, 5.50, attack_surface:6 business_value:5 tech_exposure:5 gate_ease:9 cloud_surface:4 freshness:6
 [HYP] Unauthenticated directory enumeration via api.threema.ch CORS misconfiguration
 class: IDOR
 asset: api.threema.ch/identity/*
