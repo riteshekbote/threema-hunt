@@ -24551,3 +24551,14 @@ testability: HUMAN_ONLY
 [RISK] safe: 30 — credential-gated with HSTS/Expect-CT gap; route oracle; limited blast radius
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (RAG-verified, PoC absent, needs Windows runtime validation); BrowserWindow sandbox unset (conditional RCE, not standalone)
 ## 2026-08-19 06:03:24 UTC [chat] (model bigpickle)
+## 2026-08-19 06:51:35 UTC [chat] (model bigpickle)
+[PRIO] {ds-apip,api,apip}.threema.ch/identity/8-mint+crash cluster score=8.8 attack=9 business=8 tech=7 gate=10 cloud=4 fresh=4
+[PRIO] {ds-apip,api,apip}.threema.ch/identity/check_featuremask+census score=8.5 attack=9 business=8 tech=7 gate=10 cloud=4 fresh=4
+[PRIO] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license score=7.8 attack=8 business=9 tech=7 gate=10 cloud=4 fresh=4
+[PARKED] fetch_priv crash membership: already ACCEPTED (16th crash member confirmed)
+[PARKED] type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); REJECTED as structural class
+[HYP] browser-context zero-preflight GET+text/plain enumeration proof
+class: IDOR
+asset: {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask}
+confidence: 92
+reasoning: GET+text/plain is CORS-safelisted (no preflight); ACAO:* on all responses; server-side chain 100% complete (valid→200/133B token, invalid→200/46B); only gap is browser-context proof reading response body cross
