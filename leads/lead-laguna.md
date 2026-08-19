@@ -28962,3 +28962,4 @@ testability: PASSIVE
 [RISK] safe: 25 reason — safe-*.threema.ch backup API credential-gated (HTTP Basic Auth) with route-existence oracle (400 vs 404) + HSTS/Expect-CT header inconsistency; 5 hosts behind single IP 203.56.112.231; safe.threema.ch newly observed timeout pattern
 [RISK] desktop-src: 40 reason — threema-desktop key-storage Windows ACL bypass (fileModeInternalObjectIfPosix returns {} on win32; keystorage.bin + keystorage.password.bin written without ACL; DPAPI password recoverable by same-user processes); Electron BrowserWindow sandbox unset + nodeIntegrationInWorker true (TODO DESK-79); conditional RCE requires separate renderer exploit chain
 ## 2026-08-19 09:17:06 UTC [desktop] (model laguna)
+## 2026-08-19 10:04:10 UTC [desktop] (model laguna)
