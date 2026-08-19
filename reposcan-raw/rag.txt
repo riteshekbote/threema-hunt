@@ -2229,6 +2229,20 @@
 - 2026-08-19 REJECTED @ poc/ filesystem claims: STILL ABSENT 26th consecutive cycle (`ls poc/` → exit 2); all 20+ cycle KB sha256 claims DISPROVEN; 6-path RAG source chain verified via remote WebFetch on GitHub `stable` only; reposcan-raw/threema-ch/ 18 dirs ALL EMPTY (0 source files) — source verification ≠ artifact generation
 - 2026-08-19 REJECTED @ state_bigpickle.json KB `{"target":"desktop"}` claims: filesystem GROUND TRUTH = `{"phase":"POC","target":"chat"}` (sha256 `94bd1bd1…`) — agent targeting is chat/directory servers correctly; desktop-target claims stale across 26+ cycles
 - 2026-08-19 REJECTED MISCONFIG @ crypto.ts:223 benchmark password — benchmark-only dummy in determineKdfParams(), purged at L233
+- 2026-08-19 ACCEPTED @ api.threema.ch: Confirmed full directory sibling today — GET /identity/revoke+text/plain valid → 200/134B token + constant tokenRespKeyPub `c8005cca9…` + ACAO:* + Allow-Methods; malformed → 500/0B + ACAO:* (16th crash family member); /identity/check_featuremask sibling parity confirmed (200/35B `{"featureMasks":[2047,2047,null,9]}` + ACAO:*)
+- 2026-08-19 CHANGED @ work.test.threema.ch/api-app/public/global/settings: now captcha-gated (HTTP 400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` cookie + CSP) — was 200/299B raw unauthenticated oracle; staging-prod divergence intact (prod→404) but staging no longer raw oracle — impact reduced
+- 2026-08-19 REJECTED @ /identity/fetch_bulk crash-family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}` (graceful validation); NOT crash member; valid 10000-ID count-cap + pubkey oracle stable
+- 2026-08-19 REJECTED @ /identity/delete crash-family membership: returns 404 on all probes (POST `{"identity":{"x":1}}` → 404); route not registered on consumer directory hosts; crash-family corrected to 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- 2026-08-19 REJECTED @ crypto.ts:223 benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`): benchmark-only dummy in `determineKdfParams()`, purged at L233; NOT used for real encryption (byte-stable across 26 cycles)
+- 2026-08-19 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree); `sandbox` unset (TODO DESK-79), L1240 "sandboxing is enabled by default" incorrect per Electron docs — surface accepted as hardening gap only
+- 2026-08-19 REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); 2 anomalous distinct (DZ34BVDV, VK24BPYV) in 2/22 draws (~0.5%) — anomalous identities, not structural fingerprint class
+- 2026-08-19 REJECTED @ poc/ filesystem claims: STILL ABSENT 26th consecutive cycle (`ls poc/` → exit 2); all KB sha256 artifact claims DISPROVEN; 6-path RAG source chain verified on GitHub `stable` via remote WebFetch only; source verification ≠ artifact generation
+- 2026-08-19 REJECTED @ state_bigpickle.json KB `{"target":"desktop"}` claims: filesystem GROUND TRUTH = `{"phase":"POC","target":"chat"}` (sha256 `94bd1bd1…`) — agent targeting is chat/directory servers correctly; desktop-target claims stale across 26 cycles
+- 2026-08-19 REJECTED @ threema-android JoinResponse.kt:70 `toString()` leaks icePassword: Low value (local-only, short-lived ICE creds); requires runtime logcat validation to confirm sink; not statically reportable
+- 2026-08-19 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain; surface accepted as hardening gap only
+- 2026-08-19 CONFIRMED — 7/8 token-mint endpoints accept GET+text/plain (CORS-safelisted, zero preflight); only check and check_featuremask reject GET
+- 2026-08-19 CONFIRMED — Content-Type not validated on token-mint endpoints (revoke returns same 200/133B for text/plain and application/json)
+- 2026-08-19 CONFIRMED — /identity/match GET returns 39B rate-limit shape (checkInterval:86400, empty identities) vs POST identities
 === INVENTORY gladia ===
 # Inventory: threema
 
