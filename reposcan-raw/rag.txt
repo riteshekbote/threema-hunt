@@ -2042,6 +2042,11 @@
 - 2026-08-19 CONFIRMED @ apip-work.threema.ch — 4th work-directory hostname alias (203.56.112.209 same as ds-apip-work); OPTIONS→401 auth-gated (unlike consumer ds-apip OPTIONS→200); ACAO:* + no HSTS/Expect-CT; cross-origin probing blocked without work credentials
 - 2026-08-19 CHANGED @ work.test.threema.ch /api-app/public/global/settings — now captcha-gated (HTTP 400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` cookie + CSP); was 200/299B unauthenticated oracle; staging-prod divergence intact (prod→404) but staging no longer raw oracle
 - 2026-08-19 CONFIRMED @ per-request token variation — 3 distinct tokens across 3 consecutive calls to /identity/revoke, same constant tokenRespKeyPub sha256 `c8005cca9…` — proves single shared mint handler across all 8 endpoints (byte-stable)
+- 2026-08-19 REJECTED MISCONFIG @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c7846…`) — confirmed benchmark-only dummy in `determineKdfParams()`, purged at L233, NOT used for real encryption (byte-stable across 26+ cycles)
+- 2026-08-19 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE — conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree); surface accepted as hardening gap only
+- 2026-08-19 REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle — PERMANENTLY DOWNGRADED; 404 has NO CORS headers; missing-key/invalid-key produce byte-identical `{"error":"Invalid X-Api-Key"}`; key NOT in threema-desktop source (fetch-work.ts uses username/password)
+- 2026-08-19 CONFIRMED @ safe-{01,1a,1b,02,00}.threema.ch HSTS/Expect-CT gap — OPTIONS has full HSTS+Expect-CT, GET 400 has ONLY ACAO:*; byte-stable across 5 hosts behind 203.56.112.231
+- 2026-08-19 CONFIRMED @ apip-work.threema.ch — 4th work-directory hostname alias (203.56.112.209 same as ds-apip-work); OPTIONS→401 auth-gated (unlike consumer ds-apip OPTIONS→200); cross-origin probing blocked without work credentials
 === INVENTORY gladia ===
 # Inventory: threema
 
