@@ -24674,3 +24674,4 @@ testability: HUMAN_ONLY
 [RISK] sync: 5 — mediator/rendezvous WSS uniformly 403; TCP 5222 handshake requires auth frame; alternate ports closed
 [RISK] safe: 30 — credential-gated (HTTP Basic Auth) with HSTS/Expect-CT gap; route-existence oracle; credentialed cross-origin CORS; 5 hostnames behind single IP 203.56.112.231
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (RAG-verified 6-path chain, PoC absent from filesystem 25+ cycles); BrowserWindow sandbox unset + nodeIntegrationInWorker true (conditional RCE, not standalone)
+## 2026-08-19 11:36:47 UTC [chat] (model bigpickle)
