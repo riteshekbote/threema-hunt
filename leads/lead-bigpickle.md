@@ -25078,3 +25078,4 @@ testability: CONFIRMED
 [LEARN] CONFIRMED — api.threema.ch is full sibling (sfu_cred, blob_cred, fetch_priv all return 200/133-135B via GET+text/plain)
 [LEARN] CONFIRMED — apip.threema.ch is full sibling (sfu_cred, fetch_priv both return 200/133B via GET+text/plain)
 [RISK] chat: 99 — 24 zero-preflight CORS-safelisted enumeration vectors (8 endpoints × 3 hosts); 15 crash families × 4 hosts = 120 DoS combos; 11+ live identities recovered; check_license credential oracle; match GET rate-limit oracle
+## 2026-08-19 22:47:43 UTC [chat] (model bigpickle)

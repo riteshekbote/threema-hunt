@@ -4248,3 +4248,17 @@ https://api.threema.ch/identity/ECHOECHO` -> HTTP 404
 https://api.threema.ch/identity/match_token` -> HTTP 404
 https://ds-apip.threema.ch/identity/revoke` -> HTTP 404
 https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000` -> HTTP 400
+
+## 2026-08-19 22:49:32 UTC
+https://api.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://apip.test.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/sfu_cred -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000` -> HTTP 400
+https://api.threema.ch/identity/match_token` -> HTTP 404
+https://api.threema.ch/identity/revoke` -> HTTP 404
+https://api.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://ds-apip.threema.ch/identity/set_featuremask` -> HTTP 404
