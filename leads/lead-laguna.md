@@ -29304,3 +29304,13 @@ testability: PASSIVE
 [RISK] sync: 12 reason — mediator/rendezvous-*.threema.ch uniform 403 on HTTPS; high-entropy path structure observed; DNS split routing mapped (0-7→203.56.112.247, 8-f→203.56.114.247); g-*.0.threema.ch 443/5222 close immediately (0 bytes, no cert leak, requires authenticated login frame); no passive in-band exploitable surface; chat passive channel formally closed
 [RISK] safe: 35 reason — safe-*.threema.ch (5 hosts, 203.56.112.231) credential-gated backup API with route-existence oracle (400 vs 404) + HSTS/Expect-CT header inconsistency (present on OPTIONS 204, ABSENT on GET 400) + credentialed cross-origin CORS (Allow-Headers: Authorization, NO Access-Control-Allow-Credentials); safe.threema.ch (singular) timeout/no response, backup service pattern candidate; auth-gated limits direct data exposure
 [RISK] desktop-src: 60 reason — threema-desktop Windows key-storage ACL bypass RAG-verified (6-path chain on GitHub stable: fs.ts:41 `{}` on win32; key-storage/index.ts _writeOrOverrideFile without ACL; electron-main.ts STORE/LOAD_USER_PASSWORD; inner/v3.ts exposes identityData.ck + databaseKey; sqlite.ts raw PRAGMA key no PBKDF2; vite.config.ts paths); keystorage.bin + keystorage.password.bin written without ACL; safeStorage DPAPI password recoverable by same-user processes; Electron BrowserWindow `sandbox` UNSET (TODO DESK-79) + `nodeIntegrationInWorker: true` (TODO DESK-79) — conditional RCE only, formally REJECTED as standalone class (0 dynamic sinks in worker/ tree); PoC artifact ABSENT on filesystem (25th+ cycle, all KB sha256 claims DISPROVEN), source verification via remote WebFetch only (reposcan-raw ALL EMPTY = 0 local source files); testability AUTH_HELPED
+## 2026-08-19 12:22:16 UTC [desktop] (model laguna)
+[HYP] <title>
+class: <IDOR|SSRF|AUTH|XSS|BUSLOGIC|MISCONFIG|OATH|OTHER>
+asset: <host/endpoint>
+confidence: <0-100>
+reasoning: <facts only, 2-3 lines>
+evidence_needed: <what proves it>
+verify_steps: <passive-first concrete HTTP requests, or AUTH_HELPED:...>
+impact: <what attacker gets + severity>
+testability: <PASSIVE|AUTH_HELPED|HUMAN_ONLY>
