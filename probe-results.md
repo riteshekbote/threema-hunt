@@ -3857,3 +3857,17 @@ https://api.threema.ch/identity/match_token -> 200 len=? type=application/json; 
 https://api.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.test.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/revoke' -> HTTP 404
+
+## 2026-08-19 06:03:48 UTC
+https://api.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://safe.threema.ch/ -> ERR <urlopen error [Errno -2] Name or service not know
+https://ds-apip.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/ -> HTTP 404
+https://safe-01.threema.ch/api/ -> HTTP 404
+https://safe-01.threema.ch/backups/abc123...def` -> HTTP 400
+https://safe-01.threema.ch/backups/{64hex -> HTTP 400
+https://work.test.threema.ch/api-app/public/global/settings -> HTTP 400
+https://work.test.threema.ch/api-app/public/global/settings` -> HTTP 404

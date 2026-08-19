@@ -24550,3 +24550,4 @@ testability: HUMAN_ONLY
 [RISK] sync: 5 — mediator/rendezvous WSS uniformly 403; TCP 5222 handshake requires auth
 [RISK] safe: 30 — credential-gated with HSTS/Expect-CT gap; route oracle; limited blast radius
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (RAG-verified, PoC absent, needs Windows runtime validation); BrowserWindow sandbox unset (conditional RCE, not standalone)
+## 2026-08-19 06:03:24 UTC [chat] (model bigpickle)
