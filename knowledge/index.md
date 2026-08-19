@@ -2145,3 +2145,4 @@
 - 2026-08-19 ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts (POST {"version":{}} → 500/0B; GET+text/plain → 500/0B; OPTIONS → 200 CORS *); sole crash family with 4-host parity + OPTIONS-200; credential oracle at root path
 - 2026-08-19 ACCEPTED IDOR @ /identity/revoke (non-ws path): 11th token-mint existence oracle confirmed — GET+text/plain + POST return 200/133B (valid) vs 200/46B (invalid); case-fold amplification; 2nd GET-accepting endpoint after set_featuremask
 - 2026-08-19 CHANGED @ work.test.threema.ch /api-app/public/global_settings: now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B raw unauthenticated oracle; staging-prod divergence intact (prod→404) but staging no longer raw oracle
+- 2026-08-19 CONFIRMED — poc/ directory absent (25+ cycles); all KB sha256 artifact claims persistently false
