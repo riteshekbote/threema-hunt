@@ -4033,3 +4033,16 @@ https://apip.test.threema.ch/identity/revoke -> 200 len=? type=application/json;
 https://apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/revoke',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
 https://ds-apip.threema.ch/identity/revoke' -> HTTP 404
+
+## 2026-08-19 15:07:27 UTC
+https://api.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://apip.test.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/revoke',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
+https://ds-apip.threema.ch/identity/revoke' -> HTTP 404
+https://ds-apip.threema.ch/identity/revoke` -> HTTP 404
+https://ds-apip.threema.ch/identity/sfu_cred` -> HTTP 404
