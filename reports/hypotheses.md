@@ -12595,3 +12595,24 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark-only dummy, purged at L233; not used for real encryption
 - LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: permanently downgraded; 404 has NO CORS headers; key not in desktop source
 - LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws; not structural class
+
+## RANKED HYPOTHESES 2026-08-19 23:50:47 UTC
+- [95] api.threema.ch/identity/*: Unauthenticated directory enumeration via api.threema.ch CORS misconfiguration (from reports/hypotheses-nemotron3.txt)
+- [90] api.threema.ch/identity/{match_token,check_revocation_key,update_work_info,set_featuremask,check}: api.threema.ch full sibling parity — 5 remaining endpoints (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -H "Origin: https://evil.example" -X GET https://api.threema.ch/identity/ECHOECHO — verify 200/133B token + ACAO:* + tokenRespKeyPub; then curl -
+- NEXT(hypotheses-bigpickle.txt): PROBE: Verify api.threema.ch sibling parity for 4 remaining token-mint endpoints + check — `curl -s -X GET -H "Content-Type: text/plain" -d '{"identity":"ECHOEC
+- LEARN: ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Method
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts (POST {"version":{}} → 500/
+- LEARN: ACCEPTED AUTH @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: Credential-validation oracle at root path (POST fake creds → 200/65B + ACAO:* + Allow-
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed {"identities":{}} → 200/17B {"identities":[]} (graceful validation); NOT a crash-fa
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POS
+- LEARN: REJECTED MISCONFIG @ /identity/revoke query-param variant: returns 46B universally (not a token-mint vector); POST-body required for mint
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223 benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determin
+- LEARN: CONFIRMED — api.threema.ch partial sibling (sfu_cred, blob_cred, fetch_priv → 200/133-135B GET+text/plain with ACAO:*); 5 remaining endpoints unverified
+- LEARN: CONFIRMED — 24-combo zero-preflight enumeration stable across 28 cycles; all 8 token-mint endpoints accept GET+text/plain on all 3 prod hosts
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain; surface accepted as hardening 
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark-only dummy, purged at L233; not used for real encryption
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: permanently downgraded; 404 has NO CORS headers; key not in desktop source
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws; not structural class
