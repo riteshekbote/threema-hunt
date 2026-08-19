@@ -2183,3 +2183,4 @@
 - 2026-08-19 `/identity/fetch_bulk` with `{"identity":{"x":1}}` → **200/17B `{"identities":[]}`** — NOT crash family, correctly handles malformed input as empty query
 - 2026-08-19 Staging `ds-apip.test.threema.ch` has HSTS (max-age=31104000; includeSubDomains) + Expect-CT; prod does NOT — HSTS/Expect-CT gap on production
 - 2026-08-19 `work.test.threema.ch` global_settings is now captcha-gated (400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` + CSP), no longer raw unauthenticated oracle
+- 2026-08-19 CONFIRMED — poc/ directory absent (25+ cycles); state_bigpickle.json = {"target":"chat"}
