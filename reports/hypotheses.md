@@ -11950,3 +11950,64 @@
 - LEARN: NO_DELTA — all 28-cycle findings byte-stable; no regressions; no new vulnerability classes
 - LEARN: CONFIRMED — poc/ directory absent (25+ cycles); state_bigpickle.json = {"target":"chat"}
 - LEARN: CONFIRMED — crash family = 15 endpoint families × 4 hosts × GET+POST = 120 combos; fetch_bulk NOT a member; /identity/delete NOT a member; fetch_priv IS 16th cr
+
+## RANKED HYPOTHESES 2026-08-19 15:07:23 UTC
+- [92] {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask}: Browser-context zero-preflight GET+text/plain identity enumeration (from reports/hypotheses-laguna.txt)
+- [85] api.threema.ch/identity/*: Unauthenticated directory enumeration via api.threema.ch CORS misconfiguration (from reports/hypotheses-nemotron3.txt)
+- [72] {ds-apip,api,apip}.threema.ch/identity/{revoke,fetch_priv,match_token}: Content-Type routing differential on shared identity handler (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -H "Origin: https://evil.example" -X GET https://api.threema.ch/identity/ECHOECHO — verify 200/404 + ACAO:*; curl -s -H "Origin: https://evil.exa
+- NEXT(hypotheses-laguna.txt): HUMAN: Execute browser-context zero-preflight proof — deploy minimal HTML page at attacker-controlled origin calling `fetch('https://ds-apip.threema.ch/identity
+- NEXT(hypotheses-bigpickle.txt): PROBE: Test GET+text/plain on untested token-mint endpoints to check for method-handling divergence — `curl -s -o /dev/null -w "%{http_code} %{size_download}" -
+- LEARN: ACCEPTED IDOR @ api.threema.ch: Confirmed 403-on-root + ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE identical to apip; GET /identity/ECHOECHO → 200 + ACAO:* 
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts (POST {"version":{}} → 500/
+- LEARN: ACCEPTED AUTH @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: Credential-validation oracle at root path (POST fake creds → 200/65B + ACAO:* + Allow-
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed {"identities":{}} → 200/17B {"identities":[]} (graceful validation); NOT a crash-fa
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POS
+- LEARN: REJECTED MISCONFIG @ /identity/revoke query-param variant: returns 46B universally (not a token-mint vector); POST-body required for mint
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223 benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determin
+- LEARN: NO_DELTA — all 28-cycle findings byte-stable; no regressions; no new vulnerability classes
+- LEARN: CONFIRMED — poc/ directory absent (25+ cycles); state_bigpickle.json = `{"target":"chat"}`
+- LEARN: CONFIRMED — crash family = 15 endpoint families × 4 hosts × GET+POST = 120 combos; fetch_bulk NOT a member; /identity/delete NOT a member; fetch_priv IS 16th cr
+- LEARN: NO_DELTA — all 28-cycle findings byte-stable; no regressions; no new vulnerability classes
+- LEARN: CONFIRMED — poc/ directory absent (25+ cycles); state_bigpickle.json = {"target":"chat"}
+- LEARN: CONFIRMED — crash family = 15 endpoint families × 4 hosts × GET+POST = 120 combos; fetch_bulk NOT a member; /identity/delete NOT a member; fetch_priv IS 16th cr
+- LEARN: ACCEPTED IDOR @ api.threema.ch: Confirmed 403-on-root + ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE identical to apip; GET /identity/ECHOECHO → 200 + ACAO:* 
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts (POST {"version":{}} → 500/
+- LEARN: ACCEPTED AUTH @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: Credential-validation oracle at root path (POST fake creds → 200/65B + ACAO:* + Allow-
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed {"identities":{}} → 200/17B {"identities":[]} (graceful validation); NOT a crash-fa
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POS
+- LEARN: REJECTED MISCONFIG @ /identity/revoke query-param variant: returns 46B universally (not a token-mint vector); POST-body required for mint
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223 benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determin
+- LEARN: NO_DELTA — all 28-cycle findings byte-stable; no regressions; no new vulnerability classes
+- LEARN: CONFIRMED — poc/ directory absent (25+ cycles); state_bigpickle.json = `{"target":"chat"}`
+- LEARN: CONFIRMED — crash family = 15 endpoint families × 4 hosts × GET+POST = 120 combos; fetch_bulk NOT a member; /identity/delete NOT a member; fetch_priv IS 16th cr
+- LEARN: ACCEPTED IDOR @ /identity/revoke (non-ws path): Confirmed 11th token-mint existence oracle — GET+text/plain + POST both return 200/133B token (valid) vs 200/46B
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts (POST {"version":{}} → 500/
+- LEARN: CHANGED @ work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/299B raw una
+- LEARN: ACCEPTED AUTH @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: Credential-validation oracle at root path (POST fake creds → 200/65B + ACAO:* + Allow-
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed {"identities":{}} → 200/17B {"identities":[]} (graceful validation); NOT a crash-fa
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POS
+- LEARN: REJECTED MISCONFIG @ /identity/revoke query-param variant: returns 46B universally (not a token-mint vector); POST-body required for mint
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223 benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determin
+- LEARN: NO_DELTA — all 28-cycle findings byte-stable; no regressions; no new vulnerability classes
+- LEARN: CONFIRMED — poc/ directory absent (25+ cycles); state_bigpickle.json = `{"target":"chat"}`
+- LEARN: CONFIRMED — crash family = 15 endpoint families × 4 hosts × GET+POST = 120 combos; fetch_bulk NOT a member; /identity/delete NOT a member; fetch_priv IS 16th cr
+- LEARN: ACCEPTED IDOR @ /identity/revoke (non-ws path): Confirmed 11th token-mint existence oracle — GET+text/plain + POST both return 200/133B token (valid) vs 200/46B
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts (POST {"version":{}} → 500/
+- LEARN: CHANGED @ work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/299B raw una
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223 benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determin
+- LEARN: NO_DELTA — all 28-cycle findings byte-stable; no regressions; no new vulnerability classes
+- LEARN: CONFIRMED — poc/ directory absent (25+ cycles); state_bigpickle.json = `{"target":"chat"}`
+- LEARN: CONFIRMED — crash family = 15 endpoint families × 4 hosts × GET+POST = 120 combos; fetch_bulk NOT a member; /identity/delete NOT a member; fetch_priv IS 16th cr
+- LEARN: ACCEPTED IDOR @ /identity/revoke (non-ws path): Confirmed 11th token-mint existence oracle — GET+text/plain + POST both return 200/133B token (valid) vs 200/46B
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts (POST {"version":{}} → 500/
+- LEARN: CHANGED @ work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP) — was 200/299B raw una
+- LEARN: NO_DELTA — all 28-cycle findings byte-stable; no regressions; no new vulnerability classes
+- LEARN: CONFIRMED — poc/ directory absent (25+ cycles); state_bigpickle.json = `{"target":"chat"}`
+- LEARN: CONFIRMED — crash family = 15 endpoint families × 4 hosts × GET+POST = 120 combos; fetch_bulk NOT a member; /identity/delete NOT a member; fetch_priv IS 16th cr
