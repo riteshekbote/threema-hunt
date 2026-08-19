@@ -5996,3 +5996,8 @@
 - CHANGED /identity/fetch_bulk crash membership: confirmed NOT crash-family member — malformed `{"identities":{}}` → 200/17B `{"identities":[]}` (graceful validation); pure IDOR oracle
 - CHANGED /identity/revoke query-param variant: confirmed returns 46B universally (not a token-mint vector); POST-body or GET+text/plain body required for mint
 - CHANGED /identity/fetch_priv: Confirmed as 16th crash-family member (POST `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence; 88B error-body distinct
+
+## 2026-08-19 06:54:01 UTC
+- NEW safe.threema.ch returns timeout/no response (backup service pattern candidate, distinct from safe-* hosts)
+- CHANGED work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+- CHANGED broadcast.threema.ch/gateway.threema.ch/billing.threema.ch/work.threema.ch/shop.threema.ch previously TIMEOUT, now accessible with redirects + session cookies + CSP + Sentry
