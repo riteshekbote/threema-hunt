@@ -6373,3 +6373,17 @@
 - CHANGED /identity/delete crash membership corrected — returns 404 on all probes; crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
 - CHANGED Production directory servers (ds-apip, apip, api) all lack HSTS/Expect-CT; staging counterparts have both
 - CHANGED apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
+
+## 2026-08-19 18:05:42 UTC
+- NEW api.threema.ch confirmed full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE
+- NEW apip.test.threema.ch staging directory server live — GET/POST /identity/* 200, CORS *, HSTS, Expect-CT; logic-identical/data-disjoint mirror of production
+- NEW ds-apip-work.threema.ch + ds-apip-work.test.threema.ch — work directory prod+staging live: 401 on /identity/*, CORS *, no HSTS/Expect-CT
+- NEW safe.threema.ch (singular) — timeout/no response, backup service pattern candidate distinct from safe-* 5-host cluster
+- NEW apip-work.threema.ch — 4th work-directory hostname alias, resolves to 203.56.112.209, OPTIONS→401 auth-gated preflight
+- CHANGED work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+- CHANGED broadcast.threema.ch/gateway.threema.ch/billing.threema.ch/work.threema.ch/shop.threema.ch — previously TIMEOUT, now accessible with redirects + session cookies + CSP + Sentry
+- CHANGED /identity/revoke query-param variant confirmed returns 46B universally — not a token-mint vector (POST-body or GET+text/plain body required)
+- CHANGED /identity/fetch_bulk confirmed NOT crash-family member — malformed input returns 200/17B graceful validation
+- CHANGED /identity/delete crash membership corrected — returns 404 on all probes; crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- CHANGED Production directory servers (ds-apip, apip, api) all lack HSTS/Expect-CT; staging counterparts have both
+- CHANGED apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
