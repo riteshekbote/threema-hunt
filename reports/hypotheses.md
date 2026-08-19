@@ -11482,3 +11482,66 @@
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
 - LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: PERMANENTLY DOWNGRADED — 404 has NO CORS headers, missing/invalid-key byte-identical `{"error":"Invalid
 - LEARN: NO_NEW_ACTION — directory server surface exhaustively mapped; all findings byte-stable; no new vulnerability classes.
+
+## RANKED HYPOTHESES 2026-08-19 06:03:41 UTC
+- [95] https://ds-apip.threema.ch/identity/fetch_bulk: Directory cluster identity enumeration at scale via unauthenticated fetch_bulk + permissive CORS across 3 production hosts (from reports/hypotheses-laguna.txt)
+- [80] api.threema.ch: Unauthenticated directory enumeration via api.threema.ch CORS misconfiguration (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -H "Origin: https://evil.example" -X GET https://api.threema.ch/identity/ECHOECHO — verify 200/404 + ACAO:*; curl -s -H "Origin: https://evil.exa
+- NEXT(hypotheses-laguna.txt): PROBE: curl -s -i -X OPTIONS https://ds-apip.threema.ch/identity/fetch_bulk -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: POST" -H "A
+- LEARN: ACCEPTED IDOR @ api.threema.ch: Returns 403 with permissive CORS headers identical to apip.threema.ch — likely mirrors full identity endpoint surface
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts (POST {"version":{}} → 500/
+- LEARN: ACCEPTED AUTH @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: Credential-validation oracle at root path (POST fake creds → 200/65B + ACAO:* + Allow-
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed {"identities":{}} → 200/17B {"identities":[]} (graceful validation); NOT a crash-fa
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POS
+- LEARN: REJECTED MISCONFIG @ /identity/revoke query-param variant: returns 46B universally (not a token-mint vector); POST-body required for mint
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223 benchmark password sha256 400c7846… confirmed benchmark-only dummy in determineKdfParams(), purged at L233 — not used for rea
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT (25+ cycles); source verification ≠ artifact generation
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB desktop-target claims: filesystem GROUND TRUTH = {"target":"chat"} — KB desktop-target claims stale
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateL
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: Staging directory server publicly reachable with identical API surface to production; HSTS/Expect-CT present on st
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: Rate-limit absence confirmed via 30 sequential POSTs at 1 rps (all HTTP 200, no 429/RateL
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin w
+- LEARN: ACCEPTED AUTH @ safe-*.threema.ch: Backup API uses HTTP Basic Auth (backupId:backupKey); OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: Unauthenticated identity→pubkey oracle via GET /identity/{id} (200/404) AND POST /identity/fe
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DEK-79) and nodeIntegrationInWorker: true (TODO DEK-79) — L1240 co
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in determineKdfParams(), derived key immediately purged, not used for real encryp
+- LEARN: REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch + api.threema.ch + apip.threema.ch: POST /identity/fetch_bulk returns pubkeys for valid IDs only, silently omits invalid IDs,
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin w
+- LEARN: ACCEPTED AUTH @ safe-*.threema.ch: Backup API uses HTTP Basic Auth (backupId:backupKey); OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DEK-79) and nodeIntegrationInWorker: true (TODO DEK-79) — L1240 co
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: /api-app/public/global/settings returns 200 unauthenticated on staging but 404 on prod — public staging-only work API end
+- LEARN: ACCEPTED MISCONFIG @ work.test.threema.ch: work_public.js v2.25.1 staging build (sha256 e48e18f7…, 1,443,948 B) implements /public/* routes; prod build (sha256 
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password `r3gGN9GDQ5NF6tM6` is benchmark-only dummy in determineKdfParams(), derived key immediately purged (bench
+- LEARN: REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin w
+- LEARN: ACCEPTED AUTH @ safe-*.threema.ch: Backup API uses HTTP Basic Auth (backupId:backupKey); OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: Unauthenticated identity→pubkey oracle via GET /identity/{id} (200/404) AND POST /identity/fe
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DEK-79) and nodeIntegrationInWorker: true (TODO DEK-79) — L1240 co
+- LEARN: ACCEPTED MISCONFIG @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work A
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed)
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in determineKdfParams(), derived key immediately purged, not used for real encryp
+- LEARN: REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin w
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop key-storage (Windows): fileModeInternalObjectIfPosix() returns {} on Windows → keystorage.bin and keystorage.password.bin w
+- LEARN: ACCEPTED AUTH @ safe-*.threema.ch: Backup API uses HTTP Basic Auth (backupId:backupKey); OPTIONS returns CORS * with Access-Control-Allow-Headers: Authorization
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/api.threema.ch/apip.threema.ch: Unauthenticated identity→pubkey oracle via GET /identity/{id} (200/404) AND POST /identity/fe
+- LEARN: ACCEPTED MISCONFIG @ threema-desktop electron-main.ts: BrowserWindow has sandbox: false (TODO DEK-79) and nodeIntegrationInWorker: true (TODO DEK-79) — L1240 co
+- LEARN: ACCEPTED MISCONFIG @ work.test.threema.ch: `/api-app/public/global/settings` returns 200 unauthenticated on staging but 404 on prod — public staging-only work A
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: `/api-app/public/license/token/{64hex}` route present (fake token → 404, no data leak observed)
+- LEARN: ACCEPTED OTHER @ work.test.threema.ch: login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in determineKdfParams(), derived key immediately purged, not used for real encryp
+- LEARN: REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not
+- LEARN: REJECTED @ /identity/fetch_bulk crash-family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}` (graceful validation); pure IDOR oracle, NO
+- LEARN: REJECTED @ /identity/delete crash-family membership: returns 404 on all probes; route not registered on consumer directory hosts; crash-family = 15 endpoint fam
+- LEARN: CONFIRMED @ /identity/fetch_priv crash membership: 16th crash-family member (POST `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 3 prod + staging); completes 8
+- LEARN: ACCEPTED @ /identity/create crash membership: 16th crash family member (POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod + staging); NOT a token-mint endpoin
+- LEARN: ACCEPTED @ /identity/revoke non-ws path: 11th token-mint identity-existence oracle confirmed — GET+text/plain + POST return 200/133B (valid) vs 200/46B (invalid
+- LEARN: CHANGED @ work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `captcha_proof_expired` + session cookie + CSP); was 200/299B unauth
+- LEARN: ACCEPTED @ apip-work.threema.ch: 4th work-directory hostname alias confirmed (203.56.112.209 same as ds-apip-work); OPTIONS→401 auth-gated preflight (unlike con
+- LEARN: REJECTED @ crypto.ts:223: Benchmark password sha256 `400c7846…` confirmed benchmark-only dummy in `determineKdfParams()`, purged at L233; NOT used for real encr
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: PERMANENTLY DOWNGRADED — 404 has NO CORS headers, missing/invalid-key byte-identical `{"error":"Invalid
