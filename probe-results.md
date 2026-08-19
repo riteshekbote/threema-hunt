@@ -4006,3 +4006,10 @@ https://apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/jso
 https://apip.test.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
 https://apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/revoke',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
+
+## 2026-08-19 13:22:45 UTC
+https://ds-apip.threema.ch/identity/revoke` -> HTTP 404
+https://ds-apip.threema.ch/check_license` -> HTTP 404
+https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://ds-apip.test.threema.ch/identity/ECHOECHO` -> HTTP 404
+https://$h.threema.ch/identity/revoke -> ERR <urlopen error [Errno -2] Name or service not know
