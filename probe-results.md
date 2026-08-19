@@ -3773,3 +3773,15 @@ https://ds-apip.threema.ch/check_license` -> HTTP 404
 https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
 https://api.threema.ch/identity/set_featuremask` -> HTTP 404
 https://apip.threema.ch/identity/set_featuremask` -> HTTP 404
+
+## 2026-08-19 00:03:13 UTC
+https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://work.test.threema.ch/api-app/public/global_settings -> HTTP 404
+https://broadcast.threema.ch -> 200 len=? type=text/html; charset=UTF-8
+https://broadcast.threema.ch/en/login -> 200 len=? type=text/html; charset=UTF-8
+https://ds-apip.threema.ch/identity/revoke` -> HTTP 404
+https://ds-apip.threema.ch/check_license` -> HTTP 404
+https://ds-apip.threema.ch/identity/fetch_bulk` -> HTTP 404
+https://api.threema.ch/check_license` -> HTTP 404
+https://apip.threema.ch/check_license` -> HTTP 404
+https://ds-apip.threema.ch/identity/revoke' -> HTTP 404

@@ -11266,3 +11266,37 @@
 - LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE — `sandbox` UNSET (TODO DESK-79 at electron-main.ts:1255), 0 dynamic si
 - LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle — 404 response has NO CORS headers, missing-key/invalid-key produce byte-identical `{"error":"Invalid X-
 - LEARN: REJECTED HYP @ type:1 Work-org fingerprint — 6+ consecutive zero-type:1 draws (1.6M+ IDs, draws 19-24); 2 anomalous distinct (DZ34BVDV, VK24BPYV) in 2/22 draws 
+
+## RANKED HYPOTHESES 2026-08-19 00:03:06 UTC
+- [92] {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask}: preflight-free unauthenticated identity enumeration via CORS-safelisted GET+text/plain (from reports/hypotheses-laguna.txt)
+- [85] ds-apip.threema.ch/identity/revoke: Preflight-free identity enumeration via GET+text/plain on revoke/set_featuremask (from reports/hypotheses-nemotron3.txt)
+- [30] ds-apip.threema.ch/identity/check_featuremask: check_featuremask gzip body-size cap bypass (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/revok
+- NEXT(hypotheses-laguna.txt): HUMAN: Execute browser-context zero-preflight proof for the GET+text/plain enumeration vector — deploy a minimal HTML page at attacker-controlled origin calling
+- NEXT(hypotheses-bigpickle.txt): NO_NEW_ACTION — directory server surface exhaustively mapped across 27 cycles; all findings byte-stable; no new vulnerability classes opened; staging debug surf
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes; crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed {"identities":{}} -> 200/17B {"identities":[]} (graceful validation); NOT a crash-f
+- LEARN: ACCEPTED MISCONFIG @ /identity/fetch_priv: 16th crash-family member (POST {"identity":{"x":1}} → 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-m
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223 benchmark password sha256 `400c7846…` confirmed benchmark-only dummy in determineKdfParams(), purged at L233 — not used for r
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT (25+ cycles); source verification ≠ artifact generation
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB desktop-target claims: filesystem GROUND TRUTH = {"target":"chat"} — KB desktop-target claims stale
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: PERMANENTLY DOWNGRADED; 404 has NO CORS headers; key NOT in threema-desktop source
+- LEARN: CONFIRMED @ {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask}: GET+text/plain preflight-free enumeration byte-stable — all 3 hosts return 200/133-
+- LEARN: CONFIRMED @ {ds-apip,api,apip,ds-apip.test}.threema.ch crash family: 15 families × 4 hosts × GET+POST = 120 byte-stable 500/0B combos with ACAO:* + zero 429 + i
+- LEARN: CONFIRMED @ safe-{01,1a,1b,02,00}.threema.ch HSTS/Expect-CT gap: OPTIONS 204 has full headers (HSTS max-age=31104000 + Expect-CT); GET 400 lacks both — byte-sta
+- LEARN: CONFIRMED @ apip-work.threema.ch: 4th work-directory hostname alias byte-stable — resolves to 203.56.112.209 (same as ds-apip-work); OPTIONS→401 auth-gated pref
+- LEARN: CONFIRMED @ work.test.threema.ch/api-app/public/global_settings: now captcha-gated/404 (no longer 200/299B raw oracle); captcha_proof_expired + `__HOST-HTTP-SES
+- LEARN: REJECTED @ /identity/revoke?identity=ECHOECHO GET query-param mint: returns 46B universally (not a token-mint vector); token-mint requires POST-body or GET+text
+- LEARN: REJECTED @ crypto.ts:223 benchmark password `r3gGN9GDQ5NF6tM6` sha256 `400c7846…`: confirmed benchmark-only dummy in `determineKdfParams()`, purged at L233, NOT
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tre
+- LEARN: CONFIRMED — /identity/delete NOT a crash-family member (returns 404 on all probes); crash-family count = 15 endpoint families × 4 hosts × GET+POST = 120 combos.
+- LEARN: CONFIRMED — /identity/fetch_bulk NOT a crash-family member (malformed `{"identities":{}}` → 200/17B `{"identities":[]}` graceful validation); pure IDOR oracle.
+- LEARN: CONFIRMED — /identity/revoke query-param variant returns 46B universally (not a token-mint vector); POST-body required for mint.
+- LEARN: CHANGED — work.test.threema.ch /api-app/public/global/settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthent
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint — 6+ consecutive zero-type:1 draws (1.6M+ IDs, draws 19-24); 2 anomalous distinct in 2/22 draws (~0.5%); not structur
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223 — benchmark-only dummy, purged at L233.
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker — conditional RCE requires separate renderer exploit chain; surface accepted as hardening
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem — STILL ABSENT 25+ cycles; source verification ≠ artifact generation.
