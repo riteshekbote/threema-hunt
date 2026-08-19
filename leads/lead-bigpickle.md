@@ -24523,3 +24523,21 @@ testability: HUMAN_ONLY
 ## 2026-08-19 03:16:20 UTC [chat] (model bigpickle)
 ## 2026-08-19 04:00:29 UTC [chat] (model bigpickle)
 ## 2026-08-19 04:37:38 UTC [chat] (model bigpickle)
+## 2026-08-19 05:07:20 UTC [chat] (model bigpickle)
+[PRIO] {ds-apip,api,apip}.threema.ch identity/8-mint+crash score=8.8 attack=9 business=8 tech=7 gate=10 cloud=4 fresh=4
+[PRIO] {ds-apip,api,apip}.threema.ch identity/check_featuremask+census score=8.5 attack=9 business=8 tech=7 gate=10 cloud=4 fresh=4
+[PRIO] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license score=7.8 attack=8 business=9 tech=7 gate=10 cloud=4 fresh=4
+[PARKED] fetch_priv crash membership: already ACCEPTED (16th crash member confirmed)
+[PARKED] type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); REJECTED as structural class
+[PARKED] poc/ key-storage-acl-bypass: filesystem ABSENT 25+ cycles; source verification ≠ artifact generation
+[FINAL] (none) — no surviving hypotheses with confidence ≥ 40 that aren't already ACCEPTED findings
+[NEXT] NO_NEW_ACTION — directory server surface exhaustively mapped across 27 cycles; all findings byte-stable; no new vulnerability classes opened; no remaining passive-first surface to probe; all hypotheses either ACCEPTED or PARKED below threshold
+[LEARN] CONFIRMED @ /identity/delete: NOT crash-family member (returns 404); crash-family count = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+[LEARN] CONFIRMED @ /identity/fetch_bulk: NOT crash-family member (malformed → 200/17B graceful validation); pure IDOR oracle
+[LEARN] CONFIRMED @ /identity/revoke query-param: returns 46B universally (not token-mint vector); POST-body required
+[LEARN] CHANGED @ work.test.threema.ch /api-app/public/global/settings: now captcha-gated (400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+[LEARN] REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: benchmark-only dummy, purged at L233
+[LEARN] REJECTED class @ Desktop BrowserWindow sandbox: conditional RCE requires separate renderer exploit chain; surface accepted as hardening gap only
+[LEARN] REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 25+ cycles; source verification ≠ artifact generation
+[LEARN] REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: PERMANENTLY DOWNGRADED; 404 has NO CORS headers; key NOT in threema-desktop source
