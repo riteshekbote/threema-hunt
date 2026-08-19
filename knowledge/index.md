@@ -2243,3 +2243,6 @@
 - 2026-08-19 CONFIRMED — Content-Type not validated on token-mint endpoints (revoke returns same 200/133B for text/plain and application/json)
 - 2026-08-19 CONFIRMED — /identity/match GET returns 39B rate-limit shape (checkInterval:86400, empty identities) vs POST identities
 - 2026-08-19 ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE
+- 2026-08-19 CONFIRMED — 2 of 8 token-mint endpoints (revoke, set_featuremask) accept GET+text/plain (CORS-safelisted, zero preflight); check/check_featuremask return 500 on GET (POST-only). Remaining 6 endpoints untested for GET acceptance.
+- 2026-08-19 CONFIRMED — Content-Type not validated on token-mint endpoints (revoke accepts text/plain and application/json with identical response)
+- 2026-08-19 CONFIRMED — /identity/match GET returns 39B rate-limit shape (checkInterval:86400, empty identities) vs POST identities array
