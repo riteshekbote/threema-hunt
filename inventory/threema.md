@@ -5945,3 +5945,25 @@
 - CHANGED /identity/delete — crash membership corrected: returns 404 on all probes (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
 - CHANGED /identity/fetch_bulk — confirmed NOT crash-family member (malformed input → 200/17B graceful validation)
 - CHANGED /identity/revoke query-param variant — confirmed returns 46B universally (not a token-mint vector); POST-body required for mint
+
+## 2026-08-19 05:41:42 UTC
+- NEW api.threema.ch returns 403 with permissive CORS headers identical to apip.threema.ch
+- NEW safe.threema.ch returns timeout/no response (backup service pattern candidate)
+- NEW apip-work.threema.ch confirmed as 4th work-directory hostname alias (203.56.112.209, OPTIONS+GET→401 + ACAO:* + no HSTS/Expect-CT; auth-gated preflight)
+- NEW /identity/revoke (non-ws path) confirmed as 11th token-mint existence oracle (GET+text/plain+POST return 200/133B token for valid, 200/46B for invalid; case-fold amplification; GET query-param returns
+- NEW /identity/fetch_priv confirmed as 16th crash-family member (POST {"identity":{"x":1}} → 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence
+- NEW {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license confirmed as 16th crash family member (POST {"version":{}} → 500/0B on all 4; GET+text/plain→500/0B; sole crash family with OPTIONS→200; sole 4
+- NEW check_license credential oracle at root path (POST fake creds → 200/65B {"success":false,"error":"..."} + ACAO:* + Allow-Headers Content-Type,User-Agent; OPTIONS→200 CORS *)
+- CHANGED work.test.threema.ch/api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+- CHANGED broadcast.threema.ch/gateway.threema.ch/billing.threema.ch/work.threema.ch/shop.threema.ch previously TIMEOUT, now accessible with redirects + session cookies + CSP + Sentry
+- CHANGED /identity/delete crash membership corrected — returns 404 on all probes (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- CHANGED /identity/fetch_bulk confirmed NOT crash-family member (malformed input → 200/17B graceful validation)
+- CHANGED /identity/revoke query-param variant confirmed returns 46B universally (not a token-mint vector); POST-body required for mint
+- NEW /identity/revoke (non-ws path): 11th token-mint existence oracle — GET+text/plain + POST return 200/133B (valid) / 200/46B (invalid); case-fold amplification; only 2nd endpoint accepting GET+text/plai
+- NEW apip-work.threema.ch: 4th work-directory hostname alias confirmed — resolves to 203.56.112.209 (same as ds-apip-work); OPTIONS→401 auth-gated preflight (unlike consumer ds-apip OPTIONS→200); ACAO:* + 
+- NEW /identity/create: Confirmed as 16th crash-family member — POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod + staging; batch `{"identities":[{}]}` → 500/0B; recovery to 200/133B; NOT a token-mint en
+- CHANGED work.test.threema.ch /api-app/public/global_settings: Now captcha-gated (HTTP 400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` cookie + CSP) — was 200/299B unauthenticated oracle; staging-prod di
+- CHANGED /identity/delete crash membership: corrected — returns 404 on all probes (NOT a member); crash-family corrected to 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- CHANGED /identity/fetch_bulk crash membership: confirmed NOT crash-family member — malformed `{"identities":{}}` → 200/17B `{"identities":[]}` (graceful validation); pure IDOR oracle
+- CHANGED /identity/revoke query-param variant: confirmed returns 46B universally (not a token-mint vector); POST-body or GET+text/plain body required for mint
+- CHANGED /identity/fetch_priv: Confirmed as 16th crash-family member (POST `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence; 88B error-body distinct

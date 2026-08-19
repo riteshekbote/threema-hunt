@@ -24541,3 +24541,12 @@ testability: HUMAN_ONLY
 [LEARN] REJECTED class @ Desktop BrowserWindow sandbox: conditional RCE requires separate renderer exploit chain; surface accepted as hardening gap only
 [LEARN] REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 25+ cycles; source verification ≠ artifact generation
 [LEARN] REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: PERMANENTLY DOWNGRADED; 404 has NO CORS headers; key NOT in threema-desktop source
+## 2026-08-19 05:41:09 UTC [chat] (model bigpickle)
+[PARKED] All hypotheses already ACCEPTED as findings. No new hypotheses warranted.
+[NEXT] HUMAN: Execute browser-context zero-preflight proof for the GET+text/plain enumeration vector — deploy minimal HTML at attacker-controlled origin calling `fetch('https://ds-apip.threema.ch/identity/revoke', {method:'GET', headers:{'Content-Type':'text/plain'}, body:'{"identity":"ECHOECHO"}', mode:'cors'})` and read response body. Confirm 200/133B token returned to cross-origin page without preflight. This is the sole remaining evidence gap for the IDOR cluster.
+[LEARN] NO_NEW_ACTION — directory server surface exhaustively mapped; all findings byte-stable; no new vulnerability classes.
+[RISK] chat: 98 — 15 crash families × 4 hosts × GET+POST = 120 DoS combos (ACAO:*); 8-endpoint zero-preflight identity oracle (24 combos); census yields 11 live identities + pubkeys + featureMask fingerprinting; check_license credential oracle; full prod+staging parity
+[RISK] web: 15 — static redirects only; no live app routes
+[RISK] sync: 5 — mediator/rendezvous WSS uniformly 403; TCP 5222 handshake requires auth
+[RISK] safe: 30 — credential-gated with HSTS/Expect-CT gap; route oracle; limited blast radius
+[RISK] desktop-src: 40 — key-storage Windows ACL bypass (RAG-verified, PoC absent, needs Windows runtime validation); BrowserWindow sandbox unset (conditional RCE, not standalone)
