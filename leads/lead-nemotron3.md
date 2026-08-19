@@ -25021,3 +25021,4 @@ testability: PASSIVE
 [RISK] sync: 85 reason: 3 prod + 1 staging directory servers with 12+ unauthenticated endpoints, permissive CORS *, no rate limits, identity enumeration, token-mint, credential oracle, crash DoS
 [RISK] safe: 40 reason: 5-host backup cluster with Basic Auth + route oracle; HSTS/Expect-CT gap on GET 400; credential-gated API limits exposure
 [RISK] desktop-src: 60 reason: Windows key-storage ACL bypass (DPAPI password + keystorage files world-readable) confirmed via source; PoC artifact absent; Electron sandbox gap (conditional RCE)
+## 2026-08-19 13:12:17 UTC [web] (model nemotron3)

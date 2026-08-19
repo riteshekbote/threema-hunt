@@ -6235,3 +6235,5 @@
 - CHANGED /identity/revoke query-param variant confirmed returns 46B universally (not a token-mint vector); POST-body or GET+text/plain body required for mint
 - CHANGED apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
 - CHANGED Production directory servers (ds-apip, apip, api) all lack HSTS/Expect-CT; staging counterparts have both
+
+## 2026-08-19 13:22:43 UTC
