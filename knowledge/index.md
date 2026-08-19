@@ -2246,3 +2246,20 @@
 - 2026-08-19 CONFIRMED — 2 of 8 token-mint endpoints (revoke, set_featuremask) accept GET+text/plain (CORS-safelisted, zero preflight); check/check_featuremask return 500 on GET (POST-only). Remaining 6 endpoints untested for GET acceptance.
 - 2026-08-19 CONFIRMED — Content-Type not validated on token-mint endpoints (revoke accepts text/plain and application/json with identical response)
 - 2026-08-19 CONFIRMED — /identity/match GET returns 39B rate-limit shape (checkInterval:86400, empty identities) vs POST identities array
+- 2026-08-19 ACCEPTED MISCONFIG @ api.threema.ch/identity/*: Fresh probes confirm api.threema.ch is FULL directory sibling — GET /identity/ECHOECHO → 200/122B identical pubkey + ACAO:* + token-mint parity with ds-apip (was 403-on-root only at 2026-08-07 baseline)
+- 2026-08-19 REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}` (graceful validation); NOT a crash-family member — pure IDOR oracle only
+- 2026-08-19 REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes; route not registered on consumer directory hosts; crash-family count corrected 16→15 endpoint families
+- 2026-08-19 REJECTED MISCONFIG @ /identity/revoke query-param variant: returns 46B universally (not a token-mint vector); POST-body or GET+text/plain body required for mint — resolves 20+ cycle KB contradiction
+- 2026-08-19 ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch fetch_priv: 16th crash-family member confirmed — POST `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 3 prod + staging; completes 8/8 token-mint crash convergence across all 8 mint endpoints × 4 hosts
+- 2026-08-19 CHANGED @ work.test.threema.ch/api-app/public/global/settings: now captcha-gated (HTTP 400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` cookie + CSP); was 200/299B raw unauthenticated oracle; staging-prod divergence intact (prod→404) but staging no longer raw oracle
+- 2026-08-19 NEW @ safe.threema.ch (singular): timeout/no response — backup service pattern candidate distinct from safe-`*` 5-host cluster; requires hostname-pattern analysis
+- 2026-08-19 ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE (doubles prod attack surface)
+- 2026-08-19 CONFIRMED — 2 of 8 token-mint endpoints (revoke, set_featuremask) accept GET+text/plain (CORS-safelisted, zero preflight); check/check_featuremask return 500 on GET (POST-only). Remaining 6 pending.
+- 2026-08-19 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree); not standalone class
+- 2026-08-19 REJECTED MISCONFIG @ crypto.ts:223: benchmark-only dummy in determineKdfParams(), purged at L233; NOT used for real encryption
+- 2026-08-19 REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: PERMANENTLY DOWNGRADED — 404 has NO CORS headers; key NOT in threema-desktop source
+- 2026-08-19 REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 26+ cycles; source verification ≠ artifact generation
+- 2026-08-19 CONFIRMED — All 8 token-mint endpoints accept GET+text/plain returning 200/133-135B; constant tokenRespKeyPub; CORS ACAO:* + Allow-Methods includes GET; 3-host parity; malformed GET → 500/0B (crash-family extends to GET)
+- 2026-08-19 CONFIRMED — OPTIONS on sfu_cred returns Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE + Access-Control-Allow-Headers: Content-Type, User-Agent
+- 2026-08-19 CONFIRMED — api.threema.ch is full sibling (sfu_cred, blob_cred, fetch_priv all return 200/133-135B via GET+text/plain)
+- 2026-08-19 CONFIRMED — apip.threema.ch is full sibling (sfu_cred, fetch_priv both return 200/133B via GET+text/plain)
