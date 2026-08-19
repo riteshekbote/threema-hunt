@@ -30080,3 +30080,43 @@ testability: CONFIRMED
 [LEARN] CONFIRMED — /identity/match GET returns 39B rate-limit shape (checkInterval:86400, empty identities) vs POST identities
 [RISK] chat: 99 — preflight-free surface expanded from 6→21 combos (7 endpoints × 3 hosts); 15 crash families × 4 hosts = 120 DoS combos; census yields 11+ live identities; check_license credential oracle; match GET rate-limit oracle
 ## 2026-08-19 20:29:42 UTC [desktop] (model laguna)
+## 2026-08-19 20:55:40 UTC [desktop] (model laguna)
+[PRIO] api.threema.ch /identity/* (full sibling elevation): score 91 | attack:10 business:10 tech:8 gate:10 cloud:1 fresh:10
+[PRIO] safe-{01,1a,1b,02,00}.threema.ch /backups/{64hex}: score 74 | attack:7 business:6 tech:8 gate:6 cloud:1 fresh:2
+[PRIO] apip-work.threema.ch (4th work-directory hostname alias): score 68 | attack:6 business:6 tech:6 gate:7 cloud:1 fresh:5
+[HYP] api.threema.ch elevation to full directory sibling — 3x unauthenticated enumeration surface
+class: IDOR
+asset: {ds-apip,api,apip}.threema.ch/identity/{fetch_bulk,check_featuremask,match_token,revoke,set_featuremask,fetch_priv,check,check_revocation_key,sfu_cred,blob_cred,update_work_info}
+confidence: 95
+reasoning: api.threema.ch previously returned only 403-on-root; fresh probes confirm GET/POST /identity/ECHOECHO → 200/133B token + identical pubkey to ds-apip (byte-identical); GET /identity/fetch_bulk returns identical pubkey SmobNNzvFdQ8t03i/TYJG+mfu68SbQmdR9g9kZcSxys= across all 3 hosts; check_featuremask returns identical featureMasks [2047,2047,null,9] with ACAO:* on all 3
+evidence_needed: Cross-host byte-identical identity oracle responses (pubkey + tokenRespKeyPub sha256 c8005cca9…) across ds-apip, api, apip; fresh probe of GET /identity/ECHOECHO on api.threema.ch
+verify_steps: PASSIVE: `curl -s -X GET -H "Origin: https://evil.example" https://api.threema.ch/identity/ECHOECHO` — verify 200/133B token + ACAO:* + tokenRespKeyPub; `curl -s -X POST -d '{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ"]}' https://api.threema.ch/identity/fetch_bulk` — verify identical pubkeys to ds-apip
+impact: Triples enumeration surface (3 hosts × 8 endpoints × GET+POST = 48 combos); census draw yields LIVE ACTIVE accounts + pubkeys + featureMask fingerprinting (11+ distinct state:0 mask:2047 accounts recovered); enables targeted phishing attribution — severity HIGH
+testability: PASSIVE
+[HYP] Work-org fingerprint class hypothesis — type:1 identity enrichment
+class: IDOR
+asset: {ds-apip,api,apip}.threema.ch/identity/check_featuremask
+confidence: 35
+reasoning: 2 anomalous type:1 identities (DZ34BVDV, VK24BPYV) observed in 2/22 census draws (~0.5% rate, ~7.4e-6 overall density); 6 consecutive zero-type:1 draws (1.6M+ IDs) since; below ≥3-draw threshold for structural fingerprint class — anomalous identities only
+evidence_needed: ≥3 independent census draws each yielding ≥1 type:1 identity to establish non-uniform distribution
+verify_steps: PASSIVE: Run 3 additional 400k-ID draws via POST `{"identities":[<400k random IDs>]}` to https://ds-apip.threema.ch/identity/check_featuremask — count type:1 hits per draw; require 3+ draws with type:1 hits to cross ≥3-draw threshold (current: 2 distinct in 2 draws)
+impact: If confirmed, enables Work/org-client targeted phishing attribution (type:1 flags Threema Work organizational accounts); severity LOW-MEDIUM if structural, but currently insufficient evidence → anomalous identities only
+testability: PASSIVE
+[HYP] apip-work.threema.ch 4th work-directory hostname alias — auth-gated preflight divergence
+class: AUTH
+asset: apip-work.threema.ch/identity/{*,}
+confidence: 78
+reasoning: Resolves to 203.56.112.209 (same IP as ds-apip-work.threema.ch); OPTIONS→401 (auth-gated preflight) differs from consumer ds-apip OPTIONS→200 (open preflight); 401 body still returns ACAO:* enabling credentialed cross-origin requests once Work credentials obtained; no HSTS/Expect-CT on either host
+evidence_needed: Byte-identical 401 response shape (error body + ACAO:* + Allow-Methods) between apip-work.threema.ch and ds-apip-work.threema.ch; confirmation that OPTIONS→401 blocks browser preflight while 401 response retains ACAO:*
+verify_steps: PASSIVE: `curl -s -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" https://apip-work.threema.ch/identities` — verify 401 + ACAO:* + Allow-Methods; `curl -s -X OPTIONS -H "Origin: https://evil.example" https://ds-apip-work.threema.ch/identities` — confirm same 401 shape; compare to ds-apip.threema.ch OPTIONS→200
+impact: Expands work-directory attack surface (4 hostnames vs 3); auth-gated preflight blocks browser-only cross-origin but server-side/non-browser attack path viable; credential reuse risk if Work credentials leaked — severity MEDIUM
+testability: PASSIVE
+[PARKED] Work-org fingerprint class: confidence 35 < 40 threshold; 6 consecutive zero-type:1 draws (1.6M+ IDs) since last anomalous hits; 2 distinct in 2/22 draws (~0.5%) — rate not distinguishable from Poisson noise (λ≈3.6); anomalous identities, not structural class — requires ≥3 more type:1 hits in independent draws to reconsider
+[FINAL] 1. api.threema.ch elevation to full directory sibling — 95 confidence, PASSIVE, triples unauthenticated enumeration surface (3 hosts × 8 endpoints × GET+POST = 48 combos); 11+ live-active accounts + pubkeys + featureMask fingerprinting confirmed; no auth, no rate-limit, CORS *; severity HIGH
+[FINAL] 2. apip-work.threema.ch 4th work-directory hostname alias — 78 confidence, PASSIVE, auth-gated preflight (OPTIONS→401) blocks browser cross-origin but server-side path viable; 4 hostnames vs 3 for work-directory; ACAO:* retained on 401; no HSTS/Expect-CT; severity MEDIUM
+[NEXT] PROBE: `curl -s -X GET -H "Origin: https://evil.example" https://api.threema.ch/identity/ECHOECHO` — verify 200/133B token + ACAO:* + tokenRespKeyPub; then `curl -s -X POST -d '{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ","ECHOECHO"]}' https://api.threema.ch/identity/check_featuremask` to confirm identical featureMasks across host. This closes the api.threema.ch sibling-parity proof gap (currently RISK score 99 for chat surface).
+[RISK] chat: 99 — 3 directory hosts (ds-apip/api/apip) all return 200 with ACAO:* + identical pubkeys; 8-endpoint zero-preflight GET+text/plain token-mint cluster (24 combos); 15 crash families × 4 hosts = 120 DoS combos (500/0B, zero 429, instant recovery); check_license credential oracle (200/65B + ACAO:* + OPTIONS 200); check_featuremask census yields 11+ live-active accounts + featureMask fingerprinting; no auth, no rate-limit, staging mirror data-disjoint but logic-identical; production lacks HSTS/Expect-CT while staging has both
+[RISK] web: 15 — broadcast/gateway/billing/work/shop all static redirects/landing pages only; no live public app routes beyond /en/login; no new endpoints; work.threema.ch/api/v1 X-Api-Key oracle disproven (no CORS on 404); work.test captcha-gated
+[RISK] sync: 5 — mediator/rendezvous WSS uniformly 403; DNS split routing mapped (0-7→203.56.112.247, 8-f→203.56.114.247); TCP 5222/443 handshake requires authenticated login frame; alternate ports (80/5223/8080/8443/9090) all closed
+[RISK] safe: 30 — safe-{01,1a,1b,02,00}.threema.ch HSTS/Expect-CT gap (OPTIONS 204 full headers, GET 400 lacks both); HTTP Basic Auth (backupId:backupKey) + route-existence oracle (400 vs 404) + credentialed cross-origin CORS (Allow-Headers Authorization, no Access-Control-Allow-Credentials); 5 hostnames behind single IP 203.56.112.231; safe.threema.ch (singular) timeout/no response
+[RISK] desktop-src: 40 — key-storage Windows ACL bypass RAG-verified 6-path chain (fs.ts:41 → {} on win32; keystorage.bin + keystorage.password.bin written without ACL; DPAPI password recoverable by same-user processes; exposes Ed25519 private key + SQLCipher key); BrowserWindow sandbox UNSET + nodeIntegrationInWorker true (conditional RCE, not standalone); PoC artifact absent from filesystem despite 25+ cycle KB claims (source verification ≠ artifact generation)
