@@ -3794,3 +3794,8 @@ https://ds-apip.threema.ch/identity/revoke` -> HTTP 404
 https://ds-apip.threema.ch/check_license` -> HTTP 404
 https://api.threema.ch/check_license` -> HTTP 404
 https://apip.threema.ch/check_license` -> HTTP 404
+
+## 2026-08-19 02:26:06 UTC
+https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
