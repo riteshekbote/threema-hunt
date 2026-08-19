@@ -1,4 +1,4 @@
-## 2026-08-19 19:47:05 UTC [web] (model nemotron3)
+## 2026-08-19 20:30:05 UTC [web] (model nemotron3)
 [NEW] api.threema.ch confirmed full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE
 [NEW] apip.test.threema.ch staging directory server live — GET/POST /identity/* 200, CORS *, HSTS, Expect-CT; logic-identical/data-disjoint mirror of production
 [NEW] safe.threema.ch (singular) — timeout/no response, backup service pattern candidate distinct from safe-* 5-host cluster
@@ -10,13 +10,13 @@
 [CHANGED] Production directory servers (ds-apip, apip, api) all lack HSTS/Expect-CT; staging counterparts have both
 [CHANGED] apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
 [PRIO] api.threema.ch/identity/*, 8.75, attack_surface:10 business_value:9 tech_exposure:8 gate_ease:10 cloud_surface:4 freshness:9
-[PRIO] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license, 7.90, attack_surface:9 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:4 freshness:8
+[PRIO] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license, 8.00, attack_surface:9 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:4 freshness:8
 [PRIO] apip.test.threema.ch/identity/*, 7.45, attack_surface:8 business_value:7 tech_exposure:6 gate_ease:10 cloud_surface:4 freshness:9
 [HYP] Unauthenticated directory enumeration via api.threema.ch CORS misconfiguration
 class: IDOR
 asset: api.threema.ch/identity/*
 confidence: 85
-reasoning: api.threema.ch returns 403 on root but GET /identity/ECHOECHO → 200 with ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE; ds-apip.threema.ch exposes 12+ unauthenticated identity endpoints (fetch_bulk, revoke, set_featuremask, match_token, check_revocation_key, blob_cred, sfu_cred, update_work_info, fetch_priv, create, check_featuremask, check) all with ACAO:* and no rate limits; api.threema.ch mirrors this surface byte-identically
+reasoning: api.threema.ch returns 403 on root but GET /identity/ECHOECHO → 200 with ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE; ds-apip.threema.ch exposes 12+ unauthenticated identity endpoints all with ACAO:* and no rate limits; api.threema.ch mirrors this surface byte-identically
 evidence_needed: Confirm identity endpoints exist on api.threema.ch with same behavior as ds-apip.threema.ch (200/404 oracle, token-mint, crash family)
 verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -X GET https://api.threema.ch/identity/ECHOECHO — verify 200/404 + ACAO:*; curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/revoke — verify 200/133B token + ACAO:*; curl -s -H "Origin: https://evil.example" -X POST -d '{"identities":["ECHOECHO"]}' https://api.threema.ch/identity/fetch_bulk — verify pubkey oracle + ACAO:*
 impact: Full cross-origin identity enumeration, public key extraction, and credential validation on additional production directory host; doubles attack surface for directory IDOR
