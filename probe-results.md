@@ -4013,3 +4013,12 @@ https://ds-apip.threema.ch/check_license` -> HTTP 404
 https://ds-apip.threema.ch/identity/ECHOECHO` -> HTTP 404
 https://ds-apip.test.threema.ch/identity/ECHOECHO` -> HTTP 404
 https://$h.threema.ch/identity/revoke -> ERR <urlopen error [Errno -2] Name or service not know
+
+## 2026-08-19 14:01:18 UTC
+https://api.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://apip.test.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
