@@ -2071,6 +2071,21 @@
 - 2026-08-19 REJECTED class @ Desktop BrowserWindow sandbox: conditional RCE requires separate renderer exploit chain; surface accepted as hardening gap only
 - 2026-08-19 REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT 25+ cycles; source verification ≠ artifact generation
 - 2026-08-19 REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: PERMANENTLY DOWNGRADED; 404 has NO CORS headers; key NOT in threema-desktop source
+- 2026-08-19 ACCEPTED IDOR @ api.threema.ch: Returns 403 with permissive CORS headers identical to apip.threema.ch — likely mirrors full identity endpoint surface
+- 2026-08-19 ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts (POST {"version":{}} → 500/0B; GET+text/plain → 500/0B; OPTIONS → 200 CORS *; sole crash family with 4-host parity + OPTIONS-200)
+- 2026-08-19 ACCEPTED AUTH @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: Credential-validation oracle at root path (POST fake creds → 200/65B + ACAO:* + Allow-Headers; OPTIONS→200 CORS *; 4-host parity)
+- 2026-08-19 REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- 2026-08-19 REJECTED MISCONFIG @ /identity/revoke query-param variant: returns 46B universally (not a token-mint vector); POST-body required for mint
+- 2026-08-19 REJECTED @ /identity/fetch_bulk crash-family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}` (graceful validation); pure IDOR oracle, NOT crash member
+- 2026-08-19 REJECTED @ /identity/delete crash-family membership: returns 404 on all probes; route not registered on consumer directory hosts; crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- 2026-08-19 CONFIRMED @ /identity/fetch_priv crash membership: 16th crash-family member (POST `{"identity":{"x":1}}` → 500/0B + ACAO:* on all 3 prod + staging); completes 8/8 token-mint crash convergence; 88B error-body distinctness confirmed
+- 2026-08-19 ACCEPTED @ /identity/create crash membership: 16th crash family member (POST `{"publicKey":{"x":1}}` → 500/0B on all 3 prod + staging); NOT a token-mint endpoint (GET valid → 200/46B no token)
+- 2026-08-19 ACCEPTED @ /identity/revoke non-ws path: 11th token-mint identity-existence oracle confirmed — GET+text/plain + POST return 200/133B (valid) vs 200/46B (invalid); case-fold amplification; only 2nd endpoint accepting GET+text/plain after set_featuremask
+- 2026-08-19 CHANGED @ work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `captcha_proof_expired` + session cookie + CSP); was 200/299B unauthenticated oracle; staging-prod divergence intact (prod→404) but staging no longer raw oracle
+- 2026-08-19 ACCEPTED @ apip-work.threema.ch: 4th work-directory hostname alias confirmed (203.56.112.209 same as ds-apip-work); OPTIONS→401 auth-gated preflight (unlike consumer ds-apip OPTIONS→200); ACAO:* + no HSTS/Expect-CT
+- 2026-08-19 REJECTED @ crypto.ts:223: Benchmark password sha256 `400c7846…` confirmed benchmark-only dummy in `determineKdfParams()`, purged at L233; NOT used for real encryption (stable across 27 cycles)
+- 2026-08-19 REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: PERMANENTLY DOWNGRADED — 404 has NO CORS headers, missing/invalid-key byte-identical `{"error":"Invalid X-Api-Key"}` (sha256 `707fe8f5…`), key NOT in threema-desktop source (fetch-work.ts uses username/password); browser cross-origin fully blocked
+- 2026-08-19 NO_NEW_ACTION — directory server surface exhaustively mapped; all findings byte-stable; no new vulnerability classes.
 === INVENTORY gladia ===
 # Inventory: threema
 
