@@ -2270,3 +2270,8 @@
 - 2026-08-19 CHANGED @ work.test.threema.ch /api-app/public/global/settings: now captcha-gated (HTTP 400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` cookie + CSP); was 200/299B unauthenticated oracle — staging-prod divergence intact (prod→404) but staging no longer raw oracle
 - 2026-08-19 CONFIRMED @ state_bigpickle.json: Filesystem GROUND TRUTH = `{"phase":"POC","target":"chat"}` — agent targeting chat/directory servers correctly; KB `{"target":"desktop"}` claims stale across 25+ cycles
 - 2026-08-19 CONFIRMED @ poc/ directory: STILL ABSENT on filesystem (`ls poc/` → No such file); all 20+ cycle KB sha256 claims DISPROVEN; 6-path RAG source chain verified on GitHub `stable` via remote WebFetch only (reposcan-raw/ ALL EMPTY = 0 local source files)
+- 2026-08-19 CONFIRMED — 24-combo zero-preflight enumeration stable across 28 cycles; all 8 token-mint endpoints accept GET+text/plain on all 3 prod hosts
+- 2026-08-19 CONFIRMED — api.threema.ch partial sibling (sfu_cred, blob_cred, fetch_priv → 200/133-135B GET+text/plain with ACAO:*); 5 remaining endpoints unverified
+- 2026-08-19 REJECTED MISCONFIG @ crypto.ts:223: benchmark-only dummy, purged at L233; not used for real encryption
+- 2026-08-19 REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: permanently downgraded; 404 has NO CORS headers; key not in desktop source
+- 2026-08-19 REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws; not structural class
