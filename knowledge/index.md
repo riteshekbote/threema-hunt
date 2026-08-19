@@ -2137,3 +2137,5 @@
 - 2026-08-19 CONFIRMED — poc/ directory remains absent from filesystem (25+ cycles); all KB sha256 artifact claims persistently false
 - 2026-08-19 CONFIRMED — state_bigpickle.json = {"phase":"POC","target":"chat"} — agent targeting chat directory servers correctly
 - 2026-08-19 CONFIRMED — crash family = 15 endpoint families × 4 hosts × GET+POST = 120 combos; fetch_bulk NOT a member; /identity/delete NOT a member; fetch_priv IS 16th crash member
+- 2026-08-19 NO_DELTA — all 27-cycle findings byte-stable; no regressions; no new vulnerability classes
+- 2026-08-19 CONFIRMED — poc/ directory absent (25+ cycles); state_bigpickle.json = `{"target":"chat"}`
