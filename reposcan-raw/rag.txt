@@ -2122,6 +2122,13 @@
 - 2026-08-19 ACCEPTED OTHER @ work.test.threema.ch: login CSP leaks additional staging surfaces: broadcast.test.threema.ch, avatar.test.threema.ch, companylogo.test.threema.ch, hcaptcha-work.threema.ch, billing.test.threema.ch
 - 2026-08-19 REJECTED MISCONFIG @ crypto.ts:223: Hardcoded password is benchmark-only dummy in determineKdfParams(), derived key immediately purged, not used for real encryption
 - 2026-08-19 REJECTED MISCONFIG @ desktop OnPrem config trust: Ed25519 signature verification with 3 hardcoded trusted public keys + HTTPS/WSS URL validation confirmed — not vulnerable
+- 2026-08-19 REJECTED @ reposcan-raw/threema-ch/threema-desktop local clone: EMPTY (0 files) — all "RAG-VERIFIED via direct git clone" claims unfulfilled; grep-hits.txt is stale artifact; source evidence is remote-only via WebFetch on GitHub `stable`; REPOSCAN = "No live credentials found" (REAL_SECRET table empty, all hits TEST_OR_EXAMPLE/FUNC_NAME/INTERESTING previously-rejected)
+- 2026-08-19 REJECTED @ state_bigpickle.json `{"target":"desktop"}` KB claims: filesystem GROUND TRUTH = `{"phase":"POC","target":"chat"}` — agent targeting is chat/directory servers correctly; desktop-target KB claims stale
+- 2026-08-19 ACCEPTED @ `safe.threema.ch` (singular): timeout/no response — backup service pattern candidate, distinct from safe-* (5-host) multi-host pattern; requires further hostname-pattern analysis
+- 2026-08-19 ACCEPTED @ `apip.test.threema.ch`: staging directory server live — GET/POST /identity/* 200, CORS `*`, HSTS, Expect-CT; logic-identical/data-disjoint mirror of prod (0 prod identities in 524k-ID staging draw confirmed)
+- 2026-08-19 CHANGED @ `work.test.threema.ch/api-app/public/global/settings`: now captcha-gated (HTTP 400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` cookie + CSP); was 200/299B raw unauthenticated oracle; staging-prod divergence intact (prod→404) but staging no longer raw oracle
+- 2026-08-19 REJECTED @ crypto.ts:223: Benchmark password `r3gGN9GDQ5NF6tM6` (sha256 `400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12`) — confirmed benchmark-only dummy in `determineKdfParams()`, purged at L233; NOT used for real encryption (byte-stable across 27+ cycles)
+- 2026-08-19 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree); `sandbox` unset (TODO DESK-79); surface accepted as hardening gap only, not standalone class
 === INVENTORY gladia ===
 # Inventory: threema
 
