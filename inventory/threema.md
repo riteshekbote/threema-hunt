@@ -5918,3 +5918,5 @@
 - CHANGED /identity/delete crash membership: corrected — returns 404 (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
 - CHANGED /identity/fetch_bulk crash membership: confirmed NOT crash-family member (malformed `{"identities":{}}` → 200/17B `{"identities":[]}`, graceful validation)
 - CHANGED /identity/revoke query-param variant: confirmed returns 46B universally (not a token-mint vector); POST-body required for mint
+
+## 2026-08-19 03:18:02 UTC

@@ -3799,3 +3799,14 @@ https://apip.threema.ch/check_license` -> HTTP 404
 https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
 https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
+
+## 2026-08-19 03:18:05 UTC
+https://ds-apip.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/fetch_priv -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/revoke` -> HTTP 404
+https://ds-apip.threema.ch/check_license` -> HTTP 404
+https://api.threema.ch/check_license` -> HTTP 404
+https://apip.threema.ch/check_license` -> HTTP 404
+https://api.threema.ch/identity/set_featuremask` -> HTTP 404
+https://ds-apip.threema.ch/identity/revoke' -> HTTP 404
