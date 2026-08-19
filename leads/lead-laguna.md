@@ -30619,3 +30619,4 @@ testability: PASSIVE
 [RISK] sync: 15 reason: mediator/rendezvous return uniform 403 on HTTPS; split DNS routing; no unauthenticated surface
 [RISK] safe: 45 reason: safe-* 5-host cluster HSTS/Expect-CT header inconsistency (OPTIONS 204 has full headers, GET 400 lacks both); HTTP Basic Auth + route-existence oracle (400 vs 404); safe.threema.ch singular timeout pattern distinct; no auth on root
 [RISK] desktop-src: 70 reason: Windows key-storage ACL bypass (6-path RAG chain verified on GitHub stable via WebFetch; PoC artifact absent on filesystem despite 25+ cycle claims); BrowserWindow sandbox unset + nodeIntegrationInWorker (TODO DESK-79); OnPrem config trust verified secure; crypto.ts benchmark dummy not a secret; reposcan-raw all EMPTY (0 local files), remote WebFetch only, 0 reportable secrets
+## 2026-08-19 23:50:26 UTC [desktop] (model laguna)
