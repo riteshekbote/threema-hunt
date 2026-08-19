@@ -5922,3 +5922,15 @@
 ## 2026-08-19 03:18:02 UTC
 
 ## 2026-08-19 04:00:50 UTC
+
+## 2026-08-19 04:37:57 UTC
+- NEW api.threema.ch: Returns 403 with same permissive CORS headers as apip.threema.ch (likely related ID service)
+- NEW safe.threema.ch: Timeout/no response (backup service pattern candidate)
+- NEW /identity/fetch_priv crash membership confirmed as 16th crash-family member completing 8/8 token-mint crash convergence
+- NEW {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license confirmed as 16th crash family member with 4-host parity + OPTIONS→200
+- NEW check_license credential oracle at root path (POST fake creds → 200/65B with ACAO:* + Allow-Headers; 4-host parity)
+- CHANGED work.test.threema.ch/api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+- CHANGED broadcast.threema.ch/gateway.threema.ch/billing.threema.ch/work.threema.ch/shop.threema.ch previously TIMEOUT, now accessible with redirects + session cookies + CSP + Sentry
+- CHANGED /identity/delete crash membership corrected — returns 404 on all probes (NOT a member); crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- CHANGED /identity/fetch_bulk confirmed NOT crash-family member (malformed input → 200/17B graceful validation)
+- CHANGED /identity/revoke query-param variant confirmed returns 46B universally (not a token-mint vector); POST-body required for mint

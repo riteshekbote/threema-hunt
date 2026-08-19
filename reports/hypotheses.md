@@ -11393,3 +11393,24 @@
 - LEARN: CONFIRMED @ /identity/revoke GET query-param variant — returns 46B universally (not a token-mint vector); token-mint requires POST-body or GET+text/plain body
 - LEARN: CONFIRMED @ safe-{01,1a,1b,02,00}.threema.ch HSTS/Expect-CT gap — OPTIONS has full HSTS+Expect-CT, GET 400 has ONLY ACAO:*; byte-stable across 5 hosts behind 20
 - LEARN: CONFIRMED @ apip-work.threema.ch — 4th work-directory hostname alias (203.56.112.209 same as ds-apip-work); OPTIONS→401 auth-gated (unlike consumer ds-apip OPTI
+
+## RANKED HYPOTHESES 2026-08-19 04:37:57 UTC
+- [92] {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask}: Preflight-free identity enumeration via CORS-safelisted GET+text/plain on token-mint endpoints (from reports/hypotheses-laguna.txt)
+- [85] ds-apip.threema.ch/identity/revoke: Preflight-free identity enumeration via GET+text/plain on revoke endpoint (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/revok
+- NEXT(hypotheses-laguna.txt): HUMAN: Execute browser-context zero-preflight proof for the GET+text/plain enumeration vector — deploy a minimal HTML page at attacker-controlled origin calling
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}` (graceful validation); NOT a cras
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs); not structural class
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223 benchmark password sha256 `400c7846…` confirmed benchmark-only dummy in determineKdfParams(), purged at L233 — not used for r
+- LEARN: REJECTED MISCONFIG @ poc/ filesystem: STILL ABSENT (25+ cycles); source verification ≠ artifact generation
+- LEARN: REJECTED MISCONFIG @ state_bigpickle.json KB desktop-target claims: filesystem GROUND TRUTH = {"target":"chat"} — KB desktop-target claims stale
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: PERMANENTLY DOWNGRADED; 404 has NO CORS headers; key NOT in threema-desktop source
+- LEARN: CONFIRMED — /identity/delete NOT a crash-family member (returns 404 on all probes); crash-family count = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- LEARN: CONFIRMED — /identity/fetch_bulk NOT a crash-family member (malformed `{"identities":{}}` → 200/17B `{"identities":[]}` graceful validation); pure IDOR oracle
+- LEARN: CONFIRMED — /identity/revoke query-param variant returns 46B universally (not a token-mint vector); POST-body required for mint
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 `400c7846…` confirmed benchmark-only dummy in `determineKdfParams()`, purged at L233, NOT used for
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key oracle: PERMANENTLY DOWNGRADED; 404 has NO CORS headers; missing-key/invalid-key produce byte-identical `{"erro
+- LEARN: ACCEPTED IDOR @ {ds-apip,api,apip,ds-apip.test}.threema.ch/identity/{revoke,set_featuremask}: GET+text/plain preflight-free token-mint enumeration confirmed byt
+- LEARN: ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch crash family: 16 endpoint families × 4 hosts (3 prod + 1 staging) × GET+POST = 128 combos, all 5
