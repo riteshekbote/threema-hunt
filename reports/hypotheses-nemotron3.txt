@@ -1,5 +1,5 @@
-## 2026-08-19 15:57:23 UTC [web] (model nemotron3)
-[NEW] api.threema.ch confirmed as full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE
+## 2026-08-19 16:20:47 UTC [web] (model nemotron3)
+[NEW] api.threema.ch confirmed full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE
 [NEW] apip.test.threema.ch staging directory server live — GET/POST /identity/* 200, CORS *, HSTS, Expect-CT; logic-identical/data-disjoint mirror of production
 [NEW] ds-apip-work.threema.ch + ds-apip-work.test.threema.ch — work directory prod+staging live: 401 on /identity/*, CORS *, no HSTS/Expect-CT
 [NEW] safe.threema.ch (singular) — timeout/no response, backup service pattern candidate distinct from safe-* 5-host cluster
@@ -11,9 +11,9 @@
 [CHANGED] /identity/delete crash membership corrected — returns 404 on all probes; crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
 [CHANGED] apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
 [CHANGED] Production directory servers (ds-apip, apip, api) all lack HSTS/Expect-CT; staging counterparts have both
-[PRIO] api.threema.ch/identity/*, 8.25, attack_surface:9 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:4 freshness:9
+[PRIO] api.threema.ch/identity/*, 8.10, attack_surface:9 business_value:8 tech_exposure:7 gate_ease:10 cloud_surface:4 freshness:9
+[PRIO] apip.test.threema.ch/identity/*, 7.50, attack_surface:8 business_value:7 tech_exposure:6 gate_ease:10 cloud_surface:4 freshness:9
 [PRIO] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license, 7.90, attack_surface:8 business_value:8 tech_exposure:6 gate_ease:10 cloud_surface:4 freshness:9
-[PRIO] apip.test.threema.ch/identity/*, 7.85, attack_surface:8 business_value:7 tech_exposure:6 gate_ease:10 cloud_surface:4 freshness:9
 [HYP] Unauthenticated directory enumeration via api.threema.ch CORS misconfiguration
 class: IDOR
 asset: api.threema.ch/identity/*
@@ -23,15 +23,6 @@ evidence_needed: Confirm identity endpoints exist on api.threema.ch with same be
 verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -X GET https://api.threema.ch/identity/ECHOECHO — verify 200/404 + ACAO:*; curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/revoke — verify 200/133B token + ACAO:*; curl -s -H "Origin: https://evil.example" -X POST -d '{"identities":["ECHOECHO"]}' https://api.threema.ch/identity/fetch_bulk — verify pubkey oracle + ACAO:*
 impact: Full cross-origin identity enumeration, public key extraction, and credential validation on additional production directory host; doubles attack surface for directory IDOR
 testability: PASSIVE
-[HYP] check_license credential validation oracle with 4-host crash parity DoS
-class: AUTH
-asset: {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license
-confidence: 85
-reasoning: Root path /check_license accepts POST {licenseUsername,licensePassword,version,arch}; fake creds return 200/65B {"success":false,"error":"..."} with ACAO:* + Allow-Headers Content-Type,User-Agent; OPTIONS→200 CORS *; 4-host parity (ds-apip+api+apip+ds-apip.test); malformed version object crashes all 4 hosts to 500/0B with ACAO:*; GET+text/plain malformed also crashes (preflight-free DoS vector)
-evidence_needed: Valid Work license to confirm success-shape {"success":true} and distinguish from credential oracle; verify 4-host byte-identical crash on malformed version
-verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -H "Content-Type: application/json" -X POST -d '{"licenseUsername":"x","licensePassword":"y","version":"2.0","arch":"x64"}' https://ds-apip.threema.ch/check_license — verify 200/65B + ACAO:*; curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET -d '{"version":{"x":1}}' https://ds-apip.threema.ch/check_license — verify 500/0B + ACAO:*; repeat on api.threema.ch + apip.threema.ch + ds-apip.test.threema.ch
-impact: Cross-origin Work credential validation oracle enabling brute-force; 4-host crash parity DoS via CORS-safelisted GET+text/plain; preflight-free browser vector
-testability: PASSIVE
 [HYP] Staging directory server mirror with HSTS/Expect-CT but identical API surface
 class: MISCONFIG
 asset: apip.test.threema.ch/identity/*
@@ -40,6 +31,15 @@ reasoning: apip.test.threema.ch is publicly reachable staging directory server w
 evidence_needed: Confirm apip.test.threema.ch endpoints match apip.threema.ch behavior (token-mint, crash family, census) and dataset isolation (0 prod identities in staging draws)
 verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -X GET https://apip.test.threema.ch/identity/ECHOECHO — verify 200/404 + ACAO:* + HSTS/Expect-CT; curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data '{"identity":"ECHOECHO"}' https://apip.test.threema.ch/identity/revoke — verify token mint + ACAO:*; curl -s -H "Origin: https://evil.example" -X POST -d '{"identities":["ECHOECHO"]}' https://apip.test.threema.ch/identity/fetch_bulk — verify pubkey oracle
 impact: Staging mirror with production API surface enables safe testing of directory enumeration/crash DoS without affecting prod; HSTS/Expect-CT on staging but not prod indicates deployment inconsistency
+testability: PASSIVE
+[HYP] check_license credential validation oracle with 4-host crash parity DoS
+class: AUTH
+asset: {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license
+confidence: 85
+reasoning: Root path /check_license accepts POST {licenseUsername,licensePassword,version,arch}; fake creds return 200/65B {"success":false,"error":"..."} with ACAO:* + Allow-Headers Content-Type,User-Agent; OPTIONS→200 CORS *; 4-host parity (ds-apip+api+apip+ds-apip.test); malformed version object crashes all 4 hosts to 500/0B with ACAO:*; GET+text/plain malformed also crashes (preflight-free DoS vector)
+evidence_needed: Valid Work license to confirm success-shape {"success":true} and distinguish from credential oracle; verify 4-host byte-identical crash on malformed version
+verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -H "Content-Type: application/json" -X POST -d '{"licenseUsername":"x","licensePassword":"y","version":"2.0","arch":"x64"}' https://ds-apip.threema.ch/check_license — verify 200/65B + ACAO:*; curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET -d '{"version":{"x":1}}' https://ds-apip.threema.ch/check_license — verify 500/0B + ACAO:*; repeat on api.threema.ch + apip.threema.ch + ds-apip.test.threema.ch
+impact: Cross-origin Work credential validation oracle enabling brute-force; 4-host crash parity DoS via CORS-safelisted GET+text/plain; preflight-free browser vector
 testability: PASSIVE
 [PARKED] Browser-context zero-preflight GET+text/plain identity enumeration via CORS-safelisted request: confidence 92 but requires HUMAN_ONLY browser proof; not actionable in current PASSIVE-only cycle
 [PARKED] Desktop BrowserWindow sandbox+nodeIntegrationInWorker RCE: class REJECTED in knowledge base (conditional RCE requires separate renderer exploit chain, 0 dynamic sinks in worker/ tree); not standalone class
