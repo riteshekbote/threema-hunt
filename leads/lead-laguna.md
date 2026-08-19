@@ -29375,3 +29375,4 @@ testability: PASSIVE
 [LEARN] `/identity/fetch_bulk` with `{"identity":{"x":1}}` → **200/17B `{"identities":[]}`** — NOT crash family, correctly handles malformed input as empty query  
 [LEARN] Staging `ds-apip.test.threema.ch` has HSTS (max-age=31104000; includeSubDomains) + Expect-CT; prod does NOT — HSTS/Expect-CT gap on production  
 [LEARN] `work.test.threema.ch` global_settings is now captcha-gated (400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` + CSP), no longer raw unauthenticated oracle
+## 2026-08-19 14:26:42 UTC [desktop] (model laguna)
