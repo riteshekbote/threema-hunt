@@ -3920,3 +3920,11 @@ https://api.threema.ch/check_license -> 200 len=? type=application/json; charset
 https://ds-apip.test.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
 https://apip-work.threema.ch/identities -> HTTP 401
 https://api.threema.ch/identity/set_featuremask` -> HTTP 404
+
+## 2026-08-19 09:21:50 UTC
+https://api.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/revoke' -> HTTP 404
+https://ds-apip.threema.ch/check_license -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/revoke',{method:'GET',headers:{'Content-Type':'text/plain' -> HTTP 404
