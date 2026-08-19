@@ -2185,6 +2185,13 @@
 - 2026-08-19 Staging `ds-apip.test.threema.ch` has HSTS (max-age=31104000; includeSubDomains) + Expect-CT; prod does NOT — HSTS/Expect-CT gap on production
 - 2026-08-19 `work.test.threema.ch` global_settings is now captcha-gated (400 `captcha_proof_expired` + `__HOST-HTTP-SESSIONID` + CSP), no longer raw unauthenticated oracle
 - 2026-08-19 CONFIRMED — poc/ directory absent (25+ cycles); state_bigpickle.json = {"target":"chat"}
+- 2026-08-19 ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling this cycle — GET /identity/ECHOECHO → 200/133B token + ACAO:* + identical pubkey matching ds-apip byte-identical; previously only 403-on-root observed
+- 2026-08-19 ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license: 16th crash family member confirmed across all 4 hosts (POST `{"version":{}}` → 500/0B; GET+text/plain → 500/0B; OPTIONS → 200 CORS `*`); sole crash family with 4-host parity + OPTIONS-200 enables browser proof path
+- 2026-08-19 REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed `{"identities":{}}` → 200/17B `{"identities":[]}` graceful validation; NOT a crash-family member (byte-stable across 27+ cycles)
+- 2026-08-19 REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes (route not registered on consumer directory hosts); crash-family corrected to 15 endpoint families
+- 2026-08-19 REJECTED MISCONFIG @ /identity/revoke query-param variant: returns 46B universally; token-mint requires POST-body or GET+text/plain body, not query-param — resolves 25+ cycle KB contradiction
+- 2026-08-19 REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs, draws 19-24); 2 anomalous distinct out of ~8.4M sampled; anomalous identities, not structural fingerprint class
+- 2026-08-19 CHANGED @ work.test.threema.ch /api-app/public/global/settings: Now captcha-gated (400 `captcha_proof_expired` + session cookie + CSP); was 200/299B unauthenticated oracle; staging-prod divergence intact (prod→404) but staging no longer raw oracle
 === INVENTORY gladia ===
 # Inventory: threema
 
