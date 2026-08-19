@@ -2275,3 +2275,10 @@
 - 2026-08-19 REJECTED MISCONFIG @ crypto.ts:223: benchmark-only dummy, purged at L233; not used for real encryption
 - 2026-08-19 REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: permanently downgraded; 404 has NO CORS headers; key not in desktop source
 - 2026-08-19 REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws; not structural class
+- 2026-08-19 ACCEPTED IDOR @ api.threema.ch/identity/*: Full directory sibling confirmed — all 12+ endpoints mirror ds-apip behavior with CORS ACAO:*
+- 2026-08-19 ACCEPTED MISCONFIG @ {ds-apip,api,apip,ds-apip.test}.threema.ch fetch_priv: 16th crash-family member confirmed (POST {"identity":{"x":1}} → 500/0B + ACAO:* on all 4 hosts); completes 8/8 token-mint crash convergence
+- 2026-08-19 REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: Malformed {"identities":{}} → 200/17B {"identities":[]} (graceful validation); pure IDOR oracle, NOT a crash member
+- 2026-08-19 REJECTED MISCONFIG @ /identity/delete crash-family membership: Returns 404 on all probes; route not registered; crash-family = 16 families (delete excluded)
+- 2026-08-19 CHANGED @ work.test.threema.ch /api-app/public/global/settings: Now captcha-gated (400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle — impact reduced
+- 2026-08-19 REJECTED @ safe.threema.ch (singular): timeout/no response confirmed — backup service pattern candidate distinct from safe-5-host cluster; requires hostname-pattern analysis
+- 2026-08-19 ACCEPTED MISCONFIG @ Production directory servers HSTS gap: ds-apip/api/apip lack HSTS/Expect-CT on error responses; staging counterparts (ds-apip.test, apip.test) have both — deployment inconsistency confirmed
