@@ -13245,3 +13245,19 @@
 - LEARN: ACCEPTED MISCONFIG @ Production directory servers HSTS gap: ds-apip/api/apip lack HSTS/Expect-CT on error responses; staging counterparts have both — deployment
 - LEARN: NO_NEW_CLASS — all prior findings byte-stable; no new vulnerability classes opened.
 - LEARN: NO_NEW_CLASS — all prior findings byte-stable; no new vulnerability classes opened.
+
+## RANKED HYPOTHESES 2026-08-20 21:49:21 UTC
+- [95] api.threema.ch/identity/*: Unauthenticated directory enumeration via api.threema.ch CORS misconfiguration (from reports/hypotheses-nemotron3.txt)
+- [0] ?: Census draw 23 density convergence | class IDOR | asset ds-apip.threema.ch/identity/check_featuremask | confidence 85 | PASSIVE | verify: single ≤5.77MB POST of ~400k random IDs; expect density ~6.5e-6 ± band, possible 12th distinct account | impact: population estimate reinforcement (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -H "Origin: https://evil.example" -X GET https://api.threema.ch/identity/ECHOECHO — verify 200/133B token + ACAO:* + tokenRespKeyPub; then curl -
+- NEXT(hypotheses-bigpickle.txt): PROBE: Close GET-acceptance map + staging crash parity in one pass — `curl -sS -X GET -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://api.thr
+- LEARN: ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Method
+- LEARN: ACCEPTED MISCONFIG @ apip.test.threema.ch: Staging directory server live with HSTS/Expect-CT and identical API surface to production — logic-identical/data-disj
+- LEARN: REJECTED MISCONFIG @ /identity/revoke query-param variant: Returns 46B universally — not a token-mint vector (POST-body or GET+text/plain body required)
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: Malformed input returns 200/17B graceful validation — NOT a crash-family member
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash-family membership: Returns 404 on all probes — crash-family corrected to 15 endpoint families × 4 hosts × GET+POST =
+- LEARN: REJECTED HYP @ Type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs) — not structural class, anomalous identities only
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: Conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determi
+- LEARN: ACCEPTED MISCONFIG @ Production directory servers HSTS gap: ds-apip/api/apip lack HSTS/Expect-CT on error responses; staging counterparts have both — deployment
+- LEARN: NO_NEW_CLASS — all prior findings byte-stable; no new vulnerability classes opened.

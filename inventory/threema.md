@@ -6957,3 +6957,9 @@
 
 ## 2026-08-20 21:16:43 UTC
 - NEW None — all items in latest inventory are confirmations of previously discovered surfaces (api.threema.ch full sibling, apip.test.threema.ch staging mirror, safe.threema.ch singular timeout, HSTS gap o
+
+## 2026-08-20 21:49:21 UTC
+- CHANGED api.threema.ch/identity/* parity CLOSED 3/8→8/8 — own probes: match_token, check_revocation_key, update_work_info, set_featuremask all valid→200/133-135B token + constant tokenRespKeyPub (sha256 c8005
+- CHANGED ds-apip.threema.ch/identity/fetch_priv crash gap CLOSED — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; valid sanity → 200/133B unchanged; ALL 8 mint endpoints now in crash fa
+- NEW api.threema.ch/identity/check batch oracle parity — 200/76B {"checkInterval":86400,"states":[0,0],"types":[0,0],"featureMasks":[9,null]}; ECHOECHO observed mask:9 → first non-2047 live-active mask dat
+- NEW Crash/error paths carry ACAO:* too (500/0B reflects wildcard CORS)
