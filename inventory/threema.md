@@ -6778,3 +6778,5 @@
 - CHANGED /identity/delete crash membership corrected — returns 404 on all probes; crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
 - CHANGED Production directory servers (ds-apip, apip, api) all lack HSTS/Expect-CT; staging counterparts have both
 - CHANGED apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
+
+## 2026-08-20 10:10:18 UTC

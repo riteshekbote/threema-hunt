@@ -12919,3 +12919,13 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark-only dummy, purged at L233; not used for real encryption
 - LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: permanently downgraded; 404 has NO CORS headers; key not in desktop source
 - LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws; not structural class
+
+## RANKED HYPOTHESES 2026-08-20 10:10:18 UTC
+- [95] api.threema.ch/identity/*: Unauthenticated directory enumeration via api.threema.ch CORS misconfiguration (from reports/hypotheses-nemotron3.txt)
+- [90] api.threema.ch/identity/{match_token,check_revocation_key,update_work_info,set_featuremask,check}: api.threema.ch remaining 5 endpoint parity (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: Close api.threema.ch 5-endpoint parity gap — `curl -s -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_to
+- LEARN: NO_NEW_CLASS — all previously accepted findings byte-stable; no new vulnerability classes opened
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker: conditional RCE requires separate renderer exploit chain; surface accepted as hardening 
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark-only dummy, purged at L233; not used for real encryption
+- LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: permanently downgraded; 404 has NO CORS headers; key not in desktop source
+- LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws; not structural class
