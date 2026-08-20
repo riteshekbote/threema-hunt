@@ -25752,3 +25752,4 @@ testability: PASSIVE
 [RISK] safe: 30 — credential-gated (HTTP Basic Auth) with HSTS/Expect-CT header inconsistency; route-existence oracle; 5 hostnames behind single IP; safe.threema.ch (singular) timeout
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (6-path RAG chain, PoC absent 26+ cycles); BrowserWindow sandbox unset + nodeIntegrationInWorker true (conditional RCE, rejected as standalone)
 ## 2026-08-20 15:20:52 UTC [chat] (model bigpickle)
+## 2026-08-20 15:53:33 UTC [chat] (model bigpickle)
