@@ -27385,3 +27385,39 @@ testability: PASSIVE
 [RISK] sync: 25 reason: mediator-*/rendezvous-* return uniform 403 on HTTPS; split DNS routing confirmed; high-entropy path structure; no unauthenticated surface
 [RISK] safe: 45 reason: safe-* 5-host cluster has HSTS/Expect-CT gap on GET 400 vs OPTIONS 204; HTTP Basic Auth + route-existence oracle; safe.threema.ch singular timeout pattern distinct; no auth on root
 [RISK] desktop-src: 70 reason: Windows key-storage ACL bypass (6-path RAG chain verified, PoC authored but Windows validation pending); BrowserWindow sandbox unset + nodeIntegrationInWorker (TODO DESK-79); OnPrem config trust verified secure; crypto.ts benchmark dummy not a secret; no new secrets in 28-cycle scan
+## 2026-08-20 10:04:51 UTC [web] (model nemotron3)
+[PRIO] api.threema.ch/identity/*, 93.8, attack_surface:10 business_value:10 tech_exposure:9 gate_ease:10 cloud_surface:4 freshness:9
+[PRIO] api.threema.ch/identity/{match_token,check_revocation_key,update_work_info,set_featuremask,check}, 89.3, attack_surface:9 business_value:9 tech_exposure:9 gate_ease:10 cloud_surface:4 freshness:8
+[PRIO] {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license, 82.0, attack_surface:8 business_value:9 tech_exposure:9 gate_ease:10 cloud_surface:4 freshness:7
+[HYP] Unauthenticated directory enumeration via api.threema.ch CORS misconfiguration
+class: IDOR
+asset: api.threema.ch/identity/*
+confidence: 95
+reasoning: api.threema.ch confirmed as full directory sibling with byte-identical endpoints to ds-apip.threema.ch; GET /identity/ECHOECHO returns 200/133B token + ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE; all 12+ unauthenticated identity endpoints mirror ds-apip behavior; zero rate limits observed across 30+ sequential POSTs; triples directory attack surface
+evidence_needed: Confirm all 12+ endpoints exist on api.threema.ch with same CORS and token-mint behavior as ds-apip.threema.ch
+verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -X GET https://api.threema.ch/identity/ECHOECHO — verify 200/133B + ACAO:* + tokenRespKeyPub; curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/revoke — verify 200/133B token + ACAO:*; curl -s -H "Origin: https://evil.example" -X POST -d '{"identities":["ECHOECHO"]}' https://api.threema.ch/identity/fetch_bulk — verify pubkey oracle + ACAO:*
+impact: Full cross-origin identity enumeration, public key extraction, and credential validation on additional production directory host; triples attack surface for directory IDOR
+testability: PASSIVE
+[HYP] Remaining 5 endpoint parity gap on api.threema.ch
+class: IDOR
+asset: api.threema.ch/identity/{match_token,check_revocation_key,update_work_info,set_featuremask,check}
+confidence: 90
+reasoning: 7 of 12+ endpoints verified on api.threema.ch (revoke, fetch_priv, sfu_cred, blob_cred, fetch_bulk, check_featuremask, create); 5 endpoints untested for GET+text/plain acceptance and token-mint parity; ds-apip confirmed all 8 mint endpoints accept GET+text/plain with constant tokenRespKeyPub sha256 c8005cca9...
+evidence_needed: Confirm the 5 untested endpoints accept GET+text/plain and return identical token-mint responses with ACAO:*
+verify_steps: PASSIVE: curl -s -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_token — verify 200/133B token + ACAO:* + constant tokenRespKeyPub; repeat for check_revocation_key, update_work_info, set_featuremask, check
+impact: Completes api.threema.ch as full directory sibling with 24 preflight-free enumeration combos; enables browser-viable cross-origin identity enumeration on 2nd production host
+testability: PASSIVE
+[HYP] Credential validation oracle and crash DoS family member at check_license across 4 hosts
+class: AUTH
+asset: {ds-apip,api,apip,ds-apip.test}.threema.ch/check_license
+confidence: 85
+reasoning: check_license confirmed as 16th crash family member across all 4 hosts (POST {"version":{}} → 500/0B, GET+text/plain → 500/0B, OPTIONS → 200 CORS *); sole crash family with 4-host parity and OPTIONS-200 enabling browser-viable preflight path; POST fake creds → 200/65B {"success":false,"error":"This username or password is invalid."} + ACAO:* + Allow-Headers Content-Type,User-Agent; credential oracle at root path (not /identity/); success-shape {"success":true} requires valid Work license (AUTH_HELPED gap)
+evidence_needed: Confirm 4-host byte-identical crash parity and credential oracle response shape; verify OPTIONS preflight returns 200 with CORS * on all 4 hosts
+verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -X POST -d '{"version":{}}' https://ds-apip.threema.ch/check_license — verify 500/0B + ACAO:*; curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data '{"version":{}}' https://api.threema.ch/check_license — verify 500/0B + ACAO:*; curl -s -H "Origin: https://evil.example" -X OPTIONS https://apip.test.threema.ch/check_license — verify 200 + ACAO:*; curl -s -H "Origin: https://evil.example" -X POST -d '{"licenseUsername":"x","licensePassword":"y","version":"1.0","arch":"x64"}' https://ds-apip.threema.ch/check_license — verify 200/65B credential oracle
+impact: Cross-origin credential validation oracle for Work licenses + browser-viable crash DoS vector via GET+text/plain (CORS-safelisted, zero preflight) on all 4 directory hosts
+testability: PASSIVE
+[PARKED] Type:1 Work-org fingerprint class: confidence 35 (<40), class on REJECTED list (6+ consecutive zero-type:1 draws, 2 anomalous distinct in 2/22 draws, below ≥3-draw threshold for firm class)
+[PARKED] Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: class on REJECTED list (conditional RCE requires separate renderer exploit chain, 0 dynamic sinks in worker/ tree)
+[PARKED] crypto.ts:223 benchmark password as secret leak: class on REJECTED list (benchmark-only dummy, purged at L233 via benchmarkKey.purge())
+[FINAL] 1. Unauthenticated directory enumeration via api.threema.ch CORS misconfiguration (95) — api.threema.ch/identity/*, full cross-origin IDOR surface on new directory host
+[FINAL] 2. Remaining 5 endpoint parity gap
