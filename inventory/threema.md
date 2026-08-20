@@ -6986,3 +6986,22 @@
 - CHANGED Staging crash parity CLOSED: ds-apip.test.threema.ch /identity/fetch_priv + /identity/create with malformed JSON → HTTP/2 500/0B + ACAO:* — crash family spans prod trio + staging
 - CHANGED api.threema.ch/identity/blob_cred: GET+body connection hold (curl-28 timeout 15s/20s, 2/2) while POST answers — unique method-handling divergence, unclassified; 1-retest budget remains this cycle per 
 - CHANGED api.threema.ch/identity/blob_cred: GET+body connection hold (curl-28 timeout 15s/20s, 2/2) while POST answers — unique method-handling divergence, unclassified; 1-retest budget remains this cycle per 
+
+## 2026-08-20 23:04:10 UTC
+- NEW api.threema.ch confirmed as full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE (was 403-on-root only at bas
+- NEW api.threema.ch GET-acceptance map: 5/6 mint endpoints accept GET+text/plain body (match_token, check_revocation_key, update_work_info, set_featuremask, sfu_cred → 200/133-135B token + ACAO:*); blob_cr
+- NEW apip.test.threema.ch staging directory server live — GET/POST /identity/* 200, CORS *, HSTS (max-age=31104000), Expect-CT; logic-identical/data-disjoint mirror of production
+- NEW ds-apip.threema.ch/identity/fetch_priv crash gap closed — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; all 8 mint endpoints now in crash family
+- NEW Crash/error paths carry ACAO:* (500/0B reflects wildcard CORS on all error responses, browser-readable)
+- NEW Staging crash parity closed: ds-apip.test.threema.ch /identity/fetch_priv + /identity/create with malformed JSON → HTTP/2 500/0B + ACAO:* — crash family spans prod trio + staging
+- CHANGED Production directory servers (ds-apip, api, apip) lack HSTS/Expect-CT on error responses; staging counterparts (ds-apip.test, apip.test) have both — deployment inconsistency confirmed
+- CHANGED work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+- CHANGED broadcast.threema.ch/gateway.threema.ch/billing.threema.ch/work.threema.ch/shop.threema.ch — previously TIMEOUT, now accessible with redirects + session cookies + CSP + Sentry
+- CHANGED /identity/revoke query-param variant confirmed returns 46B universally — not a token-mint vector (POST-body or GET+text/plain body required)
+- CHANGED /identity/fetch_bulk confirmed NOT crash-family member — malformed input returns 200/17B graceful validation
+- CHANGED /identity/delete crash membership corrected — returns 404 on all probes; crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- CHANGED apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
+- NEW poc/api-crossorigin-oracle-poc.html: first verified on-disk PoC artifact after 25+ cycles of false KB claims — sha256 99cb83737f1b272e…, runtime-proven this cycle.
+- CHANGED api.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN — headless Chrome 151 from origin http://127.0.0.1:8099 read mint 200/45ms token JSON + check 200/1
+- CHANGED ds-apip.test.threema.ch/identity/match_token: staging GET+text/plain mint parity CONFIRMED — ECHOECHO→200/~133B token, ZZZZZZZZ→200/46B "Identity not found", same constant tokenRespKeyPub sha256 c8005
+- CHANGED api.threema.ch/identity/blob_cred: GET-hold did NOT reproduce — GET and POST control both 200/~0.76s valid token shape; transient edge flake → FINAL #3 resolved REJECTED, permanently discarded per par
