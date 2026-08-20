@@ -25753,3 +25753,4 @@ testability: PASSIVE
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (6-path RAG chain, PoC absent 26+ cycles); BrowserWindow sandbox unset + nodeIntegrationInWorker true (conditional RCE, rejected as standalone)
 ## 2026-08-20 15:20:52 UTC [chat] (model bigpickle)
 ## 2026-08-20 15:53:33 UTC [chat] (model bigpickle)
+## 2026-08-20 16:30:13 UTC [chat] (model bigpickle)
