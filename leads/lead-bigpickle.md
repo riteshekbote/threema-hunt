@@ -25340,3 +25340,4 @@ testability: PASSIVE
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (6-path RAG chain, PoC absent 26+ cycles); BrowserWindow sandbox unset + nodeIntegrationInWorker true (conditional RCE, rejected as standalone)
 [RISK] chat: 99 — 32 zero-preflight CORS-safelisted enumeration vectors
 ## 2026-08-20 05:52:52 UTC [chat] (model bigpickle)
+## 2026-08-20 06:20:16 UTC [chat] (model bigpickle)
