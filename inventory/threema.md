@@ -6974,3 +6974,15 @@
 - NEW api.threema.ch GET-acceptance map CLOSED: 5/6 mint endpoints accept GET+text/plain body — match_token/check_revocation_key/update_work_info/set_featuremask/sfu_cred → 200/133–135B token + ACAO:*; inva
 - NEW blob_cred GET+body → connection hang (curl(28) timeout at 15s and 20s, 2/2 attempts) while POST path answers — unique drop behavior on api.threema.ch, diverges from siblings that answer all methods.
 - CHANGED Staging crash parity CLOSED: ds-apip.test.threema.ch /identity/fetch_priv + /identity/create with malformed JSON → HTTP/2 500/0B + ACAO:* — both join staging crash family; family now spans prod trio +
+
+## 2026-08-20 22:36:56 UTC
+- NEW api.threema.ch/identity/* full parity confirmed — 8/8 mint endpoints return 200/133-135B token + constant tokenRespKeyPub sha256 c8005cca9…; batch check oracle parity (200/76B with ECHOECHO mask:9 fir
+- NEW api.threema.ch GET-acceptance map: 5/6 mint endpoints accept GET+text/plain body (match_token, check_revocation_key, update_work_info, set_featuremask, sfu_cred → 200/133-135B token + ACAO:*)
+- NEW api.threema.ch blob_cred GET+body → connection hang (curl(28) timeout) while POST answers — unique method drop behavior diverging from ds-apip/apip siblings
+- NEW ds-apip.threema.ch/identity/fetch_priv crash gap CLOSED — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; all 8 mint endpoints now in crash family
+- NEW Crash/error paths carry ACAO:* (500/0B reflects wildcard CORS on all error responses, browser-readable)
+- CHANGED api.threema.ch now confirmed full directory sibling — all 12+ endpoints mirror ds-apip with byte-identical responses
+- CHANGED apip.test.threema.ch staging mirror live with HSTS/Expect-CT + identical API surface
+- CHANGED Staging crash parity CLOSED: ds-apip.test.threema.ch /identity/fetch_priv + /identity/create with malformed JSON → HTTP/2 500/0B + ACAO:* — crash family spans prod trio + staging
+- CHANGED api.threema.ch/identity/blob_cred: GET+body connection hold (curl-28 timeout 15s/20s, 2/2) while POST answers — unique method-handling divergence, unclassified; 1-retest budget remains this cycle per 
+- CHANGED api.threema.ch/identity/blob_cred: GET+body connection hold (curl-28 timeout 15s/20s, 2/2) while POST answers — unique method-handling divergence, unclassified; 1-retest budget remains this cycle per 

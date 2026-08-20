@@ -1,23 +1,81 @@
-## 2026-08-20 22:05:52 UTC [chat] (model bigpickle)
-[NEW] api.threema.ch GET-acceptance map CLOSED: 5/6 mint endpoints accept GET+text/plain body — match_token/check_revocation_key/update_work_info/set_featuremask/sfu_cred → 200/133–135B token + ACAO:*; invalid identity → 200/46B parity holds over GET. Evidence: /tmp/opencode/probe-20260820b/get-*.hdr|*.body; token sha256s da13ddd9a1fd4161, 726333a63c0dae44, 225c0bbb4d331a87, f11de908c4ddb6c3, bfb3937a474a86b8.
-[NEW] blob_cred GET+body → connection hang (curl(28) timeout at 15s and 20s, 2/2 attempts) while POST path answers — unique drop behavior on api.threema.ch, diverges from siblings that answer all methods.
-[CHANGED] Staging crash parity CLOSED: ds-apip.test.threema.ch /identity/fetch_priv + /identity/create with malformed JSON → HTTP/2 500/0B + ACAO:* — both join staging crash family; family now spans prod trio + both staging mirrors. Evidence: stg-fetchpriv.hdr/body, stg-create.hdr/body.
-[PRIO] #1 api.threema.ch zero-preflight identity-oracle chain (IDOR/MISCONFIG) — 5/6 GET-accepted mints + wildcard CORS incl. error paths + batch check oracle = full browser-JS recon/mint chain on 4th prod host, no preflight, no auth | effort LOW | impact MED-HIGH | confidence HIGH (direct probe).
-[PRIO] #2 Directory crash family, 16 endpoint-families × prod trio + staging mirrors, errors CORS-readable (MISCONFIG) — environment gap now closed | effort LOW | impact MED | confidence HIGH.
-[PRIO] #3 Census primitive (IDOR) — 11 live-active IDs, tri-state oracle, density ~6.5e-6 converged over 22 draws, zero rate-limit events | effort LOW | impact MED | confidence HIGH.
-class: IDOR/MISCONFIG
-confidence: HIGH
-impact: Unauthenticated per-identity state/capability disclosure and token minting from victim browsers
+## 2026-08-20 22:36:39 UTC [chat] (model bigpickle)
+[CHANGED] api.threema.ch/identity/blob_cred: GET+body connection hold (curl-28 timeout 15s/20s, 2/2) while POST answers — unique method-handling divergence, unclassified; 1-retest budget remains this cycle per park rule
+[PRIO] api.threema.ch/identity/* score 7.90 (attack 9, business 8, tech 7, gate 10, cloud 2, fresh 9)
+[PRIO] {ds-apip,api,apip}.threema.ch crash family (16 families × 3 prod + 2 staging) score 6.90 (attack 8, business 6, tech 6, gate 10, cloud 2, fresh 8)
+[PRIO] ds-apip.threema.ch/identity/check_featuremask census score 6.65 (attack 7, business 7, tech 5, gate 10, cloud 2, fresh 7)
+[HYP] Browser-context zero-preflight cross-origin identity-oracle chain on api.threema.ch
+class: IDOR
+asset: api.threema.ch/identity/{match_token,check}
+confidence: 90
+reasoning: Every response carries ACAO:* including 500/0B error paths; 5/6 mint endpoints accept GET+text/plain (CORS-safelisted → zero preflight); POST /identity/check returns states/types/featureMasks unauthenticated.
+evidence_needed: Headless-browser console + network log from an attacker-origin page showing parsed JSON of the mint token and a 3-ID batch read with zero OPTIONS preflight fired.
+verify_steps: PASSIVE: render local HTML PoC issuing GET https://api.threema.ch/identity/match_token (text/plain body {"identity":"ECHOECHO"}) then POST https://api.threema.ch/identity/check {"identities":["5U8DM3J3","RFK5RDU6","ECHOECHO"]}; ≤3 requests total, capture console+HAR.
+impact: Any web page can enumerate Threema identities and read activity/capability state from victim browsers with no preflight and no auth; enables census + targeted-phishing attribution; HIGH.
+testability: PASSIVE
+[HYP] Staging mirrors share GET+text/plain mint acceptance (browser-viable enumeration extends to staging)
 class: MISCONFIG
-confidence: MEDIUM
-impact: Possible edge connection-pool exhaustion; also maps per-endpoint method-handling drift
-class: RECON
-confidence: HIGH
-impact: Hardens population estimate used for exposure quantification in reports
-[PARKED] blob_cred hang may be transient network flake — max 1 retest next cycle before discarding; do not classify on current evidence.
-[PARKED] Census draw 23 deferred — 4.4MB POST unjustified while density already converged; schedule for idle window.
-[FINAL] GET-acceptance map and staging crash parity are CLOSED — no further probes on either item; pivot to PoC assembly.
-[NEXT] PROBE→POC: assemble single-file HTML PoC for PRIO#1 (cross-origin fetch: GET match_token mint → POST /identity/check batch read of 5U8DM3J3/RFK5RDU6/ECHOECHO), run once against live host to capture console evidence, then draft report citing /tmp/opencode/probe-20260820b/* sha256s.
-[LEARN] Method-permissiveness drifts per deployment within one codebase: api.threema.ch accepts GET-with-body on 5/6 mint endpoints while ds-apip/api/apip siblings restrict GET to revoke/set_featuremask — never infer method policy from sibling behavior.
-[LEARN] Wildcard CORS on error paths is uniform across prod and staging (HTTP/2 500/0B carries ACAO:*), making crash-family responses browser-readable everywhere — include error-path CORS in every directory-server report.
-[RISK] chat=8 web=7 sync=5 safe=6 desktop-src=6
+asset: ds-apip.test.threema.ch/identity/match_token
+confidence: 70
+reasoning: Staging crash parity just closed (fetch_priv/create → 500/0B + ACAO:*), proving shared handler deployed cross-environment; GET-acceptance map was only mapped on prod api host, and method policy is known to drift per deployment.
+evidence_needed: GET+text/plain valid/invalid identity pair on staging returning 200/133B token vs 200/46B with ACAO:*.
+verify_steps: PASSIVE: curl -sS -X GET -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://ds-apip.test.threema.ch/identity/match_token ; repeat with ZZZZZZZZ; ≤1 rps.
+impact: Adds 2 staging hosts to the zero-preflight browser-viable enumeration surface; MED.
+testability: PASSIVE
+[HYP] blob_cred GET+body connection hold is systematic handler/edge behavior on api.threema.ch
+class: OTHER
+asset: api.threema.ch/identity/blob_cred
+confidence: 45
+reasoning: 2/2 GET attempts hung to curl timeout while POST answers instantly on same host/path; sibling endpoints answer all methods; candidate causes are WAF rule, handler socket-hold, or transient flake.
+evidence_needed: Single clean retest (final budget per park rule): fresh connection, GET+text/plain valid identity, 30s timeout, plus immediate POST control in same window.
+verify_steps: PASSIVE: curl -sS -m 30 -X GET -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/blob_cred ; then POST control; classify only if reproducible.
+impact: If systematic: confirms per-endpoint method-drift and a potential slow connection-hold on the edge; LOW-MED.
+testability: PASSIVE
+[PARKED] Census draw 23 density convergence: deferred — 4.4MB POST unjustified while density converged (~6.5e-6, 22 draws); revisit in idle window
+[PARKED] check_license success-shape {"success":true}: AUTH_HELPED — requires valid Work license, not passively verifiable
+[PARKED] type:1 Work-org fingerprint: REJECTED class — anomalous identities, not structural
+[FINAL] 1. Browser-context zero-preflight chain PoC @ api.threema.ch — confidence 90, PASSIVE
+[FINAL] 2. Staging GET-mint parity @ ds-apip.test.threema.ch — confidence 70, PASSIVE
+[FINAL] 3. blob_cred GET-hold retest @ api.threema.ch — confidence 45, PASSIVE (discard permanently if flake)
+[NEXT] PROBE: author poc/api-crossorigin-oracle-poc.html (cross-origin fetch GET https://api.threema.ch/identity/match_token text/plain {"identity":"ECHOECHO"} → fetch POST https://api.threema.ch/identity/check {"identities":["5U8DM3J3","RFK5RDU6","ECHOECHO"]}, JSON logged to console), run ONCE via chromium --headless=new with console/HAR capture saved to /tmp/opencode/poc-evidence/, sha256sum all artifacts for report citation.
+[LEARN] NO_NEW_CLASS — no target-facing probes since last cycle close; all prior classifications stand byte-stable (REJECTED: crypto.ts:223 benchmark dummy, BrowserWindow sandbox standalone RCE, X-Api-Key oracle, type:1 fingerprint, revoke query-param mint, fetch_bulk/delete crash membership; ACCEPTED: 24+ combo zero-preflight mint cluster, 16-family crash matrix, census tri-state oracle)
+[RISK] chat: 95 — 4th prod host fully parity'd (8/8 mints, 5/6 GET-accepted zero-preflight, batch check oracle, wildcard CORS incl. error paths); crash family 16×5 hosts; census 11 live-active IDs; browser-context PoC is the last proof gap | web: 15 — static redirects + billing assets only; global_settings captcha-gated | sync: 5 — mediator/rendezvous uniform 403; TCP handshake auth-gated; alt ports closed | safe: 30 — Basic-auth gated backup API, route-existence oracle, HSTS/Expect-CT absent on GET 400 error path | desktop-src: 35 — key-storage Windows ACL chain source-verified (PoC artifact still absent); sandbox gap rejected as standalone
+[CHANGED] api.threema.ch/identity/blob_cred: GET+body connection hold (curl-28 timeout 15s/20s, 2/2) while POST answers — unique method-handling divergence, unclassified; 1-retest budget remains this cycle per park rule
+[PRIO] api.threema.ch/identity/* score 7.90 (attack 9, business 8, tech 7, gate 10, cloud 2, fresh 9)
+[PRIO] {ds-apip,api,apip}.threema.ch crash family (16 families × 3 prod + 2 staging) score 6.90 (attack 8, business 6, tech 6, gate 10, cloud 2, fresh 8)
+[PRIO] ds-apip.threema.ch/identity/check_featuremask census score 6.65 (attack 7, business 7, tech 5, gate 10, cloud 2, fresh 7)
+[HYP] Browser-context zero-preflight cross-origin identity-oracle chain on api.threema.ch
+class: IDOR
+asset: api.threema.ch/identity/{match_token,check}
+confidence: 90
+reasoning: Every response carries ACAO:* including 500/0B error paths; 5/6 mint endpoints accept GET+text/plain (CORS-safelisted → zero preflight); POST /identity/check returns states/types/featureMasks unauthenticated.
+evidence_needed: Headless-browser console + network log from an attacker-origin page showing parsed JSON of the mint token and a 3-ID batch read with zero OPTIONS preflight fired.
+verify_steps: PASSIVE: render local HTML PoC issuing GET https://api.threema.ch/identity/match_token (text/plain body {"identity":"ECHOECHO"}) then POST https://api.threema.ch/identity/check {"identities":["5U8DM3J3","RFK5RDU6","ECHOECHO"]}; ≤3 requests total, capture console+HAR.
+impact: Any web page can enumerate Threema identities and read activity/capability state from victim browsers with no preflight and no auth; enables census + targeted-phishing attribution; HIGH.
+testability: PASSIVE
+[HYP] Staging mirrors share GET+text/plain mint acceptance (browser-viable enumeration extends to staging)
+class: MISCONFIG
+asset: ds-apip.test.threema.ch/identity/match_token
+confidence: 70
+reasoning: Staging crash parity just closed (fetch_priv/create → 500/0B + ACAO:*), proving shared handler deployed cross-environment; GET-acceptance map was only mapped on prod api host, and method policy is known to drift per deployment.
+evidence_needed: GET+text/plain valid/invalid identity pair on staging returning 200/133B token vs 200/46B with ACAO:*.
+verify_steps: PASSIVE: curl -sS -X GET -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://ds-apip.test.threema.ch/identity/match_token ; repeat with ZZZZZZZZ; ≤1 rps.
+impact: Adds 2 staging hosts to the zero-preflight browser-viable enumeration surface; MED.
+testability: PASSIVE
+[HYP] blob_cred GET+body connection hold is systematic handler/edge behavior on api.threema.ch
+class: OTHER
+asset: api.threema.ch/identity/blob_cred
+confidence: 45
+reasoning: 2/2 GET attempts hung to curl timeout while POST answers instantly on same host/path; sibling endpoints answer all methods; candidate causes are WAF rule, handler socket-hold, or transient flake.
+evidence_needed: Single clean retest (final budget per park rule): fresh connection, GET+text/plain valid identity, 30s timeout, plus immediate POST control in same window.
+verify_steps: PASSIVE: curl -sS -m 30 -X GET -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/blob_cred ; then POST control; classify only if reproducible.
+impact: If systematic: confirms per-endpoint method-drift and a potential slow connection-hold on the edge; LOW-MED.
+testability: PASSIVE
+[PARKED] Census draw 23 density convergence: deferred — 4.4MB POST unjustified while density converged (~6.5e-6, 22 draws); revisit in idle window
+[PARKED] check_license success-shape {"success":true}: AUTH_HELPED — requires valid Work license, not passively verifiable
+[PARKED] type:1 Work-org fingerprint: REJECTED class — anomalous identities, not structural
+[FINAL] 1. Browser-context zero-preflight chain PoC @ api.threema.ch — confidence 90, PASSIVE
+[FINAL] 2. Staging GET-mint parity @ ds-apip.test.threema.ch — confidence 70, PASSIVE
+[FINAL] 3. blob_cred GET-hold retest @ api.threema.ch — confidence 45, PASSIVE (discard permanently if flake)
+[NEXT] PROBE: author poc/api-crossorigin-oracle-poc.html (cross-origin fetch GET https://api.threema.ch/identity/match_token text/plain {"identity":"ECHOECHO"} → fetch POST https://api.threema.ch/identity/check {"identities":["5U8DM3J3","RFK5RDU6","ECHOECHO"]}, JSON logged to console), run ONCE via chromium --headless=new with console/HAR capture saved to /tmp/opencode/poc-evidence/, sha256sum all artifacts for report citation.
+[LEARN] NO_NEW_CLASS — no target-facing probes since last cycle close; all prior classifications stand byte-stable (REJECTED: crypto.ts:223 benchmark dummy, BrowserWindow sandbox standalone RCE, X-Api-Key oracle, type:1 fingerprint, revoke query-param mint, fetch_bulk/delete crash membership; ACCEPTED: 24+ combo zero-preflight mint cluster, 16-family crash matrix, census tri-state oracle)
+[RISK] chat: 95 — 4th prod host fully parity'd (8/8 mints, 5/6 GET-accepted zero-preflight, batch check oracle, wildcard CORS incl. error paths); crash family 16×5 hosts; census 11 live-active IDs; browser-context PoC is the last proof gap | web: 15 — static redirects + billing assets only; global_settings captcha-gated | sync: 5 — mediator/rendezvous uniform 403; TCP handshake auth-gated; alt ports closed | safe: 30 — Basic-auth gated backup API, route-existence oracle, HSTS/Expect-CT absent on GET 400 error path | desktop-src: 35 — key-storage Windows ACL chain source-verified (PoC artifact still absent); sandbox gap rejected as standalone
