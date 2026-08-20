@@ -1,4 +1,20 @@
-## 2026-08-20 05:17:59 UTC [web] (model nemotron3)
+## 2026-08-20 05:49:56 UTC [web] (model nemotron3)
+[NEW] api.threema.ch confirmed as full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE (was 403-on-root only)
+[NEW] apip.test.threema.ch staging directory server live — GET/POST /identity/* 200, CORS *, HSTS, Expect-CT; logic-identical/data-disjoint mirror of production
+[NEW] safe.threema.ch (singular) — timeout/no response, backup service pattern candidate distinct from safe-* 5-host cluster
+[CHANGED] work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+[CHANGED] broadcast.threema.ch/gateway.threema.ch/billing.threema.ch/work.threema.ch/shop.threema.ch — previously TIMEOUT, now accessible with redirects + session cookies + CSP + Sentry
+[CHANGED] /identity/revoke query-param variant confirmed returns 46B universally — not a token-mint vector (POST-body or GET+text/plain body required)
+[CHANGED] /identity/fetch_bulk confirmed NOT crash-family member — malformed input returns 200/17B graceful validation
+[CHANGED] /identity/delete crash membership corrected — returns 404 on all probes; crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+[CHANGED] Production directory servers (ds-apip, apip, api) all lack HSTS/Expect-CT; staging counterparts have both
+[CHANGED] apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
+[CHANGED] work.threema.ch: Now responds with 301 to /en/login with PHP session cookie, CSP, Sentry reporting
+[CHANGED] shop.threema.ch: Now responds with 301 to /en with CSP, Sentry, hCaptcha subdomain
+[CHANGED] broadcast.threema.ch: Now responds 301 to /en/login with session cookie, CSP, Sentry
+[CHANGED] gateway.threema.ch: Now responds 302 to /en with session cookie, CSP, Sentry
+[CHANGED] billing.threema.ch: Now responds 301 to threema.ch (redirects to main site)
+[CHANGED] apip.threema.ch: Confirmed 403 with CORS headers allowing POST/GET/OPTIONS/DELETE
 [PRIO] api.threema.ch/identity/*, 9.15, attack_surface:10 business_value:10 tech_exposure:9 gate_ease:10 cloud_surface:4 freshness:9
 [PRIO] apip.test.threema.ch/identity/*, 8.15, attack_surface:9 business_value:8 tech_exposure:8 gate_ease:10 cloud_surface:4 freshness:8
 [PRIO] {ds-apip,api,apip}.threema.ch/identity/{sfu_cred,blob_cred,update_work_info,match_token,check_revocation_key,fetch_priv}, 7.45, attack_surface:9 business_value:7 tech_exposure:8 gate_ease:10 cloud_surface:4 freshness:6
@@ -29,6 +45,9 @@ evidence_needed: Verify GET+text/plain with body {"identity":"ECHOECHO"} returns
 verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data '{"identity":"ECHOECHO"}' https://ds-apip.threema.ch/identity/sfu_cred — verify 200/133B + ACAO:*; repeat for blob_cred, update_work_info, match_token, check_revocation_key, fetch_priv on ds-apip, api, apip
 impact: Preflight-free browser-viable enumeration vector expands from 2 to 8 endpoints; zero-preflight cross-origin identity existence oracle across full token-mint cluster
 testability: PASSIVE
+[PARKED] Type:1 Work-org fingerprint class: confidence 35 (<40), class not on REJECTED list but evidence insufficient (2 anomalous distinct in 2/22 draws, 6+ consecutive zero-type:1 draws); below ≥3-draw threshold for firm class
+[PARKED] Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: class on REJECTED list (conditional RCE requires separate renderer exploit chain, 0 dynamic sinks); confidence would be <40 for standalone
+[PARKED] crypto.ts:223 benchmark password as secret leak: class on REJECTED list (benchmark-only dummy, purged at L233); confidence 0
 [FINAL] 1. Unauthenticated directory enumeration via api.threema.ch CORS misconfiguration (95) — api.threema.ch/identity/*, full cross-origin IDOR surface on new directory host
 [FINAL] 2. Staging directory server mirror with HSTS/Expect-CT but identical API surface (80) — apip.test.threema.ch, staging mirror with production surface for safe testing
 [FINAL] 3. GET+text/plain preflight-free expansion on remaining 6 token-mint endpoints (72) — {ds-apip,api,apip}.threema.ch/identity/{sfu_cred,blob_cred,update_work_info,match_token,check_revocation_key,fetch_priv}, preflight-free browser vector across cluster
