@@ -31120,3 +31120,4 @@ testability: AUTH_HELPED
 [RISK] desktop-src: 70 reason: Electron app with large attack surface (RCE potential); source available for static analysis
 [PRIO] apip.threema.ch, 7.8, attack=8 business=9 tech=7 gate=9 cloud=6 fresh=8
 [PRIO] threema-desktop (source), 7.5, attack=8 business=8 tech=8 gate=10 cloud=5 fresh=7
+## 2026-08-20 05:16:32 UTC [desktop] (model laguna)

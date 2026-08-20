@@ -6706,3 +6706,5 @@
 - CHANGED apip.threema.ch: Confirmed 403 with CORS headers allowing POST/GET/OPTIONS/DELETE (was 403, now detailed)
 - NEW api.threema.ch: Returns 403 with same CORS headers as apip.threema.ch (likely related ID service)
 - NEW safe.threema.ch: Timeout/no response (backup service pattern candidate)
+
+## 2026-08-20 05:18:59 UTC
