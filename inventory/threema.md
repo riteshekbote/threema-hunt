@@ -6928,3 +6928,5 @@
 - CHANGED apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
 
 ## 2026-08-20 19:40:16 UTC
+
+## 2026-08-20 19:59:16 UTC
