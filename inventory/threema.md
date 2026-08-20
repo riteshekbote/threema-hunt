@@ -6806,3 +6806,9 @@
 - CHANGED apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
 
 ## 2026-08-20 11:37:14 UTC
+
+## 2026-08-20 12:00:06 UTC
+- NEW api.threema.ch confirmed as full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE (was 403-on-root only at bas
+- NEW apip.test.threema.ch staging directory server live — GET/POST /identity/* 200, CORS *, HSTS, Expect-CT; logic-identical/data-disjoint mirror of production
+- NEW safe.threema.ch (singular) — timeout/no response, backup service pattern candidate distinct from safe-* 5-host cluster
+- CHANGED Production directory servers (ds-apip, api, apip) all lack HSTS/Expect-CT on error responses; staging counterparts (ds-apip.test, apip.test) have both — deployment inconsistency confirmed
