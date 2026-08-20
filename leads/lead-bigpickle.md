@@ -26038,3 +26038,4 @@ verify_steps: single curl GET+text/plain valid/invalid pair at ≤1 rps
 [LEARN] ACCEPTED MISCONFIG @ ds-apip.test.threema.ch: staging directory server mirrors prod GET+text/plain mint acceptance byte-for-byte (tri-state bodies + shared constant key sha256 c8005cca9…).
 [LEARN] LEARN TECH @ fetch API: browsers cannot attach bodies to GET requests (fetch throws TypeError; XHR silently drops) — the browser-viable zero-preflight primitive is POST + Content-Type:text/plain simple request; prior KB framing "GET+text/plain preflight-free" is a curl-only capability, corrected.
 [RISK] chat: 97 (browser-context exploitation demonstrated end-to-end; residual gap is cross-host generalization only) | web: 15 | sync: 5 | safe: 30 | desktop-src: 35.
+## 2026-08-20 23:30:12 UTC [chat] (model bigpickle)
