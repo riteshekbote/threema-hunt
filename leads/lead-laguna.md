@@ -31000,3 +31000,4 @@ testability: PASSIVE
 [RISK] safe: 45 reason: safe-* 5-host cluster has HSTS/Expect-CT gap on GET 400 vs OPTIONS 204; HTTP Basic Auth + route-existence oracle; safe.threema.ch singular timeout pattern distinct; no auth on root
 [RISK] desktop-src: 70 reason: Windows key-storage ACL bypass (6-path RAG chain verified, PoC authored but Windows validation pending); BrowserWindow sandbox unset + nodeIntegrationInWorker (TODO DESK-79); OnPrem config trust verified secure; crypto.ts benchmark dummy not a secret; no new secrets in 28-cycle scan
 ## 2026-08-20 02:43:04 UTC [desktop] (model laguna)
+## 2026-08-20 03:34:03 UTC [desktop] (model laguna)
