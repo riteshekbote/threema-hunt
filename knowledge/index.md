@@ -2318,3 +2318,5 @@
 - 2026-08-20 REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determineKdfParams(), purged at L233
 - 2026-08-20 ACCEPTED MISCONFIG @ Production directory servers HSTS gap: ds-apip/api/apip lack HSTS/Expect-CT on error responses; staging counterparts have both — deployment inconsistency confirmed
 - 2026-08-20 NO_NEW_CLASS — all prior findings byte-stable; no new vulnerability classes opened.
+- 2026-08-20 Method-permissiveness drifts per deployment within one codebase: api.threema.ch accepts GET-with-body on 5/6 mint endpoints while ds-apip/api/apip siblings restrict GET to revoke/set_featuremask — never infer method policy from sibling behavior.
+- 2026-08-20 Wildcard CORS on error paths is uniform across prod and staging (HTTP/2 500/0B carries ACAO:*), making crash-family responses browser-readable everywhere — include error-path CORS in every directory-server report.
