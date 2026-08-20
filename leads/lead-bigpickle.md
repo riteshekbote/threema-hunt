@@ -25761,3 +25761,36 @@ testability: PASSIVE
 ## 2026-08-20 19:13:52 UTC [chat] (model bigpickle)
 ## 2026-08-20 19:39:55 UTC [chat] (model bigpickle)
 ## 2026-08-20 19:57:25 UTC [chat] (model bigpickle)
+## 2026-08-20 20:20:21 UTC [chat] (model bigpickle)
+[HYP] api.threema.ch/identity/* parity closure
+class: IDOR
+asset: api.threema.ch/identity/{match_token,check_revocation_key,update_work_info,set_featuremask,check}
+confidence: 90
+reasoning: 3/8 token-mint endpoints confirmed byte-identical on api.threema.ch (sfu_cred, blob_cred, fetch_priv) with constant tokenRespKeyPub. Shared handler proven. Remaining 5 share same code path.
+evidence_needed: GET+text/plain responses from 5 remaining api.threema.ch endpoints for ECHOECHO and ZZZZZZZZ, plus POST /identity/check batch
+verify_steps: PASSIVE: `curl -s -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_token` then repeat for check_revocation_key, update_work_info, set_featuremask; then POST check
+impact: Extends 24→32 zero-preflight combos, 120→160 crash combos
+testability: PASSIVE
+[HYP] fetch_priv crash gap closure
+class: MISCONFIG
+asset: ds-apip.threema.ch/identity/fetch_priv
+confidence: 80
+reasoning: 7/8 token-mint endpoints confirmed crashing. fetch_priv sole unconfirmed due to 88B rev-aware error body routing.
+evidence_needed: POST {"identity":{"x":1}} to fetch_priv → verify 500/0B or 200/88B
+verify_steps: PASSIVE: `curl -s -X POST -H "Content-Type: application/json" -d '{"identity":{"x":1}}' https://ds-apip.threema.ch/identity/fetch_priv`
+impact: Extends crash family 15→16 or proves handler divergence
+testability: PASSIVE
+[HYP] Census draw 23+ density convergence
+class: IDOR
+asset: ds-apip.threema.ch/identity/check_featuremask
+confidence: 85
+reasoning: 22 draws converge ~6.5e-6 density, 11 distinct live-active. Poisson λ≈2.6 per 400k.
+evidence_needed: Fresh 400k-ID POST yielding 0-4 hits
+verify_steps: PASSIVE: POST 400k random IDs to /identity/check_featuremask
+impact: Reinforces census primitive for population estimation
+testability: PASSIVE
+[FINAL] 1. api.threema.ch remaining 5-endpoint parity — 90 confidence, PASSIVE
+[FINAL] 2. Census draw 23+ — 85 confidence, PASSIVE
+[FINAL] 3. fetch_priv crash gap — 80 confidence, PASSIVE
+[NEXT] PROBE: Close api.threema.ch 5-endpoint parity + fetch_priv crash gap in single pass — `curl -s -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_token` then repeat for check_revocation_key, update_work_info, set_featuremask; then `curl -s -X POST -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://api.threema.ch/identity/check`; then `curl -s -X POST -H "Content-Type: application/json" -d '{"identity":{"x":1}}' https://ds-apip.threema.ch/identity/fetch_priv`
+[LEARN] NO_NEW_CLASS — all prior findings byte-stable; no new vulnerability classes opened.
