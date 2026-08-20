@@ -1,4 +1,4 @@
-## 2026-08-20 13:29:07 UTC [web] (model nemotron3)
+## 2026-08-20 14:09:29 UTC [web] (model nemotron3)
 [PRIO] api.threema.ch/identity/*, 9.15, attack_surface:10 business_value:10 tech_exposure:9 gate_ease:10 cloud_surface:4 freshness:9
 [PRIO] apip.test.threema.ch/identity/*, 8.55, attack_surface:9 business_value:9 tech_exposure:9 gate_ease:10 cloud_surface:4 freshness:8
 [PRIO] ds-apip.threema.ch/api.threema.ch/apip.threema.ch HSTS gap, 7.8, attack_surface:8 business_value:8 tech_exposure:8 gate_ease:10 cloud_surface:4 freshness:7
@@ -29,9 +29,6 @@ evidence_needed: Confirm HSTS/Expect-CT absent on production error responses acr
 verify_steps: PASSIVE: curl -s -I https://ds-apip.threema.ch/identity/ECHOECHO — verify no HSTS/Expect-CT on 200; curl -s -I https://ds-apip.threema.ch/identity/invalid — verify no HSTS/Expect-CT on 404; curl -s -H "Content-Type: text/plain" -X GET --data '{"identity":{"x":1}}' https://ds-apip.threema.ch/identity/revoke -I — verify no HSTS/Expect-CT on 500; repeat for api.threema.ch and apip.threema.ch; compare with apip.test.threema.ch staging
 impact: Missing HSTS/Expect-CT on production directory APIs enables SSL stripping and certificate transparency bypass for API consumers; staging has proper headers indicating known-good config not deployed to prod
 testability: PASSIVE
-[PARKED] Type:1 Work-org fingerprint class: confidence 35 (<40), class on REJECTED list (6+ consecutive zero-type:1 draws, 2 anomalous distinct in 2/22 draws, below ≥3-draw threshold for firm class)
-[PARKED] Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: class on REJECTED list (conditional RCE requires separate renderer exploit chain, 0 dynamic sinks in worker/ tree)
-[PARKED] crypto.ts:223 benchmark password as secret leak: class on REJECTED list (benchmark-only dummy, purged at L233 via benchmarkKey.purge())
 [FINAL] 1. Unauthenticated directory enumeration via api.threema.ch CORS misconfiguration (95) — api.threema.ch/identity/*, full cross-origin IDOR surface on new directory host
 [FINAL] 2. Staging directory mirror with production API surface and HSTS/Expect-CT (90) — apip.test.threema.ch/identity/*, staging mirror with production surface for safe testing
 [FINAL] 3. Production directory servers missing HSTS/Expect-CT on error responses (85) — ds-apip/api/apip.threema.ch, deployment inconsistency vs staging
