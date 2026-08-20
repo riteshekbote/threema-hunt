@@ -12995,3 +12995,16 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: benchmark-only dummy, purged at L233; not used for real encryption
 - LEARN: REJECTED AUTH @ work.threema.ch/api/v1 X-Api-Key: permanently downgraded; 404 has NO CORS headers; key not in desktop source
 - LEARN: REJECTED HYP @ type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws; not structural class
+
+## RANKED HYPOTHESES 2026-08-20 12:35:02 UTC
+- [95] api.threema.ch/identity/*: Unauthenticated directory enumeration via api.threema.ch CORS misconfiguration (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -H "Origin: https://evil.example" -X GET https://api.threema.ch/identity/ECHOECHO — verify 200/133B token + ACAO:* + tokenRespKeyPub; then curl -
+- LEARN: ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Method
+- LEARN: ACCEPTED MISCONFIG @ apip.test.threema.ch: Staging directory server live with HSTS/Expect-CT and identical API surface to production — logic-identical/data-disj
+- LEARN: REJECTED MISCONFIG @ /identity/revoke query-param variant: Returns 46B universally — not a token-mint vector (POST-body or GET+text/plain body required)
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: Malformed input returns 200/17B graceful validation — NOT a crash-family member
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash-family membership: Returns 404 on all probes — crash-family corrected to 15 endpoint families × 4 hosts × GET+POST =
+- LEARN: REJECTED HYP @ Type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs) — not structural class, anomalous identities only
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: Conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determi
+- LEARN: ACCEPTED MISCONFIG @ Production directory servers HSTS gap: ds-apip/api/apip lack HSTS/Expect-CT on error responses; staging counterparts have both — deployment
