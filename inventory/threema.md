@@ -6824,3 +6824,5 @@
 - CHANGED /identity/fetch_bulk confirmed NOT crash-family member — malformed input returns 200/17B graceful validation
 - CHANGED /identity/delete crash membership corrected — returns 404 on all probes; crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
 - CHANGED apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
+
+## 2026-08-20 13:29:51 UTC
