@@ -25751,3 +25751,4 @@ testability: PASSIVE
 [RISK] sync: 5 — mediator/rendezvous WSS uniformly 403; TCP 5222 handshake requires auth frame; alternate ports all closed
 [RISK] safe: 30 — credential-gated (HTTP Basic Auth) with HSTS/Expect-CT header inconsistency; route-existence oracle; 5 hostnames behind single IP; safe.threema.ch (singular) timeout
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (6-path RAG chain, PoC absent 26+ cycles); BrowserWindow sandbox unset + nodeIntegrationInWorker true (conditional RCE, rejected as standalone)
+## 2026-08-20 15:20:52 UTC [chat] (model bigpickle)
