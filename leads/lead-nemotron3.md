@@ -28306,3 +28306,65 @@ testability: PASSIVE
 [RISK] sync: 25 reason: mediator-*/rendezvous-* return uniform 403 on HTTPS; split DNS routing confirmed; high-entropy path structure; no unauthenticated surface
 [RISK] safe: 50 reason: safe-* 5-host cluster has HSTS/Expect-CT gap on GET 400 vs OPTIONS 204; HTTP Basic Auth + route-existence oracle; safe.threema.ch singular timeout pattern distinct; no auth on root
 [RISK] desktop-src: 70 reason: Windows key-storage ACL bypass (6-path RAG chain verified, PoC authored but Windows validation pending); BrowserWindow sandbox unset + nodeIntegrationInWorker (TODO DESK-79); OnPrem config trust verified secure; crypto.ts benchmark dummy not a secret; no new secrets in 28-cycle scan
+## 2026-08-20 19:00:08 UTC [web] (model nemotron3)
+[NEW] api.threema.ch confirmed as full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE (was 403-on-root only at baseline)
+[NEW] apip.test.threema.ch staging directory server live — GET/POST /identity/* 200, CORS *, HSTS, Expect-CT; logic-identical/data-disjoint mirror of production
+[NEW] safe.threema.ch (singular) — timeout/no response, backup service pattern candidate distinct from safe-* 5-host cluster
+[CHANGED] Production directory servers (ds-apip, api, apip) all lack HSTS/Expect-CT on error responses; staging counterparts (ds-apip.test, apip.test) have both — deployment inconsistency confirmed
+[CHANGED] work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+[CHANGED] broadcast.threema.ch/gateway.threema.ch/billing.threema.ch/work.threema.ch/shop.threema.ch — previously TIMEOUT, now accessible with redirects + session cookies + CSP + Sentry
+[CHANGED] /identity/revoke query-param variant confirmed returns 46B universally — not a token-mint vector (POST-body or GET+text/plain body required)
+[CHANGED] /identity/fetch_bulk confirmed NOT crash-family member — malformed input returns 200/17B graceful validation
+[CHANGED] /identity/delete crash membership corrected — returns 404 on all probes; crash-family = 15 endpoint families × 4 hosts × GET+POST = 120 combos
+[CHANGED] apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
+[PRIO] api.threema.ch/identity/*, 9.15, attack_surface:10 business_value:10 tech_exposure:9 gate_ease:10 cloud_surface:4 freshness:9
+[PRIO] apip.test.threema.ch/identity/*, 8.55, attack_surface:9 business_value:9 tech_exposure:9 gate_ease:10 cloud_surface:4 freshness:8
+[PRIO] ds-apip.threema.ch/api.threema.ch/apip.threema.ch HSTS gap, 7.80, attack_surface:8 business_value:8 tech_exposure:8 gate_ease:10 cloud_surface:4 freshness:7
+[HYP] Unauthenticated directory enumeration via api.threema.ch CORS misconfiguration
+class: IDOR
+asset: api.threema.ch/identity/*
+confidence: 95
+reasoning: api.threema.ch confirmed as full directory sibling with byte-identical endpoints to ds-apip.threema.ch; GET /identity/ECHOECHO returns 200/133B token + ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE; all 12+ unauthenticated identity endpoints mirror ds-apip behavior; zero rate limits observed across 30+ sequential POSTs; triples directory attack surface
+evidence_needed: Confirm all 12+ endpoints exist on api.threema.ch with same CORS and token-mint behavior as ds-apip.threema.ch
+verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -X GET https://api.threema.ch/identity/ECHOECHO — verify 200/133B + ACAO:* + tokenRespKeyPub; curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/revoke — verify 200/133B token + ACAO:*; curl -s -H "Origin: https://evil.example" -X POST -d '{"identities":["ECHOECHO"]}' https://api.threema.ch/identity/fetch_bulk — verify pubkey oracle + ACAO:*
+impact: Full cross-origin identity enumeration, public key extraction, and credential validation on additional production directory host; triples attack surface for directory IDOR
+testability: PASSIVE
+[HYP] Staging directory mirror with production API surface and HSTS/Expect-CT
+class: MISCONFIG
+asset: apip.test.threema.ch/identity/*
+confidence: 90
+reasoning: apip.test.threema.ch is live staging directory server with identical API surface to production (all /identity/* endpoints return 200 with CORS *); HSTS (max-age=31104000) and Expect-CT present on staging but absent on production; data-disjoint confirmed (0 prod identities in 524k-ID staging draw); enables safe testing of enumeration/crash DoS without affecting prod
+evidence_needed: Verify all 12+ directory endpoints on staging with HSTS/Expect-CT headers; confirm data isolation from production
+verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -X GET https://apip.test.threema.ch/identity/ECHOECHO — verify 200/404 + ACAO:* + HSTS + Expect-CT; curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data '{"identity":"ECHOECHO"}' https://apip.test.threema.ch/identity/revoke — verify token mint + ACAO:* + HSTS/Expect-CT; curl -s -H "Origin: https://evil.example" -X POST -d '{"identities":["ECHOECHO"]}' https://apip.test.threema.ch/identity/fetch_bulk — verify pubkey oracle; curl -s -H "Origin: https://evil.example" -X POST -d '{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ","ECHOECHO"]}' https://apip.test.threema.ch/identity/check_featuremask — verify census parity + data isolation
+impact: Staging mirror with production API surface enables safe testing of directory enumeration/crash DoS without affecting prod; HSTS/Expect-CT on staging but not prod indicates deployment inconsistency
+testability: PASSIVE
+[HYP] Production directory servers missing HSTS/Expect-CT on error responses
+class: MISCONFIG
+asset: ds-apip.threema.ch, api.threema.ch, apip.threema.ch
+confidence: 85
+reasoning: Production directory servers (ds-apip, api, apip) lack HSTS/Expect-CT headers on error responses (500, 400, 404); staging counterparts (ds-apip.test, apip.test) have both headers present; deployment inconsistency confirmed across all 3 production hosts; weakens transport security for API consumers
+evidence_needed: Confirm HSTS/Expect-CT absent on production error responses across all endpoints; verify staging has them consistently
+verify_steps: PASSIVE: curl -s -I https://ds-apip.threema.ch/identity/ECHOECHO — verify no HSTS/Expect-CT on 200; curl -s -I https://ds-apip.threema.ch/identity/invalid — verify no HSTS/Expect-CT on 404; curl -s -H "Content-Type: text/plain" -X GET --data '{"identity":{"x":1}}' https://ds-apip.threema.ch/identity/revoke -I — verify no HSTS/Expect-CT on 500; repeat for api.threema.ch and apip.threema.ch; compare with apip.test.threema.ch staging
+impact: Missing HSTS/Expect-CT on production directory APIs enables SSL stripping and certificate transparency bypass for API consumers; staging has proper headers indicating known-good config not deployed to prod
+testability: PASSIVE
+[PARKED] safe.threema.ch (singular) backup service pattern: confidence 60 but no concrete verify_steps beyond timeout observation; class OTHER requires further hostname-pattern analysis before hypothesis
+[PARKED] work.test.threema.ch captcha-gating change: confidence 50 but impact reduced below hypothesis threshold (staging no longer raw oracle); class MISCONFIG already covered by prior accepted finding
+[PARKED] broadcast/gateway/billing/work/shop accessibility change: confidence 45 but only redirects/landing pages with no new app surface; class MISCONFIG low value
+[FINAL] 1. Unauthenticated directory enumeration via api.threema.ch CORS misconfiguration (95) — api.threema.ch/identity/*, full cross-origin IDOR surface on new directory host
+[FINAL] 2. Staging directory mirror with production API surface and HSTS/Expect-CT (90) — apip.test.threema.ch/identity/*, staging mirror with production surface for safe testing
+[FINAL] 3. Production directory servers missing HSTS/Expect-CT on error responses (85) — ds-apip/api/apip.threema.ch, deployment inconsistency vs staging
+[NEXT] PROBE: curl -s -H "Origin: https://evil.example" -X GET https://api.threema.ch/identity/ECHOECHO — verify 200/133B token + ACAO:* + tokenRespKeyPub; then curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X GET --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/revoke — verify token mint + ACAO:*
+[LEARN] ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE
+[LEARN] ACCEPTED MISCONFIG @ apip.test.threema.ch: Staging directory server live with HSTS/Expect-CT and identical API surface to production — logic-identical/data-disjoint mirror confirmed
+[LEARN] REJECTED MISCONFIG @ /identity/revoke query-param variant: Returns 46B universally — not a token-mint vector (POST-body or GET+text/plain body required)
+[LEARN] REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: Malformed input returns 200/17B graceful validation — NOT a crash-family member
+[LEARN] REJECTED MISCONFIG @ /identity/delete crash-family membership: Returns 404 on all probes — crash-family corrected to 15 endpoint families × 4 hosts × GET+POST = 120 combos
+[LEARN] REJECTED HYP @ Type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs) — not structural class, anomalous identities only
+[LEARN] REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: Conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree)
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determineKdfParams(), purged at L233
+[LEARN] ACCEPTED MISCONFIG @ Production directory servers HSTS gap: ds-apip/api/apip lack HSTS/Expect-CT on error responses; staging counterparts have both — deployment inconsistency confirmed
+[RISK] chat: 35 reason: g-*.0.threema.ch TCP 5222/443 require authenticated login frame; no passive in-band divergence; DNS shard→node map fully attributed; out-of-scope staging cluster
+[RISK] web: 95 reason: 4 production directory hosts (ds-apip,api,apip,apip.test) + 1 staging (ds-apip.test) all with permissive CORS, no rate limits, 12+ unauthenticated identity endpoints, token-mint cluster, crash DoS family, check_license credential oracle; api.threema.ch + apip.test.threema.ch double directory attack surface
+[RISK] sync: 25 reason: mediator-*/rendezvous-* return uniform 403 on HTTPS; split DNS routing confirmed; high-entropy path structure; no unauthenticated surface
+[RISK] safe: 50 reason: safe-* 5-host cluster has HSTS/Expect-CT gap on GET 400 vs OPTIONS 204; HTTP Basic Auth + route-existence oracle; safe.threema.ch singular timeout pattern distinct; no auth on root
+[RISK] desktop-src: 70 reason: Windows key-storage ACL bypass (6-path RAG chain verified, PoC authored but Windows validation pending); BrowserWindow sandbox unset + nodeIntegrationInWorker (TODO DESK-79); OnPrem config trust verified secure; crypto.ts benchmark dummy not a secret; no new secrets in 28-cycle scan
