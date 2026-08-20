@@ -25840,3 +25840,44 @@ testability: PASSIVE
 [RISK] sync: 5 — mediator/rendezvous WSS uniformly 403; TCP 5222 handshake requires auth frame; alternate ports all closed
 [RISK] safe: 30 — credential-gated (HTTP Basic Auth) with HSTS/Expect-CT header inconsistency; route-existence oracle; 5 hostnames behind single IP; safe.threema.ch (singular) timeout
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (6-path RAG chain, PoC absent 26+ cycles); BrowserWindow sandbox unset + nodeIntegrationInWorker true (conditional RCE, rejected as standalone)
+## 2026-08-20 21:16:29 UTC [chat] (model bigpickle)
+[PRIO] api.threema.ch/identity/* parity closure: 93 | attack:9 business:9 tech:8 gate:10 cloud:7 fresh:8
+[PRIO] ds-apip.threema.ch census draw 23+: 87 | attack:9 business:8 tech:7 gate:10 cloud:6 fresh:7
+[PRIO] ds-apip.threema.ch/identity/fetch_priv crash gap: 82 | attack:7 business:6 tech:8 gate:10 cloud:5 fresh:6
+[HYP] api.threema.ch/identity/* parity closure
+class: IDOR
+asset: api.threema.ch/identity/{match_token,check_revocation_key,update_work_info,set_featuremask,check}
+confidence: 90
+reasoning: 3/8 token-mint endpoints confirmed byte-identical on api.threema.ch (sfu_cred, blob_cred, fetch_priv) with constant tokenRespKeyPub. Shared handler proven. Remaining 5 share same code path.
+evidence_needed: GET+text/plain responses from 5 remaining api.threema.ch endpoints for ECHOECHO and ZZZZZZZZ, plus POST /identity/check batch
+verify_steps: PASSIVE: `curl -s -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_token` then repeat for check_revocation_key, update_work_info, set_featuremask; then POST check
+impact: Extends 24→32 zero-preflight combos, 120→160 crash combos
+testability: PASSIVE
+[HYP] fetch_priv crash gap closure
+class: MISCONFIG
+asset: ds-apip.threema.ch/identity/fetch_priv
+confidence: 80
+reasoning: 7/8 token-mint endpoints confirmed crashing. fetch_priv sole unconfirmed due to 88B rev-aware error body routing.
+evidence_needed: POST {"identity":{"x":1}} to fetch_priv → verify 500/0B or 200/88B
+verify_steps: PASSIVE: `curl -s -X POST -H "Content-Type: application/json" -d '{"identity":{"x":1}}' https://ds-apip.threema.ch/identity/fetch_priv`
+impact: Extends crash family 15→16 or proves handler divergence
+testability: PASSIVE
+[HYP] Census draw 23+ density convergence
+class: IDOR
+asset: ds-apip.threema.ch/identity/check_featuremask
+confidence: 85
+reasoning: 22 draws converge ~6.5e-6 density, 11 distinct live-active. Poisson λ≈2.6 per 400k.
+evidence_needed: Fresh 400k-ID POST yielding 0-4 hits
+verify_steps: PASSIVE: POST 400k random IDs to /identity/check_featuremask
+impact: Reinforces census primitive for population estimation
+testability: PASSIVE
+[FINAL] 1. api.threema.ch remaining 5-endpoint parity — 90 confidence, PASSIVE
+[FINAL] 2. Census draw 23+ — 85 confidence, PASSIVE
+[FINAL] 3. fetch_priv crash gap — 80 confidence, PASSIVE
+[NEXT] PROBE: Close api.threema.ch 5-endpoint parity + fetch_priv crash gap in single pass — `curl -s -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_token` then repeat for check_revocation_key, update_work_info, set_featuremask; then `curl -s -X POST -H "Content-Type: application/json" -d '{"identities":["ECHOECHO","ZZZZZZZZ"]}' https://api.threema.ch/identity/check`; then `curl -s -X POST -H "Content-Type: application/json" -d '{"identity":{"x":1}}' https://ds-apip.threema.ch/identity/fetch_priv`
+[LEARN] NO_NEW_CLASS — all prior findings byte-stable; no new vulnerability classes opened.
+[RISK] chat: 99 — 24 zero-preflight CORS-safelisted enumeration vectors (8 endpoints × 3 prod hosts, api.threema.ch 4th host 3/8 verified); 120+ crash combos; 11+ live identities recovered; census density ~6.5e-6 converged; check_license credential oracle; shared-handler convergence proven
+[RISK] web: 15 — static redirects on broadcast/gateway/billing/work/shop; billing serves static assets with full security headers; no live app routes
+[RISK] sync: 5 — mediator/rendezvous WSS uniformly 403; TCP 5222 handshake requires auth frame; alternate ports all closed
+[RISK] safe: 30 — credential-gated (HTTP Basic Auth) with HSTS/Expect-CT header inconsistency; route-existence oracle; 5 hostnames behind single IP; safe.threema.ch (singular) timeout
+[RISK] desktop-src: 40 — key-storage Windows ACL bypass (6-path RAG chain, PoC absent 26+ cycles); BrowserWindow sandbox unset + nodeIntegrationInWorker true (conditional RCE, rejected as standalone)
