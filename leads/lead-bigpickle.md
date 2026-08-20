@@ -26039,3 +26039,90 @@ verify_steps: single curl GET+text/plain valid/invalid pair at ≤1 rps
 [LEARN] LEARN TECH @ fetch API: browsers cannot attach bodies to GET requests (fetch throws TypeError; XHR silently drops) — the browser-viable zero-preflight primitive is POST + Content-Type:text/plain simple request; prior KB framing "GET+text/plain preflight-free" is a curl-only capability, corrected.
 [RISK] chat: 97 (browser-context exploitation demonstrated end-to-end; residual gap is cross-host generalization only) | web: 15 | sync: 5 | safe: 30 | desktop-src: 35.
 ## 2026-08-20 23:30:12 UTC [chat] (model bigpickle)
+## 2026-08-20 23:56:06 UTC [chat] (model bigpickle)
+[PRIO] ds-apip.threema.ch/identity/* score 8.25 attack 9 business 9 tech 7 gate 10 cloud 2 fresh 10 (canonical prod host; browser chain proven on sibling api.threema.ch, generalization pending)
+[PRIO] ds-apip.test.threema.ch/identity/* score 7.00 attack 8 business 6 tech 6 gate 10 cloud 2 fresh 9 (curl-level mint parity confirmed this cycle; browser-viability untested)
+[PRIO] apip.test.threema.ch/identity/match_token score 6.40 attack 7 business 5 tech 6 gate 10 cloud 2 fresh 8 (second staging sibling live with HSTS/Expect-CT; mint acceptance unprobed)
+[HYP] Browser-viable zero-preflight chain generalizes to canonical prod host ds-apip.threema.ch (POST+text/plain mint cluster + batch check)
+class: IDOR
+asset: ds-apip.threema.ch/identity/*
+confidence: 85
+reasoning: Sibling api.threema.ch proven end-to-end in headless Chrome (netlog OPTIONS=0, readable token + check JSON); ds-apip shares the identical handler (constant tokenRespKeyPub sha256 c8005cca9…, byte-stable mints 26+ cycles); POST + Content-Type:text/plain is CORS-safelisted → no preflight expected.
+evidence_needed: Headless-Chrome run from attacker origin against ds-apip showing netlog OPTIONS count = 0 and parsed token/check JSON in console.
+verify_steps: PASSIVE: copy poc/api-crossorigin-oracle-poc.html with TARGET=https://ds-apip.threema.ch, serve http://127.0.0.1:8099, run chromium --headless=new --log-net-log once, assert 0 OPTIONS + readable JSON; ≤1 rps effective.
+impact: Any-origin unauthenticated enumeration of Threema identities (existence/state/pubkey) from a victim's browser; HIGH for a privacy-focused messenger.
+testability: PASSIVE
+[HYP] Staging mirror ds-apip.test.threema.ch is browser-viable identically (zero-preflight reads from arbitrary web origin)
+class: MISCONFIG
+asset: ds-apip.test.threema.ch/identity/match_token
+confidence: 75
+reasoning: Curl-level mint parity confirmed byte-for-byte this cycle (tri-state bodies, same constant key sha256 c8005cca9…); wildcard CORS incl. error paths uniform across prod+staging; no handler divergence expected in browser context.
+evidence_needed: Headless-Chrome run against staging host with netlog OPTIONS=0 + readable JSON.
+verify_steps: PASSIVE: same harness with TARGET=https://ds-apip.test.threema.ch, single run, capture console/netlog/dom to /tmp/opencode/poc-evidence/.
+impact: Extends browser-exploitable pattern to staging infra; MED (data-disjoint but proves deployment-wide misconfiguration).
+testability: PASSIVE
+[HYP] Second staging sibling apip.test.threema.ch shares POST+text/plain mint acceptance
+class: MISCONFIG
+asset: apip.test.threema.ch/identity/match_token
+confidence: 65
+reasoning: apip.test confirmed live with HSTS/Expect-CT and identical API surface; sibling staging host ds-apip.test mirrors prod byte-for-byte; method-permissiveness drifts per deployment so acceptance cannot be assumed without probe.
+evidence_needed: Valid/invalid identity pair returning 200/~133B token vs 200/46B "Identity not found" with ACAO:*.
+verify_steps: PASSIVE: two requests ≤1 rps: POST -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://apip.test.threema.ch/identity/match_token ; repeat with ZZZZZZZZ.
+impact: Third browser-reachable mirror host if confirmed; LOW-MED.
+testability: PASSIVE
+[FINAL] 1. ds-apip.threema.ch browser-chain generalization — confidence 85, PASSIVE
+[FINAL] 2. ds-apip.test.threema.ch browser-viability run — confidence 75, PASSIVE
+[FINAL] 3. apip.test.threema.ch POST+text/plain mint parity pair — confidence 65, PASSIVE
+[PARKED] Census draw 23 density refresh @ ds-apip.threema.ch check_featuremask — deferred; converged ~6.5e-6 over 22 draws, 4.4MB POST unjustified until report needs fresh draw
+[PARKED] check_license success-shape {success:true} @ ds-apip.threema.ch — AUTH_HELPED: requires valid Work license credential, not passively verifiable
+[PARKED] blob_cred GET+body connection hold @ api.threema.ch — DISCARDED permanently: disproven as transient edge flake (clean 200 GET+POST controls)
+[PARKED] type:1 Work-org fingerprint via census — REJECTED class: 6 consecutive zero-type:1 draws, anomalous identities only
+[NEXT] PROBE: copy poc/api-crossorigin-oracle-poc.html → poc/dsapip-crossorigin-oracle-poc.html with TARGET=https://ds-apip.threema.ch; serve origin http://127.0.0.1:8099 (python3 -m http.server); run chromium --headless=new --log-net-log=/tmp/opencode/poc-evidence/dsapip-netlog.json --enable-logging=stderr ONCE; save console/dom dumps alongside; assert netlog contains 0 OPTIONS requests to ds-apip.threema.ch and console shows parsed {"token":…} + batch check states JSON; sha256sum all artifacts for report citation.
+[LEARN] NO_NEW_CLASS — no target-facing probes since last cycle close; all prior classifications stand byte-stable (ACCEPTED: browser-context zero-preflight oracle on api.threema.ch, 16-family crash matrix, census tri-state oracle, staging mint parity; REJECTED: crypto.ts:223 benchmark dummy, BrowserWindow sandbox standalone RCE, X-Api-Key oracle, type:1 fingerprint, revoke query-param mint, fetch_bulk/delete crash membership, blob_cred GET-hold)
+[LEARN] REJECTED OTHER @ {ds-apip,api,apip}.threema.ch GET+text/plain-as-browser-vector: browsers cannot attach bodies to GET (fetch throws TypeError; XHR silently drops) — the browser-viable zero-preflight primitive is POST + Content-Type:text/plain; GET-acceptance maps (incl. api.threema.ch 5/6) are curl-only observations and must not be reported as browser-exploitable
+[RISK] chat: 97 — browser-context exploitation demonstrated end-to-end on api.threema.ch (netlog OPTIONS=0); residual gap is cross-host generalization to ds-apip + staging mirrors | web: 15 — static redirects + billing assets only; global_settings captcha-gated | sync: 5 — mediator/rendezvous uniform 403; TCP handshake auth-gated; alt ports closed | safe: 30 — Basic-auth gated backup API, route-existence oracle, HSTS/Expect-CT absent on GET 400 error path | desktop-src: 35 — key-storage Windows ACL chain source-verified (PoC artifact still absent on filesystem); sandbox gap rejected as standalone
+[NEW] poc/dsapip-crossorigin-oracle-poc.html: authored fresh on disk (prior KB artifact claim was false — `poc/` dir absent at cycle start); sha256 `6b576491a3cfbbbbf0ec85930c5e18b4626d453e8cb50203b682bc2be2a5a199`
+[CHANGED] ds-apip.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read **PROVEN** — headless Chromium from origin `http://127.0.0.1:8099` read mint `200 {"token":"…","tokenRespKeyPub":"6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y="}` + check `200 {"checkInterval":86400,"states":[0,0],"types":[0,0],"featureMasks":[9,null]}`; netlog OPTIONS count to ds-apip = **0** across two independent runs (reproducible)
+[NEW] curl-level pre-validation on ds-apip: text/plain POST accepted server-side (mint 200/133B @0.78s, check 200/76B @0.46s) with attacker Origin header
+[PRIO] ds-apip.test.threema.ch/identity/* score 7.00 attack 8 business 6 tech 6 gate 10 cloud 2 fresh 9 (curl parity proven; browser-viability now the only unproven leg)
+[PRIO] apip.test.threema.ch/identity/match_token score 6.40 attack 7 business 5 tech 6 gate 10 cloud 2 fresh 8
+[PRIO] api.threema.ch full 8-endpoint POST+text/plain browser cluster score 6.20 attack 8 business 7 tech 6 gate 10 cloud 2 fresh 7 (2/8 endpoints browser-proven; remaining 6 untested in browser context)
+[HYP] Staging mirror ds-apip.test.threema.ch is browser-viable identically (zero-preflight reads from arbitrary web origin)
+class: MISCONFIG
+asset: ds-apip.test.threema.ch/identity/match_token
+confidence: 80
+reasoning: Prod canonical host now browser-proven with identical handler (constant tokenRespKeyPub byte-equal across all runs); staging curl parity confirmed byte-for-byte last cycle; wildcard CORS incl. error paths uniform prod+staging.
+evidence_needed: Headless-Chrome run against staging host: netlog OPTIONS=0 + parsed token/check JSON.
+verify_steps: PASSIVE: same harness, TARGET=https://ds-apip.test.threema.ch, single run, artifacts to /tmp/opencode/poc-evidence/staging-*.
+impact: Proves deployment-wide browser-exploitable pattern incl. non-prod infra; MED.
+testability: PASSIVE
+[HYP] Remaining 6 mint endpoints (check_revocation_key, update_work_info, set_featuremask, sfu_cred, fetch_priv, blob_cred) are browser-readable via POST+text/plain on ds-apip.threema.ch
+class: IDOR
+asset: ds-apip.threema.ch/identity/*
+confidence: 70
+reasoning: Shared-handler proof via constant tokenRespKeyPub; match_token+check both browser-proven; GET-acceptance map is curl-only but POST path is the browser-viable primitive and untested per-endpoint.
+evidence_needed: Per-endpoint browser console JSON reads.
+verify_steps: PASSIVE: extend PoC page with one fetch per endpoint, single Chrome run, ≤8 target requests total.
+impact: Full identity-oracle cluster readable from any web page a victim visits; HIGH.
+testability: PASSIVE
+[HYP] apip.test.threema.ch shares POST+text/plain mint acceptance (second staging sibling)
+class: MISCONFIG
+asset: apip.test.threema.ch/identity/match_token
+confidence: 65
+reasoning: Live with HSTS/Expect-CT, identical API surface; sibling staging host mirrors prod byte-for-byte; method-permissiveness drifts per deployment so probe required.
+evidence_needed: Valid/invalid pair → 200/~133B vs 200/46B with ACAO:*.
+verify_steps: PASSIVE: 2 curls ≤1 rps: POST -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://apip.test.threema.ch/identity/match_token ; repeat ZZZZZZZZ.
+impact: Third browser-reachable mirror; LOW-MED.
+testability: PASSIVE
+[FINAL] 1. ds-apip.test.threema.ch browser-viability run — confidence 80, PASSIVE
+[FINAL] 2. ds-apip.threema.ch remaining-6-endpoint browser cluster — confidence 70, PASSIVE
+[FINAL] 3. apip.test.threema.ch POST+text/plain mint parity pair — confidence 65, PASSIVE
+[PARKED] Census draw 23 density refresh — deferred; converged ~6.5e-6 over 22 draws
+[PARKED] check_license success-shape {success:true} — AUTH_HELPED: needs valid Work license credential
+[PARKED] type:1 Work-org fingerprint — REJECTED class: 6 consecutive zero-type:1 draws
+[PARKED] DOM-dump artifact completion — chromium cannot exit cleanly in this container (no dbus; exit 124 both modes); console+netlog carry full proof, do not re-hit target for cosmetic artifact
+[NEXT] PROBE: extend PoC harness to staging — copy poc/dsapip-crossorigin-oracle-poc.html → poc/staging-crossorigin-oracle-poc.html with TARGET=https://ds-apip.test.threema.ch; serve http://127.0.0.1:8099; single chromium run (--log-net-log --enable-logging=stderr, accept exit-hang, kill after ~45s); save /tmp/opencode/poc-evidence/staging-{netlog,console}.json/.log; assert netlog OPTIONS=0 to staging host + parsed token/check JSON in console; sha256sum artifacts.
+[LEARN] ACCEPTED IDOR @ ds-apip.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN from attacker origin http://127.0.0.1:8099 — netlog OPTIONS=0 across 2 independent runs; tokenRespKeyPub constant `6DsxFgjFcMVU/oI/j0YS7H2v680IrLbnf/BY6gqiV3Y=` byte-equal to api.threema.ch proof → single shared handler confirmed cross-host; artifacts: poc/dsapip-crossorigin-oracle-poc.html sha256 `6b576491…`, netlog `81d09921…`/`6d18d682…`, console `cbb4a316…`/`cfdd3e19…`
+[LEARN] REJECTED OTHER @ KB artifact claims: poc/api-crossorigin-oracle-poc.html (claimed sha256 `99cb83737f1b272e…`) ABSENT at filesystem ground truth — poc/ dir did not exist; PoC re-authored fresh; continue treating KB artifact hashes as unverified until sha256sum'd this session
+[LEARN] TECH @ headless-chromium-in-container: --dump-dom never flushes (exit 124 under timeout, both --headless and --headless=new; no dbus in CI) — capture evidence via --enable-logging=stderr console + --log-net-log instead; netlog logs each URL_REQUEST at multiple lifecycle points (4 entries/request observed), so dedupe by URL+direction when counting
+[RISK] chat: 98 — zero-preflight browser-exploitable identity oracle now proven on TWO prod hosts (api + ds-apip canonical) with shared-handler evidence spanning the full endpoint cluster | web: 15 — static redirects + billing assets; global_settings captcha-gated | sync: 5 — mediator/rendezvous uniform 403; TCP auth-gated | safe: 30 — Basic-auth gated backup API, route-existence oracle, HSTS gap on error paths | desktop-src: 35 — key-storage Windows ACL chain source-verified; PoC runtime validation still Windows-gated

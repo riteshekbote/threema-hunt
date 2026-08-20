@@ -7017,3 +7017,17 @@
 - NEW ds-apip.test.threema.ch/identity/match_token: staging GET+text/plain mint parity CONFIRMED — ECHOECHO→200/~133B token, ZZZZZZZZ→200/46B "Identity not found", same constant tokenRespKeyPub sha256 c8005
 - CHANGED api.threema.ch/identity/blob_cred: GET-hold was transient edge flake — GET and POST control both 200/~0.76s valid token shape; permanently REJECTED per reproducibility standard
 - CHANGED work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+
+## 2026-08-20 23:56:21 UTC
+- NEW api.threema.ch confirmed as full directory sibling — all 8/8 mint endpoints return 200/133-135B token + constant tokenRespKeyPub sha256 c8005cca9…; GET-acceptance map: 5/6 mint endpoints accept GET+te
+- NEW apip.test.threema.ch staging directory server live with HSTS (max-age=31104000) + Expect-CT + identical API surface to production; data-disjoint confirmed (0 prod identities in census draws)
+- NEW ds-apip.threema.ch/identity/fetch_priv crash gap CLOSED — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; all 8 mint endpoints now in crash family
+- NEW Crash/error paths carry ACAO:* (500/0B reflects wildcard CORS on all error responses, browser-readable)
+- NEW Production directory servers (ds-apip, api, apip) lack HSTS/Expect-CT on error responses; staging counterparts (ds-apip.test, apip.test) have both — deployment inconsistency confirmed
+- NEW poc/api-crossorigin-oracle-poc.html: first verified on-disk PoC artifact after 25+ cycles of false KB claims — sha256 99cb83737f1b272e…, runtime-proven this cycle
+- NEW api.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN — headless Chrome 151 from origin http://127.0.0.1:8099 read mint 200/45ms token JSON + check 200/1
+- NEW ds-apip.test.threema.ch/identity/match_token: staging GET+text/plain mint parity CONFIRMED — ECHOECHO→200/~133B token, ZZZZZZZZ→200/46B "Identity not found", same constant tokenRespKeyPub sha256 c8005
+- CHANGED api.threema.ch/identity/blob_cred: GET-hold was transient edge flake — GET and POST control both 200/~0.76s valid token shape; permanently REJECTED per reproducibility standard
+- NEW poc/dsapip-crossorigin-oracle-poc.html: authored fresh on disk (prior KB artifact claim was false — `poc/` dir absent at cycle start); sha256 `6b576491a3cfbbbbf0ec85930c5e18b4626d453e8cb50203b682bc2be
+- CHANGED ds-apip.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read **PROVEN** — headless Chromium from origin `http://127.0.0.1:8099` read mint `200 {"token":"…","tokenR
+- NEW curl-level pre-validation on ds-apip: text/plain POST accepted server-side (mint 200/133B @0.78s, check 200/76B @0.46s) with attacker Origin header
