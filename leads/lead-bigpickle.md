@@ -25898,3 +25898,26 @@ testability: PASSIVE
 [LEARN][2026-08-20T21:48Z][REJECTED][none this cycle] Prior REJECTED classes stand (crypto.ts benchmark password, BrowserWindow sandbox RCE, X-Api-Key oracle, type:1 fingerprint, revoke query-param variant)
 [LEARN][2026-08-20T21:48Z][NOTE] update_work_info mints token with identity-only body despite mutation-suggesting name — write gated behind PoP downstream; no mutation performed or possible unauthenticated
 [RISK] chat 99 | web 15 | sync 5 | safe 30 | desktop-src 40
+## 2026-08-20 22:05:52 UTC [chat] (model bigpickle)
+[NEW] api.threema.ch GET-acceptance map CLOSED: 5/6 mint endpoints accept GET+text/plain body — match_token/check_revocation_key/update_work_info/set_featuremask/sfu_cred → 200/133–135B token + ACAO:*; invalid identity → 200/46B parity holds over GET. Evidence: /tmp/opencode/probe-20260820b/get-*.hdr|*.body; token sha256s da13ddd9a1fd4161, 726333a63c0dae44, 225c0bbb4d331a87, f11de908c4ddb6c3, bfb3937a474a86b8.
+[NEW] blob_cred GET+body → connection hang (curl(28) timeout at 15s and 20s, 2/2 attempts) while POST path answers — unique drop behavior on api.threema.ch, diverges from siblings that answer all methods.
+[CHANGED] Staging crash parity CLOSED: ds-apip.test.threema.ch /identity/fetch_priv + /identity/create with malformed JSON → HTTP/2 500/0B + ACAO:* — both join staging crash family; family now spans prod trio + both staging mirrors. Evidence: stg-fetchpriv.hdr/body, stg-create.hdr/body.
+[PRIO] #1 api.threema.ch zero-preflight identity-oracle chain (IDOR/MISCONFIG) — 5/6 GET-accepted mints + wildcard CORS incl. error paths + batch check oracle = full browser-JS recon/mint chain on 4th prod host, no preflight, no auth | effort LOW | impact MED-HIGH | confidence HIGH (direct probe).
+[PRIO] #2 Directory crash family, 16 endpoint-families × prod trio + staging mirrors, errors CORS-readable (MISCONFIG) — environment gap now closed | effort LOW | impact MED | confidence HIGH.
+[PRIO] #3 Census primitive (IDOR) — 11 live-active IDs, tri-state oracle, density ~6.5e-6 converged over 22 draws, zero rate-limit events | effort LOW | impact MED | confidence HIGH.
+class: IDOR/MISCONFIG
+confidence: HIGH
+impact: Unauthenticated per-identity state/capability disclosure and token minting from victim browsers
+class: MISCONFIG
+confidence: MEDIUM
+impact: Possible edge connection-pool exhaustion; also maps per-endpoint method-handling drift
+class: RECON
+confidence: HIGH
+impact: Hardens population estimate used for exposure quantification in reports
+[PARKED] blob_cred hang may be transient network flake — max 1 retest next cycle before discarding; do not classify on current evidence.
+[PARKED] Census draw 23 deferred — 4.4MB POST unjustified while density already converged; schedule for idle window.
+[FINAL] GET-acceptance map and staging crash parity are CLOSED — no further probes on either item; pivot to PoC assembly.
+[NEXT] PROBE→POC: assemble single-file HTML PoC for PRIO#1 (cross-origin fetch: GET match_token mint → POST /identity/check batch read of 5U8DM3J3/RFK5RDU6/ECHOECHO), run once against live host to capture console evidence, then draft report citing /tmp/opencode/probe-20260820b/* sha256s.
+[LEARN] Method-permissiveness drifts per deployment within one codebase: api.threema.ch accepts GET-with-body on 5/6 mint endpoints while ds-apip/api/apip siblings restrict GET to revoke/set_featuremask — never infer method policy from sibling behavior.
+[LEARN] Wildcard CORS on error paths is uniform across prod and staging (HTTP/2 500/0B carries ACAO:*), making crash-family responses browser-readable everywhere — include error-path CORS in every directory-server report.
+[RISK] chat=8 web=7 sync=5 safe=6 desktop-src=6

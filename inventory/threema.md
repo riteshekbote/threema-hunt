@@ -6963,3 +6963,14 @@
 - CHANGED ds-apip.threema.ch/identity/fetch_priv crash gap CLOSED — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; valid sanity → 200/133B unchanged; ALL 8 mint endpoints now in crash fa
 - NEW api.threema.ch/identity/check batch oracle parity — 200/76B {"checkInterval":86400,"states":[0,0],"types":[0,0],"featureMasks":[9,null]}; ECHOECHO observed mask:9 → first non-2047 live-active mask dat
 - NEW Crash/error paths carry ACAO:* too (500/0B reflects wildcard CORS)
+
+## 2026-08-20 22:06:07 UTC
+- NEW api.threema.ch/identity/* parity CLOSED 8/8 endpoints — match_token, check_revocation_key, update_work_info, set_featuremask all return 200/133-135B token + constant tokenRespKeyPub sha256 c8005cca9… 
+- NEW api.threema.ch/identity/check batch oracle parity — 200/76B {"checkInterval":86400,"states":[0,0],"types":[0,0],"featureMasks":[9,null]}; ECHOECHO observed mask:9 (first non-2047 live-active mask)
+- NEW ds-apip.threema.ch/identity/fetch_priv crash gap CLOSED — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; all 8 mint endpoints now in crash family
+- NEW Crash/error paths carry ACAO:* (500/0B reflects wildcard CORS on all error responses)
+- CHANGED api.threema.ch now confirmed full directory sibling — all 12+ endpoints mirror ds-apip with byte-identical responses
+- CHANGED apip.test.threema.ch staging mirror live with HSTS/Expect-CT + identical API surface
+- NEW api.threema.ch GET-acceptance map CLOSED: 5/6 mint endpoints accept GET+text/plain body — match_token/check_revocation_key/update_work_info/set_featuremask/sfu_cred → 200/133–135B token + ACAO:*; inva
+- NEW blob_cred GET+body → connection hang (curl(28) timeout at 15s and 20s, 2/2 attempts) while POST path answers — unique drop behavior on api.threema.ch, diverges from siblings that answer all methods.
+- CHANGED Staging crash parity CLOSED: ds-apip.test.threema.ch /identity/fetch_priv + /identity/create with malformed JSON → HTTP/2 500/0B + ACAO:* — both join staging crash family; family now spans prod trio +
