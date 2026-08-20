@@ -25221,3 +25221,4 @@ testability: PASSIVE
 [RISK] safe: 30 — credential-gated (HTTP Basic Auth) with HSTS/Expect-CT header inconsistency on GET 400 vs OPTIONS 204; route-existence oracle (400 vs 404); credentialed cross-origin CORS (Allow-Headers: Authorization); 5 hostnames uniform behind single IP 203.56.112.231; safe.threema.ch (singular) timeout/unresolved
 [RISK] desktop-src: 40 — key-storage Windows ACL bypass (RAG-verified 6-path chain on GitHub stable, PoC artifact absent from filesystem 26+ cycles); BrowserWindow sandbox unset + nodeIntegrationInWorker true (conditional RCE, rejected as standalone class; 0 dynamic sinks in worker/ tree)
 ## 2026-08-20 01:42:17 UTC [chat] (model bigpickle)
+## 2026-08-20 02:44:24 UTC [chat] (model bigpickle)
