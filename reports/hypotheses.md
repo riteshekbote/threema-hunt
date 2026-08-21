@@ -13552,3 +13552,5 @@
 - LEARN: Method-permissiveness drifts per deployment within one codebase: api.threema.ch accepts GET-with-body on 5/6 mint endpoints while ds-apip/api/apip siblings rest
 - LEARN: Wildcard CORS on error paths is uniform across prod and staging (HTTP/2 500/0B carries ACAO:*), making crash-family responses browser-readable everywhere — incl
 - LEARN: LEARN TECH @ fetch API: browsers cannot attach bodies to GET requests (fetch throws TypeError; XHR silently drops) — the browser-viable zero-preflight primitive
+
+## RANKED HYPOTHESES 2026-08-21 07:28:37 UTC

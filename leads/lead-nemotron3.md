@@ -29733,3 +29733,11 @@ testability: PASSIVE
 [RISK] sync: 25 reason: mediator-*/rendezvous-* return uniform 403 on HTTPS; split DNS routing confirmed; high-entropy path structure; no unauthenticated surface  
 [RISK] safe: 50 reason: safe-* 5-host cluster has HSTS/Expect-CT gap on GET 400 vs OPTIONS 204; HTTP Basic Auth + route-existence oracle; safe.threema.ch singular timeout pattern distinct; no auth on root  
 [RISK] desktop-src: 70 reason: Windows key-storage ACL bypass (6-path RAG chain verified, PoC authored but Windows validation pending); BrowserWindow sandbox unset + nodeIntegrationInWorker (TODO DESK-79); OnPrem config trust verified secure; crypto.ts benchmark dummy not a secret; no new secrets in 28-cycle scan
+## 2026-08-21 07:26:30 UTC [web] (model nemotron3)
+[NEW] api.threema.ch confirmed as full directory sibling — all 12+ endpoints mirror ds-apip with byte-identical responses; 5/6 mint endpoints accept GET+text/plain body
+[NEW] apip.test.threema.ch staging directory server live with HSTS (max-age=31104000) + Expect-CT + identical API surface to production; data-disjoint confirmed
+[NEW] ds-apip.threema.ch/identity/fetch_priv crash gap closed — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; all 8 mint endpoints now in crash family
+[NEW] Crash/error paths carry ACAO:* on 500/0B responses — wildcard CORS on all error responses, browser-readable
+[NEW] Production directory servers (ds-apip, api, apip) lack HSTS/Expect-CT on error responses; staging counterparts have both — deployment inconsistency confirmed
+[NEW] poc/api-crossorigin-oracle-poc.html: first verified on-disk PoC artifact after 25+ cycles — sha256 99cb83737f1b272e…, runtime-proven
+[NEW] api.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN — headless Chrome 151 from origin http://127.0.0.
