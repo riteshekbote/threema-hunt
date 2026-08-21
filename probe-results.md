@@ -4980,3 +4980,15 @@ https://apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/jso
 https://apip.test.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
 https://apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
 https://apip.test.threema.ch/identity/check_featuremask -> HTTP 500
+
+## 2026-08-21 10:05:51 UTC
+https://api.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://api.threema.ch/identity/sfu_cred -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.test.threema.ch/identity/check_featuremask -> HTTP 500
+https://apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://apip.test.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://apip.test.threema.ch/identity/fetch_bulk -> 200 len=? type=application/json; charset=utf-8
+https://apip.test.threema.ch/identity/check_featuremask -> HTTP 500
