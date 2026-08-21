@@ -7107,3 +7107,17 @@
 - CHANGED work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
 - CHANGED FINAL #1 staging browser-viability (conf 80) → RESOLVED ACCEPTED
 - CHANGED FINAL #1 staging browser-viability (conf 80) → RESOLVED ACCEPTED.
+
+## 2026-08-21 04:59:41 UTC
+- NEW api.threema.ch confirmed as full directory sibling — all 12+ endpoints mirror ds-apip with byte-identical responses; GET-acceptance map: 5/6 mint endpoints accept GET+text/plain body
+- NEW apip.test.threema.ch staging directory server live with HSTS (max-age=31104000) + Expect-CT + identical API surface to production; data-disjoint confirmed
+- NEW ds-apip.threema.ch/identity/fetch_priv crash gap closed — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; all 8 mint endpoints now in crash family
+- NEW Crash/error paths carry ACAO:* on 500/0B responses — wildcard CORS on all error responses, browser-readable
+- NEW Production directory servers (ds-apip, api, apip) lack HSTS/Expect-CT on error responses; staging counterparts (ds-apip.test, apip.test) have both — deployment inconsistency confirmed
+- NEW poc/api-crossorigin-oracle-poc.html: first verified on-disk PoC artifact after 25+ cycles of false KB claims — sha256 99cb83737f1b272e…, runtime-proven
+- NEW api.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN — headless Chrome 151 from origin http://127.0.0.1:8099
+- NEW ds-apip.test.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN from attacker origin http://127.0.0.1:8099
+- NEW poc/staging-crossorigin-oracle-poc.html authored (sha256 a42b0c9dc0ab98bf…)
+- CHANGED api.threema.ch/identity/blob_cred: GET-hold was transient edge flake — GET and POST both 200/~0.76s valid token; permanently REJECTED
+- CHANGED work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+- CHANGED apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
