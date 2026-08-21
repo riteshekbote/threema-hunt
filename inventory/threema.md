@@ -7209,3 +7209,7 @@
 - NEW poc/staging-crossorigin-oracle-poc.html authored — sha256 a42b0c9dc0ab98bf…
 - CHANGED work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
 - CHANGED api.threema.ch/identity/blob_cred: GET-hold was transient edge flake — GET and POST both 200/~0.76s valid token; permanently REJECTED
+
+## 2026-08-21 10:26:54 UTC
+- CHANGED ds-apip.threema.ch/identity/{check_revocation_key,update_work_info,set_featuremask,sfu_cred,fetch_priv,blob_cred}: hypothesis conf 70 → PROVEN this cycle. Browser-context zero-preflight cross-origin r
+- NEW poc/dsapip-full-cluster-poc.html authored + runtime-proven (sha256 `e0606037d0881dc00f2f8c7c96e4474c2b431fcd4196f48df02b6c4392fb2713`); evidence: /tmp/opencode/poc-evidence/dsapip-cluster-netlog.json 

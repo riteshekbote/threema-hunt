@@ -30008,3 +30008,4 @@ testability: PASSIVE
 [FINAL] 3. Staging directory mirror with production API surface and HSTS/Expect-CT (85) — apip.test.threema.ch/identity/*, staging mirror with production surface and transport security headers
 [NEXT] PROBE: curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X POST --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_token — verify 200/133B token + ACAO:* + tokenRespKeyPub sha256 c8005cca9…; then curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X POST --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/sfu_cred — verify 200/133B token + ACAO:*
 [LEARN] ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling —
+## 2026-08-21 10:21:16 UTC [web] (model nemotron3)
