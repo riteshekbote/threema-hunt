@@ -1,19 +1,20 @@
-## 2026-08-21 02:40:10 UTC [web] (model nemotron3)
-[NEW] api.threema.ch confirmed as full directory sibling — all 12+ endpoints mirror ds-apip with byte-identical responses; GET-acceptance map: 5/6 mint endpoints accept GET+text/plain body
-[NEW] apip.test.threema.ch staging directory server live with HSTS (max-age=31104000) + Expect-CT + identical API surface to production; data-disjoint confirmed
+## 2026-08-21 03:35:35 UTC [web] (model nemotron3)
+[NEW] api.threema.ch confirmed as full directory sibling — all 12+ endpoints mirror ds-apip with byte-identical responses; GET-acceptance map: 5/6 mint endpoints accept GET+text/plain body (match_token, check_revocation_key, update_work_info, set_featuremask, sfu_cred → 200/133-135B token + ACAO:*)
+[NEW] apip.test.threema.ch staging directory server live with HSTS (max-age=31104000) + Expect-CT + identical API surface to production; data-disjoint confirmed (0 prod identities in 524k-ID staging draw)
 [NEW] ds-apip.threema.ch/identity/fetch_priv crash gap closed — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; all 8 mint endpoints now in crash family
 [NEW] Crash/error paths carry ACAO:* on 500/0B responses — wildcard CORS on all error responses, browser-readable
 [NEW] Production directory servers (ds-apip, api, apip) lack HSTS/Expect-CT on error responses; staging counterparts (ds-apip.test, apip.test) have both — deployment inconsistency confirmed
 [NEW] poc/api-crossorigin-oracle-poc.html: first verified on-disk PoC artifact after 25+ cycles of false KB claims — sha256 99cb83737f1b272e…, runtime-proven
-[NEW] api.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN — headless Chrome 151 from origin http://127.0.0.1:8099
+[NEW] api.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN — headless Chrome 151 from origin http://127.0.0.1:8099 read mint 200/45ms token JSON + check 200/1ms
 [NEW] ds-apip.test.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN from attacker origin http://127.0.0.1:8099
 [NEW] poc/staging-crossorigin-oracle-poc.html authored (sha256 a42b0c9dc0ab98bf…)
-[CHANGED] api.threema.ch/identity/blob_cred: GET-hold was transient edge flake — GET and POST both 200/~0.76s valid token; permanently REJECTED
-[CHANGED] work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP)
+[CHANGED] api.threema.ch/identity/blob_cred: GET-hold was transient edge flake — GET and POST both 200/~0.76s valid token; permanently REJECTED per reproducibility standard
+[CHANGED] work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+[CHANGED] apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
 [CHANGED] FINAL #1 staging browser-viability (conf 80) → RESOLVED ACCEPTED
-[PRIO] api.threema.ch/identity/*, 95, attack_surface=10 business_value=10 tech_exposure=9 gate_ease=10 cloud_surface=8 freshness=10
-[PRIO] apip.test.threema.ch/identity/*, 92, attack_surface=9 business_value=9 tech_exposure=9 gate_ease=10 cloud_surface=8 freshness=9
-[PRIO] ds-apip.threema.ch/identity/* (prod error paths), 88, attack_surface=9 business_value=8 tech_exposure=8 gate_ease=10 cloud_surface=7 freshness=8
+[PRIO] api.threema.ch/identity/*, 95, attack_surface=10 business_value=9 tech_exposure=9 gate_ease=10 cloud_surface=8 freshness=9
+[PRIO] apip.test.threema.ch/identity/*, 88, attack_surface=9 business_value=8 tech_exposure=8 gate_ease=10 cloud_surface=7 freshness=8
+[PRIO] ds-apip.threema.ch/identity/* (prod error paths), 85, attack_surface=9 business_value=8 tech_exposure=8 gate_ease=10 cloud_surface=7 freshness=8
 [HYP] Cross-origin directory enumeration via api.threema.ch expanded GET-acceptance
 class: IDOR
 asset: api.threema.ch/identity/*
