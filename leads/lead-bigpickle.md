@@ -26335,3 +26335,4 @@ testability: PASSIVE
 [LEARN] ACCEPTED MISCONFIG @ ds-apip.threema.ch/identity/*: token minting does not gate on identity existence for the 6 remaining routes — unauthenticated browser JS obtains opaque tokens directly.
 [RISK] chat: 99 — browser-exploitable unauthenticated identity oracle proven end-to-end on THREE hosts (api.prod, ds-apip.prod full 8/8, ds-apip.test); residual gap is coverage breadth on api remaining-6 / apip / apip.test | web: 15 — static redirects + billing assets; global_settings captcha-gated | sync: 5 — mediator/rendezvous uniform 403; TCP handshake auth-gated | safe: 30 — Basic-auth gated backup API, route-existence oracle, HSTS absent on GET 400 error path | desktop-src: 35 — key-storage Windows ACL chain source-verified, runtime validation Windows-gated
 ## 2026-08-21 12:12:35 UTC [chat] (model bigpickle)
+## 2026-08-21 12:51:01 UTC [chat] (model bigpickle)
