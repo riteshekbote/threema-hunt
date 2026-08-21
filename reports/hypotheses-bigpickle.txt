@@ -1,45 +1,6 @@
-## 2026-08-21 14:23:08 UTC [chat] (model bigpickle)
-[CHANGED] ds-apip.threema.ch/identity/{check_revocation_key,update_work_info,set_featuremask,sfu_cred,fetch_priv,blob_cred}: curl-parity → browser-context PROVEN (netlog OPTIONS=0, 6/6 parsed JSON, per-request tokens) — full 8/8 cluster browser-proven on this host.
-[NEW] poc/dsapip-full-cluster-poc.html on disk, runtime-proven (sha256 e0606037d0881dc00f2f8c7c96e4474c2b431fcd4196f48df02b6c4392fb2713).
-[NEW] poc/staging-crossorigin-oracle-poc.html on disk (sha256 a42b0c9dc0ab98bf…).
-[CHANGED] api.threema.ch/identity/blob_cred: prior GET-hold permanently REJECTED (transient edge flake; clean GET+POST controls both 200/~0.76s valid token shape).
-[PRIO] api.threema.ch/identity/{check_revocation_key,update_work_info,set_featuremask,sfu_cred,fetch_priv,blob_cred} — 7.75 | attack 9, business 8, tech 6, gate 10, cloud 2, fresh 9
-[PRIO] apip.threema.ch/identity/{match_token,check} (browser-context, never tested) — 7.55 | attack 9, business 8, tech 6, gate 10, cloud 2, fresh 7
-[PRIO] apip.test.threema.ch/identity/match_token (POST+text/plain parity) — 6.90 | attack 8, business 6, tech 6, gate 10, cloud 2, fresh 8
-[PRIO] {ds-apip,api}.threema.ch crash-family 500/0B browser readability — 6.25 | attack 7, business 5, tech 5, gate 10, cloud 2, fresh 8
-[HYP] api.threema.ch remaining-6 mint endpoints browser-viable zero-preflight
-class: IDOR
-asset: api.threema.ch/identity/{check_revocation_key,update_work_info,set_featuremask,sfu_cred,fetch_priv,blob_cred}
-confidence: 75
-reasoning: api.threema.ch confirmed full directory sibling with byte-identical responses; {match_token,check} already browser-proven on this exact host with netlog OPTIONS=0; method-permissiveness drifts per deployment so the remaining 6 require direct browser test via POST + Content-Type:text/plain.
-evidence_needed: headless Chromium from origin http://127.0.0.1:8099 executing 6 fetch(POST text/plain {"identity":"ECHOECHO"}) calls; netlog OPTIONS_COUNT=0; 6/6 status=200 parsed JSON with per-request tokens + constant tokenRespKeyPub.
-verify_steps: clone poc/dsapip-full-cluster-poc.html (sha256 e0606037…) with TARGET=https://api.threema.ch; serve http://127.0.0.1:8099; single chromium run --log-net-log=/tmp/opencode/poc-evidence/api-cluster-netlog.json --enable-logging=stderr --v=1, kill ~60s; assert SCRIPT-START marker, 0 OPTIONS method events, 6/6 parsed JSON; sha256sum all artifacts.
-impact: any website a victim visits can mint identity-scoped tokens for arbitrary Threema IDs from their browser, zero preflight, unauthenticated — completes cross-host exploitability on production; HIGH.
-testability: PASSIVE
-[HYP] apip.threema.ch browser-context zero-preflight identity oracle
-class: IDOR
-asset: apip.threema.ch/identity/{match_token,check}
-confidence: 70
-reasoning: third production directory host with identical API surface and CORS *; curl-level parity stable across many cycles but browser-context execution never tested on this host; deployment drift makes sibling inference invalid.
-evidence_needed: two-fetch browser PoC (match_token + check) from attacker origin http://127.0.0.1:8099; netlog OPTIONS=0; parsed mint JSON + batch states/masks.
-verify_steps: author minimal two-fetch variant of the beacon-instrumented template TARGET=https://apip.threema.ch; serve http://127.0.0.1:8099; single chromium run with --log-net-log + --enable-logging=stderr --v=1; assert SCRIPT-START, 0 OPTIONS events, 2/2 parsed JSON; sha256sum artifacts.
-impact: third production host confirmed browser-exploitable; completes prod-trio coverage of the unauthenticated identity oracle; HIGH.
-testability: PASSIVE
-[HYP] apip.test.threema.ch POST+text/plain mint parity (staging mirror)
-class: MISCONFIG
-asset: apip.test.threema.ch/identity/match_token
-confidence: 70
-reasoning: staging host live with HSTS/Expect-CT and identical API surface; ds-apip.test mirrored prod byte-for-byte on browser viability; method-permissiveness drifts per deployment so direct probe required.
-evidence_needed: ECHOECHO→200/~135B token vs ZZZZZZZZ→200/46B with ACAO:* under Content-Type:text/plain (curl ≤1 rps), then browser two-fetch with zero preflights.
-verify_steps: PASSIVE: two curls ≤1 rps: POST -H "Content-Type: text/plain" -d '{"identity":"ECHOECHO"}' https://apip.test.threema.ch/identity/match_token ; repeat with ZZZZZZZZ; then two-fetch browser PoC asserting zero preflights.
-impact: staging grants browsers the same token-mint oracle as production; fourth browser-reachable mirror host; LOW-MED.
-testability: PASSIVE
-[FINAL] 1. api.threema.ch remaining-6 browser cluster — confidence 75, PASSIVE
-[FINAL] 2. apip.threema.ch browser-context proof — confidence 70, PASSIVE
-[FINAL] 3. apip.test.threema.ch POST+text/plain parity — confidence 70, PASSIVE
-[NEXT] PROBE: author poc/api-full-cluster-poc.html from the just-proven beacon-instrumented template (TARGET=https://api.threema.ch; six fetches /identity/{check_revocation_key,update_work_info,set_featuremask,sfu_cred,fetch_priv,blob_cred}, each POST text/plain {"identity":"ECHOECHO"}, ≥1200ms spacing); serve http://127.0.0.1:8099; single chromium run (--log-net-log=/tmp/opencode/poc-evidence/api-cluster-netlog.json --enable-logging=stderr --v=1, kill after ~60s); assert SCRIPT-START marker, 0 OPTIONS method events, 6/6 parsed JSON; sha256sum all artifacts.
-[LEARN] ACCEPTED IDOR @ threema directory cluster (ds-apip.prod + api.prod + ds-apip.test): browser-context zero-preflight identity-token-mint oracle proven alive on 3 hosts — class is deployment-wide, not host-specific.
-[LEARN] ACCEPTED MISCONFIG @ ds-apip.threema.ch/identity/*: token minting does not gate on identity existence for the 6 remaining routes — unauthenticated browser JS obtains opaque tokens directly.
-[LEARN] REJECTED OTHER @ {ds-apip,api,apip} GET+text/plain-as-browser-vector: browsers cannot attach bodies to GET (fetch throws TypeError; XHR silently drops) — browser-viable primitive is POST + Content-Type:text/plain.
-[LEARN] REJECTED OTHER @ api.threema.ch/identity/blob_cred GET-hold: transient edge flake (clean GET+POST controls both 200/~0.76s valid token shape) — permanently discarded per reproducibility standard.
-[RISK] chat: 99 — browser-exploitable unauthenticated identity-token-mint oracle proven end-to-end on THREE hosts (ds-apip.prod full 8/8, api.prod 2/8, ds-apip.test); residual gap is coverage breadth only (api remaining-6, apip, apip.test) | web: 15 — static redirects + billing assets; global_settings captcha-gated | sync: 5 — mediator/rendezvous uniform 403; TCP handshake auth-gated | safe: 30 — Basic-auth gated backup API, route-existence oracle, HSTS absent on GET 400 error path | desktop-src: 35 — key-storage Windows ACL chain source-verified (6 paths), runtime validation Windows-gated; BrowserWindow sandbox gap conditional-only
+## 2026-08-21 15:02:26 UTC [chat] (model bigpickle)
+[NEXT] PROBE: author `poc/apip-crossorigin-oracle-poc.html` from the just-proven template (TARGET=https://apip.threema.ch; two fetches `/identity/match_token` + `/identity/check`, each POST text/plain `{"identity":"ECHOECHO"}`, ≥1200 ms spacing; SCRIPT-START + Image-beacon instrumentation); serve `http://127.0.0.1:8099`; single chromium run (`--log-net-log=/tmp/opencode/poc-evidence/apip-netlog.json --enable-logging=stderr --v=1`, kill after ~45 s); assert SCRIPT-START marker, 0 OPTIONS events (raw scan + structured salvage parse), 2/2 parsed JSON; `fuser -k 8099/tcp` cleanup (never pkill -f); sha256sum all artifacts; copy evidence set to `reports/evidence/apip-20260821/`.
+[LEARN]
+[LEARN]
+[LEARN]
+[LEARN]

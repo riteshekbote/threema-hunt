@@ -7314,3 +7314,16 @@
 - NEW poc/dsapip-full-cluster-poc.html on disk, runtime-proven (sha256 e0606037d0881dc00f2f8c7c96e4474c2b431fcd4196f48df02b6c4392fb2713).
 - NEW poc/staging-crossorigin-oracle-poc.html on disk (sha256 a42b0c9dc0ab98bf…).
 - CHANGED api.threema.ch/identity/blob_cred: prior GET-hold permanently REJECTED (transient edge flake; clean GET+POST controls both 200/~0.76s valid token shape).
+
+## 2026-08-21 15:02:44 UTC
+- NEW api.threema.ch/identity/{check_revocation_key,update_work_info,set_featuremask,sfu_cred,fetch_priv,blob_cred}: browser-context zero-preflight cross-origin read PROVEN this cycle (netlog OPTIONS=0, 6/6
+- NEW ds-apip.test.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN from attacker origin http://127.0.0.1:8099 (netlog OPTIONS=0)
+- NEW apip.test.threema.ch/identity/*: staging directory server live with HSTS (max-age=31104000) + Expect-CT + identical API surface to production; data-disjoint confirmed
+- NEW ds-apip.threema.ch/identity/fetch_priv crash gap closed — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; all 8 mint endpoints now in crash family
+- NEW Crash/error paths carry ACAO:* on 500/0B responses — wildcard CORS on all error responses, browser-readable
+- NEW Production directory servers (ds-apip, api, apip) lack HSTS/Expect-CT on error responses; staging counterparts have both — deployment inconsistency confirmed
+- NEW poc/api-crossorigin-oracle-poc.html: first verified on-disk PoC artifact after 25+ cycles — sha256 99cb83737f1b272e…, runtime-proven
+- NEW poc/dsapip-full-cluster-poc.html authored + runtime-proven (sha256 e0606037d0881dc00f2f8c7c96e4474c2b431fcd4196f48df02b6c4392fb2713)
+- NEW poc/staging-crossorigin-oracle-poc.html authored — sha256 a42b0c9dc0ab98bf…
+- CHANGED work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+- CHANGED api.threema.ch/identity/blob_cred: GET-hold was transient edge flake — GET and POST both 200/~0.76s valid token; permanently REJECTED
