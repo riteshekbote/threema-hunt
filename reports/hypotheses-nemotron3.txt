@@ -1,4 +1,4 @@
-## 2026-08-21 15:53:24 UTC [web] (model nemotron3)
+## 2026-08-21 16:17:38 UTC [web] (model nemotron3)
 [NEW] api.threema.ch confirmed as full directory sibling — all 12+ endpoints mirror ds-apip with byte-identical responses; 5/6 mint endpoints accept POST+text/plain (browser-viable CORS-safelisted)
 [NEW] apip.test.threema.ch staging directory server live with HSTS (max-age=31104000) + Expect-CT + identical API surface to production; data-disjoint confirmed
 [NEW] ds-apip.threema.ch/identity/fetch_priv crash gap closed — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; all 8 mint endpoints now in crash family
@@ -13,10 +13,10 @@
 [CHANGED] work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
 [CHANGED] api.threema.ch/identity/blob_cred: GET-hold was transient edge flake — GET and POST both 200/~0.76s valid token; permanently REJECTED
 [CHANGED] apip.threema.ch/identity/{match_token,check}: curl-parity → browser-context PROVEN this cycle. Headless Chromium from origin http://127.0.0.1:8099 fetched both endpoints cross-origin via POST text/pla
-[NEW] poc/apip-crossorigin-oracle-poc.html on disk + runtime-proven (sha256 ce23773b0866eb2da1c5a396e3adb1186a3dde85d6550bbf135dad758997d896). Evidence set copied to reports/evidence/apip-20260821/
+[CHANGED] Cluster browser-proven matrix: ds-apip.prod 8/8, api.prod 8/8, apip.prod 2/8, ds-apip.test 2/8 — remaining gaps: apip remaining-6, apip.test
 [PRIO] api.threema.ch/identity/*, 9.1, attack_surface:9 business_value:8 tech_exposure:9 gate_ease:10 cloud_surface:9 freshness:7
 [PRIO] ds-apip.test.threema.ch/identity/*, 8.9, attack_surface:8 business_value:7 tech_exposure:8 gate_ease:10 cloud_surface:7 freshness:8
-[PRIO] apip.test.threema.ch/identity/*, 8.7, attack_surface:8 business_value:7 tech_exposure:8 gate_ease:10 cloud_surface:7 freshness:8
+[PRIO] apip.test.threema.ch/identity/*, 8.7, attack_surface:8 business_value
 [HYP] Cross-origin directory enumeration via api.threema.ch expanded POST+text/plain acceptance
 class: IDOR
 asset: api.threema.ch/identity/*
@@ -54,7 +54,7 @@ testability: PASSIVE
 [PARKED] work.threema.ch/api/v1 X-Api-Key oracle: class REJECTED in knowledge base (404 has NO CORS headers, key not in desktop source, permanently downgraded)
 [FINAL] 1. Cross-origin directory enumeration via api.threema.ch expanded POST+text/plain acceptance (95) — api.threema.ch/identity/*, 5/6 mint endpoints accept POST+text/plain enabling preflight-free browser exploitation
 [FINAL] 2. Staging directory mirror with full browser-viable token-mint cluster (90) — ds-apip.test.threema.ch/identity/*, staging mirror with production surface for safe testing
-[FINAL] 3. Staging directory mirror with production API surface and transport security headers (85) — apip.test
+[FINAL] 3. Staging directory mirror with production API surface and transport security headers (85) — apip.test.threema.ch/identity/*, HSTS/Expect-CT on staging but not prod
 [NEXT] PROBE: author poc/api-full-cluster-poc.html from the just-proven beacon-instrumented template (TARGET=https://api.threema.ch; six fetches /identity/{check_revocation_key,update_work_info,set_featuremask,sfu_cred,fetch_priv,blob_cred} with Content-Type:text/plain + Origin:https://evil.example); capture netlog OPTIONS=0 and parsed JSON with tokenRespKeyPub sha256 c8005cca9…
 [LEARN] ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE
 [LEARN] ACCEPTED MISCONFIG @ apip.test.threema.ch: Staging directory server live with HSTS/Expect-CT and identical API surface to production — logic-identical/data-disjoint mirror confirmed
