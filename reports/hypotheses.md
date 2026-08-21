@@ -13367,3 +13367,30 @@
 - LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN from attacker origin http://127.0.0.1:8
 - LEARN: REJECTED OTHER @ KB artifact claims: poc/api-crossorigin-oracle-poc.html (claimed sha256 `99cb83737f1b272e…`) ABSENT at filesystem ground truth — poc/ dir did n
 - LEARN: TECH @ headless-chromium-in-container: --dump-dom never flushes (exit 124 under timeout, both --headless and --headless=new; no dbus in CI) — capture evidence v
+
+## RANKED HYPOTHESES 2026-08-21 00:12:59 UTC
+- [95] api.threema.ch/identity/*: Cross-origin directory enumeration via api.threema.ch expanded GET-acceptance (from reports/hypotheses-nemotron3.txt)
+- [80] ds-apip.test.threema.ch/identity/match_token: Staging mirror ds-apip.test.threema.ch is browser-viable identically (zero-preflight reads from arbitrary web origin) (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X POST --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_to
+- NEXT(hypotheses-bigpickle.txt): PROBE: copy poc/dsapip-crossorigin-oracle-poc.html → poc/staging-crossorigin-oracle-poc.html with TARGET=https://ds-apip.test.threema.ch; serve origin http://12
+- LEARN: ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Method
+- LEARN: ACCEPTED MISCONFIG @ apip.test.threema.ch: Staging directory server live with HSTS/Expect-CT and identical API surface to production — logic-identical/data-disj
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: Crash gap closed — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; all 8 mint end
+- LEARN: ACCEPTED MISCONFIG @ Crash/error paths: ACAO:* present on 500/0B responses — wildcard CORS on all error responses, browser-readable
+- LEARN: REJECTED MISCONFIG @ /identity/revoke query-param variant: Returns 46B universally — not a token-mint vector (POST-body or GET+text/plain body required)
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: Malformed input returns 200/17B graceful validation — NOT a crash-family member
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash-family membership: Returns 404 on all probes — crash-family corrected to 15 endpoint families × 4 hosts × GET+POST =
+- LEARN: REJECTED HYP @ Type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs) — not structural class, anomalous identities only
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: Conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determi
+- LEARN: ACCEPTED MISCONFIG @ Production directory servers HSTS gap: ds-apip/api/apip lack HSTS/Expect-CT on error responses; staging counterparts have both — deployment
+- LEARN: NO_NEW_CLASS — all prior findings byte-stable; no new vulnerability classes opened.
+- LEARN: Method-permissiveness drifts per deployment within one codebase: api.threema.ch accepts GET-with-body on 5/6 mint endpoints while ds-apip/api/apip siblings rest
+- LEARN: Wildcard CORS on error paths is uniform across prod and staging (HTTP/2 500/0B carries ACAO:*), making crash-family responses browser-readable everywhere — incl
+- LEARN: LEARN TECH @ fetch API: browsers cannot attach bodies to GET requests (fetch throws TypeError; XHR silently drops) — the browser-viable zero-preflight primitive
+- LEARN: NO_NEW_CLASS — no target-facing probes since last cycle close; all classifications byte-stable (browser-proven zero-preflight oracle on api+ds-apip prod; stagin
+- LEARN: REJECTED OTHER @ {ds-apip,api,apip}.threema.ch GET+text/plain-as-browser-vector: browsers cannot attach bodies to GET (fetch throws TypeError; XHR silently drop
+- LEARN: REJECTED OTHER @ api.threema.ch/identity/blob_cred GET-hold: transient edge flake (clean GET+POST controls both 200/~0.76s valid token shape) — permanently disc
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.test.threema.ch/identity/{match_token,check}: staging mirror is browser-viable identically to production — zero-preflight cross-ori
+- LEARN: TECH @ headless-evidence-capture: console-only capture can silently produce a dead run (no JS execution, no threema netlog entries); robust pattern = --v=1 + lo
+- LEARN: TECH @ CORS-read-proof semantics: r.headers.get("access-control-allow-origin") returns null even when ACAO:* is granted (response header not JS-exposed); the su
