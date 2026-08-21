@@ -7181,3 +7181,5 @@
 - CHANGED api.threema.ch/identity/blob_cred: GET-hold was transient edge flake — GET and POST both 200/~0.76s valid token; permanently REJECTED
 - CHANGED work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
 - CHANGED apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
+
+## 2026-08-21 08:59:08 UTC
