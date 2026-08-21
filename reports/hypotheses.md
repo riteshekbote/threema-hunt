@@ -13770,3 +13770,24 @@
 - LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determi
 - LEARN: ACCEPTED MISCONFIG @ Production directory servers HSTS gap: ds-apip/api/apip lack HSTS/Expect-CT on error responses; staging counterparts have both — deployment
 - LEARN: NO_NEW_CLASS — all prior findings byte-stable; no new vulnerability classes opened.
+
+## RANKED HYPOTHESES 2026-08-21 15:24:43 UTC
+- [95] api.threema.ch/identity/*: Cross-origin directory enumeration via api.threema.ch expanded POST+text/plain acceptance (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: author poc/api-full-cluster-poc.html from the just-proven beacon-instrumented template (TARGET=https://api.threema.ch; six fetches /identity/{check_revoc
+- NEXT(hypotheses-bigpickle.txt): PROBE: author `poc/apip-crossorigin-oracle-poc.html` from the just-proven template (TARGET=https://apip.threema.ch; two fetches `/identity/match_token` + `/iden
+- LEARN: ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Method
+- LEARN: ACCEPTED MISCONFIG @ apip.test.threema.ch: Staging directory server live with HSTS/Expect-CT and identical API surface to production — logic-identical/data-disj
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: Crash gap closed — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; all 8 mint end
+- LEARN: ACCEPTED MISCONFIG @ Crash/error paths: ACAO:* present on 500/0B responses — wildcard CORS on all error responses, browser-readable
+- LEARN: REJECTED MISCONFIG @ /identity/revoke query-param variant: Returns 46B universally — not a token-mint vector (POST-body or GET+text/plain body required)
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: Malformed input returns 200/17B graceful validation — NOT a crash-family member
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash-family membership: Returns 404 on all probes — crash-family corrected to 15 endpoint families × 4 hosts × GET+POST =
+- LEARN: REJECTED HYP @ Type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs) — not structural class, anomalous identities only
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: Conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determi
+- LEARN: ACCEPTED MISCONFIG @ Production directory servers HSTS gap: ds-apip/api/apip lack HSTS/Expect-CT on error responses; staging counterparts have both — deployment
+- LEARN: NO_NEW_CLASS — all prior findings byte-stable; no new vulnerability classes opened.
+- LEARN: TECH @ netlog-salvage: kill-truncated netlogs (timeout exit 124) are recoverable by trimming to last complete event object + re-close array (`…}]}`) — salvaged 
+- LEARN: TECH @ evidence-channel: Image()-beacon GET ?line=… to own origin is the highest-fidelity capture channel in this harness — dbus/v=1 stderr noise pollutes conso
+- LEARN: SCOPE @ cluster-parity: browser-proven matrix now ds-apip.prod 8/8, api.prod 8/8, apip.prod 2/8 (match_token+check), ds-apip.test 2/8 — class is deployment-wide
+- LEARN: TECH @ netlog-salvage: kill-truncated netlogs (timeout exit 124) are recoverable by trimming to last complete event object + re-close array (`…}]}`) — salvaged 
