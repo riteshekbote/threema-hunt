@@ -5108,3 +5108,9 @@ https://apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/jso
 https://apip.threema.ch -> HTTP 403
 https://ds-apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
 https://apip.test.threema.ch -> HTTP 403
+
+## 2026-08-21 18:12:00 UTC
+https://api.threema.ch/identity/{revoke|set_featuremask|match_token|check_revocation_key|blob_cred|sfu_cred|update_work_info|fetch_priv -> HTTP 404
+https://ds-apip.threema.ch/identity/{revoke|set_featuremask|match_token|check_revocation_key|blob_cred|sfu_cred|update_work_info|fetch_priv -> HTTP 404
+https://apip.test.threema.ch/identity/{match_token,check -> HTTP 404
+https://apip.threema.ch -> HTTP 403
