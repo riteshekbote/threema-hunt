@@ -160,3 +160,4 @@ testability: PASSIVE (source code analysis only; runtime validation requires Win
 [RISK] desktop-src: 60 | threema-desktop key-storage Windows ACL bypass RAG-verified at 95 confidence (6-path chain: fs.ts:41 {} on win32, key-storage/index.ts no ACL, electron-main.ts STORE_USER_PASSWORD no ACL, inner/v3.ts exposes ck+databaseKey, crypto.ts Argon2id, sqlite.ts PRAGMA key); PoC artifact absent on filesystem after 26+ cycles; BrowserWindow sandbox unset (TODO DESK-79) with nodeIntegrationInWorker true — conditional RCE requires separate renderer exploit chain; crypto.ts:223 benchmark password confirmed dummy; OnPrem config trust verified not vulnerable
 ## 2026-08-21 21:42:47 UTC [api] (model mimo)
 ## 2026-08-21 21:59:54 UTC [api] (model mimo)
+## 2026-08-21 22:28:27 UTC [api] (model mimo)
