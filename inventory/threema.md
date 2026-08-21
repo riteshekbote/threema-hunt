@@ -7241,3 +7241,12 @@
 - CHANGED api.threema.ch/identity/blob_cred: GET-hold was transient edge flake — GET and POST both 200/~0.76s valid token; permanently REJECTED
 - CHANGED ds-apip.threema.ch/identity/{check_revocation_key,update_work_info,set_featuremask,sfu_cred,fetch_priv,blob_cred}: hypothesis conf 70 → PROVEN this cycle. Browser-context zero-preflight cross-origin r
 - NEW poc/dsapip-full-cluster-poc.html authored + runtime-proven (sha256 e0606037d0881dc00f2f8c7c96e4474c2b431fcd4196f48df02b6c4392fb2713); evidence: netlog OPTIONS=0 across entire cluster
+
+## 2026-08-21 11:54:55 UTC
+- NEW api.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN — headless Chrome 151 from origin http://127.0.0.1:8099
+- NEW ds-apip.test.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN from attacker origin http://127.0.0.1:8099
+- NEW poc/staging-crossorigin-oracle-poc.html authored — sha256 a42b0c9dc0ab98bf…
+- NEW poc/dsapip-full-cluster-poc.html authored + runtime-proven (sha256 e0606037d0881dc00f2f8c7c96e4474c2b431fcd4196f48df02b6c4392fb2713)
+- CHANGED ds-apip.threema.ch/identity/{check_revocation_key,update_work_info,set_featuremask,sfu_cred,fetch_priv,blob_cred}: hypothesis conf 70 → PROVEN this cycle. Browser-context zero-preflight cross-origin r
+- CHANGED work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+- CHANGED api.threema.ch/identity/blob_cred: GET-hold was transient edge flake — GET and POST both 200/~0.76s valid token; permanently REJECTED
