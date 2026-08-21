@@ -693,3 +693,8 @@
   - **Verdict: HOLD** — Requires AUTH_HELPED with valid Work test license. Cannot be proven with passive GET/HEAD only.
   - | **VALID (new, reportable)** | **0** | No novel findings |
   - | H2 | ds-apip-work `/identities` cross-subscription leak (TWRK-1633) | AUTH_HELPED (valid Work test license) | Retain for program-issued credentials |
+
+- 3 lead(s) marked VALID at 2026-08-21 20:45:48 UTC
+  - | Q7 Reasonable triager accept | **MAYBE** — real code defect with clear impact, but requires local access + Windows-specific. Likely a valid low/mid finding. |
+  - | Q4 Provable read-only | **NO** — requires valid credentials to demonstrate actual data access (AUTH_HELPED) |
+  - | Q4 Provable read-only | **NO** — requires AUTH_HELPED with valid Work license |
