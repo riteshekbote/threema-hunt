@@ -13611,3 +13611,8 @@
 - LEARN: Method-permissiveness drifts per deployment within one codebase: api.threema.ch accepts GET-with-body on 5/6 mint endpoints while ds-apip/api/apip siblings rest
 - LEARN: Wildcard CORS on error paths is uniform across prod and staging (HTTP/2 500/0B carries ACAO:*), making crash-family responses browser-readable everywhere — incl
 - LEARN: LEARN TECH @ fetch API: browsers cannot attach bodies to GET requests (fetch throws TypeError; XHR silently drops) — the browser-viable zero-preflight primitive
+
+## RANKED HYPOTHESES 2026-08-21 10:05:46 UTC
+- [95] api.threema.ch/identity/*: Cross-origin directory enumeration via api.threema.ch expanded POST+text/plain acceptance (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X POST --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_to
+- LEARN: ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling —

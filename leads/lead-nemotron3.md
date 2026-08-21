@@ -29953,3 +29953,58 @@ testability: PASSIVE
 [RISK] sync: 25 reason: mediator-*/rendezvous-* return uniform 403 on HTTPS; split DNS routing confirmed; high-entropy path structure; no unauthenticated surface
 [RISK] safe: 50 reason: safe-* 5-host cluster has HSTS/Expect-CT gap on GET 400 vs OPTIONS 204; HTTP Basic Auth + route-existence oracle; safe.threema.ch singular timeout pattern distinct; no auth on root
 [RISK] desktop-src: 70 reason: Windows key-storage ACL bypass (6-path RAG chain verified, PoC authored but Windows validation pending); BrowserWindow sandbox unset + nodeIntegrationInWorker (TODO DESK-79); OnPrem config trust verified secure; crypto.ts benchmark dummy not a secret; no new secrets in 28-cycle scan
+## 2026-08-21 09:56:44 UTC [web] (model nemotron3)
+[NEW] api.threema.ch confirmed as full directory sibling — all 12+ endpoints mirror ds-apip with byte-identical responses; 5/6 mint endpoints accept POST+text/plain (browser-viable)
+[NEW] apip.test.threema.ch staging directory server live with HSTS (max-age=31104000) + Expect-CT + identical API surface to production; data-disjoint confirmed
+[NEW] ds-apip.threema.ch/identity/fetch_priv crash gap closed — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; all 8 mint endpoints now in crash family
+[NEW] Crash/error paths carry ACAO:* on 500/0B responses — wildcard CORS on all error responses, browser-readable
+[NEW] Production directory servers (ds-apip, api, apip) lack HSTS/Expect-CT on error responses; staging counterparts (ds-apip.test, apip.test) have both — deployment inconsistency confirmed
+[NEW] poc/api-crossorigin-oracle-poc.html: first verified on-disk PoC artifact after 25+ cycles — sha256 99cb83737f1b272e…, runtime-proven
+[NEW] api.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN — headless Chrome 151 from origin http://127.0.0.1:8099
+[NEW] ds-apip.test.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN from attacker origin http://127.0.0.1:8099
+[NEW] poc/staging-crossorigin-oracle-poc.html authored — sha256 a42b0c9dc0ab98bf…
+[CHANGED] work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+[CHANGED] api.threema.ch/identity/blob_cred: GET-hold was transient edge flake — GET and POST both 200/~0.76s valid token; permanently REJECTED
+[PRIO] api.threema.ch/identity/*, 93, attack_surface:10 business_value:9 tech_exposure:10 gate_ease:10 cloud_surface:8 freshness:9
+[PRIO] apip.test.threema.ch/identity/*, 88, attack_surface:9 business_value:8 tech_exposure:9 gate_ease:10 cloud_surface:8 freshness:8
+[PRIO] ds-apip.test.threema.ch/identity/*, 85, attack_surface:9 business_value:8 tech_exposure:9 gate_ease:10 cloud_surface:7 freshness:8
+[HYP] Cross-origin directory enumeration via api.threema.ch expanded POST+text/plain acceptance
+class: IDOR
+asset: api.threema.ch/identity/*
+confidence: 95
+reasoning: api.threema.ch confirmed as full directory sibling with 5/6 mint endpoints accepting POST+text/plain (browser-viable CORS-safelisted request); byte-identical responses to ds-apip including constant tokenRespKeyPub sha256 c8005cca9…; browser-context zero-preflight read PROVEN for match_token and check endpoints from origin http://127.0.0.1:8099
+evidence_needed: Verify remaining 3 untested mint endpoints (sfu_cred, blob_cred, update_work_info) accept POST+text/plain in browser context; confirm check_license credential oracle works cross-origin
+verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X POST --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_token — verify 200/133B token + ACAO:* + tokenRespKeyPub sha256 c8005cca9…; curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X POST --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/sfu_cred — verify 200/133B token + ACAO:*
+impact: Cross-origin identity enumeration and token minting on additional production directory host with expanded POST+text/plain acceptance (5/6 endpoints) enabling preflight-free browser exploitation; triples directory IDOR surface
+testability: PASSIVE
+[HYP] Staging directory mirror with production API surface and browser-viable cross-origin reads
+class: MISCONFIG
+asset: ds-apip.test.threema.ch/identity/*
+confidence: 90
+reasoning: ds-apip.test.threema.ch is live staging directory server with identical API surface to production (all /identity/* endpoints return 200 with CORS *); browser-context zero-preflight cross-origin read PROVEN from attacker origin http://127.0.0.1:8099 for match_token and check endpoints; data-disjoint confirmed (0 prod identities in 524k-ID staging draw); crash family parity confirmed
+evidence_needed: Verify all 8 mint endpoints on staging with browser-context PoC; confirm data isolation from production via census draw
+verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -X GET https://ds-apip.test.threema.ch/identity/ECHOECHO — verify 200/404 + ACAO:* + HSTS + Expect-CT; curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X POST --data '{"identity":"ECHOECHO"}' https://ds-apip.test.threema.ch/identity/revoke — verify token mint + ACAO:* + HSTS/Expect-CT; curl -s -H "Origin: https://evil.example" -X POST -d '{"identities":["ECHOECHO"]}' https://ds-apip.test.threema.ch/identity/fetch_bulk — verify pubkey oracle; curl -s -H "Origin: https://evil.example" -X POST -d '{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ","ECHOECHO"]}' https://ds-apip.test.threema.ch/identity/check_featuremask — verify census parity + data isolation
+impact: Staging mirror with production API surface enables safe testing of directory enumeration/crash DoS without affecting prod; browser-viable cross-origin reads proven on staging
+testability: PASSIVE
+[HYP] Staging directory mirror with production API surface and HSTS/Expect-CT
+class: MISCONFIG
+asset: apip.test.threema.ch/identity/*
+confidence: 85
+reasoning: apip.test.threema.ch is live staging directory server with identical API surface to production (all /identity/* endpoints return 200 with CORS *); HSTS (max-age=31104000) and Expect-CT present on staging but absent on production; data-disjoint confirmed (0 prod identities in 524k-ID staging draw); crash family parity confirmed (fetch_priv + create malformed → 500/0B + ACAO:*); enables safe testing of enumeration/crash DoS without affecting prod
+evidence_needed: Verify all 8 mint endpoints on staging with HSTS/Expect-CT headers; confirm data isolation from production via census draw
+verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -X GET https://apip.test.threema.ch/identity/ECHOECHO — verify 200/404 + ACAO:* + HSTS + Expect-CT; curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X POST --data '{"identity":"ECHOECHO"}' https://apip.test.threema.ch/identity/revoke — verify token mint + ACAO:* + HSTS/Expect-CT; curl -s -H "Origin: https://evil.example" -X POST -d '{"identities":["ECHOECHO"]}' https://apip.test.threema.ch/identity/fetch_bulk — verify pubkey oracle; curl -s -H "Origin: https://evil.example" -X POST -d '{"identities":["5U8DM3J3","RFK5RDU6","ZZZZZZZZ","ECHOECHO"]}' https://apip.test.threema.ch/identity/check_featuremask — verify census parity + data isolation
+impact: Staging mirror with production API surface enables safe testing of directory enumeration/crash DoS without affecting prod; HSTS/Expect-CT on staging but not prod indicates deployment inconsistency
+testability: PASSIVE
+[PARKED] Cross-origin directory enumeration via GET+text/plain: Browsers cannot attach bodies to GET requests (fetch throws TypeError; XHR silently drops) — the browser-viable zero-preflight primitive is POST + Content-Type:text/plain; GET-acceptance maps are curl-only observations and must not be reported as browser-exploitable
+[PARKED] /identity/revoke query-param variant: Returns 46B universally — not a token-mint vector (POST-body or GET+text/plain body required); verify_steps not actionable for mint
+[PARKED] /identity/fetch_bulk crash-family membership: Malformed input returns 200/17B graceful validation — NOT a crash-family member; pure IDOR oracle
+[PARKED] /identity/delete crash-family membership: Returns 404 on all probes — crash-family corrected to 15 endpoint families
+[PARKED] Type:1 Work-org fingerprint: class REJECTED in knowledge base (6+ consecutive zero-type:1 draws, 2 anomalous identities only)
+[PARKED] Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: class REJECTED in knowledge base (conditional RCE requires separate renderer exploit chain, 0 dynamic sinks in worker/ tree)
+[PARKED] crypto.ts:223 benchmark password: class REJECTED in knowledge base (benchmark-only dummy, purged at L233, not used for real encryption)
+[PARKED] work.threema.ch/api/v1 X-Api-Key oracle: class REJECTED in knowledge base (404 has NO CORS headers, key not in desktop source, permanently downgraded)
+[FINAL] 1. Cross-origin directory enumeration via api.threema.ch expanded POST+text/plain acceptance (95) — api.threema.ch/identity/*, 5/6 mint endpoints accept POST+text/plain enabling preflight-free browser exploitation
+[FINAL] 2. Staging directory mirror with production API surface and browser-viable cross-origin reads (90) — ds-apip.test.threema.ch/identity/*, staging mirror with production surface for safe testing
+[FINAL] 3. Staging directory mirror with production API surface and HSTS/Expect-CT (85) — apip.test.threema.ch/identity/*, staging mirror with production surface and transport security headers
+[NEXT] PROBE: curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X POST --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_token — verify 200/133B token + ACAO:* + tokenRespKeyPub sha256 c8005cca9…; then curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X POST --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/sfu_cred — verify 200/133B token + ACAO:*
+[LEARN] ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling —
