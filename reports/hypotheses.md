@@ -13616,3 +13616,10 @@
 - [95] api.threema.ch/identity/*: Cross-origin directory enumeration via api.threema.ch expanded POST+text/plain acceptance (from reports/hypotheses-nemotron3.txt)
 - NEXT(hypotheses-nemotron3.txt): PROBE: curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X POST --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_to
 - LEARN: ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling —
+
+## RANKED HYPOTHESES 2026-08-21 10:26:54 UTC
+- [75] api.threema.ch/identity/*: IDOR @ api.threema.ch/identity/{check_revocation_key,update_work_info,set_featuremask,sfu_cred,fetch_priv,blob_cred} (from reports/hypotheses-bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: author poc/api-full-cluster-poc.html from the just-proven template (TARGET=https://api.threema.ch; same six fetches `/identity/{check_revocation_key,upda
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/* remaining-6: browser-context zero-preflight token minting PROVEN (netlog OPTIONS=0, 6/6 parsed JSON, per-request t
+- LEARN: ACCEPTED MISCONFIG @ ds-apip.threema.ch: ECHOECHO mints valid-shape tokens (133-136B) on all 6 endpoints — minting does not gate on identity existence for these
+- LEARN: TECH: beacon-instrumented template (SCRIPT-START assertion + Image() GET beacons + netlog `"method"` census) produced a live run first attempt — reuse verbatim 
