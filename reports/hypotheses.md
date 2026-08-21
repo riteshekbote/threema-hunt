@@ -13684,3 +13684,22 @@
 - LEARN: LEARN TECH @ fetch API: browsers cannot attach bodies to GET requests (fetch throws TypeError; XHR silently drops) — the browser-viable zero-preflight primitive
 - LEARN: ACCEPTED IDOR @ threema directory cluster (ds-apip.prod + api.prod + ds-apip.test): browser-context zero-preflight identity-token-mint oracle proven alive on 3 
 - LEARN: ACCEPTED MISCONFIG @ ds-apip.threema.ch/identity/*: token minting does not gate on identity existence for the 6 remaining routes — unauthenticated browser JS ob
+
+## RANKED HYPOTHESES 2026-08-21 12:12:52 UTC
+- [95] api.threema.ch/identity/*: Cross-origin directory enumeration via api.threema.ch expanded POST+text/plain acceptance (from reports/hypotheses-nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: author poc/api-full-cluster-poc.html from the just-proven beacon-instrumented template (TARGET=https://api.threema.ch; six fetches /identity/{check_revoc
+- LEARN: ACCEPTED IDOR @ api.threema.ch: Confirmed full directory sibling — GET/POST /identity/* return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Method
+- LEARN: ACCEPTED MISCONFIG @ apip.test.threema.ch: Staging directory server live with HSTS/Expect-CT and identical API surface to production — logic-identical/data-disj
+- LEARN: ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: Crash gap closed — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; all 8 mint end
+- LEARN: ACCEPTED MISCONFIG @ Crash/error paths: ACAO:* present on 500/0B responses — wildcard CORS on all error responses, browser-readable
+- LEARN: REJECTED MISCONFIG @ /identity/revoke query-param variant: Returns 46B universally — not a token-mint vector (POST-body or GET+text/plain body required)
+- LEARN: REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: Malformed input returns 200/17B graceful validation — NOT a crash-family member
+- LEARN: REJECTED MISCONFIG @ /identity/delete crash-family membership: Returns 404 on all probes — crash-family corrected to 15 endpoint families × 4 hosts × GET+POST =
+- LEARN: REJECTED HYP @ Type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs) — not structural class, anomalous identities only
+- LEARN: REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: Conditional RCE requires separate renderer exploit chain (0 dynamic si
+- LEARN: REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determi
+- LEARN: ACCEPTED MISCONFIG @ Production directory servers HSTS gap: ds-apip/api/apip lack HSTS/Expect-CT on error responses; staging counterparts have both — deployment
+- LEARN: NO_NEW_CLASS — all prior findings byte-stable; no new vulnerability classes opened.
+- LEARN: Method-permissiveness drifts per deployment within one codebase: api.threema.ch accepts GET-with-body on 5/6 mint endpoints while ds-apip/api/apip siblings rest
+- LEARN: Wildcard CORS on error paths is uniform across prod and staging (HTTP/2 500/0B carries ACAO:*), making crash-family responses browser-readable everywhere — incl
+- LEARN: LEARN TECH @ fetch API: browsers cannot attach bodies to GET requests (fetch throws TypeError; XHR silently drops) — the browser-viable zero-preflight primitive
