@@ -7405,3 +7405,5 @@
 - CHANGED apip.threema.ch/identity/{match_token,check}: curl-parity → browser-context PROVEN this cycle
 - CHANGED Cluster browser-proven matrix: ds-apip.prod 8/8, api.prod 8/8, apip.prod 2/8, ds-apip.test 2/8 — remaining gaps: apip remaining-6, apip.test
 - NEW safe-* /backups/{id}: universal catch-all 400 — byte-identical body+ETag across all variants; zero per-ID signal; class closed permanently
+
+## 2026-08-21 17:34:08 UTC

@@ -30892,3 +30892,4 @@ testability: PASSIVE
 [RISK] sync: 40 reason: mediator/rendezvous WSS hosts return uniform 403 on HTTPS; high-entropy paths; split DNS routing confirmed; no passive in-band divergence obtainable without client frame
 [RISK] safe: 55 reason: 5 backup hosts behind single IP with HTTP Basic Auth; HSTS/Expect-CT on OPTIONS preflight but absent on GET 400; route-existence oracle (400 vs 404); credentialed CORS enabled
 [RISK] desktop-src: 70 reason: Electron BrowserWindow sandbox unset + nodeIntegrationInWorker=true (TODO DESK-79); Windows key-storage ACL bypass (keystorage.bin + keystorage.password.bin written without ACL; DPAPI password recoverable by same-user); 6-path RAG chain verified; PoC artifact authored; conditional RCE requires renderer exploit chain
+## 2026-08-21 17:33:54 UTC [web] (model nemotron3)
