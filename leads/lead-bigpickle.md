@@ -26527,3 +26527,7 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ probe-results.md: shared probe log now carries this cycle's GET-control records — activity-trace hygiene restored for bigpickle.
 [LEARN] ACCEPTED GOV @ reports/approval-request-directory-cluster.md: triager deadlock (“cannot be proven with passive GET/HEAD only”) has exactly one exit — operator authorization; draft ready for human send-off.
 [RISK] chat: 88 — directory-trio oracle surface unchanged, policy-gated pending approval request | web: 12 | sync: 5 | safe: 28 — enumeration-oracle component eliminated by control; residual = Basic-auth-gated API + minor header gaps | desktop-src: 42 — source-verified ACL chain awaits Windows VM validation
+## 2026-08-21 17:00:03 UTC [chat] (model bigpickle)
+[NEXT]
+[LEARN]
+[RISK]
