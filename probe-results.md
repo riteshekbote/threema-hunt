@@ -5075,3 +5075,12 @@ https://ds-apip.test.threema.ch -> HTTP 403
 https://apip.test.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
 https://apip.test.threema.ch/identity/check_featuremask -> HTTP 500
 https://apip.threema.ch -> HTTP 403
+
+## 2026-08-21 16:01:08 UTC
+https://api.threema.ch -> HTTP 403
+https://ds-apip.test.threema.ch -> HTTP 403
+https://apip.test.threema.ch/identity/revoke -> 200 len=? type=application/json; charset=utf-8
+https://apip.test.threema.ch/identity/check_featuremask -> HTTP 500
+https://apip.threema.ch -> HTTP 403
+https://apip.test.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://apip.test.threema.ch -> HTTP 403
