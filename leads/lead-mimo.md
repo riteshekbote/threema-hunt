@@ -274,3 +274,4 @@ evidence_needed: Formal report + operator authorization for POST findings per sc
 verify_steps: AUTHOR_POC: poc/api-full-mint-oracle.html from beacon template; RUN: headless Chromium with --net-log; VERIFY: netlog OPTIONS=0
 impact: Unauthenticated attacker from any origin obtains opaque identity tokens via browser JS without CORS preflight — identity existence oracle + correlation. Severity: HIGH
 testability: HUMAN_ONLY (POST-based, requires scope operator approval)
+## 2026-08-21 23:50:25 UTC [api] (model mimo)
