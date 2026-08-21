@@ -5158,3 +5158,7 @@ https://safe-01.threema.ch/backups/000000000000000000000000000000000000000000000
 
 ## 2026-08-21 22:48:37 UTC
 
+
+## 2026-08-21 23:04:45 UTC
+https://api.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000 -> HTTP 400
