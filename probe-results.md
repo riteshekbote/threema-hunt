@@ -5120,3 +5120,7 @@ https://api.threema.ch/identity/{endpoint -> HTTP 404
 https://ds-apip.threema.ch/identity/check_featuremask -> HTTP 500
 https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000 -> HTTP 400
 https://api.threema.ch/identity/match_token` -> HTTP 404
+
+## 2026-08-21 18:54:58 UTC
+https://api.threema.ch/identity/match_token -> 200 len=? type=application/json; charset=utf-8
+https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000 -> HTTP 400
