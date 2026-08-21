@@ -1,4 +1,4 @@
-## 2026-08-21 04:19:54 UTC [web] (model nemotron3)
+## 2026-08-21 04:58:47 UTC [web] (model nemotron3)
 [NEW] api.threema.ch confirmed as full directory sibling — all 12+ endpoints mirror ds-apip with byte-identical responses; GET-acceptance map: 5/6 mint endpoints accept GET+text/plain body
 [NEW] apip.test.threema.ch staging directory server live with HSTS (max-age=31104000) + Expect-CT + identical API surface to production; data-disjoint confirmed
 [NEW] ds-apip.threema.ch/identity/fetch_priv crash gap closed — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; all 8 mint endpoints now in crash family
@@ -10,16 +10,16 @@
 [NEW] poc/staging-crossorigin-oracle-poc.html authored (sha256 a42b0c9dc0ab98bf…)
 [CHANGED] api.threema.ch/identity/blob_cred: GET-hold was transient edge flake — GET and POST both 200/~0.76s valid token; permanently REJECTED
 [CHANGED] work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
-[CHANGED] FINAL #1 staging browser-viability (conf 80) → RESOLVED ACCEPTED
-[PRIO] api.threema.ch/identity/*, 95, attack_surface=9 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=7 freshness=9
-[PRIO] apip.test.threema.ch/identity/*, 88, attack_surface=8 business_value=8 tech_exposure=9 gate_ease=10 cloud_surface=7 freshness=8
-[PRIO] ds-apip.threema.ch/identity/*, 85, attack_surface=9 business_value=8 tech_exposure=8 gate_ease=10 cloud_surface=7 freshness=8
+[CHANGED] apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
+[PRIO] api.threema.ch/identity/*, 91, attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=7 freshness=8
+[PRIO] ds-apip.threema.ch/identity/*, 88, attack_surface=9 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=7 freshness=8
+[PRIO] apip.test.threema.ch/identity/*, 85, attack_surface=9 business_value=8 tech_exposure=9 gate_ease=10 cloud_surface=7 freshness=7
 [HYP] Cross-origin directory enumeration via api.threema.ch expanded GET-acceptance
 class: IDOR
 asset: api.threema.ch/identity/*
 confidence: 95
 reasoning: api.threema.ch confirmed full directory sibling with byte-identical endpoints to ds-apip; 5/6 mint endpoints accept GET+text/plain body returning 200/133-135B token + ACAO:*; zero rate limits; headless Chrome proved browser-context read from any origin; triples directory attack surface for preflight-free browser exploitation
-evidence_needed: Confirm all 8 mint endpoints accept GET+text/plain on api.threema.ch with tokenRespKeyPub sha256 c8005cca9…; verify sfu_cred GET returns 200/133B token (not hang)
+evidence_needed: Confirm all 8 mint endpoints accept POST+text/plain on api.threema.ch with tokenRespKeyPub sha256 c8005cca9…; verify sfu_cred POST returns 200/133B token (not hang)
 verify_steps: PASSIVE: curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X POST --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_token — verify 200/133B token + ACAO:* + tokenRespKeyPub; curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X POST --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/sfu_cred — verify 200/133B token + ACAO:*; curl -s -H "Origin: https://evil.example" -X POST -d '{"identities":["ECHOECHO"]}' https://api.threema.ch/identity/fetch_bulk — verify pubkey oracle + ACAO:*
 impact: Cross-origin identity enumeration and token minting on additional production directory host with expanded GET-acceptance (5/6 endpoints) enabling preflight-free browser exploitation; triples directory IDOR surface
 testability: PASSIVE
@@ -49,7 +49,7 @@ testability: PASSIVE
 [PARKED] Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: class REJECTED in knowledge base (conditional RCE requires separate renderer exploit chain, 0 dynamic sinks in worker/ tree)
 [PARKED] crypto.ts:223 benchmark password: class REJECTED in knowledge base (benchmark-only dummy, purged at L233, not used for real encryption)
 [PARKED] work.threema.ch/api/v1 X-Api-Key oracle: class REJECTED in knowledge base (404 has NO CORS headers, key not in desktop source, permanently downgraded)
-[FINAL] 1. Cross-origin directory enumeration via api.threema.ch expanded GET-acceptance (95) — api.threema.ch/identity/*, 5/6 mint endpoints accept GET+text/plain enabling preflight-free browser exploitation
+[FINAL] 1. Cross-origin directory enumeration via api.threema.ch expanded GET-acceptance (95) — api.threema.ch/identity/*, 5/6 mint endpoints accept POST+text/plain enabling preflight-free browser exploitation
 [FINAL] 2. Staging directory mirror with production API surface and HSTS/Expect-CT (90) — apip.test.threema.ch/identity/*, staging mirror with production surface for safe testing
 [FINAL] 3. Production directory servers missing HSTS/Expect-CT on error responses (85) — ds-apip/api/apip.threema.ch, deployment inconsistency vs staging
 [NEXT] PROBE: curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X POST --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/match_token — verify 200/133B token + ACAO:* + tokenRespKeyPub sha256 c8005cca9…; then curl -s -H "Origin: https://evil.example" -H "Content-Type: text/plain" -X POST --data '{"identity":"ECHOECHO"}' https://api.threema.ch/identity/sfu_cred — verify 200/133B token + ACAO:*
