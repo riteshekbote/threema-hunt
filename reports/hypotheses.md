@@ -13862,3 +13862,5 @@
 - LEARN: ACCEPTED OTHER @ evidence tiering: executed POST transcripts exist ONLY in `reports/analyst-longcat.log` L720–800; bigpickle(126)/laguna(157)/nemotron3(121) `cu
 - LEARN: ACCEPTED OTHER @ probe-results.md: shared probe log now carries this cycle's GET-control records — activity-trace hygiene restored for bigpickle.
 - LEARN: ACCEPTED GOV @ reports/approval-request-directory-cluster.md: triager deadlock (“cannot be proven with passive GET/HEAD only”) has exactly one exit — operator a
+
+## RANKED HYPOTHESES 2026-08-21 17:34:08 UTC
