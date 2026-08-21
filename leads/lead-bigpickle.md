@@ -26207,3 +26207,7 @@ testability: PASSIVE
 [LEARN] TECH @ CORS-read-proof semantics: r.headers.get("access-control-allow-origin") returns null even when ACAO:* is granted (response header not JS-exposed); the successful cross-origin body read IS the CORS proof — never score cors:null as failure.
 [RISK] chat: 99 — browser-exploitable unauthenticated identity oracle now proven end-to-end on THREE hosts (api + ds-apip production, ds-apip.test staging): any web page a victim visits can mint session tokens and read identity existence/state/featureMasks with zero preflight; residual gap is endpoint-coverage breadth (remaining-6 cluster) | web: 15 — static redirects + billing assets; global_settings captcha-gated | sync: 5 — mediator/rendezvous uniform 403; TCP handshake auth-gated | safe: 30 — Basic-auth gated backup API, route-existence oracle, HSTS absent on GET 400 error path | desktop-src: 35 — key-storage Windows ACL chain source-verified, runtime validation Windows-gated
 ## 2026-08-21 01:33:39 UTC [chat] (model bigpickle)
+## 2026-08-21 02:45:32 UTC [chat] (model bigpickle)
+[HYP] IDOR @ https://api.threema.ch/identity/{check_revocation_key,update_work_info,set_featuremask,sfu_cred,fetch_priv,blob_cred} | conf 70 |
+[HYP] MISCONFIG @ https://apip.test.threema.ch/identity/{remaining-7} | conf 65 |
+[HYP] MISCONFIG @ ds-apip.threema.ch crash-family browser readability | conf 60 |
