@@ -26211,3 +26211,4 @@ testability: PASSIVE
 [HYP] IDOR @ https://api.threema.ch/identity/{check_revocation_key,update_work_info,set_featuremask,sfu_cred,fetch_priv,blob_cred} | conf 70 |
 [HYP] MISCONFIG @ https://apip.test.threema.ch/identity/{remaining-7} | conf 65 |
 [HYP] MISCONFIG @ ds-apip.threema.ch crash-family browser readability | conf 60 |
+## 2026-08-21 03:39:27 UTC [chat] (model bigpickle)
