@@ -26382,3 +26382,9 @@ testability: PASSIVE
 [LEARN] REJECTED OTHER @ {ds-apip,api,apip} GET+text/plain-as-browser-vector: browsers cannot attach bodies to GET (fetch throws TypeError; XHR silently drops) — browser-viable primitive is POST + Content-Type:text/plain.
 [LEARN] REJECTED OTHER @ api.threema.ch/identity/blob_cred GET-hold: transient edge flake (clean GET+POST controls both 200/~0.76s valid token shape) — permanently discarded per reproducibility standard.
 [RISK] chat: 99 — browser-exploitable unauthenticated identity-token-mint oracle proven end-to-end on THREE hosts (ds-apip.prod full 8/8, api.prod 2/8, ds-apip.test); residual gap is coverage breadth only (api remaining-6, apip, apip.test) | web: 15 — static redirects + billing assets; global_settings captcha-gated | sync: 5 — mediator/rendezvous uniform 403; TCP handshake auth-gated | safe: 30 — Basic-auth gated backup API, route-existence oracle, HSTS absent on GET 400 error path | desktop-src: 35 — key-storage Windows ACL chain source-verified (6 paths), runtime validation Windows-gated; BrowserWindow sandbox gap conditional-only
+## 2026-08-21 15:02:26 UTC [chat] (model bigpickle)
+[NEXT] PROBE: author `poc/apip-crossorigin-oracle-poc.html` from the just-proven template (TARGET=https://apip.threema.ch; two fetches `/identity/match_token` + `/identity/check`, each POST text/plain `{"identity":"ECHOECHO"}`, ≥1200 ms spacing; SCRIPT-START + Image-beacon instrumentation); serve `http://127.0.0.1:8099`; single chromium run (`--log-net-log=/tmp/opencode/poc-evidence/apip-netlog.json --enable-logging=stderr --v=1`, kill after ~45 s); assert SCRIPT-START marker, 0 OPTIONS events (raw scan + structured salvage parse), 2/2 parsed JSON; `fuser -k 8099/tcp` cleanup (never pkill -f); sha256sum all artifacts; copy evidence set to `reports/evidence/apip-20260821/`.
+[LEARN]
+[LEARN]
+[LEARN]
+[LEARN]

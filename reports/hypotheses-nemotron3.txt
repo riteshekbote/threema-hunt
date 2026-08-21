@@ -1,15 +1,13 @@
-## 2026-08-21 14:10:49 UTC [web] (model nemotron3)
-[NEW] api.threema.ch confirmed as full directory sibling — all 12+ endpoints mirror ds-apip with byte-identical responses; 5/6 mint endpoints accept POST+text/plain (browser-viable CORS-safelisted)
-[NEW] apip.test.threema.ch staging directory server live with HSTS (max-age=31104000) + Expect-CT + identical API surface to production; data-disjoint confirmed
+## 2026-08-21 14:52:06 UTC [web] (model nemotron3)
+[NEW] api.threema.ch/identity/{check_revocation_key,update_work_info,set_featuremask,sfu_cred,fetch_priv,blob_cred}: browser-context zero-preflight cross-origin read PROVEN this cycle (netlog OPTIONS=0, 6/6 parsed JSON, per-request tokens, constant tokenRespKeyPub sha256 c8005cca9…)
+[NEW] ds-apip.test.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN from attacker origin http://127.0.0.1:8099 (netlog OPTIONS=0)
+[NEW] apip.test.threema.ch/identity/*: staging directory server live with HSTS (max-age=31104000) + Expect-CT + identical API surface to production; data-disjoint confirmed
 [NEW] ds-apip.threema.ch/identity/fetch_priv crash gap closed — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; all 8 mint endpoints now in crash family
 [NEW] Crash/error paths carry ACAO:* on 500/0B responses — wildcard CORS on all error responses, browser-readable
 [NEW] Production directory servers (ds-apip, api, apip) lack HSTS/Expect-CT on error responses; staging counterparts have both — deployment inconsistency confirmed
 [NEW] poc/api-crossorigin-oracle-poc.html: first verified on-disk PoC artifact after 25+ cycles — sha256 99cb83737f1b272e…, runtime-proven
-[NEW] api.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN — headless Chrome 151 from origin http://127.0.0.1:8099
-[NEW] ds-apip.test.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN from attacker origin http://127.0.0.1:8099
-[NEW] poc/staging-crossorigin-oracle-poc.html authored — sha256 a42b0c9dc0ab98bf…
 [NEW] poc/dsapip-full-cluster-poc.html authored + runtime-proven (sha256 e0606037d0881dc00f2f8c7c96e4474c2b431fcd4196f48df02b6c4392fb2713)
-[CHANGED] ds-apip.threema.ch/identity/{check_revocation_key,update_work_info,set_featuremask,sfu_cred,fetch_priv,blob_cred}: hypothesis conf 70 → PROVEN this cycle. Browser-context zero-preflight cross-origin r
+[NEW] poc/staging-crossorigin-oracle-poc.html authored — sha256 a42b0c9dc0ab98bf…
 [CHANGED] work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
 [CHANGED] api.threema.ch/identity/blob_cred: GET-hold was transient edge flake — GET and POST both 200/~0.76s valid token; permanently REJECTED
 [PRIO] api.threema.ch/identity/*, 9.1, attack_surface:9 business_value:8 tech_exposure:9 gate_ease:10 cloud_surface:9 freshness:7
@@ -62,9 +60,9 @@ testability: PASSIVE
 [LEARN] REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: Malformed input returns 200/17B graceful validation — NOT a crash-family member
 [LEARN] REJECTED MISCONFIG @ /identity/delete crash-family membership: Returns 404 on all probes — crash-family corrected to 15 endpoint families × 4 hosts × GET+POST = 120 combos
 [LEARN] REJECTED HYP @ Type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs) — not structural class, anomalous identities only
-[LEARN] REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: Conditional RCE requires separate renderer exploit chain (0 dynamic si
-[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determi
-[LEARN] ACCEPTED MISCONFIG @ Production directory servers HSTS gap: ds-apip/api/apip lack HSTS/Expect-CT on error responses; staging counterparts have both — deployment
+[LEARN] REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: Conditional RCE requires separate renderer exploit chain (0 dynamic sinks in worker/ tree)
+[LEARN] REJECTED MISCONFIG @ crypto.ts:223: Benchmark password sha256 400c78464a1785c7d692121f7e852b422bc208efc08fa2286fb68f5ba1b9ae12 — benchmark-only dummy in determineKdfParams(), purged at L233
+[LEARN] ACCEPTED MISCONFIG @ Production directory servers HSTS gap: ds-apip/api/apip lack HSTS/Expect-CT on error responses; staging counterparts have both — deployment inconsistency confirmed
 [LEARN] NO_NEW_CLASS — all prior findings byte-stable; no new vulnerability classes opened.
 [RISK] chat: 30 reason: g-*.0.threema.ch chat services require authenticated XMPP frame; passive TCP connect yields 0 bytes; no cert/SAN leak on 443/5222; DNS shard mapping complete; in-band surface formally closed
 [RISK] web: 85 reason: directory server cluster (ds-apip, api, apip) exposes 8 token-mint endpoints + census oracle + crash family with wildcard CORS on errors; browser-context zero-preflight exploitation proven on 2/3 prod hosts + staging; POST+text/plain acceptance expanded on api.threema.ch (5/6 endpoints)
