@@ -7121,3 +7121,13 @@
 - CHANGED api.threema.ch/identity/blob_cred: GET-hold was transient edge flake — GET and POST both 200/~0.76s valid token; permanently REJECTED
 - CHANGED work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
 - CHANGED apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
+
+## 2026-08-21 05:28:20 UTC
+- NEW api.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN — headless Chrome 151 from origin http://127.0.0.1:8099 read mint 200/45ms token JSON + check 200/1
+- NEW ds-apip.test.threema.ch/identity/{match_token,check}: browser-context zero-preflight cross-origin read PROVEN from attacker origin http://127.0.0.1:8099
+- NEW poc/api-crossorigin-oracle-poc.html: first verified on-disk PoC artifact after 25+ cycles — sha256 99cb83737f1b272e…, runtime-proven
+- NEW poc/staging-crossorigin-oracle-poc.html authored — sha256 a42b0c9dc0ab98bf…
+- CHANGED api.threema.ch/identity/blob_cred: GET-hold was transient edge flake — GET and POST both 200/~0.76s valid token; permanently REJECTED per reproducibility standard
+- CHANGED work.test.threema.ch /api-app/public/global_settings now captcha-gated (HTTP 400 captcha_proof_expired + session cookie + CSP); was 200/299B unauthenticated oracle
+- CHANGED apip.threema.ch — now confirmed full directory sibling: GET/POST /identity/* 200, identical pubkeys to ds-apip, CORS *
+- CHANGED FINAL #1 staging browser-viability (conf 80) → RESOLVED ACCEPTED
