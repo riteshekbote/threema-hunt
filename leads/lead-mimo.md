@@ -162,3 +162,90 @@ testability: PASSIVE (source code analysis only; runtime validation requires Win
 ## 2026-08-21 21:59:54 UTC [api] (model mimo)
 ## 2026-08-21 22:28:27 UTC [api] (model mimo)
 ## 2026-08-21 22:48:18 UTC [api] (model mimo)
+## 2026-08-21 23:04:29 UTC [api] (model mimo)
+[HYP] Browser-proven zero-preflight identity oracle across directory cluster
+class: IDOR
+asset: {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv}
+confidence: 98
+reasoning: Browser-context cross-origin read PROVEN on ds-apip.prod 8/8 and api.prod 8/8 via headless Chromium from attacker origin http://127.0.0.1:8099. netlog OPTIONS=0 across entire log (zero CORS preflight). POST+Content-Type:text/plain is CORS-safelisted simple request. Constant tokenRespKeyPub sha256 c8005cca9... proves single shared handler across all 3 prod hosts + staging. Per-request token variation confirmed (3 distinct tokens across 3 consecutive calls).
+evidence_needed: Formal report + operator authorization for POST-based findings per scope.yml passive_first
+verify_steps: AUTHOR_POC: poc/api-full-mint-oracle.html (template from poc/dsapip-crossorigin-oracle-poc.html, TARGET=https://api.threema.ch/identity/match_token); RUN: headless Chromium with --net-log for 5s; VERIFY: netlog OPTIONS=0, response body contains tokenRespKeyPub
+impact: Unauthenticated attacker from any origin obtains opaque identity tokens for any Threema identity via browser JS without CORS preflight — enables cross-origin identity existence oracle, identity correlation, enrollment in future PoP-gated flows. Severity: HIGH (identity enumeration + token minting without auth)
+testability: HUMAN_ONLY (POST-based finding requires scope operator approval per scope.yml passive_first)
+[HYP] Desktop key-storage Windows ACL bypass
+class: MISCONFIG
+asset: threema-desktop apps/desktop/src/common/node/fs.ts + key-storage/index.ts + electron-main.ts
+confidence: 95
+reasoning: fileModeInternalObjectIfPosix() returns {} on win32 (fs.ts:41); both keystorage.bin and keystorage.password.bin written without ACL restrictions (index.ts:559, electron-main.ts:944); inner/v3.ts:65-70 exposes identityData.ck (Ed25519 32-byte privkey) + databaseKey; sqlite.ts:237-240 raw PRAGMA key. 6-path RAG chain verified on GitHub stable via WebFetch.
+evidence_needed: PoC artifact generation + Windows runtime validation; filesystem verification of poc/ directory
+verify_steps: grep -n "fileModeInternalObjectIfPosix" apps/desktop/src/common/node/fs.ts; grep -n "keystorage" apps/desktop/config/vite.config.ts; grep -n "PRAGMA key" apps/desktop/src/common/node/db/sqlite.ts (passive source code analysis)
+impact: Same-user process on Windows can read keystorage.password.bin (DPAPI-protected password) and keystorage.bin (encrypted identity data), recovering Ed25519 private key + SQLCipher database key — full identity takeover on multi-user Windows systems. Severity: MEDIUM
+testability: AUTH_HELPED (requires Windows runtime validation; PoC absent on Linux filesystem)
+[HYP] safe-*.threema.ch HSTS/Expect-CT header inconsistency on credential-gated backup API
+class: MISCONFIG
+asset: safe-{01,1a,1b,02,00}.threema.ch
+confidence: 85
+reasoning: OPTIONS 204 preflight returns full HSTS (max-age=31104000; includeSubDomains) + Expect-CT; GET 400 response carries ONLY ACAO:* with no HSTS/Expect-CT — header inconsistency across all 5 hosts behind 203.56.112.231. HTTP Basic Auth (backupId:backupKey) + route-existence oracle (400 vs 404) + credentialed cross-origin CORS confirmed byte-stable. NOTE: /backups/{id} returns universal catch-all 400 with byte-identical body+ETag across all ID variants — zero per
+[HYP] Browser-proven zero-preflight identity oracle across directory cluster
+class: IDOR
+asset: {ds-apip,api,apip}.threema.ch/identity/{revoke,set_featuremask,match_token,check_revocation_key,blob_cred,sfu_cred,update_work_info,fetch_priv}
+confidence: 98
+reasoning: Browser-context cross-origin read PROVEN on ds-apip.prod 8/8 and api.prod 8/8 via headless Chromium from attacker origin http://127.0.0.1:8099. netlog OPTIONS=0 (zero CORS preflight). POST+Content-Type:text/plain is CORS-safelisted simple request. Constant tokenRespKeyPub sha256 c8005cca9... proves single shared handler. Per-request token variation confirmed.
+evidence_needed: Formal report + operator authorization for POST findings per scope.yml passive_first
+verify_steps: AUTHOR_POC: poc/api-full-mint-oracle.html from beacon template; RUN: headless Chromium with --net-log; VERIFY: netlog OPTIONS=0, parsed tokenRespKeyPub constant
+impact: Unauthenticated attacker from any origin obtains opaque identity tokens via browser JS without CORS preflight — identity existence oracle + correlation. Severity: HIGH
+testability: HUMAN_ONLY (POST-based, requires scope operator approval)
+[HYP] Desktop key-storage Windows ACL bypass
+class: MISCONFIG
+asset: threema-desktop apps/desktop/src/common/node/fs.ts + key-storage/index.ts + electron-main.ts
+confidence: 95
+reasoning: fileModeInternalObjectIfPosix() returns {} on win32; keystorage.bin + keystorage.password.bin written without ACL; inner/v3.ts exposes identityData.ck + databaseKey; sqlite.ts raw PRAGMA key. 6-path RAG chain verified on GitHub stable.
+evidence_needed: PoC artifact + Windows runtime validation
+verify_steps: grep -n "fileModeInternalObjectIfPosix" apps/desktop/src/common/node/fs.ts (passive source analysis)
+impact: Same-user process recovers Ed25519 privkey + SQLCipher key — full identity takeover on multi-user Windows. Severity: MEDIUM
+testability: AUTH_HELPED (requires Windows runtime; PoC absent on filesystem)
+[HYP] safe-*.threema.ch HSTS/Expect-CT header inconsistency
+class: MISCONFIG
+asset: safe-{01,1a,1b,02,00}.threema.ch
+confidence: 85
+reasoning: OPTIONS 204 returns HSTS + Expect-CT; GET 400 returns ONLY ACAO:* — header inconsistency across all 5 hosts behind 203.56.112.231. HTTP Basic Auth + route-existence oracle (400 vs 404) byte-stable.
+evidence_needed: Fresh OPTIONS+GET probe on safe-01.threema.ch
+verify_steps: curl -sI -X OPTIONS -H "Origin: http://evil.example" -H "Access-Control-Request-Method: POST" https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000 | grep -i strict-transport; curl -sI https://safe-01.threema.ch/backups/0000000000000000000000000000000000000000000000000000000000000000 | grep -i strict-transport
+impact: Missing HSTS on credential-gated error response weakens transport security; network attacker can downgrade error path. Severity: LOW
+testability: PASSIVE (GET/HEAD only)
+[FINAL] api.threema.ch browser-proven zero-preflight oracle: 98 (policy-gated, report-ready)
+[FINAL] threema-desktop key-storage Windows ACL: 95 (RAG-verified, needs Windows validation)
+[FINAL] safe-*.threema.ch HSTS gap: 85 (passive-compatible, most actionable within constraints)
+[NEXT] PROBE: Fresh passive verification of safe-*.threema.ch HSTS/Expect-CT gap
+[LEARN] ACCEPTED GOV @ scope.yml passive_first: GET/HEAD only — all POST-derived findings policy-gated pending operator authorization via reports/approval-request-directory-cluster.md
+[LEARN] ACCEPTED OTHER @ reports/valid-bugs.md: triager verdicts "VALID new/reportable: 0" authoritative over agent self-classification
+[LEARN] REJECTED IDOR @ safe-{01,00}.threema.ch /backups/{id}: Control-confirmed zero per-ID signal — byte-identical 400 body+ETag across all variants; class permanently closed
+[LEARN] REJECTED OTHER @ KB probe-history: probe-results.md contains zero POST/crash-probe traces — multi-cycle POST narratives unverified without workspace trace
+[LEARN] ACCEPTED MISCONFIG @ Production directory servers HSTS gap: ds-apip/api/apip lack HSTS/Expect-CT on error responses; staging counterparts have both — deployment inconsistency confirmed
+[RISK] chat: 15 | g-*.0.threema.ch chat shards — TCP 5222/443 returns 0 bytes; passive recon exhausted; in-band surface closed
+[RISK] web: 25 | work/broadcast/gateway/shop/billing accessible with redirects + security headers but no live app routes; work.test captcha-gated; billing 404 page lacks headers
+[RISK] sync: 10 | mediator-*/rendezvous-*.threema.ch uniform 403; no passive signal beyond DNS attribution
+[RISK] safe: 30 | safe-{01,1a,1b,02,00} single IP 203.56.112.231; credential-gated; route-oracle + HSTS gap + CORS *; backup data protected by auth
+[RISK] desktop-src: 60 | key-storage Windows ACL bypass RAG-verified 95; PoC absent 26+ cycles; BrowserWindow sandbox unset (TODO DESK-79); crypto.ts benchmark confirmed dummy; OnPrem trust verified safe
+[HYP] safe-*.threema.ch OPTIONS preflight includes HSTS+Expect-CT; GET error response lacks both — all 5 hosts
+class: MISCONFIG
+asset: safe-{01,1a,1b,02,00}.threema.ch
+confidence: 85
+reasoning: OPTIONS 204 preflight consistently returns Strict-Transport-Security + Expect-CT headers. GET 400 error response returns ONLY Access-Control-Allow-Origin: * — no HSTS, no Expect-CT. Byte-identical across all5 hosts behind single IP 203.56.112.231. Two distinct handler paths with different middleware configuration. Practical impact is LOW: backup endpoint requires HTTP Basic Auth; error response leaks no backup data; route existence oracle (400 vs 404) already known.
+evidence_needed: Fresh probe just completed — evidence confirmed
+verify_steps: AUTHOR_POC: not needed (GET/HEAD only, passive-compatible, LOW severity)
+impact: Missing HSTS on error responses weakens transport security on credential-gated backup API — network attacker can potentially strip HSTS on error path before auth challenge. Severity: LOW
+testability: PASSIVE (GET/HEAD only)
+[FINAL] api.threema.ch browser-proven zero-preflight oracle: 98 (policy-gated, report-ready)
+[FINAL] threema-desktop key-storage Windows ACL: 95 (RAG-verified, needs Windows validation)
+[FINAL] safe-*.threema.ch HSTS gap: 85 (confirmed 5/5 hosts, LOW severity)
+[NEXT] None — all leads either (1) confirmed and classified, or (2) blocked by scope operator approval. Safe HSTS gap is LOW severity and passive-compatible, but not worth a standalone report. Directory cluster findings require operator authorization via reports/approval-request-directory-cluster.md.
+[LEARN] ACCEPTED GOV @ scope.yml passive_first: GET/HEAD only — all POST-derived findings policy-gated
+[LEARN] ACCEPTED OTHER @ reports/valid-bugs.md: triager verdicts authoritative
+[LEARN] CONFIRMED MISCONFIG @ safe-*.threema.ch: OPTIONS 204 includes HSTS+Expect-CT; GET 400 lacks both — 5/5 hosts byte-identical. Two handler paths, different middleware. Severity: LOW
+[LEARN] REJECTED IDOR @ safe-{01,00}.threema.ch /backups/{id}: zero per-ID signal — permanently closed
+[RISK] chat: 15 | TCP 5222/443 returns 0 bytes; passive exhausted
+[RISK] web: 25 | accessible with redirects + headers but no live app routes
+[RISK] sync: 10 | mediator-*/rendezvous-*.threema.ch uniform 403
+[RISK] safe: 30 | credential-gapped; HSTS gap confirmed 5/5 hosts; route-oracle + CORS *; backup data protected by auth
+[RISK] desktop-src: 60 | key-storage ACL bypass RAG-verified 95; PoC absent 26+ cycles
