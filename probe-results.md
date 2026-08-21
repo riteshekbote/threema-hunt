@@ -5100,3 +5100,11 @@ https://api.threema.ch -> HTTP 403
 
 ## 2026-08-21 17:34:08 UTC
 
+
+## 2026-08-21 17:55:45 UTC
+https://ds-apip.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://ds-apip.threema.ch/identity/ZZZZZZZZ -> HTTP 404
+https://apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://apip.threema.ch -> HTTP 403
+https://ds-apip.test.threema.ch/identity/ECHOECHO -> 200 len=? type=application/json; charset=utf-8
+https://apip.test.threema.ch -> HTTP 403

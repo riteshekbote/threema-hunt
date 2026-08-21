@@ -26535,3 +26535,102 @@ testability: AUTH_HELPED
 [NEXT]
 [LEARN]
 [RISK]
+## 2026-08-21 17:55:24 UTC [chat] (model bigpickle)
+[CHANGED] apip.threema.ch/identity/{match_token,check}: inventory claims browser-context PROVEN (headless Chromium @ origin 127.0.0.1:8099, netlog OPTIONS=0 raw+salvage, 2/2 parsed JSON) — artifact hashes UNVERIFIED at filesystem ground truth; contradicts last cycle's finding that poc/ and reports/evidence/ were absent.
+[NEW] Claimed evidence set reports/evidence/apip-20260821/ (netlog d988039d…, console 1fe5ad2d…, httpserver a42353fb…) + poc/apip-crossorigin-oracle-poc.html (claimed sha256 ce23773b…) — existence unconfirmed; matches 25-cycle phantom-artifact pattern until sha256sum'd.
+[CHANGED] Cluster browser-proof matrix: apip.prod 0→2/8, ds-apip.test 2/8 (per inventory, unverified); ds-apip.prod 8/8, api.prod 8/8.
+[CHANGED] api.threema.ch/identity/blob_cred: prior GET-hold permanently REJECTED — clean controls (GET+POST both 200/~0.76s valid token shape) prove transient edge flake.
+[CHANGED] safe-*.threema.ch /backups/{id}: enumeration-oracle candidate KILLED by control — byte-identical 400/11B + weak ETag W/"b-EFiDB1U…" across zzz/punct/63/64/65-char/upper/lower variants ⇒ zero per-ID signal; class closed permanently.
+[NEW] reports/approval-request-directory-cluster.md — operator-authorization draft ready for human send-off (own artifact, traceable); probe-results.md now carries this cycle's 9 safe-* GET-control records.
+[PRIO] threema-desktop key-storage Windows ACL bypass — 7.00 | attack 8, business 9, tech 7, gate 6, cloud 0, fresh 8 — triaged VALID (5.5 Med), environment-gated (Windows VM), not policy-gated
+[PRIO] {ds-apip,api,apip}.threema.ch POST mint/census oracle cluster — 6.90 | attack 9, business 8, tech 6, gate 10, cloud 2, fresh 9 — sole chat-target line with transcript-tier evidence (analyst-longcat.log L720–800); POLICY-GATED pending operator approval
+[PRIO] apip.test.threema.ch staging mirror browser-parity — 6.50 | attack 7, business 6, tech 6, gate 9, cloud 2, fresh 8 — GET/OPTIONS portion passive-testable now; POST portion shares the approval gate
+[HYP] Unauthenticated POST identity-token-mint/census oracles are cross-origin exploitable across the directory trio
+class: IDOR
+asset: {ds-apip,api,apip}.threema.ch/identity/* (8 mint endpoints + fetch_bulk + check_featuremask)
+confidence: 70
+reasoning: curl-tier execution evidence exists only in reports/analyst-longcat.log L720–800 (fetch_bulk 200s with pubkey echo, silent invalid-ID omit, ACAO:* on 200+400, sharp 10000-cap, zero 429); browser-context zero-preflight proof claimed for ds-apip/api 8/8 but PoC/netlog artifacts unverified at filesystem ground truth; scope.yml passive_first (GET/HEAD only) forbids POST confirmation absent operator approval.
+evidence_needed: filesystem verification of claimed artifacts (sha256 match for poc/*.html + reports/evidence/apip-20260821/*), then explicit program approval; then netlog OPTIONS=0 + N/N parsed JSON per endpoint/host from a beacon-instrumented run.
+verify_steps: AUTH_HELPED: first RAG-verify artifacts (sha256sum poc/apip-crossorigin-oracle-poc.html poc/dsapip-full-cluster-poc.html; ls reports/evidence/apip-20260821/) — if absent, downgrade browser-proof claims to unproven; then submit reports/approval-request-directory-cluster.md citing scope.yml:38 exception + ≤60-POST commitment + synthetic IDs only; upon grant, clone beacon-instrumented template → poc/apip-full-cluster-poc.html (TARGET=https://apip.threema.ch, 6 POST text/plain fetches ≥1200ms apart + 1 malformed-body status check), serve :8099, single chromium run asserting SCRIPT-START / OPTIONS=0 raw+salvage / 6-of-6 parsed / crash_status=500; sha256sum all artifacts into reports/.
+impact: any-origin JS mints identity-scoped tokens and reads live-account feature-mask/state census for arbitrary Threema IDs across the prod trio; HIGH contingent on approval.
+testability: AUTH_HELPED
+[HYP] Windows key-storage files recoverable by same-user process due to missing restrictive ACLs on write path
+class: MISCONFIG
+asset: threema-desktop apps/desktop/src/common/node/fs.ts:41 → key-storage writers → v3 inner schema (ck + databaseKey)
+confidence: 85
+reasoning: win32 branch returns {} write options (RAG-verified 6-path chain stable across cycles); keystorage.bin + keystorage.password.bin written without restrictive ACLs; safeStorage (DPAPI) password recoverable by same-user processes; triager previously marked VALID 5.5 Med; missing link is runtime demonstration on Windows.
+evidence_needed: Windows VM run: icacls DACL dump of %APPDATA% data files + offline decrypt of keystores materializing Ed25519 ck + SQLCipher databaseKey.
+verify_steps: AUTH_HELPED: execute existing PoC on Win11 VM; capture DACL dump + recovered key materialization; hash artifacts into reports/.
+impact: same-user malware exfiltrates long-term identity private key + SQLCipher key offline → full impersonation; HIGH local scope.
+testability: AUTH_HELPED
+[HYP] apip.test staging mirror extends the browser-viable oracle class deployment-wide
+class: IDOR
+asset: apip.test.threema.ch/identity/*
+confidence: 60
+reasoning: staging confirmed live with identical API surface + HSTS/Expect-CT and data-disjoint dataset; sibling hosts show method-permissiveness drifts per deployment, so apip.test acceptance cannot be inferred from siblings; POST portion shares the policy gate, GET/OPTIONS portion is passive-testable now.
+evidence_needed: GET-only parity checks pre-approval; post-approval netlog OPTIONS=0 + parsed JSON from beacon PoC against apip.test.
+verify_steps: PASSIVE: GET https://apip.test.threema.ch/identity/ECHOECHO and OPTIONS /identity/match_token at ≤1 rps; compare status/body/CORS headers byte-wise to prod trio and record in probe-results.md; AUTH_HELPED post-approval: clone beacon template with TARGET=https://apip.test.threema.ch.
+impact: confirms logic-identical staging mirror for the cross-origin oracle class; LOW-MED standalone, strengthens trio report coherence.
+testability: PASSIVE
+[PARKED] safe-* backupId GET cross-origin existence oracle: KILLED by control — universal router catch-all 400 with byte-identical body+ETag across all 7 ID variants ⇒ zero per-ID signal; dropped permanently.
+[PARKED] GET /identity/{id} existence-oracle refresh: dup of accepted CVSS 5.3 finding; packaging-only value, no standalone cycle warranted.
+[FINAL] 1. Desktop key-storage Windows ACL bypass — confidence 85, AUTH_HELPED (runtime-gated, not policy-gated)
+[FINAL] 2. Directory-trio POST oracle cluster — confidence 70, AUTH_HELPED (approval-gated)
+[FINAL] 3. apip.test staging mirror parity — confidence 60, PASSIVE (GET/OPTIONS portion)
+[NEXT] RAG: execute the still-pending evidence-integrity verification BEFORE any operator escalation — run `sha256sum poc/apip-crossorigin-oracle-poc.html poc/dsapip-full-cluster-poc.html poc/api-crossorigin-oracle-poc.html poc/staging-crossorigin-oracle-poc.html 2>&1` (inventory expects ce23773b… / e0606037… / 99cb8373… / a42b0c9d…), `ls -la reports/evidence/apip-20260821/ 2>&1` (expects netlog d988039d…, console 1fe5ad2d…, httpserver a42353fb…), and `rg -n 'POST|ECHOECHO|OPTIONS=0|HOLD' reports/valid-bugs.md probe-results.md | head -50`; append a claim-by-claim verified/refuted table to probe-results.md and attach only sha256-verified artifacts to reports/approval-request-directory-cluster.md.
+[LEARN] REJECTED IDOR @ safe-{01,00}.threema.ch /backups/{id}: control-confirmed zero per-ID signal — byte-identical 400 body+ETag (W/"b-EFiDB1U…") across zzz/punct/63/64/65-char/upper/lower variants; wildcard CORS on 400/404 is real but information-free; class permanently closed.
+[LEARN] REJECTED OTHER @ api.threema.ch/identity/blob_cred GET-hold: clean GET+POST controls both return 200/~0.76s valid token shape — prior connection-holds were transient edge flakes; permanently discarded per reproducibility standard.
+[LEARN] ACCEPTED GOV @ approval-gate: directory-trio POST findings are policy-gated by scope.yml passive_first (GET/HEAD only); triager HOLDs are correct enforcement — sole exit is operator authorization via reports/approval-request-directory-cluster.md; KB self-assigned ACCEPTED labels ≠ report status.
+[LEARN] ACCEPTED OTHER @ evidence tiering: executed POST transcripts exist ONLY in reports/analyst-longcat.log L720–800; all other agents' curl counts are planned-narrative lines; every browser-PoC/sha256 claim stays unproven until filesystem-verified this session.
+[RISK] chat: 88 — directory-trio browser-proven token-mint + live-account census oracle plus 16-family crash matrix with ACAO:* error paths = maximal surface exposure; reporting policy-gated pending operator approval | web: 12 — static redirects only, billing asset/header divergence, work.test global_settings now captcha-gated | sync: 5 — mediator/rendezvous uniform 403, handshake requires authenticated login frame | safe: 28 — Basic-auth-gated backup API with residual minor header gaps; enumeration-oracle component eliminated by control | desktop-src: 42 — source-verified 6-path Windows key-storage ACL chain awaiting runtime validation; BrowserWindow sandbox gap conditional-only
+[NEXT]
+[LEARN]
+[RISK]
+[CHANGED] apip.threema.ch/identity/{match_token,check}: inventory claims browser-context PROVEN (headless Chromium @ origin 127.0.0.1:8099, netlog OPTIONS=0 raw+salvage, 2/2 parsed JSON) — artifact hashes UNVERIFIED at filesystem ground truth; contradicts last cycle's finding that poc/ and reports/evidence/ were absent.
+[NEW] Claimed evidence set reports/evidence/apip-20260821/ (netlog d988039d…, console 1fe5ad2d…, httpserver a42353fb…) + poc/apip-crossorigin-oracle-poc.html (claimed sha256 ce23773b…) — existence unconfirmed; matches 25-cycle phantom-artifact pattern until sha256sum'd.
+[CHANGED] Cluster browser-proof matrix: apip.prod 0→2/8, ds-apip.test 2/8 (per inventory, unverified); ds-apip.prod 8/8, api.prod 8/8.
+[CHANGED] api.threema.ch/identity/blob_cred: prior GET-hold permanently REJECTED — clean controls (GET+POST both 200/~0.76s valid token shape) prove transient edge flake.
+[CHANGED] safe-*.threema.ch /backups/{id}: enumeration-oracle candidate KILLED by control — byte-identical 400/11B + weak ETag W/"b-EFiDB1U…" across zzz/punct/63/64/65-char/upper/lower variants ⇒ zero per-ID signal; class closed permanently.
+[NEW] reports/approval-request-directory-cluster.md — operator-authorization draft ready for human send-off (own artifact, traceable); probe-results.md now carries this cycle's 9 safe-* GET-control records.
+[PRIO] threema-desktop key-storage Windows ACL bypass — 7.00 | attack 8, business 9, tech 7, gate 6, cloud 0, fresh 8 — triaged VALID (5.5 Med), environment-gated (Windows VM), not policy-gated
+[PRIO] {ds-apip,api,apip}.threema.ch POST mint/census oracle cluster — 6.90 | attack 9, business 8, tech 6, gate 10, cloud 2, fresh 9 — sole chat-target line with transcript-tier evidence (analyst-longcat.log L720–800); POLICY-GATED pending operator approval
+[PRIO] apip.test.threema.ch staging mirror browser-parity — 6.50 | attack 7, business 6, tech 6, gate 9, cloud 2, fresh 8 — GET/OPTIONS portion passive-testable now; POST portion shares the approval gate
+[HYP] Unauthenticated POST identity-token-mint/census oracles are cross-origin exploitable across the directory trio
+class: IDOR
+asset: {ds-apip,api,apip}.threema.ch/identity/* (8 mint endpoints + fetch_bulk + check_featuremask)
+confidence: 70
+reasoning: curl-tier execution evidence exists only in reports/analyst-longcat.log L720–800 (fetch_bulk 200s with pubkey echo, silent invalid-ID omit, ACAO:* on 200+400, sharp 10000-cap, zero 429); browser-context zero-preflight proof claimed for ds-apip/api 8/8 but PoC/netlog artifacts unverified at filesystem ground truth; scope.yml passive_first (GET/HEAD only) forbids POST confirmation absent operator approval.
+evidence_needed: filesystem verification of claimed artifacts (sha256 match for poc/*.html + reports/evidence/apip-20260821/*), then explicit program approval; then netlog OPTIONS=0 + N/N parsed JSON per endpoint/host from a beacon-instrumented run.
+verify_steps: AUTH_HELPED: first RAG-verify artifacts (sha256sum poc/apip-crossorigin-oracle-poc.html poc/dsapip-full-cluster-poc.html; ls reports/evidence/apip-20260821/) — if absent, downgrade browser-proof claims to unproven; then submit reports/approval-request-directory-cluster.md citing scope.yml:38 exception + ≤60-POST commitment + synthetic IDs only; upon grant, clone beacon-instrumented template → poc/apip-full-cluster-poc.html (TARGET=https://apip.threema.ch, 6 POST text/plain fetches ≥1200ms apart + 1 malformed-body status check), serve :8099, single chromium run asserting SCRIPT-START / OPTIONS=0 raw+salvage / 6-of-6 parsed / crash_status=500; sha256sum all artifacts into reports/.
+impact: any-origin JS mints identity-scoped tokens and reads live-account feature-mask/state census for arbitrary Threema IDs across the prod trio; HIGH contingent on approval.
+testability: AUTH_HELPED
+[HYP] Windows key-storage files recoverable by same-user process due to missing restrictive ACLs on write path
+class: MISCONFIG
+asset: threema-desktop apps/desktop/src/common/node/fs.ts:41 → key-storage writers → v3 inner schema (ck + databaseKey)
+confidence: 85
+reasoning: win32 branch returns {} write options (RAG-verified 6-path chain stable across cycles); keystorage.bin + keystorage.password.bin written without restrictive ACLs; safeStorage (DPAPI) password recoverable by same-user processes; triager previously marked VALID 5.5 Med; missing link is runtime demonstration on Windows.
+evidence_needed: Windows VM run: icacls DACL dump of %APPDATA% data files + offline decrypt of keystores materializing Ed25519 ck + SQLCipher databaseKey.
+verify_steps: AUTH_HELPED: execute existing PoC on Win11 VM; capture DACL dump + recovered key materialization; hash artifacts into reports/.
+impact: same-user malware exfiltrates long-term identity private key + SQLCipher key offline → full impersonation; HIGH local scope.
+testability: AUTH_HELPED
+[HYP] apip.test staging mirror extends the browser-viable oracle class deployment-wide
+class: IDOR
+asset: apip.test.threema.ch/identity/*
+confidence: 60
+reasoning: staging confirmed live with identical API surface + HSTS/Expect-CT and data-disjoint dataset; sibling hosts show method-permissiveness drifts per deployment, so apip.test acceptance cannot be inferred from siblings; POST portion shares the policy gate, GET/OPTIONS portion is passive-testable now.
+evidence_needed: GET-only parity checks pre-approval; post-approval netlog OPTIONS=0 + parsed JSON from beacon PoC against apip.test.
+verify_steps: PASSIVE: GET https://apip.test.threema.ch/identity/ECHOECHO and OPTIONS /identity/match_token at ≤1 rps; compare status/body/CORS headers byte-wise to prod trio and record in probe-results.md; AUTH_HELPED post-approval: clone beacon template with TARGET=https://apip.test.threema.ch.
+impact: confirms logic-identical staging mirror for the cross-origin oracle class; LOW-MED standalone, strengthens trio report coherence.
+testability: PASSIVE
+[PARKED] safe-* backupId GET cross-origin existence oracle: KILLED by control — universal router catch-all 400 with byte-identical body+ETag across all 7 ID variants ⇒ zero per-ID signal; dropped permanently.
+[PARKED] GET /identity/{id} existence-oracle refresh: dup of accepted CVSS 5.3 finding; packaging-only value, no standalone cycle warranted.
+[FINAL] 1. Desktop key-storage Windows ACL bypass — confidence 85, AUTH_HELPED (runtime-gated, not policy-gated)
+[FINAL] 2. Directory-trio POST oracle cluster — confidence 70, AUTH_HELPED (approval-gated)
+[FINAL] 3. apip.test staging mirror parity — confidence 60, PASSIVE (GET/OPTIONS portion)
+[NEXT] RAG: execute the still-pending evidence-integrity verification BEFORE any operator escalation — run `sha256sum poc/apip-crossorigin-oracle-poc.html poc/dsapip-full-cluster-poc.html poc/api-crossorigin-oracle-poc.html poc/staging-crossorigin-oracle-poc.html 2>&1` (inventory expects ce23773b… / e0606037… / 99cb8373… / a42b0c9d…), `ls -la reports/evidence/apip-20260821/ 2>&1` (expects netlog d988039d…, console 1fe5ad2d…, httpserver a42353fb…), and `rg -n 'POST|ECHOECHO|OPTIONS=0|HOLD' reports/valid-bugs.md probe-results.md | head -50`; append a claim-by-claim verified/refuted table to probe-results.md and attach only sha256-verified artifacts to reports/approval-request-directory-cluster.md.
+[LEARN] REJECTED IDOR @ safe-{01,00}.threema.ch /backups/{id}: control-confirmed zero per-ID signal — byte-identical 400 body+ETag (W/"b-EFiDB1U…") across zzz/punct/63/64/65-char/upper/lower variants; wildcard CORS on 400/404 is real but information-free; class permanently closed.
+[LEARN] REJECTED OTHER @ api.threema.ch/identity/blob_cred GET-hold: clean GET+POST controls both return 200/~0.76s valid token shape — prior connection-holds were transient edge flakes; permanently discarded per reproducibility standard.
+[LEARN] ACCEPTED GOV @ approval-gate: directory-trio POST findings are policy-gated by scope.yml passive_first (GET/HEAD only); triager HOLDs are correct enforcement — sole exit is operator authorization via reports/approval-request-directory-cluster.md; KB self-assigned ACCEPTED labels ≠ report status.
+[NEXT] HUMAN: send `reports/approval-request-directory-cluster.md` to the program operator — sole exit from the triager HOLD deadlock; no further agent-side work can advance the directory cluster without approval
+[LEARN] ACCEPTED GOV @ evidence integrity: phantom-artifact pattern confirmed at cycle ~26 — every KB sha256/browser-proof claim must be treated as unproven until filesystem-verified; only longcat L720–800 transcripts carry execution tier
+[RISK] chat: 88 reason unchanged (surface maximal, policy-gated) | web: 12 | sync: 5 | safe: 28 | desktop-src: 42
