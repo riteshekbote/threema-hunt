@@ -2355,6 +2355,9 @@
 - 2026-08-21 ACCEPTED MISCONFIG @ ds-apip.test.threema.ch/identity/{match_token,check}: staging mirror is browser-viable identically to production — zero-preflight cross-origin reads proven from http://127.0.0.1:8099 (netlog OPTIONS=0 across entire log; parsed mint JSON with constant tokenRespKeyPub + batch check states/masks). Deployment-wide claim now spans prod trio + staging.
 - 2026-08-21 TECH @ headless-evidence-capture: console-only capture can silently produce a dead run (no JS execution, no threema netlog entries); robust pattern = --v=1 + local GET-beacon channel (?line=… back to own origin server) + mandatory SCRIPT-START assertion before trusting any single run.
 - 2026-08-21 TECH @ CORS-read-proof semantics: r.headers.get("access-control-allow-origin") returns null even when ACAO:* is granted (response header not JS-exposed); the successful cross-origin body read IS the CORS proof — never score cors:null as failure.
+- 2026-08-21 ACCEPTED IDOR @ ds-apip.threema.ch/identity/* remaining-6: browser-context zero-preflight token minting PROVEN (netlog OPTIONS=0, 6/6 parsed JSON, per-request tokens, constant key). Full 8/8 cluster browser-proven on ds-apip.threema.ch.
+- 2026-08-21 ACCEPTED MISCONFIG @ ds-apip.threema.ch: ECHOECHO mints valid-shape tokens (133-136B) on all 6 endpoints — minting does not gate on identity existence for these routes; unauthenticated browser JS obtains opaque tokens directly.
+- 2026-08-21 TECH: beacon-instrumented template (SCRIPT-START assertion + Image() GET beacons + netlog `"method"` census) produced a live run first attempt — reuse verbatim for sibling hosts; netlog POST_COUNT=18 includes socket-internal entries, OPTIONS=0 is the authoritative preflight metric.
 === INVENTORY gladia ===
 # Inventory: threema
 
