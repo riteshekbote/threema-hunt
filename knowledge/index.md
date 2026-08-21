@@ -2405,3 +2405,7 @@
 - 2026-08-21 ACCEPTED GOV @ scope.yml passive_first: GET/HEAD only — all POST-derived findings policy-gated pending operator authorization via reports/approval-request-directory-cluster.md
 - 2026-08-21 ACCEPTED OTHER @ probe-results.md: zero POST/crash-probe records — KB multi-cycle POST narratives unverified without workspace trace
 - 2026-08-21 ACCEPTED OTHER @ reports/valid-bugs.md: triager verdicts "VALID new/reportable: 0" authoritative over agent self-classification
+- 2026-08-21 REJECTED IDOR @ safe-{01,00}.threema.ch /backups/{id}: Control-confirmed zero per-ID signal — byte-identical 400 body+ETag across all variants; class permanently closed.
+- 2026-08-21 ACCEPTED GOV @ scope.yml passive_first: GET/HEAD only — all POST-derived findings policy-gated pending operator authorization via reports/approval-request-directory-cluster.md.
+- 2026-08-21 ACCEPTED OTHER @ probe-results.md: zero POST/crash-probe records — KB multi-cycle POST narratives unverified without workspace trace.
+- 2026-08-21 ACCEPTED OTHER @ reports/valid-bugs.md: triager verdicts "VALID new/reportable: 0" authoritative over agent self-classification.
