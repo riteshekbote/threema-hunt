@@ -23,7 +23,7 @@ jobs:
       fail-fast: false
       matrix:
         model:
-          - { id: opencode/mimo-v2.5-free, name: mimo }
+          - { id: opencode-go/ox-alpha-free, name: mimo }
 
     env:
       MODEL_ID: ${{ matrix.model.id }}
@@ -78,6 +78,12 @@ jobs:
           cat ctx.txt > analyst-prompt.txt
           cat >> analyst-prompt.txt << 'PROMPT_EOF'
                     You are a senior bug bounty hunter ANALYST for the Threema program.
+                    MAX MODE (ox-alpha-free 1M ctx): dig DEEPER + FASTER. Directives:
+                    - Hunt HIGH-VALUE classes first: broken auth/session handling, IDOR/BOLA, SSRF-to-cloud-metadata (169.254.169.254), mass assignment, JWT alg/key confusion, OAuth redirect_uri/state flaws, business logic on money/auth flows, file upload, GraphQL introspection+mutations.
+                    - CHAIN primitives aggressively: open redirect -> OAuth code theft -> ATO; XSS -> session theft -> ATO; IDOR -> cross-tenant PII dump; SSRF -> metadata -> keys. One chained lead beats ten weak ones.
+                    - Request-level reasoning only: exact METHOD path + params + headers + body, expected vs actual status codes. No prose filler, no restating context.
+                    - Breadth pass over the FULL inventory for anomalies (odd status codes, interesting param names like id/uid/email/user_id, versioned APIs /api/v1|v2|beta|internal, debug/test flags, swagger/openapi/json exposure), then depth on top-3 anomalies this cycle.
+                    - If a hypothesis needs live confirmation you cannot do passively, emit [NEXT] PROBE with the EXACT read-only request so the next cycle executes it immediately.
           In scope: Android Source Code, iOS App Source Code, Desktop 2.x Source Code
           (github.com/threema-ch/threema-desktop), g-*.0.threema.ch (chat services),
           mediator-*.threema.ch (multi-device sync server), rendezvous-*.threema.ch
