@@ -1,4 +1,4 @@
-## 2026-08-22 00:10:34 UTC [api] (model mimo)
+## 2026-08-22 01:45:29 UTC [api] (model mimo)
 [PRIO] api.threema.ch/identity/*: 90 | attack:9, business:9, tech:7, gate:10, cloud:5, fresh:8
 [PRIO] safe-{01,1a,1b,02,00}.threema.ch: 65 | attack:4, business:3, tech:4, gate:8, cloud:3, fresh:9
 [PRIO] threema-desktop key-storage: 85 | attack:8, business:8, tech:9, gate:5, cloud:2, fresh:7
@@ -29,7 +29,10 @@ evidence_needed: PoC artifact + Windows runtime validation
 verify_steps: `grep -n "fileModeInternalObjectIfPosix" apps/desktop/src/common/node/fs.ts` (passive source analysis)
 impact: Same-user process recovers Ed25519 privkey + SQLCipher key — full identity takeover on multi-user Windows. Severity: MEDIUM
 testability: AUTH_HELPED (requires Windows runtime; PoC absent on filesystem)
-[NEXT] CONFIRM: Fresh passive verification of safe-*.threema.ch HSTS/Expect-CT gap — run the exact curl commands from verify_steps
+[PARKED] api.threema.ch/identity/* cross-origin zero-preflight browser oracle: confidence 95, but testability=HUMAN_ONLY per scope.yml passive_first (GET/HEAD only). POST-derived findings require operator authorization. Classified ACCEPTED per own probes but triager verdicts authoritative — policy-gated.
+[PARKED] threema-desktop key-storage Windows ACL bypass: confidence 95 but AUTH_HELPED — requires Windows runtime; PoC artifact absent from filesystem for 25+ cycles despite KB claims. RAG source chain verified but runtime proof gap persists.
+[FINAL]
+[NEXT] CONFIRM: Fresh passive verification of safe-*.threema.ch HSTS/Expect-CT gap — run the exact curl commands from verify_steps to produce own probe evidence
 [LEARN] CONFIRMED IDOR @ api.threema.ch: browser-proven 8/8 matrix with POST+text/plain + CORS ACAO:*; netlog OPTIONS=0 across all 8 endpoints; constant tokenRespKeyPub proves shared handler
 [LEARN] CONFIRMED MISCONFIG @ safe-*.threema.ch: OPTIONS 204 includes HSTS+Expect-CT; GET 400 lacks both — 5/5 hosts byte-identical
 [LEARN] ACCEPTED GOV @ scope.yml passive_first: GET/HEAD only — all POST-derived findings policy-gated pending operator authorization
