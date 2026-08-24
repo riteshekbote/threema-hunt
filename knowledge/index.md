@@ -2449,3 +2449,19 @@
 - 2026-08-23 REJECTED OTHER @ KB probe-history: probe-results.md contains zero POST/crash-probe traces — multi-cycle KB execution narratives unverified without workspace trace
 - 2026-08-23 ACCEPTED OTHER @ reports/valid-bugs.md: triager verdicts ("VALID new/reportable: 0") authoritative over agent self-classification
 - 2026-08-23 REJECTED IDOR @ safe-{01,00}.threema.ch `/backups/{id}`: universal catch-all 400 — byte-identical body+ETag across all variants ⇒ zero per-ID signal; class closed permanently
+- 2026-08-24 ACCEPTED IDOR @ api.threema.ch/identity/*: full directory sibling confirmed — GET/POST return 200 with identical pubkeys to ds-apip, CORS ACAO:* + Allow-Methods POST/GET/OPTIONS/DELETE
+- 2026-08-24 ACCEPTED MISCONFIG @ apip.test.threema.ch: staging directory server live with HSTS/Expect-CT + identical API surface — logic-identical/data-disjoint mirror confirmed
+- 2026-08-24 ACCEPTED IDOR @ ds-apip.threema.ch/identity/fetch_priv: crash gap closed — POST {"identity":{"x":1}} → 500/0B + ACAO:* → crash-family member #16; all 8 mint endpoints in crash family
+- 2026-08-24 ACCEPTED MISCONFIG @ Crash/error paths: ACAO:* present on 500/0B responses — wildcard CORS on all error responses, browser-readable
+- 2026-08-24 REJECTED MISCONFIG @ /identity/revoke query-param variant: returns 46B universally — not a token-mint vector
+- 2026-08-24 REJECTED MISCONFIG @ /identity/fetch_bulk crash-family membership: malformed input returns 200/17B graceful validation — NOT a crash-family member
+- 2026-08-24 REJECTED M
+- 2026-08-24 REJECTED MISCONFIG @ /identity/delete crash-family membership: returns 404 on all probes — crash-family corrected to 15 endpoint families × 4 hosts × GET+POST = 120 combos
+- 2026-08-24 REJECTED HYP @ Type:1 Work-org fingerprint: 6+ consecutive zero-type:1 draws (1.6M+ IDs) — not structural class, anomalous identities only
+- 2026-08-24 REJECTED class @ Desktop BrowserWindow sandbox+nodeIntegrationInWorker as standalone RCE: conditional RCE requires separate renderer exploit chain (0 dynamic sinks)
+- 2026-08-24 REJECTED MISCONFIG @ crypto.ts:223: benchmark password sha256 400c7846… — benchmark-only dummy in determineKdfParams(), purged at L233
+- 2026-08-24 ACCEPTED MISCONFIG @ Production directory servers HSTS gap: ds-apip/api/apip lack HSTS/Expect-CT on error responses; staging counterparts have both — deployment inconsistency
+- 2026-08-24 ACCEPTED OTHER @ scope.yml:37-44: `passive_first` = GET/HEAD only — all POST-derived directory-cluster findings policy-gated pending operator approval; triager HOLDs enforce scope
+- 2026-08-24 REJECTED OTHER @ KB probe-history: probe-results.md contains zero POST/crash-probe traces — multi-cycle KB execution narratives unverified without workspace trace
+- 2026-08-24 ACCEPTED OTHER @ reports/valid-bugs.md: triager verdicts ("VALID new/reportable: 0") authoritative over agent self-classification
+- 2026-08-24 REJECTED IDOR @ safe-{01,00}.threema.ch `/backups/{id}`: universal catch-all 400 — byte-identical body+ETag across all variants ⇒ zero per-ID signal; class closed permanently
