@@ -1,5 +1,5 @@
 
-===== REPOSCAN 2026-10-17 21:41:55 UTC =====
+===== REPOSCAN 2026-10-17 22:17:46 UTC =====
 ## Grep hits:
 SCAN SUMMARY: 6913 code/config files scanned, 68 hits
 reposcan-raw/threema-ch/threema-android/buildSrc/src/main/kotlin/config/SentryConfig.kt:15: publicApiKey = "b3e20afbf356a8748bb62ac165aa780c",
@@ -47,6 +47,6 @@ reposcan-raw/threema-ch/threema-ios/ThreemaTests/License/LicenseCredentialsTests
   "name": "UnknownError",
   "data": {
     "message": "Unexpected server error. Check server logs for details.",
-    "ref": "err_d9ff3c4b"
+    "ref": "err_f0f7f96c"
   }
 }
